@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 메리츠 영업지원도구(tool.html) 약관 본문 복구 스크립트
-- 저장소 루트에서 실행: python3 scripts/recover_terms.py
+- 실행: python3 recover_terms.py (저장소 루트 또는 scripts/ 폴더 어디에 두어도 됨)
 - 입력: tool.html(내장 DATA), 약관 PDF 4종(파일명에 통합간편/케어프리/운전자/치아 포함)
 - 동작: PDF에서 특약 제목("N. ○○보장 특별약관" + 제1조)을 찾아 다음 제목까지를 본문으로 다시 잘라내고,
         별표(분류표)는 두 단 배치를 유지해 재추출한 뒤 tool.html 의 DATA 를 갱신한다.
@@ -10,7 +10,9 @@
 import json, re, os, sys, glob, difflib, collections
 import pymupdf
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 저장소 루트 = tool.html 이 있는 폴더 (스크립트가 루트에 있든 scripts/ 안에 있든 동작)
+_here = os.path.dirname(os.path.abspath(__file__))
+ROOT = _here if os.path.exists(os.path.join(_here, 'tool.html')) else os.path.dirname(_here)
 TOOL = os.path.join(ROOT, 'tool.html')
 PRODS = ['통합간편', '케어프리', '운전자', '치아']
 PDF = {}
