@@ -166,6 +166,192 @@
        box-shadow:0 8px 22px rgba(217,119,6,.4)}
   .top.on{display:block}
   @media(max-width:560px){ .hd h1{font-size:19px} .rara{width:56px; height:72px} }
+
+  /* ── 예외질환 판정 탭 (간편보험 예외질환 시뮬레이터 이식) ── */
+  #viewEx, #ex-mask{
+    --blue-d:var(--blueDeep); --blue-l:var(--blueSoft); --blue-xl:#FFFDF5;
+    --red:var(--meritz); --red-l:#FDECEE; --green:#047857; --green-l:#ECFDF5;
+    --yellow:#F59E0B; --yellow-l:var(--warnBg);
+    --g900:var(--ink); --g800:#2B3445; --g700:var(--sub); --g600:var(--sub); --g500:var(--mute);
+    --g400:#A5ADBB; --g300:#D5DAE3; --g200:var(--line); --g100:#F1F4F9; --g50:#F8FAFD; --w:#fff;
+    --r-l:15px; --r-m:12px; --r-s:9px;
+  }
+  #viewEx .ex-intro{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 16px 14px; margin:2px 0 12px}
+  #viewEx .ex-intro .eyebrow{display:inline-block; font-size:11px; font-weight:900; color:var(--blue); background:var(--blueSoft);
+        border:1px solid var(--blueLine); padding:3px 9px; border-radius:999px}
+  #viewEx .ex-intro h2{margin:9px 0 0; font-size:18px; font-weight:900; letter-spacing:-.03em; line-height:1.35}
+  #viewEx .ex-intro p{margin:6px 0 0; font-size:12.5px; color:var(--sub); font-weight:600; line-height:1.6}
+  #viewEx .card{background:#fff; border:1px solid var(--line); border-radius:15px; padding:16px 15px; margin-bottom:11px}
+  #viewEx .card>h2{margin:0 0 3px; font-size:15.5px; font-weight:900; letter-spacing:-.02em}
+  #viewEx .card>.desc{margin:0 0 13px; font-size:12.5px; color:var(--mute); font-weight:600}
+  #viewEx .card.rules h3{font-size:14px; font-weight:900; color:var(--blueDeep)}
+  #viewEx .sb input{height:48px; font-size:15px; border:1.5px solid var(--blueLine); background:#fff}
+  #viewEx .sb input:focus{border-color:var(--blue); box-shadow:0 0 0 4px rgba(245,158,11,.12)}
+  #viewEx .sb svg.mag{top:14px; left:15px}
+  #viewEx .sb .clr{top:12px}
+  #viewEx .quick button{font-size:12.5px; font-weight:700; border:1px solid var(--line); background:#fff; color:var(--sub); padding:7px 12px}
+  #viewEx .quick button:hover{background:var(--blueSoft); color:var(--blue); border-color:var(--blueLine)}
+  #viewEx .row .t1{font-size:14.5px} #viewEx .row .t2{font-size:12px}
+  #viewEx .pill.y{background:var(--blueSoft); color:var(--blueDeep); border:1px solid var(--blueLine)}
+  #viewEx .pill.n{border:1px solid transparent}
+  #viewEx .row.on .pick{background:var(--blue)}
+  #viewEx .tally span.good{background:var(--blueSoft); color:var(--blueDeep); border:1px solid var(--blueLine)}
+  #viewEx .item{border:1px solid var(--line)}
+  #viewEx .item .ih .n{font-size:15px}
+  #viewEx .toggle button{font-size:13px} #viewEx .stepper input{border:1px solid var(--line); font-size:15px}
+  #viewEx .v{border:1px solid var(--line)} #viewEx .v.ok{border-color:#A7F3D0} #viewEx .v.no{border-color:#F5C2C7}
+  #viewEx .vtop .ex-pn{font-size:15.5px}
+  #viewEx .tip{border:1px solid #FBE2B5} #viewEx .tip h3{color:var(--warn)} #viewEx .tip li{color:#6B4B00} #viewEx .tip b{color:var(--warn)}
+  #viewEx .acts button{font-size:14px; padding:13px 12px; border:1px solid var(--line); background:#fff; color:var(--sub)}
+  #viewEx .acts button.main{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 14px rgba(217,119,6,.25)}
+  #viewEx .acts button.main:hover{background:var(--blueDeep)}
+  #viewEx .ex-note{margin-top:14px; font-size:11px; color:var(--mute); line-height:1.75; text-align:center}
+  #ex-mask .ex-ptabs button.on{background:var(--ink)}
+  #ex-mask .day{background:var(--blueSoft); color:var(--blueDeep); border:1px solid var(--blueLine)}
+  #ex-mask .li-x{color:var(--blueDeep)}
+  .ex-go{display:inline-block; margin-top:8px; font-size:12px; font-weight:800; color:var(--blueDeep); background:var(--blueSoft);
+        border:1px solid var(--blueLine); padding:5px 11px; border-radius:999px; text-decoration:none; cursor:pointer}
+  .ex-go:active{background:var(--blueLine)}
+  @media(max-width:560px){ .tab{font-size:12.5px; padding:11px 4px} #viewEx .f{flex-wrap:wrap; gap:8px} #viewEx .f .lab{width:100%} }
+  #viewEx button, #viewEx input{font-family:inherit;letter-spacing:inherit}
+  #viewEx .card{background:var(--w);border-radius:var(--r-l);padding:22px 20px;margin-bottom:12px}
+  #viewEx .card>h2{margin:0 0 4px;font-size:19px;font-weight:700;letter-spacing:-0.6px}
+  #viewEx .card>.desc{margin:0 0 18px;font-size:14px;color:var(--g500);font-weight:500}
+  #viewEx .sb{position:relative}
+  #viewEx .sb input{width:100%;height:56px;padding:0 46px 0 48px;font-size:17px;font-weight:500;
+  border:none;border-radius:var(--r-m);background:var(--g100);color:var(--g900);outline:none}
+  #viewEx .sb input::placeholder{color:var(--g400);font-weight:500}
+  #viewEx .sb input:focus{background:var(--w);box-shadow:inset 0 0 0 2px var(--blue)}
+  #viewEx .sb svg.mag{position:absolute;left:17px;top:18px;color:var(--g400)}
+  #viewEx .sb .clr{position:absolute;right:14px;top:16px;width:24px;height:24px;border:none;border-radius:50%;
+  background:var(--g300);color:var(--w);font-size:13px;cursor:pointer;display:none;line-height:1}
+  #viewEx .quick{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+  #viewEx .quick button{border:none;background:var(--g100);color:var(--g700);font-size:14px;font-weight:600;
+  padding:8px 13px;border-radius:999px;cursor:pointer}
+  #viewEx .quick button:hover{background:var(--blue-l);color:var(--blue-d)}
+  #viewEx .res{margin-top:8px}
+  #viewEx .row{display:flex;align-items:center;gap:12px;padding:15px 2px;cursor:pointer;border-bottom:1px solid var(--g100)}
+  #viewEx .row:last-child{border-bottom:none}
+  #viewEx .row:hover{background:var(--g50)}
+  #viewEx .row .txt{flex:1;min-width:0}
+  #viewEx .row .t1{font-size:16px;font-weight:700;letter-spacing:-0.4px;line-height:1.4}
+  #viewEx .row .t2{font-size:13px;color:var(--g500);font-weight:500;margin-top:3px;word-break:keep-all;line-height:1.5}
+  #viewEx .row .pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+  #viewEx .pill{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:7px;white-space:nowrap}
+  #viewEx .pill.y{background:var(--blue-l);color:var(--blue-d)}
+  #viewEx .pill.n{background:var(--g100);color:var(--g400)}
+  #viewEx .row .pick{flex:none;width:34px;height:34px;border-radius:50%;border:none;background:var(--g100);
+  color:var(--g600);font-size:19px;cursor:pointer;display:grid;place-items:center;line-height:1}
+  #viewEx .row.on .pick{background:var(--blue);color:var(--w)}
+  #viewEx .blank{padding:36px 8px;text-align:center;color:var(--g500);font-size:14.5px;font-weight:500;line-height:1.7}
+  #viewEx .blank b{color:var(--g800);font-weight:700}
+  #viewEx .blank .big{font-size:17px;font-weight:700;color:var(--g800);display:block;margin-bottom:8px}
+  #viewEx .nudge{margin-top:14px;background:var(--blue-xl);border-radius:var(--r-m);padding:6px 14px 10px}
+  #viewEx .nudge .nt{font-size:13.5px;font-weight:700;color:var(--blue-d);padding:10px 0 2px}
+  #viewEx .tally{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  #viewEx .tally span{font-size:13px;font-weight:700;padding:7px 12px;border-radius:999px;background:var(--g100);color:var(--g600)}
+  #viewEx .tally span.good{background:var(--blue-l);color:var(--blue-d)}
+  #viewEx .tally span.bad{background:var(--red-l);color:var(--red)}
+  #viewEx .item{background:var(--g50);border-radius:var(--r-m);padding:16px;margin-bottom:10px}
+  #viewEx .item .ih{display:flex;align-items:flex-start;gap:10px}
+  #viewEx .item .ih .n{flex:1;font-size:16.5px;font-weight:700;letter-spacing:-0.4px;line-height:1.4}
+  #viewEx .item .ih .rm{flex:none;border:none;background:transparent;color:var(--g400);font-size:17px;cursor:pointer;padding:0 2px;line-height:1}
+  #viewEx .item .ih .rm:hover{color:var(--red)}
+  #viewEx .item .sub{font-size:12.5px;color:var(--g500);font-weight:500;margin-top:4px;word-break:keep-all;line-height:1.5}
+  #viewEx .fields{margin-top:14px;display:flex;flex-direction:column;gap:12px}
+  #viewEx .f{display:flex;align-items:center;gap:12px}
+  #viewEx .f .lab{font-size:13.5px;font-weight:600;color:var(--g600);width:96px;flex:none}
+  #viewEx .toggle{display:flex;background:var(--g200);border-radius:11px;padding:3px;gap:3px;flex:1}
+  #viewEx .toggle button{flex:1;border:none;background:transparent;border-radius:9px;padding:9px 6px;
+  font-size:14px;font-weight:600;color:var(--g600);cursor:pointer}
+  #viewEx .toggle button.on{background:var(--w);color:var(--g900);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  #viewEx .stepper{display:flex;align-items:center;gap:4px}
+  #viewEx .stepper button{width:36px;height:36px;border:none;border-radius:10px;background:var(--g200);color:var(--g700);
+  font-size:18px;cursor:pointer;line-height:1;font-weight:600}
+  #viewEx .stepper button:active{background:var(--g300)}
+  #viewEx .stepper input{width:54px;height:36px;border:none;background:var(--w);border-radius:10px;text-align:center;
+  font-size:16px;font-weight:700;outline:none;color:var(--g900)}
+  #viewEx .stepper .u{font-size:13.5px;color:var(--g500);font-weight:600;margin-left:2px}
+  #viewEx .vlist{display:flex;flex-direction:column;gap:10px}
+  #viewEx .v{border-radius:var(--r-m);padding:16px 17px;background:var(--g50)}
+  #viewEx .v.ok{background:var(--green-l)}
+  #viewEx .v.no{background:var(--red-l)}
+  #viewEx .vtop{display:flex;align-items:center;gap:10px}
+  #viewEx .vtop .who{flex:1;min-width:0}
+  #viewEx .vtop .g{font-size:12px;font-weight:700;color:var(--g500)}
+  #viewEx .vtop .ex-pn{font-size:17px;font-weight:700;letter-spacing:-0.5px;margin-top:1px;word-break:keep-all}
+  #viewEx .vtop .r{flex:none;font-size:15px;font-weight:800;padding:8px 14px;border-radius:10px;background:var(--g200);color:var(--g500);white-space:nowrap}
+  #viewEx .v.ok .vtop .r{background:var(--green);color:var(--w)}
+  #viewEx .v.no .vtop .r{background:var(--red);color:var(--w)}
+  #viewEx .vwhy{margin-top:13px;padding-top:13px;border-top:1px solid rgba(0,0,0,.06);display:flex;flex-direction:column;gap:7px}
+  #viewEx .vwhy div{font-size:13.5px;font-weight:500;color:var(--g700);line-height:1.55;display:flex;gap:7px;word-break:keep-all}
+  #viewEx .vwhy .mk{flex:none;font-weight:800;width:14px}
+  #viewEx .vwhy .mk.y{color:var(--green)}
+  #viewEx .vwhy .mk.n{color:var(--red)}
+  #viewEx .vwhy .why{color:var(--g500)}
+  #viewEx .vcap{font-size:12px;color:var(--g500);font-weight:500;margin-top:11px}
+  #viewEx .vover{font-size:13.5px;font-weight:700;color:var(--red);margin-top:12px}
+  #viewEx .tip{background:var(--yellow-l);border-radius:var(--r-l);padding:20px;margin-bottom:12px}
+  #viewEx .tip h3{margin:0 0 10px;font-size:16px;font-weight:700;letter-spacing:-0.4px;color:#8A6100}
+  #viewEx .tip ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+  #viewEx .tip li{font-size:14px;font-weight:500;color:#6B4B00;line-height:1.6;word-break:keep-all}
+  #viewEx .tip b{font-weight:800;color:#8A6100}
+  #viewEx .tblwrap{overflow-x:auto;margin-top:4px;-webkit-overflow-scrolling:touch}
+  #viewEx table{width:100%;min-width:560px;border-collapse:separate;border-spacing:0;font-size:13px}
+  #viewEx th, #viewEx td{padding:11px 8px;text-align:center;border-bottom:1px solid var(--g100)}
+  #viewEx th{font-size:12px;font-weight:700;color:var(--g500);background:var(--g50);white-space:nowrap}
+  #viewEx th:first-child, #viewEx td:first-child{text-align:left;padding-left:12px}
+  #viewEx th:first-child{border-radius:10px 0 0 0}
+  #viewEx th:last-child{border-radius:0 10px 0 0}
+  #viewEx td .nm{font-size:13.5px;font-weight:700;word-break:keep-all;line-height:1.4}
+  #viewEx td .meta{font-size:11.5px;color:var(--g500);font-weight:500;margin-top:2px}
+  #viewEx td .mk{font-size:16px;font-weight:800}
+  #viewEx td .mk.y{color:var(--green)}
+  #viewEx td .mk.n{color:var(--red)}
+  #viewEx td .rs{display:block;font-size:10.5px;color:var(--g500);font-weight:500;margin-top:3px;line-height:1.35}
+  #viewEx .acts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  #viewEx .acts button{flex:1;min-width:132px;border:none;border-radius:var(--r-m);padding:15px 14px;
+  font-size:15px;font-weight:700;cursor:pointer;background:var(--g100);color:var(--g700)}
+  #viewEx .acts button.main{background:var(--blue);color:var(--w)}
+  #viewEx .acts button.main:hover{background:var(--blue-d)}
+  #viewEx .acts button:hover{background:var(--g200)}
+  #viewEx .acts button.main:hover{background:var(--blue-d)}
+  #viewEx .rules h3{margin:0 0 12px;font-size:15px;font-weight:700;color:var(--g800)}
+  #viewEx .rules + .rules{margin-top:22px}
+  #viewEx .rule{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--g100);font-size:14px;
+  font-weight:500;color:var(--g700);line-height:1.6;word-break:keep-all}
+  #viewEx .rule:last-child{border-bottom:none}
+  #viewEx .rule .no{flex:none;width:21px;height:21px;border-radius:7px;background:var(--g100);color:var(--g600);
+  font-size:12px;font-weight:700;display:grid;place-items:center;margin-top:2px}
+  #viewEx .rule b{font-weight:700;color:var(--g900)}
+  #viewEx .rule em{font-style:normal;font-weight:700;color:var(--blue-d)}
+  #ex-mask .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:80;align-items:flex-end;justify-content:center}
+  #ex-mask .mask.on{display:flex}
+  #ex-mask .sheet{background:var(--w);width:100%;max-width:720px;max-height:88vh;border-radius:22px 22px 0 0;
+  display:flex;flex-direction:column;overflow:hidden}
+  #ex-mask .sheet .grip{width:40px;height:4px;border-radius:2px;background:var(--g300);margin:10px auto 4px;flex:none}
+  #ex-mask .sheet .sh{display:flex;align-items:center;gap:10px;padding:10px 20px 14px}
+  #ex-mask .sheet .sh h3{flex:1;margin:0;font-size:19px;font-weight:700;letter-spacing:-0.5px}
+  #ex-mask .sheet .sh button{border:none;background:var(--g100);width:32px;height:32px;border-radius:50%;
+  font-size:15px;color:var(--g600);cursor:pointer;line-height:1}
+  #ex-mask .sheet .sc{overflow-y:auto;padding:0 20px 34px;-webkit-overflow-scrolling:touch}
+  #ex-mask .ex-ptabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:14px;-webkit-overflow-scrolling:touch}
+  #ex-mask .ex-ptabs button{border:none;background:var(--g100);color:var(--g600);border-radius:999px;padding:9px 15px;
+  font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer}
+  #ex-mask .ex-ptabs button.on{background:var(--g900);color:var(--w);font-weight:700}
+  #ex-mask .lmeta{font-size:13.5px;color:var(--g600);font-weight:600;padding-bottom:4px}
+  #ex-mask .lgrp{margin-top:22px}
+  #ex-mask .lgrp .gt{font-size:15px;font-weight:700;color:var(--g900);letter-spacing:-0.4px}
+  #ex-mask .lgrp .gc{font-size:13px;font-weight:600;color:var(--blue);margin-left:6px}
+  #ex-mask .lgrp ul{margin:10px 0 0;padding:0;list-style:none}
+  #ex-mask .lgrp li{padding:12px 0;border-bottom:1px solid var(--g100);font-size:14px;font-weight:500;
+  color:var(--g800);line-height:1.6;word-break:keep-all}
+  #ex-mask .lgrp li:last-child{border-bottom:none}
+  #ex-mask .day{display:inline-block;background:var(--blue-l);color:var(--blue-d);font-size:11.5px;font-weight:700;
+  padding:3px 8px;border-radius:7px;margin-right:8px;vertical-align:1px}
+  #ex-mask .li-sub{color:var(--g500);font-weight:500}
+  #ex-mask .li-x{color:var(--blue-d);font-weight:600}
+  #ex-mask .li-lim{color:#9A6B00;font-weight:600}
 </style>
 </head>
 <body>
@@ -176,7 +362,7 @@
     <div class="rara"></div>
     <div>
       <h1>상품 라인업 <span class="ver">ver2609</span><small>with 라라</small></h1>
-      <p>메리츠화재 장기상품 50종 · 알릴의무 한눈에 보기</p>
+      <p>메리츠화재 장기상품 50종 · 알릴의무 · 간편보험 예외질환 판정</p>
     </div>
   </div>
 </header>
@@ -185,6 +371,7 @@
   <div class="tabs">
     <button class="tab on" data-tab="prod">📦 상품별 보기</button>
     <button class="tab" data-tab="duty">📋 알릴의무 유형별</button>
+    <button class="tab" data-tab="ex">🩺 예외질환 판정</button>
   </div>
 
   <div id="viewProd">
@@ -225,11 +412,100 @@
 
   <div id="viewDuty" style="display:none"></div>
 
+  <div id="viewEx" style="display:none">
+    <div class="ex-intro">
+      <span class="eyebrow">간편심사 예외질환 · ver2609</span>
+      <h2>이 병력, 어떤 간편보험이 들어갈 수 있을까요?</h2>
+      <p>질환과 치료이력을 넣으면 간편상품 일반설계 · 3대진단플랜 · 어깨/무릎/디스크플랜, 간편정기, 유병자실손 5개 설계유형을 한 번에 판정합니다.</p>
+    </div>
+
+    <div class="card">
+      <h2>어떤 질환으로 치료받으셨나요?</h2>
+      <p class="desc">질병명, 흔히 부르는 이름, 초성, 질병코드 모두 검색됩니다.</p>
+      <div class="sb">
+        <svg class="mag" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="ex-q" type="text" placeholder="대장용종, 맹장, ㄷㅈㅇㅈ, K35" autocomplete="off">
+        <button class="clr" id="ex-clr">✕</button>
+      </div>
+      <div class="quick">
+        <button data-q="대장용종">대장용종</button>
+        <button data-q="맹장">맹장염</button>
+        <button data-q="갑상선">갑상선 결절</button>
+        <button data-q="치질">치질</button>
+        <button data-q="자궁근종">자궁근종</button>
+        <button data-q="디스크">디스크</button>
+        <button data-q="어깨">어깨</button>
+        <button data-q="백내장">백내장</button>
+        <button data-q="요로결석">요로결석</button>
+        <button data-q="담낭">담낭</button>
+      </div>
+      <div class="res" id="ex-res"></div>
+    </div>
+
+    <div class="card">
+      <h2>어떻게 치료받으셨나요?</h2>
+      <p class="desc">입원만 했는지, 수술까지 했는지에 따라 인수 결과가 완전히 달라집니다.</p>
+      <div class="tally" id="ex-tally"></div>
+      <div id="ex-picked"></div>
+    </div>
+
+    <div class="card">
+      <h2>판정 결과</h2>
+      <p class="desc">5개 설계유형을 같은 조건으로 동시에 비교합니다.</p>
+      <div class="vlist" id="ex-vlist"></div>
+    </div>
+
+    <div id="ex-tipbox"></div>
+
+    <div class="card" id="ex-mxcard" style="display:none">
+      <h2>질환별 상세 비교</h2>
+      <p class="desc">어느 설계유형에서 무엇이 걸리는지 한눈에 봅니다.</p>
+      <div class="tblwrap" id="ex-mx"></div>
+    </div>
+
+    <div class="acts">
+      <button class="main" id="ex-openList">전체 예외질환 목록</button>
+      <button id="ex-copyBtn">결과 복사</button>
+      <button id="ex-resetBtn">다시 하기</button>
+    </div>
+
+    <div class="card rules" style="margin-top:12px">
+      <h3>간편상품(SI) · 간편정기 인수 필수조건</h3>
+      <div class="rule"><span class="no">1</span><span>예외질환(그 外) &amp; <b>최종 치료종료 7일 경과</b> &amp; 재발·합병증·후유장해 없음. 예외질환은 <em>최대 5개까지</em> 인수되며 6개 이상이면 사고다발로 인수불가입니다.</span></div>
+      <div class="rule"><span class="no">2</span><span>치료방법(입원·수술 등)과 치료기간(입원 5일 이내 등)을 구체적으로 명기한 <b>범위 안에서만</b> 인수됩니다. 다른 치료방법이거나 기간이 넘으면 인수불가입니다.</span></div>
+      <div class="rule"><span class="no">3</span><span>예외질환은 경증 위험에만 적용되므로, 기준에 해당해도 <b>고위험 RISK</b>(중대질환·유의고객 등) 요인이 있으면 인수가 제한될 수 있습니다.</span></div>
+    </div>
+
+    <div class="card rules">
+      <h3>유병자 실손의료비 인수 필수조건</h3>
+      <div class="rule"><span class="no">1</span><span>예외질환(그 外) &amp; <b>최종 치료종료 3개월 경과</b> &amp; 재발·합병증·후유장해 없음. 예외질환은 <em>최대 3개까지</em> 인수되며 4개 이상이면 사고다발로 인수불가입니다.</span></div>
+      <div class="rule"><span class="no">2</span><span>치료방법과 치료기간(입·통원 2일 등)을 구체적으로 명기한 <b>범위 안에서만</b> 인수됩니다. 일수는 <b>입원과 통원을 합산</b>합니다.</span></div>
+      <div class="rule"><span class="no">3</span><span>고위험 RISK 요인이 있으면 인수가 제한될 수 있습니다.</span></div>
+    </div>
+
+
+    <div class="ex-note">
+      예외질환 기준의 사전 참고용 도구이며, 최종 인수 여부는 청약 심사 결과에 따릅니다.<br>
+      질병코드는 검색 편의를 위한 참고값이고, 인수 판단 기준은 질환명입니다. · 출처 : 간편상품(SI) 예외질환 안내 화면 5종
+    </div>
+  </div>
+
   <p class="foot">
     출처 : 2609 장기상품리스트 (세일즈혁신TF) · 교육자료-2026-71호 · <b>ver2609</b><br>
     본 자료는 사내 교육용이며 고객 제공·배포 불가. 계약 세부사항은 반드시 <b>약관</b>을 확인하세요.<br>
     업데이트 및 오류 문의 : 세일즈혁신TF 이헌수
   </p>
+</div>
+
+<div class="mask" id="ex-mask">
+  <div class="sheet">
+    <div class="grip"></div>
+    <div class="sh"><h3>전체 예외질환 목록</h3><button id="ex-closeM">✕</button></div>
+    <div class="sc">
+      <div class="ex-ptabs" id="ex-ptabs"></div>
+      <div id="ex-plist"></div>
+    </div>
+  </div>
 </div>
 
 <button class="top" id="top">↑</button>
@@ -319,6 +595,8 @@
         '</table>';
       if(!p.duty.rows.length && p.useStd)
         h += '<div class="stdlink">※ 위 표는 <b>표준 알릴의무</b> 공통 내용입니다.</div>';
+      if(rows.some(function(r){ return String(r[1]).indexOf('예외질환')>=0; }))
+        h += '<div><a class="ex-go" data-ex="1">🩺 예외질환 판정으로 확인하기 →</a></div>';
     } else if(!p.duty.notes.length){
       h += '<div class="none">원본 자료에 별도 표기 없음</div>';
     }
@@ -417,6 +695,8 @@
         h += '<table class="dt2"><tr><th>기간</th><th>고지 대상</th></tr>' +
           d.rows.map(function(r){ return '<tr><td class="pd">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>' }).join('') + '</table>';
       }
+      if(d.rows.some(function(r){ return String(r[1]).indexOf('예외질환')>=0; }))
+        h += '<div><a class="ex-go" data-ex="1">🩺 예외질환 판정으로 확인하기 →</a></div>';
       if(d.notes.length)
         h += '<div class="note">'+d.notes.map(function(n){return '<div>'+esc(n)+'</div>'}).join('')+'</div>';
       h += '<div class="plist"><b>해당 상품</b>'+d.items.map(function(n){return '<span data-go="'+esc(n)+'">'+esc(n)+'</span>'}).join('')+'</div></div>';
@@ -442,6 +722,8 @@
     document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab===n) });
     document.getElementById('viewProd').style.display = n==='prod' ? '' : 'none';
     document.getElementById('viewDuty').style.display = n==='duty' ? '' : 'none';
+    document.getElementById('viewEx').style.display = n==='ex' ? '' : 'none';
+    if(n==='ex') logEvent('view', {term:'예외질환 판정'});
     window.scrollTo({top:0});
   }
   document.querySelectorAll('.tab').forEach(function(t){ t.onclick=function(){ tab(t.dataset.tab) } });
@@ -462,6 +744,548 @@
   tp.onclick = function(){ window.scrollTo({top:0, behavior:'smooth'}) };
   window.onscroll = function(){ tp.classList.toggle('on', window.scrollY > 500) };
 
+
+  /* ══════════ 예외질환 판정 탭 : 간편보험 예외질환 시뮬레이터 이식 (아이디 접두어 ex-) ══════════ */
+  document.addEventListener('click', function(e){ var a=e.target.closest('.ex-go'); if(a){ e.preventDefault(); tab('ex'); } });
+  (function(){
+const PLANS=[
+ {id:'GEN',grp:'간편상품',nm:'일반설계',max:5,unit:'입원'},
+ {id:'TRI',grp:'간편상품',nm:'3대진단플랜',max:5,unit:'입원'},
+ {id:'SHD',grp:'간편상품',nm:'어깨/무릎/디스크플랜',max:5,unit:'입원'},
+ {id:'TRM',grp:'간편정기',nm:'정기(상조)',max:5,unit:'입원'},
+ {id:'SIL',grp:'유병자실손',nm:'유병자 실손의료비',max:3,unit:'입·통원'}
+];
+const PIDS=PLANS.map(p=>p.id);
+
+const ITEMS=[
+/* ===== A. 입원한 경우 ===== */
+{id:'A01',n:'경증 상해사고',g:'상해',kw:'상해 사고 타박 염좌 골절 외상 다침 넘어짐 찰과상 삠 접질림',
+ p:{GEN:{c:'I',d:15,x:'수술 제외 · 합병증/후유장해 없음'},
+    TRI:{c:'IS',d:60,x:'합병증/후유장해 없음'},
+    SHD:{c:'IS',d:15,x:'합병증/후유장해 없음'},
+    TRM:{c:'IS',d:60,x:'합병증/후유장해 없음'},
+    SIL:{c:'I',d:15,x:'수술 제외 · 합병증/후유장해 없음'}}},
+
+{id:'A02',n:'경증 상해화상',g:'상해',kw:'화상 데임 표재층 1도 2도 열상',
+ p:{GEN:{c:'I',d:15,x:'표재층 1·2도 화상 / 구축·강직·피부이식·후유장해 있는 경우 제외'},
+    TRI:{c:'IS',d:60,x:'후유장해 있는 경우 제외'},
+    SHD:{c:'IS',d:15,x:'후유장해 있는 경우 제외'},
+    TRM:{c:'IS',d:60,x:'후유장해 있는 경우 제외'},
+    SIL:{c:'I',d:15,x:'표재층 1·2도 화상 / 구축·강직·피부이식·후유장해 있는 경우 제외'}}},
+
+{id:'A03',n:'코로나-19',g:'감염',code:'U07',kw:'코로나 코로나19 covid 확진 격리',
+ p:{GEN:{c:'I',d:15,x:'중환자실 입원 제외'},TRI:{c:'I',d:15,x:'중환자실 입원 제외'},
+    SHD:{c:'I',d:15,x:'중환자실 입원 제외'},TRM:{c:'I',d:15,x:'중환자실 입원 제외'}}},
+
+{id:'A04',n:'경증 호흡기질환',g:'호흡기',code:'J00 J02 J03 J04 J06 J11 J18 J20 B26 A15',
+ s:'상기도감염 / 인·후두(개)염 / 급성기관지염 / 폐렴 / 인플루엔자(독감) / 이하선염(볼거리) / 결핵',
+ kw:'감기 목감기 상기도감염 인두염 후두염 후두개염 기관지염 폐렴 독감 인플루엔자 이하선염 볼거리 결핵 기침',
+ p:{GEN:{c:'I',d:10},TRI:{c:'I',d:10},SHD:{c:'I',d:10},TRM:{c:'I',d:10},SIL:{c:'I',d:10}}},
+
+{id:'A05',n:'경증 소화기질환',g:'소화기',code:'K29 K21 K25 K58 A09 K59 B15 K56',
+ s:'급성위염 / 식도염 / 위궤양 / 자극성장증후군 / 장염 / 식중독 / 변비 / 급성A형간염 / 헬리코박터 / 장폐색',
+ kw:'위염 식도염 역류성식도염 위궤양 자극성장증후군 과민성대장 장염 식중독 변비 A형간염 헬리코박터 장폐색 설사 복통',
+ p:{GEN:{c:'I',d:10},TRI:{c:'I',d:10},SHD:{c:'I',d:10},TRM:{c:'I',d:10},SIL:{c:'I',d:10}}},
+
+{id:'A06',n:'경증 비뇨질환',g:'비뇨',code:'N10 N41 N30 N34 N39 N45 N40',
+ s:'급성신우신염 / 급성전립선염 / 방광염 / 요도염 / 요로감염 / 고환염 / 부고환염',
+ kw:'신우신염 전립선염 전립선비대 방광염 요도염 요로감염 고환염 부고환염 소변 오줌 배뇨',
+ p:{GEN:{c:'I',d:10},TRI:{c:'I',d:10},SHD:{c:'I',d:10},
+    TRM:{c:'I',d:10,sx:'급성신우신염 / 전립선염 / 전립선비대 / 방광염 / 요도염 / 요로감염 / 요도질환 / 고환염 / 부고환염'},
+    SIL:{c:'I',d:10}}},
+
+{id:'A07',n:'경증 생식기질환',g:'생식기',code:'N76 N72 N91 N70 N95',
+ s:'질염 / 자궁경부염 / 무월경 / 골반염증질환 / 난관염 및 난소염 / 갱년기장애(폐경)',
+ kw:'질염 자궁경부염 무월경 골반염 골반염증 난관염 난소염 갱년기 폐경',
+ p:{GEN:{c:'I',d:10},TRI:{c:'I',d:10},SHD:{c:'I',d:10},TRM:{c:'I',d:10},SIL:{c:'I',d:10}}},
+
+{id:'A08',n:'경증 감각/피부질환',g:'감각·피부',code:'H16 H10 H81 H83 L20 L21 L50 B35 H70 H73',
+ s:'각막염 / 결막염 / 이석증 / 메니에르병 / 전정신경세포염 / 미로염 / 코피 / 봉소염 / 아토피 / 지루피부염 / 두드러기 / 백선증 / 태선 / 유돌염 / 고막염',
+ kw:'각막염 결막염 이석증 메니에르 전정신경세포염 미로염 어지럼 어지러움 코피 봉소염 봉와직염 아토피 지루피부염 두드러기 백선증 무좀 태선 유돌염 고막염',
+ p:{GEN:{c:'I',d:10},TRI:{c:'I',d:10},SHD:{c:'I',d:10},TRM:{c:'I',d:10},
+    SIL:{c:'I',d:10,sx:'각막염 / 결막염 / 코피 / 봉소염 / 백선증 / 태선 / 유돌염 / 고막염',
+         x:'유병자실손은 이석증·메니에르병·전정신경세포염·미로염·아토피·지루피부염·두드러기 미포함'}}},
+
+{id:'A09',n:'경증 질병기타',g:'기타',code:'L04 G03 B01 A00 A02 A38 A75 B02 B00 G44 G51 G50 E06 E03 E05 B08 B08.4 A03 A41 B27 K12',
+ s:'림프절염 / 수막염 / 수두 / 콜레라 / 살모넬라 / 성홍열 / 발진티푸스(쯔쯔가무시) / 대상포진 / 단순포진 / 두통 / 벨마비 / 삼차신경통 / 갑상선염 / 갑상선기능저하 / 갑상선기능항진 / 돌발진 / 수족구 / 시겔라증(이질) / 패혈증 / 단핵구증 / 구내염',
+ kw:'림프절염 수막염 뇌수막염 수두 콜레라 살모넬라 성홍열 발진티푸스 쯔쯔가무시 대상포진 단순포진 헤르페스 두통 벨마비 안면마비 구안와사 삼차신경통 갑상선염 갑상선기능저하 갑상선기능항진 하시모토 그레이브스 돌발진 수족구 시겔라증 이질 패혈증 단핵구증 구내염',
+ p:{GEN:{c:'I',d:10},TRI:{c:'I',d:10},SHD:{c:'I',d:10},TRM:{c:'I',d:10},
+    SIL:{c:'I',d:10,sx:'림프절염 / 수막염 / 수두 / 성홍열 / 발진티푸스(쯔쯔가무시) / 단순포진 / 돌발진 / 수족구 / 시겔라증(이질) / 패혈증 / 단핵구증 / 구내염',
+         x:'유병자실손은 콜레라·살모넬라·대상포진·두통·벨마비·삼차신경통·갑상선질환 미포함'}}},
+
+{id:'A10',n:'비문증 / 황반변성',g:'안과',code:'H43.3 H35.3',kw:'비문증 날파리 눈앞 황반변성 황반',
+ p:{TRI:{c:'I',d:10},TRM:{c:'I',d:10}}},
+
+{id:'A11',n:'백반증',g:'피부',code:'L80',kw:'백반증 백납 백색반점',
+ p:{TRI:{c:'I',d:10},SHD:{c:'I',d:10},TRM:{c:'I',d:10}}},
+
+/* ===== B. 입원 / 수술·시술한 경우 ===== */
+{id:'B01',n:'경증상해 입원/수술',g:'상해',
+ s:'코뼈 / 광대뼈 / 늑골 / 팔(손·손목 포함) / 아래다리(무릎 제외)',
+ kw:'상해수술 코뼈 비골 광대뼈 관골 늑골 갈비뼈 팔 손 손목 아래다리 종아리 정강이 골절수술 핀고정 금속고정',
+ p:{GEN:{c:'IS',d:15,x:'M코드 혹은 후유장해 있는 경우 불가'},
+    SIL:{c:'IS',d:15,x:'M코드 혹은 후유장해 있는 경우 불가'}}},
+
+{id:'B02',n:'경증 열린상처봉합',g:'상해',kw:'열린상처 봉합 찢어짐 열상 꿰맴 봉합술 상처',
+ p:{GEN:{c:'IS',d:15,x:'어깨·고관절·무릎 인대부위 제외'},
+    SIL:{c:'IS',d:15,x:'어깨·고관절·무릎 인대부위 제외'}}},
+
+{id:'B03',n:'눈/귀/기도/식도 이물 제거',g:'기타',kw:'이물 이물질 제거 눈 귀 기도 식도 삼킴 걸림',
+ p:{GEN:{c:'S',d:15,lim:'2회 이내'},SIL:{c:'IS',d:15}}},
+
+{id:'B04',n:'경증 근골격계 질환',g:'근골격',star:1,code:'M75 M51 M50 M41 M23 M17 M16',
+ s:'어깨병터(어깨병변) / 추간판장애 / 척추만곡 / 무릎질환 / 골관절염 / 성인구루병',
+ kw:'어깨 회전근개 오십견 어깨병변 어깨병터 추간판 추간판장애 디스크 목디스크 허리디스크 척추만곡 측만증 무릎 무릎질환 반월상연골 연골 골관절염 퇴행성관절염 관절염 성인구루병',
+ p:{TRI:{c:'IS',d:15},SHD:{c:'IS',d:15},TRM:{c:'IS',d:15}}},
+
+{id:'B05',n:'비염 / 부비동염',g:'이비인후',code:'J30 J31 J32',kw:'비염 알레르기비염 축농증 부비동염 코수술 코막힘',
+ p:{GEN:{c:'IS',d:10,lim:'2회 이내'},TRI:{c:'IS',d:10,lim:'2회 이내'},SHD:{c:'IS',d:10,lim:'2회 이내'},
+    TRM:{c:'IS',d:10,lim:'2회 이내'},SIL:{c:'IS',d:10}}},
+
+{id:'B06',n:'중이염 / 외이염 / 외이농양',g:'이비인후',code:'H65 H66 H60',kw:'중이염 외이염 외이도염 외이농양 귀 고름 튜브삽입 고막',
+ p:{GEN:{c:'IS',d:10,x:'양쪽 청력 정상',lim:'2회 이내'},TRI:{c:'IS',d:10,x:'양쪽 청력 정상',lim:'2회 이내'},
+    SHD:{c:'IS',d:10,x:'양쪽 청력 정상',lim:'2회 이내'},TRM:{c:'IS',d:10,x:'양쪽 청력 정상',lim:'2회 이내'},
+    SIL:{c:'IS',d:10,x:'양쪽 청력 정상'}}},
+
+{id:'B07',n:'편도염',g:'이비인후',code:'J03 J35.0',kw:'편도염 편도선 편도절제 편도',
+ p:{GEN:{c:'IS',d:10,x:'편도절제술에 한함'},TRI:{c:'IS',d:10,x:'편도절제술에 한함'},SHD:{c:'IS',d:10,x:'편도절제술에 한함'},
+    TRM:{c:'IS',d:10,x:'편도절제술에 한함'},SIL:{c:'IS',d:10,x:'편도절제술에 한함'}}},
+
+{id:'B08',n:'소화기 게실질환',g:'소화기',code:'K57',kw:'게실 게실염 대장게실 소화기게실',
+ p:{GEN:{c:'IS',d:10,lim:'수술은 1회만'},TRI:{c:'IS',d:10,lim:'수술은 1회만'},
+    SHD:{c:'IS',d:10,lim:'수술은 1회만'},TRM:{c:'IS',d:10,lim:'수술은 1회만'}}},
+
+{id:'B09',n:'피임 수술',g:'생식기',code:'Z30',s:'정관 / 난관결찰술',kw:'피임 정관수술 난관결찰 불임수술 루프',
+ p:{GEN:{c:'IS',d:10},TRI:{c:'IS',d:10},SHD:{c:'IS',d:10},TRM:{c:'IS',d:10},SIL:{c:'IS',d:10}}},
+
+{id:'B10',n:'임신·출산 관련',g:'생식기',code:'O82 O00 O03 O04 O60 O42 O44',
+ s:'제왕절개 / 자궁외임신 / 유산 / 임신중절 / 난산 / 조기양막파수 / 전치태반 등',
+ kw:'임신 출산 제왕절개 자궁외임신 유산 임신중절 난산 조기양막파수 전치태반 분만',
+ p:{GEN:{c:'IS',d:10},TRI:{c:'IS',d:10},SHD:{c:'IS',d:10},TRM:{c:'IS',d:10},SIL:{c:'IS',d:10}}},
+
+{id:'B11',n:'치과질환',g:'치과',code:'K02 K04 K05 K07 K08 K11',
+ s:'치아우식증 / 치은염 / 치주질환 / 임플란트 / 부정교합 / 침샘질환(타석증) / 치근낭 / 치아파절 / 치아탈구',
+ kw:'충치 치아우식증 치은염 잇몸 치주질환 치주염 풍치 임플란트 부정교합 침샘질환 타석증 치근낭 치아파절 치아탈구 발치 사랑니',
+ p:{GEN:{c:'IS',d:10},TRI:{c:'IS',d:10},SHD:{c:'IS',d:10},TRM:{c:'IS',d:10},SIL:{c:'IS',d:10}}},
+
+{id:'B12',n:'탈모',g:'피부',code:'L63 L64 L65',kw:'탈모 원형탈모 모발이식 대머리',
+ p:{GEN:{c:'IS',d:10,lim:'수술은 2회 이내'},TRI:{c:'IS',d:10,lim:'수술은 2회 이내'},
+    SHD:{c:'IS',d:10,lim:'수술은 2회 이내'},TRM:{c:'IS',d:10,lim:'수술은 2회 이내'},
+    SIL:{c:'S',d:10,lim:'2회 이내',x:'유병자실손은 수술만 인정 · 외모개선 목적인 경우만 (「탈모/여성형유방/부유방/미용성형 수술」 1개 항목으로 통합 운영)'}}},
+
+{id:'B13',n:'망막박리 / 망막열공',g:'안과',code:'H33',kw:'망막박리 망막열공 망막 레이저 망막수술',
+ p:{GEN:{c:'S',d:10,x:'양안 시력 정상'},TRI:{c:'IS',d:10,x:'양안 시력 정상'},
+    SHD:{c:'S',d:10,x:'양안 시력 정상'},TRM:{c:'IS',d:10,x:'양안 시력 정상'}}},
+
+/* ===== C. 수술·시술한 경우 ===== */
+{id:'C01',n:'눈물샘(누낭/누관/비루관) 수술',g:'안과',code:'H04',kw:'눈물샘 누낭 누관 비루관 눈물길 코눈물관 눈물',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C02',n:'백내장 / 녹내장 수술',g:'안과',code:'H25 H26 H40',kw:'백내장 녹내장 인공수정체 안압 눈수술',
+ p:{GEN:{c:'S',d:10,x:'양안 시력 정상'},TRI:{c:'S',d:10,x:'양안 시력 정상'},SHD:{c:'S',d:10,x:'양안 시력 정상'},
+    TRM:{c:'S',d:10,x:'양안 시력 정상'},SIL:{c:'S',d:10,x:'양안 시력 정상'}}},
+
+{id:'C03',n:'사시 수술',g:'안과',code:'H50',kw:'사시 사시교정 눈돌아감',
+ p:{GEN:{c:'S',d:10,x:'양안 시력 정상',lim:'2회 이내'},TRI:{c:'S',d:10,x:'양안 시력 정상',lim:'2회 이내'},
+    SHD:{c:'S',d:10,x:'양안 시력 정상',lim:'2회 이내'},TRM:{c:'S',d:10,x:'양안 시력 정상',lim:'2회 이내'},
+    SIL:{c:'S',d:10,x:'양안 시력 정상'}}},
+
+{id:'C04',n:'익상편 / 결막결석 / 검열반(결막황반) 수술',g:'안과',code:'H11',kw:'익상편 군날개 결막결석 검열반 결막황반 결막',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C05',n:'비중격만곡증 / 수면무호흡(코골이) / 코폴립 수술',g:'이비인후',code:'J34.2 G47.3 J33',
+ kw:'비중격만곡증 코중격 수면무호흡 코골이 코폴립 비용종 코수술',
+ p:{GEN:{c:'S',d:10,x:'현재 보유 폴립 없음'},TRI:{c:'S',d:10,x:'현재 보유 폴립 없음'},
+    SHD:{c:'S',d:10,x:'현재 보유 폴립 없음'},TRM:{c:'S',d:10,x:'현재 보유 폴립 없음'},
+    SIL:{c:'S',d:10,sx:'비중격만곡증 / 코폴립 [현재보유폴립없음]',x:'유병자실손은 수면무호흡(코골이) 미포함'}}},
+
+{id:'C06',n:'기흉 수술',g:'호흡기',code:'J93',kw:'기흉 폐허탈 공기가슴증 폐',
+ p:{GEN:{c:'S',d:10,x:'장기손상 없음',lim:'2회 이내'},TRI:{c:'S',d:10,x:'장기손상 없음',lim:'2회 이내'},
+    SHD:{c:'S',d:10,x:'장기손상 없음',lim:'2회 이내'},TRM:{c:'S',d:10,x:'장기손상 없음',lim:'2회 이내'},
+    SIL:{c:'S',d:10,x:'장기손상 없음'}}},
+
+{id:'C07',n:'팔목터널증후군 수술',g:'근골격',code:'G56.0',s:'수근관증후군 / 손목터널증후군',
+ kw:'팔목터널증후군 손목터널증후군 수근관증후군 손저림 손목',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C08',n:'윤활낭염/윤활막염/건초염/방아쇠수지/상과염 수술',g:'근골격',code:'M70 M65 M77',
+ kw:'윤활낭염 점액낭염 윤활막염 활액막염 건초염 방아쇠수지 상과염 테니스엘보 골프엘보 팔꿈치',
+ p:{GEN:{c:'S',d:10},TRI:{c:'S',d:10},SHD:{c:'S',d:10},TRM:{c:'S',d:10},SIL:{c:'S',d:10}}},
+
+{id:'C09',n:'족저근막염 수술',g:'근골격',code:'M72.2',kw:'족저근막염 발바닥 발뒤꿈치 발',
+ p:{GEN:{c:'S',d:10,x:'당뇨·관절염 등 원인질환 있는 경우 제외',lim:'2회 이내'},
+    TRI:{c:'S',d:10,x:'당뇨·관절염 등 원인질환 있는 경우 제외',lim:'2회 이내'},
+    SHD:{c:'S',d:10,x:'당뇨·관절염 등 원인질환 있는 경우 제외',lim:'2회 이내'},
+    TRM:{c:'S',d:10,x:'당뇨·관절염 등 원인질환 있는 경우 제외',lim:'2회 이내'},
+    SIL:{c:'S',d:10,x:'당뇨·관절염 등 원인질환 있는 경우 제외'}}},
+
+{id:'C10',n:'요실금/방광류/직장류/정액류/음낭수종/감돈포경/전립선증식증/음낭정맥류/자궁탈출/바르톨린선질환 수술',g:'비뇨·생식기',
+ code:'N39.3 N81 N43 N47 N40 I86.1 N75',
+ kw:'요실금 방광류 직장류 정액류 음낭수종 감돈포경 포경 전립선증식증 전립선비대 음낭정맥류 정계정맥류 자궁탈출 바르톨린선질환 바르톨린',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C11',n:'내향성 손(발)톱 / 손(발)가락 후천변형 수술',g:'피부·근골격',code:'L60.0 M20',
+ kw:'내향성발톱 내성발톱 손톱 발톱 손가락 발가락 후천변형 무지외반',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10,lim:'2회 이내'}}},
+
+{id:'C12',n:'갑상선 양성종양(결절/낭종) 완전제거',g:'내분비',code:'E04 D34',
+ kw:'갑상선 갑상선결절 결절 낭종 갑상선양성종양 갑상선혹 목혹',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C13',n:'난소 양성종양(낭종) 완전제거',g:'생식기',code:'N83 D27',kw:'난소 난소낭종 물혹 난소혹 난소양성종양',
+ p:{GEN:{c:'S',d:10,x:'경계성종양 제외'},TRI:{c:'S',d:10,x:'경계성종양 제외'},SHD:{c:'S',d:10,x:'경계성종양 제외'},
+    TRM:{c:'S',d:10,x:'경계성종양 제외'},SIL:{c:'S',d:10,x:'경계성종양 제외'}}},
+
+{id:'C14',n:'자궁용종/근종/질양성종양/외음부양성종양 완전제거',g:'생식기',code:'D25 D28 N84',
+ kw:'자궁용종 자궁근종 근종 질양성종양 외음부양성종양 자궁 하이푸',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},
+    SIL:{c:'S',d:10,lim:'2회 이내',sx:'자궁용종 / 근종(하이푸수술은 제외) / 질양성종양 / 외음부양성종양',x:'유병자실손은 하이푸수술 제외'}}},
+
+{id:'C15',n:'자궁내막증식증 / 자궁선근증 / 자궁선근종 수술',g:'생식기',code:'N85 N80.0',
+ kw:'자궁내막증식증 자궁선근증 자궁선근종 선근증 선근종',
+ p:{TRM:{c:'S',d:10}}},
+
+{id:'C16',n:'담낭염 / 담석증(담낭) / 담낭용종 수술',g:'소화기',code:'K80 K81 K82',
+ kw:'담낭염 담석증 담석 쓸개 담낭용종 담낭절제 담낭',
+ p:{GEN:{c:'S',d:10,x:'담낭절제술'},TRI:{c:'S',d:10,x:'담낭절제술'},SHD:{c:'S',d:10,x:'담낭절제술'},
+    TRM:{c:'S',d:10,x:'담낭절제술'},SIL:{c:'S',d:10,x:'담낭절제술'}}},
+
+{id:'C17',n:'요로결석 / 신장결석 완전제거',g:'비뇨',code:'N20',kw:'요로결석 신장결석 요관결석 결석 쇄석술 체외충격파',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10,lim:'2회 이내'}}},
+
+{id:'C18',n:'하지정맥류 수술',g:'순환기',code:'I83',kw:'하지정맥류 정맥류 다리혈관 다리',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C19',n:'충수돌기염(맹장염) 수술',g:'소화기',code:'K35 K36 K37',kw:'맹장 맹장염 충수염 충수돌기염 충수절제',
+ p:{GEN:{c:'S',d:10},TRI:{c:'S',d:10},SHD:{c:'S',d:10},TRM:{c:'S',d:10},SIL:{c:'S',d:10}}},
+
+{id:'C20',n:'탈장 수술',g:'소화기',code:'K40 K41 K42 K43',kw:'탈장 서혜부탈장 사타구니 제대탈장 배꼽탈장',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C21',n:'치질(치핵, 치루) 수술',g:'항문',code:'K64 K60.3',kw:'치질 치핵 치루 항문 치핵절제',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C22',n:'항문 및 직장부의 농양/누공/열창 완전제거',g:'항문',code:'K61 K60',
+ kw:'항문농양 직장농양 누공 열창 치열 항문',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C23',n:'여성형유방 / 부유방 / 미용성형 수술',g:'성형',code:'N62 Q83',
+ kw:'여성형유방 부유방 미용성형 성형수술 가슴성형 탈모',
+ p:{GEN:{c:'S',d:10,x:'외모개선 목적인 경우만 / 유방재건술은 제외',lim:'2회 이내'},
+    TRI:{c:'S',d:10,x:'외모개선 목적인 경우만 / 유방재건술은 제외',lim:'2회 이내'},
+    SHD:{c:'S',d:10,x:'외모개선 목적인 경우만 / 유방재건술은 제외',lim:'2회 이내'},
+    TRM:{c:'S',d:10,x:'외모개선 목적인 경우만 / 유방재건술은 제외',lim:'2회 이내'},
+    SIL:{c:'S',d:10,sx:'탈모 / 여성형유방 / 부유방 / 미용성형',x:'외모개선 목적인 경우만 / 유방재건술은 제외 (탈모 항목과 1개 라인으로 통합 운영)',lim:'2회 이내'}}},
+
+{id:'C24',n:'쌍꺼풀/안검내반증/안검하수/다래끼/눈꺼풀염증/시력교정 수술',g:'안과',code:'H00 H01 H02',
+ kw:'쌍꺼풀 안검내반증 안검하수 다래끼 맥립종 눈꺼풀염증 시력교정 라식 라섹 눈성형',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10,lim:'2회 이내'}}},
+
+{id:'C25',n:'성대결절(양성) 수술',g:'이비인후',code:'J38.2',kw:'성대결절 성대 쉰목소리 목소리',
+ p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
+
+{id:'C26',n:'경증 선천기형 수술',g:'선천',code:'Q35 Q37 Q38.1 Q53 Q54 Q69',
+ s:'구순구개열 / 허유착증(혀유착증) / 다지증 / 잠복고환 / 요도하열',
+ kw:'구순구개열 언청이 허유착증 혀유착증 설유착증 설소대 다지증 육손 잠복고환 요도하열 선천기형',
+ p:{GEN:{c:'S',d:10},TRI:{c:'S',d:10},SHD:{c:'S',d:10},TRM:{c:'S',d:10},SIL:{c:'S',d:10}}},
+
+{id:'C27',n:'유방양성종양(낭종) 완전제거',g:'유방',code:'D24 N60',
+ kw:'유방양성종양 유방낭종 섬유선종 유방혹 가슴혹 유방',
+ p:{GEN:{c:'S',d:10,x:'현재 보유 없음'},TRI:{c:'S',d:10,x:'현재 보유 없음'},
+    SHD:{c:'S',d:10,x:'현재 보유 없음'},TRM:{c:'S',d:10,x:'현재 보유 없음'}}},
+
+{id:'C28',n:'자궁내막증 수술',g:'생식기',code:'N80',kw:'자궁내막증 내막증',
+ p:{GEN:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당'},TRI:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당'},
+    SHD:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당'},TRM:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당'}}},
+
+{id:'C29',n:'대장용종(양성) 완전제거',g:'소화기',code:'D12 K63.5',
+ kw:'대장용종 대장폴립 용종 폴립 대장내시경 용종절제 대장',
+ p:{GEN:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},TRI:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},
+    SHD:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},TRM:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},
+    SIL:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'}}},
+
+{id:'C30',n:'위/식도/십이지장 용종(양성) 완전제거',g:'소화기',code:'D13 K31.7',
+ kw:'위용종 식도용종 십이지장용종 용종 폴립 위내시경 위',
+ p:{GEN:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},TRI:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},
+    SHD:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},TRM:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},
+    SIL:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'}}},
+
+{id:'C31',n:'경증 피부질환 수술',g:'피부',code:'L02 L72 L84 R61 B07 D17 M67.4 L91',
+ s:'피부농양 / 종기 / 모낭낭 / 다한증(액취증) / 사마귀 / 티눈 / 지방종 / 결절종 / 모소낭 / 켈로이드',
+ kw:'피부농양 종기 모낭낭 다한증 액취증 겨드랑이 사마귀 티눈 지방종 결절종 물혹 모소낭 켈로이드',
+ p:{GEN:{c:'S',d:5,x:'완전제거',lim:'2회 이내'},TRI:{c:'S',d:5,x:'완전제거',lim:'2회 이내'},
+    SHD:{c:'S',d:5,x:'완전제거',lim:'2회 이내'},TRM:{c:'S',d:5,x:'완전제거',lim:'2회 이내'},
+    SIL:{c:'S',d:5,x:'완전제거',lim:'2회 이내'}}},
+
+{id:'C32',n:'주침샘 양성종양 수술',g:'이비인후',code:'D11',kw:'주침샘 침샘 이하선 악하선 양성종양',
+ p:{GEN:{c:'S',d:10},TRI:{c:'S',d:10},SHD:{c:'S',d:10},TRM:{c:'S',d:10},SIL:{c:'S',d:10}}},
+
+{id:'C33',n:'장기기증자 수술',g:'기타',code:'Z52',kw:'장기기증 기증자 신장기증 간기증 공여',
+ p:{GEN:{c:'S',d:10},TRI:{c:'S',d:10},SHD:{c:'S',d:10},TRM:{c:'S',d:10},SIL:{c:'S',d:10}}},
+
+{id:'C34',n:'혈관종 수술',g:'피부',code:'D18',kw:'혈관종 혈관기형 붉은점',
+ p:{GEN:{c:'S',d:5},TRI:{c:'S',d:5},SHD:{c:'S',d:5},TRM:{c:'S',d:5},SIL:{c:'S',d:5}}}
+];
+
+/* =============== 초성 / 검색 유틸 =============== */
+const CHO=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function choseong(s){let o='';for(const ch of s){const c=ch.charCodeAt(0);
+  if(c>=0xAC00&&c<=0xD7A3){o+=CHO[Math.floor((c-0xAC00)/588)];}else{o+=ch;}}return o;}
+function norm(s){return (s||'').toLowerCase().replace(/[\s·\/(),\-\[\]]/g,'');}
+function isChoOnly(s){return /^[ㄱ-ㅎ]+$/.test(s.replace(/\s/g,''));}
+function bigrams(s){const a=[];for(let i=0;i<s.length-1;i++)a.push(s.slice(i,i+2));return a.length?a:[s];}
+function sim(a,b){const A=bigrams(a),B=new Set(bigrams(b));let h=0;A.forEach(g=>{if(B.has(g))h++;});
+  return h/Math.max(A.length,B.size,1);}
+
+ITEMS.forEach(it=>{
+  it._hay=norm(it.n+' '+(it.s||'')+' '+(it.kw||'')+' '+Object.values(it.p).map(v=>(v.sx||'')).join(' '));
+  it._cho=choseong(it.n+(it.kw||''));
+  it._code=norm(it.code||'');
+});
+function search(qRaw){
+  const q=qRaw.trim(); if(!q) return [];
+  const nq=norm(q);
+  if(isChoOnly(q)){const c=q.replace(/\s/g,'');return ITEMS.filter(it=>it._cho.includes(c));}
+  return ITEMS.filter(it=>it._hay.includes(nq)||it._code.includes(nq));
+}
+function similar(qRaw){
+  const nq=norm(qRaw);
+  return ITEMS.map(it=>({it,sc:Math.max(sim(nq,norm(it.n)),...(it.kw||'').split(' ').map(k=>sim(nq,norm(k))))}))
+    .filter(o=>o.sc>0.2).sort((a,b)=>b.sc-a.sc).slice(0,4).map(o=>o.it);
+}
+
+/* =============== 상태 =============== */
+let picked=[];
+const $=s=>document.querySelector(s);
+  const S_=document.getElementById('viewEx');
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const byId=id=>ITEMS.find(i=>i.id===id);
+const shortNm=n=>n.replace('유병자 실손의료비','유병자실손').replace('어깨/무릎/디스크플랜','어깨·무릎·디스크');
+
+/* =============== 검색 =============== */
+function renderRes(){
+  const q=$('#ex-q').value, box=$('#ex-res');
+  $('#ex-clr').style.display=q?'block':'none';
+  if(!q.trim()){
+    box.innerHTML='<div class="blank"><span class="big">질환명을 입력해 보세요</span>'+
+      '초성으로도 찾을 수 있어요. <b>ㄷㅈㅇㅈ</b>을 치면 대장용종이 나옵니다.</div>';
+    return;
+  }
+  const hit=search(q);
+  if(hit.length){ box.innerHTML=hit.map(rowHTML).join(''); }
+  else{
+    const sg=similar(q);
+    box.innerHTML='<div class="blank"><span class="big">「'+esc(q)+'」은(는) 예외질환이 아닙니다</span>'+
+      '목록에 없는 질환으로 입원하거나 수술했다면<br>5개 설계유형 모두 <b>인수불가</b>입니다.</div>'+
+      (sg.length?'<div class="nudge"><div class="nt">혹시 이 질환인가요?</div>'+sg.map(rowHTML).join('')+'</div>':'');
+  }
+  box.querySelectorAll('.row').forEach(el=>el.onclick=()=>toggle(el.dataset.id));
+}
+function rowHTML(it){
+  const on=picked.some(p=>p.id===it.id);
+  const pills=PLANS.map(pl=>{const v=it.p[pl.id];
+    return '<span class="pill '+(v?'y':'n')+'">'+shortNm(pl.nm)+(v?' '+v.d+'일':' 불가')+'</span>';}).join('');
+  return '<div class="row'+(on?' on':'')+'" data-id="'+it.id+'">'+
+    '<div class="txt"><div class="t1">'+esc(it.n)+'</div>'+
+    (it.s?'<div class="t2">'+esc(it.s)+'</div>':'')+
+    '<div class="pills">'+pills+'</div></div>'+
+    '<button class="pick" aria-label="선택">'+(on?'✓':'+')+'</button></div>';
+}
+function toggle(id){
+  if(picked.some(p=>p.id===id)) picked=picked.filter(p=>p.id!==id);
+  else picked.push({id,op:false,adm:0,out:0});
+  renderAll();
+}
+
+/* =============== 치료이력 =============== */
+function renderPicked(){
+  const box=$('#ex-picked'), n=picked.length;
+  $('#ex-tally').innerHTML=
+    '<span class="'+(n===0?'':(n>5?'bad':'good'))+'">간편상품·간편정기 '+n+'/5</span>'+
+    '<span class="'+(n===0?'':(n>3?'bad':'good'))+'">유병자실손 '+n+'/3</span>'+
+    (n>5?'<span class="bad">6개 이상은 사고다발로 전부 불가</span>':(n>3?'<span class="bad">4개 이상은 실손 불가</span>':''));
+  if(!n){box.innerHTML='<div class="blank">위에서 질환을 먼저 골라주세요.</div>';return;}
+  box.innerHTML=picked.map(p=>{
+    const it=byId(p.id);
+    return '<div class="item" data-id="'+p.id+'">'+
+      '<div class="ih"><div class="n">'+esc(it.n)+'</div><button class="rm" aria-label="삭제">✕</button></div>'+
+      (it.s?'<div class="sub">'+esc(it.s)+'</div>':'')+
+      '<div class="fields">'+
+        '<div class="f"><span class="lab">치료 형태</span><div class="toggle op">'+
+          '<button data-v="0" class="'+(p.op?'':'on')+'">입원만 했어요</button>'+
+          '<button data-v="1" class="'+(p.op?'on':'')+'">수술·시술 했어요</button></div></div>'+
+        '<div class="f"><span class="lab">입원일수</span>'+stepHTML('adm',p.adm)+'</div>'+
+        '<div class="f"><span class="lab">통원일수</span>'+stepHTML('out',p.out)+
+          '<span style="font-size:12.5px;color:var(--g500);font-weight:500">실손 판정에만 합산</span></div>'+
+      '</div></div>';
+  }).join('');
+  box.querySelectorAll('.item').forEach(el=>{
+    const id=el.dataset.id, p=picked.find(x=>x.id===id);
+    el.querySelector('.rm').onclick=()=>{picked=picked.filter(x=>x.id!==id);renderAll();};
+    el.querySelectorAll('.toggle.op button').forEach(b=>b.onclick=()=>{p.op=b.dataset.v==='1';renderAll();});
+    el.querySelectorAll('.stepper').forEach(st=>{
+      const f=st.dataset.f;
+      st.querySelector('.ex-dec').onclick=()=>{p[f]=Math.max(0,p[f]-1);renderAll();};
+      st.querySelector('.ex-inc').onclick=()=>{p[f]=Math.min(365,p[f]+1);renderAll();};
+      st.querySelector('input').onchange=e=>{p[f]=Math.max(0,Math.min(365,parseInt(e.target.value)||0));renderAll();};
+    });
+  });
+}
+function stepHTML(f,v){
+  return '<div class="stepper" data-f="'+f+'"><button class="ex-dec" aria-label="감소">−</button>'+
+    '<input type="number" value="'+v+'" min="0" aria-label="일수"><button class="ex-inc" aria-label="증가">+</button><span class="u">일</span></div>';
+}
+
+/* =============== 판정 =============== */
+function judgeOne(it,p,plan){
+  const v=it.p[plan.id];
+  if(!v) return {ok:false,r:'예외질환 아님'};
+  if(p.op && v.c==='I') return {ok:false,r:'수술하면 불가, 입원만 인정'};
+  if(!p.op && v.c==='S') return {ok:false,r:'수술한 경우만 인정'};
+  const days = plan.id==='SIL' ? (p.adm+p.out) : p.adm;
+  if(days>v.d) return {ok:false,r:plan.unit+' '+days+'일, 한도 '+v.d+'일 초과'};
+  return {ok:true,r:plan.unit+' '+v.d+'일 이내'+(v.lim?', '+v.lim:'')};
+}
+function judgePlan(plan){
+  if(!picked.length) return {st:'na',lines:[],over:false};
+  const over=picked.length>plan.max;
+  const lines=picked.map(p=>{const it=byId(p.id);const r=judgeOne(it,p,plan);
+    return {nm:it.n,ok:r.ok,r:r.r};});
+  return {st:(over||!lines.every(l=>l.ok))?'no':'ok',lines,over};
+}
+
+function renderVerdict(){
+  const res={}; PLANS.forEach(pl=>res[pl.id]=judgePlan(pl));
+  $('#ex-vlist').innerHTML=PLANS.map(pl=>{
+    const r=res[pl.id];
+    const cls=r.st==='na'?'':' '+r.st;
+    const label=r.st==='na'?'대기':(r.st==='ok'?'가능':'불가');
+    let why='';
+    if(r.st!=='na'){
+      why='<div class="vwhy">'+r.lines.map(l=>
+        '<div><span class="mk '+(l.ok?'y':'n')+'">'+(l.ok?'○':'✕')+'</span>'+
+        '<span>'+esc(l.nm)+' <span class="why">'+esc(l.r)+'</span></span></div>').join('')+'</div>';
+      if(r.over) why+='<div class="vover">예외질환 '+picked.length+'개로 한도 '+pl.max+'개를 넘어 사고다발 처리됩니다</div>';
+    }
+    return '<div class="v'+cls+'"><div class="vtop"><div class="who">'+
+      '<div class="g">'+pl.grp+'</div><div class="ex-pn">'+pl.nm+'</div></div>'+
+      '<div class="r">'+label+'</div></div>'+why+
+      '<div class="vcap">예외질환 최대 '+pl.max+'개 · '+(pl.id==='SIL'?'치료종료 3개월 경과':'치료종료 7일 경과')+'</div></div>';
+  }).join('');
+
+  /* 교차 안내 */
+  let msgs=[];
+  if(picked.length){
+    const okAny=PLANS.filter(pl=>res[pl.id].st==='ok');
+    if(res.GEN.st==='no'&&(res.TRI.st==='ok'||res.SHD.st==='ok')){
+      const alt=[res.TRI.st==='ok'?'3대진단플랜':null,res.SHD.st==='ok'?'어깨/무릎/디스크플랜':null].filter(Boolean);
+      msgs.push('일반설계로는 안 되지만 <b>'+alt.join(' · ')+'</b>으로 바꾸면 설계됩니다.');
+    }
+    if(res.GEN.st==='no'&&res.TRI.st==='no'&&res.SHD.st==='no'&&res.TRM.st==='ok')
+      msgs.push('간편상품 3개 플랜은 모두 막히지만 <b>간편정기(정기·상조)</b>는 가능합니다.');
+    if(res.SIL.st==='no'&&okAny.some(p=>p.grp!=='유병자실손'))
+      msgs.push('<b>유병자실손만 불가</b>합니다. 실손은 예외질환 3개 한도에 입·통원 일수를 합산해서 봅니다.');
+    picked.forEach(p=>{
+      const it=byId(p.id);
+      const no=PLANS.filter(pl=>!it.p[pl.id]).map(pl=>pl.nm);
+      const yes=PLANS.filter(pl=>it.p[pl.id]).map(pl=>pl.nm);
+      if(no.length&&yes.length)
+        msgs.push('「'+esc(it.n)+'」은(는) <b>'+no.join(' · ')+'</b>의 예외질환 목록에 아예 없습니다. 인정되는 곳은 '+yes.join(' · ')+'입니다.');
+    });
+    if(!okAny.length) msgs.push('지금 조건으로는 5개 모두 막힙니다. 치료일수와 치료형태를 다시 확인하거나, 예외질환을 운영하지 않는 <b>355 수술고지형</b>을 검토해 보세요.');
+  }
+  $('#ex-tipbox').innerHTML = msgs.length
+    ? '<div class="tip"><h3>이렇게 바꾸면 됩니다</h3><ul>'+msgs.map(m=>'<li>'+m+'</li>').join('')+'</ul></div>' : '';
+
+  /* 상세 비교표 */
+  if(!picked.length){$('#ex-mxcard').style.display='none';$('#ex-mx').innerHTML='';return;}
+  $('#ex-mxcard').style.display='';
+  let h='<table><thead><tr><th>질환 / 치료이력</th>';
+  PLANS.forEach(pl=>h+='<th>'+shortNm(pl.nm).replace('어깨·무릎·디스크','어깨·무릎<br>디스크').replace('유병자실손','유병자<br>실손')+'</th>');
+  h+='</tr></thead><tbody>';
+  picked.forEach(p=>{
+    const it=byId(p.id);
+    h+='<tr><td><div class="nm">'+esc(it.n)+'</div><div class="meta">'+(p.op?'수술·시술':'입원만')+' · 입원 '+p.adm+'일'+(p.out?' · 통원 '+p.out+'일':'')+'</div></td>';
+    PLANS.forEach(pl=>{const r=judgeOne(it,p,pl);
+      h+='<td><span class="mk '+(r.ok?'y':'n')+'">'+(r.ok?'○':'✕')+'</span><span class="rs">'+esc(r.r)+'</span></td>';});
+    h+='</tr>';
+  });
+  $('#ex-mx').innerHTML=h+'</tbody></table>';
+}
+function renderAll(){renderRes();renderPicked();renderVerdict();}
+
+/* =============== 전체 목록 =============== */
+let curPlan='GEN';
+function renderList(){
+  $('#ex-ptabs').innerHTML=PLANS.map(p=>'<button data-p="'+p.id+'" class="'+(p.id===curPlan?'on':'')+'">'+shortNm(p.nm)+'</button>').join('');
+  $('#ex-ptabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{curPlan=b.dataset.p;renderList();});
+  const pl=PLANS.find(p=>p.id===curPlan);
+  const secs=[
+    {k:'I',t:(curPlan==='SIL'?'입원·통원만 한 경우':'입원만 한 경우')+' (수술·시술 제외)'},
+    {k:'IS',t:(curPlan==='SIL'?'입원·통원':'입원')+' 또는 수술·시술한 경우'},
+    {k:'S',t:'수술·시술한 경우'}
+  ];
+  let h='<div class="lmeta">'+pl.grp+' · '+pl.nm+' · 예외질환 최대 '+pl.max+'개 · 일수는 '+pl.unit+' 기준</div>';
+  secs.forEach(sc=>{
+    const list=ITEMS.filter(it=>it.p[curPlan]&&it.p[curPlan].c===sc.k);
+    if(!list.length) return;
+    h+='<div class="lgrp"><div><span class="gt">'+sc.t+'</span><span class="gc">'+list.length+'</span></div><ul>'+
+      list.map(it=>{const v=it.p[curPlan];
+        const nm=(!it.s&&v.sx)?v.sx:it.n;
+        const sub=it.s?(v.sx||it.s):'';
+        return '<li><span class="day">'+pl.unit+' '+v.d+'일</span>'+esc(nm)+
+          (sub?'<span class="li-sub"> ('+esc(sub)+')</span>':'')+
+          (v.x?'<span class="li-x"> · '+esc(v.x)+'</span>':'')+
+          (v.lim?'<span class="li-lim"> · '+esc(v.lim)+'</span>':'')+'</li>';}).join('')+'</ul></div>';
+  });
+  h+='<div class="lgrp"><div><span class="gt">그 外</span></div><ul><li>'+
+     '위 목록에 없는 질환으로 '+(curPlan==='SIL'?'입·통원':'입원')+'하거나 수술했다면 예외질환이 아니므로 <b style="color:var(--red)">인수불가</b>입니다.</li></ul></div>';
+  $('#ex-plist').innerHTML=h;
+}
+
+/* =============== 이벤트 =============== */
+$('#ex-q').addEventListener('input',function(){ renderRes(); logSearchDebounced($('#ex-q').value.trim()); });
+$('#ex-clr').onclick=()=>{$('#ex-q').value='';renderRes();$('#ex-q').focus();};
+document.querySelectorAll('#viewEx .quick button').forEach(b=>b.onclick=()=>{$('#ex-q').value=b.dataset.q;renderRes();
+  $('#ex-res').scrollIntoView({block:'nearest'});});
+$('#ex-openList').onclick=()=>{renderList();$('#ex-mask').classList.add('on');document.body.style.overflow='hidden';};
+$('#ex-closeM').onclick=closeSheet;
+$('#ex-mask').onclick=e=>{if(e.target.id==='ex-mask')closeSheet();};
+function closeSheet(){$('#ex-mask').classList.remove('on');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+$('#ex-resetBtn').onclick=()=>{picked=[];$('#ex-q').value='';renderAll();window.scrollTo({top:0,behavior:'smooth'});};
+$('#ex-copyBtn').onclick=()=>{
+  if(!picked.length){alert('선택한 질환이 없습니다.');return;}
+  let t='[간편보험 예외질환 판정결과]\n';
+  picked.forEach(p=>{const it=byId(p.id);
+    t+='· '+it.n+' / '+(p.op?'수술·시술':'입원만')+' / 입원 '+p.adm+'일'+(p.out?' / 통원 '+p.out+'일':'')+'\n';});
+  t+='\n';
+  PLANS.forEach(pl=>{const r=judgePlan(pl);
+    t+='['+pl.grp+' '+pl.nm+'] '+(r.st==='ok'?'인수 가능':'인수 불가')+'\n';
+    r.lines.forEach(l=>{t+='   '+(l.ok?'○':'✕')+' '+l.nm+' — '+l.r+'\n';});});
+  t+='\n※ 사전 참고용이며 최종 인수는 심사 결과에 따릅니다.\n제작 : 세일즈혁신TF 이헌수';
+  navigator.clipboard.writeText(t).then(()=>alert('결과를 복사했습니다.'),()=>{
+    const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');ta.remove();alert('결과를 복사했습니다.');});
+};
+
+
+  })();
+  if(location.hash==='#ex') tab('ex');
   renderDuty();
   render();
 })();
