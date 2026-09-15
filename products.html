@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>상품 라인업 ver2609 · 메리츠 세일즈혁신</title>
+<style>
+  :root{
+    --blue:#D97706; --blue2:#F59E0B; --blue3:#FBBF24; --blueDeep:#92400E;
+    --blueSoft:#FFFBEB; --blueLine:#FDE68A;
+    --meritz:#990011;
+    --ink:#1B2333; --sub:#5A6273; --mute:#8A93A5;
+    --line:#E7E9EF; --bg:#F7F9FC; --card:#fff;
+    --warn:#B45309; --warnBg:#FFF7E6;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; padding:0}
+  body{font-family:"맑은 고딕","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+       color:var(--ink); background:var(--bg); font-size:14px; line-height:1.6;
+       -webkit-text-size-adjust:100%}
+
+  /* ── 헤더 ── */
+  .hd{position:relative; overflow:hidden; color:#fff;
+      background:linear-gradient(135deg,var(--blueDeep) 0%,var(--blue) 55%,var(--blue3) 100%)}
+  .hd::after{content:""; position:absolute; right:-60px; top:-70px; width:230px; height:230px;
+      border-radius:50%; background:rgba(255,255,255,.07)}
+  .hd-in{max-width:1080px; margin:0 auto; padding:20px 18px 22px; display:flex; align-items:center; gap:14px; position:relative; z-index:2}
+  .rara{width:66px; height:84px; flex:none; background:url(data:image/png;base64,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) no-repeat center bottom/contain;
+        filter:drop-shadow(0 6px 12px rgba(0,0,0,.28)); animation:bob 3.4s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-7px) rotate(3deg)}}
+  .hd h1{margin:0; font-size:22px; font-weight:900; letter-spacing:-.03em}
+  .hd h1 .ver{display:inline-block; font-size:11px; font-weight:800; letter-spacing:0;
+        background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.38);
+        padding:2px 8px; border-radius:999px; vertical-align:3px; margin-left:4px}
+  .hd h1 small{display:block; font-size:11.5px; font-weight:800; opacity:.85; margin-top:3px; letter-spacing:0}
+  .hd p{margin:5px 0 0; font-size:12.5px; opacity:.9; font-weight:600}
+  .home{position:absolute; right:16px; top:16px; z-index:3; color:#fff; text-decoration:none;
+        font-size:11.5px; font-weight:800; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35);
+        padding:6px 12px; border-radius:999px; backdrop-filter:blur(4px)}
+  .home:active{background:rgba(255,255,255,.32)}
+
+  .wrap{max-width:1080px; margin:0 auto; padding:0 14px 70px}
+
+  /* ── 탭 ── */
+  .tabs{display:flex; gap:6px; margin:14px 0 10px}
+  .tab{flex:1; text-align:center; padding:11px 8px; border-radius:12px; border:1px solid var(--line);
+       background:#fff; font-weight:800; font-size:13.5px; color:var(--sub); cursor:pointer; transition:.15s}
+  .tab.on{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 14px rgba(217,119,6,.28)}
+
+  /* ── 검색/필터 ── */
+  .ctrl{background:var(--bg); padding:8px 0 10px;
+        border-bottom:1px solid var(--line); margin-bottom:14px}
+  .sbox{position:relative}
+  .sbox input{width:100%; padding:13px 40px 13px 40px; border:1.5px solid var(--blueLine); border-radius:13px;
+       font-size:15px; font-family:inherit; background:#fff; outline:none; transition:.15s}
+  .sbox input:focus{border-color:var(--blue); box-shadow:0 0 0 4px rgba(245,158,11,.12)}
+  .sbox .ic{position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:15px; opacity:.5}
+  .sbox .cl{position:absolute; right:8px; top:50%; transform:translateY(-50%); border:0; background:#EDF0F5;
+       width:26px; height:26px; border-radius:50%; cursor:pointer; color:var(--sub); font-size:14px; display:none}
+  .sbox .cl.on{display:block}
+
+  .fgrp{margin-top:9px}
+  .flab{font-size:10.5px; font-weight:900; color:var(--mute); letter-spacing:.02em; margin:0 0 5px 2px}
+  .chips{display:flex; flex-wrap:wrap; gap:6px}
+  .chip{border:1px solid var(--line); background:#fff; color:var(--sub); font-family:inherit;
+        font-size:12.5px; font-weight:700; padding:7px 12px; border-radius:999px; cursor:pointer;
+        white-space:nowrap; transition:.13s}
+  .chip:active{transform:scale(.96)}
+  .chip.on{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 3px 10px rgba(217,119,6,.25)}
+  .chip.on.g2{background:#0E7490; border-color:#0E7490; box-shadow:0 3px 10px rgba(14,116,144,.25)}
+  .chip.on.g3{background:#6D28D9; border-color:#6D28D9; box-shadow:0 3px 10px rgba(109,40,217,.22)}
+  .chip.on.g4{background:var(--meritz); border-color:var(--meritz); box-shadow:0 3px 10px rgba(153,0,17,.22)}
+  .more{border:0; background:none; color:var(--blue); font-weight:800; font-size:12.5px; cursor:pointer;
+        padding:8px 2px 2px; font-family:inherit}
+  .adv{display:none} .adv.on{display:block}
+  .bar2{display:flex; align-items:center; justify-content:space-between; margin-top:10px; gap:8px}
+  .cnt{font-size:12.5px; font-weight:800; color:var(--sub)}
+  .cnt b{color:var(--blue); font-size:15px}
+  .reset{border:1px solid var(--line); background:#fff; color:var(--sub); font-size:11.5px; font-weight:800;
+         padding:6px 11px; border-radius:999px; cursor:pointer; font-family:inherit}
+
+  /* ── 카테고리 ── */
+  .cat{margin:0 0 10px}
+  .cat h2{display:flex; align-items:center; gap:8px; margin:20px 0 10px; font-size:15px; font-weight:900; letter-spacing:-.02em}
+  .cat h2 .dot{width:9px; height:9px; border-radius:3px; background:var(--blue)}
+  .cat h2 .n{font-size:11px; font-weight:800; color:var(--mute); background:#EDF1F7; padding:2px 8px; border-radius:999px}
+
+  /* ── 상품 카드 ── */
+  .p{background:var(--card); border:1px solid var(--line); border-radius:15px; margin-bottom:9px;
+     overflow:hidden; transition:box-shadow .18s, border-color .18s}
+  .p.open{border-color:var(--blueLine); box-shadow:0 8px 26px rgba(217,119,6,.10)}
+  .ph{display:flex; align-items:flex-start; gap:10px; padding:14px 14px; cursor:pointer; position:relative}
+  .ph:hover{background:#FAFCFF}
+  .pn{flex:1; min-width:0}
+  .pn h3{margin:0 0 6px; font-size:15px; font-weight:800; letter-spacing:-.02em; line-height:1.4}
+  .pmeta{display:flex; flex-wrap:wrap; gap:5px}
+  .b{font-size:10.5px; font-weight:800; padding:3px 8px; border-radius:6px; background:#F1F4F9; color:#4A5568; white-space:nowrap}
+  .b.age{background:#FFFBEB; color:var(--blue)}
+  .b.gp{background:#E7F6F8; color:#0E7490}
+  .b.std{background:#ECFDF5; color:#047857}
+  .b.easy{background:#FEF3C7; color:#92400E}
+  .b.hot{background:#FDECEE; color:var(--meritz)}
+  .arw{flex:none; width:24px; height:24px; border-radius:50%; background:#F1F4F9; color:var(--sub);
+       display:flex; align-items:center; justify-content:center; font-size:11px; transition:.22s; margin-top:2px}
+  .p.open .arw{transform:rotate(180deg); background:var(--blue); color:#fff}
+
+  .pb{display:none; padding:0 14px 16px; border-top:1px dashed var(--line); margin-top:-1px}
+  .p.open .pb{display:block; animation:fade .22s ease}
+  @keyframes fade{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
+
+  .sec{margin-top:14px}
+  .sec > .t{display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:900; color:var(--mute);
+       letter-spacing:.02em; margin-bottom:7px}
+
+  .kv{display:grid; grid-template-columns:repeat(2,1fr); gap:8px}
+  @media(max-width:520px){ .kv{grid-template-columns:1fr} }
+  .kv div{background:#F8FAFD; border:1px solid var(--line); border-radius:10px; padding:9px 11px}
+  .kv .k{font-size:10.5px; font-weight:800; color:var(--mute); margin-bottom:2px}
+  .kv .v{font-size:13px; font-weight:700; line-height:1.55}
+
+  /* 알릴의무 강조 */
+  .duty{border:1.5px solid var(--blueLine); background:linear-gradient(180deg,#F7FAFF,#fff);
+        border-radius:13px; padding:12px 12px 10px}
+  .duty .dt{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:900; color:var(--blue); margin-bottom:9px}
+  .dtag{display:inline-block; font-size:11px; font-weight:800; background:var(--blue); color:#fff;
+        padding:4px 10px; border-radius:999px; margin:0 4px 6px 0}
+  table.dt2{width:100%; border-collapse:separate; border-spacing:0; font-size:12.5px; background:#fff;
+        border:1px solid var(--blueLine); border-radius:10px; overflow:hidden}
+  table.dt2 th{background:#E8F0FE; color:var(--blueDeep); font-weight:900; font-size:11px; padding:8px 10px; text-align:left; white-space:nowrap}
+  table.dt2 td{padding:9px 10px; border-top:1px solid #EAF0FA; vertical-align:top; line-height:1.5}
+  table.dt2 td.pd{font-weight:900; color:var(--blue); white-space:nowrap; background:#FBFDFF; width:1%}
+  .note{margin-top:8px; font-size:11.5px; color:var(--warn); background:var(--warnBg); border:1px solid #FBE2B5;
+        border-radius:9px; padding:8px 10px; line-height:1.6}
+  .note div + div{margin-top:4px}
+  .stdlink{margin-top:8px; font-size:11.5px; color:var(--sub)}
+
+  ul.li{margin:0; padding:0; list-style:none}
+  ul.li li{position:relative; padding:6px 0 6px 15px; font-size:13px; line-height:1.6; border-top:1px solid #F2F4F8}
+  ul.li li:first-child{border-top:0}
+  ul.li li::before{content:""; position:absolute; left:2px; top:14px; width:5px; height:5px; border-radius:50%; background:var(--blue3)}
+  ul.li li.hl{color:var(--meritz); font-weight:700}
+  ul.li li.hl::before{background:var(--meritz)}
+  .wv{background:#FFFBF5; border:1px solid #F5E3C8; border-radius:11px; padding:10px 12px; font-size:12.5px; line-height:1.65}
+  .wv .h{font-weight:900; color:var(--warn); font-size:12px; margin-bottom:3px}
+  .pl{display:flex; flex-wrap:wrap; gap:5px}
+  .pl span{font-size:11.5px; font-weight:700; background:#F1F4F9; color:#3F4757; padding:5px 9px; border-radius:7px}
+  .pl span.hd2{background:#E7F6F8; color:#0E7490; font-weight:900}
+  .none{color:var(--mute); font-size:12.5px}
+
+  /* 유형별 보기 */
+  .dcard{background:#fff; border:1px solid var(--line); border-radius:15px; padding:15px; margin-bottom:11px}
+  .dcard h3{margin:0 0 4px; font-size:15.5px; font-weight:900; color:var(--blueDeep)}
+  .dcard .src{font-size:11px; color:var(--mute); font-weight:700; margin-bottom:10px}
+  .dcard .plist{margin-top:11px; display:flex; flex-wrap:wrap; gap:5px}
+  .dcard .plist b{font-size:11px; font-weight:900; color:var(--mute); align-self:center; margin-right:2px}
+  .dcard .plist span{font-size:11.5px; font-weight:700; background:var(--blueSoft); color:var(--blue);
+        padding:5px 9px; border-radius:7px; cursor:pointer}
+  .dcard .plist span:active{background:var(--blueLine)}
+
+  .empty{text-align:center; padding:50px 20px; color:var(--mute)}
+  .empty .e{font-size:34px; margin-bottom:8px}
+  .foot{margin-top:26px; padding-top:16px; border-top:1px solid var(--line);
+        font-size:11px; color:var(--mute); line-height:1.75; text-align:center}
+  .top{position:fixed; right:14px; bottom:14px; width:44px; height:44px; border-radius:50%; border:0;
+       background:var(--blue); color:#fff; font-size:17px; cursor:pointer; display:none; z-index:30;
+       box-shadow:0 8px 22px rgba(217,119,6,.4)}
+  .top.on{display:block}
+  @media(max-width:560px){ .hd h1{font-size:19px} .rara{width:56px; height:72px} }
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <a class="home" href="index.html">🏠 대문</a>
+  <div class="hd-in">
+    <div class="rara"></div>
+    <div>
+      <h1>상품 라인업 <span class="ver">ver2609</span><small>with 라라</small></h1>
+      <p>메리츠화재 장기상품 50종 · 알릴의무 한눈에 보기</p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab on" data-tab="prod">📦 상품별 보기</button>
+    <button class="tab" data-tab="duty">📋 알릴의무 유형별</button>
+  </div>
+
+  <div id="viewProd">
+    <div class="ctrl">
+      <div class="sbox">
+        <span class="ic">🔍</span>
+        <input id="q" type="search" placeholder="상품명 · 특징 · 플랜 · 고지내용 검색" autocomplete="off">
+        <button class="cl" id="clr">✕</button>
+      </div>
+
+      <div class="fgrp">
+        <div class="flab">상품구분</div>
+        <div class="chips" id="f1"></div>
+      </div>
+      <div class="fgrp">
+        <div class="flab">심사 · 고지유형</div>
+        <div class="chips" id="f2"></div>
+      </div>
+      <button class="more" id="moreBtn">＋ 상세필터 (대상 · 특성 · 담보군)</button>
+      <div class="adv" id="adv">
+        <div class="fgrp">
+          <div class="flab">대상 · 특성</div>
+          <div class="chips" id="f3"></div>
+        </div>
+        <div class="fgrp">
+          <div class="flab">담보군</div>
+          <div class="chips" id="f4"></div>
+        </div>
+      </div>
+
+      <div class="bar2">
+        <span class="cnt"><b id="cnt">0</b>개 상품</span>
+        <button class="reset" id="reset">필터 초기화</button>
+      </div>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <div id="viewDuty" style="display:none"></div>
+
+  <p class="foot">
+    출처 : 2609 장기상품리스트 (세일즈혁신TF) · 교육자료-2026-71호 · <b>ver2609</b><br>
+    본 자료는 사내 교육용이며 고객 제공·배포 불가. 계약 세부사항은 반드시 <b>약관</b>을 확인하세요.<br>
+    업데이트 및 오류 문의 : 세일즈혁신TF 이헌수
+  </p>
+</div>
+
+<button class="top" id="top">↑</button>
+
+<script id="DATA" type="application/json">{"products":[{"r":4,"n":"M-Basket","cat":"통합상품","grp":"성인","age":"0~70세","term":"세만기 (무해지 가능)","type":["보험료 납입면제형/","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["표준 알릴의무"],"rows":[["3개월이내","질병확정진단/질병의심소견/치료/입원/수술/투약"],["3개월이내","마약/혈압강하제/신경안정제/수면제/각성제/진통제 등 약물상시복용"],["1년이내","추가검사(재검사)"],["5년이내","입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약"],["5년이내","11대질병으로 질병확정진단/치료/입원/수술/투약 ①암, ②백혈병, ③고혈압, ④협심증, ⑤심근경색, ⑥심장판막증, ⑦간경화증, ⑧뇌졸중증(뇌출혈,뇌경색), ⑨당뇨병, ⑩에이즈(AIDS)및HIV보균, ⑪ [실손의료비 가입 시에만 고지] 직장 또는 항문 관련질환(치질,치루(누공), 치열(찢어짐),항문농양(고름집),직장또는항문탈출, 항문출혈,항문궤양 등)"]],"notes":[]},"waiver":["11대","암(유사암제외), 뇌졸중, 급성심근경색증,","상해/질병 80%이상 후유장해,","말기폐질환, 말기간경화, 말기신부전증,","양성뇌종양, 중대한재생불량성빈혈,","만성당뇨합병증 진단 시"],"plan":["4개","전화/약봉투(할증): 19~60세,","전화/약봉투(할증): 61~65세,","무진단: 61~65세,","무진단: 66~70세,"],"feat":["※ 0세부터 설계 가능한 메리츠 통합보험","※ 할증/부담보 인수를 통해 유연한 인수 진행","▷ 피보험자 추가 통해 3만원 최저보험료로 多人 보장 가능","▷ 해지환금금미지급형 설계 가능(무해지)"],"tags":["무해지/미지급형","세만기","일반심사"],"dt":["표준(일반심사)"],"useStd":false},{"r":5,"n":"The좋은 M-Basket","cat":"통합상품","grp":"성인","age":"15~70세","term":"연만기","type":["납입면제 고급형(표준형)/","납입면제 일반형","납입면제 미적용형","(표준형/해약환급미지급형)"],"duty":{"types":["표준 알릴의무"],"rows":[["3개월이내","질병확정진단/질병의심소견/치료/입원/수술/투약"],["3개월이내","마약/혈압강하제/신경안정제/수면제/각성제/진통제 등 약물상시복용"],["1년이내","추가검사(재검사)"],["5년이내","입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약"],["5년이내","11대질병으로 질병확정진단/치료/입원/수술/투약 ①암, ②백혈병, ③고혈압, ④협심증, ⑤심근경색, ⑥심장판막증, ⑦간경화증, ⑧뇌졸중증(뇌출혈,뇌경색), ⑨당뇨병, ⑩에이즈(AIDS)및HIV보균, ⑪ [실손의료비 가입 시에만 고지] 직장 또는 항문 관련질환(치질,치루(누공), 치열(찢어짐),항문농양(고름집),직장또는항문탈출, 항문출혈,항문궤양 등)"]],"notes":[]},"waiver":["16대","암(유사암제외), 뇌졸중, 급성심근경색증,","상해/질병 50%이상 후유장해,","말기폐질환, 말기간경화, 희귀난치성 7대질환","[만성신장병(5기), 파킨슨병, 재생불량성빈혈,","운동신경세포병(루게릭병 포함), 모야모야병,","심근질환(I42.4 제외), 전신홍반루프스]","양성뇌종양, 만성당뇨합병증 진단 시"],"plan":["4개","전화/약봉투(할증): 19~60세,","전화/약봉투(할증): 61~65세,","무진단: 61~65세","만만플랜: 15~65세"],"feat":["※ M-Basket의 연만기 버전 상품으로 납입면제 고급형 / 일반형 운영","▷ 갱신주기(10/15/20/30년) 선택가능, 합리적인 보험료 (15, 20, 30 수정P 동일)","▷ 납입면제 고급형 선택 시 차후 갱신 되어도 보장 만기까지 납입면제","▷ 납입면제 일반형 선택 시 차후 갱신 전까지 납입면제"],"tags":["무해지/미지급형","연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":false},{"r":6,"n":"통합간편건강보험(연만기) (일반심사형)","cat":"통합상품","grp":"성인","age":"15~90세 일반심사형","term":"(Ⅰ) 연만기","type":["납입면제 미적용형/","보험료 납입면제 2형"],"duty":{"types":["표준 알릴의무"],"rows":[["3개월이내","질병확정진단/질병의심소견/치료/입원/수술/투약"],["3개월이내","마약/혈압강하제/신경안정제/수면제/각성제/진통제 등 약물상시복용"],["1년이내","추가검사(재검사)"],["5년이내","입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약"],["5년이내","11대질병으로 질병확정진단/치료/입원/수술/투약 ①암, ②백혈병, ③고혈압, ④협심증, ⑤심근경색, ⑥심장판막증, ⑦간경화증, ⑧뇌졸중증(뇌출혈,뇌경색), ⑨당뇨병, ⑩에이즈(AIDS)및HIV보균, ⑪ [실손의료비 가입 시에만 고지] 직장 또는 항문 관련질환(치질,치루(누공), 치열(찢어짐),항문농양(고름집),직장또는항문탈출, 항문출혈,항문궤양 등)"]],"notes":[]},"waiver":["6대","암(유사암제외), 뇌졸중, 급성심근경색증,","상해/질병 80%이상 후유장해, 중증화상 및 부식"],"plan":["1개","무감액면책플랜"],"feat":["▷ 무감액면책플랜 운영(암/뇌/심 즉시보장 가능)"],"tags":["연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":false},{"r":7,"n":"통합간편건강보험(세만기) (일반심사형)","cat":"통합상품","grp":"성인","age":"5~90세 일반심사형","term":"(Ⅱ) 세만기","type":["납입면제 미적용형/","보험료 납입면제 2형"],"duty":{"types":["표준 알릴의무"],"rows":[["3개월이내","질병확정진단/질병의심소견/치료/입원/수술/투약"],["3개월이내","마약/혈압강하제/신경안정제/수면제/각성제/진통제 등 약물상시복용"],["1년이내","추가검사(재검사)"],["5년이내","입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약"],["5년이내","11대질병으로 질병확정진단/치료/입원/수술/투약 ①암, ②백혈병, ③고혈압, ④협심증, ⑤심근경색, ⑥심장판막증, ⑦간경화증, ⑧뇌졸중증(뇌출혈,뇌경색), ⑨당뇨병, ⑩에이즈(AIDS)및HIV보균, ⑪ [실손의료비 가입 시에만 고지] 직장 또는 항문 관련질환(치질,치루(누공), 치열(찢어짐),항문농양(고름집),직장또는항문탈출, 항문출혈,항문궤양 등)"]],"notes":[]},"waiver":["6대","암(유사암제외), 뇌졸중, 급성심근경색증,","상해/질병 80%이상 후유장해, 중증화상 및 부식"],"plan":["1개","무감액면책플랜"],"feat":["▷ 무감액면책플랜 운영(암/뇌/심 즉시보장 가능)"],"tags":["세만기","일반심사"],"dt":["표준(일반심사)"],"useStd":false},{"r":8,"n":"The건강한 5.10.5 보장보험 (표준체 + 건강고지)","cat":"통합상품","grp":"성인","age":"41~60세","term":"세만기 (무해지 가능)","type":["보험료 납입면제형/","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":["▶인수될 경우 건강고지 추가 가능","6년~10년 건강고지","▶입원/수술 여부(예외질환 운영)"]},"waiver":["11대","암(유사암제외), 뇌졸중, 급성심근경색증,","상해/질병 80%이상 후유장해,","말기폐질환, 말기간경화, 말기신부전증,","양성뇌종양, 중대한재생불량성빈혈,","만성당뇨합병증 진단 시"],"plan":["1개","무감액면책플랜"],"feat":["※ 표준 알릴의무 + 6~10년 건강고지로 저렴한 설계 가능한 표준체 종합보험","※ 무감액면책플랜 : 암/뇌/심 즉시보장 가능한 표준체 종합보험","★ 표준고지 ~ 9년고지 가입 후 1년간 입원/수술 사고 없을 경우 무사고전환 할인","★ 41세 ~ 60세 건강체 고객 가입 상품"],"tags":["건강고지","무해지/미지급형","세만기","일반심사"],"dt":["표준(일반심사)","건강고지"],"useStd":true},{"r":9,"n":"The건강한 내Mom대로 5.10.5 보장보험 (표준체 + 건강고지)","cat":"통합상품","grp":"태아·어린이","age":"10~40세","term":"세만기 (무해지 가능)","type":["보험료 납입면제형/","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":["▶인수될 경우 건강고지 추가 가능","6년~10년 건강고지","▶입원/수술 여부(예외질환 운영)"]},"waiver":["7대","암(유사암제외), 뇌혈관질환, 허혈성심장질환,","상해/질병 50%이상 후유장해,","양성뇌종양, 중대한재생불량성빈혈"],"plan":["1개","무감액면책플랜"],"feat":["※ 표준 알릴의무 + 6~10년 건강고지로 저렴한 설계 가능한 표준체 종합보험","※ 무감액면책플랜 : 암/뇌/심 즉시보장 가능한 표준체 종합보험","★ 표준고지 ~ 9년고지 가입 후 1년간 입원/수술 사고 없을 경우 무사고전환 할인"],"tags":["건강고지","무해지/미지급형","세만기","일반심사"],"dt":["표준(일반심사)","건강고지"],"useStd":true},{"r":10,"n":"내Mom대로 보장","cat":"통합상품","grp":"태아·어린이","age":"16~40세","term":"세만기 (무해지가능)","type":["보험료 납입면제형 Ⅱ","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["7대","암(유사암제외), 뇌혈관질환, 허혈성심장질환,","상해/질병 50%이상 후유장해,","양성뇌종양, 중대한재생불량성빈혈"],"plan":["1개","전화/약봉투(할증 ): 19~40세"],"feat":["▷ 뇌혈관질환, 허혈성심장질환 납입면제","▷ 한 증권에 상해/질병/운전자/비용 등 필수담보를 넣은 통합컨설팅 가능","▷ 납입면제 사유 시 내가 냈던 보험료를 돌려받는 페이백 기능 有","▷ 신암치료 (표적항암, 양성자치료, 세기조절) 가입가능","▷ 아나필락시스 진단비 추가","▷ 특정이물제거, 특정요로감염, 요관역류, 소아성장호르몬결핍증, 아동학대치료비 탑재"],"tags":["무해지/미지급형","세만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":11,"n":"내Mom같은 어린이","cat":"통합상품","grp":"태아·어린이","age":"태아~15세","term":"세만기 (무해지가능)","type":["보험료 납입면제형 Ⅱ","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["표준 알릴의무 / 태아보험 알릴의무"],"rows":[],"notes":["+ 임신 중인 경우 임신주수 고지","+ 태아보험 가입 시 임신과정 또는 산전검사에서 아래 해당사항 고지","[선천성기형, 선천성장애, 자궁내발육부전, 큰몸증, 신경학적결손,","염색체이상, 양수과소증, 양수과다증, 태아수종, 용혈성질환,","태아감염, 인공(체내/체외)수정아기, 다태아임신(쌍둥이/그 이상),","과숙임신, 전치태반, 태반조기박리, 자궁경관무력증,","산모의 출산전 선별검사 이상소견]","(★간편태아플랜: 임신주수, 산모 5년이내 10대질병((⑪항문질환 제외),","임신과정 및 산전검사 해당사항만 고지)"]},"waiver":["7대","암(유사암제외), 뇌혈관질환, 허혈성심장질환,","상해/질병 50%이상 후유장해,","양성뇌종양, 중대한재생불량성빈혈"],"plan":["1개","31주이내_간편태아플랜","어린이집플랜(1-15세)"],"feat":["▷ 뇌혈관질환, 허혈성심장질환 납입면제","▷ 태아보험 설계 가능(단, 수정P 및 수수료는 태아등재 이후 적용)","▷ 납입면제 사유 시 내가 냈던 보험료를 돌려받는 페이백 기능 有","▷ 신암치료 (표적항암, 양성자치료, 세기조절) 가입가능","▷ 아나필락시스 진단비 추가","▷ 특정이물제거, 특정요로감염, 요관역류, 소아성장호르몬결핍증, 아동학대치료비 탑재","※내Mom같은 우리아이 : 어린이집플랜(1-15세) - 3개월 고지로 상해/전염병 플랜탑재 담보 인수"],"tags":["무해지/미지급형","세만기","일반심사","태아"],"dt":["태아","표준(일반심사)"],"useStd":true},{"r":12,"n":"내Mom같은 어린이 (태아전용)","cat":"통합상품","grp":"태아·어린이","age":"태아","term":"세만기 (무해지가능)","type":["보험료 납입면제형 Ⅱ","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["표준 알릴의무 / 태아보험 알릴의무"],"rows":[],"notes":["+ 임신 중인 경우 임신주수 고지","+ 태아보험 가입 시 임신과정 또는 산전검사에서 아래 해당사항 고지","[선천성기형, 선천성장애, 자궁내발육부전, 큰몸증, 신경학적결손,","염색체이상, 양수과소증, 양수과다증, 태아수종, 용혈성질환,","태아감염, 인공(체내/체외)수정아기, 다태아임신(쌍둥이/그 이상),","과숙임신, 전치태반, 태반조기박리, 자궁경관무력증,","산모의 출산전 선별검사 이상소견]","(★간편태아플랜: 임신주수, 산모 5년이내 10대질병((⑪항문질환 제외),","임신과정 및 산전검사 해당사항만 고지)"]},"waiver":["7대","암(유사암제외), 뇌혈관질환, 허혈성심장질환,","상해/질병 50%이상 후유장해,","양성뇌종양, 중대한재생불량성빈혈"],"plan":["1개","31주이내_간편태아플랜","어린이집플랜(1-15세)"],"feat":["▷내Mom같은 어린이 상품과 상품특징 동일, 태아전용상품으로 설계 시 수수료+시상 선지급","▷월 2건 설계 제한 있음(전월 무실적자 1건)"],"tags":["무해지/미지급형","세만기","일반심사","태아"],"dt":["태아","표준(일반심사)"],"useStd":true},{"r":13,"n":"The좋은 내Mom대로 보장","cat":"통합상품","grp":"태아·어린이","age":"0~40세","term":"연만기","type":["납입면제 고급형Ⅱ/","납입면제 일반형Ⅱ/","납입면제 미적용형"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["7대","암(유사암제외), 뇌혈관질환, 허혈성심장질환,","상해/질병 50%이상 후유장해,","양성뇌종양, 중대한재생불량성빈혈"],"plan":["1개","전화/약봉투(할증): 19~40세"],"feat":["▷The좋은 M-basket의 0~40세 버전 / 뇌혈관질환, 심혈관질환 납입면제","▷갱신주기(10년/15년/20년/30년) 길어 안정적인 유지 가능하며 갱신형 특성 상 보험료 저렴","▷납입면제 고급형 선택 시 갱신되어도 보장 만기까지 납입면제","▷납입면제 일반형 선택 시 갱신 전까지 납입면제"],"tags":["연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":15,"n":"통합간편건강보험(연만기) (통합간편심사형)","cat":"간편상품","grp":"유병자 간편심사","age":"15-90세","term":"연만기","type":["납입면제 미적용형","보험료 납입면제 1형","보험료 납입면제 2형","(표준형/해약환급미지급형)"],"duty":{"types":["간편3N5 알릴의무(3N5 간편심사형(6대질병))"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["N년 이내","입원 수술 (예외질환 최대 5개 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"]],"notes":["(★3.0.5 ~ 3.10.5 개별 인수 한도 및 인수플랜 운영)","※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["납입면제 1형 : 5대","암(유사암제외), 뇌졸중, 급성심근경색증","상해/질병 80%이상 후유장해","납입면제 2형 : 6대(무해지형)","암(유사암제외), 뇌졸중, 급성심근경색증","상해/질병 80%이상 후유장해, 중증화상 및 부식"],"plan":["3.0.5 : 2개","뇌심장혈관플랜","무감액면책플랜Ⅱ","3.1.5 / 3.2.5 / 3.3.5 / 3.4.5 : 5개","3.6.5 / 3.7.5 / 3.8.5 / 3.9.5 : 5개","만만플랜(15~90세)","어깨/무릎/디스크질환플랜","뇌심장혈관플랜","무감액면책플랜Ⅱ","3대진단플랜(15~90세)"],"feat":["※무감액면책플랜 : 암/뇌/심 진단비 치료비 가입 즉시 가입금액 100% 보장","★ 방문검진 없이 고령자 설계 가능","★ 7190 고령자 컨설팅 특화(높은 한도 뇌심 진단비 + 산정특례 진단비 + 간병인지원 + 수술비 등)","★ 암통합치료비, 특정순환계통합치료비 탑재","★ 예외질환 5개까지 인수"],"tags":["간편심사","무해지/미지급형","연만기"],"dt":["간편 3N5"],"useStd":false},{"r":19,"n":"통합간편건강보험(세만기) (통합간편심사형)","cat":"간편상품","grp":"유병자 간편심사","age":"15-90세","term":"세만기","type":["납입면제 미적용형","보험료 납입면제 1형","보험료 납입면제 2형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["간편3N5 알릴의무(3N5 간편심사형(6대질병))"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["N년 이내","입원 수술 (예외질환 최대 5개 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"]],"notes":["(★3.0.5 ~ 3.10.5 개별 인수 한도 및 인수플랜 운영)","※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["납입면제 1형 : 5대","암(유사암제외), 뇌졸중, 급성심근경색증","상해/질병 80%이상 후유장해","납입면제 2형 : 6대(무해지형)","암(유사암제외), 뇌졸중, 급성심근경색증","상해/질병 80%이상 후유장해, 중증화상 및 부식"],"plan":["3.0.5 : 2개","뇌심장혈관플랜","무감액면책플랜Ⅱ","3.1.5 ~ 3.9.5 : 5개","만만플랜(15~90세)","어깨/무릎/디스크질환플랜","뇌심장혈관플랜","무감액면책플랜Ⅱ","3대진단플랜(15~90세)"],"feat":["※무감액면책플랜 : 암/뇌/심 진단비 치료비 가입 즉시 가입금액 100% 보장","★ 방문검진 없이 고령자 설계 가능","★ 7190 고령자 컨설팅 특화(높은 한도 뇌심 진단비 + 산정특례 진단비 + 간병인지원 + 수술비 등)","★ 암통합치료비, 특정순환계통합치료비 탑재","★ 예외질환 5개까지 인수"],"tags":["간편심사","무해지/미지급형","세만기"],"dt":["간편 3N5"],"useStd":false},{"r":22,"n":"통합간편건강보험(연만기) (355입원.수술고지 간편심사형)","cat":"간편상품","grp":"유병자 간편심사","age":"15-90세","term":"연만기","type":["납입면제 미적용형","보험료 납입면제 1형","보험료 납입면제 2형","(표준형/해약환급미지급형)"],"duty":{"types":["간편355 알릴의무(355 수술고지 간편심사형)","간편355 알릴의무(355 입원고지 간편심사형)"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","수술 (예외질환 X)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"],["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"]],"notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["납입면제 1형 : 5대","암(유사암제외), 뇌졸중, 급성심근경색증","상해/질병 80%이상 후유장해","납입면제 2형 : 6대(무해지형)","암(유사암제외), 뇌졸중, 급성심근경색증","상해/질병 80%이상 후유장해, 중증화상 및 부식"],"plan":["수술고지형 : 1개","만만플랜: 15~90세","입원고지형 : 3개","만만플랜(15-90세)","어깨/무릎/디스크질환플랜","3대진단플랜(15~90세)"],"feat":["[355 수술고지 간편심사형]","▷수술력 없으면 인수 가능한 유병자 통합상품","▷예외질환 없이 운영하는 상품으로 3개월 지나면 입원했어도 가입 가능","▷입원력 있는 환자에게 효과적","[355 입원고지 간편심사형]","▷입원력 없으면 인수 가능한 유병자 통합상품","▷예외질환 운영하여 통원수술 or 예외질환 입원도 가입 가능","▷수술력 있는 환자에게 효과적"],"tags":["간편심사","무해지/미지급형","연만기"],"dt":["간편 355"],"useStd":false},{"r":23,"n":"통합간편건강보험(세만기) (355입원.수술고지 간편심사형)","cat":"간편상품","grp":"유병자 간편심사","age":"15-90세","term":"세만기","type":["납입면제 미적용형","보험료 납입면제 1형","보험료 납입면제 2형","(해약환급미지급형(납입후50%))"],"duty":{"types":["간편355 알릴의무(355 수술고지 간편심사형)","간편355 알릴의무(355 입원고지 간편심사형)"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","수술 (예외질환 X)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"],["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"]],"notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["납입면제 1형 : 5대","암(유사암제외), 뇌졸중, 급성심근경색증","상해/질병 80%이상 후유장해","납입면제 2형 : 6대(무해지형)","암(유사암제외), 뇌졸중, 급성심근경색증","상해/질병 80%이상 후유장해, 중증화상 및 부식"],"plan":["수술고지형 : 1개","만만플랜: 15~90세","입원고지형 : 3개","만만플랜(15-90세)","어깨/무릎/디스크질환플랜","3대진단플랜(15~90세)"],"feat":["[355 수술고지 간편심사형]","▷수술력 없으면 인수 가능한 유병자 통합상품","▷예외질환 없이 운영하는 상품으로 3개월 지나면 입원했어도 가입 가능","▷입원력 있는 환자에게 효과적","[355 입원고지 간편심사형]","▷입원력 없으면 인수 가능한 유병자 통합상품","▷예외질환 운영하여 통원수술 or 예외질환 입원도 가입 가능","▷수술력 있는 환자에게 효과적"],"tags":["간편심사","무해지/미지급형","세만기"],"dt":["간편 355"],"useStd":false},{"r":24,"n":"The가벼운간편355(Ⅱ) (10대질병)","cat":"간편상품","grp":"유병자 간편심사","age":"5-80세","term":"(Ⅱ) 세만기","type":["납입면제 미적용형/","보험료 납입면제형","(미지급형 납입후 50%)"],"duty":{"types":["간편355 알릴의무(355 간편심사형(10대질병))"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","10대 질병(암, 백혈병, 고혈압, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증, 당뇨병, 에이즈 및 HIV 보균) [진단/입원/수술]"]],"notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["5대","암(유사암제외), 뇌졸중","급성심근경색증, 상해/질병 80%이상 후유장해"],"plan":["8개","어깨/무릎/디스크질환 플랜","무감액면책플랜","만만플랜(15~80세)","뇌심장혈관플랜","3대진단플랜"],"feat":["※ 5세부터 가입 가능한 간편심사 보험 = 선천질환자, 정신질환자, 성조숙증 등 인수 가능","▷무해지, 비갱신형으로만 설계 가능한 355(10대질병) 간편심사보험"],"tags":["간편심사","무해지/미지급형","세만기"],"dt":["간편 355"],"useStd":false},{"r":25,"n":"간편31건강보험","cat":"간편상품","grp":"유병자 간편심사","age":"15-80세","term":"연만기","type":["납입면제 미적용형","보험료 납입면제형","(해약환급미지급형)"],"duty":{"types":["간편31 알릴의무(310 간편심사형)"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["1년이내","입원 또는 수술"]],"notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["3대","암(유사암제외),","뇌졸중, 급성심근경색증"],"plan":["2개","어깨/무릎/디스크질환 플랜","3대진단플랜"],"feat":["※ 중증질환 고지 없는 310 고지 = 중증질환 기왕력자 인수 가능","▷무해지, 갱신형으로만 설계 가능한 중증질환자 인수 상품"],"tags":["간편심사","무해지/미지급형","연만기"],"dt":["간편 31"],"useStd":false},{"r":27,"n":"프리미엄 건강보험","cat":"전용상품","grp":"단기납 고환급","age":"5-80세","term":"세만기","type":["해지환급금미지급형/","보험료 납입면제형"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["3대","암(유사암제외),","뇌졸중, 급성심근경색증"],"plan":["없음"],"feat":["★ 7년/10년 짧은 납입기간, 장기유지보너스 有","▷보장 & 환급금을 원하는 고객에게 소구력↑","▷10년 후 2배체증 담보로 물가상승 대비 가능","▷세만기 / 해지환급금미지급형 운영"],"tags":["단기납 고환급","무해지/미지급형","세만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":28,"n":"프리미엄 간편보험","cat":"전용상품","grp":"단기납 고환급","age":"5-80세","term":"세만기","type":["해지환급금미지급형/","보험료 납입면제형"],"duty":{"types":["간편355 알릴의무"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"]],"notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["3대","암(유사암제외),","뇌졸중, 급성심근경색증"],"plan":["없음"],"feat":["★ 7년/10년 짧은 납입기간, 장기유지보너스 有","▷보장 & 환급금을 원하는 고객에게 소구력↑","▷10년 후 2배체증 담보로 물가상승 대비 가능","▷세만기 / 해지환급금미지급형 운영"],"tags":["간편심사","단기납 고환급","무해지/미지급형","세만기"],"dt":["간편 355"],"useStd":false},{"r":29,"n":"Only You 통합보험","cat":"전용상품","grp":"순수신인","age":"10-90세","term":"세만기","type":["납입면제 미적용형","보험료 납입면제 1형","보험료 납입면제 2형","(표준형/해약환급미지급형)"],"duty":{"types":["표준 알릴의무 / 6년~10년 건강고지","간편 355 알릴의무"],"rows":[],"notes":["▶입원/수술 여부(예외질환 운영)"]},"waiver":["5대","암(유사암제외), 뇌혈관질환","허혈성심장질환, 상해/질병 80%이상 후유장해"],"plan":["없음"],"feat":["★ 순수신인 전용상품 (2-7차월 판매가능)","▷순수신인 중 케어링과정 수료자, 판매인증자격제","▷기존 대응상품보다 저렴함","▷유병자형 상품도 납입면제가 뇌혈관질환 진단 / 허혈성심장질환 진단"],"tags":["간편심사","무해지/미지급형","세만기","순수신인","일반심사"],"dt":["표준(일반심사)","건강고지","간편 355"],"useStd":true},{"r":30,"n":"운전자 상해 종합보험 (M-Drive+모여라+올인원)","cat":"단품상품","grp":"운전자·상해·화재","age":"15~80세","term":"연만기","type":["일반형/","보험료 납입면제형"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":["(★간편심사운전자, 스쿨존운전자간편, :","3개월이내 질병확정진단/질병의심소견/치료/입원/수술/투약만 고지)"]},"waiver":["2대","자동차부상등급(1-7등급) ,","교통상해 50%이상 후유장해,","★납입면제진단비 500만원 탑재"],"plan":["4개","골프간편플랜","통합상해간편플랜","스쿨존운전자간편플랜","자동심사운전자: 15~80세"],"feat":["★ M-Drive 운전자 + 모여라 머리어깨무릎발 + 올인원라이프 주택화재","▷자동심사운전자플랜으로 상해간병인일당(여성 60세, 남성70세까지)","▷자동심사 운전자플랜 알릴의무 최소화(3개월 이내 병력)","▷저렴한 보험료로 업계 경쟁력 우위","▷스쿨존운전자 플랜시 가입금액 5천원, 게이트 상품화 가능","[최고의 종합상해보험]","▷ 상해통합치료비 : 검사 / 수술 / 치료 / 재활 치료 여정과정 단계별 보장","▷ 통합상해진단비 : 경증 / 중등도 / 중증 구분하여 전신 단순염좌부터 중상까지 연 1회 지급","▷ 근골격계 진단비 / 수술비 : 디스크, 상좌염, 윤활낭염, 족저근막염, 관절 등 진단비부터 수술비 보장","▷ 창상봉합술, 부목치료비, 보행자 자동차사고부상치료비 등 경증 상해 보상","▷ 최저보험로 1만원, 간편상해플랜으로 쉽게 가입 가능한 GATE 상품","[최고의 주택화재보험]","▷인보험 인정되는 재물보험","▷상해+운전자+주택화재 한 증권에 가입 가능(재물 알릴의무 NO)","▷통합주택손해 특약 하나로 7개 담보 보장","▷특수건물/비특수건물 모두 풍수재손해 담보 가입 가능","▷자기부담금 없고 연식 상관없는 급배수시설누출손해 최대 1,000만원 보장","▷주택화재 임시거주비(1일이상) 10만원 보장"],"tags":["연만기","운전자","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":31,"n":"운전자 상해 종합보험 (단체계약형) (M-Drive+모여라+올인원)","cat":"단품상품","grp":"운전자·상해·화재","age":"15~80세","term":"피보단체","type":["없음"],"duty":{"types":["단체 알릴의무"],"rows":[],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":[],"tags":["단체"],"dt":["단체"],"useStd":false},{"r":32,"n":"MY바이크 운전자보험","cat":"단품상품","grp":"상해","age":"만18~70세","term":"연만기","type":["없음"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":["(★이륜자동차플랜 :","3개월이내 질병확정진단/질병의심소견/치료/입원/수술/투약만 고지)"]},"waiver":["없음"],"plan":["1개","이륜자동차플랜"],"feat":["▷이륜차 교통사고처리지원금 보장 [가정용 / 비유상운송 / 유상운송]","▷이륜차 / PM 부상치료비 등 보장 운영"],"tags":["연만기","운전자","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":33,"n":"메리츠 상해안심보험","cat":"단품상품","grp":"상해","age":"15~90세","term":"연만기","type":["없음"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":["(★상해안심플랜 :","3개월이내 질병확정진단/질병의심소견/치료/입원/수술/투약만 고지)"]},"waiver":["없음"],"plan":["1개","상해안심플랜"],"feat":["▷동일 부위도 연간 5회 보상 가능한 통합상해진단비Ⅱ 탑재(중등증상해에 골절 제외)","▷상해안심플랜으로 3개월 알릴의무 고지로 가입 가능","▷통합상해진단비Ⅱ에 무사고축하금 5만원 탑재"],"tags":["연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":34,"n":"치아보험 이목구비","cat":"단품상품","grp":"치아","age":"2~70세","term":"연만기","type":["보험료 납입면제형/","납입면제 미적용형"],"duty":{"types":["표준 알릴의무"],"rows":[["현재","틀니 중"],["1년이내","충치로 치료,투약 또는 치료 필요진단"],["5년이내","치주질환(잇몸병,풍치)으로 자연치상실, 치주수술, 필요 진단"]],"notes":["(★더좋은간편치아플랜_TA: 아래 3가지만 고지 + 노스코어링)"]},"waiver":["1대","일반상해 80%이상 후유장해"],"plan":["1개","더좋은간편치아플랜_TA"],"feat":["▷보철치료비 (임플란트,브릿지,틀니) 감액기간 1년 담보 탑재","▷보철치료비, 보존치료비 갯수 제한 없는 무제한 담보 선택 가능","▷보철치료비 (임플란트, 브릿지, 틀니) 최대 150만원 / (재식립임플란트) 최대 200만원","▷보존치료비 (크라운) 최대 30만원"],"tags":["연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":false},{"r":35,"n":"올케어 꽉 채운 치아보험","cat":"단품상품","grp":"치아","age":"2~75세","term":"연만기","type":["없음"],"duty":{"types":["표준 알릴의무"],"rows":[["현재","틀니 중"],["1년이내","충치로 치료,투약 또는 치료 필요진단"],["5년이내","치주질환(잇몸병,풍치)으로 자연치상실, 치주수술, 필요 진단"]],"notes":["(★치아플랜(간편)_공통 : 위 3가지만 고지)"]},"waiver":["없음"],"plan":["1개","치아플랜(간편)_공통"],"feat":["▷보험료 저렴하나 갱신 주기 짧을수롤 수정률 적음","▷기본계약으로 갱신형치아보존통합치료비와 갱신형치아보철통합치료비 구성(치아 담보 세트 구성)","▷보존통합치료비는 연간 보상 한도 최대 200만원 보철통합치료비는 연간 보상 한도 최대 500만원"],"tags":["연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":false},{"r":36,"n":"또 걸려도 또 받는 암보험 (연만기형)","cat":"단품상품","grp":"암","age":"15~90세","term":"연만기","type":["납입면제 미적용형/","보험료 납입면제형/","보험료 납입면제형Ⅱ(납입면제 2배)"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":["※무할증간편암플랜 : [3개월 / 0년 / 5년 내 백암에간당]","(백혈병 / 암 / 에이즈 / 간경화 / 당뇨)","(★또또암간편고지플랜 / 고고당암플랜 운영)"]},"waiver":["3대","암(유사암제외),","상해/질병 80%이상 후유장해,"],"plan":["7개","전화/약봉투(할증): 19~60세,","전화/약봉투(할증): 61~65세,","항암치료비플랜,","또또암간편고지플랜: 15~60세,","함께하는고고암플랜,","무진단암플랜 : 61~65세","무할증간편암플랜(15-80세)","(3개월 / 0년 / 5년 내 백암에간당)"],"feat":["※수술/입원 고지 안하는 무할증간편암플랜 탑재(가입시 SI보험 3개월 가입 제어)","★ 최저보험료 없음 : 고객 발굴부터 업셀링 최적화된 종합 암보험","▷ 30종통합암진단비(전이 포함) 탑재"],"tags":["간편심사","연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":37,"n":"또 걸려도 또 받는 암보험 (세만기형)","cat":"단품상품","grp":"암","age":"15~79세","term":"세만기","type":["납입면제 미적용형/","보험료 납입면제형/","보험료 납입면제형Ⅱ(납입면제 2배)"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":["※무할증간편암플랜 : [3개월 / 0년 / 5년 내 백암에간당]","(백혈병 / 암 / 에이즈 / 간경화 / 당뇨)","(★또또암간편고지플랜 / 고고당암플랜 운영)"]},"waiver":["3대","암(유사암제외),","상해/질병 80%이상 후유장해,"],"plan":["7개","전화/약봉투(할증): 19~60세,","전화/약봉투(할증): 61~65세,","항암치료비플랜,","또또암간편고지플랜: 15~60세,","함께하는고고암플랜,","무진단암플랜 : 61~65세","무할증간편암플랜(15-80세)","(3개월 / 0년 / 5년 내 백암에간당)"],"feat":["※수술/입원 고지 안하는 무할증간편암플랜 탑재(가입시 SI보험 3개월 가입 제어)","★ 최저보험료 없음 : 고객 발굴부터 업셀링 최적화된 종합 암보험","▷ 30종통합암진단비(전이 포함) 탑재"],"tags":["간편심사","세만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":38,"n":"또 걸려도 또 받는 간편한 암보험 (연만기형)","cat":"단품상품","grp":"암","age":"15~90세","term":"연만기","type":["납입면제 미적용형/","보험료 납입면제형/","보험료 납입면제형Ⅱ(납입면제 2배)"],"duty":{"types":["간편3.5.5 / 3.10.5 알릴의무(간편심사형(6대질병))","간편3.0.5 / 3.2.5 알릴의무(간편심사형(5년 내 암 1개))"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내 / 10년 이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"],["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","암으로 [진단/입원/수술]"]],"notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["3대","암(유사암제외),","상해/질병 80%이상 후유장해,"],"plan":["없음"],"feat":["★ 최저보험료 없음 : 고객 발굴부터 업셀링 최적화된 종합 암보험","▷ 30종통합암진단비(전이 포함) 탑재","▷알릴의무 3.0.5와 3.2.5는 5년 내 중대질환 암만 물어봄."],"tags":["간편심사","연만기"],"dt":["간편 3N5"],"useStd":false},{"r":39,"n":"또 걸려도 또 받는 간편한 암보험 (세만기형)","cat":"단품상품","grp":"암","age":"15~79세","term":"세만기","type":["납입면제 미적용형/","보험료 납입면제형/","보험료 납입면제형Ⅱ(납입면제 2배)"],"duty":{"types":["간편3.5.5 / 3.10.5 알릴의무(간편심사형(6대질병))","간편3.0.5 / 3.2.5 알릴의무(간편심사형(5년 내 암 1개))"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내 / 10년 이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"],["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","암으로 [진단/입원/수술]"]],"notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["3대","암(유사암제외),","상해/질병 80%이상 후유장해,"],"plan":["없음"],"feat":["★ 최저보험료 없음 : 고객 발굴부터 업셀링 최적화된 종합 암보험","▷ 30종통합암진단비(전이 포함) 탑재","▷알릴의무 3.0.5와 3.2.5는 5년 내 중대질환 암만 물어봄."],"tags":["간편심사","세만기"],"dt":["간편 3N5"],"useStd":false},{"r":40,"n":"간편한 정기보험","cat":"단품상품","grp":"사망","age":"15~80세","term":"연만기","type":["없음"],"duty":{"types":["간편325 알릴의무"],"rows":[],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":["▷ 생활안정자금 상해사망시 최대 400만원, 질병사망시 최대 150만원 - 매월 2년간 지급"],"tags":["간편심사","연만기"],"dt":["간편 325"],"useStd":false},{"r":41,"n":"올바른 정기보험","cat":"단품상품","grp":"사망","age":"15~80세","term":"연만기","type":["없음"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["없음"],"plan":["1개","전화심사 할증플랜: 19~60세"],"feat":["▷ 생활안정자금 상해사망시 최대 2천만원, 질병사망시 최대 5백만원 - 매월 2년간 지급"],"tags":["연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":42,"n":"안심되는 치매간병통합케어보험 (355Ⅱ간편심사형)","cat":"단품상품","grp":"치매·간병","age":"15~70세","term":"세만기","type":["보험료 납입면제형/","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["간편치매 알릴의무"],"rows":[],"notes":["(고지유형 : 간편 355 / 상세 고지문항은 '알릴의무 유형별' 탭 참고)"]},"waiver":["1대","장기요양급여 1~4등급"],"plan":["없음"],"feat":["▷ 기본계약 : 치매주요질환통합치료비 / 치매주요질환Ⅱ통합치료비 / 장기요양(1-5등급)통합치료비 / 중증치매간병비","▷ 인지지원등급 부터 장기요양 1-5등급 단계별 보장","▷ 치매CDR척도검사비","▷ 만기까지 매월 치매/간병자금 보장 받을 수 있음"],"tags":["간편심사","무해지/미지급형","세만기"],"dt":["간편 355"],"useStd":false},{"r":43,"n":"안심되는 치매간병통합케어보험 (일반심사형)","cat":"단품상품","grp":"치매·간병","age":"15~70세","term":"세만기","type":["보험료 납입면제형/","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["1대","장기요양급여 1~4등급"],"plan":["없음"],"feat":["▷ 기본계약 : 치매주요질환통합치료비 / 치매주요질환Ⅱ통합치료비 / 장기요양(1-5등급)통합치료비 / 중증치매간병비","▷ 인지지원등급 부터 장기요양 1-5등급 단계별 보장","▷ 치매CDR척도검사비","▷ 만기까지 매월 치매/간병자금 보장 받을 수 있음"],"tags":["무해지/미지급형","세만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":44,"n":"안심되는 치매통합케어보험 (간편심사형)","cat":"단품상품","grp":"치매·간병","age":"30~70세","term":"세만기","type":["보험료 납입면제형/","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["간편치매 알릴의무"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["1년이내","치매 또는 경도이상의 인지기능장애로 진찰 또는 검사를 통한 추가검사(재검사)"],["5년이내","치매, 경도이상의 인지기능장애, 알츠하이머, 파킨슨병, 외상성뇌손상, 뇌졸중증(뇌출혈,뇌경색), 심근경색으로"]],"notes":["[입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약]","※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["2대","일반상해 80%이상 후유장해","중등도이상치매"],"plan":["없음"],"feat":["▷ 표적치매약물허가치료비 탑재(레켐비)","▷ 경증이상치매간병비(CDR 1점)부터 중증(CDR 4점)까지 단계별 치매 보장","▷ 치매통합치료비 (검사-치매주요치료-약물치료-재활치료)","▷ 치매CDR척도검사비","▷ 매월 치매간병자금 보장 받을 수 있음"],"tags":["간편심사","무해지/미지급형","세만기"],"dt":["간편 치매"],"useStd":false},{"r":45,"n":"안심되는 치매통합케어보험 (일반심사형)","cat":"단품상품","grp":"치매·간병","age":"30~70세","term":"세만기","type":["보험료 납입면제형/","납입면제 미적용형","(해약환급금미지급형(납입후50%))"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["2대","일반상해 80%이상 후유장해","중등도이상치매"],"plan":["없음"],"feat":["▷ 표적치매약물허가치료비 탑재(레켐비)","▷ 경증이상치매간병비(CDR 1점)부터 중증(CDR 4점)까지 단계별 치매 보장","▷ 치매통합치료비 (검사-치매주요치료-약물치료-재활치료)","▷ 치매CDR척도검사비","▷ 매월 치매간병자금 보장 받을 수 있음"],"tags":["무해지/미지급형","세만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":46,"n":"차곡차곡 마음편한 장기간병보험 (355 Ⅱ 간편심사형)","cat":"단품상품","grp":"치매·간병","age":"15~70세","term":"세만기","type":["보험료 납입면제형","납입면제 미적용형"],"duty":{"types":["간편355 알릴의무"],"rows":[],"notes":["(간편355와 동일하나 예외질환이 상이함)"]},"waiver":["1대","장기요양급여 1~4등급"],"plan":["없음"],"feat":["▷ 장기요양급여 1~5등급 및 인지지원등급 보장 탑재","▷ 장기요양급여 1~5등급 및 인지지원등급 재가/시설급여 탑재(A, B, C형 선택)","▷ 경증치매 / 중등증치매 / 중증치매 담보 탑재","▷ 장기유지보너스 존재","▷ 7년납, 10년납, 20년납 운영","▷ [일반심사형限] 5대퇴행성질환진단비 탑재"],"tags":["간편심사","세만기"],"dt":["간편 355"],"useStd":false},{"r":47,"n":"차곡차곡 마음편한 장기간병보험 (일반심사형)","cat":"단품상품","grp":"치매·간병","age":"15~70세","term":"세만기","type":["보험료 납입면제형","납입면제 미적용형"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["1대","장기요양급여 1~4등급"],"plan":["없음"],"feat":["▷ 장기요양급여 1~5등급 및 인지지원등급 보장 탑재","▷ 장기요양급여 1~5등급 및 인지지원등급 재가/시설급여 탑재(A, B, C형 선택)","▷ 경증치매 / 중등증치매 / 중증치매 담보 탑재","▷ 장기유지보너스 존재","▷ 7년납, 10년납, 20년납 운영","▷ [일반심사형限] 5대퇴행성질환진단비 탑재"],"tags":["세만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":48,"n":"올케어 꽉 채운 골키퍼 건강보험 (일반심사형)","cat":"단품상품","grp":"근골격계","age":"15~80세","term":"연만기","type":["보험료 납입면제형","납입면제 미적용형"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["3대","상해/질병 80%이상 후유장해, 중증화상및부식"],"plan":["1개","골키퍼관절척추안심플랜"],"feat":["▷ 상해/질병/질병특정기관 주요처치및수술비 기본계약","▷ 중증무릎관절연골손상특정줄기세포치료비 (무릎연골 재생 주사 카티스템 보장)","▷ 어깨, 무릎, 고관절 관련 퇴행성질환, 생활습관질환 특화 보험","▷ 통합상해진단비Ⅲ, 상해통합치료비 탑재"],"tags":["연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":49,"n":"올케어 꽉 채운 골키퍼 건강보험 (맞춤간편심사형)","cat":"단품상품","grp":"근골격계","age":"15~80세","term":"연만기","type":["보험료 납입면제형","납입면제 미적용형"],"duty":{"types":["간편3N5 알릴의무(3N5 간편심사형(6대질병))"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["N년 이내","입원 수술 (예외질환 최대 5개 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"]],"notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["3대","상해/질병 80%이상 후유장해, 중증화상및부식"],"plan":["1개","골키퍼관절척추안심플랜"],"feat":["▷ 상해/질병/질병특정기관 주요처치및수술비 기본계약","▷ 중증무릎관절연골손상특정줄기세포치료비 (무릎연골 재생 주사 카티스템 보장)","▷ 어깨, 무릎, 고관절 관련 퇴행성질환, 생활습관질환 특화 보험","▷ 통합상해진단비Ⅲ, 상해통합치료비 탑재"],"tags":["간편심사","연만기"],"dt":["간편 3N5"],"useStd":false},{"r":50,"n":"함께하는 단체보험","cat":"단품상품","grp":"단체·기업","age":"15-70세 피보단체","term":"연만기","type":["없음"],"duty":{"types":["단체보험 전용 알릴의무"],"rows":[["5년이내","입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약"],["5년이내","11대질병으로 질병확정진단/치료/입원/수술/투약"]],"notes":[]},"waiver":["없음"],"plan":["1개","조선소플랜"],"feat":["▷ 단체 상해보험 가입 시 활용"],"tags":["단체","연만기"],"dt":["단체"],"useStd":false},{"r":51,"n":"성공파트너 종합보험","cat":"단품상품","grp":"단체·기업","age":"15-80세","term":"연만기","type":["없음"],"duty":{"types":["표준 알릴의무","(화재보험만 가입시) 알릴의무 묻지 않음"],"rows":[],"notes":[]},"waiver":["없음"],"plan":["2개","간편심사플랜(15-70세)","골프플랜(15~70세)"],"feat":["▷ 인보험 인정되는 재물보험","▷ 화재보험, 단체 상해보험 가입  시 활용"],"tags":["단체","연만기","일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":52,"n":"펫퍼민트 Puppy&Family","cat":"펫보험","grp":"반려동물","age":"사람 : 18~80세 동물 : 0~8세","term":"연만기","type":["기본형 : 70% 보장","실속형 : 50% 보장","고급형 : 70% 보장"],"duty":{"types":["펫퍼민트 전용 알릴의무"],"rows":[["현재","(상해/질병)으로 경과관찰 중"],["3개월이내","예방목적 이외의 진찰여부"],["과거부터 현재까지 진단 또는 의심소견","내장질환, 호르몬(내분비)질환, 뇌/신경계질환, 안과질환, 혈액질환, 관절질환, 기타질환"],["현재","계속해서 복용 중인 의약품 여부(심장사상충, 벼룩, 진드기 등 예방약/영양제 제외)"],["현재","일상적인 관리 또는 예방접종을 받는 동물병원(지역 및 병원명) 반려동물 출생 또는 입양 후 최초 방문한 동물병원 방문일로부터 3개월 경과 여부 (생후 12개월 미만의 반려동물 제외)"]],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":["▷ 등록번호 없어도 가입 가능함. 자기부담금 회당 3만원 or 5만원","▷ 반려견, 반려묘 실손의료비 만20세까지 생애보장 (1년갱신, 배상책임은 3년 or 5년갱신)","▷ 입통원의료비Ⅲ 출시","▷ 별도 특약 없이 기본으로 슬관절 /피부병/구강질환 보장","▷ 상해는 가입 첫날부터, 질병은 30일 이후부터 보장","▷ 국내 모든 반려견, 반려묘 가입가능(등록번호 없어도 OK! 사진 필수 첨부), 부담보 인수 운영","▷ 등록번호 기재시 보험료 할인 혜택","▷ 2마리, 3마리 가입할 경우 5% 할인","▷ 4마리 이상 가입할 경우 10% 할인","▷ 배상책임 사고당 1,000만원, 자기부담금 3만원 or 5만원","▷ 600여개 제휴 동물병원에서 진료와 동시에 보험금 자동청구"],"tags":["반려동물","연만기"],"dt":["펫퍼민트"],"useStd":false},{"r":53,"n":"펫퍼민트 Cat&Family","cat":"펫보험","grp":"반려동물","age":"사람 : 18~80세 동물 : 0~8세","term":"연만기","type":["기본형 : 70% 보장","실속형 : 50% 보장","고급형 : 70% 보장"],"duty":{"types":["펫퍼민트 전용 알릴의무"],"rows":[["현재","(상해/질병)으로 경과관찰 중"],["3개월이내","예방목적 이외의 진찰여부"],["과거부터 현재까지 진단 또는 의심소견","내장질환, 호르몬(내분비)질환, 뇌/신경계질환, 안과질환, 혈액질환, 관절질환, 기타질환"],["현재","계속해서 복용 중인 의약품 여부(심장사상충, 벼룩, 진드기 등 예방약/영양제 제외)"],["현재","일상적인 관리 또는 예방접종을 받는 동물병원(지역 및 병원명) 반려동물 출생 또는 입양 후 최초 방문한 동물병원 방문일로부터 3개월 경과 여부 (생후 12개월 미만의 반려동물 제외)"]],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":["▷ 등록번호 없어도 가입 가능함. 자기부담금 회당 3만원 or 5만원","▷ 반려견, 반려묘 실손의료비 만20세까지 생애보장 (1년갱신, 배상책임은 3년 or 5년갱신)","▷ 입통원의료비Ⅲ 출시","▷ 별도 특약 없이 기본으로 슬관절 /피부병/구강질환 보장","▷ 상해는 가입 첫날부터, 질병은 30일 이후부터 보장","▷ 국내 모든 반려견, 반려묘 가입가능(등록번호 없어도 OK! 사진 필수 첨부), 부담보 인수 운영","▷ 등록번호 기재시 보험료 할인 혜택","▷ 2마리, 3마리 가입할 경우 5% 할인","▷ 4마리 이상 가입할 경우 10% 할인","▷ 배상책임 사고당 1,000만원, 자기부담금 3만원 or 5만원","▷ 600여개 제휴 동물병원에서 진료와 동시에 보험금 자동청구"],"tags":["반려동물","연만기"],"dt":["펫퍼민트"],"useStd":false},{"r":54,"n":"우리집보험 M-House","cat":"재물보험","grp":"화재·재물","age":"재물","term":"세만기","type":["없음"],"duty":{"types":["화재보험 알릴의무"],"rows":[],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":["▷ 주택 화재보험 가입 시 활용","▷ 최저보험료 5,000원"],"tags":["세만기","화재"],"dt":["화재"],"useStd":false},{"r":55,"n":"재물보험 성공메이트","cat":"재물보험","grp":"화재·재물","age":"재물","term":"세만기","type":["없음"],"duty":{"types":["화재보험 알릴의무"],"rows":[],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":["▷ 유흥주점, 교회/성당, 세탁소, 음식점, 미용실, 소형판매시설, 당구장, PC방, 모텔/여관, 스크린골프장, 목욕탕 등 화재보험 가입 시 활용"],"tags":["세만기","화재"],"dt":["화재"],"useStd":false},{"r":56,"n":"실손의료비","cat":"실손의료비","grp":"실손","age":"0~65세","term":"1년갱신 5년만기 (재가입 100세까지 보장가능)","type":["표준형"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["없음"],"plan":["3개","전화/약봉투(할증): 19~60세,","31주이내_간편태아플랜","내Mom태아플랜"],"feat":[],"tags":["일반심사"],"dt":["표준(일반심사)"],"useStd":true},{"r":57,"n":"실손의료비(계약전환용) (재개 및 전환용)","cat":"실손의료비","grp":"실손","age":"0~99세","term":"1년갱신 5년만기 (재가입 100세까지 보장가능)","type":["없음"],"duty":{"types":[],"rows":[],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":["▷기존 실손의료비 고객 대상"],"tags":[],"dt":[],"useStd":false},{"r":58,"n":"유병력자 실손의료비","cat":"실손의료비","grp":"실손","age":"5~90세","term":"1년갱신 3년만기 (재가입 100세까지 보장가능)","type":["없음"],"duty":{"types":["유병자실손 325 알릴의무(간편325와 다름)"],"rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 치료 / 추가검사(재검사) 필요 소견"],["2년이내","입원/수술/계속하여 7일이상 치료"],["5년이내","암(백혈병제외)으로 [입원/수술/치료]"]],"notes":["(★주의사항: 2년이내 계속하여 7일이상 치료 고지해야 함.)","★3개월 문항에 '치료'가 포함되는 것은 유병자실손뿐 (간편심사에는 없음)","※치료 : 단순 처방을 위하여 병원에서 진료를 받는 경우는 미포함","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"]},"waiver":["없음"],"plan":["없음"],"feat":["상해입원 5천만원, 질병입원 5천만원 / 상해통원 20만원, 질병통원 20만원 담보 4개 상급병실료 차액 : 기준병실과 병실료 차액에서 50% 뺀 금액 1일 평균 10만원 한도 보상. 보상제외 : 도수치료, 체외충격파치료, 증식치료, 비급여 주사료, 비급여 MRI/MRA. 입원 : 본인부담의료비의 30%와 10만원 중 큰 금액을 뺀 나머지 보상. 통원 : 연간 180회 한도. 방문 1회당 공제금액(본인부담의료비의 30%와 2만원 중 큰 금액)을 뺀 보상. 국민건강보험 또는 의료급여법 미적용 시 : 공제금액 뺀 본인부담금 중 40% 보상."],"tags":["간편심사"],"dt":["유병자실손 325"],"useStd":false},{"r":59,"n":"유병력자 실손의료비 (재가입용)","cat":"실손의료비","grp":"실손","age":"5~99세","term":"1년갱신 3년만기 (재가입 100세까지 보장가능)","type":["없음"],"duty":{"types":[],"rows":[],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":["▷기존 유병자 실손의료비 고객 재가입 대상"],"tags":[],"dt":[],"useStd":false},{"r":60,"n":"노후 실손의료비","cat":"실손의료비","grp":"실손","age":"50~75세","term":"1년갱신 3년만기 (재가입 100세까지 보장가능)","type":["없음"],"duty":{"types":["표준 알릴의무"],"rows":[],"notes":[]},"waiver":["없음"],"plan":["없음"],"feat":["상해형 1억. 질병형 1억 담보 2개 입원, 통원, 처방조제 합산 연간(계약해당일로부터 1년 단위) 1억원 한도. (통원 회당 100만원 한도) 상급병실료 차액 보상하지 않음. 입원 본인부담금 연간 500만원 초과 시 초과액 가입금액 한도 보상. 공제금액 : 입원 당 30만원 / 통원 당 3만원 (외래제비용+외래수술비+처방조제비 합산) (단, 비급여 본인부담금에서 우선 공제 후 급여 본인부담금에서 공제) 보상비율 : 급여 본인부담금에서 공제금액을 뺀 금액에 대해 80%, 비급여 본인부담금에서 공제금액을 뺀 금액에 대해 70% 보상 국민건강보험 또는 의료급여법 미적용 시 : 공제금액 뺀 본인부담금 중 40% 보상."],"tags":["일반심사"],"dt":["표준(일반심사)"],"useStd":true}],"dtypes":[{"k":"표준(일반심사)","rows":[["3개월이내","질병확정진단/질병의심소견/치료/입원/수술/투약"],["3개월이내","마약/혈압강하제/신경안정제/수면제/각성제/진통제 등 약물상시복용"],["1년이내","추가검사(재검사)"],["5년이내","입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약"],["5년이내","11대질병으로 질병확정진단/치료/입원/수술/투약 ①암, ②백혈병, ③고혈압, ④협심증, ⑤심근경색, ⑥심장판막증, ⑦간경화증, ⑧뇌졸중증(뇌출혈,뇌경색), ⑨당뇨병, ⑩에이즈(AIDS)및HIV보균, ⑪ [실손의료비 가입 시에만 고지] 직장 또는 항문 관련질환(치질,치루(누공), 치열(찢어짐),항문농양(고름집),직장또는항문탈출, 항문출혈,항문궤양 등)"]],"from":"M-Basket","notes":[],"items":["M-Basket","The좋은 M-Basket","통합간편건강보험(연만기) (일반심사형)","통합간편건강보험(세만기) (일반심사형)","The건강한 5.10.5 보장보험 (표준체 + 건강고지)","The건강한 내Mom대로 5.10.5 보장보험 (표준체 + 건강고지)","내Mom대로 보장","내Mom같은 어린이","내Mom같은 어린이 (태아전용)","The좋은 내Mom대로 보장","프리미엄 건강보험","Only You 통합보험","운전자 상해 종합보험 (M-Drive+모여라+올인원)","MY바이크 운전자보험","메리츠 상해안심보험","치아보험 이목구비","올케어 꽉 채운 치아보험","또 걸려도 또 받는 암보험 (연만기형)","또 걸려도 또 받는 암보험 (세만기형)","올바른 정기보험","안심되는 치매간병통합케어보험 (일반심사형)","안심되는 치매통합케어보험 (일반심사형)","차곡차곡 마음편한 장기간병보험 (일반심사형)","올케어 꽉 채운 골키퍼 건강보험 (일반심사형)","성공파트너 종합보험","실손의료비","노후 실손의료비"]},{"k":"건강고지","rows":[],"from":"The건강한 5.10.5 보장보험 (표준체 + 건강고지)","notes":["▶인수될 경우 건강고지 추가 가능","6년~10년 건강고지","▶입원/수술 여부(예외질환 운영)"],"items":["The건강한 5.10.5 보장보험 (표준체 + 건강고지)","The건강한 내Mom대로 5.10.5 보장보험 (표준체 + 건강고지)","Only You 통합보험"]},{"k":"태아","rows":[],"from":"내Mom같은 어린이","notes":["+ 임신 중인 경우 임신주수 고지","+ 태아보험 가입 시 임신과정 또는 산전검사에서 아래 해당사항 고지","[선천성기형, 선천성장애, 자궁내발육부전, 큰몸증, 신경학적결손,","염색체이상, 양수과소증, 양수과다증, 태아수종, 용혈성질환,","태아감염, 인공(체내/체외)수정아기, 다태아임신(쌍둥이/그 이상),","과숙임신, 전치태반, 태반조기박리, 자궁경관무력증,","산모의 출산전 선별검사 이상소견]","(★간편태아플랜: 임신주수, 산모 5년이내 10대질병((⑪항문질환 제외),","임신과정 및 산전검사 해당사항만 고지)"],"items":["내Mom같은 어린이","내Mom같은 어린이 (태아전용)"]},{"k":"간편 3N5","rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["N년 이내","입원 수술 (예외질환 최대 5개 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"]],"from":"통합간편건강보험(연만기) (통합간편심사형)","notes":["(★3.0.5 ~ 3.10.5 개별 인수 한도 및 인수플랜 운영)","※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"],"items":["통합간편건강보험(연만기) (통합간편심사형)","통합간편건강보험(세만기) (통합간편심사형)","또 걸려도 또 받는 간편한 암보험 (연만기형)","또 걸려도 또 받는 간편한 암보험 (세만기형)","올케어 꽉 채운 골키퍼 건강보험 (맞춤간편심사형)"]},{"k":"간편 355","rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","수술 (예외질환 X)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"],["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["5년이내","입원 또는 수술 (예외질환 5개까지 인수)"],["5년이내","6대 질병(암, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중증) [진단/입원/수술]"]],"from":"프리미엄 간편보험","notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"],"items":["통합간편건강보험(연만기) (355입원.수술고지 간편심사형)","통합간편건강보험(세만기) (355입원.수술고지 간편심사형)","The가벼운간편355(Ⅱ) (10대질병)","프리미엄 간편보험","Only You 통합보험","안심되는 치매간병통합케어보험 (355Ⅱ간편심사형)","차곡차곡 마음편한 장기간병보험 (355 Ⅱ 간편심사형)"]},{"k":"간편 31","rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["1년이내","입원 또는 수술"]],"from":"간편31건강보험","notes":["※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"],"items":["간편31건강보험"]},{"k":"간편 325","rows":[],"from":"간편한 정기보험","notes":[],"items":["간편한 정기보험"]},{"k":"간편 치매","rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 추가검사(재검사) 필요 소견"],["1년이내","치매 또는 경도이상의 인지기능장애로 진찰 또는 검사를 통한 추가검사(재검사)"],["5년이내","치매, 경도이상의 인지기능장애, 알츠하이머, 파킨슨병, 외상성뇌손상, 뇌졸중증(뇌출혈,뇌경색), 심근경색으로"]],"from":"안심되는 치매통합케어보험 (간편심사형)","notes":["[입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약]","※3개월 고지문항 확대 : [입원/수술/추가검사] 필요소견 → 질병확정진단·질병의심소견 포함 5개 항목","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"],"items":["안심되는 치매통합케어보험 (간편심사형)"]},{"k":"유병자실손 325","rows":[["3개월이내","질병확정진단 / 질병의심소견 / 입원 필요 소견 / 수술 필요 소견 / 치료 / 추가검사(재검사) 필요 소견"],["2년이내","입원/수술/계속하여 7일이상 치료"],["5년이내","암(백혈병제외)으로 [입원/수술/치료]"]],"from":"유병력자 실손의료비","notes":["(★주의사항: 2년이내 계속하여 7일이상 치료 고지해야 함.)","★3개월 문항에 '치료'가 포함되는 것은 유병자실손뿐 (간편심사에는 없음)","※치료 : 단순 처방을 위하여 병원에서 진료를 받는 경우는 미포함","※질병의심소견 : 의사가 진단서·소견서·진료의뢰서 등을 서면(전자문서 포함)으로 교부한 경우","※필요소견 : 서면 교부, 또는 의사가 진료기록부 등에 기재하고 이를 환자에게 설명·권유한 경우","※추가검사(재검사) : 이상 소견 확인 후 정확한 진단을 위해 시행한 검사 (치료 필요 없이 유지되는 상태의 정기검사·추적관찰은 미포함)"],"items":["유병력자 실손의료비"]},{"k":"단체","rows":[["5년이내","입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약"],["5년이내","11대질병으로 질병확정진단/치료/입원/수술/투약"]],"from":"함께하는 단체보험","notes":[],"items":["운전자 상해 종합보험 (단체계약형) (M-Drive+모여라+올인원)","함께하는 단체보험"]},{"k":"화재","rows":[],"from":"우리집보험 M-House","notes":[],"items":["우리집보험 M-House","재물보험 성공메이트"]},{"k":"펫퍼민트","rows":[["현재","(상해/질병)으로 경과관찰 중"],["3개월이내","예방목적 이외의 진찰여부"],["과거부터 현재까지 진단 또는 의심소견","내장질환, 호르몬(내분비)질환, 뇌/신경계질환, 안과질환, 혈액질환, 관절질환, 기타질환"],["현재","계속해서 복용 중인 의약품 여부(심장사상충, 벼룩, 진드기 등 예방약/영양제 제외)"],["현재","일상적인 관리 또는 예방접종을 받는 동물병원(지역 및 병원명) 반려동물 출생 또는 입양 후 최초 방문한 동물병원 방문일로부터 3개월 경과 여부 (생후 12개월 미만의 반려동물 제외)"]],"from":"펫퍼민트 Puppy&Family","notes":[],"items":["펫퍼민트 Puppy&Family","펫퍼민트 Cat&Family"]}],"std":[["3개월이내","질병확정진단/질병의심소견/치료/입원/수술/투약"],["3개월이내","마약/혈압강하제/신경안정제/수면제/각성제/진통제 등 약물상시복용"],["1년이내","추가검사(재검사)"],["5년이내","입원/수술/계속하여 7일이상 치료/계속하여 30일이상 투약"],["5년이내","11대질병으로 질병확정진단/치료/입원/수술/투약 ①암, ②백혈병, ③고혈압, ④협심증, ⑤심근경색, ⑥심장판막증, ⑦간경화증, ⑧뇌졸중증(뇌출혈,뇌경색), ⑨당뇨병, ⑩에이즈(AIDS)및HIV보균, ⑪ [실손의료비 가입 시에만 고지] 직장 또는 항문 관련질환(치질,치루(누공), 치열(찢어짐),항문농양(고름집),직장또는항문탈출, 항문출혈,항문궤양 등)"]]}</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('DATA').textContent);
+  var P = D.products, DT = D.dtypes, STD = D.std;
+
+  // ── 사용 로그 (Supabase) : 검색기·시뮬레이터와 동일한 usage_logs 테이블에 기록 ──
+  var LOG = {
+    url:'https://iqmlianuyoaypidmfamq.supabase.co',
+    key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxbWxpYW51eW9heXBpZG1mYW1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzIzMzMsImV4cCI6MjA5NzY0ODMzM30.e7za_xbYV32yFHEC2gleku7Xl-S3GU0CNBHb-csWhXE',
+    tool:'products'
+  };
+  function logEvent(event, fields){
+    try{
+      var body = { tool:LOG.tool, event:event };
+      if(fields){ for(var k in fields){ if(fields[k]) body[k]=fields[k]; } }
+      fetch(LOG.url+'/rest/v1/usage_logs', {
+        method:'POST',
+        headers:{ apikey:LOG.key, Authorization:'Bearer '+LOG.key, 'Content-Type':'application/json', Prefer:'return=minimal' },
+        body: JSON.stringify(body), keepalive:true
+      }).catch(function(){});
+    }catch(e){}
+  }
+  var _searchTimer;
+  function logSearchDebounced(term){          // 타이핑 중 매 글자 기록 방지 (0.8초 멈추면 1회)
+    clearTimeout(_searchTimer);
+    if(!term || term.length<2) return;
+    _searchTimer = setTimeout(function(){ logEvent('search', {term:term}); }, 800);
+  }
+
+  var CATS = ['통합상품','간편상품','전용상품','단품상품','펫보험','재물보험','실손의료비'];
+  var F2   = ['일반심사','간편심사','건강고지','태아','단체','화재','반려동물'];
+  var F3   = ['성인','태아·어린이','단기납 고환급','순수신인','무해지/미지급형','세만기','연만기'];
+  var F4   = ['암','치아','치매·간병','근골격계','상해','운전자·상해·화재','사망','단체·기업','실손','화재·재물','반려동물','유병자 간편심사'];
+
+  var sel = {1:[],2:[],3:[],4:[]}, q='';
+
+  // 검색 인덱스
+  P.forEach(function(p){
+    p._s = [p.n, p.cat, p.grp, p.age, p.term, p.tags.join(' '), p.dt.join(' '),
+            p.type.join(' '), p.waiver.join(' '), p.plan.join(' '), p.feat.join(' '),
+            p.duty.types.join(' '), p.duty.rows.map(function(r){return r.join(' ')}).join(' '),
+            p.duty.notes.join(' ')].join(' ').toLowerCase();
+    p._facet = [p.cat, p.grp].concat(p.tags).concat(p.dt);
+  });
+
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}) }
+
+  // 칩 렌더
+  function chips(id, arr, g){
+    document.getElementById(id).innerHTML = arr.map(function(v){
+      return '<button class="chip'+(g>1?' g'+g:'')+'" data-g="'+g+'" data-v="'+esc(v)+'">'+esc(v)+'</button>';
+    }).join('');
+  }
+  chips('f1', CATS, 1); chips('f2', F2, 2); chips('f3', F3, 3); chips('f4', F4, 4);
+
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.onclick = function(){
+      var g = +c.dataset.g, v = c.dataset.v, i = sel[g].indexOf(v);
+      if(i<0){ sel[g].push(v); c.classList.add('on'); logEvent('filter',{term:v}); } else { sel[g].splice(i,1); c.classList.remove('on'); }
+      render();
+    };
+  });
+
+  function match(p){
+    if(q && p._s.indexOf(q)<0) return false;
+    for(var g=1; g<=4; g++){
+      if(!sel[g].length) continue;
+      var ok = sel[g].some(function(v){ return p._facet.indexOf(v)>=0; });
+      if(!ok) return false;
+    }
+    return true;
+  }
+
+  function dutyHTML(p){
+    var h = '<div class="duty"><div class="dt">⚠️ 피보험자 병력관련 알릴의무</div>';
+    if(p.duty.types.length) h += p.duty.types.map(function(t){return '<span class="dtag">'+esc(t)+'</span>'}).join('');
+    else if(p.dt.length) h += p.dt.map(function(t){return '<span class="dtag">'+esc(t)+'</span>'}).join('');
+    var rows = p.duty.rows.length ? p.duty.rows : (p.useStd ? STD : []);
+    if(rows.length){
+      h += '<table class="dt2"><tr><th>기간</th><th>고지 대상</th></tr>' +
+        rows.map(function(r){ return '<tr><td class="pd">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>' }).join('') +
+        '</table>';
+      if(!p.duty.rows.length && p.useStd)
+        h += '<div class="stdlink">※ 위 표는 <b>표준 알릴의무</b> 공통 내용입니다.</div>';
+    } else if(!p.duty.notes.length){
+      h += '<div class="none">원본 자료에 별도 표기 없음</div>';
+    }
+    if(p.duty.notes.length)
+      h += '<div class="note">'+p.duty.notes.map(function(n){return '<div>'+esc(n)+'</div>'}).join('')+'</div>';
+    h += '</div>';
+    return h;
+  }
+
+  function card(p){
+    var badges = '<span class="b age">👤 '+esc(p.age)+'</span>' +
+      (p.term ? '<span class="b">'+esc(p.term)+'</span>' : '') +
+      p.dt.map(function(t){
+        var c = t.indexOf('간편')===0 ? 'easy' : (t.indexOf('표준')===0 ? 'std' : 'gp');
+        return '<span class="b '+c+'">'+esc(t)+'</span>';
+      }).join('') +
+      (p.tags.indexOf('단기납 고환급')>=0 ? '<span class="b hot">단기납 고환급</span>' : '') +
+      (p.tags.indexOf('순수신인')>=0 ? '<span class="b hot">순수신인</span>' : '');
+
+    var h = '<div class="p" data-n="'+esc(p.n)+'"><div class="ph"><div class="pn"><h3>'+esc(p.n)+'</h3>' +
+      '<div class="pmeta">'+badges+'</div></div><div class="arw">▼</div></div><div class="pb">';
+
+    h += '<div class="sec"><div class="t">📌 기본 정보</div><div class="kv">' +
+      '<div><div class="k">가입 연령</div><div class="v">'+esc(p.age||'-')+'</div></div>' +
+      '<div><div class="k">갱신 / 만기</div><div class="v">'+esc(p.term||'-')+'</div></div>' +
+      '<div style="grid-column:1/-1"><div class="k">종구분 (선택유형)</div><div class="v">' +
+        (p.type.length ? p.type.map(esc).join('<br>') : '-') + '</div></div>' +
+      '</div></div>';
+
+    h += '<div class="sec"><div class="t">⚠️ 알릴의무 (고지의무)</div>'+dutyHTML(p)+'</div>';
+
+    h += '<div class="sec"><div class="t">💊 납입면제 사유</div>';
+    if(p.waiver.length && p.waiver[0]!=='없음'){
+      h += '<div class="wv">'+p.waiver.map(function(w){
+        return /^[0-9]+대|납입면제 [12]형/.test(w) ? '<div class="h">'+esc(w)+'</div>' : '<div>'+esc(w)+'</div>';
+      }).join('')+'</div>';
+    } else h += '<div class="none">없음</div>';
+    h += '<div class="stdlink">※ 전상품 납면제외 : 간병인지원일당, 가족일상생활배상책임, 가전제품고장수리, 산정특례, 암치료비(표적·면역·다빈치)</div></div>';
+
+    h += '<div class="sec"><div class="t">🧩 인수플랜</div>';
+    if(p.plan.length && p.plan[0]!=='없음'){
+      h += '<div class="pl">'+p.plan.map(function(x){
+        return /개\s*$/.test(x) ? '<span class="hd2">'+esc(x)+'</span>' : '<span>'+esc(x)+'</span>';
+      }).join('')+'</div>';
+    } else h += '<div class="none">없음</div>';
+    h += '</div>';
+
+    h += '<div class="sec"><div class="t">✨ 상품특징</div>';
+    if(p.feat.length){
+      h += '<ul class="li">'+p.feat.map(function(f){
+        return '<li class="'+(f.charAt(0)==='★'?'hl':'')+'">'+esc(f)+'</li>';
+      }).join('')+'</ul>';
+    } else h += '<div class="none">-</div>';
+    h += '</div></div></div>';
+    return h;
+  }
+
+  function render(){
+    var hit = P.filter(match);
+    document.getElementById('cnt').textContent = hit.length;
+    var box = document.getElementById('list');
+    if(!hit.length){
+      box.innerHTML = '<div class="empty"><div class="e">🔎</div><b>조건에 맞는 상품이 없습니다</b><br><span style="font-size:12.5px">검색어나 필터를 줄여보세요</span></div>';
+      return;
+    }
+    var h = '';
+    CATS.forEach(function(c){
+      var g = hit.filter(function(p){ return p.cat===c; });
+      if(!g.length) return;
+      h += '<div class="cat"><h2><span class="dot"></span>'+esc(c)+'<span class="n">'+g.length+'</span></h2>' +
+           g.map(card).join('') + '</div>';
+    });
+    box.innerHTML = h;
+    box.querySelectorAll('.ph').forEach(function(ph){
+      ph.onclick = function(){
+        var p = ph.parentNode, was = p.classList.contains('open');
+        p.classList.toggle('open');
+        if(!was){
+          logEvent('view', {term: p.getAttribute('data-n')});
+          setTimeout(function(){
+            var r = p.getBoundingClientRect();
+            if(r.top < 60) window.scrollBy({top:r.top-70, behavior:'smooth'});
+          },230);
+        }
+      };
+    });
+  }
+
+  // 알릴의무 유형별 보기
+  function renderDuty(){
+    var h = '<p style="font-size:12.5px;color:var(--sub);margin:2px 2px 14px;font-weight:600">고지 유형별로 묶어봤습니다. 상품명을 누르면 해당 상품으로 이동합니다.</p>';
+    DT.forEach(function(d){
+      h += '<div class="dcard"><h3>'+esc(d.k)+' <span style="font-size:11.5px;color:var(--mute)">· '+d.items.length+'개 상품</span></h3>';
+      h += '<div class="src">기준 : '+esc(d.from)+'</div>';
+      if(d.rows.length){
+        h += '<table class="dt2"><tr><th>기간</th><th>고지 대상</th></tr>' +
+          d.rows.map(function(r){ return '<tr><td class="pd">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>' }).join('') + '</table>';
+      }
+      if(d.notes.length)
+        h += '<div class="note">'+d.notes.map(function(n){return '<div>'+esc(n)+'</div>'}).join('')+'</div>';
+      h += '<div class="plist"><b>해당 상품</b>'+d.items.map(function(n){return '<span data-go="'+esc(n)+'">'+esc(n)+'</span>'}).join('')+'</div></div>';
+    });
+    var v = document.getElementById('viewDuty');
+    v.innerHTML = h;
+    v.querySelectorAll('[data-go]').forEach(function(s){
+      s.onclick = function(){
+        tab('prod');
+        sel={1:[],2:[],3:[],4:[]}; document.querySelectorAll('.chip.on').forEach(function(c){c.classList.remove('on')});
+        var i=document.getElementById('q'); i.value=s.dataset.go; q=s.dataset.go.toLowerCase();
+        document.getElementById('clr').classList.add('on');
+        render();
+        setTimeout(function(){
+          var t = document.querySelector('.p[data-n="'+s.dataset.go.replace(/"/g,'&quot;')+'"]');
+          if(t){ t.classList.add('open'); t.scrollIntoView({behavior:'smooth', block:'center'}); }
+        },60);
+      };
+    });
+  }
+
+  function tab(n){
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab===n) });
+    document.getElementById('viewProd').style.display = n==='prod' ? '' : 'none';
+    document.getElementById('viewDuty').style.display = n==='duty' ? '' : 'none';
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('.tab').forEach(function(t){ t.onclick=function(){ tab(t.dataset.tab) } });
+
+  var qi = document.getElementById('q'), clr = document.getElementById('clr');
+  qi.oninput = function(){ q = qi.value.trim().toLowerCase(); clr.classList.toggle('on', !!q); render(); logSearchDebounced(q); };
+  clr.onclick = function(){ qi.value=''; q=''; clr.classList.remove('on'); render(); qi.focus(); };
+  document.getElementById('reset').onclick = function(){
+    sel={1:[],2:[],3:[],4:[]}; q=''; qi.value=''; clr.classList.remove('on');
+    document.querySelectorAll('.chip.on').forEach(function(c){c.classList.remove('on')});
+    render();
+  };
+  document.getElementById('moreBtn').onclick = function(){
+    var a = document.getElementById('adv'); a.classList.toggle('on');
+    this.textContent = a.classList.contains('on') ? '－ 상세필터 접기' : '＋ 상세필터 (대상 · 특성 · 담보군)';
+  };
+  var tp = document.getElementById('top');
+  tp.onclick = function(){ window.scrollTo({top:0, behavior:'smooth'}) };
+  window.onscroll = function(){ tp.classList.toggle('on', window.scrollY > 500) };
+
+  renderDuty();
+  render();
+})();
+</script>
+</body>
+</html>
