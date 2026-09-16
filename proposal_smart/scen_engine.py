@@ -41,6 +41,18 @@ G131 = json.load(open(os.path.join(BASE, 'g131.json'), encoding='utf-8'))
 SYN = json.load(open(os.path.join(BASE, 'product_data.json'), encoding='utf-8'))['EMB']['syn']   # 암종명 → KCD
 G131['유방의장애'] = ['N60', 'N61', 'N62', 'N63', 'N64', 'D24']; G131['편도염'] = ['J03', 'J35']
 
+# ══ 1-7종 수술분류표 (약관 별표3, extract_surg7.py 로 생성) — 수술코드 → 종 (v8.5) ═══════════
+SURG7 = {}
+_p7 = os.path.join(BASE, 'surg7.json')
+if os.path.exists(_p7): SURG7 = {r['code']: r for r in json.load(open(_p7, encoding='utf-8'))['rows']}
+def surg7_grade(x):
+    """사례의 1-7종 표기 : 정수(종) 그대로, 수술코드('F121' 등)는 분류표에서 종을 찾는다. 모르면 None."""
+    if x is None or isinstance(x, int): return x
+    r = SURG7.get(str(x).upper()); return r['grade'] if r else None
+def surg7_name(x):
+    r = SURG7.get(str(x).upper()) if isinstance(x, str) else None
+    return r['name'] if r else ''
+
 # 고지유형 꼬리표 — rules.json goji_tags 한 곳에서만 관리(v8.3). matcher.py 도 이 GOJI 를 가져다 쓴다.
 GOJI = r'\((?:%s)\)' % '|'.join(re.escape(t) for t in RULEDOC['goji_tags'])
 def nname(n):
@@ -201,10 +213,12 @@ def h_surg(r, o, sc, nm, t):
         if t['gj'] != j: return []
         if o.get('plus') and tg.get('surg_cnt', 1) < 2: return []
     elif o.get('grade') == '1-7':
-        if tg.get('surg7') is None:
-            log('검토필요', r['name'], '1-7종(별표3) 종 구분이 사례에 없어 계산 제외')
+        g7 = surg7_grade(tg.get('surg7'))                # 정수 또는 분류표 수술코드(v8.5)
+        if g7 is None:
+            log('검토필요', r['name'], ('1-7종 수술분류표에 없는 수술코드 %s — 계산 제외' % tg.get('surg7')) if tg.get('surg7')
+                else '1-7종 수술분류표 종 구분이 사례에 없어 계산 제외')
             return []
-        if t['gj'] and t['gj'] != tg.get('surg7'): return []
+        if t['gj'] and t['gj'] != g7: return []
     elif not j: return []
     if 'cancer' in (o.get('ex') or []) and is_cancer(sc['kcd']): return []
     for g in t['ex']:                                   # 특정N대질병 제외 담보
