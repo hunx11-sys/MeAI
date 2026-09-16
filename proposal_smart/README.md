@@ -21,6 +21,7 @@
 | Python | **3.10 이상** (3.10 · 3.11 · 3.12 · 3.13에서 컴파일 확인) |
 | 패키지 | `pip install -r requirements.txt` → pdfplumber · pypdf · reportlab · playwright · pillow |
 | 브라우저 | `python -m playwright install chromium` (HTML → PDF 렌더) |
+| 특약 마스터 갱신 | `python extract_db.py ../tool.html` (tool.html 데이터가 바뀌었을 때) |
 | 글꼴·아이콘 | `python fetch_assets.py 원본.pdf` 1회 (나눔고딕 3종 → `assets/`, Healthicons → `icons.json`, 로고 → `assets/logo.png`) |
 | 로고 추출 | poppler-utils(`pdfimages`)가 있으면 자동, 없으면 `assets/logo.png`를 직접 넣는다 |
 `assets/`와 `out/`은 저장소에 올리지 않는다(`.gitignore`). `icons.json`은 포함되어 있어 네트워크 없이도 생성이 된다.
@@ -133,6 +134,10 @@
 
 검증 : 44F(151담보) 원본으로 재생성한 9쪽이 v8.2 결과물과 텍스트 동일(제목 1곳 제외) · 감사 로그 동일 · 마스터 951건 전수 재분류 미분류 0건 · 가상 설계서(1억5천만원·갱신주기 중복·원 단위 금액)로 A-3/A-6 확인.
 B그룹(9쪽 고정 구성, 잘림 시 빌드 계속, 고정 KCD 진단카드, 26종 암종 사전 등)은 아직 미반영 — 검수보고서 3절 참조.
+
+**v8.4 최종 검수(2026-09-16) — 특약 마스터를 특약검색기 최신 데이터로 재생성**
+- `extract_db.py` 신설: `python extract_db.py ../tool.html` 로 tool.html 내장 DATA에서 `db.json`을 만든다(약관 본문 제외, id·p·n·c·pg·k·t). 영업지원도구 검수(검수보고서_tool.md)로 보정된 질병코드가 모듈에 없던 상태였고, 재생성으로 특약 47건의 KCD 목록(통합암진단비·26종 항암치료비·암 통합치료비·유사암수술비 계열 등)과 1건의 카테고리가 갱신됐다. 약관 금액표(`product_data.json`)는 시뮬레이터 최신본과 동일.
+- 회귀: 44F 151담보 9쪽 텍스트 동일(입원 그리드에 질병입원일당 1만원 카드가 새로 표시된 것만 차이) · cust_a/cust_b 9쪽 · 계열 제거 설계 8/8/7쪽 · 암 전용 4쪽 · 운전자/치아 미첨부 · 951건 예외 없음.
 
 **v8.4 — 설계에 있는 계열만 지면으로 (조건부 구성)**
 - `gen2.coverage_flags()`가 설계 담보를 훑어 **암 · 뇌혈관 · 심장 · 통합치료비 · 일반 수술비 · 입원일당 · 간병 · 상해 · 사망/후유장해** 계열의 유무를 판정한다.
