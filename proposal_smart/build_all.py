@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""설계 PDF + 담보 JSON → 보장 6쪽 생성 후 담보사항이 끝나는 쪽 뒤에 삽입."""
+"""설계 PDF + 담보 JSON → 보장 지면(설계에 있는 계열만, 최대 9쪽) 생성 후 담보사항이 끝나는 쪽 뒤에 삽입."""
 import json, re, subprocess, sys, os
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
@@ -60,6 +60,10 @@ if __name__=='__main__':
     os.makedirs(os.path.join(BASE,'out'), exist_ok=True)
     html = os.path.join(BASE,'out','_tmp.html'); pdf = os.path.join(BASE,'out','_tmp.pdf')
     subprocess.check_call([sys.executable, os.path.join(BASE,'gen2.py'), cust, html])
+    audit = json.load(open(os.path.splitext(html)[0] + '_audit.json', encoding='utf-8'))['요약']
+    if not audit.get('생성쪽수'):                # 암·뇌·심장·통합치료비 계열 담보가 없는 설계(운전자·치아 등) → 원본 그대로(v8.4)
+        import shutil; shutil.copyfile(orig, out)
+        print('스마트제안서 미첨부 — 대상 담보 없음 · 원본 그대로 출력 :', out, '(', c['base_pages'], '쪽 )'); sys.exit(0)
     subprocess.check_call([sys.executable, os.path.join(BASE,'render.py'), html, pdf])
     new = page_count(pdf)                      # 생성 쪽수는 gen2 구성에 따라 자동 반영
     print('담보사항 종료 쪽', ia, '· 생성', new, '쪽 → 총', merge(orig, pdf, out, insert_after=ia, new=new), '쪽')
