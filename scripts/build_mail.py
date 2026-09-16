@@ -2,7 +2,7 @@
 """
 메일 첨부가 막힐 때 쓰는 대체 파일 만들기
 - 저장소 루트에서 실행: python3 scripts/build_mail.py
-- 먼저 build_package.py 를 돌려 dist/영업지원도구6종_폐쇄망.zip 이 있어야 합니다.
+- 먼저 build_package.py 를 돌려 dist/영업지원도구6종.zip 이 있어야 합니다.
 - 결과: dist/메일발송용/ 안에 세 가지
 
 사내 메일이 첨부를 막는 방식은 보통 둘 중 하나입니다.
@@ -14,7 +14,7 @@
 import os, shutil, subprocess, sys, tempfile, zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, 'dist', '영업지원도구6종_폐쇄망.zip')
+SRC = os.path.join(ROOT, 'dist', '영업지원도구6종.zip')
 OUTDIR = os.path.join(ROOT, 'dist', '메일발송용')
 EXT = 'meai'                 # 어떤 메일에서도 막지 않는, 흔하지 않은 확장자
 PW = 'meritz2026'            # 검사기를 피하려는 용도일 뿐, 보안용 암호가 아닙니다
@@ -59,7 +59,11 @@ BODY = """[메일 본문 예시 — 그대로 복사해서 쓰세요]
  알집·반디집·7-Zip 중 아무거나로 풀어 주세요.)
 """
 
-HOWTO = """메일 첨부가 막힐 때 — 보내는 분용 안내
+HOWTO = """메일 첨부가 막힐 때 — 보내는 분용 안내 (최후의 수단)
+
+먼저 「dist/영업지원도구6종.zip」 을 그냥 붙여 보세요. 평소 보내시던 것과
+같은 모양(안에 html·js·txt 만 들어 있는 압축)이라 그대로 나가야 정상입니다.
+그것까지 막힐 때만 아래를 쓰세요.
 
 사내 메일이 첨부를 막는 방식은 보통 둘 중 하나입니다.
 어느 쪽인지 모르니 두 가지를 다 만들어 두었습니다. 위에서부터 하나씩 시도해 보세요.
@@ -130,7 +134,7 @@ def mark_utf8(path):
 
 def main():
     if not os.path.exists(SRC):
-        sys.exit('dist/영업지원도구6종_폐쇄망.zip 이 없습니다. '
+        sys.exit('dist/영업지원도구6종.zip 이 없습니다. '
                  '먼저 python3 scripts/build_package.py 를 실행하세요.')
     shutil.rmtree(OUTDIR, ignore_errors=True)
     os.makedirs(OUTDIR)
