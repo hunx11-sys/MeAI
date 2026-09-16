@@ -154,6 +154,11 @@ def code_hit(codes, kcd):
             return True
     return False
 
+def excluded(r, kcd):
+    """특약 마스터의 제외코드(x : 보상하지 않는 질병 — 질병수술비의 치핵·비만·정신질환·선천기형 등)에 해당하면 True (v8.7)"""
+    ex = r.get('excl') or []
+    return bool(ex) and code_hit(ex, kcd)
+
 def g131_key(label):
     l = re.sub(r'[\s․·,]', '', label or '')
     l = re.sub(r'다빈도\d+대질병', '다빈도64대질병', l)
@@ -322,6 +327,7 @@ def pay_lines(riders, sc):
         try:
             if (r.get('man') or 0) <= 0: continue
             n = r['name']; nm = nname(n)
+            if excluded(r, sc['kcd']): continue         # 약관 제외코드(보상하지 않는 질병)에 해당 — 지급 없음(v8.7)
             # 1) 통합치료비 — 약관 지급금액표 엔진에 위임
             if r.get('itc'):
                 if not sc.get('itc_events'): continue

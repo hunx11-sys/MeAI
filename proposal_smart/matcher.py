@@ -51,7 +51,7 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                     seen.add(key); m, b, s2 = match(name, line); no_seq += 1
                     rows.append({'no': no, 'name': re.sub(GOJI, '', name).replace('[기본계약]', '').strip(),
                                  'man': S.amt_to_man(am.group(0)), 'amount_text': amt, 'cat': (m or {}).get('c'),
-                                 'codes': (m or {}).get('k') or [], 'benefit': b, 'sub': s2, 'matched': bool(m),
+                                 'codes': (m or {}).get('k') or [], 'excl': (m or {}).get('x') or [], 'benefit': b, 'sub': s2, 'matched': bool(m),
                                  'itc': S.itc_id(name)})
             if '세부보장' in t:                                    # 세부보장 표 : 번호+담보명이 한 셀에 있고 이름이 셀 경계에서 잘리므로 텍스트로 읽는다
                 lines = [x.strip() for x in t.split('\n')]
@@ -74,7 +74,7 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                             seen.add(key); mt, b, s2 = match(name, line)
                             rows.append({'no': no, 'name': re.sub(GOJI, '', name).replace('[기본계약]', '').strip(),
                                          'man': S.amt_to_man(amt), 'amount_text': amt, 'cat': (mt or {}).get('c'),
-                                         'codes': (mt or {}).get('k') or [], 'benefit': b, 'sub': s2, 'matched': bool(mt),
+                                         'codes': (mt or {}).get('k') or [], 'excl': (mt or {}).get('x') or [], 'benefit': b, 'sub': s2, 'matched': bool(mt),
                                          'itc': S.itc_id(name)})
                     k += 1
     return rows
