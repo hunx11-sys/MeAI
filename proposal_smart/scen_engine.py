@@ -53,6 +53,23 @@ def surg7_name(x):
     r = SURG7.get(str(x).upper()) if isinstance(x, str) else None
     return r['name'] if r else ''
 
+# ══ 1-5종 수술분류표Ⅱ (약관 별표76, extract_surg5.py 로 생성) — 항목번호 → 종, 질병코드 예외 (v8.6) ═══
+SURG5 = {}
+_p5 = os.path.join(BASE, 'surg5.json')
+if os.path.exists(_p5): SURG5 = {i['no']: i for i in json.load(open(_p5, encoding='utf-8'))['items']}
+def surg5_grade(x, kcd=None):
+    """사례의 1-5종 표기 : 정수(종) 그대로, 항목번호('33'·'88-1'·'C1' 등)는 분류표에서 종을 찾고
+       '단, ○○(KCD)로 인한 수술은 N종' 예외(담석증 K80→2종, 대장 용종 D12→1종, 기타피부암 C44→3종 등)를 질병코드로 적용한다."""
+    if x is None or isinstance(x, int): return x
+    it = SURG5.get(str(x))
+    if not it: return None
+    for e in it.get('exceptions') or []:
+        if kcd and (kcd == e['kcd'] or kcd.startswith(e['kcd'])): return e['grade']
+    return it['grade']
+def surg5_name(x):
+    it = SURG5.get(str(x)) if isinstance(x, str) else None
+    return it['name'] if it else ''
+
 # 고지유형 꼬리표 — rules.json goji_tags 한 곳에서만 관리(v8.3). matcher.py 도 이 GOJI 를 가져다 쓴다.
 GOJI = r'\((?:%s)\)' % '|'.join(re.escape(t) for t in RULEDOC['goji_tags'])
 def nname(n):
@@ -120,12 +137,17 @@ def is_cancer(kcd):
 
 RNG = re.compile(r'^([A-Z])(\d{2})~([A-Z])(\d{2})$')
 def code_hit(codes, kcd):
-    """약관 KCD 목록(개별코드·세분류·범위표기 A15~A19 모두 지원) 대조"""
+    """약관 KCD 목록(개별코드·세분류·범위표기 A15~A19·제외표기 !N74.0 모두 지원) 대조"""
     if not codes: return False
     c3 = kcd.split('.')[0]
     m3 = re.match(r'^([A-Z])(\d{2})', c3)
+    for e in codes:                                   # 제외 코드가 먼저 (v8.6 : 131대질병 그룹표 '(N74.0제외)' 등)
+        if e.startswith('!'):
+            x = e[1:].strip()
+            if kcd == x or kcd.startswith(x + '.') or (len(x) == 3 and c3 == x): return False
     for e in codes:
         e = e.strip()
+        if e.startswith('!'): continue
         if kcd == e or kcd.startswith(e + '.') or c3 == e or e.startswith(kcd + '.'): return True
         r = RNG.match(e)
         if r and m3 and r.group(1) == m3.group(1) == r.group(3) and int(r.group(2)) <= int(m3.group(2)) <= int(r.group(4)):
@@ -210,7 +232,10 @@ def h_surg(r, o, sc, nm, t):
     if o.get('grade') == '1-5':
         if not t['gj']: return []
         if t['gkind'] and t['gkind'] != tg.get('cause', '질병'): return []
-        if t['gj'] != j: return []
+        j5 = surg5_grade(j, sc['kcd'])                   # 정수 또는 분류표 항목번호(v8.6)
+        if j5 is None:
+            log('검토필요', r['name'], '1-5종 수술분류표에 없는 항목 %s — 계산 제외' % j); return []
+        if t['gj'] != j5: return []
         if o.get('plus') and tg.get('surg_cnt', 1) < 2: return []
     elif o.get('grade') == '1-7':
         g7 = surg7_grade(tg.get('surg7'))                # 정수 또는 분류표 수술코드(v8.5)
@@ -225,7 +250,7 @@ def h_surg(r, o, sc, nm, t):
         if g != '5': log('검토필요', r['name'], '특정%s대질병 제외목록 미확정 — 특정5대질병 기준으로 판정' % g)
         if tg.get('five_major') or code_hit(FIVE_MAJOR, sc['kcd']): return []
     if not kcd_ok(o.get('kcd'), r, sc, nm): return []
-    why = o.get('why', '수술 1회').replace('{j}', str(t['gj'] or j or '')).replace(
+    why = o.get('why', '수술 1회').replace('{j}', str(t['gj'] or surg5_grade(j, sc['kcd']) or '')).replace(
         '{g}', (r.get('benefit') or r.get('sub') or '').strip())
     return [(r['man'], why, o.get('group', '수술비'), o.get('freq', 'each'))]
 

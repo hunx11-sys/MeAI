@@ -104,10 +104,10 @@ def cancer_cells():
     def s(kcd, dx, itc, **kw):
         tg = dict(base); tg['dx'] = None; tg.update(kw)     # 진단비는 1번 블록에 따로 표기 → 치료 시 순수 보장액만
         return Q(kcd, tg, itc)
-    robot = s('C16', 'cancer', [['수술', '로봇수술', '', ['surg', 'robot'], {'nc': 1}]], surg=5, surg7='G081')   # 복강경 위아전절제술(6종)
-    lap = s('C16', 'cancer', [['수술', '복강경', '', ['surg']]], surg=5, surg7='G081')
-    open_ = s('C16', 'cancer', [['수술', '개복', '', ['surg']]], surg=5, surg7='G082')                        # 개복 위아전절제술(6종)
-    endo = s('C16', 'cancer', [['수술', '내시경 절제', '', ['surg']]], surg=3, surg7='G503')                  # 위내시경 시술(1종)
+    robot = s('C16', 'cancer', [['수술', '로봇수술', '', ['surg', 'robot'], {'nc': 1}]], surg='C1', surg7='G081')   # 1-5종 : 관혈적 악성신생물 근치수술(5종)   # 복강경 위아전절제술(6종)
+    lap = s('C16', 'cancer', [['수술', '복강경', '', ['surg']]], surg='C1', surg7='G081')
+    open_ = s('C16', 'cancer', [['수술', '개복', '', ['surg']]], surg='C1', surg7='G082')                        # 개복 위아전절제술(6종)
+    endo = s('C16', 'cancer', [['수술', '내시경 절제', '', ['surg']]], surg='C2', surg7='G503')                  # 1-5종 : 내시경 악성신생물 수술(3종)                  # 위내시경 시술(1종)
     chemo = s('C16', 'cancer', [['항암', '항암약물(급여)', '', ['chemo']]], chemo=1)
     target1 = s('C16', 'cancer', [['항암', '표적(비급여)', '', ['chemo', 'target'], {'nc': 1}]], chemo=1, target=1, drug=1)
     target2 = s('C16', 'cancer', [['항암', '표적(비급여)', '', ['chemo', 'target'], {'nc': 1}]], chemo=1, target=1, drug=2)
@@ -116,8 +116,8 @@ def cancer_cells():
     imrt = s('C16', 'cancer', [['방사선', '세기조절', '', ['rad', 'imrt']]])
     proton = s('C16', 'cancer', [['방사선', '양성자(비급여)', '', ['rad', 'proton'], {'nc': 1}]])
     carbon = s('C16', 'cancer', [['방사선', '중입자(비급여)', '', ['rad', 'carbon'], {'nc': 1}]])
-    sim = s('C73', 'sim_cancer', [['수술', '갑상선 절제', '', ['surg']]], surg=3, surg7='K064')              # 주요 갑상선 악성 종양 수술(4종)
-    simrobot = s('C73', 'sim_cancer', [['수술', '로봇 갑상선 절제', '', ['surg', 'robot'], {'nc': 1}]], surg=3, surg7='K064')
+    sim = s('C73', 'sim_cancer', [['수술', '갑상선 절제', '', ['surg']]], surg='C1', surg7='K064')              # 갑상선암도 악성신생물 근치수술(5종)              # 주요 갑상선 악성 종양 수술(4종)
+    simrobot = s('C73', 'sim_cancer', [['수술', '로봇 갑상선 절제', '', ['surg', 'robot'], {'nc': 1}]], surg='C1', surg7='K064')
     return locals()
 
 def cancer_tx_areas():
@@ -188,13 +188,13 @@ def page_cv():
     rows = []
     for k, kcd, dx, grp, cols in [
         ('cv', 'I63', 'brain', G, [('혈전용해치료만', '혈전용해제(tPA) 주사 · 수술 없음', [['시술', '혈전용해', '', ['thromb']]], None, None, None),
-                                   ('혈전용해 + 혈전제거술', '두 치료를 모두 받은 경우', [['시술', '혈전용해', '', ['thromb']], ['수술', '기계적 혈전제거술', '', ['surg']]], 3, ['thrombectomy'], 'B027'),
-                                   ('스텐트 · 코일색전술', '신의료기술(비관혈)', [['시술', '스텐트·코일', '', ['surg']]], 3, None, 'B026'),
-                                   ('개두 수술', '클립결찰술 · 개두술', [['수술', '개두술', '', ['surg']]], 5, None, 'B031')]),
+                                   ('혈전용해 + 혈전제거술', '두 치료를 모두 받은 경우', [['시술', '혈전용해', '', ['thromb']], ['수술', '기계적 혈전제거술', '', ['surg']]], '88-1', ['thrombectomy'], 'B027'),
+                                   ('스텐트 · 코일색전술', '신의료기술(비관혈)', [['시술', '스텐트·코일', '', ['surg']]], '88-1', None, 'B026'),
+                                   ('개두 수술', '클립결찰술 · 개두술', [['수술', '개두술', '', ['surg']]], '59', None, 'B031')]),
         ('yr', 'I21', 'heart', H, [('혈전용해치료만', '혈전용해제 주사 · 수술 없음', [['시술', '혈전용해', '', ['thromb']]], None, None, None),
-                                   ('혈전용해 + 혈전제거술', '두 치료를 모두 받은 경우', [['시술', '혈전용해', '', ['thromb']], ['수술', '기계적 혈전제거술', '', ['surg']]], 3, ['thrombectomy'], 'F121'),
-                                   ('관상동맥 스텐트', '경피적 시술도 수술', [['시술', '스텐트 삽입', '', ['surg']]], 3, None, 'F121'),
-                                   ('심장 개흉수술', '관상동맥 우회술 · 에크모', [['수술', '개흉 수술', '', ['surg']], ['중환자', '에크모', '', ['ecmo']]], 5, None, 'F041')])]:
+                                   ('혈전용해 + 혈전제거술', '두 치료를 모두 받은 경우', [['시술', '혈전용해', '', ['thromb']], ['수술', '기계적 혈전제거술', '', ['surg']]], '88-1', ['thrombectomy'], 'F121'),
+                                   ('관상동맥 스텐트', '경피적 시술도 수술', [['시술', '스텐트 삽입', '', ['surg']]], '88-1', None, 'F121'),
+                                   ('심장 개흉수술', '관상동맥 우회술 · 에크모', [['수술', '개흉 수술', '', ['surg']], ['중환자', '에크모', '', ['ecmo']]], '24', None, 'F041')])]:
         d = K[k][1]
         cells = ''
         for t, s2, itc, j, ac, j7 in cols:
@@ -385,18 +385,18 @@ def itc_items():
 FLOW = [
  dict(k='ca', ic='lungs', t='폐암', sub='진단 → 흉강경 폐절제 → 표적·면역(키트루다) 항암 → 입원', kcd='C34',
       steps=[('검사', 'microscope', '흉부 CT · PET · 조직검사', [['검사', '흉부 CT · PET · 조직검사', '', ['x_ct', 'x_pet', 'x_bio']]], dict(dx='cancer')),
-             ('수술', 'surgical_sterilization', '흉강경 폐엽절제술', [['수술', '흉강경 폐엽절제술', '', ['surg']]], dict(surg=5, surg7='E012', hosp='상급종합')),
+             ('수술', 'surgical_sterilization', '흉강경 폐엽절제술', [['수술', '흉강경 폐엽절제술', '', ['surg']]], dict(surg='C1', surg7='E012', hosp='상급종합')),
              ('항암', 'immune', '표적항암 → 키트루다(면역·비급여)', [['항암', '표적항암 · 면역항암(비급여)', '', ['chemo', 'target', 'immune'], {'nc': 1}]], dict(chemo=1, target=1, drug=2, tx_cnt=2, done=['surg'])),
              ('입원', 'hospital', '상급종합 1인실 10일 입원', [], dict(hosp='상급종합', room='1인실', days=10))]),
  dict(k='yr', ic='heart_organ', t='급성 심근경색', sub='진단 → 스텐트 시술 → 중환자실 → 심장재활', kcd='I21',
       steps=[('진단','xray','응급 CT·심전도로 확진',[['검사','관상동맥 CT','',['x_ct']]],dict(dx='heart',grp=['심장질환'])),
-             ('시술','knife','관상동맥 스텐트 삽입술(PCI)',[['시술','스텐트 삽입','',['surg']]],dict(surg=3,surg7='F121',grp=['심장질환','특정31대질병'],hosp='종합')),
+             ('시술','knife','관상동맥 스텐트 삽입술(PCI)',[['시술','스텐트 삽입','',['surg']]],dict(surg='88-1',surg7='F121',grp=['심장질환','특정31대질병'],hosp='종합')),
              ('입원','ambulance','중환자실 2일 + 일반병실 7일',[['중환자','중환자실','',['icu']]],dict(hosp='종합',room='2-3인실',days=7,icu=2)),
              ('재활','physical_therapy','외래 심장재활 10회',[['재활','심장재활 10회','',['rehab'],{'n':10}]],dict())]),
  dict(k='cv', ic='neurology', t='뇌경색', sub='진단 → 혈전용해·혈전제거 → 중환자실 → 재활', kcd='I63',
       steps=[('검사', 'xray', '뇌 CT + MRI', [['진단', '뇌 CT + MRI', '', ['x_ct', 'x_mri']]], dict(dx='brain', grp=['뇌혈관질환', '뇌졸중'])),
              ('시술', 'drop2', '혈전용해제 주사(tPA)', [['시술', '혈전용해치료', '', ['thromb']]], dict()),
-             ('수술', 'knife', '동맥내 기계적 혈전제거술', [['시술', '혈전제거술', '', ['surg']]], dict(surg=3, surg7='B027', grp=['뇌혈관질환', '뇌졸중', '특정31대질병'], hosp='종합', acts=['thrombectomy'], done=['thromb'])),
+             ('수술', 'knife', '동맥내 기계적 혈전제거술', [['시술', '혈전제거술', '', ['surg']]], dict(surg='88-1', surg7='B027', grp=['뇌혈관질환', '뇌졸중', '특정31대질병'], hosp='종합', acts=['thrombectomy'], done=['thromb'])),
              ('입원', 'ambulance', '중환자실 3일 + 일반병실 14일', [['중환자', '중환자실', '', ['icu']], ['재활', '재활 10일', '', ['rehab'], {'n': 10}]], dict(hosp='종합', room='2-3인실', days=14, icu=3))]),
 ]
 def flow_card(f):
@@ -418,15 +418,15 @@ def flow_card(f):
 # ── 다빈도 질환 ────────────────────────────────────
 FREQ = [
  ('갑상선결절', 'D34', 'thyroid', '고주파 절제술', '비급여 150~300만원', dict(surg=3, surg7=1, grp=['다빈도62대질병']), [['수술', '고주파 절제', '', ['surg'], {'j': 3}]]),
- ('유방 양성종양', 'D24', 'breasts', '맘모톰 절제술', '비급여 100~400만원', dict(surg=1, surg7='J071', grp=['다빈도62대질병', '특정다빈도29대질병']), [['수술', '맘모톰 절제', '', ['surg'], {'j': 1}]]),
- ('자궁근종', 'D25', 'cervical_cancer', '하이푸 · 복강경 절제', '비급여 600~1,000만원', dict(surg=2, surg7='N031', grp=['다빈도62대질병']), [['수술', '복강경 근종 절제', '', ['surg'], {'j': 2}]]),
- ('대장 용종', 'D12', 'colon', '내시경 용종절제술', '급여 · 1종 수술', dict(surg=1, surg7='G523', grp=['다빈도62대질병'], five_major=True), [['진단', '대장내시경', '', ['x_endo']], ['수술', '용종 절제', '', ['surg'], {'j': 1}]]),
- ('담석증', 'K80.0', 'gallbladder', '복강경 담낭절제술', '급여 · 2종 수술', dict(surg=2, surg7='H107', grp=['다빈도62대질병'], days=5, room='2-3인실', hosp='모든'), [['진단', '복부 CT', '', ['x_ct']], ['수술', '복강경 담낭 절제', '', ['surg'], {'j': 2}]]),
- ('백내장', 'H25.9', 'body', '수정체 유화술 + 인공수정체', '급여 · 1종 수술', dict(surg=1, surg7='C061', grp=['백내장']), []),
- ('디스크(추간판장애)', 'M51', 'body', '신경성형술 · 내시경 수술', '비급여 160~380만원', dict(surg=2, surg7='B174', grp=['다빈도62대질병']), []),
- ('치핵', 'K64', 'intestine', '치핵절제술', '급여 · 1종 수술', dict(surg=1, surg7='G272', grp=['치핵']), []),
- ('무릎 관절염', 'M17', 'body', '관절경 수술 · 줄기세포', '비급여 500~1,500만원', dict(surg=2, surg7='I194', grp=['관절염,생식기질환', '다빈도62대질병']), []),
- ('하지정맥류', 'I83', 'varicose_vein', '베나실 · 정맥류 근본수술', '비급여 300~600만원', dict(surg=1, surg7='F254', grp=['다빈도62대질병']), [['수술', '하지정맥류 근본수술', '', ['surg'], {'j': 1}]]),
+ ('유방 양성종양', 'D24', 'breasts', '맘모톰 절제술', '비급여 100~400만원', dict(surg='4', surg7='J071', grp=['다빈도62대질병', '특정다빈도29대질병']), [['수술', '맘모톰 절제', '', ['surg'], {'j': 1}]]),
+ ('자궁근종', 'D25', 'cervical_cancer', '하이푸 · 복강경 절제', '비급여 600~1,000만원', dict(surg='88-2', surg7='N031', grp=['다빈도62대질병']), [['수술', '복강경 근종 절제', '', ['surg'], {'j': 2}]]),
+ ('대장 용종', 'D12', 'colon', '내시경 용종절제술', '급여 · 1종 수술', dict(surg='88-2', surg7='G523', grp=['다빈도62대질병'], five_major=True), [['진단', '대장내시경', '', ['x_endo']], ['수술', '용종 절제', '', ['surg'], {'j': 1}]]),
+ ('담석증', 'K80.0', 'gallbladder', '복강경 담낭절제술', '급여 · 2종 수술', dict(surg='36', surg7='H107', grp=['다빈도62대질병'], days=5, room='2-3인실', hosp='모든'), [['진단', '복부 CT', '', ['x_ct']], ['수술', '복강경 담낭 절제', '', ['surg'], {'j': 2}]]),
+ ('백내장', 'H25.9', 'body', '수정체 유화술 + 인공수정체', '급여 · 1종 수술', dict(surg='71', surg7='C061', grp=['백내장']), []),
+ ('디스크(추간판장애)', 'M51', 'body', '신경성형술 · 내시경 수술', '비급여 160~380만원', dict(surg='88-2', surg7='B174', grp=['다빈도62대질병']), []),
+ ('치핵', 'K64', 'intestine', '치핵절제술', '급여 · 1종 수술', dict(surg='44', surg7='G272', grp=['치핵']), []),
+ ('무릎 관절염', 'M17', 'body', '관절경 수술 · 줄기세포', '비급여 500~1,500만원', dict(surg='88-2', surg7='I194', grp=['관절염,생식기질환', '다빈도62대질병']), []),
+ ('하지정맥류', 'I83', 'varicose_vein', '베나실 · 정맥류 근본수술', '비급여 300~600만원', dict(surg='23', surg7='F254', grp=['다빈도62대질병']), [['수술', '하지정맥류 근본수술', '', ['surg'], {'j': 1}]]),
 ]
 def freq_rows():
     out = ''
@@ -612,8 +612,8 @@ def page_surg():
         return Q('Z99', dict(cause=cause, surg=j, hosp=hosp, grp=[], surg_cnt=cnt), [])
     cols = ''.join(f'<th>{et(ic,tl,24,d)}<b>{j}종 수술</b><span>{s2}</span></th>'
                    for j, ic, s2 in [(1, 'bandage_adhesive', '내시경·간단 수술'), (2, 'syringe', '복강경·관혈 수술'),
-                                     (3, 'knife', '개복·개흉 · 암수술'), (4, 'surgical_sterilization', '장기 절제 수술'),
-                                     (5, 'heart_organ', '이식 · 개두 · 심장 수술')])
+                                     (3, 'knife', '내시경·카테터 암수술 · 갑상선'), (4, 'surgical_sterilization', '위·간·장 개복 절제'),
+                                     (5, 'heart_organ', '암 근치수술 · 이식 · 개두 · 심장')])
     def row(label, cause, hosp, cnt=1, hl=False):
         cells = ''.join(f'<td>{big(T(S5(j,cause,hosp,cnt)),d if hl else "#343A40")}</td>' for j in range(1, 6))
         return f'<tr class="{"mhl" if hl else ""}"><th class="rl">{label}</th>{cells}</tr>'
@@ -774,11 +774,11 @@ _BUILD = [
  <div class="mnote">※ 조건부 담보는 보수적으로 계산 — 표적항암약물허가치료비는 연간 약물종류 2종 이상(폐암 사례 : 표적항암제 → 키트루다), 특정혈전치료비는 두 치료를 모두 받은 단계에서만.</div>''',
 ]
 # 6쪽 : 상해·사고
-INJ = [('교통사고 두개내손상', 'S06', 'wound', dict(cause='상해', surg=5, surg7='B122', hosp='종합', room='2-3인실', days=20, icu=3, grp=[]),
+INJ = [('교통사고 두개내손상', 'S06', 'wound', dict(cause='상해', surg='59', surg7='B122', hosp='종합', room='2-3인실', days=20, icu=3, grp=[]),
         [['진단', 'CT + MRI', '', ['x_ct', 'x_mri']], ['수술', '개두술', '', ['surg'], {'j': 5}], ['중환자', '중환자실', '', ['icu']], ['재활', '재활 10일', '', ['rehab'], {'n': 10}]]),
-       ('손목 골절 · 관절 고정술', 'S62', 'body', dict(cause='상해', surg=2, surg7='I286', hosp='종합', room='2-3인실', days=5, grp=[]), []),
+       ('손목 골절 · 관절 고정술', 'S62', 'body', dict(cause='상해', surg='13-2', surg7='I286', hosp='종합', room='2-3인실', days=5, grp=[]), []),
        ('열린 상처 · 창상봉합술', 'T14', 'bandage_adhesive', dict(cause='상해', surg=1, surg7='X060', hosp='종합', room=None, days=0, grp=[]), []),
-       ('화상 · 피부이식수술', 'T30', 'wound', dict(cause='상해', surg=1, surg7='Y020', hosp='종합', room='2-3인실', days=7, grp=[]), [])]
+       ('화상 · 피부이식수술', 'T30', 'wound', dict(cause='상해', surg='2', surg7='Y020', hosp='종합', room='2-3인실', days=7, grp=[]), [])]
 INJ_ITC = json.load(open(os.path.join(BASE, 'inj_itc.json'), encoding='utf-8'))
 INJ_ACT = {'MRI': 'x_mri', 'CT': 'x_ct', '골밀도': 'x_bmd', '흡인': 'aspir', '신경차단': 'block', '화상처치': 'burn', '도수정복': 'reduction',
            '창상봉합술치료(안면부,': 'suture_face', '창상봉합술치료(안면부이외': 'suture', '깁스': 'cast', '부목': 'splint', 'CRRT': 'crrt',
