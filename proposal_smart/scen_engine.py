@@ -1,0 +1,342 @@
+# -*- coding: utf-8 -*-
+"""설계 담보 전체(진단비·수술비·입원일당·치료비·통합치료비)에 대한 사례별 보상 계산 엔진 v3.1 (모듈 v8.3).
+
+  ▣ 판정 근거는 두 가지뿐이다.
+     ① 담보명   : rules.json 규칙표(보상구조) + 담보명 토큰(상해/질병·병원 종별·병실·한도일수·종·제외질병)
+     ② 약관 KCD : db.json 의 특약별 KCD 목록 · g131.json 그룹표 · 별표3 암분류 로직(engine.cancer_cls)
+     ※ KCD 목록은 어떤 경우에도 코드에서 생성·추정하지 않는다.
+  ▣ 규칙표에 없는 담보가 들어와도 예외를 던지지 않는다. 계산에서 제외하고 ISSUES 에 사유를 남긴다.
+     (운영 원칙 : 미매칭 담보 = 제외 + 로그)
+"""
+import json, os, re, sys
+BASE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, BASE)
+import engine as itc            # 통합치료비 약관 지급금액표 엔진
+
+# ══ 가입금액 표기 → 만원 (v8.3 : 억·천·백·십·만 조합 전부 처리, 원 단위는 0) ═══════════
+# 설계서 표기 예 : 5천만원 · 1억5천만원 · 1억 5,000만원 · 3천5백만원 · 1,000만원 · 2억원 · 1억 · 간병인지원
+AMT_RE = (r'간병인지원'
+          r'|(?=\d)(?:\d[\d,]*억\s*)?(?:\d[\d,]*천)?(?:\d[\d,]*백)?(?:\d[\d,]*십)?(?:\d[\d,]*)?만원'
+          r'|\d[\d,]*억\s*(?:\d[\d,]*천)?(?:\d[\d,]*백)?(?:\d[\d,]*십)?(?:\d[\d,]*만)?원?')
+_AMT_FULL = re.compile(r'(?:(\d+)억)?(?:(\d+)천)?(?:(\d+)백)?(?:(\d+)십)?(\d+)?(만)?원?')
+def amt_to_man(s):
+    """'1억5천만원' → 15000. 해석 불가·원 단위(5,000원)·현물(간병인지원)은 0."""
+    s = re.sub(r'[\s,]', '', s or '')
+    m = _AMT_FULL.fullmatch(s)
+    if not m or not any(m.groups()[:5]): return 0
+    eok, cheon, baek, sip, man = (int(g) if g else 0 for g in m.groups()[:5])
+    if not (eok or cheon or baek or sip or m.group(6)): return 0      # '5000원' 같은 원 단위 → 만원 미만 취급
+    return eok * 10000 + cheon * 1000 + baek * 100 + sip * 10 + man
+
+# ══ 규칙표 ══════════════════════════════════════════════════════════
+RULEDOC = json.load(open(os.path.join(BASE, 'rules.json'), encoding='utf-8'))
+RULES = RULEDOC['rules']
+for _r in RULES:
+    _r['_m'] = re.compile(_r['m'])
+    _r['_x'] = re.compile(_r['x']) if _r.get('x') else None
+KCDG = RULEDOC['kcd_groups']
+FIVE_MAJOR = KCDG['특정5대질병']                      # 특정5대질병(대장용종·백내장·후각특정질환·특정피부질환·혈관종)
+
+G131 = json.load(open(os.path.join(BASE, 'g131.json'), encoding='utf-8'))
+SYN = json.load(open(os.path.join(BASE, 'product_data.json'), encoding='utf-8'))['EMB']['syn']   # 암종명 → KCD
+G131['유방의장애'] = ['N60', 'N61', 'N62', 'N63', 'N64', 'D24']; G131['편도염'] = ['J03', 'J35']
+
+# 고지유형 꼬리표 — rules.json goji_tags 한 곳에서만 관리(v8.3). matcher.py 도 이 GOJI 를 가져다 쓴다.
+GOJI = r'\((?:%s)\)' % '|'.join(re.escape(t) for t in RULEDOC['goji_tags'])
+def nname(n):
+    """고지유형 꼬리표·공백 제거 — 규칙표 매칭에 쓰는 정규화 담보명"""
+    return re.sub(r'\s+', '', re.sub(GOJI, '', n or '').replace('[기본계약]', '').replace('┗', ''))
+
+# ══ 통합치료비 식별 (v8.3 : 약관 지급금액표 RIDERS 에서 자동 생성 + 보조 별칭) ═══════════
+ITC_MAP = {r['nm']: r['id'] for r in itc.RIDERS}
+ITC_MAP.update({'암 통합치료비(주요치료)(비급여(전액본인부담 포함))': 'ca_ncm'})
+_ITC_NORM = {nname(k): v for k, v in ITC_MAP.items()}
+def itc_id(name):
+    """약관 지급금액표가 있는 통합치료비면 그 id, 아니면 None(→ 규칙표 itc_unknown 이 계산 제외+로그)"""
+    return _ITC_NORM.get(nname(name))
+INJ_KNOWN = set()                                     # 상해 통합치료비 : gen2 가 inj_itc.json 으로 별도 계산
+if os.path.exists(os.path.join(BASE, 'inj_itc.json')):
+    INJ_KNOWN = {nname(k) for k in json.load(open(os.path.join(BASE, 'inj_itc.json'), encoding='utf-8'))}
+
+ISSUES = []                                           # 미분류·검토필요 로그(운영 점검용)
+def log(kind, name, reason):
+    it = {'구분': kind, '담보': name, '사유': reason}
+    if it not in ISSUES: ISSUES.append(it)
+
+_CC = {}
+def classify(name):
+    """담보명 → 규칙(rules.json). 없으면 None."""
+    nm = nname(name)
+    if nm in _CC: return _CC[nm]
+    hit = None
+    for r in RULES:
+        if r['_m'].search(nm) and not (r['_x'] and r['_x'].search(nm)): hit = r; break
+    _CC[nm] = hit
+    return hit
+
+# ══ 담보명 토큰 ════════════════════════════════════════════════════
+HOSP = [('상급종합병원', '상급종합'), ('요양병원', '요양'), ('종합병원', '종합')]
+def tokens(nm):
+    t = {}
+    t['cause'] = '상해' if ('상해' in nm or '재해' in nm) else ('질병' if '질병' in nm else None)
+    t['hosp'] = next((v for k, v in HOSP if k in nm), None)
+    t['room'] = '1인실' if ('1인실' in nm and '2-3인실' not in nm) else ('2-3인실' if '2-3인실' in nm else None)
+    m = re.search(r'(\d+)일한도', nm);        t['limit'] = int(m.group(1)) if m else None
+    m = re.search(r'\((\d+)일이상', nm);      t['minday'] = int(m.group(1)) if m else None
+    m = re.search(r'[\[(](상해|질병)?(\d)종[,\])]', nm)
+    t['gkind'] = m.group(1) if m else None;   t['gj'] = int(m.group(2)) if m else None
+    t['icu'] = '중환자실' in nm
+    t['visit'] = '통원' in nm
+    t['plus'] = '(plus)' in nm
+    t['ex'] = re.findall(r'특정(\d)대질병제외', nm)
+    return t
+
+# ══ KCD 판정 ═══════════════════════════════════════════════════════
+
+HRANK = {'의원': 0, '병원': 1, '종합': 2, '상급종합': 3}
+def hosp_ok(need, have):
+    """담보가 요구하는 병원 종별(need)을 사례의 병원(have)이 충족하는지.
+       상급종합병원 = 종합병원 중에서 보건복지부장관이 지정 → 종합병원 조건도 함께 충족한다."""
+    if not need: return True
+    if need == '요양' or have == '요양': return need == have
+    if have in (None, '모든'): return False
+    return HRANK.get(have, 0) >= HRANK.get(need, 0)
+
+def is_cancer(kcd):
+    """암·유사암(제자리암 포함) 여부 — 131/130대질병수술비 등 일반 질병 담보 대상에서 제외"""
+    return bool(itc.cancer_cls(kcd))
+
+RNG = re.compile(r'^([A-Z])(\d{2})~([A-Z])(\d{2})$')
+def code_hit(codes, kcd):
+    """약관 KCD 목록(개별코드·세분류·범위표기 A15~A19 모두 지원) 대조"""
+    if not codes: return False
+    c3 = kcd.split('.')[0]
+    m3 = re.match(r'^([A-Z])(\d{2})', c3)
+    for e in codes:
+        e = e.strip()
+        if kcd == e or kcd.startswith(e + '.') or c3 == e or e.startswith(kcd + '.'): return True
+        r = RNG.match(e)
+        if r and m3 and r.group(1) == m3.group(1) == r.group(3) and int(r.group(2)) <= int(m3.group(2)) <= int(r.group(4)):
+            return True
+    return False
+
+def g131_key(label):
+    l = re.sub(r'[\s․·,]', '', label or '')
+    l = re.sub(r'다빈도\d+대질병', '다빈도64대질병', l)
+    for k in G131:
+        if re.sub(r'[\s․·,]', '', k) == l: return k
+    return None
+
+def _pn(s): return re.sub(r'[\s․·,]', '', s or '')
+def grp_hit(nm, sc, r=None):
+    """약관 KCD 목록이 없는 담보 : 사례가 선언한 질병군(grp)이 담보명·세부급부에 들어 있으면 대상으로 본다."""
+    lab = _pn((r or {}).get('benefit') or (r or {}).get('sub') or '')
+    for g in sc['tags'].get('grp') or []:
+        g = _pn(g)
+        if g and (g in _pn(nm) or g == lab): return True
+    return False
+
+DXFAM = {'cancer': '암', 'sim_cancer': '암', 'brain': '뇌', 'heart': '심장'}
+def sub_ok(r, kcd):
+    """세부급부/하위그룹 라벨이 뇌·심장 질병군을 가리키면 그 계열 코드에만 지급 (마스터가 뇌·심 코드를 한 목록에 묶어 둔 경우 대비)"""
+    lab = ((r.get('sub') or '') + (r.get('benefit') or '') + r.get('name', '')).replace(' ', '')
+    brain = any(k in lab for k in ('뇌졸중', '뇌혈관', '뇌출혈', '뇌경색'))
+    heart = any(k in lab for k in ('심장질환', '허혈성', '심근경색', '협심증'))
+    if brain and not heart: return kcd.startswith('I6') or kcd.startswith('G45')
+    if heart and not brain: return kcd.startswith('I2') or kcd.startswith('I5') or kcd.startswith('I4')
+    return True
+def kcd_ok(mode, r, sc, nm):
+    """mode : major / sim / major_or_sim / codes / g131 / none"""
+    kcd = sc['kcd']
+    if mode in (None, 'none'): return True
+    if mode == 'major': return itc.cancer_cls(kcd) == 'major'
+    if mode == 'sim': return itc.cancer_cls(kcd) in ('cis', 'bord', 'thy', 'skin')
+    if mode == 'major_or_sim': return bool(itc.cancer_cls(kcd))
+    if mode == 'g131':
+        key = g131_key(r.get('benefit') or r.get('sub') or '')
+        if key: return code_hit(G131[key], kcd)
+        return grp_hit(nm, sc, r)
+    if mode == 'group':
+        key = next((g for g in KCDG if g in nm and not g.startswith('_')), None)
+        lst = KCDG.get(key) if key else None
+        if not lst:
+            log('KCD없음', r['name'], f'{key or "세부급부"} 분류표가 규칙표에 없어 지급 판정 제외 (약관 별표 보강 필요)'); return False
+        return code_hit(lst, kcd)
+    if mode == 'codes':
+        if not sub_ok(r, kcd): return False
+        if r.get('codes'): return code_hit(r['codes'], kcd)
+        if grp_hit(nm, sc, r): return True
+        log('KCD없음', r['name'], '특약 마스터에 약관 KCD 목록이 없어 지급 판정 제외 (마스터 보강 필요)')
+        return False
+    return False
+
+# ══ 구조별 지급 계산 ═══════════════════════════════════════════════
+def _acts(sc, with_done=False):
+    a = set(sc['tags'].get('acts') or [])
+    if with_done: a |= set(sc['tags'].get('done') or [])
+    for ev in sc.get('itc_events') or []:
+        if len(ev) > 3: a.update(ev[3])
+    if sc['tags'].get('surg'): a.add('surg')
+    if 'immune' in a: a.add('target')      # 면역항암 치료 시 표적항암약물허가치료 합산(약관)
+    return a
+
+def h_dx(r, o, sc, nm, t):
+    tg = sc['tags']
+    dx = tg.get('dx')
+    if not dx and o.get('cause') != '상해': return []
+    if o.get('fam') and DXFAM.get(dx) not in o['fam']: return []
+    if o.get('cause') and tg.get('cause') != o['cause']: return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    return [(r['man'], o.get('why', '진단확정'), o.get('group', '진단비'), o.get('freq', 'once'))]
+
+def h_surg(r, o, sc, nm, t):
+    tg = sc['tags']; j = tg.get('surg')
+    if 'surg' not in _acts(sc): return []
+    cause = t['cause'] or o.get('cause')
+    if cause and tg.get('cause', '질병') != cause: return []
+    if not hosp_ok(t['hosp'], tg.get('hosp')): return []
+    if o.get('grade') == '1-5':
+        if not t['gj']: return []
+        if t['gkind'] and t['gkind'] != tg.get('cause', '질병'): return []
+        if t['gj'] != j: return []
+        if o.get('plus') and tg.get('surg_cnt', 1) < 2: return []
+    elif o.get('grade') == '1-7':
+        if tg.get('surg7') is None:
+            log('검토필요', r['name'], '1-7종(별표3) 종 구분이 사례에 없어 계산 제외')
+            return []
+        if t['gj'] and t['gj'] != tg.get('surg7'): return []
+    elif not j: return []
+    if 'cancer' in (o.get('ex') or []) and is_cancer(sc['kcd']): return []
+    for g in t['ex']:                                   # 특정N대질병 제외 담보
+        if g != '5': log('검토필요', r['name'], '특정%s대질병 제외목록 미확정 — 특정5대질병 기준으로 판정' % g)
+        if tg.get('five_major') or code_hit(FIVE_MAJOR, sc['kcd']): return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    why = o.get('why', '수술 1회').replace('{j}', str(t['gj'] or j or '')).replace(
+        '{g}', (r.get('benefit') or r.get('sub') or '').strip())
+    return [(r['man'], why, o.get('group', '수술비'), o.get('freq', 'each'))]
+
+def h_day(r, o, sc, nm, t):
+    tg = sc['tags']; mode = o.get('mode', 'day')
+    if t['cause'] and tg.get('cause') != t['cause']: return []
+    if not hosp_ok(t['hosp'], tg.get('hosp')): return []
+    if t['room'] and tg.get('room') != t['room']: return []
+    if o.get('need_surg') and not tg.get('surg'): return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    if mode == 'visit':
+        n = tg.get('visits', 0)
+        if not n: return []
+        n = min(n, t['limit'] or n)
+        return [(r['man'] * n, '통원 %d회 × %d만원' % (n, r['man']), o.get('group', '통원일당'), 'each')]
+    if mode == 'icu' or t['icu']:
+        d = tg.get('icu', 0)
+        if not d: return []
+        return [(r['man'] * d, '중환자실 %d일' % d, o.get('group', '입원일당'), 'each')]
+    days = tg.get('days', 0)
+    if not days: return []
+    if t['minday'] and days < t['minday']: return []
+    d = min(days, t['limit'] or days)
+    if t['minday'] and t['minday'] > 1: d = max(0, min(days - t['minday'] + 1, t['limit'] or days))
+    if not d: return []
+    return [(r['man'] * d, '입원 %d일 × %d만원' % (d, r['man']), o.get('group', '입원일당'), 'each')]
+
+def h_tx(r, o, sc, nm, t):
+    tg = sc['tags']
+    need = set(o.get('acts') or [])
+    if o.get('by_benefit'):                                   # 세부급부명으로 치료행위·암종 결정 (26종 항암방사선및약물치료비 등)
+        b = (r.get('benefit') or '')
+        if not b: log('검토필요', r['name'], '세부급부(암종·치료)가 없는 부모 담보 — 계산 제외'); return []
+        need = {'rad'} if '방사선' in b else ({'chemo'} if '약물' in b else need)
+        inner = re.search(r'치료비\((.+)\)$', b)
+        kinds = re.split(r'과|및|,|·', re.sub(r'\(전이포함\)', '', inner.group(1)) if inner else '')
+        codes = [c for k in kinds for kk, cs in SYN.items() if kk == k.strip() for c in cs]
+        if not codes:
+            log('KCD없음', r['name'], f'세부급부 암종 "{inner.group(1) if inner else b}"의 코드 사전(EMB.syn) 미수록 — 계산 제외'); return []
+        if not code_hit(codes, sc['kcd']): return []
+    if need and not (need & _acts(sc)): return []
+    allneed = set(o.get('acts_all') or [])          # 둘 다 받아야 지급되는 담보(예: 혈전용해 + 기계적혈전제거술)
+    if allneed and not allneed <= _acts(sc, True): return []
+    if o.get('need_cnt') and tg.get('tx_cnt', 0) < o['need_cnt']: return []
+    nd = o.get('need_drug')
+    m2 = re.search(r'[\[(](\d)종(?:및\d종)?이상', nm)                       # [1종이상]·(2종및3종이상) 담보명 표기 우선
+    if m2: nd = int(m2.group(1))
+    if nd and tg.get('drug', 0) < nd: return []                                 # 연간 약물종류 개수 조건
+    if not need and not tg.get('dx'): return []
+    if t['cause'] and tg.get('cause') != t['cause']: return []
+    if not hosp_ok(t['hosp'], tg.get('hosp')): return []
+    if re.search(r'유사암|기타피부암|갑상선암', nm) and '제외' not in nm:        # 유사암 전용 치료비는 유사암에만
+        if itc.cancer_cls(sc['kcd']) not in ('cis', 'bord', 'thy', 'skin'): return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    freq = o.get('freq', 'year')
+    if '계속받는' in nm or '연간1회한' in nm: freq = 'year'
+    elif '최초1회한' in nm: freq = 'once'
+    return [(r['man'], o.get('why', '약관 대상 치료'), o.get('group', '치료비'), freq)]
+
+HANDLER = {'dx': h_dx, 'surg': h_surg, 'day': h_day, 'tx': h_tx}
+
+# ══ 진입점 ═════════════════════════════════════════════════════════
+def pay_lines(riders, sc):
+    """riders : 설계 담보 목록(dict : name, man, cat, codes, benefit, sub, itc)
+       sc     : {'kcd','tags',...}  →  [{'name','amt','why','group','no','freq'}]"""
+    out = []
+    sc.setdefault('itc_events', [])
+    for r in riders:
+        try:
+            if (r.get('man') or 0) <= 0: continue
+            n = r['name']; nm = nname(n)
+            # 1) 통합치료비 — 약관 지급금액표 엔진에 위임
+            if r.get('itc'):
+                if not sc.get('itc_events'): continue
+                try:
+                    res = itc.calc_rider(r['itc'], r['man'], sc['kcd'], {'e': sc['itc_events']}, sc.get('within1y', False))
+                except KeyError:
+                    log('금액표없음', n, '가입금액 %s만원이 약관 지급금액표에 없어 계산 제외 (설계 금액 확인 필요)' % r['man'])
+                    continue
+                if res['total'] > 0:
+                    det = ' · '.join('%s %s' % (itc.item_label(r['itc'], l['i']), format(l['amt'], ',.0f'))
+                                     for l in res['lines'] if l['amt'] > 0)
+                    ea = sum(l['amt'] for l in res['lines'] if l['amt'] > 0
+                             and itc.IT[itc.RM[r['itc']]['ty']][l['i']]['p'] == 'o')
+                    out.append({'name': n, 'amt': res['total'], 'why': det + ('  (연간 한도 적용)' if res['capped'] else ''),
+                                'group': '통합치료비', 'no': r.get('no'), 'freq': 'year', 'each': min(ea, res['cap'])})
+                continue
+            # 2) 규칙표 판정
+            rule = classify(n)
+            if rule is None:
+                log('미분류', n, '규칙표에 해당 담보 유형이 없어 계산 제외 (rules.json 보강 필요)')
+                continue
+            if rule['kind'] == 'itc_unknown':            # 금액표 미연동 통합치료비 — 정액 치료비로 오계산되지 않게 제외(v8.3)
+                if nm not in INJ_KNOWN:
+                    log('금액표없음', n, '약관 지급금액표(product_data.json RIDERS)에 없는 통합치료비 — 계산 제외 (금액표 보강 필요)')
+                continue
+            h = HANDLER.get(rule['kind'])
+            if h is None: continue                       # care·life·nonmed·skip = 사례 계산 대상 아님
+            for amt, why, grp, freq in h(r, rule.get('opt') or {}, sc, nm, tokens(nm)):
+                if amt > 0:
+                    out.append({'name': n, 'amt': amt, 'why': why, 'group': grp, 'no': r.get('no'),
+                                'freq': freq, 'rule': rule['id']})
+        except Exception as ex:                          # 어떤 담보가 와도 생성이 중단되지 않게 한다
+            log('오류', r.get('name', '?'), '%s: %s' % (type(ex).__name__, ex))
+    return out
+
+def total(lines): return sum(l['amt'] for l in lines)
+def total_by(lines, mode):
+    """mode: 'first' 최초 지급 / 'year' 반복(연간 1회) / 'each' 수술할 때마다"""
+    s = 0
+    for l in lines:
+        if mode == 'first': s += l['amt']
+        elif mode == 'year': s += l['amt'] if l.get('freq') != 'once' else 0
+        else: s += l.get('each', l['amt'] if l.get('freq') == 'each' else 0)
+    return s
+
+def audit(riders):
+    """설계 담보 전체를 규칙표에 대조한 결과 — 인계·운영 점검용"""
+    by, un = {}, []
+    for r in riders:
+        if r.get('itc'):
+            by['itc'] = by.get('itc', 0) + 1; continue
+        rule = classify(r['name'])
+        if rule is None:
+            un.append(r['name']); by['미분류'] = by.get('미분류', 0) + 1
+        else:
+            by[rule['kind']] = by.get(rule['kind'], 0) + 1
+    return {'담보수': len(riders), '구조별': by, '미분류': un, '규칙수': len(RULES)}

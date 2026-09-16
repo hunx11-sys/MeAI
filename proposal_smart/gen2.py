@@ -1,0 +1,802 @@
+# -*- coding: utf-8 -*-
+"""메리츠 상품설명서 부가 6쪽 — 질병 단위 구성 · 현대해상 스마트제안서 정보량 + 메리츠 사례 플로우."""
+import json, os, re, sys
+BASE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, BASE)
+import scen_engine as S
+A = os.path.join(BASE, 'assets') + '/'
+ICONS = json.load(open(os.path.join(BASE, 'icons.json'), encoding='utf-8'))
+K = {'ca': ('#FF6B6B', '#E03131', '#FFF0F0', '#FFE3E3'), 'cv': ('#4C6EF5', '#364FC7', '#EDF2FF', '#DBE4FF'),
+     'pr': ('#12B886', '#087F5B', '#E6FCF5', '#C3FAE8'), 'ms': ('#F59F00', '#D9480F', '#FFF9DB', '#FFEC99'),
+     'yr': ('#7950F2', '#5F3DC4', '#F3F0FF', '#E5DBFF'), 'pk': ('#F06595', '#C2255C', '#FFF0F6', '#FFDEEB')}
+DRAW = {'robot': '<rect x="9" y="14" width="30" height="24" rx="7" fill="CC"/><circle cx="18" cy="25" r="3.6" fill="#fff"/><circle cx="30" cy="25" r="3.6" fill="#fff"/><path d="M19 32h10" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M24 6v7M5 24v6M43 24v6" stroke="CC" stroke-width="3.4" stroke-linecap="round"/><circle cx="24" cy="5" r="3" fill="CC"/>',
+ 'target': '<circle cx="24" cy="24" r="17" fill="none" stroke="CC" stroke-width="3.6"/><circle cx="24" cy="24" r="9" fill="none" stroke="CC" stroke-width="3.6"/><circle cx="24" cy="24" r="3.4" fill="CC"/>',
+ 'immune': '<path d="M24 6l14 5.6v11.2C38 32.6 32 39.9 24 42.5 16 39.9 10 32.6 10 22.8V11.6z" fill="CC"/><path d="M17.6 23.6l4.8 4.8 8.4-8.6" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+ 'proton': '<path d="M24 4l3.6 10.8L38 11l-3.8 10.4L45 24l-10.8 2.6L38 37l-10.4-3.8L24 44l-2.6-10.8L11 37l3.8-10.4L4 24l10.8-3.6L11 11z" fill="CC"/>',
+ 'limit': '<rect x="9" y="6" width="30" height="36" rx="5" fill="CC"/><path d="M16 16h16M16 24h16M16 32h10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>',
+ 'bulb': '<path d="M24 5c-7.7 0-14 6.1-14 13.6 0 5 2.6 8.6 5.2 11.4 1.6 1.7 2.4 3 2.6 4.6h12.4c.2-1.6 1-2.9 2.6-4.6C35.4 27.2 38 23.6 38 18.6 38 11.1 31.7 5 24 5z" fill="CC"/><rect x="18" y="37" width="12" height="4" rx="2" fill="CC"/><rect x="20" y="42" width="8" height="3.6" rx="1.8" fill="CC"/>',
+ 'wound': '<path d="M24 6c-6 8-11 13.6-11 20a11 11 0 0022 0c0-6.4-5-12-11-20z" fill="CC"/><path d="M14 40h20" stroke="CC" stroke-width="3.4" stroke-linecap="round"/>',
+ 'knife': '<path d="M6 40l9-9M15 31l14-14a3 3 0 014.2 4.2L19 35z" stroke="CC" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M30 10l8 8" stroke="CC" stroke-width="3.4" stroke-linecap="round"/>',
+ 'drop2': '<path d="M24 5s9 10 9 16a9 9 0 11-18 0c0-6 9-16 9-16z" fill="CC"/>'}
+def svg(k, c):
+    s = ICONS[k] if k in ICONS else '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">%s</svg>' % DRAW[k]
+    return s.replace('CC', c)
+def e(k, c='#495057'): return f'<span class="e">{svg(k,c)}</span>'
+def et(k, bg, sz=22, c='#E03131'):
+    return f'<span class="et" style="width:{sz}pt;height:{sz}pt;background:{bg}"><span style="width:{sz*.66:.1f}pt;height:{sz*.66:.1f}pt">{svg(k,c)}</span></span>'
+def man(m):
+    m = round(m)
+    if m >= 10000:
+        a, b = divmod(m, 10000)
+        return f'{a}억' + (f' {b:,}' if b else '')
+    return f'{m:,}'
+def big(m, c='#E03131'):
+    if m <= 0: return '<span class="z">0<small>만원</small></span>'
+    return f'<span class="n2" style="color:{c}">{man(m)}<small>{"원" if m>=10000 and m%10000==0 else "만원"}</small></span>'
+
+C = json.load(open(sys.argv[1], encoding='utf-8'))
+RID = C['riders']; IA = C['insert_after']; NEW = 9; TOTAL = C['base_pages'] + NEW
+def pno(o): return o if o <= IA else o + NEW
+def header():
+    return f'''<div class="h-t">[고객용]가입제안서</div><div class="h-p">{C['product']}</div>
+ <img class="h-logo" src="file://{A}logo.png"><div class="h-bar">{C['head']}</div>'''
+def footer(n):
+    return f'''<div class="disc">※ 예시 금액은 이해를 돕기 위한 것으로, 실제 지급 여부와 금액은 약관 및 심사 기준(진단서·진료비세부내역서의 수가코드 등)에 따라 달라질 수 있습니다. 세부 내용은 반드시 약관을 확인하시기 바랍니다.</div>
+ <div class="f-box"><div class="f-l">영업담당자</div><div class="f-v">{C['agent']}</div><div class="f-l">발행정보</div><div class="f-d">{C['issued']}</div></div>
+ <div class="f-cc">고객콜센터 1566-7711</div><div class="f-url">www.meritzfire.com</div><div class="f-pg">page : {n}/{TOTAL}</div>'''
+def tabhd(no, k, title, note=''):
+    m, d, t, tl = K[k]
+    return f'<div class="tabhd"><span class="tno" style="background:{d}">{no}</span><b style="color:{d}">{title}</b><span class="tn2">{note}</span></div>'
+
+def Q(kcd, tags, itc=None):
+    return S.pay_lines(RID, {'kcd': kcd, 'tags': tags, 'itc_events': itc or []})
+def T(L, mode='first'): return S.total_by(L, mode)
+
+# ══ 매트릭스 헬퍼 : 열 = 치료, 행 = 최초/반복/매회 ══
+def matrix(k, cols, rows=('최초 지급', '반복(연 1회)', '수술할 때마다'), modes=('first', 'year', 'each'), foot=''):
+    m, d, t, tl = K[k]
+    head = ''.join(f'<th>{et(c["ic"],tl,26,d) if c.get("ic") else ""}<b>{c["t"]}</b><span>{c["s"]}</span></th>' for c in cols)
+    body = ''
+    for rn, md in zip(rows, modes):
+        cells = ''.join(f'<td>{big(T(c["L"], md), d if md=="first" else "#343A40")}</td>' for c in cols)
+        body += f'<tr class="{"mhl" if md=="first" else ""}"><th class="rl">{rn}</th>{cells}</tr>'
+    det = ''.join(f'<td class="dt">{c.get("d","")}</td>' for c in cols)
+    return f'''<table class="mx"><thead><tr><th class="rl"></th>{head}</tr></thead><tbody>{body}
+      <tr class="dtr"><th class="rl">주요 지급 담보</th>{det}</tr></tbody></table>{f'<div class="mnote">{foot}</div>' if foot else ''}'''
+def disp(n):
+    """표시용 담보명 — 1-7종 하위 행(┗ 수술비[질병1종])은 '1종(질병 1-7종)'으로"""
+    m2 = re.search(r'수술비\[(상해|질병)(\d)종\]', n.replace(' ', ''))
+    if m2 and '(1-5종)' not in n: return f'{m2.group(2)}종({m2.group(1)} 1-7종)'
+    return n.replace('┗', '').strip()
+
+def det(L, n=3):
+    it = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0][:n]
+    return '<br>'.join(f'{disp(x["name"])[:19]} {man(x["amt"])}' for x in it) or '—'
+
+ITCK = {'x': ['x_ct']}
+# ── 암 ─────────────────────────────────────────────
+def cancer_cells():
+    base = dict(cause='질병', hosp='상급종합', room=None, days=0, grp=[])
+    def s(kcd, dx, itc, **kw):
+        tg = dict(base); tg['dx'] = None; tg.update(kw)     # 진단비는 1번 블록에 따로 표기 → 치료 시 순수 보장액만
+        return Q(kcd, tg, itc)
+    robot = s('C16', 'cancer', [['수술', '로봇수술', '', ['surg', 'robot'], {'nc': 1}]], surg=5, surg7=5)
+    lap = s('C16', 'cancer', [['수술', '복강경', '', ['surg']]], surg=5, surg7=5)
+    open_ = s('C16', 'cancer', [['수술', '개복', '', ['surg']]], surg=5, surg7=5)
+    endo = s('C16', 'cancer', [['수술', '내시경 절제', '', ['surg']]], surg=3, surg7=1)
+    chemo = s('C16', 'cancer', [['항암', '항암약물(급여)', '', ['chemo']]], chemo=1)
+    target1 = s('C16', 'cancer', [['항암', '표적(비급여)', '', ['chemo', 'target'], {'nc': 1}]], chemo=1, target=1, drug=1)
+    target2 = s('C16', 'cancer', [['항암', '표적(비급여)', '', ['chemo', 'target'], {'nc': 1}]], chemo=1, target=1, drug=2)
+    immune = s('C16', 'cancer', [['항암', '면역(비급여)', '', ['chemo', 'immune'], {'nc': 1}]], chemo=1, target=1, drug=2)
+    rad = s('C16', 'cancer', [['방사선', '항암방사선(급여)', '', ['rad']]])
+    imrt = s('C16', 'cancer', [['방사선', '세기조절', '', ['rad', 'imrt']]])
+    proton = s('C16', 'cancer', [['방사선', '양성자(비급여)', '', ['rad', 'proton'], {'nc': 1}]])
+    carbon = s('C16', 'cancer', [['방사선', '중입자(비급여)', '', ['rad', 'carbon'], {'nc': 1}]])
+    sim = s('C73', 'sim_cancer', [['수술', '갑상선 절제', '', ['surg']]], surg=3, surg7=4)
+    simrobot = s('C73', 'sim_cancer', [['수술', '로봇 갑상선 절제', '', ['surg', 'robot'], {'nc': 1}]], surg=3, surg7=4)
+    return locals()
+
+def cancer_tx_areas():
+    """가입한 암 관련 통합치료비·치료비 특약이 실제로 보장하는 치료 영역을 문장으로"""
+    areas = []
+    def add(x):
+        if x not in areas: areas.append(x)
+    for r in RID:
+        if r.get('itc') and r['itc'].startswith('ca'):
+            for it in S.itc.IT[S.itc.RM[r['itc']]['ty']]:
+                c = it.get('c', ''); l = it['l']
+                if c == '검사': add('검사')
+                elif '다빈치' in l: add('로봇수술')
+                elif '표적' in l: add('표적항암')
+                elif '면역' in l: add('면역항암')
+                elif '양성자' in l: add('양성자')
+                elif '세기조절' in l: add('세기조절')
+                elif '수술' in l: add('수술')
+                elif '방사선' in l: add('방사선')
+                elif '약물' in l: add('항암약물')
+                elif c == '통증완화' or '통증' in l: add('통증완화')
+                elif '재활' in l: add('재활')
+        else:
+            rl = S.classify(r['name'])
+            if rl and rl['kind'] == 'tx' and rl['id'].startswith('tx_'):
+                n = r['name']
+                if '표적항암' in n: add('표적항암약물허가치료비(2종~)')
+                elif '면역항암' in n: add('면역항암약물허가치료비')
+                elif '항암약물치료비' in n: add('항암약물치료비')
+                elif '생활비' in n: add('통합치료 생활비')
+    itc_a = [a for a in areas if '치료비' not in a and '생활비' not in a][:9]; tx_a = [a for a in areas if a not in itc_a][:3]
+    return ('통합치료비 : ' + ' · '.join(itc_a) if itc_a else '') + ('<br>특약 : ' + ' · '.join(tx_a) if tx_a else '') or '치료비 특약 미가입'
+
+def page_cancer():
+    c = cancer_cells(); d = K['ca'][1]
+    dxrow = [('일반암', '위·대장·폐·간암 등', 'cancer', 'C16'), ('유사암', '갑상선암·기타피부암·제자리암·경계성종양', 'sim_cancer', 'C73')]
+    dxcells = ''
+    for t, s2, dx, kcd in dxrow:
+        L = Q(kcd, dict(dx=dx, cause='질병', grp=[]), [])
+        dxcells += f'<div class="dxc"><b>{t}</b><span>{s2}</span>{big(T(L),d)}<em>{det(L,2)}</em></div>'
+    return f'''{tabhd(1,'ca','암 진단','암으로 진단확정되면 진단비가 최초 1회 지급돼요')}
+ <div class="dxs">{dxcells}
+   <div class="dxc alt"><b>치료비로 보장되는 치료 영역</b><span>가입한 특약 기준 · 진단금과 별개로 치료마다 지급</span><em class="areas">{cancer_tx_areas()}</em></div></div>
+ {tabhd(2,'ca','암 수술 (신의료기술 포함)','진단금을 뺀 순수 수술 보장액 · 수술할 때마다 다시 받는 금액까지')}
+ {matrix('ca',[{'ic':'magnifying_glass','t':'내시경 수술','s':'급여 적용 수술','L':c['endo'],'d':det(c['endo'])},
+               {'ic':'surgical_sterilization','t':'개복 · 개흉 수술','s':'급여 적용 수술','L':c['open_'],'d':det(c['open_'])},
+               {'ic':'ultrasound_scanner','t':'복강경 · 흉강경','s':'급여 적용 수술','L':c['lap'],'d':det(c['lap'])},
+               {'ic':'robot','t':'다빈치 로봇수술','s':'비급여(전액본인부담)','L':c['robot'],'d':det(c['robot'])}],
+        foot='※ 상급종합병원에서 수술한 경우의 예시 · 유사암(갑상선암·기타피부암·제자리암·경계성종양)은 암 진단비·131대질병수술비 대상이 아니며 유사암 금액이 별도 적용돼요.')}
+ {tabhd(3,'pk','항암약물치료','표적·면역 등 고가 비급여 항암치료를 해마다 다시 보장')}
+ {matrix('pk',[{'ic':'syringe','t':'화학항암약물','s':'급여 적용 치료','L':c['chemo'],'d':det(c['chemo'],3)},
+               {'ic':'target','t':'표적항암 1종','s':'비급여 · 약물 1종만 사용','L':c['target1'],'d':det(c['target1'],3)},
+               {'ic':'target','t':'표적항암 2종 이상','s':'비급여 · 연간 약물종류 2종~','L':c['target2'],'d':det(c['target2'],3)},
+               {'ic':'immune','t':'면역항암 + 표적','s':'비급여 · 면역관문억제제 병용','L':c['immune'],'d':det(c['immune'],3)}],
+        rows=('최초 지급','반복(연 1회)','수술할 때마다'),
+        foot='' if len(RID) > 80 else '※ 표적항암약물허가치료비(2종 및 3종 이상)는 <b>연간 표적항암제 약물종류가 2종 이상</b>일 때 지급돼요. 1종만 쓰면 통합치료비 표적항암 항목만 지급되어 두 경우를 나눠 계산했어요(면역관문억제제는 약관상 표적항암제에 포함).')}
+ {tabhd(4,'yr','항암방사선치료','정상 세포 손상을 줄이는 세기조절 · 양성자치료까지')}
+ {matrix('yr',[{'ic':'xray','t':'항암방사선','s':'급여 적용 치료','L':c['rad'],'d':det(c['rad'])},
+               {'ic':'radiology','t':'세기조절방사선','s':'급여 적용 치료','L':c['imrt'],'d':det(c['imrt'])},
+               {'ic':'proton','t':'양성자치료','s':'비급여(전액본인부담)','L':c['proton'],'d':det(c['proton'])},
+               {'ic':'machinery','t':'중입자치료','s':'비급여 · 양성자 항목 미해당 · 방사선 항목 지급','L':c['carbon'],'d':det(c['carbon'])}],
+)}'''
+
+# ── 뇌·심장 ────────────────────────────────────────
+def page_cv():
+    b = lambda kcd, dx, itc, **kw: Q(kcd, dict(dx=None, cause='질병', hosp=kw.pop('hosp', '종합'), room=None, days=0, grp=kw.pop('grp', []), **kw), itc)   # 진단비는 카드에 따로 → 치료 시 순수 보장액
+    G = ['뇌혈관질환', '뇌졸중', '특정31대질병']; H = ['심장질환', '허혈성심장질환', '특정31대질병']
+    rows = []
+    for k, kcd, dx, grp, cols in [
+        ('cv', 'I63', 'brain', G, [('혈전용해치료만', '혈전용해제(tPA) 주사 · 수술 없음', [['시술', '혈전용해', '', ['thromb']]], None, None, None),
+                                   ('혈전용해 + 혈전제거술', '두 치료를 모두 받은 경우', [['시술', '혈전용해', '', ['thromb']], ['수술', '기계적 혈전제거술', '', ['surg']]], 3, ['thrombectomy'], 5),
+                                   ('스텐트 · 코일색전술', '신의료기술(비관혈)', [['시술', '스텐트·코일', '', ['surg']]], 3, None, 5),
+                                   ('개두 수술', '클립결찰술 · 개두술', [['수술', '개두술', '', ['surg']]], 5, None, 7)]),
+        ('yr', 'I21', 'heart', H, [('혈전용해치료만', '혈전용해제 주사 · 수술 없음', [['시술', '혈전용해', '', ['thromb']]], None, None, None),
+                                   ('혈전용해 + 혈전제거술', '두 치료를 모두 받은 경우', [['시술', '혈전용해', '', ['thromb']], ['수술', '기계적 혈전제거술', '', ['surg']]], 3, ['thrombectomy'], 4),
+                                   ('관상동맥 스텐트', '경피적 시술도 수술', [['시술', '스텐트 삽입', '', ['surg']]], 3, None, 3),
+                                   ('심장 개흉수술', '관상동맥 우회술 · 에크모', [['수술', '개흉 수술', '', ['surg']], ['중환자', '에크모', '', ['ecmo']]], 5, None, 6)])]:
+        d = K[k][1]
+        cells = ''
+        for t, s2, itc, j, ac, j7 in cols:
+            ico = {'혈전용해치료만':'drop2','혈전용해 + 혈전제거술':'drop2','스텐트 · 코일색전술':'stent','개두 수술':'neuro_surgery','관상동맥 스텐트':'stent','심장 개흉수술':'heart_organ'}.get(t,'stethoscope')
+            cells += f'<th>{et(ico,K[k][3],26,d)}<b>{t}</b><span>{s2}</span></th>'
+        r1 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="모든",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
+        r2 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
+        r3 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"each"),"#343A40")}</td>' for c in cols)
+        r4 = ''.join(f'<td class="dt">{det(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),3)}</td>' for c in cols)
+        dx_amt = T(Q(kcd, dict(dx=dx, cause='질병', grp=grp), []), 'first')
+        rows.append((k, kcd, dx, cells, r1, r2, r3, r4, dx_amt, cols, grp))
+    def blk(x):
+        k, kcd, dx, cells, r1, r2, r3, r4, dxa, cols, grp = x
+        d = K[k][1]; nm = '뇌혈관 질환' if dx == 'brain' else '심혈관 질환'
+        icon = 'neurology' if dx == 'brain' else 'heart_organ'
+        dxl = Q(kcd, dict(dx=dx, cause='질병', grp=grp))
+        return f'''{tabhd(1 if dx=='brain' else 2,k,nm+' 진단 · 치료','진단금은 최초 1회 · 치료 금액은 진단금을 뺀 순수 치료 보장액')}
+     <div class="cvwrap"><div class="cvdx" style="background:{K[k][2]}">{et(icon,'#fff',26,d)}<b>{('뇌경색·뇌출혈 등' if dx=='brain' else '급성심근경색·협심증 등')}</b>
+        <span>진단확정 시</span>{big(dxa,d) if dxa>0 else '<span class="nop">해당 진단비 미가입</span>'}<em>{det(dxl,2) if dxa>0 else '수술·치료 담보로 보장돼요'}</em></div>
+      <table class="mx cvmx"><thead><tr><th class="rl"></th>{cells}</tr></thead><tbody>
+        <tr><th class="rl">모든 병원</th>{r1}</tr>
+        <tr class="mhl"><th class="rl">상급종합병원</th>{r2}</tr>
+        <tr><th class="rl">수술할 때마다</th>{r3}</tr>
+        <tr class="dtr"><th class="rl">주요 지급 담보<br><span>상급종합 기준</span></th>{r4}</tr></tbody></table></div>'''
+    L = Q('I63', dict(dx='brain', cause='질병', hosp='종합', room='2-3인실', days=14, icu=3, grp=['뇌혈관질환']),
+          [['중환자', '중환자실', '', ['icu']]])
+    inp = [x for x in L if x['group'] in ('입원일당', '통합치료비')]
+    return f'''<div class="lg">{e('heart_organ','#364FC7')}<b>뇌혈관 · 심혈관 보장</b><span class="sub">진단 · 수술 · 입원 — 병원 종별 비교</span></div>
+ {blk(rows[0])}{blk(rows[1])}
+ {tabhd(3,'ms','뇌혈관 · 심혈관 질환은 이렇게 치료해요','실제 치료 순서와 그 단계에서 지급되는 담보')}
+ <div class="txflow">{tx_flow()}</div>
+ <div class="mnote">※ <b>특정혈전치료비</b>는 혈전용해치료와 급여 기계적혈전제거술을 <b>모두</b> 받은 때 연간 1회 지급(한 가지만 받으면 미지급) · 진단비 최초 1회 · 수술비 수술마다 · 통합치료비는 진단금과 별개로 치료 항목마다.</div>'''
+
+TXFLOW = [
+ ('cv', 'neurology', '뇌경색 (혈관이 막힘)', 'I63',
+  [('xray', '응급 CT · MRI', '증상 4.5시간 안에 병원 도착이 관건', '검사'),
+   ('drop2', '혈전용해제(tPA) 주사', '막힌 혈관을 약으로 녹여요', '혈전용해'),
+   ('knife', '기계적 혈전제거술', '카테터로 혈전을 직접 꺼내요', '수술'),
+   ('ambulance', '중환자실 · 입원', '뇌부종·출혈 감시', '입원'),
+   ('physical_therapy', '재활치료', '마비·언어 회복 훈련', '재활')]),
+ ('cv', 'neurology', '뇌출혈 (혈관이 터짐)', 'I61',
+  [('xray', '응급 CT', '출혈 위치·크기 확인', '검사'),
+   ('stent', '코일색전술 · 클립결찰술', '동맥류를 막아 재출혈 예방', '수술'),
+   ('neuro_surgery', '개두 혈종제거술', '뇌압을 낮추는 개두 수술', '수술'),
+   ('ambulance', '중환자실 · 입원', '뇌압·혈압 집중 관리', '입원'),
+   ('physical_therapy', '재활치료', '운동·인지 재활', '재활')]),
+ ('yr', 'heart_organ', '급성 심근경색 (혈관이 막힘)', 'I21',
+  [('heart_cardiogram', '심전도 · 심장효소 검사', '가슴통증 후 골든타임 2시간', '검사'),
+   ('stent', '관상동맥 스텐트(PCI)', '막힌 관상동맥을 넓혀요', '수술'),
+   ('heart_organ', '관상동맥 우회술(CABG)', '여러 혈관이 막혔을 때 개흉 수술', '수술'),
+   ('ambulance', '중환자실 · 입원', '부정맥·심부전 감시', '입원'),
+   ('physical_therapy', '심장재활', '운동 처방 · 재발 예방', '재활')]),
+]
+def tx_flow():
+    """뇌·심 질환별 표준 치료 흐름 — 각 단계에서 지급되는 담보를 실제 설계로 계산해 표시"""
+    def pay(kcd, stage):
+        base = dict(cause='질병', hosp='상급종합', room=None, days=0, grp=['뇌혈관질환' if kcd[1] == '6' else '심장질환', '특정31대질병'])
+        if stage == '검사': return Q(kcd, dict(base, dx='brain' if kcd[1] == '6' else 'heart'), [['검사', '검사', '', ['x_ct', 'x_mri']]])
+        if stage == '혈전용해': return Q(kcd, base, [['시술', '혈전용해', '', ['thromb']]])
+        if stage == '수술': return Q(kcd, dict(base, surg=3), [['수술', '수술', '', ['surg']]])
+        if stage == '입원': return Q(kcd, dict(base, room='2-3인실', days=14, icu=3), [['중환자', '중환자실', '', ['icu']]])
+        if stage == '재활': return Q(kcd, base, [['재활', '재활', '', ['rehab'], {'n': 10}]])
+        return []
+    out = ''
+    for k, ic, title, kcd, steps in TXFLOW:
+        d = K[k][1]; tl = K[k][3]
+        chips = ''
+        for sic, nm, desc, stage in steps:
+            L = pay(kcd, stage)
+            grp = sorted({x['group'] for x in L if x['amt'] > 0})
+            tag = ' · '.join(g.replace('통합치료비', '통합치료').replace('입원일당', '입원') for g in grp) or '—'
+            chips += f'<div class="txs">{et(sic, tl, 18, d)}<div><b>{nm}</b><span>{desc}</span></div><em style="color:{d}">{tag}</em></div>'
+        out += f'<div class="txr" style="background:{K[k][2]}"><div class="txh">{et(ic,"#fff",20,d)}<b style="color:{d}">{title}</b><span>{kcd}</span></div><div class="txsteps">{chips}</div></div>'
+    return out
+
+def _day_riders(room, hosp, cause='질병'):
+    """해당 병실·병원 종별 조건을 충족하는 입원일당 담보 목록 (상급종합 = 종합병원 담보도 포함)"""
+    out = []
+    for r in RID:
+        rl = S.classify(r['name'])
+        if not rl or rl['kind'] != 'day': continue
+        tk = S.tokens(S.nname(r['name']))
+        if tk['visit'] or tk['icu'] or (tk['minday'] or 0) > 1: continue
+        if tk['cause'] != cause or tk['room'] != room: continue
+        if not S.hosp_ok(tk['hosp'], hosp): continue
+        out.append((r, tk))
+    return out
+
+NOP2 = '<span class="nop2">미가입</span>'        # f-string 안 백슬래시(3.12 전용 문법) 제거 — 3.10+ 호환(v8.3)
+def stay_cards(days=14, kcd='I63'):
+    """입원 · 중환자실 · 간병을 4열 × 2행에 균형있게. 담보가 없는 칸은 '미가입'으로 자리를 지킨다.
+       병실·병원 종별·한도일수를 담보별로 각각 계산한다(상급종합병원은 종합병원 담보도 함께 지급)."""
+    base = dict(cause='질병', grp=['뇌혈관질환'], room=None, days=0)
+    cells = []
+    def add(ic, k, t, s2, v, on=True): cells.append({'ic': ic, 'k': k, 't': t, 's': s2, 'v': v, 'on': on})
+    # ② 병실 종류 × 병원 종별 (한도일수 개별 적용)
+    for room, hosp, label in [('1인실', '상급종합', '1인실 · 상급종합병원'), ('1인실', '종합', '1인실 · 종합병원'),
+                              ('2-3인실', '상급종합', '2-3인실 · 상급종합병원'), ('2-3인실', '종합', '2-3인실 · 종합병원')]:
+        rs = _day_riders(room, hosp)
+        tot = 0; parts = []
+        for r, tk in sorted(rs, key=lambda x: -x[0]['man']):
+            d = min(days, tk['limit'] or days)
+            tot += r['man'] * d
+            parts.append(f'{man(r["man"])}만원×{d}일')
+        add('hospital_symbol', 'ms', label, ' + '.join(parts) if parts else '해당 병실 담보 없음',
+            big(tot, K['ms'][1]), tot > 0)
+    # ②-1 상해 입원(2-3인실 · 종합병원)
+    rs = _day_riders('2-3인실', '종합', cause='상해'); tot = 0; parts = []
+    for r, tk in sorted(rs, key=lambda x: -x[0]['man']):
+        d = min(days, tk['limit'] or days); tot += r['man'] * d; parts.append(f'{man(r["man"])}만원×{d}일')
+    add('bandage_adhesive', 'pk', '상해 입원 · 2-3인실 종합병원', ' + '.join(parts) if parts else '해당 담보 없음', big(tot, K['pk'][1]), tot > 0)
+    # ③ 간병
+    nm = lambda r: r['name'].replace(' ', '')
+    pick = lambda key: [r for r in RID if key in nm(r) and '181일이상' not in nm(r)]
+    sup = pick('간병인지원'); nano = [r for r in RID if ('간호·간병통합' in nm(r) or '간호간병통합' in nm(r)) and '181일이상' not in nm(r)]
+    use = pick('간병인사용')
+    add('nurse', 'pr', '간병인 지원', '회사가 간병인을 보내드려요 · 1회 입원당 180일 한도' if sup else '미가입',
+        f'<span class="n2" style="color:{K["pr"][1]}">간병인 지원</span>' if sup else '', bool(sup))
+    nv = max([r['man'] for r in nano] or [0])
+    nd = min(days, min([S.tokens(S.nname(r['name']))['limit'] or days for r in nano] or [days]))
+    add('hospital_symbol', 'cv', '간호·간병통합병실', f'하루 {man(nv)}만원 × {nd}일' if nv else '미가입',
+        big(nv * nd, K['cv'][1]), nv > 0)
+    uv = max([r['man'] for r in use] or [0])
+    ud = min(days, min([S.tokens(S.nname(r['name']))['limit'] or days for r in use] or [days]))
+    add('nurse', 'ms', '간병인 직접 사용', f'하루 {man(uv)}만원 × {ud}일 · 영수증 제출 시' if uv else '해당 담보 없음',
+        big(uv * ud, K['ms'][1]), uv > 0)
+    html = ''
+    for c in cells[:8]:
+        st = f'background:{K[c["k"]][2]}' if c['on'] else 'background:#F8F9FA'
+        html += (f'<div class="stc" style="{st}">{et(c["ic"], "#fff" if c["on"] else "#DEE2E6", 20, K[c["k"]][1] if c["on"] else "#ADB5BD")}'
+                 f'<b>{c["t"]}</b><span>{c["s"]}</span>{c["v"] if c["on"] else NOP2}</div>')
+    return html
+
+def care_cards():
+    """간병인지원 / 간병인사용일당 / 간호·간병통합서비스 담보를 읽어 카드로"""
+    out=[]
+    def cause(n): return '상해' if '상해' in n else ('질병' if '질병' in n else '')
+    def days(n):
+        m=re.search(r'\((\d+)일이상\s*(\d+)일한도\)',n); 
+        if m: return f'{m.group(1)}~{m.group(2)}일'
+        m=re.search(r'\((\d+)일이상\)',n); return f'{m.group(1)}일 이상' if m else ''
+    for r in RID:
+        n=r['name'].replace(' ','')
+        if '간호·간병통합' in n or '간호간병통합' in n:
+            out.append(('hospital_symbol','간호·간병통합병실 입원 시',f'{cause(r["name"])} {days(r["name"])}',f'하루 {man(r["man"])}만원',K['yr']))
+        elif '간병인사용' in n:
+            out.append(('nurse','간병인 사용 시',f'{cause(r["name"])} {days(r["name"])}',f'하루 {man(r["man"])}만원',K['ms']))
+        elif '간병인지원' in n:
+            out.append(('nurse','간병인 지원 가능',f'{cause(r["name"])} {days(r["name"])} · 회사가 간병인을 보내드려요','간병인 지원',K['pr']))
+    if not out: return '<div class="cc2"><span class="cnote">간병 관련 담보 미가입</span></div>'
+    grp={}
+    for ic,t,s2,v,k in out:
+        d=grp.setdefault((t,v),{'ic':ic,'k':k,'s':[]})
+        s3=s2.split(' · ')[0].strip()
+        if s3 and s3 not in d['s']: d['s'].append(s3)
+    html=''
+    for (t,v),d in grp.items():
+        html+=f'<div class="cc2" style="background:{d["k"][2]}">{et(d["ic"],"#fff",22,d["k"][1])}<div><b>{t}</b><span>{" / ".join(d["s"])}</span></div><em style="color:{d["k"][1]}">{v}</em></div>'
+    return html
+
+def itc_items():
+    ids = [r for r in RID if r.get('itc') in ('circ','circ_top','ms')]
+    if not ids: return '<div class="ic2">특정순환계질환 통합치료비 미가입</div>'
+    r = ids[0]; out=''
+    for nm, ic, keys, opt in [('혈전용해치료','drop2',['thromb'],{}),('수술(스텐트·코일 포함)','knife',['surg'],{}),
+                              ('종합병원 중환자실','ambulance',['icu'],{}),('에크모(부분체외순환)','heart_organ',['ecmo'],{}),
+                              ('지속적신대체요법','kidneys',['crrt'],{}),('인공호흡기(12시간초과)','ventilator',['vent'],{}),
+                              ('저체온요법','thermometer',['hypo'],{}),('재활치료(1일)','physical_therapy',['rehab'],{'n':1})]:
+        L = Q('I63', dict(cause='질병',grp=[],hosp='종합',room=None,days=0), [['치료',nm,'',keys,opt]])
+        v = sum(x['amt'] for x in L if x['group']=='통합치료비')
+        out += f'<div class="itci">{et(ic,K["yr"][3],20,K["yr"][1])}<div><b>{nm}</b>{big(v,K["yr"][1])}</div></div>'
+    return out
+
+# ── 사례 플로우 ────────────────────────────────────
+FLOW = [
+ dict(k='ca', ic='lungs', t='폐암', sub='진단 → 흉강경 폐절제 → 표적·면역(키트루다) 항암 → 입원', kcd='C34',
+      steps=[('검사', 'microscope', '흉부 CT · PET · 조직검사', [['검사', '흉부 CT · PET · 조직검사', '', ['x_ct', 'x_pet', 'x_bio']]], dict(dx='cancer')),
+             ('수술', 'surgical_sterilization', '흉강경 폐엽절제술', [['수술', '흉강경 폐엽절제술', '', ['surg']]], dict(surg=5, surg7=6, hosp='상급종합')),
+             ('항암', 'immune', '표적항암 → 키트루다(면역·비급여)', [['항암', '표적항암 · 면역항암(비급여)', '', ['chemo', 'target', 'immune'], {'nc': 1}]], dict(chemo=1, target=1, drug=2, tx_cnt=2, done=['surg'])),
+             ('입원', 'hospital', '상급종합 1인실 10일 입원', [], dict(hosp='상급종합', room='1인실', days=10))]),
+ dict(k='yr', ic='heart_organ', t='급성 심근경색', sub='진단 → 스텐트 시술 → 중환자실 → 심장재활', kcd='I21',
+      steps=[('진단','xray','응급 CT·심전도로 확진',[['검사','관상동맥 CT','',['x_ct']]],dict(dx='heart',grp=['심장질환'])),
+             ('시술','knife','관상동맥 스텐트 삽입술(PCI)',[['시술','스텐트 삽입','',['surg']]],dict(surg=3,surg7=3,grp=['심장질환','특정31대질병'],hosp='종합')),
+             ('입원','ambulance','중환자실 2일 + 일반병실 7일',[['중환자','중환자실','',['icu']]],dict(hosp='종합',room='2-3인실',days=7,icu=2)),
+             ('재활','physical_therapy','외래 심장재활 10회',[['재활','심장재활 10회','',['rehab'],{'n':10}]],dict())]),
+ dict(k='cv', ic='neurology', t='뇌경색', sub='진단 → 혈전용해·혈전제거 → 중환자실 → 재활', kcd='I63',
+      steps=[('검사', 'xray', '뇌 CT + MRI', [['진단', '뇌 CT + MRI', '', ['x_ct', 'x_mri']]], dict(dx='brain', grp=['뇌혈관질환', '뇌졸중'])),
+             ('시술', 'drop2', '혈전용해제 주사(tPA)', [['시술', '혈전용해치료', '', ['thromb']]], dict()),
+             ('수술', 'knife', '동맥내 기계적 혈전제거술', [['시술', '혈전제거술', '', ['surg']]], dict(surg=3, surg7=5, grp=['뇌혈관질환', '뇌졸중', '특정31대질병'], hosp='종합', acts=['thrombectomy'], done=['thromb'])),
+             ('입원', 'ambulance', '중환자실 3일 + 일반병실 14일', [['중환자', '중환자실', '', ['icu']], ['재활', '재활 10일', '', ['rehab'], {'n': 10}]], dict(hosp='종합', room='2-3인실', days=14, icu=3))]),
+]
+def flow_card(f):
+    d = K[f['k']][1]; tl = K[f['k']][3]; acc = 0; cards = ''
+    for i, (stg, ic, nm, itc, tg) in enumerate(f['steps']):
+        tags = dict(cause='질병', grp=[], hosp='상급종합', room=None, days=0); tags.update(tg)
+        L = Q(f['kcd'], tags, itc); v = T(L, 'first'); acc += v
+        pos = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0]
+        det2 = ''.join(f'<li><span>{disp(x["name"])[:22]}</span><b>{man(x["amt"])}</b></li>' for x in pos[:5])
+        if len(pos) > 5: det2 += f'<li><span>외 {len(pos)-5}개 담보</span><b>{man(sum(x["amt"] for x in pos[5:]))}</b></li>'
+        cards += f'''<div class="fs"><div class="fb" style="background:{tl}">{e(ic,d)}</div>
+          <div class="fst" style="color:{d}">STEP {i+1} · {stg}</div><div class="fn">{nm}</div>
+          <div class="fv">{big(v,d)}</div><ul>{det2 or "<li>해당 담보 없음</li>"}</ul></div>'''
+    return f'''<div class="fcase" style="background:{K[f['k']][2]}">
+      <div class="fh">{et(f['ic'],'#fff',26,d)}<div><b style="color:{d}">{f['t']}</b><span>{f['sub']}</span></div>
+      <div class="ftot"><span>합계</span>{big(acc,d)}</div></div>
+      <div class="flow"><div class="fline" style="border-color:{K[f['k']][0]}"></div>{cards}</div></div>'''
+
+# ── 다빈도 질환 ────────────────────────────────────
+FREQ = [
+ ('갑상선결절', 'D34', 'thyroid', '고주파 절제술', '비급여 150~300만원', dict(surg=3, surg7=1, grp=['다빈도62대질병']), [['수술', '고주파 절제', '', ['surg'], {'j': 3}]]),
+ ('유방 양성종양', 'D24', 'breasts', '맘모톰 절제술', '비급여 100~400만원', dict(surg=1, surg7=1, grp=['다빈도62대질병', '특정다빈도29대질병']), [['수술', '맘모톰 절제', '', ['surg'], {'j': 1}]]),
+ ('자궁근종', 'D25', 'cervical_cancer', '하이푸 · 복강경 절제', '비급여 600~1,000만원', dict(surg=2, surg7=1, grp=['다빈도62대질병']), [['수술', '복강경 근종 절제', '', ['surg'], {'j': 2}]]),
+ ('대장 용종', 'D12', 'colon', '내시경 용종절제술', '급여 · 1종 수술', dict(surg=1, surg7=1, grp=['다빈도62대질병'], five_major=True), [['진단', '대장내시경', '', ['x_endo']], ['수술', '용종 절제', '', ['surg'], {'j': 1}]]),
+ ('담석증', 'K80.0', 'gallbladder', '복강경 담낭절제술', '급여 · 2종 수술', dict(surg=2, surg7=4, grp=['다빈도62대질병'], days=5, room='2-3인실', hosp='모든'), [['진단', '복부 CT', '', ['x_ct']], ['수술', '복강경 담낭 절제', '', ['surg'], {'j': 2}]]),
+ ('백내장', 'H25.9', 'body', '수정체 유화술 + 인공수정체', '급여 · 1종 수술', dict(surg=1, surg7=1, grp=['백내장']), []),
+ ('디스크(추간판장애)', 'M51', 'body', '신경성형술 · 내시경 수술', '비급여 160~380만원', dict(surg=2, surg7=2, grp=['다빈도62대질병']), []),
+ ('치핵', 'K64', 'intestine', '치핵절제술', '급여 · 1종 수술', dict(surg=1, surg7=1, grp=['치핵']), []),
+ ('무릎 관절염', 'M17', 'body', '관절경 수술 · 줄기세포', '비급여 500~1,500만원', dict(surg=2, surg7=1, grp=['관절염,생식기질환', '다빈도62대질병']), []),
+ ('하지정맥류', 'I83', 'varicose_vein', '베나실 · 정맥류 근본수술', '비급여 300~600만원', dict(surg=1, surg7=1, grp=['다빈도62대질병']), [['수술', '하지정맥류 근본수술', '', ['surg'], {'j': 1}]]),
+]
+def freq_rows():
+    out = ''
+    for nm, kcd, ic, op, note, tg, itc in FREQ:
+        base = dict(cause='질병', hosp='모든', room=None, days=0, grp=[]); base.update(tg)
+        L1 = Q(kcd, base, itc)
+        b2 = dict(base); b2['hosp'] = '상급종합'
+        L2 = Q(kcd, b2, itc)
+        L1 = [x for x in L1 if x['group'] not in ('입원일당', '통원일당')]; L2 = [x for x in L2 if x['group'] not in ('입원일당', '통원일당')]
+        items = ''.join(f'<span class="fi">{disp(x["name"])[:22]}<b>{man(x["amt"])}</b></span>' for x in sorted(L2, key=lambda y: -y['amt']) if x['amt'] > 0) or '<span class="fi none">해당 담보 없음</span>'
+        out += f'''<div class="frow">{et(ic,K['pr'][3],30,K['pr'][1])}
+          <div class="fnm"><b>{nm}</b><span>{kcd}</span><em>{op} · {note}</em></div>
+          <div class="fitems">{items}</div>
+          <div class="fpay"><div><span>모든 병원</span>{big(T(L1),'#087F5B')}</div><div><span>상급종합</span>{big(T(L2),'#087F5B')}</div></div></div>'''
+    return out
+
+# ── 질병코드 지도(모자이크) ────────────────────────
+KN = json.load(open(os.path.join(BASE, 'kcdnames.json'), encoding='utf-8'))
+PD = json.load(open(os.path.join(BASE, 'product_data.json'), encoding='utf-8'))
+DBM = json.load(open(os.path.join(BASE, 'db.json'), encoding='utf-8'))['riders']
+
+BRAIN_MASK = ['.###.', '#####', '#####', '..#..']
+HEART_MASK = ['.###..###...', '############', '############', '############',
+              '.##########.', '..########..', '...######...', '....####....', '.....##.....']
+BRAIN_TILES = ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I68', 'I69', 'Q28', 'S06', 'G45', 'G46']
+def heart_tiles():
+    ex = set(BRAIN_TILES)
+    out = []
+    for c in PD['EMB']['c32'] + PD['EMB']['m61']:
+        c3 = re.split(r'[.~]', c)[0]
+        if c3[0] in 'IS' and c3 not in ex and c3 not in out: out.append(c3)
+    return sorted(out) + ['Q20', 'Q21', 'Q25', 'Q26']       # 선천성 심장기형 — 산정특례에서만 보장되는 영역
+
+def master_codes(pat):
+    """특약 마스터(db.json)에서 담보명으로 약관 KCD 목록을 가져온다"""
+    for r in DBM:
+        if re.search(pat, r['n'].replace(' ', '')): return r['k']
+    return []
+
+def tiers(part):
+    """좁은 담보 → 넓은 담보 순서. (담보명, 요약, KCD목록, 색)"""
+    if part == 'brain':
+        T = [('뇌출혈 진단비', 'I60~I62 · 출혈만', master_codes(r'^뇌출혈진단비'), '#C92A2A'),
+             ('뇌졸중 진단비', 'I60~I63 · I65~I66', master_codes(r'^뇌졸중진단비'), '#E8590C'),
+             ('뇌혈관질환 진단비', 'I60~I69 전체', master_codes(r'^뇌혈관질환진단비'), '#F08C00'),
+             ('산정특례 진단비(뇌혈관)', 'I60~I67 · Q28 · S06', master_codes(r'중증질환자\(뇌혈관질환\)산정특례'), '#2B8A3E'),
+             ('특정순환계질환 통합치료비', '순환계 52개 질병 · 치료 항목별', PD['EMB']['c32'], '#1971C2'),
+             ('특정순환계질환(주요손상및질환) 통합치료비', '고혈압·판막·정맥 + 두개내손상 등 40개', PD['EMB']['m61'], '#6741D9')]
+    else:
+        T = [('급성심근경색증 진단비', 'I21~I23 · 경색만', master_codes(r'^급성심근경색증진단비'), '#C92A2A'),
+             ('허혈성심장질환 진단비', 'I20~I25 · 협심증 포함', master_codes(r'^허혈성심장질환진단비'), '#E8590C'),
+             ('산정특례 진단비(심장)', 'I05~I51 · Q20~Q26 등', master_codes(r'중증질환자\(심장질환\)산정특례'), '#2B8A3E'),
+             ('특정순환계질환 통합치료비', '순환계 52개 질병 · 치료 항목별', PD['EMB']['c32'], '#1971C2'),
+             ('특정순환계질환(주요손상및질환) 통합치료비', '고혈압·판막·정맥·흉부손상 등 40개', PD['EMB']['m61'], '#6741D9')]
+    return [t for t in T if t[2]]
+
+def joined(nm):
+    """설계에 가입된 담보인지 — 가입금액을 돌려준다"""
+    key = re.sub(r'[\s()]', '', nm).replace('진단비', '').replace('통합치료비', '')
+    best = 0
+    for r in RID:
+        n = r['name'].replace(' ', '')
+        if nm.startswith('뇌출혈') and '뇌출혈진단' in n: best = max(best, r['man'])
+        elif nm.startswith('뇌졸중') and '뇌졸중진단' in n: best = max(best, r['man'])
+        elif nm.startswith('뇌혈관질환 진단비') and '뇌혈관질환진단비' in n: best = max(best, r['man'])
+        elif nm.startswith('급성심근경색') and '급성심근경색증진단' in n: best = max(best, r['man'])
+        elif nm.startswith('허혈성심장질환 진단비') and '허혈성심장질환진단비' in n: best = max(best, r['man'])
+        elif nm.startswith('산정특례') and '산정특례' in n and (('뇌혈관' in nm and '뇌혈관' in n) or ('심장' in nm and '심장' in n)): best = max(best, r['man'])
+        elif nm.startswith('특정순환계질환 통합') and r.get('itc') in ('circ', 'circ_top'): best = max(best, r['man'])
+        elif nm.startswith('특정순환계질환(주요') and r.get('itc') == 'ms': best = max(best, r['man'])
+    return best
+
+def sort_tiers(T, codes):
+    return sorted(T, key=lambda t: sum(1 for c in codes if S.code_hit(t[2], c)))
+
+HEART_GROUPS = [('류마티스', 'I00', 'I09'), ('고혈압', 'I10', 'I15'), ('허혈성', 'I20', 'I25'), ('폐성', 'I26', 'I28'),
+                ('판막·심근', 'I30', 'I43'), ('부정맥·심부전', 'I44', 'I52'), ('동맥', 'I70', 'I79'),
+                ('정맥', 'I80', 'I89'), ('기타', 'I95', 'I99'), ('손상', 'S25', 'S26'), ('선천', 'Q20', 'Q26')]
+
+def dz_blocks(part, codes, T, groups=None, labeled=True):
+    """담보(행) × 질병코드(열) 블록 — 아래로 갈수록 넓어지는 계단 모양으로 보장 범위를 비교"""
+    tot = len(codes)
+    head = ''
+    if groups:
+        cells = ''
+        for lab, a, b in groups:
+            n = sum(1 for c in codes if a <= c <= b)
+            if n: cells += f'<th colspan="{n}"><span>{lab}</span></th>'
+        head += f'<tr class="grp"><th class="rl"></th>{cells}<th class="gg"></th></tr>'
+    if labeled:
+        head += '<tr class="cd"><th class="rl"></th>' + ''.join(f'<th><b>{c}</b><span>{(KN.get(c) or "")[:5]}</span></th>' for c in codes) + '<th class="gg">보장 범위</th></tr>'
+    else:
+        head += '<tr class="cd"><th class="rl"></th>' + ''.join('<th></th>' for c in codes) + '<th class="gg">보장 범위</th></tr>'
+    body = ''
+    for nm, sm, k, col in T:
+        hit = [S.code_hit(k, c) for c in codes]
+        n = sum(hit); pct = round(n / tot * 100) if tot else 0
+        jm = joined(nm)
+        cells = ''.join(f'<td><i style="background:{col if h else "#EDEFF2"}"></i></td>' for h in hit)
+        body += (f'<tr><th class="rl"><i style="background:{col}"></i><div><b>{nm}</b><span>{sm}</span>'
+                 f'<em style="color:{col}">{man(jm)+"만원 가입" if jm else ""}</em>{"" if jm else "<em class=no>미가입</em>"}</div></th>{cells}'
+                 f'<td class="gg"><b style="color:{col}">{n}</b><span>/{tot}</span><div class="bar"><u style="width:{pct}%;background:{col}"></u></div></td></tr>')
+    return f'<table class="dzb {part}"><thead>{head}</thead><tbody>{body}</tbody></table>'
+
+def gap_block(hc):
+    """특정순환계질환 통합치료비 + 주요손상및질환 통합치료비 동시 가입 시 순환계 질병코드 커버율"""
+    circ, ms = PD['EMB']['c32'], PD['EMB']['m61']
+    out = ''
+    for k, ic, title, codes in [('cv', 'neurology', '뇌혈관 질병코드', BRAIN_TILES), ('yr', 'heart_organ', '심장 · 혈관 질병코드', hc)]:
+        a = sum(1 for c in codes if S.code_hit(circ, c)); b = sum(1 for c in codes if S.code_hit(ms, c) and not S.code_hit(circ, c))
+        n = len(codes); rest = n - a - b
+        pa, pb, pr = round(a/n*100), round(b/n*100), 100 - round(a/n*100) - round(b/n*100)
+        jc, jm = joined('특정순환계질환 통합치료비'), joined('특정순환계질환(주요손상및질환) 통합치료비')
+        st = ('두 담보 모두 가입' if jc and jm else ('특정순환계질환만 가입' if jc else ('주요손상및질환만 가입' if jm else '미가입')))
+        out += f'''<div class="gapr" style="background:{K[k][2]}">{et(ic,'#fff',22,K[k][1])}<div class="gapt"><b style="color:{K[k][1]}">{title} {n}개</b><span>{st}</span></div>
+          <div class="gapbar"><i style="width:{pa}%;background:#1971C2"></i><i style="width:{pb}%;background:#6741D9"></i><i style="width:{pr}%;background:#DEE2E6"></i></div>
+          <div class="gapleg"><span><i style="background:#1971C2"></i>특정순환계질환 {a}개</span><span><i style="background:#6741D9"></i>+ 주요손상및질환 {b}개</span><span><i style="background:#DEE2E6"></i>어느 쪽도 아님 {rest}개</span></div>
+          <div class="gapv"><span class="n2" style="color:{K[k][1]}">{a+b}<small>개</small></span><em>/ {n}개 · {round((a+b)/n*100)}% 커버</em></div></div>'''
+    return tabhd(3, 'yr', '두 통합치료비를 함께 가입하면', '특정순환계질환(52개)과 주요손상및질환(40개)은 서로 겹치지 않아 보장 공백이 이렇게 채워져요') + f'<div class="gapwrap">{out}</div>'
+
+def page_dzmap():
+    hc = heart_tiles()
+    out = f'''{tabhd(1,'cv','뇌혈관 질환 — 담보별 보장 범위','한 칸이 질병코드 하나 · 아래 담보로 갈수록 보장이 넓어져요')}
+ {dz_blocks('brain', BRAIN_TILES, tiers('brain'))}
+ {tabhd(2,'yr','심장 · 혈관 질환 — 담보별 보장 범위',f'순환계 질병코드 {len(hc)}개 · 진단비는 좁고, 통합치료비는 넓어요')}
+ {dz_blocks('heart', hc, tiers('heart'), HEART_GROUPS, labeled=False)}
+ {gap_block(hc)}
+ <div class="tip">{e('bulb','#D9480F')}<span>색칸은 <b>그 담보가 보장하는 질병</b>, 회색은 대상이 아닌 질병이에요. 진단비는 정해진 질병코드에만 <b>최초 1회</b> 지급되는 대신 금액이 크고, 통합치료비는 범위가 넓은 대신 <b>실제 받은 치료 항목마다</b> 지급돼요. 특정순환계질환 통합치료비와 주요손상및질환 통합치료비는 <b>서로 겹치지 않고 보완</b>해서 둘을 함께 가입하면 순환계 질병 대부분이 채워져요.</span></div>'''
+    return out
+
+# ── 통합치료비 한눈에 ────────────────────────────────
+ITC_GROUPS = [('ca', 'cancerous_cell_nuclei', '암 통합치료비', ('ca_basic', 'ca_basic_c', 'ca_lite', 'ca_lite_c', 'ca_nc2', 'ca_nc2_c', 'ca_ncm', 'ca_ncm_c')),
+              ('cv', 'neurology', '특정순환계질환 통합치료비', ('circ', 'circ_top')),
+              ('yr', 'heart_organ', '주요손상및질환 통합치료비', ('ms',)),
+              ('pr', 'microscope', '암 전후 · 양성신생물 통합치료비', ('pre',))]
+ITC_SLIM = ('ms', 'pre')                       # 종수술비는 1종·5종만 예시
+def page_itc():
+    its = [r for r in RID if r.get('itc')]
+    if not its:
+        return '<div class="ic2">통합치료비 담보 미가입</div>'
+    total = sum(r['man'] for r in its)
+    top = ''.join(f'<div class="itcr" style="background:{K[next((g[0] for g in ITC_GROUPS if r["itc"] in g[3]),"pr")][2]}">'
+                  f'<b>{S.itc.RM[r["itc"]]["nm"][:22]}</b><span>{S.itc.RM[r["itc"]].get("about","")[:26]}</span>{big(r["man"],K[next((g[0] for g in ITC_GROUPS if r["itc"] in g[3]),"pr")][1])}</div>' for r in its)
+    sections = ''; no = 0
+    for k, ic, title, ids in ITC_GROUPS:
+        rs = [r for r in its if r['itc'] in ids]
+        if not rs: continue
+        items = {}
+        for r in rs:
+            ty = S.itc.RM[r['itc']]['ty']; tier = str(r['man'])
+            amts = S.itc.AMT[ty].get(tier)
+            if not amts: continue
+            for it, a in zip(S.itc.IT[ty], amts):
+                if a <= 0: continue
+                if r['itc'] in ITC_SLIM and it.get('j') in (2, 3, 4): continue
+                key = re.sub(r'\((급여|비급여[^)]*)\)', '', it['l']).strip()
+                d = items.setdefault(key, {'amt': 0, 'c': it.get('c', ''), 'p': it.get('p', 'y'), 'nc': '비급여' in it['l'], 'n': 0})
+                d['amt'] += a; d['n'] += 1
+        srt = sorted(items.items(), key=lambda x: -x[1]['amt'])
+        cards = ''; chips = ''
+        for n_i, (key, d) in enumerate(srt):
+            freq = {'y': '연간 1회', 'o': '받을 때마다', 'd': '1일 1회'}.get(d['p'], '연간 1회')
+            if n_i < (10 if k == 'ca' else 5):
+                sub = f'{d["c"]} · {"비급여" if d["nc"] else "급여"} · {freq}' + (' · 합산' if d['n'] > 1 else '')
+                cards += f'<div class="itci2"><b>{key[:15]}</b><span>{sub}</span>{big(d["amt"],K[k][1])}</div>'
+            else:
+                chips += f'<span class="itcchip"><b>{key[:14]}</b>{man(d["amt"])}만원</span>'
+        cap = sum(r['man'] for r in rs)
+        no += 1
+        sections += f'''<div class="itcsec">{tabhd(no, k, title, f'가입 {len(rs)}개 · 연간 한도 합계 {man(cap)}만원 · 항목별 약관 금액(1년 경과 후)')}
+          <div class="itcgrid">{cards}</div>{f'<div class="itcchips">{chips}</div>' if chips else ''}</div>'''
+    return f'''<div class="itctop"><div class="itcrs">{top}</div><div class="itctot"><span>통합치료비 연간 한도 합계</span>{big(total,'#C92A2A')}<em>해마다 새로 적용 · 담보별 한도는 각각</em></div></div>
+ {sections}
+ <div class="tip">{e('bulb','#D9480F')}<span>통합치료비는 <b>진단금과 별개</b>로 실제 받은 치료 항목마다 지급돼요. 검사·주요치료는 <b>항목별 연간 1회</b>, 수술은 <b>수술할 때마다</b>, 재활은 <b>1일 1회</b>이고, 한 해 합계는 가입금액까지 · <b>해마다 새로</b> 적용돼요. 계약 후 1년 이내에는 항목 금액과 연간 한도가 50%로 적용되는 담보가 있어요.</span></div>'''
+
+# ── 수술비 세부보장 ────────────────────────────────
+def page_surg():
+    """모든 수술비를 종(1~5종)·원인·병원 종별로 합산 표기 + 연간 2회 이상(plus) 별도"""
+    d = K['pr'][1]; tl = K['pr'][3]
+    def S5(j, cause, hosp, cnt=1):
+        return Q('Z99', dict(cause=cause, surg=j, hosp=hosp, grp=[], surg_cnt=cnt), [])
+    cols = ''.join(f'<th>{et(ic,tl,24,d)}<b>{j}종 수술</b><span>{s2}</span></th>'
+                   for j, ic, s2 in [(1, 'bandage_adhesive', '내시경·간단 수술'), (2, 'syringe', '복강경·관혈 수술'),
+                                     (3, 'knife', '개복·개흉 · 암수술'), (4, 'surgical_sterilization', '장기 절제 수술'),
+                                     (5, 'heart_organ', '이식 · 개두 · 심장 수술')])
+    def row(label, cause, hosp, cnt=1, hl=False):
+        cells = ''.join(f'<td>{big(T(S5(j,cause,hosp,cnt)),d if hl else "#343A40")}</td>' for j in range(1, 6))
+        return f'<tr class="{"mhl" if hl else ""}"><th class="rl">{label}</th>{cells}</tr>'
+    detail = ''.join(f'<td class="dt">{det(S5(j,"질병","상급종합"),5)}</td>' for j in range(1, 6))
+    return f'''{tabhd(1,'ms','입원 · 간병','14일 입원 예시 · 상급종합병원은 종합병원 담보도 함께 지급 · 한도일수 담보별 적용')}
+ <div class="stay">{stay_cards()}</div>
+ {tabhd(2,'pr','수술 종별 지급금액 — 모든 수술비 합산','1-5종 수술분류표Ⅱ 기준 · 수술할 때마다 다시 지급')}
+ <table class="mx"><thead><tr><th class="rl"></th>{cols}</tr></thead><tbody>
+   {row('질병 · 모든 병원', '질병', '모든')}
+   {row('질병 · 상급종합병원', '질병', '상급종합', hl=True)}
+   {row('상해 · 모든 병원', '상해', '모든')}
+   {row('상해 · 상급종합병원', '상해', '상급종합')}
+   <tr class="dtr"><th class="rl">주요 지급 담보<br><span>질병 · 상급종합</span></th>{detail}</tr></tbody></table>
+ <div class="mnote">※ 같은 수술로 1-5종 수술비는 가장 높은 종 1가지만 지급돼요. 131대(130대)질병수술비 등 질병군 담보는 아래와 같이 <b>위 금액에 더해</b> 지급돼요.</div>
+ {tabhd(3,'pr','연간 2회 이상 수술하면 — 1-5종 수술비(plus)','한 해에 두 번째 수술부터 가장 높은 종 기준으로 연간 1회 더')}
+ <div class="plus5">{plus_cards()}</div>
+ {tabhd(4,'cv','질병군별 추가 수술비','해당 질병으로 진단확정되고 수술하면 위 수술비에 더해 지급')}
+ <div class="gsurg">{group_surg()}</div>
+ {g17_block()}'''
+
+def g17_block():
+    """1-7종 수술비(약관 별표30 기준) 종별 가입금액 — 가입한 설계에만 표시"""
+    rows = {}
+    for r in RID:
+        rl = S.classify(r['name'])
+        if not rl or rl['id'] not in ('surg_grade_1_7', 'surg_grade_1_7_row'): continue
+        tk = S.tokens(S.nname(r['name']))
+        if tk['gj'] and tk['cause']: rows.setdefault(tk['cause'], {})[tk['gj']] = max(rows.get(tk['cause'], {}).get(tk['gj'], 0), r['man'])
+    if not rows: return ''
+    out = ''
+    for cause, k in [('질병', 'pr'), ('상해', 'ms')]:
+        if cause not in rows: continue
+        cells = ''.join('<div class="pc"><b>%d종</b>%s</div>' % (j, big(rows[cause].get(j, 0), K[k][1]) if rows[cause].get(j) else '<span class="z">미가입</span>') for j in range(1, 8))
+        out += f'<div class="prow p7"><span style="color:{K[k][1]}">{cause} 수술</span>{cells}</div>'
+    return tabhd(5, 'cv', '1-7종 수술비 — 종별 지급금액(약관 별표30 기준)', '1-5종(별표76)과 분류표가 달라요 · 위 표·다빈도·사례에는 별표30에서 확인된 종으로 반영') + f'<div class="plus5">{out}</div>'
+
+def plus_cards():
+    """1-5종 수술비(plus) 종별 가입금액 — 질병 · 상해 각각"""
+    out = ''
+    for cause, k in [('질병', 'pr'), ('상해', 'ms')]:
+        cells = ''
+        for j in range(1, 6):
+            v = 0
+            for r in RID:
+                nm2 = r['name'].replace(' ', '')
+                if '1-5종수술비(plus)' in nm2 and cause in nm2 and ('(%d종' % j) in nm2: v = max(v, r['man'])
+            cells += '<div class="pc"><b>%d종</b>%s</div>' % (j, big(v, K[k][1]) if v else '<span class="z">미가입</span>')
+        out += f'<div class="prow"><span style="color:{K[k][1]}">{cause} 수술</span>{cells}</div>'
+    return out
+
+def group_surg():
+    """131/130대질병수술비 등 질병군 담보를 그룹명과 함께 표기"""
+    it = []
+    for r in RID:
+        nm2 = r['name'].replace(' ', '')
+        if '대질병수술비' in nm2 or '5대질환' in nm2 or '32대질병' in nm2:
+            g = (r.get('benefit') or r.get('sub') or '').strip()
+            if not g:
+                m2 = re.search(r'[\[(]([^\[\]()]+)[\])]', r['name'])
+                g = m2.group(1) if m2 else r['name']
+            if not g.strip(): g = re.sub(r'\d+대질병수술비|수술비', '', r['name']).strip('()[] ') or r['name']
+            it.append((g, r['man']))
+    if not it: return '<div class="ic2">질병군 수술비 담보 미가입</div>'
+    it.sort(key=lambda x: -x[1])
+    return ''.join(f'<div class="gs"><b>{g[:16]}</b>{big(v,K["cv"][1])}</div>' for g, v in it)
+
+# ── 담보 전체 (질병 단위 태그) ─────────────────────
+TAGRULE = [('암', ['cancer_dx', 'cancer_tx', 'cancer_etc']), ('뇌·심장', ['brain', 'heart']),
+           ('통합치료비', ['integrated']), ('수술', ['surgery', 'special', 'disease_etc']),
+           ('입원·간병', ['hospital', 'nursing']), ('상해·사망', ['death', 'disability', 'injury'])]
+def tag_of(r):
+    c = r.get('cat') or ''
+    for nm, cats in TAGRULE:
+        if c in cats: return nm
+    if r.get('itc'): return '통합치료비'
+    for kw, nm in [('암', '암'), ('뇌', '뇌·심장'), ('심장', '뇌·심장'), ('입원', '입원·간병'), ('간병', '입원·간병'), ('수술', '수술'), ('상해', '상해·사망')]:
+        if kw in r['name']: return nm
+    return '기타'
+def _care_sum():
+    """간병 관련 담보 요약 — 간병인지원(현물) · 간호간병통합 · 간병인사용"""
+    nm = lambda r: r['name'].replace(' ', '')
+    sup = any('간병인지원' in nm(r) for r in RID)
+    nano = max([r['man'] for r in RID if ('간호·간병통합' in nm(r) or '간호간병통합' in nm(r))] or [0])
+    use = max([r['man'] for r in RID if '간병인사용' in nm(r)] or [0])
+    return sup, nano, use
+
+def summary_cards():
+    """3대 진단 · 수술 · 입원/간병 한눈 요약 (질병 단위 합산금액)"""
+    ca = T(Q('C16', dict(dx='cancer', cause='질병', grp=[]), []))
+    cv = T(Q('I63', dict(dx='brain', cause='질병', grp=['뇌혈관질환']), []))
+    ht = T(Q('I21', dict(dx='heart', cause='질병', grp=['심장질환']), []))
+    sg = T(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), []))
+    day = T(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), []))
+    sup, nano, use = _care_sum()
+    care = '간병인 지원' if sup else (f'하루 {man(nano)}만원' if nano else '미가입')
+    caresub = []
+    if sup: caresub.append('간병인지원')
+    if nano: caresub.append(f'간호·간병통합 {man(nano)}만원')
+    if use: caresub.append(f'간병인사용 {man(use)}만원')
+    cards = [('cancerous_cell_nuclei', 'ca', '암 진단', '암(유사암제외) 진단확정 시', big(ca, K['ca'][1]), '진단비 합산'),
+             ('neurology', 'cv', '뇌혈관 질환', '뇌경색·뇌출혈 진단확정 시', big(cv, K['cv'][1]), '진단비 합산'),
+             ('heart_organ', 'yr', '심혈관 질환', '급성심근경색 진단확정 시', big(ht, K['yr'][1]), '진단비 합산'),
+             ('knife', 'pr', '수술', '질병 5종 수술 1회(상급종합)', big(sg, K['pr'][1]), '모든 수술비 합산'),
+             ('nurse', 'ms', '입원 · 간병', f'입원 하루 {man(day)}만원', f'<span class="n2" style="color:{K["ms"][1]}">{care}</span>',
+              ' · '.join(caresub) or '간병 담보 미가입')]
+    html = ''
+    for ic, k, t, s2, v, note in cards:
+        html += f'<div class="sc" style="background:{K[k][2]}">{et(ic,"#fff",22,K[k][1])}<b>{t}</b><span>{s2}</span>{v}<em>{note}</em></div>'
+    return f'<div class="sum5">{html}</div>'
+
+def page_all():
+    g = {}
+    for r in RID: g.setdefault(tag_of(r), []).append(r)
+    blocks = ''
+    for nm, _ in TAGRULE + [('기타', [])]:
+        rs = g.get(nm) or []
+        if not rs: continue
+        k = {'암': 'ca', '뇌·심장': 'cv', '통합치료비': 'yr', '수술': 'pr', '입원·간병': 'ms', '상해·사망': 'pk'}.get(nm, 'pr')
+        d = K[k][1]
+        cut = 30 if len(RID) <= 80 else 19
+        items = ''.join(f'<span class="al"><i>{r["no"]}</i>{r["name"][:cut]}<b>{man(r["man"])}</b></span>' for r in sorted(rs, key=lambda x: -x['man']))
+        blocks += f'''<div class="ablk"><div class="ah" style="color:{d}"><span class="adot" style="background:{d}"></span>{nm}<em>{len(rs)}개 · 합계 {man(sum(x["man"] for x in rs))}만원</em></div><div class="ag">{items}</div></div>'''
+    return f'''{blocks}
+ <div class="tip">{e('bulb','#D9480F')}<span><b>지급 기준 요약</b> · 진단비는 최초 1회 · 수술비는 수술할 때마다(1~5종은 동시 수술 시 가장 높은 종 1가지) · 통합치료비는 항목별 연간 1회, 연간 한도는 가입금액까지 해마다 새로 적용 · 입원일당은 병원 종별·병실 종류·한도일수 조건 충족 시 지급 · 131대질병수술비 등 일반 질병 담보는 <b>암·유사암에는 지급되지 않아요</b>.</span></div>'''
+
+P = [
+ f'''<div class="lg">{e('coins','#E03131')}<b>{C['insured'] if C['insured'].endswith('고객님') else C['insured'] + ' 고객님'} 보장 한장요약</b><span class="sub">가입 담보 {len(RID)}개 · 월 보험료 {C['premium']} · 3대 진단 · 수술 · 입원/간병 요약</span></div>
+ {summary_cards()}<div class="{'dense' if len(RID) > 80 else ''}">{page_all()}</div>''',
+ f'''<div class="lg">{e('cancerous_cell_nuclei','#E03131')}<b>암 세부보장</b><span class="sub">진단 · 수술 · 항암약물 · 방사선 — 어느 담보에서 얼마가 나오는지</span></div>
+ {page_cancer()}''',
+ page_cv(),
+ f'''<div class="lg">{e('neurology','#364FC7')}<b>뇌·심혈관 질병코드 지도</b><span class="sub">담보마다 어디까지 보장되는지 질병코드로 한눈에</span></div>
+ {page_dzmap()}''',
+ f'''<div class="lg">{e('money_bag','#C92A2A')}<b>통합치료비 한눈에</b><span class="sub">암 · 뇌심장 · 암전후 통합치료비 — 치료 항목별로 얼마가 나오는지</span></div>
+ {page_itc()}''',
+ f'''<div class="lg">{e('knife','#087F5B')}<b>수술비 · 입원일당 세부보장</b><span class="sub">모든 수술비 합산 · 종별 · 병원 종별 비교 · 입원 · 간병</span></div>
+ {page_surg()}''',
+ f'''<div class="lg">{e('stethoscope','#087F5B')}<b>다빈도 질환 수술 시뮬레이션</b><span class="sub">건강검진·일상에서 자주 생기는 질환 10종 · 병원 종별 비교</span></div>
+ <div class="frows">{freq_rows()}</div>
+ <div class="tip">{e('bulb','#D9480F')}<span>수술 종(1~5종)은 약관 [1-5종 수술분류표Ⅱ] 기준이며, 비급여 치료비는 병원·술식에 따라 달라지는 실제 치료비 범위(참고용)예요. 표시 금액은 해당 수술 1회 기준 지급 예시예요.</span></div>''',
+ f'''<div class="lg">{e('money_bag','#5F3DC4')}<b>사례로 보는 치료비 보장</b><span class="sub">치료 단계별로 어느 담보에서 얼마가 나오는지</span></div>
+ {flow_card(FLOW[0])}{flow_card(FLOW[2])}{flow_card(FLOW[1])}
+ <div class="mnote">※ 조건부 담보는 보수적으로 계산 — 표적항암약물허가치료비는 연간 약물종류 2종 이상(폐암 사례 : 표적항암제 → 키트루다), 특정혈전치료비는 두 치료를 모두 받은 단계에서만.</div>''',
+]
+# 6쪽 : 상해·사고
+INJ = [('교통사고 두개내손상', 'S06', 'wound', dict(cause='상해', surg=5, surg7=7, hosp='종합', room='2-3인실', days=20, icu=3, grp=[]),
+        [['진단', 'CT + MRI', '', ['x_ct', 'x_mri']], ['수술', '개두술', '', ['surg'], {'j': 5}], ['중환자', '중환자실', '', ['icu']], ['재활', '재활 10일', '', ['rehab'], {'n': 10}]]),
+       ('손목 골절 · 관절 고정술', 'S62', 'body', dict(cause='상해', surg=2, surg7=1, hosp='종합', room='2-3인실', days=5, grp=[]), []),
+       ('열린 상처 · 창상봉합술', 'T14', 'bandage_adhesive', dict(cause='상해', surg=1, surg7=1, hosp='종합', room=None, days=0, grp=[]), []),
+       ('화상 · 피부이식수술', 'T30', 'wound', dict(cause='상해', surg=1, surg7=1, hosp='종합', room='2-3인실', days=7, grp=[]), [])]
+INJ_ITC = json.load(open(os.path.join(BASE, 'inj_itc.json'), encoding='utf-8'))
+INJ_ACT = {'MRI': 'x_mri', 'CT': 'x_ct', '골밀도': 'x_bmd', '흡인': 'aspir', '신경차단': 'block', '화상처치': 'burn', '도수정복': 'reduction',
+           '창상봉합술치료(안면부,': 'suture_face', '창상봉합술치료(안면부이외': 'suture', '깁스': 'cast', '부목': 'splint', 'CRRT': 'crrt',
+           '인공호흡기': 'vent', '저체온': 'hypo', '체외순환': 'ecmo', '전신마취': 'anes6', '중환자실': 'icu', '입원상해재활': 'rehab_in', '외래상해재활': 'rehab_out'}
+def inj_itc_rider():
+    for r in RID:
+        for k, tiers in INJ_ITC.items():
+            if S.nname(k) == S.nname(r['name']) and str(r['man']) in tiers: return r, tiers[str(r['man'])]
+    return None, None
+def inj_itc_pay(items, acts, surg=None, rehab=0):
+    """상해 통합치료비 — 시나리오 행위(acts)·수술 종·재활 일수로 항목별 지급액 계산"""
+    out = []
+    for it in items:
+        l = it['l']
+        if it['c'].startswith('수술'):
+            j = int(l[0]);  amt = it['amt'] if surg == j else 0
+        elif '재활' in l: amt = it['amt'] * rehab if ('rehab_in' in acts if '입원' in l else 'rehab_out' in acts) else 0
+        else:
+            key = next((v for k, v in INJ_ACT.items() if k in l), None)
+            amt = it['amt'] if key and key in acts else 0
+        if amt: out.append((l, amt))
+    return out
+INJ_CASES = [('교통사고 두개내손상', 'ambulance', ['x_ct', 'x_mri', 'icu', 'vent', 'anes6', 'rehab_in'], 5, 10, '검사 → 개두수술(5종) → 중환자실·인공호흡기 → 입원 재활 10일'),
+             ('손목 골절 · 관절 고정술', 'body', ['x_ct', 'reduction', 'cast'], 2, 0, '도수정복 후 고정술(2종) · 깁스'),
+             ('열린 상처 · 창상봉합술', 'bandage_adhesive', ['suture', 'aspir'], 1, 0, '창상봉합술(1종) · 흡인·절개'),
+             ('화상 · 피부이식수술', 'wound', ['burn', 'rehab_out'], 1, 5, '화상처치 · 피부이식(1종) · 외래 재활 5회')]
+def inj_itc_block():
+    r, items = inj_itc_rider()
+    if not r:
+        return tabhd(2, 'yr', '상해 통합치료비 보장 예시', '상해 통합치료비 담보 미가입') + '<div class="ic2">상해 통합치료비(실속형 등) 담보가 없어요. 가입 시 검사·수술·중환자실·재활까지 항목별로 지급돼요.</div>'
+    cards = ''
+    for nm, ic, acts, j, rh, desc in INJ_CASES:
+        pays = inj_itc_pay(items, set(acts), j, rh)
+        tot = sum(a for _, a in pays)
+        chips = ''.join(f'<span class="fi">{l[:16]}<b>{man(a)}</b></span>' for l, a in sorted(pays, key=lambda x: -x[1])[:6])
+        cards += f'''<div class="frow">{et(ic,K['yr'][3],22,K['yr'][1])}<div class="fnm"><b>{nm}</b><em>{desc}</em></div>
+          <div class="fitems">{chips or '<span class="fi none">해당 항목 없음</span>'}</div><div class="fpay"><div><span>통합치료비</span>{big(tot,K['yr'][1])}</div></div></div>'''
+    top = ''.join(f'<span class="itcchip"><b>{it["l"][:14]}</b>{man(it["amt"])}만원</span>' for it in sorted(items, key=lambda x: -x['amt'])[:10])
+    return (tabhd(2, 'yr', '상해 통합치료비 보장 예시', f'{r["name"]} {man(r["man"])}만원 · 약관 지급금액표 · 검사·주요치료 연간 1회, 수술은 수술마다, 재활 1일 1회')
+            + f'<div class="frows">{cards}</div><div class="itcchips">{top}</div>')
+
+def page_inj():
+    rows = ''
+    for nm, kcd, ic, tg, itc in INJ:
+        L = [x for x in Q(kcd, tg, itc) if x['group'] not in ('입원일당', '통원일당')]
+        items = ''.join(f'<span class="fi">{disp(x["name"])[:22]}<b>{man(x["amt"])}</b></span>' for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0) or '<span class="fi none">해당 담보 없음</span>'
+        rows += f'''<div class="frow">{et(ic,K['ms'][3],22,K['ms'][1])}<div class="fnm"><b>{nm}</b><span>{kcd}</span><em>상해 치료 예시</em></div>
+          <div class="fitems">{items}</div><div class="fpay"><div><span>지급 합계</span>{big(T(L),'#D9480F')}</div></div></div>'''
+    dth = [r for r in RID if '사망' in r['name'] or '후유장해' in r['name']]
+    dcard = ''.join(f'<div class="dcard"><b>{r["name"][:26]}</b>{big(r["man"],"#C2255C")}</div>' for r in dth)
+    return f'''<div class="lg">{e('wound','#D9480F')}<b>상해 · 사고와 사망 · 후유장해</b><span class="sub">다치거나 사고가 났을 때</span></div>
+ {tabhd(1,'ms','상해 사고 치료 예시','자주 생기는 사고 유형별로 · 어느 담보에서 얼마가 나오는지')}
+ <div class="frows">{rows}</div>
+ {inj_itc_block()}
+ {tabhd(3,'pk','사망 · 후유장해','상해로 사망하거나 장해가 남았을 때')}
+ <div class="dcards">{dcard or '<div class="dcard">해당 담보 없음</div>'}</div>
+ {tabhd(4,'cv','보장은 언제부터 시작되나요?','담보별 보장 시작 시점')}
+ <div class="tlx">{''.join(f'<div class="tlc" style="background:{b2}"><b>{t}</b><span>{d2}</span></div>' for t,d2,b2 in [
+   ('계약 즉시','상해·수술·입원일당 등 대부분의 담보는 1회 보험료를 받은 때부터 보장','#EDF2FF'),
+   ('90일 후','암 진단비·암 통합치료비는 계약일부터 90일이 지난 다음날부터 보장','#FFF0F0'),
+   ('1년 경과 전 50%','암 통합치료비Ⅱ·특정순환계질환·암전후 통합치료비는 1년 이내 50% 지급','#F3F0FF'),
+   ('1년 경과 후 100%','1년이 지나면 약관 금액 전액 지급 · 연간 한도도 해마다 새로 적용','#E6FCF5')])}</div>
+ <div class="tip">{e('bulb','#D9480F')}<span>상해 담보는 <b>급격하고 우연한 외래의 사고</b>로 인한 경우에만 지급돼요. 질병 담보와 상해 담보는 각각 별도로 지급되며, 같은 사고로 여러 수술을 받으면 1-5종 수술비는 가장 높은 종 1가지만 지급돼요.</span></div>'''
+P.append(page_inj())
+
+css = open(os.path.join(BASE, 'style.css'), encoding='utf-8').read().replace('__A__', A) + open(os.path.join(BASE, 'extra2.css'), encoding='utf-8').read()
+html = '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>%s</style></head><body>%s</body></html>' % (
+    css, ''.join(f'<section class="page">{header()}<div class="body">{b}</div>{footer(IA+1+i)}</section>' for i, b in enumerate(P)))
+open(sys.argv[2], 'w', encoding='utf-8').write(html)
+A = S.audit(RID)
+print('ok', len(P), '쪽 · 담보', A['담보수'], '건', A['구조별'])
+if A['미분류']: print('  [미분류]', ' / '.join(A['미분류'][:10]))
+for x in S.ISSUES[:10]: print('  [%s] %s — %s' % (x['구분'], x['담보'][:34], x['사유']))
+json.dump({'요약': A, '로그': S.ISSUES}, open(os.path.splitext(sys.argv[2])[0] + '_audit.json', 'w', encoding='utf-8'),
+          ensure_ascii=False, indent=2)

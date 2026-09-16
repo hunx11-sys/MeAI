@@ -1,0 +1,203 @@
+@font-face{font-family:NG;src:url('file://__A__NanumGothic-Regular.ttf');font-weight:400}
+@font-face{font-family:NG;src:url('file://__A__NanumGothic-Bold.ttf');font-weight:700}
+@font-face{font-family:NG;src:url('file://__A__NanumGothic-ExtraBold.ttf');font-weight:800}
+@page{size:595pt 842pt;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff}
+body{font-family:NG,sans-serif;color:#212121;-webkit-print-color-adjust:exact;print-color-adjust:exact;letter-spacing:-0.1pt}
+.page{position:relative;width:595pt;height:842pt;overflow:hidden;page-break-after:always;break-after:page;background:#fff}
+b{font-weight:700}
+
+/* ── 원본과 동일한 머리 ── */
+.h-t{position:absolute;left:25pt;top:31.5pt;font-size:12pt;line-height:1.2}
+.h-p{position:absolute;left:25pt;top:49.6pt;font-size:7pt;font-weight:700;line-height:1.2;letter-spacing:-0.35pt}
+.h-logo{position:absolute;left:454pt;top:52pt;width:115pt;height:22pt}
+.h-bar{position:absolute;left:25pt;top:75pt;width:545pt;height:17pt;background:#C12027;color:#fff;font-size:9pt;font-weight:700;padding-left:5pt;line-height:17pt}
+
+/* ── 원본과 동일한 꼬리 ── */
+.disc{position:absolute;left:25pt;top:733pt;width:545pt;font-size:6.2pt;color:#646464;line-height:1.35}
+.f-box{position:absolute;left:25pt;top:752pt;width:545pt;height:30pt;display:grid;grid-template-columns:50pt 345pt 50pt 100pt;border-top:1pt solid #CA1F28;border-bottom:.5pt solid #B3B0B0}
+.f-l{background:#EFEFEF;font-size:7pt;font-weight:700;display:flex;align-items:center;padding-left:5pt}
+.f-v{font-size:7pt;display:flex;align-items:center;padding-left:5pt}
+.f-d{font-size:7pt;line-height:10pt;padding:3pt 0 0 5pt}
+.f-cc{position:absolute;left:25pt;top:782pt;font-size:7pt;color:#424242}
+.f-url{position:absolute;left:25pt;top:791pt;font-size:6pt;color:#646464}
+.f-pg{position:absolute;left:256pt;top:782pt;font-size:7pt;color:#424242}
+
+
+@font-face{font-family:DH;src:url('file://__A__NanumGothic-ExtraBold.ttf')}
+@font-face{font-family:JU;src:url('file://__A__NanumGothic-Bold.ttf')}
+.body{position:absolute;left:25pt;top:99pt;width:545pt;height:632pt}
+.e{display:inline-grid;place-items:center;width:1em;height:1em;vertical-align:-0.16em}
+.e svg{width:100%;height:100%;display:block}
+.et{display:inline-grid;place-items:center;border-radius:30%;flex:none}
+.et>span{display:block}
+.et{border-radius:32%}
+.et svg{width:100%;height:100%;display:block}
+em{font-style:normal}
+.n,.n1,.n2,.n3{font-family:DH;letter-spacing:-0.2pt;white-space:nowrap}
+.n small,.n1 small,.n2 small,.n3 small{font-family:JU;font-size:.5em;margin-left:1pt;color:#495057}
+.n{font-size:13pt}.n1{font-size:20pt;color:#212121}.n2{font-size:15pt}.n3{font-size:11pt}
+.small{font-size:6.4pt;color:#868E96;line-height:1.45;margin-top:4pt}
+.sb{display:flex;width:100%;background:#F1F3F5;border-radius:6pt;overflow:hidden}
+.sb i{display:block;height:100%}
+.pt{display:inline-block;font-family:JU;font-size:6.4pt;background:#F1F3F5;color:#495057;border-radius:6pt;padding:1pt 5pt;margin-top:2pt}
+.pt.nc{background:#F3F0FF;color:#6741D9}
+
+/* 헤딩 */
+.hd{display:flex;align-items:center;gap:5pt;margin:7pt 0 4pt}
+.hd b{font-family:DH;font-weight:400;font-size:12.5pt;letter-spacing:-0.2pt}
+.hd .sub{font-size:6.8pt;color:#868E96;margin-left:auto}
+.lg{display:flex;align-items:center;gap:5pt;border-bottom:1pt solid #DC4646;padding:2pt 0 4pt;margin-bottom:2pt}
+.lg .e{font-size:13pt}
+.lg b{font-family:DH;font-weight:400;font-size:14pt;color:#DC4646}
+.lg .sub{margin-left:auto;font-size:6.6pt;color:#495057;display:flex;align-items:center;gap:3pt}
+.lg .sub i{width:7pt;height:7pt;border-radius:2pt;display:inline-block;margin-left:5pt}
+
+/* 스티커(배민) */
+.hero{display:flex;align-items:center;gap:9pt;background:#FFF3BF;border:1.2pt solid #212121;border-radius:12pt;box-shadow:0 2.6pt 0 #212121;padding:7pt 12pt;margin-top:2pt}
+.hl b{display:block;font-family:DH;font-weight:400;font-size:16pt}
+.hl span{display:block;font-size:6.8pt;color:#495057;margin-top:2pt}
+.hr{margin-left:auto;text-align:right}
+.hr .lab{display:block;font-family:JU;font-size:7.5pt;color:#495057}
+.hr .n1{font-size:24pt;color:#E03131}
+.rks{display:grid;grid-template-columns:repeat(5,1fr);gap:5pt;margin-top:6pt}
+.rk{border-radius:10pt;padding:6pt 6pt 5pt;display:flex;flex-direction:column;gap:3pt}
+.rn b{display:block;font-family:JU;font-weight:400;font-size:7.6pt;line-height:1.2}
+.rn span{display:block;font-size:5.8pt;color:#495057;line-height:1.3}
+.ra{margin-top:auto}
+.tg{display:grid;gap:4pt}
+.tile{border-radius:10pt;padding:4pt 6pt;display:grid;grid-template-columns:22pt 1fr;column-gap:5pt;row-gap:1pt;align-items:center}
+.tile .et{grid-row:1/4}
+.tlb{font-family:JU;font-size:7.6pt;line-height:1.2}
+.tlb em{font-family:NG;font-size:5.6pt;color:#868E96}
+.tv{line-height:1.1}
+.ts{font-size:5.8pt;color:#868E96}
+.cs{display:flex;flex-wrap:wrap;gap:4pt;margin-top:4pt}
+.cp{display:inline-flex;align-items:center;gap:3pt;border-radius:10pt;padding:2.5pt 7pt 2.5pt 4pt;font-family:JU;font-size:7pt}
+.cp .e{font-size:9pt}
+.cp b{font-family:DH;font-weight:400;font-size:8pt}
+.every{display:flex;align-items:center;gap:8pt;margin-top:8pt;background:#F3F0FF;border:1.2pt solid #212121;border-radius:12pt;box-shadow:0 2.6pt 0 #212121;padding:7pt 10pt}
+.every b{display:block;font-family:DH;font-weight:400;font-size:12pt;color:#5F3DC4}
+.every span{display:block;font-size:6.8pt;color:#495057;margin-top:2pt}
+.every .pg{margin-left:auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:2pt 4pt;flex:none}
+.every .pg span{font-family:JU;font-size:6.4pt;background:#fff;border-radius:6pt;padding:1.5pt 5pt;margin:0;color:#5F3DC4;white-space:nowrap}
+
+/* 보장 지도 */
+.gcs{display:grid;grid-template-columns:repeat(3,1fr);gap:6pt}
+.gcard{border:1.2pt solid;border-radius:12pt;padding:7pt 8pt;display:flex;flex-direction:column;gap:3pt;min-height:98pt}
+.gcard>b{font-family:DH;font-weight:400;font-size:11pt}
+.gx{font-size:6.6pt;color:#495057;line-height:1.45}
+.gr{margin-top:auto;display:flex;flex-direction:column;gap:2.5pt}
+.rb{display:flex;justify-content:space-between;align-items:center;color:#fff;font-family:JU;font-size:7pt;border-radius:8pt;padding:2pt 7pt}
+.rb em{font-family:DH;font-size:8pt}
+div.tl{background:#F8F9FA;border-radius:12pt;padding:6pt 10pt 8pt}
+.tr{display:flex;align-items:center;height:17pt;margin-top:4pt}
+.tr.th{height:10pt;margin-top:0}
+.tn{width:122pt;font-family:JU;font-size:7.6pt;flex:none;display:flex;align-items:center;gap:4pt}
+.tn .e{font-size:10pt}
+.tt{position:relative;flex:1;height:100%}
+.tr:not(.th) .tt i{position:absolute;top:1pt;bottom:1pt;font-family:JU;font-size:6.8pt;display:flex;align-items:center;justify-content:center;border-right:2pt solid #F8F9FA;border-radius:8pt;white-space:nowrap}
+.tt em{position:absolute;top:0;font-family:JU;font-size:6.6pt;color:#868E96;white-space:nowrap}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:6pt}
+.rule{border-radius:12pt;padding:8pt 6pt;display:flex;flex-direction:column;align-items:center;gap:2pt;text-align:center}
+.rule b{font-family:JU;font-weight:400;font-size:8pt;margin-top:2pt}
+.rule .big{font-family:DH;font-size:11pt}
+.rule span{font-size:6.3pt;color:#495057}
+.tip{display:flex;gap:6pt;align-items:flex-start;background:#FFF9DB;border-radius:10pt;padding:6pt 9pt;margin-top:7pt;font-size:6.9pt;line-height:1.55}
+.tip .e{font-size:11pt}
+.tip b{color:#D9480F}
+
+/* 카드 밴드 */
+.band{border-radius:14pt;padding:1pt 7pt 7pt;margin-top:5pt}
+.band .hd{margin:5pt 0 4pt}
+.ccs{display:grid;grid-template-columns:repeat(4,1fr);gap:5pt}
+.cc{background:#fff;border-radius:10pt;padding:5pt 6pt;display:grid;grid-template-columns:20pt 1fr;column-gap:5pt;row-gap:1.5pt;align-items:center}
+.cc>*{grid-column:1/3}
+.cc>.et{grid-column:1;grid-row:1}
+.cc>.cn{grid-column:2;grid-row:1;margin-top:0}
+.cc>.pt{justify-self:start}
+.cn{font-family:JU;font-size:7.8pt;line-height:1.2}
+.cv{margin-top:2pt;line-height:1.05}
+.c1{font-size:6.3pt;color:#868E96}
+.c1 b{color:#495057}
+.cc .sb{margin-top:3pt}
+.cb{font-size:5.8pt;color:#868E96}
+.cper{font-family:JU;font-size:6.4pt;border-radius:6pt;padding:1pt 5pt;margin-top:2pt}
+.chos{font-size:6pt;color:#495057;font-family:JU}
+.chos{font-family:JU}
+
+/* 사례 */
+.hbs{background:#FFF0F0;border-radius:12pt;padding:5pt 9pt}
+.hb{display:grid;grid-template-columns:22pt 128pt 1fr 76pt;align-items:center;gap:6pt;padding:3.5pt 0}
+.hn b{display:block;font-family:JU;font-weight:400;font-size:7.6pt}
+.hn span{display:block;font-size:6pt;color:#868E96}
+.hv{text-align:right;color:#E03131}
+.flow{position:relative;display:flex;gap:5pt}
+.fline{position:absolute;left:18pt;right:18pt;top:13pt;border-top:1.5pt dashed;z-index:0}
+.fs{z-index:1}
+.fs{position:relative;flex:1;background:#fff;border:1pt solid #E9ECEF;border-radius:10pt;padding:22pt 6pt 4pt;min-width:0;margin-top:8pt}
+.fb{position:absolute;left:50%;top:-8pt;transform:translateX(-50%);width:26pt;height:26pt;border-radius:50%;display:grid;place-items:center;border:1.5pt solid #fff}
+.fb .e{font-size:14pt}
+.fst{font-family:JU;font-size:6.4pt;text-align:center}
+.fn{font-family:JU;font-size:7.4pt;text-align:center;line-height:1.2;min-height:17pt;margin-top:1pt}
+.fv{text-align:center;margin-top:1pt}
+.fs ul{list-style:none;margin-top:3pt;border-top:.5pt dashed #DEE2E6;padding-top:2pt}
+.fs li{display:flex;align-items:center;gap:3pt;font-size:5.9pt;line-height:1.55;color:#495057;letter-spacing:-0.25pt}
+.fs li i{width:4pt;height:4pt;border-radius:50%;flex:none}
+.fs li b{margin-left:auto;color:#212121}
+.sumk{display:flex;align-items:center;justify-content:flex-end;gap:7pt;border-radius:10pt;padding:3pt 12pt;margin-top:4pt}
+.sumk .e{font-size:13pt}
+.sumk .lab{font-family:JU;font-size:8pt}
+.sumk em{font-size:6.3pt;color:#868E96}
+.yrs{display:grid;grid-template-columns:1fr 150pt;gap:10pt;border-radius:14pt;padding:9pt 12pt}
+.ycs{display:flex;gap:18pt;align-items:flex-end;height:150pt}
+.yc{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+.yv{color:#5F3DC4;margin-bottom:2pt}
+.yb{flex:1;width:46pt;display:flex;flex-direction:column-reverse;background:#fff;border-radius:8pt 8pt 0 0;overflow:hidden}
+.yb i{display:block;width:100%}
+.yl{text-align:center;margin-top:3pt}
+.yl .e{font-size:10pt}
+.yl b{font-family:DH;font-weight:400;font-size:9pt;margin-left:2pt}
+.yl span{display:block;font-size:5.9pt;color:#868E96}
+.ysum{background:#fff;border:1.2pt solid #212121;border-radius:12pt;box-shadow:0 2.6pt 0 #212121;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3pt;text-align:center;padding:8pt}
+.ysum .lab{font-family:JU;font-size:8pt}
+.ysum .n1{color:#5F3DC4}
+.ysum em{font-size:6.2pt;color:#868E96;line-height:1.45}
+
+/* 자주 받는 치료 */
+.lrs{display:flex;flex-direction:column;gap:2.4pt}
+.lr{display:grid;grid-template-columns:18pt 122pt 1fr 56pt 34pt;align-items:center;gap:6pt;background:#fff;border:.8pt solid #E9ECEF;border-radius:8pt;padding:2pt 5pt}
+.ln b{font-family:JU;font-weight:400;font-size:7.6pt;line-height:1.2}
+.ln .lt{display:block;margin-top:1pt}
+.ln span.cd{font-size:5.6pt;color:#868E96;margin-left:3pt}
+.lt{font-size:6.3pt;font-weight:700;line-height:1.2;color:#495057}
+.li{font-size:5.9pt;color:#495057;line-height:1.5;letter-spacing:-0.2pt}
+.li b{color:#212121}
+.li .no{color:#E03131}
+.ic2{font-size:5.7pt;background:#F8F9FA;border-radius:5pt;padding:.8pt 4pt;color:#495057;white-space:nowrap}
+.ic2 b{color:#212121}
+.ic2.no{background:#FFF5F5;color:#E03131}
+.lv{border-radius:7pt;padding:2pt 6pt;text-align:right}
+.l1{font-size:5.8pt;color:#868E96;text-align:right;line-height:1.2}
+.lv em{font-size:5.6pt;color:#868E96}
+.ln{line-height:1.05}
+.ln b{line-height:1.1}
+.ln .lt{margin-top:0;line-height:1.15}
+.lv{padding:1.5pt 6pt}
+.lv .n3{line-height:1}
+.lr .et{border-radius:28%}
+.tile{padding:6.5pt 7pt}
+.tg{gap:5pt}
+.rk{padding:7pt 7pt 6pt}
+i{font-style:normal}
+
+.tile .et,.cc .et,.rk .et{border-radius:50%}
+.e{width:1.15em;height:1.15em}
+
+/* 메리츠 문서 서체(나눔고딕) 동기화 보정 */
+.n,.n1,.n2,.n3{letter-spacing:-0.45pt}
+.hd b,.lg b,.hero .hl b,.every b,.rule .big{letter-spacing:-0.5pt}
+.tlb,.cn,.fn,.ln b,.rn b,.lt{letter-spacing:-0.3pt}
+.cp,.pt,.cper,.rb,.tr i,.tt em,.every .pg span,.sumk .lab,.ysum .lab,.yl b{letter-spacing:-0.3pt}
+.hb{grid-template-columns:22pt 128pt 1fr 82pt}

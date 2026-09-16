@@ -1,0 +1,326 @@
+.n2{font-family:DH;font-size:12.5pt;letter-spacing:-.3pt;white-space:nowrap}
+.n2 small{font-family:JU;font-size:.52em;color:#495057;margin-left:1pt}
+.z{font-family:DH;font-size:11pt;color:#CED4DA}
+.z small{font-size:.5em}
+.lg{margin-bottom:4pt}
+/* 탭 헤더 */
+.tabhd{display:flex;align-items:center;gap:6pt;margin:8pt 0 4pt}
+.tno{width:14pt;height:14pt;border-radius:4pt;color:#fff;font-family:DH;font-size:8pt;display:grid;place-items:center}
+.tabhd b{font-family:DH;font-weight:400;font-size:11pt}
+.tn2{font-size:6.6pt;color:#868E96}
+/* 진단 카드 */
+.dxs{display:grid;grid-template-columns:repeat(3,1fr);gap:5pt}
+.dxc{background:#FFF0F0;border-radius:11pt;padding:7pt 9pt}
+.dxc.alt{background:#FFF9DB}
+.dxc b{display:block;font-family:JU;font-weight:400;font-size:9.5pt}
+.dxc span{display:block;font-size:6.2pt;color:#868E96;line-height:1.3;min-height:15pt}
+.dxc em{display:block;font-style:normal;font-size:5.9pt;color:#495057;margin-top:2pt;line-height:1.35}
+/* 매트릭스 */
+.mx{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;margin-top:3pt}
+.mx th,.mx td{text-align:center;padding:3.4pt 3pt;border-bottom:.5pt solid #E9ECEF}
+.mx thead th{background:#F8F9FA;border-bottom:1pt solid #DEE2E6}
+.mx thead th b{display:block;font-family:JU;font-weight:400;font-size:8pt}
+.mx thead th span{display:block;font-size:5.9pt;color:#868E96;margin-top:1pt}
+.mx .rl{width:70pt;text-align:left;font-size:7pt;font-weight:700;color:#495057;background:#FCFCFD}
+.mx tr.mhl td{background:#FFFBFB}
+.mx tr.dtr td,.mx tr.dtr th{border-bottom:0;padding-top:2pt}
+.mx td.dt{font-size:5.6pt;color:#868E96;line-height:1.35}
+.mnote{font-size:6.2pt;color:#868E96;margin-top:3pt;line-height:1.4}
+/* 뇌심장 */
+.cvwrap{display:grid;grid-template-columns:118pt 1fr;gap:6pt;align-items:start}
+.cvdx{border-radius:11pt;padding:7pt 9pt}
+.cvdx b{display:block;font-family:JU;font-weight:400;font-size:8pt;margin-top:3pt}
+.cvdx span{display:block;font-size:6.2pt;color:#868E96}
+.cvdx em{display:block;font-style:normal;font-size:5.8pt;color:#495057;margin-top:2pt;line-height:1.35}
+.cvmx .rl{width:56pt}
+.inp{display:grid;grid-template-columns:repeat(4,1fr);gap:5pt;margin-top:3pt}
+.ic2{background:#FFF9DB;border-radius:10pt;padding:6pt 8pt}
+.ic2 b{display:block;font-family:JU;font-weight:400;font-size:7.4pt;line-height:1.25}
+.ic2 span{display:block;font-size:5.9pt;color:#868E96;margin:1pt 0 2pt}
+/* 사례 플로우 */
+.fcase{border-radius:14pt;padding:8pt 10pt 10pt;margin-top:6pt}
+.fh{display:flex;align-items:center;gap:8pt;margin-bottom:6pt}
+.fh>div:nth-child(2) b{display:block;font-family:DH;font-weight:400;font-size:13pt;line-height:1.2}
+.fh>div:nth-child(2) span{display:block;font-size:6.8pt;color:#495057}
+.ftot{margin-left:auto;text-align:right}
+.ftot span{display:block;font-family:JU;font-size:6.8pt;color:#495057}
+.flow{position:relative;display:flex;gap:5pt}
+.fline{position:absolute;left:18pt;right:18pt;top:13pt;border-top:1.5pt dashed;z-index:0}
+.fs{position:relative;z-index:1;flex:1;background:#fff;border:1pt solid #E9ECEF;border-radius:10pt;padding:22pt 6pt 5pt;margin-top:8pt;min-width:0}
+.fb{position:absolute;left:50%;top:-8pt;transform:translateX(-50%);width:26pt;height:26pt;border-radius:50%;display:grid;place-items:center;border:1.5pt solid #fff}
+.fb .e{width:15pt;height:15pt}
+.fst{font-family:JU;font-size:6.4pt;text-align:center}
+.fn{font-family:JU;font-size:7.4pt;text-align:center;line-height:1.2;min-height:17pt;margin-top:1pt}
+.fv{text-align:center}
+.fs ul{list-style:none;margin-top:3pt;border-top:.5pt dashed #DEE2E6;padding-top:2pt}
+.fs li{display:flex;gap:3pt;font-size:5.8pt;line-height:1.5;color:#495057}
+.fs li b{margin-left:auto;color:#212121}
+/* 다빈도 */
+.frows{display:flex;flex-direction:column;gap:3pt}
+.frow{display:grid;grid-template-columns:22pt 104pt 1fr 104pt;gap:6pt;align-items:center;background:#fff;border:.8pt solid #E9ECEF;border-radius:10pt;padding:4pt 7pt}
+.fnm b{font-family:JU;font-weight:400;font-size:8pt;line-height:1.2}
+.fnm span{font-size:5.6pt;color:#ADB5BD;margin-left:3pt}
+.fnm em{display:block;font-style:normal;font-size:5.8pt;color:#868E96;line-height:1.3;margin-top:1pt}
+.fitems{display:flex;flex-wrap:wrap;gap:3pt}
+.fi{background:#F8F9FA;border-radius:6pt;padding:1.5pt 5pt;font-size:5.8pt;color:#495057}
+.fi b{margin-left:3pt;font-family:DH;font-weight:400;font-size:7pt;color:#212121}
+.fi.none{background:#FFF5F5;color:#E03131}
+.fpay{display:flex;gap:6pt;justify-content:flex-end}
+.fpay div{text-align:right}
+.fpay span{display:block;font-size:5.8pt;color:#868E96}
+.fpay .n2{font-size:10.5pt}
+/* 담보 전체 */
+.ablk{margin-top:5pt}
+.ah{display:flex;align-items:center;gap:4pt;font-family:JU;font-size:8.5pt;margin-bottom:2pt}
+.adot{width:6pt;height:6pt;border-radius:50%}
+.ah em{font-style:normal;font-size:6pt;color:#868E96;margin-left:auto}
+.ag{display:grid;grid-template-columns:repeat(3,1fr);gap:1pt 8pt}
+.al{display:flex;align-items:baseline;gap:3pt;font-size:5.9pt;line-height:1.3;border-bottom:.4pt dotted #E9ECEF;padding:1pt 0}
+.al i{font-style:normal;font-size:5.2pt;color:#ADB5BD;min-width:13pt}
+.al b{margin-left:auto;font-family:DH;font-weight:400;font-size:7pt}
+.dcards{display:grid;grid-template-columns:repeat(4,1fr);gap:5pt}
+.dcard{background:#FFF0F6;border-radius:10pt;padding:6pt 8pt}
+.dcard b{display:block;font-family:JU;font-weight:400;font-size:7.4pt;line-height:1.25;margin-bottom:2pt}
+.tip{margin-top:6pt}
+
+.itcg{display:grid;grid-template-columns:repeat(4,1fr);gap:4pt}
+.itci{display:flex;align-items:center;gap:5pt;background:#F3F0FF;border-radius:10pt;padding:5pt 7pt}
+.itci b{display:block;font-family:JU;font-weight:400;font-size:6.8pt;line-height:1.2;margin-bottom:1pt}
+.itci .n2{font-size:10.5pt}
+.tlx{display:grid;grid-template-columns:repeat(4,1fr);gap:5pt}
+.tlc{border-radius:10pt;padding:6pt 8pt}
+.tlc b{display:block;font-family:DH;font-weight:400;font-size:9.5pt;margin-bottom:2pt}
+.tlc span{display:block;font-size:6.2pt;color:#495057;line-height:1.4}
+
+.mx td .n2,.mx td .z{font-size:12.5pt}
+.mx tr.mhl .n2{font-size:12.5pt}
+
+.nop{display:inline-block;font-family:JU;font-size:7.2pt;color:#868E96;background:#F1F3F5;border-radius:6pt;padding:2pt 7pt;margin-top:2pt}
+
+/* 진단비 강조 */
+.dxc .n2{font-size:20pt}
+.dxc .n2 small{font-size:.42em}
+.cvdx .n2{font-size:19pt}
+.cvdx b{font-size:8.6pt}
+.cvdx{padding:9pt 10pt}
+
+.body .n2{font-size:12.5pt}
+.ic2 .n2,.ftot .n2,.dcard .n2{font-size:12.5pt}
+.mx thead th .et{margin:0 auto 2pt;display:grid}
+.frow{grid-template-columns:30pt 104pt 1fr 104pt}
+
+.mx thead th .et{width:20pt;height:20pt}
+.mx thead th .et>span{width:13pt;height:13pt}
+.mx th,.mx td{padding:2.6pt 3pt}
+.tabhd{margin:6pt 0 3pt}
+.dxc{padding:5pt 8pt}
+.dxc .n2{font-size:18pt}
+
+.care{display:grid;grid-template-columns:repeat(3,1fr);gap:4pt;margin-top:4pt}
+.cc2{display:flex;align-items:center;gap:6pt;border-radius:10pt;padding:5pt 8pt;background:#F8F9FA}
+.cc2 b{display:block;font-family:JU;font-weight:400;font-size:7.6pt;line-height:1.2}
+.cc2 span{display:block;font-size:5.8pt;color:#868E96;line-height:1.3}
+.cc2 em{margin-left:auto;font-style:normal;font-family:DH;font-size:9.5pt;white-space:nowrap}
+.cnote{font-size:6.6pt;color:#868E96}
+
+/* 사례 플로우 합계 — 한 줄(합계 + 금액) · 크게 */
+.fh .ftot{margin-left:auto;display:flex;align-items:baseline;gap:7pt;background:#fff;border-radius:9pt;padding:3pt 11pt 4.5pt}
+.fh .ftot>span:first-child{display:inline;font-family:JU;font-size:9.5pt;color:#495057}
+.fh .ftot .n2{font-size:21pt}
+.fh .ftot .n2 small{font-size:.42em}
+
+/* 한장요약 상단 요약 카드 */
+.sum5{display:grid;grid-template-columns:repeat(5,1fr);gap:5pt;margin-bottom:5pt}
+.sc{border-radius:11pt;padding:6pt 8pt 7pt}
+.sc b{display:block;font-family:JU;font-weight:400;font-size:8.6pt;margin-top:3pt}
+.sc span{display:block;font-size:5.9pt;color:#868E96;line-height:1.3;min-height:14pt}
+.sc em{display:block;font-style:normal;font-size:5.6pt;color:#495057;margin-top:1pt;line-height:1.3}
+.sc .n2{font-size:17pt}
+/* 수술비 세부보장 */
+.mx tr.pls td{font-size:6.2pt;color:#087F5B;background:#F4FCF7;font-family:JU}
+.mx tr.pls .rl{background:#F4FCF7;color:#087F5B}
+.mx .rl span{display:block;font-weight:400;font-size:5.4pt;color:#ADB5BD}
+
+/* 1-5종 수술비 plus */
+.plus5{display:flex;flex-direction:column;gap:4pt}
+.prow{display:grid;grid-template-columns:70pt repeat(5,1fr);gap:4pt;align-items:center}
+.prow>span{font-family:JU;font-size:8pt}
+.pc{background:#F8F9FA;border-radius:9pt;padding:4pt 8pt;display:flex;align-items:baseline;gap:5pt}
+.pc b{font-family:JU;font-weight:400;font-size:7pt;color:#868E96}
+.pc .n2{font-size:12.5pt;margin-left:auto}
+/* 질병군 추가 수술비 */
+.gsurg{display:grid;grid-template-columns:repeat(4,1fr);gap:4pt}
+.gs{background:#EDF2FF;border-radius:9pt;padding:5pt 8pt;display:flex;align-items:baseline;gap:5pt}
+.gs b{font-family:JU;font-weight:400;font-size:7.2pt}
+.gs .n2{font-size:11.5pt;margin-left:auto}
+
+/* 입원 · 중환자실 · 간병 — 4열 × 2행 균형 그리드 */
+.stay{display:grid;grid-template-columns:repeat(4,1fr);gap:5pt;margin-bottom:5pt}
+.stc{border-radius:11pt;padding:6pt 9pt 7pt}
+.stc b{display:block;font-family:JU;font-weight:400;font-size:8.2pt;margin-top:3pt}
+.stc span{display:block;font-size:5.9pt;color:#868E96;line-height:1.35;min-height:15pt}
+.stc .n2{font-size:15pt}
+.stc .nop2{font-family:JU;font-size:8.5pt;color:#ADB5BD}
+
+/* 질병코드별 보장범위 도식 */
+.dzblk{margin-bottom:7pt}
+.dzh{display:flex;align-items:center;gap:6pt;margin-bottom:4pt}
+.dzh b{font-family:JU;font-size:10pt}
+.dzh span{font-size:6.4pt;color:#868E96}
+table.dzmx{width:100%;border-collapse:separate;border-spacing:0 2pt;table-layout:fixed}
+.dzmx th,.dzmx td{text-align:center;vertical-align:middle}
+.dzmx thead th{font-size:6pt;color:#868E96;padding-bottom:2pt}
+.dzmx thead th b{display:block;font-family:JU;font-weight:400;font-size:7pt;color:#495057}
+.dzmx thead th span{display:block;font-size:5.4pt;line-height:1.2}
+.dzmx .rl{width:120pt;text-align:left;padding:4pt 7pt;background:#F8F9FA;border-radius:8pt 0 0 8pt}
+.dzmx .rl b{display:block;font-family:JU;font-weight:400;font-size:7pt}
+.dzmx .rl span{display:block;font-size:5.8pt;color:#868E96}
+.dzmx tbody td{background:#FCFCFD;padding:4pt 0}
+.dzmx tbody td i{display:inline-block;width:7pt;height:7pt;border-radius:50%;background:#E9ECEF}
+.dzmx .gg{width:78pt;padding:3pt 7pt;background:#F8F9FA;border-radius:0 8pt 8pt 0}
+.dzmx .bar{height:4pt;border-radius:3pt;background:#E9ECEF;overflow:hidden}
+.dzmx .bar i{display:block;height:4pt;border-radius:3pt}
+.dzmx .gg span{display:block;font-family:JU;font-size:6.2pt;margin-top:1.5pt;color:#495057}
+.dzmx .gg span.w0{color:#ADB5BD}
+
+/* 질병코드 지도(모자이크) */
+.dzrow{display:flex;gap:10pt;margin-bottom:8pt;align-items:flex-start}
+.dzl{flex:0 0 auto}
+.dzr{flex:1;display:flex;flex-direction:column;gap:3.5pt;padding-top:14pt}
+.dzh{display:flex;align-items:center;gap:5pt}
+.dzh b{font-family:JU;font-size:9.5pt}
+.dzs{display:block;font-size:6pt;color:#868E96;margin:1pt 0 4pt 28pt}
+.mos .mrow{display:flex;gap:2pt;margin-bottom:2pt}
+.mos i.mt,.mos i.mgap{width:34pt;height:26pt;border-radius:6pt;display:inline-flex;flex-direction:column;
+  align-items:center;justify-content:center;font-style:normal}
+.mos i.mgap{background:transparent}
+.mos i.mt b{font-family:JU;font-weight:400;font-size:6.6pt;line-height:1}
+.mos i.mt span{font-size:4.6pt;line-height:1.1;opacity:.85;margin-top:.5pt;text-align:center}
+.mos i.mt.empty{background:#F1F3F5}
+.mmore{display:flex;flex-wrap:wrap;gap:2pt;margin-top:2pt}
+.mmore i.mt{width:34pt;height:26pt;border-radius:6pt;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-style:normal}
+.mmore i.mt b{font-family:JU;font-weight:400;font-size:6.6pt;line-height:1}
+.mmore i.mt span{font-size:4.6pt;opacity:.85}
+.tst{display:flex;align-items:center;gap:6pt;background:#F8F9FA;border-radius:9pt;padding:4pt 8pt}
+.tst>i{width:8pt;height:8pt;border-radius:3pt;flex:0 0 auto}
+.tst>div:nth-child(2){flex:1;min-width:0}
+.tst b{display:block;font-family:JU;font-weight:400;font-size:7.4pt;line-height:1.2}
+.tst span{display:block;font-size:5.6pt;color:#868E96;line-height:1.2}
+.tst .tbar{flex:0 0 76pt}
+.tst .bar{height:4pt;border-radius:3pt;background:#E9ECEF;overflow:hidden}
+.tst .bar u{display:block;height:4pt;border-radius:3pt}
+.tst .tbar span{font-size:5.6pt;color:#495057;margin-top:1pt;font-family:JU}
+.tst em{flex:0 0 58pt;text-align:right;font-style:normal;font-family:JU;font-size:7pt}
+.tst em.no{color:#CED4DA}
+.mos.heart i.mt,.mos.heart i.mgap{width:30pt;height:24pt;border-radius:5pt}
+.mos.heart i.mt b{font-size:6.2pt}
+.mos.heart i.mt span{font-size:4.2pt}
+.dzrow .dzr{gap:3pt}
+.tst .tbar{flex:0 0 62pt}
+.tst em{flex:0 0 50pt;font-size:6.6pt}
+.tst b{font-size:7pt}
+.dzrow.dzcol{flex-direction:column;gap:5pt}
+.dzrow.dzcol .dzr{padding-top:0;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:3pt}
+
+/* 뇌·심 치료 흐름 */
+.txflow{display:flex;flex-direction:column;gap:4pt}
+.txr{border-radius:11pt;padding:5pt 8pt 6pt;display:flex;gap:8pt;align-items:center}
+.txh{flex:0 0 96pt;display:flex;flex-direction:column;align-items:flex-start;gap:2pt}
+.txh b{font-family:JU;font-size:8pt;line-height:1.2}
+.txh span{font-size:5.6pt;color:#868E96}
+.txsteps{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:4pt}
+.txs{background:#fff;border-radius:8pt;padding:4pt 6pt;display:flex;flex-direction:column;gap:2pt}
+.txs b{display:block;font-family:JU;font-weight:400;font-size:6.6pt;line-height:1.2}
+.txs span{display:block;font-size:5.2pt;color:#868E96;line-height:1.25}
+.txs em{font-style:normal;font-family:JU;font-size:5.8pt;margin-top:auto}
+
+/* 질병코드 블록표 */
+table.dzb{width:100%;border-collapse:separate;border-spacing:1.2pt 2pt;table-layout:fixed;margin-bottom:6pt}
+.dzb th,.dzb td{padding:0;text-align:center;vertical-align:middle}
+.dzb .rl{width:150pt;text-align:left}
+.dzb .gg{width:64pt}
+.dzb thead tr.grp th span{display:block;font-size:5pt;color:#495057;background:#F1F3F5;border-radius:4pt;padding:1.5pt 0;white-space:nowrap;overflow:hidden}
+.dzb thead tr.cd th b{display:block;font-family:JU;font-weight:400;font-size:5.6pt;color:#495057;line-height:1.1}
+.dzb thead tr.cd th span{display:block;font-size:4.4pt;color:#ADB5BD;line-height:1.1}
+.dzb thead .gg{font-size:6pt;color:#868E96}
+.dzb tbody th.rl{display:flex;align-items:center;gap:5pt;padding:2pt 4pt 2pt 0}
+.dzb tbody th.rl>i{width:7pt;height:7pt;border-radius:2.5pt;flex:0 0 auto}
+.dzb tbody th.rl b{display:block;font-family:JU;font-weight:400;font-size:6.8pt;line-height:1.15}
+.dzb tbody th.rl span{display:block;font-size:5.2pt;color:#868E96;line-height:1.15}
+.dzb tbody th.rl em{display:inline-block;font-style:normal;font-family:JU;font-size:5.6pt}
+.dzb tbody th.rl em.no{color:#CED4DA}
+.dzb tbody td i{display:block;height:15pt;border-radius:2.5pt}
+.dzb.brain tbody td i{height:19pt;border-radius:4pt}
+.dzb tbody td.gg{text-align:left;padding-left:5pt}
+.dzb tbody td.gg b{font-family:JU;font-size:9pt}
+.dzb tbody td.gg span{font-size:6pt;color:#ADB5BD}
+.dzb tbody td.gg .bar{height:3.5pt;border-radius:3pt;background:#E9ECEF;overflow:hidden;margin-top:1.5pt;width:52pt}
+.dzb tbody td.gg .bar u{display:block;height:3.5pt;border-radius:3pt}
+
+/* 통합치료비 한눈에 */
+.itctop{display:flex;gap:6pt;margin-bottom:6pt;align-items:stretch}
+.itcrs{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:4pt}
+.itcr{border-radius:10pt;padding:5pt 8pt}
+.itcr b{display:block;font-family:JU;font-weight:400;font-size:7.4pt;line-height:1.2}
+.itcr span{display:block;font-size:5.4pt;color:#868E96;line-height:1.25;min-height:12pt}
+.itcr .n2{font-size:13pt}
+.itctot{flex:0 0 170pt;background:#FFF5F5;border:1.2pt solid #FFC9C9;border-radius:12pt;padding:7pt 10pt;display:flex;flex-direction:column;justify-content:center}
+.itctot>span{font-family:JU;font-size:7.4pt;color:#C92A2A}
+.itctot .n2{font-size:22pt}
+.itctot em{font-style:normal;font-size:5.6pt;color:#868E96}
+.itcsec{margin-bottom:5pt}
+.itcgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:3.5pt}
+.itci2{background:#F8F9FA;border-radius:9pt;padding:4pt 8pt 5pt;display:flex;flex-direction:column}
+.itci2 b{font-family:JU;font-weight:400;font-size:7pt;line-height:1.2}
+.itci2 span{font-size:5.2pt;color:#868E96;line-height:1.2;margin-bottom:1pt}
+.itci2 .n2{font-size:12pt}
+.itcgrid{grid-template-columns:repeat(5,1fr)}
+.itci2 .n2{font-size:11pt}
+.itcchips{display:flex;flex-wrap:wrap;gap:3pt;margin-top:3pt}
+.itcchip{background:#fff;border:1pt solid #E9ECEF;border-radius:20pt;padding:1.5pt 7pt;font-size:5.6pt;color:#495057}
+.itcchip b{font-family:JU;font-weight:400;margin-right:3pt}
+.dzb.heart tbody td i{height:18pt}
+.dzb.heart thead tr.cd th{height:2pt}
+.dxc em.areas{font-family:JU;font-size:6.3pt;color:#495057;line-height:1.5;margin-top:3pt;display:block}
+/* 담보 80개 초과 설계 : 한장요약 자동 축소 */
+.dense .ag{grid-template-columns:repeat(4,1fr);gap:1pt 6pt}
+.dense .al{font-size:5.2pt;padding:1pt 0}
+.dense .al b{font-size:6.6pt}
+.dense .ablk{margin-bottom:2pt}
+.dense .al{font-size:4.9pt;line-height:1.2;white-space:nowrap;overflow:hidden;padding:.5pt 0}
+.dense .al i{font-size:4.2pt;min-width:12pt}
+.dense .al b{font-size:6.2pt}
+.dense .ah{font-size:7pt;margin:2pt 0 1pt}
+.dense .tip{display:none}
+.fs ul li{display:flex;gap:4pt;align-items:baseline}
+.fs ul li span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow.p7{grid-template-columns:60pt repeat(7,1fr)}
+.prow.p7 .pc{padding:3pt 6pt}
+.prow.p7 .pc .n2{font-size:11pt}
+.gapwrap{display:grid;grid-template-columns:1fr 1fr;gap:6pt;margin-bottom:6pt}
+.gapr{border-radius:11pt;padding:7pt 10pt;display:grid;grid-template-columns:26pt 1fr auto;grid-template-rows:auto auto auto;gap:3pt 6pt;align-items:center}
+.gapt{grid-column:2}
+.gapt b{display:block;font-family:JU;font-size:8.4pt}
+.gapt span{display:block;font-size:5.8pt;color:#868E96}
+.gapv{grid-column:3;grid-row:1/4;text-align:right}
+.gapv .n2{font-size:20pt}
+.gapv em{display:block;font-style:normal;font-size:5.8pt;color:#868E96}
+.gapbar{grid-column:1/3;display:flex;height:9pt;border-radius:5pt;overflow:hidden;background:#fff}
+.gapbar i{display:block;height:100%}
+.gapleg{grid-column:1/3;display:flex;gap:8pt;font-size:5.6pt;color:#495057}
+.gapleg i{display:inline-block;width:6pt;height:6pt;border-radius:2pt;margin-right:2pt;vertical-align:middle}
+.gapv .n2 small{font-size:.45em}
+.plus5+.tabhd,.gsurg+.tabhd{margin-top:4pt}
+.p7 .pc b{font-size:6.4pt}
+.stc{padding:4pt 8pt 5pt}
+.stc span{min-height:11pt}
+.stc .n2{font-size:13.5pt}
+.gsurg{grid-template-columns:repeat(5,1fr);gap:3pt}
+.gs{padding:3.5pt 7pt}
+.gs .n2{font-size:10.5pt}
+.mx .dt{font-size:5.2pt;line-height:1.2}
+.prow.p7{grid-template-columns:54pt repeat(7,1fr);gap:3pt}
+.prow.p7 .pc{padding:3pt 5pt;gap:3pt}
+.prow.p7 .pc b{white-space:nowrap;font-size:6.2pt}
+.prow.p7 .pc .n2{font-size:10pt;white-space:nowrap}
+.prow.p7 .pc .n2 small{font-size:.5em}
