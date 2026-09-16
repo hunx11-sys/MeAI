@@ -101,10 +101,14 @@ def offline(name, s, log, font_b64=None):
         s = re.sub(r'(function logEvent\s*\([^)]*\)\s*\{)', r'\1 ' + OFFMARK, s)
         log.append(f'  사용 통계 전송 끔 ({k}곳)')
 
-    # 4) 대문 링크 이름 맞추기
-    k = s.count('href="index.html"')
+    # 4) 대문 링크 이름 맞추기.
+    #    보상시뮬레이터의 대문 버튼은 <a href> 말고 자바스크립트로도 주소를 만든다.
+    #    ("항상 최상위 창을 이동시킨다" 부분) 그쪽 'index.html' 도 같이 바꿔야
+    #    압축을 푼 폴더에서 대문으로 못 돌아가는 일이 없다.
+    k = s.count('href="index.html"') + s.count("'index.html'")
     if k:
         s = s.replace('href="index.html"', f'href="{HOME}"')
+        s = s.replace("'index.html'", f"'{HOME}'")
         log.append(f'  대문 링크 {k}곳 교체')
 
     # 5) 통계 화면 링크 제거 (대문에만 있음)
