@@ -279,9 +279,21 @@ def boundaries(lines, heads):
     for i, (pi, l) in enumerate(lines):
         t = l.strip()
         if (len(t) <= 70 and re.match(r'^무배당\s.*(특별약관|보험)', t)) or (len(t) <= 30 and re.match(r'^[' + ROMAN + r']+\.\s*\S.*(특별약관|별표)\s*$', t)) \
-           or (len(t) <= 12 and re.match(r'^제\d+절\s*[가-힣]{2,8}$', t)) or re.match(r'^\d+(-\d+)?\.\s*\S.*(보장)?\s*특별약관\s*$', t):
+           or (len(t) <= 12 and re.match(r'^제\d+절\s*[가-힣]{2,8}$', t)) or re.match(r'^\d+(-\d+)?\.\s*\S.*(보장)?\s*특별약관\s*$', t) \
+           or TAIL_RE.match(t):
             b.add(i)
     return sorted(b)
+
+# 별표 뒤에 이어지는 약관 뒷부분(표지 "무배당 …/메리츠화재", 색인 "가나다순", 요약서 "□ 보험계약 관련 …")은 분류표가 아니므로 경계로 삼는다
+TAIL_RE = re.compile(r'^(무배당(\s|$)|가나다순\s*$|특별약관 색인|□\s*보험계약 관련|메 리 츠 화 재|요약서\s*$|\d+\.\s*(보험료의 납입연체|해지 계약의 부활|계약 전 알릴|보험계약관련 유의사항|보험계약 관련))')
+
+def trim_tail(text):
+    """분류표 텍스트에 약관 뒷부분이 섞여 있으면 그 앞까지만 남긴다"""
+    ls = text.split('\n')
+    for i, l in enumerate(ls):
+        if TAIL_RE.match(l.strip()):
+            return '\n'.join(ls[:i]).rstrip('\n')
+    return text
 
 HL = {}
 for prod in PRODS:
@@ -351,11 +363,14 @@ for r in R:
     if r['id'] in NB:
         r['b']=clean(NB[r['id']]['body']); r['pg']=NB[r['id']]['start_page']; nb+=1
 for tid,nt in NT.items():
-    old=T[tid]['text']; new=nt['text']
+    old=trim_tail(T[tid]['text']); new=trim_tail(nt['text'])
     old_ok=bool(re.search(r'(다\.|니다\.)\s*$',old.rstrip()))
     if old_ok and len(old)>len(new):
-        kept.append((tid,T[tid]['name'])); continue
+        kept.append((tid,T[tid]['name'])); T[tid]['text']=old; continue
     T[tid]['text']=new; T[tid]['page']=nt['page']; tb+=1
+# 교체 대상이 아니었던 분류표도 약관 뒷부분이 섞여 있으면 잘라낸다
+for t in T.values():
+    t['text']=trim_tail(t['text'])
 d['meta']['version']='ver2609'
 out=json.dumps(d,ensure_ascii=False,separators=(',',':'))
 src=src[:_m.start(2)]+out+src[_m.end(2):]
