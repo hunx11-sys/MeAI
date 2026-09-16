@@ -519,6 +519,7 @@ window.__DATA__ = {"meta":{"title":"MeAI 영업가족 프롬프트 라이브러�
       }).catch(function(){});   // 폐쇄망 등 미연결 시 조용히 무시
     }catch(e){}
   }
+  logEvent('open',{});
   var _searchTimer;
   function logSearchDebounced(term){
     clearTimeout(_searchTimer);

@@ -257,6 +257,7 @@
       }).catch(function(){});
     }catch(e){}
   }
+  logEvent('open',{});
   var _searchTimer;
   function logSearchDebounced(term){          // 타이핑 중 매 글자 기록 방지 (0.8초 멈추면 1회)
     clearTimeout(_searchTimer);

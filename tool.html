@@ -840,6 +840,7 @@ const DB = JSON.parse(document.getElementById('DATA').textContent);
 
 /* ===== 사용 로그 (Supabase) — 익명·개인정보 없음, 오프라인이면 자동 생략 ===== */
 const LOG_CFG = { url:'https://iqmlianuyoaypidmfamq.supabase.co', key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxbWxpYW51eW9heXBpZG1mYW1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzIzMzMsImV4cCI6MjA5NzY0ODMzM30.e7za_xbYV32yFHEC2gleku7Xl-S3GU0CNBHb-csWhXE', tool:'search' };
+setTimeout(function(){ try{ logEvent('open',{ term: location.hash==='#sim'?'simulator':'search' }); }catch(e){} }, 300);
 function logEvent(event, fields){
   try{
     if(!LOG_CFG.url || LOG_CFG.url.indexOf('__')===0) return;      // 키 미설정 시 생략
@@ -2145,7 +2146,7 @@ function buildRiderPrompt(r){
     document.body.classList.toggle('sim-on', t==='sim');
     bar.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-t')===t); });
     if(t==='sim') loadSim();
-    if(!fromHash){ try{ history.replaceState(null,'', t==='sim'?'#sim':'#search'); }catch(e){ location.hash = (t==='sim'?'sim':'search'); } }
+    if(!fromHash){ try{ history.replaceState(null,'', t==='sim'?'#sim':'#search'); }catch(e){ location.hash = (t==='sim'?'sim':'search'); } try{ logEvent('tab',{ term:(t==='sim'?'simulator':'search') }); }catch(e){} }
   }
   bar.addEventListener('click', function(e){
     var b=e.target.closest('button'); if(b) showTab(b.getAttribute('data-t'));

@@ -217,7 +217,21 @@
       <!-- ▲▲▲ 여기까지 ▲▲▲ -->
     </div>
 
-    <p class="ld-foot">내부 설계사 교육·업무용 도구입니다. 실제 보장 여부 및 지급금액은 반드시 약관을 확인하세요.</p>
+    <p class="ld-foot">내부 설계사 교육·업무용 도구입니다. 실제 보장 여부 및 지급금액은 반드시 약관을 확인하세요.<br><a href="stats.html" style="color:#9AA1B0;text-decoration:none">📊 사용 통계</a></p>
   </div>
+<script>
+/* ===== 사용 로그 (Supabase) — 익명·개인정보 없음, 오프라인이면 자동 생략 ===== */
+var LOG={ url:'https://iqmlianuyoaypidmfamq.supabase.co', key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxbWxpYW51eW9heXBpZG1mYW1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzIzMzMsImV4cCI6MjA5NzY0ODMzM30.e7za_xbYV32yFHEC2gleku7Xl-S3GU0CNBHb-csWhXE', tool:'home' };
+function logEvent(event, fields){
+  try{
+    if(!navigator.onLine) return;
+    var body={ tool:LOG.tool, event:event };
+    if(fields){ for(var k in fields){ if(fields[k]) body[k]=fields[k]; } }
+    fetch(LOG.url+'/rest/v1/usage_logs',{ method:'POST', headers:{ apikey:LOG.key, Authorization:'Bearer '+LOG.key, 'Content-Type':'application/json', Prefer:'return=minimal' }, body:JSON.stringify(body), keepalive:true }).catch(function(){});
+  }catch(e){}
+}
+logEvent('open',{});
+document.querySelectorAll('.cards .card').forEach(function(a){ a.addEventListener('click',function(){ try{ var h=a.getAttribute('href')||''; var t=h.indexOf('#sim')>=0?'simulator':h.indexOf('tool')>=0?'search':h.indexOf('products')>=0?'products':h.indexOf('prompts')>=0?'prompts':h.indexOf('명패')>=0?'nameplate':h.indexOf('통합치료비')>=0?'care':h; logEvent('click',{ term:t }); }catch(e){} }); });
+</script>
 </body>
 </html>
