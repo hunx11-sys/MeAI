@@ -479,6 +479,7 @@ window.__DATA__ = {"meta":{"title":"MeAI 영업가족 프롬프트 라이브러�
     resetCopyBtn();
     document.getElementById('modal').classList.add('show');
     document.body.style.overflow = 'hidden';
+    try{ window.MeAIGloss && MeAIGloss.apply(document.getElementById('m-prompt')); }catch(e){}
   }
   window.closeModal = function(){
     document.getElementById('modal').classList.remove('show');
@@ -584,5 +585,6 @@ window.__DATA__ = {"meta":{"title":"MeAI 영업가족 프롬프트 라이브러�
   render();
 })();
 </script>
+<script src="gloss.js"></script>
 </body>
 </html>

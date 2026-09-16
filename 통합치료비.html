@@ -1530,6 +1530,7 @@ function renderMain(anim){
   h+=`<section class="card notes"><div class="sh">${tile('🔔',32,'bg-o')}<h3 class="ttl-s">꼭 알아두세요</h3></div>${notes.map(([c,n])=>`<div class="nt">${tile(c,32)}<p>${n}</p></div>`).join('')}</section>`;
 
   $('#main').innerHTML=h;
+  try{ if(window.MeAIGloss){ $('#main').querySelectorAll('.dz-d, .card.notes, .why').forEach(function(el){ MeAIGloss.apply(el); }); } }catch(e){}
   const changed=!anim&&lastTotal!==total;
   countUp($('#totAmt'),anim?0:lastTotal,total); lastTotal=total;
   if(changed||anim){ const t=document.querySelector('.tot-h .tl'); if(t){ t.classList.add('pop'); } }
@@ -1678,5 +1679,6 @@ window.addEventListener('hashchange',()=>{const c=decodeURIComponent(location.ha
 window.__ITC={S,calcRider,getDz,cover,cancerCls,RIDERS,DZ};
 })();
 </script>
+<script src="gloss.js"></script>
 </body>
 </html>

@@ -674,6 +674,7 @@
     box.querySelectorAll('.ph').forEach(function(ph){
       ph.onclick = function(){
         var p = ph.parentNode, was = p.classList.contains('open');
+        if(!was) setTimeout(function(){ try{ var b=p.querySelector('.pb'); if(b&&window.MeAIGloss) MeAIGloss.apply(b); }catch(e){} }, 30);
         p.classList.toggle('open');
         if(!was){
           logEvent('view', {term: p.getAttribute('data-n')});
@@ -704,6 +705,7 @@
     });
     var v = document.getElementById('viewDuty');
     v.innerHTML = h;
+    try{ window.MeAIGloss && MeAIGloss.apply(v); }catch(e){}
     v.querySelectorAll('[data-go]').forEach(function(s){
       s.onclick = function(){
         tab('prod');
@@ -1291,5 +1293,6 @@ $('#ex-copyBtn').onclick=()=>{
   render();
 })();
 </script>
+<script src="gloss.js"></script>
 </body>
 </html>

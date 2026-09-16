@@ -11,6 +11,7 @@ import os, sys, zipfile, datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HOME = '영업지원도구_대문.html'
 TOOLS = ['tool.html', 'products.html', 'prompts.html', '명패생성기.html', '통합치료비.html']
+ASSETS = ['gloss.js']            # 도구들이 같이 쓰는 부품 (보험용어 사전)
 OUT = os.path.join(ROOT, 'dist', '영업지원도구6종.zip')
 
 README = f"""메리츠 세일즈혁신 영업지원도구 6종 (오프라인 배포판)
@@ -34,6 +35,7 @@ README = f"""메리츠 세일즈혁신 영업지원도구 6종 (오프라인 배
 - 약관 원문 링크(식약처·심평원)는 인터넷이 있어야 열립니다.
 - 즐겨찾기·최근 본 특약은 이 PC의 브라우저에만 저장됩니다.
 - 사용 통계 전송은 인터넷이 없으면 자동으로 건너뜁니다.
+- 약관 본문의 보험용어에 밑줄이 있습니다. 올리거나 누르면 쉬운 설명이 나옵니다.
 """
 
 def main():
@@ -47,6 +49,11 @@ def main():
             s = s.replace('href="index.html"', f'href="{HOME}"')
             print(f'{f}: 대문 링크 {n}곳 교체')
             z.writestr(f, s)
+        for f in ASSETS:
+            p = os.path.join(ROOT, f)
+            if os.path.exists(p):
+                z.write(p, f)
+                print(f'{f}: 공통 부품 포함')
         z.writestr('사용법.txt', README)
     print('->', os.path.relpath(OUT, ROOT), f'{os.path.getsize(OUT)/1024/1024:.1f} MB')
 
