@@ -500,6 +500,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </div>
 
 <script>
+/* ===== 사용 로그 (Supabase) — 익명·개인정보 없음, 오프라인이면 자동 생략 ===== */
+var LOG={ url:'https://iqmlianuyoaypidmfamq.supabase.co', key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxbWxpYW51eW9heXBpZG1mYW1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzIzMzMsImV4cCI6MjA5NzY0ODMzM30.e7za_xbYV32yFHEC2gleku7Xl-S3GU0CNBHb-csWhXE', tool:'nameplate' };
+function logEvent(event, fields){
+  try{
+    if(!navigator.onLine) return;
+    var body={ tool:LOG.tool, event:event };
+    if(fields){ for(var k in fields){ if(fields[k]) body[k]=fields[k]; } }
+    fetch(LOG.url+'/rest/v1/usage_logs',{ method:'POST', headers:{ apikey:LOG.key, Authorization:'Bearer '+LOG.key, 'Content-Type':'application/json', Prefer:'return=minimal' }, body:JSON.stringify(body), keepalive:true }).catch(function(){});
+  }catch(e){}
+}
+logEvent('open',{});
+
 "use strict";
 const $ = s => document.querySelector(s);
 let rows=[], headers=[], logoDataUrl=null, theme="light", visibleRef=[], isSample=true, sortBy="none", mode="plate";
@@ -527,7 +539,7 @@ $("#sample").addEventListener("click",()=>{
 });
 
 /* 엑셀 읽기 */
-$("#excel").addEventListener("change",e=>{
+$("#excel").addEventListener("change",e=>{ try{ logEvent("upload",{ term:"엑셀 업로드" }); }catch(_){}
   const file=e.target.files[0];if(!file)return;$("#fname").textContent=file.name;
   const reader=new FileReader();
   reader.onload=ev=>{try{
@@ -612,7 +624,7 @@ function render(){
 $("#plates").addEventListener("click",e=>{const btn=e.target.closest(".del");if(!btn)return;const idx=[...$("#plates").children].indexOf(btn.closest(".page"));if(idx>-1){const r=visibleRef[idx];const i=rows.indexOf(r);if(i>-1)rows.splice(i,1);render();}});
 
 /* 인쇄 */
-$("#print").addEventListener("click",()=>{if(visibleRef.length>300&&!confirm(`명패 ${visibleRef.length}개를 인쇄/PDF로 만듭니다.\n수가 많으면 시간이 걸릴 수 있어요. 계속할까요?`))return;window.print();});
+$("#print").addEventListener("click",()=>{ try{ logEvent("print",{ term: (visibleRef.length||0)+"개 명패", rider_name: (document.body.classList.contains("label-mode")?"폼텍 라벨":"삼각대 명패") }); }catch(_){}if(visibleRef.length>300&&!confirm(`명패 ${visibleRef.length}개를 인쇄/PDF로 만듭니다.\n수가 많으면 시간이 걸릴 수 있어요. 계속할까요?`))return;window.print();});
 
 /* ═══════════════════════════════════════════════
    폼텍 라벨 모드 엔진
