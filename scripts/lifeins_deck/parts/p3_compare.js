@@ -2,7 +2,7 @@ module.exports = async function(p, L){
   const {C, W, H, text, card, pill, icon, base, title, bullets, circle, numBadge, notes, stat, table, rect, arrowRight} = L;
   const {divider, band, source} = require('./common.js')(L);
 
-  await divider(p, '03', '정면 비교', '생명보험 vs 메리츠화재 — 같은 병, 다른 보험금', ['7A1020','F04452','FF8A80'], '⚖️');
+  await divider(p, '03', '정면 비교', '생명보험 vs 메리츠화재 — 같은 병, 다른 보험금 · 만기까지 사망보장 vs 생존보장', ['7A1020','F04452','FF8A80'], '⚖️');
 
   // 3-1 4분면 --------------------------------------------------------------
   {
