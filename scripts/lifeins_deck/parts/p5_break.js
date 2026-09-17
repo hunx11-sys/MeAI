@@ -25,7 +25,7 @@ module.exports = async function(p, L){
     card(s,p,6.85,4.55,5.9,2.2,{fill:C.blueL,shadow:false});
     text(s,7.15,4.7,5.3,0.4,'🔧 비유: 셀프 정비 스포츠카',{fontSize:13,bold:true,color:C.blueD});
     text(s,7.15,5.15,5.3,1.55,'종신보험은 옵션이 잔뜩 붙은 스포츠카입니다. 잘 타면 멋지지만 정비를 계속 해야 합니다. 그런데 정비사가 1년 만에 사라지고, 매뉴얼은 외계어입니다. 고객님은 지금 그 차를 「그냥 세워 두고 할부만」 내고 계신 겁니다.',{fontSize:11,color:C.g800});
-    notes(s,'2023년 교안 「파훼법 1. 설계사 관리 리스크」 계승 + 2026 통계.');
+    notes(s,'2026 통계(정착률·승환·고아계약)로 뒷받침합니다.');
   }
 
   // 5-2 종신사망 무용론
@@ -41,7 +41,7 @@ module.exports = async function(p, L){
     const fl=[['검사·진단','진단비','green'],['수술','수술비','teal'],['입원','입원일당','blue'],['간병','간병일당','purple'],['회복·재발','치료비·재진단','orange'],['사망','사망보험금','red']];
     fl.forEach((f,i)=>{ const y=2.85+i*0.62; circle(s,p,7.2,y+0.08,0.4,C[f[2]]); text(s,7.2,y+0.08,0.4,0.4,String(i+1),{fontSize:12,bold:true,color:C.white,align:'center',valign:'middle'}); text(s,7.8,y,2.2,0.55,f[0],{fontSize:12,bold:true,color:C.g900,valign:'middle'}); text(s,10.0,y,2.5,0.55,f[1],{fontSize:11,color:C[f[2]],valign:'middle',bold:true}); if(i<5) text(s,7.3,y+0.42,0.2,0.25,'↓',{fontSize:9,color:C.g400,align:'center'}); });
     text(s,7.15,6.55,5.3,0.2,'생보 종신보험은 6번에서만, 손보 통합건강은 1~5번에서 지급',{fontSize:9,color:C.g500});
-    notes(s,'2023년 교안 「파훼법 2. 종신사망 무용론」 계승. 통계: 2024 사망원인통계, 2023 국가암등록통계, 건보공단 생애의료비(2025.12).');
+    notes(s,'통계: 2024 사망원인통계, 2023 국가암등록통계, 건보공단 생애의료비(2025.12).');
   }
 
   // 5-3 밑 빠진 독
@@ -58,7 +58,7 @@ module.exports = async function(p, L){
     text(s,0.9,top,5.3,ch,'📊 2026: 생보 해약환급금 상반기 36.5조(+45%), 효력상실 +32%. "먹고살기 힘들 때 가장 취약한 보험 = 종신보험"이 숫자로 증명됐습니다.',{fontSize:10.5,bold:true,color:'B25E00',valign:'middle'});
     card(s,p,6.85,top,5.9,ch,{fill:C.g100,shadow:false});
     text(s,7.15,top,5.3,ch,'🚨 금감원 소비자경보(2025.12.18): "종신보험은 저축·연금상품이 아닙니다." 순수저축 목적으로는 부적합 — 감독당국의 공식 문장을 그대로 보여 주세요.',{fontSize:10.5,color:C.g800,valign:'middle'});
-    notes(s,'2023년 교안 「파훼법 3. 저축이 아닌 밑 빠진 독에 물붓기」 계승.');
+    notes(s,'상조 비유는 고객이 스스로 결론을 내게 하는 질문형으로.');
   }
 
   // 5-4 단서조항 & 최초1회한
@@ -70,7 +70,7 @@ module.exports = async function(p, L){
     card(s,p,0.6,5.0,12.13,1.75);
     text(s,0.9,5.15,11.5,0.4,'💬 스크립트',{fontSize:13,bold:true,color:C.g900});
     text(s,0.9,5.55,11.5,1.15,'"고객님, 증권 같이 볼까요? 여기 「중대한」이라는 글자가 보이시죠. 이 두 글자가 붙으면 병원에서 암이라고 해도 보험사는 「중대한 암」인지 다시 봅니다. 그리고 이 13개 중에 제일 먼저 걸리는 하나만, 딱 한 번 나옵니다. 저희는 이 두 글자가 없고, 각각 나옵니다. 어느 쪽이 받기 쉬울까요?"',{fontSize:11.5,color:C.g800});
-    notes(s,'2020년 「생보 vs 손보」 교안(10억 버스, 최초 1회한)과 EM교안(다트판) 계승.');
+    notes(s,'10억 버스, 다트판, 18개 중 1개 — 세 비유를 증권과 함께 보여 주세요.');
   }
 
   // 5-5 보험료 다이어트
@@ -89,7 +89,7 @@ module.exports = async function(p, L){
     let yy=2.85; af.forEach(a=>{ rect(s,p,7.15,yy,5.3,0.42,L.LIGHT[a[2]]); rect(s,p,7.15,yy,5.3*a[3]+0.3,0.42,C[a[2]]); text(s,7.25,yy,4.0,0.42,a[0],{fontSize:9.5,bold:true,color:C.g900,valign:'middle'}); text(s,11.3,yy,1.1,0.42,a[1],{fontSize:10,bold:true,color:C[a[2]+'D']||C[a[2]],valign:'middle',align:'right'}); yy+=0.5; });
     text(s,7.15,5.4,5.3,0.2,'※ 예시 배분. 실제 설계는 당사 전산 견적으로.',{fontSize:8.5,color:C.g500});
     band(s,p,5.85,'💬 "고객님 돈을 더 쓰시라는 게 아니에요. 같은 30만원을 「죽어야 나오는 돈」에서 「아플 때 나오는 돈」으로 옮기고, 남는 2~3만원은 진짜 적금에 넣으시라는 겁니다."','green',{h:0.9,fontSize:12});
-    notes(s,'2022년 TA워크샵 「종신보험으로 절약한 보험료를 암·뇌·심혈관 치료와 소득상실 대비」 계승. 보험료는 예시이며 강의 전 당사 견적으로 갱신.');
+    notes(s,'보험료는 예시이며 강의 전 당사 견적으로 갱신.');
   }
 
   // 5-6 상황별 대응 1: 해지 손해 / 단기납
