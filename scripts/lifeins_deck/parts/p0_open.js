@@ -56,15 +56,18 @@ module.exports = async function(p, L){
       ['04','고객의 마음','왜 종신보험을 가입했나','orange','🧠'],
       ['05','파훼법 5','거절을 녹이는 실전 화법','green','🗝️'],
       ['06','메리츠 솔루션','보장분석 → 제안 → 미션','teal','🧭'],
+      ['07','만기까지','사망보장 1회 vs 생존보장 매년 · 통합치료비','pink','♾️'],
     ];
     ch.forEach((c,i)=>{
-      const x = 0.6 + (i%3)*4.1, y = 2.15 + Math.floor(i/3)*2.35;
-      card(s,p,x,y,3.9,2.1);
-      text(s, x+0.3, y+0.25, 1.5, 0.5, c[0], {fontSize:28, bold:true, color:C[c[3]]});
-      text(s, x+2.9, y+0.2, 0.8, 0.6, c[4], {fontSize:26, align:'right'});
-      text(s, x+0.3, y+0.95, 3.3, 0.45, c[1], {fontSize:18, bold:true, color:C.g900});
-      text(s, x+0.3, y+1.4, 3.3, 0.5, c[2], {fontSize:12, color:C.g600});
+      const x = 0.6 + (i%4)*3.08, y = 2.15 + Math.floor(i/4)*2.3;
+      card(s,p,x,y,2.9,2.05);
+      text(s, x+0.25, y+0.22, 1.5, 0.5, c[0], {fontSize:26, bold:true, color:C[c[3]]});
+      text(s, x+2.05, y+0.18, 0.65, 0.6, c[4], {fontSize:24, align:'right'});
+      text(s, x+0.25, y+0.9, 2.45, 0.45, c[1], {fontSize:16, bold:true, color:C.g900});
+      text(s, x+0.25, y+1.35, 2.45, 0.6, c[2], {fontSize:10.5, color:C.g600});
     });
+    card(s,p,0.6+3*3.08,2.15+2.3,2.9,2.05,{fill:C.g900});
+    text(s, 0.85+3*3.08, 2.15+2.3+0.3, 2.45, 1.5, '🎯 목표\n생보 증권을 만나면\n「아싸」라고 말하기', {fontSize:13, bold:true, color:C.white, valign:'middle'});
   }
 
   // 4. 아이스브레이킹: 생보 증권을 만나면 ------------------------------

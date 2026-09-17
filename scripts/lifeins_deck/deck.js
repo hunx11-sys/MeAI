@@ -1,6 +1,6 @@
 const pptxgen = require('pptxgenjs');
 const L = require('./lib.js');
-const parts = (process.env.PARTS ? process.env.PARTS.split(',') : ['p0_open','p1_market','p2_anatomy','p3_compare','p4_mind','p5_break','p6_solution']);
+const parts = (process.env.PARTS ? process.env.PARTS.split(',') : ['p0_open','p1_market','p2_anatomy','p3_compare','p4_mind','p5_break','p6_solution','p7_lifetime','p8_close']);
 (async()=>{
   const p = new pptxgen(); p.layout = 'LAYOUT_WIDE'; p.title = '생명보험 파헤치기 2026'; p.author='세일즈혁신TF 이헌수';
   L.resetPage();
