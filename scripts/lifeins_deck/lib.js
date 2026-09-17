@@ -130,8 +130,8 @@ function chat(s, p, y, t, side='left', opt={}){
   const bx = left ? 0.6+av+0.15 : W-0.6-av-0.15-w;
   const ax = left ? 0.6 : W-0.6-av;
   const bg = left ? C.white : C.blue; const fg = left ? C.g900 : C.white;
-  circle(s,p,ax,y,av, left ? C.orange : C.g800);
-  text(s,ax,y,av,av, left ? '고객' : 'FP', {fontSize:8.5,bold:true,color:C.white,align:'center',valign:'middle'});
+  circle(s,p,ax,y,av, opt.avColor ? C[opt.avColor] : (left ? C.orange : C.g800));
+  text(s,ax,y,av,av, opt.who || (left ? '고객' : 'FP'), {fontSize: (opt.who && opt.who.length>2) ? 7 : 8.5,bold:true,color:C.white,align:'center',valign:'middle'});
   s.addShape(p.ShapeType.roundRect, {x:bx,y,w,h, fill:{color:bg}, rectRadius:0.16, line:{color:bg,width:0}, shadow: shadow(0.06,8,2)});
   text(s, bx+0.2, y+0.12, w-0.4, h-0.24, t, {fontSize:fs, color:fg, valign:'middle'});
   return h;
