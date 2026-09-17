@@ -223,22 +223,29 @@ module.exports = async function(p, L){
     notes(s,'2022년 TA워크샵 「통합보험 비교(생보 & 손보)」 슬라이드 계승. "예시로 18가지 담보 중 하나를 보상받으면 나머지 17개 소멸".');
   }
 
-  // 2-14 GI --------------------------------------------------------------
+  // 2-14 GI vs 메리츠 시나리오 --------------------------------------------
   {
     const s = base(p, {chapter:'02 상품 해부학', chapterColor:'purple'});
-    title(s, 'GI보험 — 늑대 피하려다 호랑이 만난 격', 'CI 불만을 받아 「진단코드」 기준으로 바꿨지만, 보장 범위의 뼈대는 그대로');
-    card(s,p,0.6,2.15,5.9,2.3); text(s,0.9,2.3,5.3,0.4,'GI(General Illness)가 개선한 것',{fontSize:14,bold:true,color:C.greenD});
-    bullets(s,0.9,2.75,5.3,1.6,['약관 정의 대신 질병분류코드로 지급 → 「C코드=암」이면 병세 무관 지급','뇌출혈도 진단만으로 지급 (25% 장해 요건 없음)','CI보다 지급 문턱이 낮아 민원 감소'],{fontSize:11.5,gap:4});
-    card(s,p,6.85,2.15,5.9,2.3); text(s,7.15,2.3,5.3,0.4,'그래도 남아 있는 것',{fontSize:14,bold:true,color:C.redD});
-    bullets(s,7.15,2.75,5.3,1.6,['뇌혈관질환 중 가장 좁은 「뇌출혈」만, 심장질환 중 가장 좁은 「급성심근경색」만','뇌경색·협심증 진단 시 주계약 선지급 없음','여전히 최초 1회한 + 선지급 후 사망보험금 감소 + 종신 대비 비싼 보험료'],{fontSize:11.5,gap:4});
-    // range bars
-    card(s,p,0.6,4.7,12.13,2.1,{fill:C.white});
-    text(s,0.9,4.85,11.5,0.35,'보장 범위 비교 (뇌 · 심장)',{fontSize:13,bold:true,color:C.g900});
-    const bars=[['뇌출혈 (I60~I62)','뇌졸중 (+뇌경색 I63)','뇌혈관질환 (I60~I69 전체)'],['급성심근경색 (I21~I23)','허혈성심장질환 (I20~I25: 협심증 포함)','']];
-    [0,1].forEach(r=>{ const y=5.3+r*0.7; const labels=bars[r]; const widths=r===0?[2.2,4.4,11.3]:[2.6,11.3,0]; const cols=r===0?['red','orange','green']:['red','green','']; for(let i=labels.length-1;i>=0;i--){ if(!labels[i]) continue; rect(s,p,0.9,y,widths[i],0.5,L.LIGHT[cols[i]]); } for(let i=0;i<labels.length;i++){ if(!labels[i]) continue; const x = i===0?0.9:(widths[i-1]+0.9+0.1); text(s,x+0.1,y,3.5,0.5,labels[i],{fontSize:10,bold:true,color:C[cols[i]+'D']||C[cols[i]],valign:'middle'}); } });
-    text(s,9.2,5.3,3.6,0.5,'← 생보 GI/CI 주계약',{fontSize:9.5,color:C.redD,valign:'middle',align:'right'});
-    text(s,9.2,6.0,3.6,0.5,'← 메리츠 진단비 특약 범위',{fontSize:9.5,color:C.greenD,valign:'middle',align:'right'});
-    notes(s,'2020년 EM교안 「늑대 피하려다 호랑이 만난 격」 계승. 2022년 TA워크샵 GI 설명(뇌경색·대뇌동맥류·협심증 부지급) 반영.');
+    title(s, 'GI보험 vs 메리츠 — 같은 사람이 같은 병에 걸리면 얼마를 받나', '45세 남 · GI 종신 주계약 1억(선지급 80%) vs 메리츠 통합건강(암·뇌혈관·허혈성 각 3천 + 수술비) — 예시 시나리오');
+    // scenario table
+    const rows=[
+      ['시점 · 사건','GI 종신보험 (주계약 1억)','메리츠 통합건강보험 (예시 설계)'],
+      ['47세  협심증 → 스텐트 시술',{text:'0원\n(급성심근경색이 아니므로 GI 해당 없음)',options:{color:C.redD,bold:true}},{text:'허혈성심장질환 진단비 3,000만 + 수술비\n이후 다른 담보 그대로 유지',options:{color:C.greenD,bold:true}}],
+      ['50세  뇌경색',{text:'0원\n(뇌출혈만 해당, 뇌경색은 제외)',options:{color:C.redD,bold:true}},{text:'뇌혈관질환 진단비 3,000만 + 수술비·입원일당\n뇌졸중 진단 → 이후 보험료 납입면제',options:{color:C.greenD,bold:true}}],
+      ['55세  위암',{text:'8,000만 선지급 (최초 1회한)\n사망보험금 1억 → 2,000만으로 감소, 이후 GI 추가 지급 없음',options:{color:C.g800,bold:true}},{text:'암 진단비 3,000만 + 암 수술비 + 입원\n다른 담보(뇌·심장·수술)도 계속 살아 있음',options:{color:C.greenD,bold:true}}],
+      ['세 번 아픈 동안 받은 돈',{text:'8,000만 (한 번, 그것도 사망보험금 당겨 쓴 것)',options:{color:C.redD,bold:true,fill:{color:C.redL}}},{text:'9,000만 + 수술·입원 + 납입면제',options:{color:C.greenD,bold:true,fill:{color:C.greenL}}}],
+      ['월 보험료 (45세 기준 예시)',{text:'30만원대 (종신보다 약 40% 비쌈)',options:{color:C.g800}},{text:'10만원대 (사망담보 제외 시)',options:{color:C.g800}}],
+    ];
+    table(s,rows,0.6,2.15,8.3,{fontSize:10,colW:[2.1,3.1,3.1],rowH:0.56});
+    // right column
+    card(s,p,9.2,2.15,3.53,2.5,{fill:C.g900});
+    text(s,9.45,2.3,3.1,0.4,'💬 화법',{fontSize:13,bold:true,color:'FFD56A'});
+    text(s,9.45,2.7,3.1,1.9,'"고객님, 협심증으로 스텐트 넣으면 이 보험은 0원이에요. 뇌경색도 0원. 암에 걸리면 8천만원 나오지만, 그건 고객님 사망보험금을 미리 당겨 쓰는 거라 유족은 2천만원만 받습니다."',{fontSize:10.5,color:C.g200});
+    card(s,p,9.2,4.8,3.53,1.05,{fill:C.purpleL,shadow:false});
+    text(s,9.45,4.85,3.1,0.95,'GI가 CI보다 나아진 점: 「중대한」 대신 진단코드로 지급, 뇌출혈은 진단만으로 OK.\n그래도 남은 것: 뇌출혈·급성심근경색만, 최초 1회한, 선지급 후 사망보험금 감소.',{fontSize:9,color:C.purple});
+    band(s,p,6.0,'🔑 GI는 「나열된 병 중 첫 번째 하나」에만, 「내 사망보험금을 미리 당겨」 줍니다. 메리츠는 「걸릴 때마다, 각각, 사망보험금과 별개로」 줍니다. 세 번 아픈 사람에게 어느 쪽이 보험일까요?','purple',{h:0.75,fontSize:11.5});
+    text(s,0.6,H-0.72,12,0.28,'※ 진단비·보험료는 이해를 돕기 위한 예시이며 실제 지급액·보험료는 가입 설계와 약관에 따릅니다. 강의 전 당사 견적으로 갱신하세요.',{fontSize:8.5,color:C.g500});
+    notes(s,'2020년 EM교안 「늑대 피하려다 호랑이 만난 격」과 2022년 TA워크샵 GI 설명(뇌경색·협심증 부지급, 최초 1회한, 종신 대비 비싼 보험료)을 한 사람의 시나리오로 재구성. 진단비 3,000만·선지급 80%는 예시 설계.');
   }
 
   // 2-15 재해 vs 상해 ----------------------------------------------------
