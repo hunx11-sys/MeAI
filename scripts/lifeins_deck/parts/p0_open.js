@@ -20,7 +20,7 @@ module.exports = async function(p, L){
       text(s, x+0.25, 5.15, 1.9, 0.5, c[0], {fontSize:22, color:C.white});
       text(s, x+0.25, 5.7, 2.0, 0.4, c[1], {fontSize:13, bold:true, color:C.white});
     });
-    text(s, 0.8, H-0.75, 8, 0.3, '개인영업교육 · 사내 교육용 · 2026.09', {fontSize:11, color:'B8C7F0'});
+    text(s, 0.8, H-0.75, 8, 0.3, '세일즈혁신TF 이헌수 · 2026.09', {fontSize:11, color:'B8C7F0'});
     notes(s, '표지. 이 교안은 2022년 TA워크샵 「생명보험 파헤치기」, 2020년 EM교육 「생명보험 증권 만나면」, 2023년 「생보 파훼법」 교안을 2026년 최신 통계·규제·시장 트렌드로 전면 개편한 것입니다.');
   }
 

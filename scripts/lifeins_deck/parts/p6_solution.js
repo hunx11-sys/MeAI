@@ -64,7 +64,7 @@ module.exports = async function(p, L){
     text(s, 0.9, 3.3, 11.5, 1.2, '생보 증권은 「위기」가 아니라 「가장 좋은 대화 소재」입니다.\n고객이 산 것은 상품이 아니라 「평생 도와줄 전문가」였습니다. 그 자리를 우리가 채웁니다.', {fontSize:17, color:'DCE6FF'});
     const q=['안 된다 하지 말고!','아니라 하지 말고!','긍정적으로, 힘찬 하루 시작!'];
     q.forEach((t,i)=>{ card(s,p,0.9+i*3.9,5.0,3.7,0.9,{fill:'FFFFFF',transparency:85,shadow:false}); text(s,0.9+i*3.9,5.0,3.7,0.9,t,{fontSize:15,bold:true,color:C.white,align:'center',valign:'middle'}); });
-    text(s, 0.9, H-0.8, 11, 0.4, '메리츠화재 개인영업교육 · 생명보험 파헤치기 2026 · 사내 교육용', {fontSize:11, color:'B8C7F0'});
+    text(s, 0.9, H-0.8, 11, 0.4, '메리츠화재 세일즈혁신TF 이헌수 · 생명보험 파헤치기 2026', {fontSize:11, color:'B8C7F0'});
     notes(s,'2022년 TA워크샵 마무리 「안된다 하지말고! 아니라 하지말고! 긍정적으로! 힘찬 하루 시작!」과 2023년 교안 「우리가 먼저 다가가야 합니다」를 결합한 클로징.');
   }
 
