@@ -106,7 +106,7 @@ function base(p, opt={}){
   if(!opt.noChrome){
     const fg = opt.dark ? C.g500 : C.g500;
     if(opt.chapter){ pill(s,p,0.6,0.42,opt.chapter, opt.chapterColor||'blue', {fontSize:10.5}); }
-    text(s, 0.6, H-0.42, 8, 0.3, '세일즈혁신TF 이헌수 · 본 자료는 교육용으로 고객 교부·배포 및 온라인 게시가 불가하며, 계약의 세부사항은 약관을 따릅니다.', {fontSize:8.5, color:fg});
+    text(s, 0.6, H-0.42, 8, 0.3, '세일즈혁신TF · 본 자료는 교육용으로 고객 교부·배포 및 온라인 게시가 불가하며, 계약의 세부사항은 약관을 따릅니다.', {fontSize:8.5, color:fg});
     text(s, W-1.6, H-0.42, 1.0, 0.3, String(pageNo), {fontSize:10, color:fg, align:'right', bold:true});
   }
   s._page = pageNo;

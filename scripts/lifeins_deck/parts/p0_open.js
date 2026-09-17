@@ -20,7 +20,7 @@ module.exports = async function(p, L){
       text(s, x+0.25, 5.15, 1.9, 0.5, c[0], {fontSize:22, color:C.white});
       text(s, x+0.25, 5.7, 2.0, 0.4, c[1], {fontSize:13, bold:true, color:C.white});
     });
-    text(s, 0.8, H-0.75, 8, 0.3, '세일즈혁신TF 이헌수 · 2026.09', {fontSize:11, color:'B8C7F0'});
+    text(s, 0.8, H-0.75, 8, 0.3, '세일즈혁신TF · 2026.09', {fontSize:11, color:'B8C7F0'});
     notes(s,'표지. 2026년 최신 통계·규제·시장 트렌드로 구성한 생명보험 컨설팅 교안입니다.');
   }
 
