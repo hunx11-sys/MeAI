@@ -1,6 +1,6 @@
 {
   "_note": "지면 7쪽(다빈도)·8쪽(사례)의 병 선정·치료 단계 근거. 설명은 scenario_sources.md. 수치는 발표 원문에서 옮겼고, assumed=true 는 가정값(준법 심의 전 재확인).",
-  "version": "1.2",
+  "version": "1.3",
   "date": "2026-09-18",
   "footnote": "근거 : 국가암등록통계(2023) · 사망원인통계(2024) · 주요수술 통계연보(2023) · 학회 진료지침 — 상세 근거표 별첨",
   "sources": {
@@ -59,6 +59,18 @@
     "policy_recur": {
       "name": "재진단암보장개시일 정의 — 첫번째암 진단확정일부터 2년(1·5년형 있음) 경과",
       "org": "메리츠 또 걸려도 또 받는 암보험(세만기형)2607 약관 2-9·2-40"
+    },
+    "ncc_stomach": {
+      "name": "위암 — 치료",
+      "org": "국가암정보센터(국립암센터)"
+    },
+    "ncc_breast": {
+      "name": "유방암 — 치료",
+      "org": "국가암정보센터(국립암센터)"
+    },
+    "kss_ich": {
+      "name": "뇌내출혈 진료지침",
+      "org": "대한뇌졸중학회"
     }
   },
   "flow": {
@@ -264,5 +276,135 @@
       "value": "6일",
       "check": "kdca_discharge"
     }
-  ]
+  ],
+  "flow_extra": {
+    "위암": {
+      "kcd": "C16",
+      "why": [
+        "cancer_reg_2023: 전체 발생 5위"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "위내시경 · 조직검사 · 복부 CT",
+          "basis": "ncc_stomach"
+        },
+        {
+          "stage": "수술",
+          "text": "복강경 위아전절제술",
+          "basis": "ncc_stomach",
+          "surg7": "G081",
+          "grade7": 6,
+          "surg5": "33"
+        },
+        {
+          "stage": "항암",
+          "text": "수술 후 보조 항암약물치료(급여)",
+          "basis": "ncc_stomach"
+        },
+        {
+          "stage": "입원",
+          "text": "종합병원 2-3인실 8일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ]
+    },
+    "유방암": {
+      "kcd": "C50",
+      "why": [
+        "cancer_reg_2023: 전체 4위 · 여성 1위"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "유방촬영 · 초음파 · 조직검사",
+          "basis": "ncc_breast"
+        },
+        {
+          "stage": "수술",
+          "text": "유방절제술",
+          "basis": "ncc_breast",
+          "surg7": "J062",
+          "grade7": 6,
+          "surg5": "3"
+        },
+        {
+          "stage": "방사선",
+          "text": "방사선치료 → 항호르몬약물",
+          "basis": "ncc_breast"
+        },
+        {
+          "stage": "입원",
+          "text": "상급종합 2-3인실 5일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ]
+    },
+    "뇌출혈": {
+      "kcd": "I61",
+      "why": [
+        "death_2024: 사망원인 4위 뇌혈관질환"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "응급 뇌 CT · 혈관조영",
+          "basis": "kss_ich"
+        },
+        {
+          "stage": "수술",
+          "text": "혈종제거 개두술",
+          "basis": "kss_ich",
+          "surg7": "B031",
+          "grade7": 7,
+          "surg5": "59"
+        },
+        {
+          "stage": "입원",
+          "text": "중환자실 5일 + 일반병실 20일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        },
+        {
+          "stage": "재활",
+          "text": "재활치료 20일",
+          "assumed": true
+        }
+      ]
+    },
+    "협심증": {
+      "kcd": "I20",
+      "why": [
+        "death_2024: 사망원인 2위 심장질환"
+      ],
+      "steps": [
+        {
+          "stage": "진단",
+          "text": "심전도 · 관상동맥 CT · 조영술",
+          "basis": "ksc_ami_2021"
+        },
+        {
+          "stage": "시술",
+          "text": "관상동맥 스텐트 삽입술(PCI)",
+          "basis": "ksc_ami_2021",
+          "surg7": "F133",
+          "grade7": 4,
+          "surg5": "88-1"
+        },
+        {
+          "stage": "입원",
+          "text": "종합병원 2-3인실 3일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        },
+        {
+          "stage": "재활",
+          "text": "외래 심장재활 10회",
+          "basis": "hira_cardiac_rehab"
+        }
+      ]
+    }
+  }
 }

@@ -400,7 +400,38 @@ FLOW = [
              ('시술', 'drop2', '혈전용해제 주사(tPA)', [['시술', '혈전용해치료', '', ['thromb']]], dict()),
              ('수술', 'knife', '동맥내 기계적 혈전제거술', [['시술', '혈전제거술', '', ['surg']]], dict(surg='88-1', surg7='B027', grp=['뇌혈관질환', '뇌졸중', '특정31대질병'], hosp='종합', acts=['thrombectomy'], done=['thromb'])),
              ('입원', 'ambulance', '중환자실 3일 + 일반병실 14일', [['중환자', '중환자실', '', ['icu']], ['재활', '재활 10일', '', ['rehab'], {'n': 10}]], dict(hosp='종합', room='2-3인실', days=14, icu=3))]),
+ # ── 보강 사례(v8.13) : 암·뇌·심장 중 일부 계열만 가입한 설계에서 빈 자리를 같은 계열의 다른 병으로 채운다 ──
+ dict(k='ca', ic='stomach', t='위암', sub='진단 → 복강경 위아전절제 → 보조 항암 → 입원', kcd='C16', extra=True,
+      steps=[('검사', 'microscope', '위내시경 · 조직검사 · 복부 CT', [['검사', '위내시경 · 조직검사 · CT', '', ['x_endo', 'x_bio', 'x_ct']]], dict(dx='cancer')),
+             ('수술', 'surgical_sterilization', '복강경 위아전절제술', [['수술', '복강경 위아전절제술', '', ['surg']]], dict(surg='33', surg7='G081', hosp='종합')),
+             ('항암', 'drop2', '수술 후 보조 항암약물치료(급여)', [['항암', '항암약물치료(급여)', '', ['chemo'], {'nc': 0}]], dict(chemo=1, done=['surg'])),
+             ('입원', 'hospital', '종합병원 2-3인실 8일 입원', [], dict(hosp='종합', room='2-3인실', days=8))]),
+ dict(k='ca', ic='breasts', t='유방암', sub='진단 → 유방절제술 → 방사선 → 항호르몬 치료', kcd='C50', extra=True,
+      steps=[('검사', 'microscope', '유방촬영 · 초음파 · 조직검사', [['검사', '유방촬영 · 초음파 · 조직검사', '', ['x_us', 'x_bio']]], dict(dx='cancer')),
+             ('수술', 'surgical_sterilization', '유방절제술', [['수술', '유방절제술', '', ['surg']]], dict(surg='3', surg7='J062', hosp='상급종합')),
+             ('방사선', 'immune', '수술 후 방사선치료 → 항호르몬약물', [['방사선', '방사선치료 · 호르몬', '', ['rad', 'hormone']]], dict(rad=1, hormone=1, done=['surg'])),
+             ('입원', 'hospital', '상급종합 2-3인실 5일 입원', [], dict(hosp='상급종합', room='2-3인실', days=5))]),
+ dict(k='cv', ic='neurology', t='뇌출혈', sub='진단 → 혈종제거 개두술 → 중환자실 → 재활', kcd='I61', extra=True,
+      steps=[('검사', 'xray', '응급 뇌 CT · 혈관조영', [['진단', '뇌 CT · 혈관조영', '', ['x_ct']]], dict(dx='brain', grp=['뇌혈관질환', '뇌졸중', '뇌출혈'])),
+             ('수술', 'knife', '혈종제거 개두술', [['수술', '혈종제거 개두술', '', ['surg']]], dict(surg='59', surg7='B031', grp=['뇌혈관질환', '뇌졸중', '뇌출혈', '특정31대질병'], hosp='상급종합')),
+             ('입원', 'ambulance', '중환자실 5일 + 일반병실 20일', [['중환자', '중환자실', '', ['icu']]], dict(hosp='상급종합', room='2-3인실', days=20, icu=5)),
+             ('재활', 'physical_therapy', '재활치료 20일', [['재활', '재활 20일', '', ['rehab'], {'n': 20}]], dict())]),
+ dict(k='yr', ic='heart_cardiogram', t='협심증', sub='진단 → 관상동맥 스텐트 → 입원 → 심장재활', kcd='I20', extra=True,
+      steps=[('진단', 'xray', '심전도 · 관상동맥 CT · 조영술', [['검사', '관상동맥 CT', '', ['x_ct']]], dict(dx='heart', grp=['심장질환', '허혈성심장질환'])),
+             ('시술', 'knife', '관상동맥 스텐트 삽입술(PCI)', [['시술', '스텐트 삽입', '', ['surg']]], dict(surg='88-1', surg7='F133', grp=['심장질환', '허혈성심장질환', '특정31대질병'], hosp='종합')),
+             ('입원', 'hospital', '종합병원 2-3인실 3일 입원', [], dict(hosp='종합', room='2-3인실', days=3)),
+             ('재활', 'physical_therapy', '외래 심장재활 10회', [['재활', '심장재활 10회', '', ['rehab'], {'n': 10}]], dict())]),
 ]
+def pick_cases():
+    """사례 카드 3장 : 가입한 계열의 대표 사례(폐암·뇌경색·심근경색)를 먼저, 빈 자리는 가입한 계열의 보강 사례로 채운다(v8.13).
+       세 계열을 모두 가입했으면 종전처럼 대표 사례 3장만."""
+    have = {'ca': F['cancer'], 'cv': F['brain'], 'yr': F['heart']}; order = ['ca', 'cv', 'yr']
+    out = sorted([f for f in FLOW if not f.get('extra') and have[f['k']]], key=lambda f: order.index(f['k']))
+    for k in order:
+        for f in FLOW:
+            if len(out) >= 3: break
+            if f.get('extra') and f['k'] == k and have[k]: out.append(f)
+    return out
 def flow_card(f):
     d = K[f['k']][1]; tl = K[f['k']][3]; acc = 0; cards = ''
     steps = f['steps'] + ([f['recur']] if f.get('recur') and F['recur'] else [])   # 재진단암 담보가 있는 설계만 5단계(v8.12)
@@ -568,6 +599,33 @@ ITC_GROUPS = [('ca', 'cancerous_cell_nuclei', '암 통합치료비', ('ca_basic'
               ('yr', 'heart_organ', '주요손상및질환 통합치료비', ('ms',)),
               ('pr', 'microscope', '암 전후 · 양성신생물 통합치료비', ('pre',))]
 ITC_SLIM = ('ms', 'pre')                       # 종수술비는 1종·5종만 예시
+def itc_filler(its, no):
+    """통합치료비 담보가 1~2개인 설계 : ① 대표 사례의 치료 단계마다 이 담보에서 얼마가 나오는지(연간 한도 적용) ② 진단비와 무엇이 다른지"""
+    out = ''
+    rows = ''; skipped = []
+    for r in its:
+        flows = [f for f in FLOW if not f.get('extra') and (f['k'] == 'ca' if (r['itc'] or '').startswith(('ca', 'pre')) else f['k'] in ('cv', 'yr'))]
+        for f in flows:
+            cells = ''; tot = 0
+            for stg, ic, nm2, itc, tg in f['steps']:
+                tags = dict(cause='질병', grp=[], hosp='상급종합', room=None, days=0); tags.update(tg)
+                v = sum(x['amt'] for x in Q(f['kcd'], tags, itc) if x['name'] == r['name']); tot += v
+                cells += f'<td><span class="itcst">{stg}</span>{big(v, K[f["k"]][1]) if v else "<span class=z>—</span>"}</td>'
+            if not tot: skipped.append(S.itc.RM[r['itc']]['nm']); continue           # 대표 사례에 해당 항목이 없는 담보(주요손상 등)는 0원 행 대신 안내로
+            cap = min(tot, r['man'])
+            rows += f'<tr><th class="rl">{S.itc.RM[r["itc"]]["nm"][:18]}<br><span>{f["t"]} 사례 · 한도 {man(r["man"])}만원</span></th>{cells}<td class="itcsum">{big(cap, "#C92A2A")}<em>{"한도 적용" if tot > r["man"] else "연간 합계"}</em></td></tr>'
+    if rows:
+        no += 1
+        note = f'<div class="mnote">※ {" · ".join(dict.fromkeys(skipped))}는 대표 사례(폐암·뇌경색·심근경색)에 해당 치료 항목이 없어 표에서 제외 — 위 항목표를 참고하세요.</div>' if skipped else ''
+        out += tabhd(no, 'pr', '치료 단계마다 통합치료비에서 얼마가 나오나', '대표 사례의 단계별 지급액 · 항목별 연간 1회 · 연간 한도까지') + f'<table class="mx itcflow"><tbody>{rows}</tbody></table>{note}'
+    no += 1
+    out += tabhd(no, 'ms', '진단비와 무엇이 다른가', '통합치료비를 처음 보는 고객에게 설명하는 순서') + '''<div class="why4">
+      <div><b>① 진단 1회가 아니라 치료마다</b>진단비는 진단확정 시 한 번. 통합치료비는 검사·수술·항암·재활 등 <b>실제 받은 치료 항목마다</b> 약관 금액을 지급.</div>
+      <div><b>② 연간 한도는 해마다 새로</b>한 해에 받은 금액의 합계가 가입금액(연간 한도)까지. 다음 해가 되면 <b>한도가 다시 채워짐</b> — 치료가 길어질수록 유리.</div>
+      <div><b>③ 항목별 지급 빈도</b>검사·주요치료는 항목별 연간 1회, 수술은 수술할 때마다, 재활·입원 항목은 1일 1회. 같은 항목을 한 해에 여러 번 받아도 1회분.</div>
+      <div><b>④ 첫 1년은 절반</b>계약 후 1년 이내(암은 보장개시일 90일 후)에는 항목 금액과 연간 한도가 <b>50%</b>로 적용되는 담보가 있음 — 지면 금액은 1년 경과 후 기준.</div></div>'''
+    return out
+
 def page_itc():
     its = [r for r in RID if r.get('itc')]
     if not its:
@@ -603,8 +661,9 @@ def page_itc():
         no += 1
         sections += f'''<div class="itcsec">{tabhd(no, k, title, f'가입 {len(rs)}개 · 연간 한도 합계 {man(cap)}만원 · 항목별 약관 금액(1년 경과 후)')}
           <div class="itcgrid">{cards}</div>{f'<div class="itcchips">{chips}</div>' if chips else ''}</div>'''
+    extra = itc_filler(its, no) if len(its) <= 2 else ''       # 통합치료비가 1~2개뿐이면 남는 지면을 치료 흐름·설명으로 채운다(v8.13)
     return f'''<div class="itctop"><div class="itcrs">{top}</div><div class="itctot"><span>통합치료비 연간 한도 합계</span>{big(total,'#C92A2A')}<em>해마다 새로 적용 · 담보별 한도는 각각</em></div></div>
- {sections}
+ {sections}{extra}
  <div class="tip">{e('bulb','#D9480F')}<span>통합치료비는 <b>진단금과 별개</b>로 실제 받은 치료 항목마다 지급돼요. 검사·주요치료는 <b>항목별 연간 1회</b>, 수술은 <b>수술할 때마다</b>, 재활은 <b>1일 1회</b>이고, 한 해 합계는 가입금액까지 · <b>해마다 새로</b> 적용돼요. 계약 후 1년 이내에는 항목 금액과 연간 한도가 50%로 적용되는 담보가 있어요.</span></div>'''
 
 # ── 수술비 세부보장 ────────────────────────────────
@@ -774,7 +833,7 @@ _BUILD = [
  <div class="tip">{e('bulb','#D9480F')}<span>수술 종(1~5종)은 약관 [1-5종 수술분류표Ⅱ] 기준이며, 비급여 치료비는 병원·술식에 따라 달라지는 실제 치료비 범위(참고용)예요. 표시 금액은 해당 수술 1회 기준 지급 예시예요.</span></div>
  <div class="mnote">※ 질환 선정 근거 : 주요수술 통계연보(국민건강보험공단, 2023) 다빈도 수술 · 국가암등록통계(2023) · 수술 종은 약관 별표 수술코드로 판정 — 상세 근거표(scenario_sources) 별첨</div>''',
  lambda: f'''<div class="lg">{e('money_bag','#5F3DC4')}<b>사례로 보는 치료비 보장</b><span class="sub">치료 단계별로 어느 담보에서 얼마가 나오는지</span></div>
- {flow_card(FLOW[0]) if F['cancer'] else ''}{flow_card(FLOW[2]) if F['brain'] else ''}{flow_card(FLOW[1]) if F['heart'] else ''}
+ {''.join(flow_card(f) for f in pick_cases())}
  <div class="mnote">※ 조건부 담보는 보수적으로 계산 — 표적항암약물허가치료비는 연간 약물종류 2종 이상(폐암 사례 : 표적항암제 → 키트루다), 특정혈전치료비는 두 치료를 모두 받은 단계에서만.</div>
  <div class="mnote">※ 사례 근거 : 사망원인통계(국가데이터처, 2024) · 국가암등록통계(2023) · 치료 단계는 국가암정보센터·대한심장학회·대한뇌졸중학회 진료지침 · 입원일수는 예시 — 상세 근거표(scenario_sources) 별첨</div>''',
 ]

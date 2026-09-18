@@ -324,3 +324,13 @@ table.dzb{width:100%;border-collapse:separate;border-spacing:1.2pt 2pt;table-lay
 .prow.p7 .pc b{white-space:nowrap;font-size:6.2pt}
 .prow.p7 .pc .n2{font-size:10pt;white-space:nowrap}
 .prow.p7 .pc .n2 small{font-size:.5em}
+
+/* v8.13 통합치료비 1~2개 설계 보강 블록 */
+.why4{display:grid;grid-template-columns:repeat(4,1fr);gap:5pt;margin-top:4pt}
+.why4 div{background:#F8F9FA;border-radius:8pt;padding:6pt 8pt;font-size:6.3pt;line-height:1.45;color:#495057}
+.why4 div b{display:block;font-family:JU;font-weight:400;font-size:7.4pt;color:#212529;margin-bottom:2pt}
+.why4 div b:first-child{margin-bottom:2.5pt}
+.itcflow th.rl span{display:block;font-size:5.6pt;color:#868E96;font-weight:400}
+.itcflow td .itcst{display:block;font-size:5.6pt;color:#868E96;margin-bottom:1pt}
+.itcflow td.itcsum{background:#FFF5F5}
+.itcflow td.itcsum em{display:block;font-size:5.4pt;color:#868E96;font-style:normal}
