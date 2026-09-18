@@ -114,7 +114,9 @@ HOSP = [('상급종합병원', '상급종합'), ('요양병원', '요양'), ('�
 def tokens(nm):
     t = {}
     t['cause'] = '상해' if ('상해' in nm or '재해' in nm) else ('질병' if '질병' in nm else None)
-    t['hosp'] = next((v for k, v in HOSP if k in nm), None)
+    t['ex_hosp'] = '요양' if '요양병원제외' in nm else None            # '(요양병원제외)' 는 요양병원 입원을 빼는 조건이지 요양병원 요구가 아니다(v8.12)
+    _nm = nm.replace('요양병원제외', '')
+    t['hosp'] = next((v for k, v in HOSP if k in _nm), None)
     t['room'] = '1인실' if ('1인실' in nm and '2-3인실' not in nm) else ('2-3인실' if '2-3인실' in nm else None)
     m = re.search(r'(\d+)일한도', nm);        t['limit'] = int(m.group(1)) if m else None
     m = re.search(r'\((\d+)일이상', nm);      t['minday'] = int(m.group(1)) if m else None
@@ -212,7 +214,8 @@ def kcd_ok(mode, r, sc, nm):
         return grp_hit(nm, sc, r)
     if mode == 'group':
         # 담보명에 들어 있는 그룹명 중 가장 긴 것 — '10대특정암(전이포함)'이 '10대특정암'보다 우선(v8.8)
-        key = max((g for g in KCDG if not g.startswith('_') and g in nm), key=len, default=None)
+        _n = nm.replace(' ', '')
+        key = max((g for g in KCDG if not g.startswith('_') and g.replace(' ', '') in _n), key=len, default=None)   # 그룹명 띄어쓰기 무시(v8.12)
         lst = KCDG.get(key) if key else None
         if not lst:
             log('KCD없음', r['name'], f'{key or "세부급부"} 분류표가 규칙표에 없어 지급 판정 제외 (약관 별표 보강 필요)'); return False
@@ -241,6 +244,7 @@ def h_dx(r, o, sc, nm, t):
     if not dx and o.get('cause') != '상해': return []
     if o.get('fam') and DXFAM.get(dx) not in o['fam']: return []
     if o.get('cause') and tg.get('cause') != o['cause']: return []
+    if bool(tg.get('recur')) != (o.get('stage') == 'recur'): return []     # 재진단 단계에서는 재진단암 진단비만, 첫 진단 단계에서는 그 밖의 진단비만(v8.12)
     if not kcd_ok(o.get('kcd'), r, sc, nm): return []
     return [(r['man'], o.get('why', '진단확정'), o.get('group', '진단비'), o.get('freq', 'once'))]
 
@@ -278,10 +282,16 @@ def h_surg(r, o, sc, nm, t):
 def h_day(r, o, sc, nm, t):
     tg = sc['tags']; mode = o.get('mode', 'day')
     if t['cause'] and tg.get('cause') != t['cause']: return []
+    if t.get('ex_hosp') and tg.get('hosp') == t['ex_hosp']: return []
     if not hosp_ok(t['hosp'], tg.get('hosp')): return []
     if t['room'] and tg.get('room') != t['room']: return []
     if o.get('need_surg') and not tg.get('surg'): return []
     if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    if mode == 'daycare':                                # 낮병동 입원(급여) 1일당 — 사례 태그 daycare 일수(v8.12)
+        n = tg.get('daycare', 0)
+        if not n: return []
+        n = min(n, t['limit'] or n)
+        return [(r['man'] * n, '낮병동 입원 %d일 × %d만원' % (n, r['man']), o.get('group', '입원일당'), 'each')]
     if mode == 'visit':
         n = tg.get('visits', 0)
         if not n: return []

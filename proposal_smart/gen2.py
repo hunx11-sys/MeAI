@@ -41,7 +41,7 @@ def pno(o): return o if o <= IA else o + NEW
 # ══ 보장 계열 판정 (v8.4) — 설계에 없는 계열의 지면·블록은 자동으로 빠진다 ══
 ATTACH_KEYS = ('cancer', 'brain', 'heart', 'itc')      # 이 중 하나도 없으면 스마트제안서를 붙이지 않는다(운전자·치아 등 단일상품)
 def coverage_flags():
-    F = dict(cancer=False, brain=False, heart=False, itc=False, surg=False, inj_surg=False, day=False, care=False, inj=False, life=False, inj_itc=False)
+    F = dict(cancer=False, brain=False, heart=False, itc=False, surg=False, inj_surg=False, day=False, care=False, inj=False, life=False, inj_itc=False, recur=False)
     BR = ('뇌혈관', '뇌졸중', '뇌출혈', '뇌경색', '뇌질환', '뇌종양'); HT = ('심장', '심근경색', '협심증', '허혈성', '순환계')
     for r in RID:
         rl = S.classify(r['name']); kind = rl['kind'] if rl else ''; rid = rl['id'] if rl else ''
@@ -55,6 +55,7 @@ def coverage_flags():
             F['inj_surg' if tk['cause'] == '상해' else 'surg'] = True          # 일반 수술비만(암·뇌심 전용은 해당 계열 지면에서)
         if kind == 'day' and rid in ('day_basic', 'day_icu', 'day_surg_stay', 'visit_basic'): F['day'] = True
         if kind == 'care': F['care'] = True
+        if rid == 'dx_recur': F['recur'] = True                 # 재진단암·재발암 담보가 있으면 폐암 사례에 재진단 단계를 붙인다(v8.12)
         if kind == 'life': F['life'] = True
         if med and tk['cause'] == '상해': F['inj'] = True
         if kind == 'itc_unknown' and nm in S.INJ_KNOWN: F['inj_itc'] = True
@@ -386,8 +387,9 @@ FLOW = [
  dict(k='ca', ic='lungs', t='폐암', sub='진단 → 흉강경 폐절제 → 표적·면역(키트루다) 항암 → 입원', kcd='C34',
       steps=[('검사', 'microscope', '흉부 CT · PET · 조직검사', [['검사', '흉부 CT · PET · 조직검사', '', ['x_ct', 'x_pet', 'x_bio']]], dict(dx='cancer')),
              ('수술', 'surgical_sterilization', '흉강경 폐엽절제술', [['수술', '흉강경 폐엽절제술', '', ['surg']]], dict(surg='C1', surg7='E012', hosp='상급종합')),
-             ('항암', 'immune', '표적항암 → 키트루다(면역·비급여)', [['항암', '표적항암 · 면역항암(비급여)', '', ['chemo', 'target', 'immune'], {'nc': 1}]], dict(chemo=1, target=1, drug=2, tx_cnt=2, done=['surg'])),
-             ('입원', 'hospital', '상급종합 1인실 10일 입원', [], dict(hosp='상급종합', room='1인실', days=10))]),
+             ('항암', 'immune', '표적항암 → 키트루다(면역·비급여)', [['항암', '표적항암 · 면역항암(비급여)', '', ['chemo', 'target', 'immune'], {'nc': 1}]], dict(chemo=1, target=1, drug=2, tx_cnt=2, daycare=6, done=['surg'])),
+             ('입원', 'hospital', '상급종합 1인실 10일 입원', [], dict(hosp='상급종합', room='1인실', days=10))],
+      recur=('재진단', 'microscope', '첫 진단 2년 뒤 다른 부위 암 재진단', [], dict(dx='cancer', recur=True))),
  dict(k='yr', ic='heart_organ', t='급성 심근경색', sub='진단 → 스텐트 시술 → 중환자실 → 심장재활', kcd='I21',
       steps=[('진단','xray','응급 CT·심전도로 확진',[['검사','관상동맥 CT','',['x_ct']]],dict(dx='heart',grp=['심장질환'])),
              ('시술','knife','관상동맥 스텐트 삽입술(PCI)',[['시술','스텐트 삽입','',['surg']]],dict(surg='88-1',surg7='F121',grp=['심장질환','특정31대질병'],hosp='종합')),
@@ -401,7 +403,8 @@ FLOW = [
 ]
 def flow_card(f):
     d = K[f['k']][1]; tl = K[f['k']][3]; acc = 0; cards = ''
-    for i, (stg, ic, nm, itc, tg) in enumerate(f['steps']):
+    steps = f['steps'] + ([f['recur']] if f.get('recur') and F['recur'] else [])   # 재진단암 담보가 있는 설계만 5단계(v8.12)
+    for i, (stg, ic, nm, itc, tg) in enumerate(steps):
         tags = dict(cause='질병', grp=[], hosp='상급종합', room=None, days=0); tags.update(tg)
         L = Q(f['kcd'], tags, itc); v = T(L, 'first'); acc += v
         pos = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0]

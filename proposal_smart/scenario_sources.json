@@ -1,6 +1,6 @@
 {
   "_note": "지면 7쪽(다빈도)·8쪽(사례)의 병 선정·치료 단계 근거. 설명은 scenario_sources.md. 수치는 발표 원문에서 옮겼고, assumed=true 는 가정값(준법 심의 전 재확인).",
-  "version": "1.1",
+  "version": "1.2",
   "date": "2026-09-18",
   "footnote": "근거 : 국가암등록통계(2023) · 사망원인통계(2024) · 주요수술 통계연보(2023) · 학회 진료지침 — 상세 근거표 별첨",
   "sources": {
@@ -55,6 +55,10 @@
       "org": "보건복지부·중앙암등록본부",
       "published": "2026-01-20",
       "url": "https://www.mohw.go.kr/board.es?mid=a10503010100&bid=0027&act=view&list_no=1488742"
+    },
+    "policy_recur": {
+      "name": "재진단암보장개시일 정의 — 첫번째암 진단확정일부터 2년(1·5년형 있음) 경과",
+      "org": "메리츠 또 걸려도 또 받는 암보험(세만기형)2607 약관 2-9·2-40"
     }
   },
   "flow": {
@@ -82,13 +86,22 @@
           "stage": "항암",
           "text": "표적항암 → 키트루다(면역)",
           "basis": "ncc_lung",
-          "note": "약물 2종 이상 조건부 담보 예시"
+          "note": "약물 2종 이상 조건부 담보 예시",
+          "daycare": {
+            "days": 6,
+            "assumed": true
+          }
         },
         {
           "stage": "입원",
           "text": "상급종합 1인실 10일",
           "assumed": true,
           "check": "kdca_discharge"
+        },
+        {
+          "stage": "재진단",
+          "text": "첫 진단 2년 뒤 다른 부위 암 재진단 (재진단암·재발암 담보가 있는 설계만)",
+          "basis": "policy_recur"
         }
       ]
     },
@@ -245,6 +258,11 @@
       "value": "'비급여 150~300만원' 등",
       "check": "hira_nonpay_2025",
       "action": "공개자료 중간금액 기준으로 갱신"
+    },
+    {
+      "item": "항암 단계 낮병동 입원 일수",
+      "value": "6일",
+      "check": "kdca_discharge"
     }
   ]
 }
