@@ -9,6 +9,7 @@
 설계시스템 ─▶ customer.json ─▶ ① matcher(담보 정규화·매칭) ─▶ ② scen_engine(규칙표 기반 지급 계산)
           ─▶ ③ gen2(9쪽 HTML) ─▶ ④ render(PDF+레이아웃 검사) ─▶ ⑤ build_pdf.merge(삽입·쪽번호)
 ```
+실행(가장 쉬움) : 윈도우는 `start_windows.bat`, 맥·리눅스는 `start.sh` 를 실행하면 설치·서버 기동·브라우저까지 한 번에 된다(프론트엔드 연동 API + 데모 화면 · 자세한 내용은 `API.md`).
 실행(완전 자동) : `python build_all.py 원본_상품설명서.pdf 결과.pdf`
   → 첫 쪽에서 피보험자·보험료·상품명·계약사항·영업담당자·발행정보를 읽고, 가입담보리스트 표를 셀 단위로 읽어 담보를 인식한 뒤 9쪽을 만들어 삽입한다(customer.json 불필요).
 실행(담보 지정) : `python build_all.py customer.json 원본_상품설명서.pdf 결과.pdf`

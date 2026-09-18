@@ -49,7 +49,25 @@
   <p class="sub">상품설명서 PDF를 넣으면 가입담보를 읽어 보상 시뮬레이션 지면을 만들고, 담보사항이 끝나는 쪽 뒤에 끼워 넣습니다.
      프론트엔드는 이 화면이 호출하는 API 두 개만 쓰면 됩니다.</p>
 
+  <div id="warnFile" class="card hide" style="border-color:#F3B9BC;background:#FFF5F5">
+    <b style="color:var(--red);font-size:16px">이 파일을 직접 열면 동작하지 않습니다</b>
+    <p style="margin:10px 0 0">이 화면은 파이썬 서버가 켜져 있어야 동작합니다. 아래 순서로 하세요.</p>
+    <ol style="margin:8px 0 0 18px;padding:0">
+      <li><b>proposal_smart</b> 폴더의 <code>start_windows.bat</code> 을 두 번 누릅니다(맥·리눅스는 <code>start.sh</code>).</li>
+      <li>검은 창이 열리고 <i>스마트 제안서 API … http://127.0.0.1:8080</i> 이 보이면 준비된 것입니다.</li>
+      <li>브라우저 주소창에 <b>http://127.0.0.1:8080</b> 을 입력해 그 화면에서 PDF를 올립니다.</li>
+    </ol>
+    <p style="margin:10px 0 0;color:var(--mute)">이미 서버를 켜 두셨다면 아래 'API 주소'가 맞는지 확인하고 <b>연결 확인</b>을 누르세요.</p>
+  </div>
+
   <div class="card">
+    <div class="row" style="margin:0 0 14px;gap:8px">
+      <span style="font-weight:700">API 주소</span>
+      <input id="api" value="http://127.0.0.1:8080" spellcheck="false"
+             style="font:inherit;flex:1;min-width:220px;max-width:320px;padding:8px 10px;border:1px solid var(--line);border-radius:8px">
+      <button id="ping" class="ghost">연결 확인</button>
+      <span id="conn" style="font-weight:700;color:var(--mute)">확인 중…</span>
+    </div>
     <div id="drop" class="drop">
       <b>여기에 상품설명서 PDF를 끌어다 놓으세요</b>
       <span>또는 클릭해서 선택 · 설계시스템에서 내려받은 PDF 그대로</span>
@@ -105,7 +123,8 @@
   <div class="card">
     <b>프론트엔드 연동 방법</b>
     <p style="color:var(--body);margin:8px 0 0">
-      PDF 바이트를 그대로 <code>POST</code> 하면 됩니다. 별도 인증·LLM 호출은 없습니다.</p>
+      PDF 바이트를 그대로 <code>POST</code> 하면 됩니다. 별도 인증·LLM 호출은 없습니다.
+      서버는 <code>python api.py</code> 로 띄웁니다(추가 패키지 설치 없음).</p>
 <pre>// ① 결과 PDF 만 받기
 const pdf = await fetch(API + '/v1/proposal/pdf',
   { method:'POST', headers:{'Content-Type':'application/pdf'}, body: file })
@@ -121,9 +140,32 @@ const data = await fetch(API + '/v1/proposal/all',
 </div>
 
 <script>
-const API = location.origin;                  // 다른 서버면 여기만 바꾸면 된다
 const $ = (id) => document.getElementById(id);
+const api = () => $('api').value.replace(/\/+$/, '');     // 화면에서 입력한 API 주소
+const isFile = location.protocol === 'file:';
 let file = null, lastPdf = null;
+
+// 브라우저로 서버에 접속해 열었으면 그 주소를 그대로 쓴다
+if (!isFile) $('api').value = location.origin;
+$('warnFile').classList.toggle('hide', !isFile);
+try { const v = localStorage.getItem('sp_api'); if (isFile && v) $('api').value = v; } catch (e) {}
+
+async function ping() {
+  $('conn').textContent = '확인 중…'; $('conn').style.color = 'var(--mute)';
+  try {
+    const h = await fetch(api() + '/health', { cache: 'no-store' }).then(r => r.json());
+    $('conn').textContent = '서버 연결됨 · ' + h.version;
+    $('conn').style.color = 'var(--teal)';
+    try { localStorage.setItem('sp_api', api()); } catch (e) {}
+    return true;
+  } catch (e) {
+    $('conn').textContent = '서버가 꺼져 있습니다 — api.py 를 먼저 실행하세요';
+    $('conn').style.color = 'var(--red)';
+    return false;
+  }
+}
+$('ping').onclick = ping;
+ping();
 
 $('drop').onclick = () => $('file').click();
 $('file').onchange = (e) => pick(e.target.files[0]);
@@ -143,7 +185,14 @@ function say(t, err) { $('msg').textContent = t || ''; $('msg').className = 'msg
 function busy(on) { $('bar').style.display = on ? 'block' : 'none'; $('run').disabled = $('ridersOnly').disabled = on; }
 
 async function post(path) {
-  const r = await fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/pdf' }, body: file });
+  let r;
+  try {
+    r = await fetch(api() + path, { method: 'POST', headers: { 'Content-Type': 'application/pdf' }, body: file });
+  } catch (e) {                                  // 서버가 꺼져 있거나 주소가 틀린 경우
+    ping();
+    throw new Error('서버에 연결할 수 없습니다 — ' + api() + ' 에서 api.py 가 실행 중인지 확인하세요'
+                    + (isFile ? ' (이 화면을 파일로 직접 열었습니다 — http://127.0.0.1:8080 으로 접속하세요)' : ''));
+  }
   if (!r.ok) {
     let m = r.status + ' ' + r.statusText;
     try { m = (await r.json()).error || m; } catch (e) {}
@@ -187,7 +236,9 @@ function render(d) {
   $('dlPages').disabled = !d.attached;
 
   const f = $('prev');
-  f.srcdoc = d.pages_html || '<p style="font-family:sans-serif;padding:24px">생성된 지면이 없습니다.</p>';
+  // 지면 HTML의 글꼴·로고 경로(/assets/…)를 API 주소 기준 절대경로로 — 파일로 열어도 제대로 보인다
+  const html = (d.pages_html || '').split('/assets/').join(api() + '/assets/');
+  f.srcdoc = html || '<p style="font-family:sans-serif;padding:24px">생성된 지면이 없습니다.</p>';
 
   const k = d.audit['요약']['구조별'] || {};
   const NM = { dx: '진단비', surg: '수술비', day: '입원·통원', tx: '치료비', care: '간병',
