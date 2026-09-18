@@ -7,7 +7,7 @@
 .tabhd{display:flex;align-items:center;gap:6pt;margin:8pt 0 4pt}
 .tno{width:14pt;height:14pt;border-radius:4pt;color:#fff;font-family:DH;font-size:8pt;display:grid;place-items:center}
 .tabhd b{font-family:DH;font-weight:400;font-size:11pt}
-.tn2{font-size:6.6pt;color:#868E96}
+.tn2{font-size:6.6pt;color:#495057}
 /* 진단 카드 */
 .dxs{display:grid;grid-template-columns:repeat(3,1fr);gap:5pt}
 .dxc{background:#FFF0F0;border-radius:11pt;padding:7pt 9pt}
@@ -25,7 +25,7 @@
 .mx tr.mhl td{background:#FFFBFB}
 .mx tr.dtr td,.mx tr.dtr th{border-bottom:0;padding-top:2pt}
 .mx td.dt{font-size:5.6pt;color:#868E96;line-height:1.35}
-.mnote{font-size:6.2pt;color:#868E96;margin-top:3pt;line-height:1.4}
+.mnote{font-size:6.8pt;color:#343A40;margin-top:3pt;line-height:1.45}
 /* 뇌심장 */
 .cvwrap{display:grid;grid-template-columns:118pt 1fr;gap:6pt;align-items:start}
 .cvdx{border-radius:11pt;padding:7pt 9pt}
@@ -60,7 +60,7 @@
 .frow{display:grid;grid-template-columns:22pt 104pt 1fr 104pt;gap:6pt;align-items:center;background:#fff;border:.8pt solid #E9ECEF;border-radius:10pt;padding:4pt 7pt}
 .fnm b{font-family:JU;font-weight:400;font-size:8pt;line-height:1.2}
 .fnm span{font-size:5.6pt;color:#ADB5BD;margin-left:3pt}
-.fnm em{display:block;font-style:normal;font-size:5.8pt;color:#868E96;line-height:1.3;margin-top:1pt}
+.fnm em{display:block;font-style:normal;font-size:6pt;color:#495057;line-height:1.3;margin-top:1pt}
 .fitems{display:flex;flex-wrap:wrap;gap:3pt}
 .fi{background:#F8F9FA;border-radius:6pt;padding:1.5pt 5pt;font-size:5.8pt;color:#495057}
 .fi b{margin-left:3pt;font-family:DH;font-weight:400;font-size:7pt;color:#212121}
