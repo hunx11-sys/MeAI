@@ -385,7 +385,7 @@ def itc_items():
 # ── 사례 플로우 ────────────────────────────────────
 FLOW = [
  dict(k='ca', ic='lungs', t='폐암', sub='진단 → 흉강경 폐절제 → 표적·면역(키트루다) 항암 → 입원', kcd='C34',
-      steps=[('검사', 'microscope', '흉부 CT · PET · 조직검사', [['검사', '흉부 CT · PET · 조직검사', '', ['x_ct', 'x_pet', 'x_bio']]], dict(dx='cancer')),
+      steps=[('검사', 'microscope', '흉부 CT · PET · 조직검사', [['검사', '흉부 CT · PET · 조직검사', '', ['x_ct', 'x_pet', 'x_bio']]], dict(dx='cancer', hc=['CB003', 'CB004'])),   # NGS 유전자패널(고형암 Level I·II) 수가코드
              ('수술', 'surgical_sterilization', '흉강경 폐엽절제술', [['수술', '흉강경 폐엽절제술', '', ['surg']]], dict(surg='C1', surg7='E012', hosp='상급종합')),
              ('항암', 'immune', '표적항암 → 키트루다(면역·비급여)', [['항암', '표적항암 · 면역항암(비급여)', '', ['chemo', 'target', 'immune'], {'nc': 1}]], dict(chemo=1, target=1, drug=2, tx_cnt=2, daycare=6, done=['surg'])),
              ('입원', 'hospital', '상급종합 1인실 10일 입원', [], dict(hosp='상급종합', room='1인실', days=10))],
@@ -454,7 +454,7 @@ FREQ = [
  ('갑상선결절', 'D34', 'thyroid', '고주파 절제술', '비급여 150~300만원', dict(surg=3, surg7=1, grp=['다빈도62대질병']), [['수술', '고주파 절제', '', ['surg'], {'j': 3}]]),
  ('유방 양성종양', 'D24', 'breasts', '맘모톰 절제술', '비급여 100~400만원', dict(surg='4', surg7='J071', grp=['다빈도62대질병', '특정다빈도29대질병']), [['수술', '맘모톰 절제', '', ['surg'], {'j': 1}]]),
  ('자궁근종', 'D25', 'cervical_cancer', '하이푸 · 복강경 절제', '비급여 600~1,000만원', dict(surg='88-2', surg7='N031', grp=['다빈도62대질병']), [['수술', '복강경 근종 절제', '', ['surg'], {'j': 2}]]),
- ('대장 용종', 'D12', 'colon', '내시경 용종절제술', '급여 · 1종 수술', dict(surg='88-2', surg7='G523', grp=['다빈도62대질병'], five_major=True), [['진단', '대장내시경', '', ['x_endo']], ['수술', '용종 절제', '', ['surg'], {'j': 1}]]),
+ ('대장 용종', 'D12', 'colon', '내시경 용종절제술', '급여 · 1종 수술', dict(surg='88-2', surg7='G523', grp=['다빈도62대질병'], five_major=True, hc=['Q7701', 'Q7702', 'Q7703', 'QX706']), [['진단', '대장내시경', '', ['x_endo']], ['수술', '용종 절제', '', ['surg'], {'j': 1}]]),
  ('담석증', 'K80.0', 'gallbladder', '복강경 담낭절제술', '급여 · 2종 수술', dict(surg='36', surg7='H107', grp=['다빈도62대질병'], days=5, room='2-3인실', hosp='모든'), [['진단', '복부 CT', '', ['x_ct']], ['수술', '복강경 담낭 절제', '', ['surg'], {'j': 2}]]),
  ('백내장', 'H25.9', 'body', '수정체 유화술 + 인공수정체', '급여 · 1종 수술', dict(surg='71', surg7='C061', grp=['백내장']), []),
  ('디스크(추간판장애)', 'M51', 'body', '신경성형술 · 내시경 수술', '비급여 160~380만원', dict(surg='88-2', surg7='B174', grp=['다빈도62대질병']), []),
@@ -599,21 +599,46 @@ ITC_GROUPS = [('ca', 'cancerous_cell_nuclei', '암 통합치료비', ('ca_basic'
               ('yr', 'heart_organ', '주요손상및질환 통합치료비', ('ms',)),
               ('pr', 'microscope', '암 전후 · 양성신생물 통합치료비', ('pre',))]
 ITC_SLIM = ('ms', 'pre')                       # 종수술비는 1종·5종만 예시
+# 대표 사례(폐암·뇌경색·심근경색)에 해당 항목이 없는 통합치료비의 대체 사례 — 약관 대상 질병(EMB.m61 · EMB.p60)에서 고른다(v8.13)
+ITC_ALT = {
+ 'ms': [dict(k='ms', t='외상성 뇌출혈', kcd='S06.5',
+             steps=[('검사', 'xray', '응급 뇌 CT', [['진단', '뇌 CT', '', ['x_ct']]], dict(cause='상해', dx='brain', grp=['뇌혈관질환'])),
+                    ('수술', 'knife', '혈종제거 개두술', [['수술', '혈종제거 개두술', '', ['surg'], {'j': 5}]], dict(cause='상해', surg='59', surg7='B122', hosp='상급종합')),
+                    ('입원', 'ambulance', '중환자실 5일 + 일반병실 14일', [['중환자', '중환자실', '', ['icu']]], dict(cause='상해', hosp='상급종합', room='2-3인실', days=14, icu=5)),
+                    ('재활', 'physical_therapy', '재활 10일', [['재활', '재활 10일', '', ['rehab'], {'n': 10}]], dict(cause='상해'))]),
+        dict(k='ms', t='죽상경화증(하지동맥 폐쇄)', kcd='I70.2',
+             steps=[('검사', 'xray', '하지 혈관 CT · 초음파', [['검사', '혈관 CT', '', ['x_ct']]], dict(grp=[])),
+                    ('시술', 'knife', '말초동맥 혈관성형 · 스텐트', [['시술', '경피적 혈관 시술', '', ['surg'], {'j': 3}]], dict(surg='22', surg7='F194', hosp='종합')),
+                    ('입원', 'hospital', '종합병원 2-3인실 3일', [], dict(hosp='종합', room='2-3인실', days=3))])],
+ 'pre': [dict(k='pr', t='담석증(급성 담낭염)', kcd='K80.0',
+              steps=[('검사', 'xray', '복부 CT · 초음파', [['검사', '복부 CT', '', ['x_ct']]], dict(grp=[])),
+                     ('수술', 'knife', '복강경 담낭절제술', [['수술', '복강경 담낭절제', '', ['surg'], {'j': 3}]], dict(surg='36', surg7='H101', hosp='종합')),
+                     ('입원', 'hospital', '종합병원 2-3인실 5일', [], dict(hosp='종합', room='2-3인실', days=5))]),
+         dict(k='pr', t='궤양성 대장염', kcd='K51',
+              steps=[('검사', 'microscope', '대장내시경 · 조직검사', [['검사', '대장내시경 · 조직검사', '', ['x_endo', 'x_bio']]], dict(grp=[])),
+                     ('입원', 'hospital', '종합병원 2-3인실 7일', [], dict(hosp='종합', room='2-3인실', days=7))])]}
+
 def itc_filler(its, no):
     """통합치료비 담보가 1~2개인 설계 : ① 대표 사례의 치료 단계마다 이 담보에서 얼마가 나오는지(연간 한도 적용) ② 진단비와 무엇이 다른지"""
     out = ''
     rows = ''; skipped = []
+    def row_for(r, f):
+        cells = ''; tot = 0
+        for stg, ic, nm2, itc, tg in f['steps']:
+            tags = dict(cause='질병', grp=[], hosp='상급종합', room=None, days=0); tags.update(tg)
+            v = sum(x['amt'] for x in Q(f['kcd'], tags, itc) if x['name'] == r['name']); tot += v
+            cells += f'<td><span class="itcst">{stg}</span>{big(v, K[f["k"]][1]) if v else "<span class=z>—</span>"}</td>'
+        if not tot: return ''
+        cap = min(tot, r['man'])
+        return f'<tr><th class="rl">{S.itc.RM[r["itc"]]["nm"][:18]}<br><span>{f["t"]} 사례 · 한도 {man(r["man"])}만원</span></th>{cells}<td class="itcsum">{big(cap, "#C92A2A")}<em>{"한도 적용" if tot > r["man"] else "연간 합계"}</em></td></tr>'
     for r in its:
-        flows = [f for f in FLOW if not f.get('extra') and (f['k'] == 'ca' if (r['itc'] or '').startswith(('ca', 'pre')) else f['k'] in ('cv', 'yr'))]
-        for f in flows:
-            cells = ''; tot = 0
-            for stg, ic, nm2, itc, tg in f['steps']:
-                tags = dict(cause='질병', grp=[], hosp='상급종합', room=None, days=0); tags.update(tg)
-                v = sum(x['amt'] for x in Q(f['kcd'], tags, itc) if x['name'] == r['name']); tot += v
-                cells += f'<td><span class="itcst">{stg}</span>{big(v, K[f["k"]][1]) if v else "<span class=z>—</span>"}</td>'
-            if not tot: skipped.append(S.itc.RM[r['itc']]['nm']); continue           # 대표 사례에 해당 항목이 없는 담보(주요손상 등)는 0원 행 대신 안내로
-            cap = min(tot, r['man'])
-            rows += f'<tr><th class="rl">{S.itc.RM[r["itc"]]["nm"][:18]}<br><span>{f["t"]} 사례 · 한도 {man(r["man"])}만원</span></th>{cells}<td class="itcsum">{big(cap, "#C92A2A")}<em>{"한도 적용" if tot > r["man"] else "연간 합계"}</em></td></tr>'
+        it = r['itc'] or ''
+        flows = [f for f in FLOW if not f.get('extra') and (f['k'] == 'ca' if it.startswith(('ca', 'pre')) else f['k'] in ('cv', 'yr'))]
+        got = ''.join(row_for(r, f) for f in flows)
+        if not got:                                     # 대표 사례에 해당 항목이 없으면 그 담보의 약관 대상 질병으로 만든 대체 사례(외상성 뇌출혈·죽상경화증 / 담석증·궤양성 대장염)
+            got = ''.join(row_for(r, f) for f in ITC_ALT.get(it.split('_')[0], []))
+        if not got: skipped.append(S.itc.RM[it]['nm']); continue
+        rows += got
     if rows:
         no += 1
         note = f'<div class="mnote">※ {" · ".join(dict.fromkeys(skipped))}는 대표 사례(폐암·뇌경색·심근경색)에 해당 치료 항목이 없어 표에서 제외 — 위 항목표를 참고하세요.</div>' if skipped else ''

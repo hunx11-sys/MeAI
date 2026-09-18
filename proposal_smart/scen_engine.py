@@ -205,6 +205,8 @@ def kcd_ok(mode, r, sc, nm):
     """mode : major / sim / major_or_sim / codes / g131 / none"""
     kcd = sc['kcd']
     if mode in (None, 'none'): return True
+    if mode == 'hc':                                        # 약관 별표의 진료행위(수가)코드 ∩ 사례 단계의 수가코드(v8.14)
+        return bool(set(r.get('hc') or []) & set(sc['tags'].get('hc') or []))
     if mode == 'major': return itc.cancer_cls(kcd) == 'major'
     if mode == 'sim': return itc.cancer_cls(kcd) in ('cis', 'bord', 'thy', 'skin')
     if mode == 'major_or_sim': return bool(itc.cancer_cls(kcd))
@@ -333,7 +335,7 @@ def h_tx(r, o, sc, nm, t):
     m2 = re.search(r'[\[(](\d)종(?:및\d종)?이상', nm)                       # [1종이상]·(2종및3종이상) 담보명 표기 우선
     if m2: nd = int(m2.group(1))
     if nd and tg.get('drug', 0) < nd: return []                                 # 연간 약물종류 개수 조건
-    if not need and not tg.get('dx'): return []
+    if not need and not tg.get('dx') and o.get('kcd') != 'hc': return []     # 수가코드 담보는 진단 단계가 아니어도 해당 시술이 있으면 지급(v8.14)
     if t['cause'] and tg.get('cause') != t['cause']: return []
     if not hosp_ok(t['hosp'], tg.get('hosp')): return []
     if re.search(r'유사암|기타피부암|갑상선암', nm) and '제외' not in nm:        # 유사암 전용 치료비는 유사암에만

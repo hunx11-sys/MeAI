@@ -201,6 +201,9 @@ def import_pdf(path, product, prefix):
                 for c in row['codes']:
                     if c not in k: k.append(c); l.append(row['label'])
             tids.append(tid)
+        for r_ in refs:                                   # KCD 표가 아닌 별표(수가코드 표 등)도 연결만 해 둔다 — 수가코드(hc) 추출에 쓰임(v8.14)
+            if r_ in tables and table_id(product, r_) not in tids and not any(x in r_ for x in ('적립이율', '소송', '인지액', '송달료')):
+                tids.append(table_id(product, r_))
         rid = '%s%d' % (prefix, len(riders) + 1)
         r = {'id': rid, 'p': product, 'n': title, 'c': category(title), 'pg': b['page'] + 1, 'b': body, 'k': k, 'l': l, 'x': [],
              't': tids, 's': [], 'st': '', 'src_tables': refs}
