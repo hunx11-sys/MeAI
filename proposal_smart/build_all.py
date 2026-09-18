@@ -33,7 +33,19 @@ def auto_meta(pdf_path):
     dt = re.search(r'(\d{4}\.\d{2}\.\d{2}\s+\d{2}:\d{2}:\d{2})', t2)
     nm = re.search(r'발행정보\s*\n\s*([가-힣]{2,5})\s*\n', t2)
     m['issued'] = ((dt.group(1).replace(' ', '&nbsp;&nbsp;') if dt else '') + '<br>' + (nm.group(1) if nm else '')).strip('<br>')
+    m['sex'] = insured_sex(pdf_path)
     return m
+
+def insured_sex(pdf_path):
+    """피보험자 성별(v8.19) : 상품설명서 뒤쪽 '갱신담보 예상보험료' 표의 '피보험자명 ○○ 생년월일 남/여, **년' 을 읽는다.
+       그 줄이 없으면 '계약자명 ○○(남, 1978. …)' 로, 그것도 없으면 빈 값('') → 생성기가 담보명(유방·자궁 / 전립선)으로 추정하고, 끝내 모르면 성별 중립 사례를 쓴다.
+       반환 : 'M' | 'F' | ''"""
+    with pdfplumber.open(pdf_path) as pdf:
+        pages = [(p.extract_text() or '') for p in pdf.pages]
+    full = '\n'.join(pages)
+    mm = re.search(r'피보험자명[^\n]{0,40}?생년월일\s*(남|여)', full) or re.search(r'피보험자명\s*\S+\s*\((남|여)\s*,', full)
+    if not mm: mm = re.search(r'계약자명\s*\S+\s*\((남|여)\s*,', full)
+    return {'남': 'M', '여': 'F'}.get(mm.group(1), '') if mm else ''
 
 def guess_line(riders):
     """담보명 고지유형 꼬리표로 특약 마스터의 상품 라인을 추정"""

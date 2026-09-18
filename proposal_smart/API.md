@@ -1,6 +1,6 @@
 # 스마트 제안서 생성 API — 프론트엔드 연동 가이드
 
-> proposal_smart v8.18 · AI추진파트 세일즈혁신TF
+> proposal_smart v8.19 · AI추진파트 세일즈혁신TF
 > **LLM·외부 API를 쓰지 않습니다.** 규칙표(rules.json)와 약관 데이터(JSON)에 따른 계산만 수행하며,
 > 실행 중 외부 네트워크 통신이 없습니다. 같은 PDF를 넣으면 항상 같은 결과가 나옵니다.
 
@@ -34,7 +34,7 @@ python api.py 0.0.0.0 9000                # 호스트·포트 지정
 
 | 메서드 | 경로 | 요청 | 응답 |
 |---|---|---|---|
-| GET | `/health` | — | `{"ok":true,"version":"v8.18","llm":false,"network":false}` |
+| GET | `/health` | — | `{"ok":true,"version":"v8.19","llm":false,"network":false}` |
 | GET | `/` | — | 연동 데모 화면(HTML) |
 | GET | `/assets/<파일>` | — | 지면이 쓰는 글꼴·로고(미리보기용 정적 파일) |
 | POST | `/v1/proposal/pdf` | 상품설명서 PDF | **결과 PDF**(원본 + 생성 지면) `application/pdf` |
@@ -144,3 +144,11 @@ r['attached']     # 지면을 붙였는지
 ```
 
 배치에서 쓰려면 `python pipeline.py 원본.pdf 결과.pdf` 로도 실행됩니다.
+
+### v8.19 — 응답 audit.요약 추가 항목
+| 키 | 뜻 |
+|---|---|
+| `피보험자성별` | 설계서에서 읽은 성별(남/여) 또는 `미확인(성별 중립 사례)` |
+| `사례` | 지면 8쪽 '사례로 보는 치료비 보장' 카드 3장의 병명 목록(예 `["폐암","위암","전립선암"]`) |
+
+요청 쪽에서 성별을 알고 있으면 고객 JSON(`cust`)에 `"sex": "M"` 또는 `"F"` 를 넣어 설계서 판독값을 덮어쓸 수 있다.

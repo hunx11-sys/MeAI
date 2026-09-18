@@ -61,6 +61,16 @@ def coverage_flags():
         if kind == 'itc_unknown' and nm in S.INJ_KNOWN: F['inj_itc'] = True
     return F
 F = coverage_flags()
+
+def insured_sex():
+    """피보험자 성별 : 설계서에서 읽은 값(C['sex'])이 우선, 없으면 성별 전용 담보명으로 추정, 끝내 모르면 '' (성별 중립 사례 사용)"""
+    s = (C.get('sex') or '').upper()
+    if s in ('M', 'F'): return s
+    names = ' '.join(r['name'] for r in RID)
+    if re.search(r'유방|자궁|난소|여성', names) and not re.search(r'전립선|남성|고환', names): return 'F'
+    if re.search(r'전립선|남성|고환', names) and not re.search(r'유방|자궁|난소|여성', names): return 'M'
+    return ''
+SEX = insured_sex()
 ATTACH = any(F[k] for k in ATTACH_KEYS)
 def header():
     return f'''<div class="h-t">[고객용]가입제안서</div><div class="h-p">{C['product']}</div>
@@ -406,11 +416,21 @@ FLOW = [
              ('수술', 'surgical_sterilization', '복강경 위아전절제술', [['수술', '복강경 위아전절제술', '', ['surg']]], dict(surg='33', surg7='G081', hosp='종합')),
              ('항암', 'drop2', '수술 후 보조 항암약물치료(급여)', [['항암', '항암약물치료(급여)', '', ['chemo'], {'nc': 0}]], dict(chemo=1, done=['surg'])),
              ('입원', 'hospital', '종합병원 2-3인실 8일 입원', [], dict(hosp='종합', room='2-3인실', days=8))]),
- dict(k='ca', ic='breasts', t='유방암', sub='진단 → 유방절제술 → 방사선 → 항호르몬 치료', kcd='C50', extra=True,
+ dict(k='ca', ic='breasts', t='유방암', sub='진단 → 유방절제술 → 방사선 → 항호르몬 치료', kcd='C50', extra=True, sex='F',
       steps=[('검사', 'microscope', '유방촬영 · 초음파 · 조직검사', [['검사', '유방촬영 · 초음파 · 조직검사', '', ['x_us', 'x_bio']]], dict(dx='cancer')),
              ('수술', 'surgical_sterilization', '유방절제술', [['수술', '유방절제술', '', ['surg']]], dict(surg='3', surg7='J062', hosp='상급종합')),
              ('방사선', 'immune', '수술 후 방사선치료 → 항호르몬약물', [['방사선', '방사선치료 · 호르몬', '', ['rad', 'hormone']]], dict(rad=1, hormone=1, done=['surg'])),
              ('입원', 'hospital', '상급종합 2-3인실 5일 입원', [], dict(hosp='상급종합', room='2-3인실', days=5))]),
+ dict(k='ca', ic='prostate_cancer', t='전립선암', sub='진단 → 로봇 근치적 전립선절제 → 방사선 → 호르몬 치료', kcd='C61', extra=True, sex='M',
+      steps=[('검사', 'microscope', 'PSA 혈액검사 · 전립선 MRI · 조직검사', [['검사', 'PSA · MRI · 조직검사', '', ['x_mri', 'x_bio']]], dict(dx='cancer')),
+             ('수술', 'surgical_sterilization', '로봇 보조 근치적 전립선절제술', [['수술', '근치적 전립선절제술', '', ['surg']]], dict(surg='50', surg7='M021', hosp='상급종합')),
+             ('방사선', 'immune', '수술 후 방사선치료 → 남성호르몬 차단(호르몬)치료', [['방사선', '방사선치료 · 호르몬', '', ['rad', 'hormone']]], dict(rad=1, hormone=1, done=['surg'])),
+             ('입원', 'hospital', '상급종합 2-3인실 7일 입원', [], dict(hosp='상급종합', room='2-3인실', days=7))]),
+ dict(k='ca', ic='colon', t='대장암', sub='진단 → 복강경 결장절제 → 보조 항암 → 입원', kcd='C18', extra=True, neutral=True,
+      steps=[('검사', 'microscope', '대장내시경 · 조직검사 · 복부 CT', [['검사', '대장내시경 · 조직검사 · CT', '', ['x_endo', 'x_bio', 'x_ct']]], dict(dx='cancer')),
+             ('수술', 'surgical_sterilization', '복강경 결장절제술(림프절절제 동반)', [['수술', '복강경 결장절제술', '', ['surg']]], dict(surg='43', surg7='G131', hosp='종합')),
+             ('항암', 'drop2', '수술 후 보조 항암약물치료(급여)', [['항암', '항암약물치료(급여)', '', ['chemo'], {'nc': 0}]], dict(chemo=1, done=['surg'])),
+             ('입원', 'hospital', '종합병원 2-3인실 8일 입원', [], dict(hosp='종합', room='2-3인실', days=8))]),
  dict(k='cv', ic='neurology', t='뇌출혈', sub='진단 → 혈종제거 개두술 → 중환자실 → 재활', kcd='I61', extra=True,
       steps=[('검사', 'xray', '응급 뇌 CT · 혈관조영', [['진단', '뇌 CT · 혈관조영', '', ['x_ct']]], dict(dx='brain', grp=['뇌혈관질환', '뇌졸중', '뇌출혈'])),
              ('수술', 'knife', '혈종제거 개두술', [['수술', '혈종제거 개두술', '', ['surg']]], dict(surg='59', surg7='B031', grp=['뇌혈관질환', '뇌졸중', '뇌출혈', '특정31대질병'], hosp='상급종합')),
@@ -437,10 +457,15 @@ def pick_cases():
        세 계열을 모두 가입했으면 종전처럼 대표 사례 3장만."""
     have = {'ca': F['cancer'], 'cv': F['brain'], 'yr': F['heart']}; order = ['ca', 'cv', 'yr']
     out = sorted([f for f in FLOW if not f.get('extra') and have[f['k']]], key=lambda f: order.index(f['k']))
+    def fits(f):
+        """성별 맞춤(v8.19) : sex='F'(유방암)·'M'(전립선암) 사례는 피보험자 성별이 같을 때만, neutral 사례(대장암)는 성별을 모를 때만"""
+        if f.get('sex'): return f['sex'] == SEX
+        if f.get('neutral'): return not SEX
+        return True
     for k in order:
         for f in FLOW:
             if len(out) >= 3: break
-            if f.get('extra') and f['k'] == k and have[k]: out.append(f)
+            if f.get('extra') and f['k'] == k and have[k] and fits(f): out.append(f)
     return out
 def flow_card(f):
     d = K[f['k']][1]; tl = K[f['k']][3]; acc = 0; cards = ''
@@ -966,6 +991,7 @@ html = '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>%s</st
 open(sys.argv[2], 'w', encoding='utf-8').write(html)
 A = S.audit(RID)
 A['생성쪽수'] = NEW; A['첨부'] = bool(P); A['제외지면'] = SKIPPED; A['보장계열'] = F
+A['피보험자성별'] = {'M': '남', 'F': '여'}.get(SEX, '미확인(성별 중립 사례)'); A['사례'] = [f['t'] for f in pick_cases()] if P else []
 print('ok', len(P), '쪽 · 담보', A['담보수'], '건', A['구조별'])
 if not P: print('  [미첨부] 암·뇌·심장·통합치료비 계열 담보가 없어 스마트제안서를 만들지 않습니다(단일상품 등)')
 elif SKIPPED: print('  [제외 지면]', ' / '.join(SKIPPED))
