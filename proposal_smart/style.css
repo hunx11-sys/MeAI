@@ -27,7 +27,7 @@ b{font-weight:700}
 
 @font-face{font-family:DH;src:url('file://__A__NanumGothic-ExtraBold.ttf')}
 @font-face{font-family:JU;src:url('file://__A__NanumGothic-Bold.ttf')}
-.body{position:absolute;left:25pt;top:99pt;width:545pt;height:632pt}
+.body{position:absolute;left:25pt;top:99pt;width:545pt;height:632pt;overflow:hidden}
 .e{display:inline-grid;place-items:center;width:1em;height:1em;vertical-align:-0.16em}
 .e svg{width:100%;height:100%;display:block}
 .et{display:inline-grid;place-items:center;border-radius:30%;flex:none}
