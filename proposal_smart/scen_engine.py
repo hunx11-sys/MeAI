@@ -93,13 +93,19 @@ def log(kind, name, reason):
     if it not in ISSUES: ISSUES.append(it)
 
 _CC = {}
+_XSUB = re.compile(r'\[[^\]]*(진단비|치료비|수술비|입원일당|통원일당)[^\]]*\]')
 def classify(name):
     """담보명 → 규칙(rules.json). 없으면 None."""
     nm = nname(name)
     if nm in _CC: return _CC[nm]
     hit = None
     for r in RULES:
-        if r['_m'].search(nm) and not (r['_x'] and r['_x'].search(nm)): hit = r; break
+        if not r['_m'].search(nm): continue
+        if r['_x'] and r['_x'].search(nm): continue
+        # 부모 담보명에 '사망·후유장해'가 섞여 있어도 세부급부가 진단비·치료비 등 계산 대상이면
+        # 사망·후유장해 규칙을 건너뛴다 — 예) 암후유장해및진단비[암진단비(유사암제외)] (v8.8)
+        if r['kind'] == 'life' and _XSUB.search(nm): continue
+        hit = r; break
     _CC[nm] = hit
     return hit
 
@@ -159,6 +165,15 @@ def excluded(r, kcd):
     ex = r.get('excl') or []
     return bool(ex) and code_hit(ex, kcd)
 
+_p13 = os.path.join(BASE, 'cancer13.json')
+C13 = json.load(open(_p13, encoding='utf-8')) if os.path.exists(_p13) else {'groups': {}, 'alias': {}}
+_C13N = {re.sub(r'[\s()·,]|전이포함', '', k): v for k, v in C13['groups'].items()}
+for _a, _t in (C13.get('alias') or {}).items():
+    _C13N.setdefault(re.sub(r'[\s()·,]|전이포함', '', _a), C13['groups'][_t])
+def c13_codes(name):
+    """세부급부 암종명 → 약관 별표 「암종별(13종)통합암(전이포함)(유사암제외) 분류표」 질병코드"""
+    return _C13N.get(re.sub(r'[\s()·,]|전이포함', '', name or ''))
+
 def g131_key(label):
     l = re.sub(r'[\s․·,]', '', label or '')
     l = re.sub(r'다빈도\d+대질병', '다빈도64대질병', l)
@@ -196,7 +211,8 @@ def kcd_ok(mode, r, sc, nm):
         if key: return code_hit(G131[key], kcd)
         return grp_hit(nm, sc, r)
     if mode == 'group':
-        key = next((g for g in KCDG if g in nm and not g.startswith('_')), None)
+        # 담보명에 들어 있는 그룹명 중 가장 긴 것 — '10대특정암(전이포함)'이 '10대특정암'보다 우선(v8.8)
+        key = max((g for g in KCDG if not g.startswith('_') and g in nm), key=len, default=None)
         lst = KCDG.get(key) if key else None
         if not lst:
             log('KCD없음', r['name'], f'{key or "세부급부"} 분류표가 규칙표에 없어 지급 판정 제외 (약관 별표 보강 필요)'); return False
@@ -291,10 +307,13 @@ def h_tx(r, o, sc, nm, t):
         if not b: log('검토필요', r['name'], '세부급부(암종·치료)가 없는 부모 담보 — 계산 제외'); return []
         need = {'rad'} if '방사선' in b else ({'chemo'} if '약물' in b else need)
         inner = re.search(r'치료비\((.+)\)$', b)
-        kinds = re.split(r'과|및|,|·', re.sub(r'\(전이포함\)', '', inner.group(1)) if inner else '')
-        codes = [c for k in kinds for kk, cs in SYN.items() if kk == k.strip() for c in cs]
+        raw = inner.group(1) if inner else b
+        codes = c13_codes(raw)                                    # 약관 별표 「암종별(13종)」 분류표 우선(v8.8)
+        if not codes:                                             # 표에 없는 암종명은 기존 코드 사전으로 보조 판정
+            kinds = re.split(r'과|및|,|·', re.sub(r'\(전이포함\)', '', raw))
+            codes = [c for k in kinds for kk, cs in SYN.items() if kk == k.strip() for c in cs]
         if not codes:
-            log('KCD없음', r['name'], f'세부급부 암종 "{inner.group(1) if inner else b}"의 코드 사전(EMB.syn) 미수록 — 계산 제외'); return []
+            log('KCD없음', r['name'], f'세부급부 암종 "{raw}"이 약관 별표 「암종별(13종)」 분류표·코드 사전에 없어 계산 제외'); return []
         if not code_hit(codes, sc['kcd']): return []
     if need and not (need & _acts(sc)): return []
     allneed = set(o.get('acts_all') or [])          # 둘 다 받아야 지급되는 담보(예: 혈전용해 + 기계적혈전제거술)
