@@ -1,58 +1,250 @@
 {
   "_note": "지면 7쪽(다빈도)·8쪽(사례)의 병 선정·치료 단계 근거. 설명은 scenario_sources.md. 수치는 발표 원문에서 옮겼고, assumed=true 는 가정값(준법 심의 전 재확인).",
-  "version": "1.0",
+  "version": "1.1",
   "date": "2026-09-18",
-  "footnote": "근거 : 국가암등록통계(2022) · 사망원인통계(2024) · 주요수술 통계연보(2023) · 학회 진료지침 — 상세 근거표 별첨",
+  "footnote": "근거 : 국가암등록통계(2023) · 사망원인통계(2024) · 주요수술 통계연보(2023) · 학회 진료지침 — 상세 근거표 별첨",
   "sources": {
-    "cancer_reg_2022": {"name": "2022년 국가암등록통계", "org": "보건복지부·중앙암등록본부", "published": "2024-12-26", "url": "https://www.korea.kr/news/policyNewsView.do?newsId=148938135"},
-    "death_2024": {"name": "2024년 사망원인통계", "org": "국가데이터처", "published": "2025-09-25", "url": "https://www.korea.kr/news/policyNewsView.do?newsId=156721880"},
-    "surgery_2023": {"name": "2023년 주요수술 통계연보", "org": "국민건강보험공단", "published": "2024-12-16", "url": "https://www.data.go.kr/data/15103034/fileData.do"},
-    "ncc_lung": {"name": "폐암 — 진단·치료", "org": "국가암정보센터(국립암센터)", "url": "https://www.cancer.go.kr/lay1/program/S1T211C215/cancer/view.do?cancer_seq=5237&menu_seq=5253"},
-    "ksc_ami_2021": {"name": "급성 심근경색증 중재시술 치료 전문가 합의문", "org": "대한심장학회", "published": "2021", "url": "https://www.doctorsnews.co.kr/news/articleView.html?idxno=138996"},
-    "hira_cardiac_rehab": {"name": "심장재활 급여기준(사45) — 2017.2 급여화, 외래 최대 36회", "org": "건강보험심사평가원", "url": "https://www.rm.or.kr/?c=3%2F22&uid=5535"},
-    "kss_stroke": {"name": "급성 허혈성 뇌졸중 진료지침 · 혈전용해술 부분개정(4.5시간) · 혈관내 재개통치료 지침", "org": "대한뇌졸중학회", "url": "https://www.jkna.org/upload/pdf/jkna-34-4-297.pdf"},
-    "kstr_rfa": {"name": "갑상선 결절 고주파절제술 권고안", "org": "대한갑상선영상의학회"},
-    "hira_nonpay_2025": {"name": "2025년 비급여 진료비용 공개(693항목)", "org": "건강보험심사평가원", "url": "https://www.mohw.go.kr/board.es?mid=a10503000000&bid=0027&list_no=1487329&act=view"},
-    "kdca_discharge": {"name": "퇴원손상심층조사(질병별 평균 재원일수)", "org": "질병관리청"}
+    "death_2024": {
+      "name": "2024년 사망원인통계",
+      "org": "국가데이터처",
+      "published": "2025-09-25",
+      "url": "https://www.korea.kr/news/policyNewsView.do?newsId=156721880"
+    },
+    "surgery_2023": {
+      "name": "2023년 주요수술 통계연보",
+      "org": "국민건강보험공단",
+      "published": "2024-12-16",
+      "url": "https://www.data.go.kr/data/15103034/fileData.do"
+    },
+    "ncc_lung": {
+      "name": "폐암 — 진단·치료",
+      "org": "국가암정보센터(국립암센터)",
+      "url": "https://www.cancer.go.kr/lay1/program/S1T211C215/cancer/view.do?cancer_seq=5237&menu_seq=5253"
+    },
+    "ksc_ami_2021": {
+      "name": "급성 심근경색증 중재시술 치료 전문가 합의문",
+      "org": "대한심장학회",
+      "published": "2021",
+      "url": "https://www.doctorsnews.co.kr/news/articleView.html?idxno=138996"
+    },
+    "hira_cardiac_rehab": {
+      "name": "심장재활 급여기준(사45) — 2017.2 급여화, 외래 최대 36회",
+      "org": "건강보험심사평가원",
+      "url": "https://www.rm.or.kr/?c=3%2F22&uid=5535"
+    },
+    "kss_stroke": {
+      "name": "급성 허혈성 뇌졸중 진료지침 · 혈전용해술 부분개정(4.5시간) · 혈관내 재개통치료 지침",
+      "org": "대한뇌졸중학회",
+      "url": "https://www.jkna.org/upload/pdf/jkna-34-4-297.pdf"
+    },
+    "kstr_rfa": {
+      "name": "갑상선 결절 고주파절제술 권고안",
+      "org": "대한갑상선영상의학회"
+    },
+    "hira_nonpay_2025": {
+      "name": "2025년 비급여 진료비용 공개(693항목)",
+      "org": "건강보험심사평가원",
+      "url": "https://www.mohw.go.kr/board.es?mid=a10503000000&bid=0027&list_no=1487329&act=view"
+    },
+    "kdca_discharge": {
+      "name": "퇴원손상심층조사(질병별 평균 재원일수)",
+      "org": "질병관리청"
+    },
+    "cancer_reg_2023": {
+      "name": "2023년 국가암등록통계",
+      "org": "보건복지부·중앙암등록본부",
+      "published": "2026-01-20",
+      "url": "https://www.mohw.go.kr/board.es?mid=a10503010100&bid=0027&act=view&list_no=1488742"
+    }
   },
   "flow": {
-    "폐암": {"kcd": "C34", "why": ["death_2024: 암 사망률 1위 폐암(10만 명당 38.0명)", "cancer_reg_2022: 전체 발생 3위(11.5%) · 남성 1위(14.7%)"],
+    "폐암": {
+      "kcd": "C34",
+      "why": [
+        "death_2024: 암 사망률 1위 폐암(10만 명당 38.0명)",
+        "cancer_reg_2023: 전체 발생 2위 · 남성 2위(1위 전립선암)"
+      ],
       "steps": [
-        {"stage": "검사", "text": "흉부 CT · PET · 조직검사", "basis": "ncc_lung"},
-        {"stage": "수술", "text": "흉강경 폐엽절제술", "basis": "ncc_lung", "surg7": "E012", "grade7": 6, "surg5": "C1"},
-        {"stage": "항암", "text": "표적항암 → 키트루다(면역)", "basis": "ncc_lung", "note": "약물 2종 이상 조건부 담보 예시"},
-        {"stage": "입원", "text": "상급종합 1인실 10일", "assumed": true, "check": "kdca_discharge"}
-      ]},
-    "급성 심근경색": {"kcd": "I21", "why": ["death_2024: 사망원인 2위 심장질환"],
+        {
+          "stage": "검사",
+          "text": "흉부 CT · PET · 조직검사",
+          "basis": "ncc_lung"
+        },
+        {
+          "stage": "수술",
+          "text": "흉강경 폐엽절제술",
+          "basis": "ncc_lung",
+          "surg7": "E012",
+          "grade7": 6,
+          "surg5": "C1"
+        },
+        {
+          "stage": "항암",
+          "text": "표적항암 → 키트루다(면역)",
+          "basis": "ncc_lung",
+          "note": "약물 2종 이상 조건부 담보 예시"
+        },
+        {
+          "stage": "입원",
+          "text": "상급종합 1인실 10일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ]
+    },
+    "급성 심근경색": {
+      "kcd": "I21",
+      "why": [
+        "death_2024: 사망원인 2위 심장질환"
+      ],
       "steps": [
-        {"stage": "진단", "text": "응급 CT·심전도", "basis": "ksc_ami_2021"},
-        {"stage": "시술", "text": "관상동맥 스텐트 삽입술(PCI)", "basis": "ksc_ami_2021", "surg7": "F121", "grade7": 4, "surg5": "88-1"},
-        {"stage": "입원", "text": "중환자실 2일 + 일반병실 7일", "assumed": true, "check": "kdca_discharge"},
-        {"stage": "재활", "text": "외래 심장재활 10회", "basis": "hira_cardiac_rehab"}
-      ]},
-    "뇌경색": {"kcd": "I63", "why": ["death_2024: 사망원인 4위 뇌혈관질환"],
+        {
+          "stage": "진단",
+          "text": "응급 CT·심전도",
+          "basis": "ksc_ami_2021"
+        },
+        {
+          "stage": "시술",
+          "text": "관상동맥 스텐트 삽입술(PCI)",
+          "basis": "ksc_ami_2021",
+          "surg7": "F121",
+          "grade7": 4,
+          "surg5": "88-1"
+        },
+        {
+          "stage": "입원",
+          "text": "중환자실 2일 + 일반병실 7일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        },
+        {
+          "stage": "재활",
+          "text": "외래 심장재활 10회",
+          "basis": "hira_cardiac_rehab"
+        }
+      ]
+    },
+    "뇌경색": {
+      "kcd": "I63",
+      "why": [
+        "death_2024: 사망원인 4위 뇌혈관질환"
+      ],
       "steps": [
-        {"stage": "검사", "text": "뇌 CT + MRI", "basis": "kss_stroke"},
-        {"stage": "시술", "text": "혈전용해제 주사(tPA)", "basis": "kss_stroke"},
-        {"stage": "수술", "text": "동맥내 기계적 혈전제거술", "basis": "kss_stroke", "surg7": "B027", "grade7": 5, "surg5": "88-1"},
-        {"stage": "입원", "text": "중환자실 3일 + 일반병실 14일 · 재활 10일", "assumed": true, "check": "kdca_discharge"}
-      ]}
+        {
+          "stage": "검사",
+          "text": "뇌 CT + MRI",
+          "basis": "kss_stroke"
+        },
+        {
+          "stage": "시술",
+          "text": "혈전용해제 주사(tPA)",
+          "basis": "kss_stroke"
+        },
+        {
+          "stage": "수술",
+          "text": "동맥내 기계적 혈전제거술",
+          "basis": "kss_stroke",
+          "surg7": "B027",
+          "grade7": 5,
+          "surg5": "88-1"
+        },
+        {
+          "stage": "입원",
+          "text": "중환자실 3일 + 일반병실 14일 · 재활 10일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ]
+    }
   },
-  "freq_criteria": ["공공 통계 상위(다빈도)", "당사 담보에서 의미 있는 지급·제외가 드러남", "고객이 이름을 아는 병"],
+  "freq_criteria": [
+    "공공 통계 상위(다빈도)",
+    "당사 담보에서 의미 있는 지급·제외가 드러남",
+    "고객이 이름을 아는 병"
+  ],
   "freq": {
-    "백내장": {"kcd": "H25", "why": "surgery_2023: 다빈도 수술 1위 63만 8천 건", "surg7": "C061", "grade7": 1, "surg5": "71"},
-    "디스크(추간판장애)": {"kcd": "M51", "why": "surgery_2023: 일반 척추수술 2위 20만 7천 건", "surg7": "B174", "grade7": 2, "surg5": "88-2"},
-    "치핵": {"kcd": "K64", "why": "surgery_2023: 치핵수술 3위 15만 2천 건", "surg7": "G272", "grade7": 1, "surg5": "44"},
-    "담석증": {"kcd": "K80.0", "why": "surgery_2023: 담낭절제술 주요수술 항목(건수 원문 확인)", "surg7": "H107", "grade7": 4, "surg5": "36"},
-    "무릎 관절염": {"kcd": "M17", "why": "surgery_2023: 슬관절치환술 주요수술 항목(2023 진료비 8,397억 원)", "surg7": "I194", "grade7": 1, "surg5": "88-2"},
-    "하지정맥류": {"kcd": "I83", "why": "surgery_2023: 정맥류 결찰 및 제거수술 주요수술 항목(건당 145만 원)", "surg7": "F254", "grade7": 1, "surg5": "23"},
-    "갑상선결절": {"kcd": "D34", "why": "cancer_reg_2022: 갑상선암 발생 1위(12.0%) → 결절 검진·시술 수요", "basis": "kstr_rfa", "surg7": 1, "surg5": "3"},
-    "유방 양성종양": {"kcd": "D24", "why": "cancer_reg_2022: 유방암 발생 4위·여성 1위(21.8%)", "surg7": "J071", "grade7": 1, "surg5": "4"},
-    "자궁근종": {"kcd": "D25", "why": "surgery_2023: 자궁 수술(자궁절제술) 주요수술 항목", "surg7": "N031", "grade7": 2, "surg5": "88-2"},
-    "대장 용종": {"kcd": "D12", "why": "cancer_reg_2022: 대장암 발생 2위(11.8%) · 국가암검진 대장내시경", "surg7": "G523", "grade7": 1, "surg5": "88-2"}
+    "백내장": {
+      "kcd": "H25",
+      "why": "surgery_2023: 다빈도 수술 1위 63만 8천 건",
+      "surg7": "C061",
+      "grade7": 1,
+      "surg5": "71"
+    },
+    "디스크(추간판장애)": {
+      "kcd": "M51",
+      "why": "surgery_2023: 일반 척추수술 2위 20만 7천 건",
+      "surg7": "B174",
+      "grade7": 2,
+      "surg5": "88-2"
+    },
+    "치핵": {
+      "kcd": "K64",
+      "why": "surgery_2023: 치핵수술 3위 15만 2천 건",
+      "surg7": "G272",
+      "grade7": 1,
+      "surg5": "44"
+    },
+    "담석증": {
+      "kcd": "K80.0",
+      "why": "surgery_2023: 담낭절제술 주요수술 항목(건수 원문 확인)",
+      "surg7": "H107",
+      "grade7": 4,
+      "surg5": "36"
+    },
+    "무릎 관절염": {
+      "kcd": "M17",
+      "why": "surgery_2023: 슬관절치환술 주요수술 항목(2023 진료비 8,397억 원)",
+      "surg7": "I194",
+      "grade7": 1,
+      "surg5": "88-2"
+    },
+    "하지정맥류": {
+      "kcd": "I83",
+      "why": "surgery_2023: 정맥류 결찰 및 제거수술 주요수술 항목(건당 145만 원)",
+      "surg7": "F254",
+      "grade7": 1,
+      "surg5": "23"
+    },
+    "갑상선결절": {
+      "kcd": "D34",
+      "why": "cancer_reg_2023: 갑상선암 발생 1위 → 결절 검진·시술 수요",
+      "basis": "kstr_rfa",
+      "surg7": 1,
+      "surg5": "3"
+    },
+    "유방 양성종양": {
+      "kcd": "D24",
+      "why": "cancer_reg_2023: 유방암 발생 4위·여성 1위",
+      "surg7": "J071",
+      "grade7": 1,
+      "surg5": "4"
+    },
+    "자궁근종": {
+      "kcd": "D25",
+      "why": "surgery_2023: 자궁 수술(자궁절제술) 주요수술 항목",
+      "surg7": "N031",
+      "grade7": 2,
+      "surg5": "88-2"
+    },
+    "대장 용종": {
+      "kcd": "D12",
+      "why": "cancer_reg_2023: 대장암 발생 3위 · 국가암검진 대장내시경",
+      "surg7": "G523",
+      "grade7": 1,
+      "surg5": "88-2"
+    }
   },
   "assumed": [
-    {"item": "사례 입원일수", "value": "폐암 10일 · 심근경색 2+7일 · 뇌경색 3+14일", "check": "kdca_discharge"},
-    {"item": "다빈도 비급여 치료비 범위", "value": "'비급여 150~300만원' 등", "check": "hira_nonpay_2025", "action": "공개자료 중간금액 기준으로 갱신"}
+    {
+      "item": "사례 입원일수",
+      "value": "폐암 10일 · 심근경색 2+7일 · 뇌경색 3+14일",
+      "check": "kdca_discharge"
+    },
+    {
+      "item": "다빈도 비급여 치료비 범위",
+      "value": "'비급여 150~300만원' 등",
+      "check": "hira_nonpay_2025",
+      "action": "공개자료 중간금액 기준으로 갱신"
+    }
   ]
 }

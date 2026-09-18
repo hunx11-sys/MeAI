@@ -769,11 +769,11 @@ _BUILD = [
  lambda: f'''<div class="lg">{e('stethoscope','#087F5B')}<b>다빈도 질환 수술 시뮬레이션</b><span class="sub">건강검진·일상에서 자주 생기는 질환 10종 · 병원 종별 비교</span></div>
  <div class="frows">{freq_rows()}</div>
  <div class="tip">{e('bulb','#D9480F')}<span>수술 종(1~5종)은 약관 [1-5종 수술분류표Ⅱ] 기준이며, 비급여 치료비는 병원·술식에 따라 달라지는 실제 치료비 범위(참고용)예요. 표시 금액은 해당 수술 1회 기준 지급 예시예요.</span></div>
- <div class="mnote">※ 질환 선정 근거 : 주요수술 통계연보(국민건강보험공단, 2023) 다빈도 수술 · 국가암등록통계(2022) · 수술 종은 약관 별표 수술코드로 판정 — 상세 근거표(scenario_sources) 별첨</div>''',
+ <div class="mnote">※ 질환 선정 근거 : 주요수술 통계연보(국민건강보험공단, 2023) 다빈도 수술 · 국가암등록통계(2023) · 수술 종은 약관 별표 수술코드로 판정 — 상세 근거표(scenario_sources) 별첨</div>''',
  lambda: f'''<div class="lg">{e('money_bag','#5F3DC4')}<b>사례로 보는 치료비 보장</b><span class="sub">치료 단계별로 어느 담보에서 얼마가 나오는지</span></div>
  {flow_card(FLOW[0]) if F['cancer'] else ''}{flow_card(FLOW[2]) if F['brain'] else ''}{flow_card(FLOW[1]) if F['heart'] else ''}
  <div class="mnote">※ 조건부 담보는 보수적으로 계산 — 표적항암약물허가치료비는 연간 약물종류 2종 이상(폐암 사례 : 표적항암제 → 키트루다), 특정혈전치료비는 두 치료를 모두 받은 단계에서만.</div>
- <div class="mnote">※ 사례 근거 : 사망원인통계(국가데이터처, 2024) · 국가암등록통계(2022) · 치료 단계는 국가암정보센터·대한심장학회·대한뇌졸중학회 진료지침 · 입원일수는 예시 — 상세 근거표(scenario_sources) 별첨</div>''',
+ <div class="mnote">※ 사례 근거 : 사망원인통계(국가데이터처, 2024) · 국가암등록통계(2023) · 치료 단계는 국가암정보센터·대한심장학회·대한뇌졸중학회 진료지침 · 입원일수는 예시 — 상세 근거표(scenario_sources) 별첨</div>''',
 ]
 # 6쪽 : 상해·사고
 INJ = [('교통사고 두개내손상', 'S06', 'wound', dict(cause='상해', surg='59', surg7='B122', hosp='종합', room='2-3인실', days=20, icu=3, grp=[]),
