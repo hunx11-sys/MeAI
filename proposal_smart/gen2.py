@@ -685,8 +685,8 @@ def group_surg():
         nm2 = r['name'].replace(' ', '')
         if '대질병수술비' in nm2 or '5대질환' in nm2 or '32대질병' in nm2:
             g = (r.get('benefit') or r.get('sub') or '').strip()
-            if not g:
-                m2 = re.search(r'[\[(]([^\[\]()]+)[\])]', r['name'])
+            if not g:                                     # 세부 특약에 바로 매칭된 행 : [세부보장]을 먼저, 없으면 (괄호) (v8.11)
+                m2 = re.search(r'\[([^\[\]]+)\]', r['name']) or re.search(r'\(([^()]+)\)', r['name'])
                 g = m2.group(1) if m2 else r['name']
             if not g.strip(): g = re.sub(r'\d+대질병수술비|수술비', '', r['name']).strip('()[] ') or r['name']
             it.append((g, r['man']))
