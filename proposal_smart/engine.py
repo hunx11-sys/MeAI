@@ -36,8 +36,10 @@ def cover(rider, code):
     if ty in ('CB', 'CL', 'C2', 'CM'):
         if code == 'D47': return 'part'
         return 'yes' if cancer_cls(code) else 'no'
+    # 질병 통합치료비는 대상 질병을 따로 열거하지 않는다(약관 제1조 '질병의 진단 및 치료') → 질병이면 지급.
+    # 상해는 상해 통합치료비가 따로 있으므로, 상해 여부는 사례 태그(cause)로 scen_engine 이 거른다.
     return {'PR': lambda: _in_list(P60, code), 'CV': lambda: _in_list(C32, code),
-            'MS': lambda: _in_list(M61, code)}.get(ty, lambda: 'no')()
+            'MS': lambda: _in_list(M61, code), 'DZ': lambda: 'yes'}.get(ty, lambda: 'no')()
 
 def _ev_keys(ev):
     """비급여 면역항암약물허가치료를 받으면 비급여 표적항암약물허가치료도 함께 인정."""
