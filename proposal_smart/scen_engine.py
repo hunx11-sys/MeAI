@@ -222,8 +222,9 @@ def sub_ok(r, kcd):
     if brain and not heart: return kcd.startswith('I6') or kcd.startswith('G45')
     if heart and not brain: return kcd.startswith('I2') or kcd.startswith('I5') or kcd.startswith('I4')
     return True
-def kcd_ok(mode, r, sc, nm):
-    """mode : major / sim / major_or_sim / codes / g131 / none"""
+def kcd_ok(mode, r, sc, nm, o=None):
+    """mode : major / sim / major_or_sim / codes / g131 / group / hc / none
+       o    : 규칙 opt — 'grp' 가 있으면 담보명에서 찾지 않고 그 그룹표를 쓴다(v8.25)"""
     kcd = sc['kcd']
     if mode in (None, 'none'): return True
     if mode == 'hc':                                        # 약관 별표의 진료행위(수가)코드 ∩ 사례 단계의 수가코드(v8.14)
@@ -236,9 +237,11 @@ def kcd_ok(mode, r, sc, nm):
         if key: return code_hit(G131[key], kcd)
         return grp_hit(nm, sc, r)
     if mode == 'group':
-        # 담보명에 들어 있는 그룹명 중 가장 긴 것 — '10대특정암(전이포함)'이 '10대특정암'보다 우선(v8.8)
-        _n = nm.replace(' ', '')
-        key = max((g for g in KCDG if not g.startswith('_') and g.replace(' ', '') in _n), key=len, default=None)   # 그룹명 띄어쓰기 무시(v8.12)
+        key = (o or {}).get('grp')                          # 규칙이 그룹표를 직접 지정한 경우
+        if not key:
+            # 담보명에 들어 있는 그룹명 중 가장 긴 것 — '10대특정암(전이포함)'이 '10대특정암'보다 우선(v8.8)
+            _n = nm.replace(' ', '')
+            key = max((g for g in KCDG if not g.startswith('_') and g.replace(' ', '') in _n), key=len, default=None)   # 그룹명 띄어쓰기 무시(v8.12)
         lst = KCDG.get(key) if key else None
         if not lst:
             log('KCD없음', r['name'], f'{key or "세부급부"} 분류표가 규칙표에 없어 지급 판정 제외 (약관 별표 보강 필요)'); return False
@@ -268,7 +271,7 @@ def h_dx(r, o, sc, nm, t):
     if o.get('fam') and DXFAM.get(dx) not in o['fam']: return []
     if o.get('cause') and tg.get('cause') != o['cause']: return []
     if bool(tg.get('recur')) != (o.get('stage') == 'recur'): return []     # 재진단 단계에서는 재진단암 진단비만, 첫 진단 단계에서는 그 밖의 진단비만(v8.12)
-    if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
     return [(r['man'], o.get('why', '진단확정'), o.get('group', '진단비'), o.get('freq', 'once'))]
 
 def h_surg(r, o, sc, nm, t):
@@ -297,7 +300,7 @@ def h_surg(r, o, sc, nm, t):
     for g in t['ex']:                                   # 특정N대질병 제외 담보
         if g != '5': log('검토필요', r['name'], '특정%s대질병 제외목록 미확정 — 특정5대질병 기준으로 판정' % g)
         if tg.get('five_major') or code_hit(FIVE_MAJOR, sc['kcd']): return []
-    if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
     why = o.get('why', '수술 1회').replace('{j}', str(t['gj'] or surg5_grade(j, sc['kcd']) or '')).replace(
         '{g}', (r.get('benefit') or r.get('sub') or '').strip())
     return [(r['man'], why, o.get('group', '수술비'), o.get('freq', 'each'))]
@@ -309,7 +312,7 @@ def h_day(r, o, sc, nm, t):
     if not hosp_ok(t['hosp'], tg.get('hosp')): return []
     if t['room'] and tg.get('room') != t['room']: return []
     if o.get('need_surg') and not tg.get('surg'): return []
-    if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
     if mode == 'daycare':                                # 낮병동 입원(급여) 1일당 — 사례 태그 daycare 일수(v8.12)
         n = tg.get('daycare', 0)
         if not n: return []
@@ -361,7 +364,7 @@ def h_tx(r, o, sc, nm, t):
     if not hosp_ok(t['hosp'], tg.get('hosp')): return []
     if re.search(r'유사암|기타피부암|갑상선암', nm) and '제외' not in nm:        # 유사암 전용 치료비는 유사암에만
         if itc.cancer_cls(sc['kcd']) not in ('cis', 'bord', 'thy', 'skin'): return []
-    if not kcd_ok(o.get('kcd'), r, sc, nm): return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
     freq = o.get('freq', 'year')
     if '계속받는' in nm or '연간1회한' in nm: freq = 'year'
     elif '최초1회한' in nm: freq = 'once'
