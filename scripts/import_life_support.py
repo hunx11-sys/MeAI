@@ -91,30 +91,44 @@ def parse_tables(page):
 
 
 def parse_rider(doc, start, rid, title_re):
-    """특별약관 시작 쪽부터 제2조 직전까지를 읽어 가입금액 구간별 항목표를 만든다."""
-    tiers = {}
-    pend = None                                   # 아직 표를 못 만난 가입금액 표시
+    """특별약관 본문을 읽어 가입금액 구간별 항목표를 만든다.
+
+    구간-표 짝짓기를 페이지 좌표로 하지 않는다(2단 조판이라 마커와 표가 어긋난다).
+    표를 묶음(산정특례 / 주요치료·재활)별로 모아 **대표 금액이 작은 것부터 작은 구간에 배정**한다.
+    가입금액이 크면 항목 금액도 크다는 약관의 성질을 쓰는 것이고, 배정 뒤 verify() 로 다시 검증한다.
+    """
+    marks, tabs = [], []
     for i in range(start, min(start + 8, len(doc))):
         page = doc[i]
         text = page.get_text()
-        if i > start and re.search(r'\d+\.\s*[^\n]{2,60}보장\s*특별약관', text):
+        if tabs and i > start and re.search(r'\d+\.\s*[^\n]{2,60}보장\s*특별약관', text):
             break                                  # 다음 특별약관 시작
-        ev = []
-        for m in MARK.finditer(re.sub(r'\s+', ' ', text)):
-            pass
         for r in page.search_for('월간 총 지급금액'):
             line = page.get_textbox([r[0] - 200, r[1] - 2, r[2] + 200, r[3] + 2])
             mm = MARK.search(re.sub(r'\s+', ' ', line))
             if mm:
-                ev.append((col_of(r, page.rect.width), r[1], 'mark', int(mm.group(1).replace(',', ''))))
+                v = int(mm.group(1).replace(',', ''))
+                if v not in marks:
+                    marks.append(v)
         for c, y, items in parse_tables(page):
-            ev.append((c, y, 'table', items))
-        ev.sort(key=lambda x: (x[0], x[1]))
-        for c, y, kind, val in ev:
-            if kind == 'mark':
-                pend = val
-            elif pend is not None:
-                tiers.setdefault(str(pend), []).extend(val)
+            tabs.append(items)
+    marks.sort()
+    if not marks or not tabs:
+        return {}
+    sp = [t for t in tabs if all(x['grp'] == '산정특례' for x in t)]      # 산정특례만 있는 표
+    rest = [t for t in tabs if t not in sp]                              # 주요치료(+재활) 표
+    top = lambda t: max(x['amt'] for x in t)
+    sp.sort(key=top)
+    rest.sort(key=top)
+    tiers = {}
+    for n, tv in enumerate(marks):
+        got = []
+        if n < len(sp):
+            got += sp[n]
+        if n < len(rest):
+            got += rest[n]
+        if got:
+            tiers[str(tv)] = got
     return tiers
 
 
@@ -140,6 +154,9 @@ def verify(tiers):
         if prev is not None and top[k] < top[prev]:
             bad.append('%s만원 구간 금액(%g)이 %s만원 구간(%g)보다 작음' % (k, top[k], prev, top[prev]))
         prev = k
+    n = {k: len(v) for k, v in tiers.items()}
+    if n and len(set(n.values())) > 1:
+        bad.append('구간마다 항목 수가 다름(%s)' % ' / '.join('%s:%d' % (k, n[k]) for k in ks))
     rat = {k: top[k] / int(k) for k in top}
     if rat and (max(rat.values()) - min(rat.values())) > 0.25:
         worst = min(rat, key=lambda x: rat[x])
