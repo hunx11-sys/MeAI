@@ -9,10 +9,16 @@ GOJI = S.GOJI                        # 고지유형 꼬리표는 rules.json goji
 _A = '(?:' + S.AMT_RE + ')'          # 가입금액 표기(1억5천만원·3천5백만원·1억 등 전부)
 RENEW = r'\((?:\d+년)?갱신\)'          # 설계서 표기 (20년갱신) → 마스터의 '갱신형'과 맞추기 위해 제거
 def base(n): return re.sub(r'\s+', '', re.sub(RENEW, '', re.sub(GOJI, '', n)).replace('[기본계약]', '').replace('┗', ''))
+PRE_REN = r'^갱신형'                  # 설계서 '갱신형 ○○' ↔ 마스터 '○○' 표기 차이(v8.20) — 양방향으로 한 번씩 다시 찾는다
 INDEX = collections.defaultdict(list)
-for r in DB['riders']: INDEX[base(r['n'])].append(r)
-def match(name, line=None):
-    n = base(name); b = s = None
+BRACK = collections.defaultdict(list)   # 부모 이름 → 세부급부([○○]) 레코드 — 설계서가 세부를 (○○) 괄호로 적는 경우 대비
+for r in DB['riders']:
+    k = base(r['n']); INDEX[k].append(r)
+    if k.endswith(']'): BRACK[re.sub(r'\[[^\[\]]+\]$', '', k)].append(r)
+
+def _find(n, line):
+    """정규화된 담보명 하나로 마스터를 찾는다. 반환 (후보목록, 대괄호세부, 끝괄호꼬리)"""
+    b = s = None
     pick = lambda k: ([r for r in INDEX.get(k, []) if r['p'] == line] or INDEX.get(k, []))
     c = pick(n)
     if not c and '[' in n:
@@ -20,9 +26,22 @@ def match(name, line=None):
     if not c and re.search(r'\([^()]+\)$', n):
         s = re.search(r'\(([^()]+)\)$', n).group(1); c = pick(re.sub(r'\([^()]+\)$', '', n))
     if not c: c = pick(re.sub(r'\([^()]*\)', '', n))
+    if not c:                           # 설계서는 세부급부를 (특정소액암)처럼 괄호로, 마스터는 [특정소액암 …]처럼 대괄호로 적는 경우
+        for g in re.findall(r'\(([^()]+)\)', n):
+            cand = [r for r in BRACK.get(n.replace('(%s)' % g, '', 1), []) if g in base(r['n']).rsplit('[', 1)[-1]]
+            if line: cand = [r for r in cand if r['p'] == line] or cand
+            if cand: c, b = [cand[0]], g; break
     if not c:
         ks = [k for k in INDEX if k and (n.startswith(k) or k.startswith(n))]
         if ks: c = pick(max(ks, key=len))
+    return c, b, s
+
+def match(name, line=None):
+    n = base(name)
+    c, b, s = _find(n, line)
+    if not c:                           # 정확히 일치하는 이름이 없을 때만 갱신형 표기를 떼거나 붙여 다시 찾는다
+        alt = re.sub(PRE_REN, '', n) if re.match(PRE_REN, n) else '갱신형' + n
+        c, b, s = _find(alt, line)
     return (c[0] if c else None), b, s
 def read_proposal(pdf_path, line=None, max_pages=None):
     """가입담보리스트 표(세부보장 표 포함)를 셀 단위로 읽는다. 담보사항 상세 구간이 시작되기 전까지만 읽고,

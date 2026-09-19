@@ -80,9 +80,12 @@ def nname(n):
 ITC_MAP = {r['nm']: r['id'] for r in itc.RIDERS}
 ITC_MAP.update({'암 통합치료비(주요치료)(비급여(전액본인부담 포함))': 'ca_ncm'})
 _ITC_NORM = {nname(k): v for k, v in ITC_MAP.items()}
+def noren(n):
+    """설계서의 '갱신형' 접두어를 뗀 이름 — 약관 지급금액표는 갱신 여부를 구분하지 않는다(v8.20)"""
+    return re.sub(r'^갱신형', '', nname(n))
 def itc_id(name):
     """약관 지급금액표가 있는 통합치료비면 그 id, 아니면 None(→ 규칙표 itc_unknown 이 계산 제외+로그)"""
-    return _ITC_NORM.get(nname(name))
+    return _ITC_NORM.get(nname(name)) or _ITC_NORM.get(noren(name))
 INJ_KNOWN = set()                                     # 상해 통합치료비 : gen2 가 inj_itc.json 으로 별도 계산
 if os.path.exists(os.path.join(BASE, 'inj_itc.json')):
     INJ_KNOWN = {nname(k) for k in json.load(open(os.path.join(BASE, 'inj_itc.json'), encoding='utf-8'))}
@@ -381,7 +384,7 @@ def pay_lines(riders, sc):
                 log('미분류', n, '규칙표에 해당 담보 유형이 없어 계산 제외 (rules.json 보강 필요)')
                 continue
             if rule['kind'] == 'itc_unknown':            # 금액표 미연동 통합치료비 — 정액 치료비로 오계산되지 않게 제외(v8.3)
-                if nm not in INJ_KNOWN:
+                if nm not in INJ_KNOWN and noren(nm) not in INJ_KNOWN:
                     log('금액표없음', n, '약관 지급금액표(product_data.json RIDERS)에 없는 통합치료비 — 계산 제외 (금액표 보강 필요)')
                 continue
             h = HANDLER.get(rule['kind'])

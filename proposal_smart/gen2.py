@@ -30,8 +30,12 @@ def man(m):
         a, b = divmod(m, 10000)
         return f'{a}억' + (f' {b:,}' if b else '')
     return f'{m:,}'
+def won(m):
+    """금액 + 단위 — 1억처럼 만원 자리가 0이면 '원', 아니면 '만원' (v8.20 : '1억만원' 표기 오류 수정)"""
+    return man(m) + ('원' if m >= 10000 and m % 10000 == 0 else '만원')
 def big(m, c='#E03131'):
-    if m <= 0: return '<span class="z">0<small>만원</small></span>'
+    # 지급액이 없으면 숫자 0 대신 줄표 — 가입하지 않은 칸을 0원으로 인쇄하지 않는다(v8.20)
+    if m <= 0: return '<span class="z">&mdash;</span>'
     return f'<span class="n2" style="color:{c}">{man(m)}<small>{"원" if m>=10000 and m%10000==0 else "만원"}</small></span>'
 
 C = json.load(open(sys.argv[1], encoding='utf-8'))
@@ -58,7 +62,7 @@ def coverage_flags():
         if rid == 'dx_recur': F['recur'] = True                 # 재진단암·재발암 담보가 있으면 폐암 사례에 재진단 단계를 붙인다(v8.12)
         if kind == 'life': F['life'] = True
         if med and tk['cause'] == '상해': F['inj'] = True
-        if kind == 'itc_unknown' and nm in S.INJ_KNOWN: F['inj_itc'] = True
+        if kind == 'itc_unknown' and (nm in S.INJ_KNOWN or S.noren(nm) in S.INJ_KNOWN): F['inj_itc'] = True
     return F
 F = coverage_flags()
 
@@ -309,7 +313,7 @@ def stay_cards(days=14, kcd='I63'):
     if gen:
         tot = 0; parts = []
         for r, tk in sorted(gen, key=lambda x: -x[0]['man']):
-            d = min(days, tk['limit'] or days); tot += r['man'] * d; parts.append(f'{man(r["man"])}만원×{d}일')
+            d = min(days, tk['limit'] or days); tot += r['man'] * d; parts.append(f'{won(r["man"])}×{d}일')
         add('hospital', 'ms', '일반 입원 · 병실 무관', ' + '.join(parts), big(tot, K['ms'][1]), tot > 0)
     # ② 병실 종류 × 병원 종별 (한도일수 개별 적용)
     for room, hosp, label in [('1인실', '상급종합', '1인실 · 상급종합병원'), ('1인실', '종합', '1인실 · 종합병원'),
@@ -319,13 +323,13 @@ def stay_cards(days=14, kcd='I63'):
         for r, tk in sorted(rs, key=lambda x: -x[0]['man']):
             d = min(days, tk['limit'] or days)
             tot += r['man'] * d
-            parts.append(f'{man(r["man"])}만원×{d}일')
+            parts.append(f'{won(r["man"])}×{d}일')
         add('hospital_symbol', 'ms', label, ' + '.join(parts) if parts else '해당 병실 담보 없음',
             big(tot, K['ms'][1]), tot > 0)
     # ②-1 상해 입원(2-3인실 · 종합병원)
     rs = _day_riders('2-3인실', '종합', cause='상해'); tot = 0; parts = []
     for r, tk in sorted(rs, key=lambda x: -x[0]['man']):
-        d = min(days, tk['limit'] or days); tot += r['man'] * d; parts.append(f'{man(r["man"])}만원×{d}일')
+        d = min(days, tk['limit'] or days); tot += r['man'] * d; parts.append(f'{won(r["man"])}×{d}일')
     add('bandage_adhesive', 'pk', '상해 입원 · 2-3인실 종합병원', ' + '.join(parts) if parts else '해당 담보 없음', big(tot, K['pk'][1]), tot > 0)
     # ③ 간병
     nm = lambda r: r['name'].replace(' ', '')
@@ -336,11 +340,11 @@ def stay_cards(days=14, kcd='I63'):
         f'<span class="n2" style="color:{K["pr"][1]}">간병인 지원</span>' if sup else '', bool(sup))
     nv = max([r['man'] for r in nano] or [0])
     nd = min(days, min([S.tokens(S.nname(r['name']))['limit'] or days for r in nano] or [days]))
-    add('hospital_symbol', 'cv', '간호·간병통합병실', f'하루 {man(nv)}만원 × {nd}일' if nv else '미가입',
+    add('hospital_symbol', 'cv', '간호·간병통합병실', f'하루 {won(nv)} × {nd}일' if nv else '미가입',
         big(nv * nd, K['cv'][1]), nv > 0)
     uv = max([r['man'] for r in use] or [0])
     ud = min(days, min([S.tokens(S.nname(r['name']))['limit'] or days for r in use] or [days]))
-    add('nurse', 'ms', '간병인 직접 사용', f'하루 {man(uv)}만원 × {ud}일 · 영수증 제출 시' if uv else '해당 담보 없음',
+    add('nurse', 'ms', '간병인 직접 사용', f'하루 {won(uv)} × {ud}일 · 영수증 제출 시' if uv else '해당 담보 없음',
         big(uv * ud, K['ms'][1]), uv > 0)
     while len(cells) > 8:                                 # 4×2 그리드 유지 — 미가입 칸부터 뒤에서 뺀다
         off = [i for i, c in enumerate(cells) if not c['on']]
@@ -363,9 +367,9 @@ def care_cards():
     for r in RID:
         n=r['name'].replace(' ','')
         if '간호·간병통합' in n or '간호간병통합' in n:
-            out.append(('hospital_symbol','간호·간병통합병실 입원 시',f'{cause(r["name"])} {days(r["name"])}',f'하루 {man(r["man"])}만원',K['yr']))
+            out.append(('hospital_symbol','간호·간병통합병실 입원 시',f'{cause(r["name"])} {days(r["name"])}',f'하루 {won(r["man"])}',K['yr']))
         elif '간병인사용' in n:
-            out.append(('nurse','간병인 사용 시',f'{cause(r["name"])} {days(r["name"])}',f'하루 {man(r["man"])}만원',K['ms']))
+            out.append(('nurse','간병인 사용 시',f'{cause(r["name"])} {days(r["name"])}',f'하루 {won(r["man"])}',K['ms']))
         elif '간병인지원' in n:
             out.append(('nurse','간병인 지원 가능',f'{cause(r["name"])} {days(r["name"])} · 회사가 간병인을 보내드려요','간병인 지원',K['pr']))
     if not out: return '<div class="cc2"><span class="cnote">간병 관련 담보 미가입</span></div>'
@@ -596,7 +600,7 @@ def dz_blocks(part, codes, T, groups=None, labeled=True):
         jm = joined(nm)
         cells = ''.join(f'<td><i style="background:{col if h else "#EDEFF2"}"></i></td>' for h in hit)
         body += (f'<tr><th class="rl"><i style="background:{col}"></i><div><b>{nm}</b><span>{sm}</span>'
-                 f'<em style="color:{col}">{man(jm)+"만원 가입" if jm else ""}</em>{"" if jm else "<em class=no>미가입</em>"}</div></th>{cells}'
+                 f'<em style="color:{col}">{won(jm)+" 가입" if jm else ""}</em>{"" if jm else "<em class=no>미가입</em>"}</div></th>{cells}'
                  f'<td class="gg"><b style="color:{col}">{n}</b><span>/{tot}</span><div class="bar"><u style="width:{pct}%;background:{col}"></u></div></td></tr>')
     return f'<table class="dzb {part}"><thead>{head}</thead><tbody>{body}</tbody></table>'
 
@@ -665,7 +669,7 @@ def itc_filler(its, no):
             cells += f'<td><span class="itcst">{stg}</span>{big(v, K[f["k"]][1]) if v else "<span class=z>—</span>"}</td>'
         if not tot: return ''
         cap = min(tot, r['man'])
-        return f'<tr><th class="rl">{S.itc.RM[r["itc"]]["nm"][:18]}<br><span>{f["t"]} 사례 · 한도 {man(r["man"])}만원</span></th>{cells}<td class="itcsum">{big(cap, "#C92A2A")}<em>{"한도 적용" if tot > r["man"] else "연간 합계"}</em></td></tr>'
+        return f'<tr><th class="rl">{S.itc.RM[r["itc"]]["nm"][:18]}<br><span>{f["t"]} 사례 · 한도 {won(r["man"])}</span></th>{cells}<td class="itcsum">{big(cap, "#C92A2A")}<em>{"한도 적용" if tot > r["man"] else "연간 합계"}</em></td></tr>'
     for r in its:
         it = r['itc'] or ''
         flows = [f for f in FLOW if not f.get('extra') and (f['k'] == 'ca' if it.startswith(('ca', 'pre')) else f['k'] in ('cv', 'yr'))]
@@ -716,10 +720,10 @@ def page_itc():
                 sub = f'{d["c"]} · {"비급여" if d["nc"] else "급여"} · {freq}' + (' · 합산' if d['n'] > 1 else '')
                 cards += f'<div class="itci2"><b>{key[:15]}</b><span>{sub}</span>{big(d["amt"],K[k][1])}</div>'
             else:
-                chips += f'<span class="itcchip"><b>{key[:14]}</b>{man(d["amt"])}만원</span>'
+                chips += f'<span class="itcchip"><b>{key[:14]}</b>{won(d["amt"])}</span>'
         cap = sum(r['man'] for r in rs)
         no += 1
-        sections += f'''<div class="itcsec">{tabhd(no, k, title, f'가입 {len(rs)}개 · 연간 한도 합계 {man(cap)}만원 · 항목별 약관 금액(1년 경과 후)')}
+        sections += f'''<div class="itcsec">{tabhd(no, k, title, f'가입 {len(rs)}개 · 연간 한도 합계 {won(cap)} · 항목별 약관 금액(1년 경과 후)')}
           <div class="itcgrid">{cards}</div>{f'<div class="itcchips">{chips}</div>' if chips else ''}</div>'''
     extra = itc_filler(its, no) if len(its) <= 2 else ''       # 통합치료비가 1~2개뿐이면 남는 지면을 치료 흐름·설명으로 채운다(v8.13)
     return f'''<div class="itctop"><div class="itcrs">{top}</div><div class="itctot"><span>통합치료비 연간 한도 합계</span>{big(total,'#C92A2A')}<em>해마다 새로 적용 · 담보별 한도는 각각</em></div></div>
@@ -844,17 +848,19 @@ def summary_cards():
     sg = T(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), []))
     day = T(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), []))
     sup, nano, use = _care_sum()
-    care = '간병인 지원' if sup else (f'하루 {man(nano)}만원' if nano else (f'하루 {man(day)}만원' if day else '미가입'))
+    care = '간병인 지원' if sup else (f'하루 {won(nano)}' if nano else (f'하루 {won(day)}' if day else '미가입'))
     caresub = []
     if sup: caresub.append('간병인지원')
-    if nano: caresub.append(f'간호·간병통합 {man(nano)}만원')
-    if use: caresub.append(f'간병인사용 {man(use)}만원')
-    cards = [(F['cancer'], 'cancerous_cell_nuclei', 'ca', '암 진단', '암(유사암제외) 진단확정 시', big(ca, K['ca'][1]), '진단비 합산'),
-             (F['brain'], 'neurology', 'cv', '뇌혈관 질환', '뇌경색·뇌출혈 진단확정 시', big(cv, K['cv'][1]), '진단비 합산'),
-             (F['heart'], 'heart_organ', 'yr', '심혈관 질환', '급성심근경색 진단확정 시', big(ht, K['yr'][1]), '진단비 합산'),
+    if nano: caresub.append(f'간호·간병통합 {won(nano)}')
+    if use: caresub.append(f'간병인사용 {won(use)}')
+    dxnote = lambda v: '진단비 합산' if v > 0 else '진단비 미가입 · 수술·치료 담보로 보장'
+    cards = [(F['cancer'], 'cancerous_cell_nuclei', 'ca', '암 진단', '암(유사암제외) 진단확정 시', big(ca, K['ca'][1]), dxnote(ca)),
+             (F['brain'], 'neurology', 'cv', '뇌혈관 질환', '뇌경색·뇌출혈 진단확정 시', big(cv, K['cv'][1]), dxnote(cv)),
+             (F['heart'], 'heart_organ', 'yr', '심혈관 질환', '급성심근경색 진단확정 시', big(ht, K['yr'][1]), dxnote(ht)),
              (F['surg'] or F['inj_surg'], 'knife', 'pr', '수술', '질병 5종 수술 1회(상급종합)', big(sg, K['pr'][1]), '모든 수술비 합산'),
-             (F['day'] or F['care'], 'nurse', 'ms', '입원 · 간병', f'입원 하루 {man(day)}만원', f'<span class="n2" style="color:{K["ms"][1]}">{care}</span>',
-              ' · '.join(caresub) or ('입원일당 · 간병 담보 미가입' if day else '간병 담보 미가입'))]
+             (F['day'] or F['care'], 'nurse', 'ms', '입원 · 간병',
+              f'입원 하루 {won(day)}' if day else '입원일당 미가입', f'<span class="n2" style="color:{K["ms"][1]}">{care}</span>',
+              ' · '.join(caresub) or ('간병 담보 미가입' if day else '입원일당 · 간병 담보 미가입'))]
     cards = [c for c in cards if c[0]]                   # 설계에 없는 계열 카드는 빠진다(v8.4)
     html = ''
     for on, ic, k, t, s2, v, note in cards:
@@ -872,7 +878,7 @@ def page_all():
         d = K[k][1]
         cut = 30 if len(RID) <= 80 else 19
         items = ''.join(f'<span class="al"><i>{r["no"]}</i>{r["name"][:cut]}<b>{man(r["man"])}</b></span>' for r in sorted(rs, key=lambda x: -x['man']))
-        blocks += f'''<div class="ablk"><div class="ah" style="color:{d}"><span class="adot" style="background:{d}"></span>{nm}<em>{len(rs)}개 · 합계 {man(sum(x["man"] for x in rs))}만원</em></div><div class="ag">{items}</div></div>'''
+        blocks += f'''<div class="ablk"><div class="ah" style="color:{d}"><span class="adot" style="background:{d}"></span>{nm}<em>{len(rs)}개 · 합계 {won(sum(x["man"] for x in rs))}</em></div><div class="ag">{items}</div></div>'''
     return f'''{blocks}
  <div class="tip">{e('bulb','#D9480F')}<span><b>지급 기준 요약</b> · 진단비는 최초 1회 · 수술비는 수술할 때마다(1~5종은 동시 수술 시 가장 높은 종 1가지) · 통합치료비는 항목별 연간 1회, 연간 한도는 가입금액까지 해마다 새로 적용 · 입원일당은 병원 종별·병실 종류·한도일수 조건 충족 시 지급 · 131대질병수술비 등 일반 질병 담보는 <b>암·유사암에는 지급되지 않아요</b>.</span></div>'''
 
@@ -910,7 +916,7 @@ INJ_ACT = {'MRI': 'x_mri', 'CT': 'x_ct', '골밀도': 'x_bmd', '흡인': 'aspir'
 def inj_itc_rider():
     for r in RID:
         for k, tiers in INJ_ITC.items():
-            if S.nname(k) == S.nname(r['name']) and str(r['man']) in tiers: return r, tiers[str(r['man'])]
+            if S.nname(k) in (S.nname(r['name']), S.noren(r['name'])) and str(r['man']) in tiers: return r, tiers[str(r['man'])]
     return None, None
 def inj_itc_pay(items, acts, surg=None, rehab=0):
     """상해 통합치료비 — 시나리오 행위(acts)·수술 종·재활 일수로 항목별 지급액 계산"""
@@ -939,8 +945,8 @@ def inj_itc_block(no=2):
         chips = ''.join(f'<span class="fi">{l[:16]}<b>{man(a)}</b></span>' for l, a in sorted(pays, key=lambda x: -x[1])[:6])
         cards += f'''<div class="frow">{et(ic,K['yr'][3],22,K['yr'][1])}<div class="fnm"><b>{nm}</b><em>{desc}</em></div>
           <div class="fitems">{chips or '<span class="fi none">해당 항목 없음</span>'}</div><div class="fpay"><div><span>통합치료비</span>{big(tot,K['yr'][1])}</div></div></div>'''
-    top = ''.join(f'<span class="itcchip"><b>{it["l"][:14]}</b>{man(it["amt"])}만원</span>' for it in sorted(items, key=lambda x: -x['amt'])[:10])
-    return (tabhd(no, 'yr', '상해 통합치료비 보장 예시', f'{r["name"]} {man(r["man"])}만원 · 약관 지급금액표 · 검사·주요치료 연간 1회, 수술은 수술마다, 재활 1일 1회')
+    top = ''.join(f'<span class="itcchip"><b>{it["l"][:14]}</b>{won(it["amt"])}</span>' for it in sorted(items, key=lambda x: -x['amt'])[:10])
+    return (tabhd(no, 'yr', '상해 통합치료비 보장 예시', f'{r["name"]} {won(r["man"])} · 약관 지급금액표 · 검사·주요치료 연간 1회, 수술은 수술마다, 재활 1일 1회')
             + f'<div class="frows">{cards}</div><div class="itcchips">{top}</div>')
 
 def page_inj():
