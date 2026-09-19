@@ -61,6 +61,11 @@ if __name__=='__main__':
         import matcher
         rows = matcher.read_proposal(orig)
         c['riders'] = matcher.read_proposal(orig, line=guess_line(rows))
+        try:
+            import desc_engine
+            c['riders'], c['desc_info'] = desc_engine.attach(c['riders'], orig)
+        except Exception as e:
+            c['desc_info'] = {'ok': False, 'err': str(e)}
         c['src'] = os.path.basename(orig)
         json.dump(c, open(cust, 'w', encoding='utf-8'), ensure_ascii=False)
         print('자동 인식 —', c['insured'], c['premium'], '· 담보', len(c['riders']), '건 · 매칭', sum(1 for r in c['riders'] if r.get('matched')), '건')

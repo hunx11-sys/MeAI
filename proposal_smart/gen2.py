@@ -1002,6 +1002,16 @@ html = '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>%s</st
 open(sys.argv[2], 'w', encoding='utf-8').write(html)
 A = S.audit(RID)
 A['생성쪽수'] = NEW; A['첨부'] = bool(P); A['제외지면'] = SKIPPED; A['보장계열'] = F
+# 2차 안전장치(v8.22) : 1차(약관+규칙표)로 계산하지 못한 담보에 상품설명서 요약에서 읽은 지급조건을 붙인다
+try:
+    import desc_engine as DE
+    _out = [x['담보'] for x in S.ISSUES]
+    A['2차판정'] = [{'담보': r['name'], 'no': r.get('no'), '설명문기준': DE.explain(r.get('desc2') or {}),
+                    '별표후보': DE.group_hint(r.get('desc') or '')}
+                   for r in RID if r.get('desc2') and r['name'] in _out and DE.explain(r.get('desc2') or {})]
+    A['설명문인식'] = C.get('desc_info') or {}
+except Exception as _e:
+    A['2차판정'] = []
 A['피보험자성별'] = {'M': '남', 'F': '여'}.get(SEX, '미확인(성별 중립 사례)'); A['사례'] = [f['t'] for f in pick_cases()] if P else []
 print('ok', len(P), '쪽 · 담보', A['담보수'], '건', A['구조별'])
 if not P: print('  [미첨부] 암·뇌·심장·통합치료비 계열 담보가 없어 스마트제안서를 만들지 않습니다(단일상품 등)')

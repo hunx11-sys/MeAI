@@ -52,6 +52,11 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
     if not c.get('riders'):
         c['riders'] = read_riders(src_pdf)
     c['src'] = os.path.basename(src_pdf)
+    try:                                   # 2차 안전장치(v8.22) : 상품설명서의 담보별 약관 요약을 읽어 붙인다
+        import desc_engine
+        c['riders'], c['desc_info'] = desc_engine.attach(c['riders'], src_pdf)
+    except Exception as e:
+        c['desc_info'] = {'ok': False, 'err': str(e)}
     c['insert_after'] = BA.last_cover_page(src_pdf)
     c['base_pages'] = BA.page_count(src_pdf)
 

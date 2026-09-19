@@ -97,18 +97,36 @@ def log(kind, name, reason):
 
 _CC = {}
 _XSUB = re.compile(r'\[[^\]]*(진단비|치료비|수술비|입원일당|통원일당)[^\]]*\]')
-def classify(name):
-    """담보명 → 규칙(rules.json). 없으면 None."""
-    nm = nname(name)
-    if nm in _CC: return _CC[nm]
-    hit = None
+_SUBN = re.compile(r'\[([^\[\]]+)\]$')
+
+
+def _rule_for(nm):
     for r in RULES:
         if not r['_m'].search(nm): continue
         if r['_x'] and r['_x'].search(nm): continue
         # 부모 담보명에 '사망·후유장해'가 섞여 있어도 세부급부가 진단비·치료비 등 계산 대상이면
         # 사망·후유장해 규칙을 건너뛴다 — 예) 암후유장해및진단비[암진단비(유사암제외)] (v8.8)
         if r['kind'] == 'life' and _XSUB.search(nm): continue
-        hit = r; break
+        return r
+    return None
+
+
+def classify(name):
+    """담보명 → 규칙(rules.json). 없으면 None.
+
+    세부급부가 있는 담보(부모[세부])는 **세부급부가 보상 유형을 정한다**(v8.23).
+    '암치료,후유장해및진단비[표적항암약물허가치료비…]' 처럼 부모 이름만 보면 진단비로 읽히지만
+    실제 지급 대상은 세부급부(치료비)다. 부모 이름만 보고 단정하지 않는다.
+    다만 부모 규칙이 세부급부명으로 암종·치료를 다시 읽는 구조(by_benefit)면 부모를 그대로 둔다.
+    """
+    nm = nname(name)
+    if nm in _CC: return _CC[nm]
+    hit = _rule_for(nm)
+    m = _SUBN.search(nm)
+    if m:
+        sub = _rule_for(m.group(1))
+        if sub and (hit is None or (not (hit.get('opt') or {}).get('by_benefit') and sub['kind'] != hit['kind'])):
+            hit = sub
     _CC[nm] = hit
     return hit
 
