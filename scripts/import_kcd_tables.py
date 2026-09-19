@@ -62,13 +62,29 @@ def blocks(doc):
     return out
 
 
-# 약관 모든 분류표에 공통으로 붙는 '출생전후기에 기원한 특정 병태(P00~P96) 제외' 문장 —
+# 약관 모든 분류표에 공통으로 붙는 '출생전후기 질병(P00~P96)은 포함되지 않습니다' 문장 —
 # 이 표의 대상질병이 아니라 공통 면책이라 코드로 잡으면 모든 그룹이 오염된다.
-BOILER = re.compile(r'출생전후기[^\n]{0,60}?P00\s*~\s*P96[^\n]{0,20}')
+BOILER = re.compile(r'출생전후기[\s\S]{0,60}?P00\s*~\s*P96[\s\S]{0,24}')
+# 분류표 본문에서 '대상질병 표'만 잘라낸다. 표 앞뒤의 안내문·주석(※)에도 코드가 나오는데
+# 그것은 이 표의 대상질병이 아니다(유방암 분류표의 C77~C80 주석 등).
+TBL_HEAD = re.compile(r'대\s*상\s*질\s*병\s*\n\s*분\s*류\s*번\s*호')
+TBL_TAIL = re.compile(r'대상질병\s*분류표의\s*분류번호와\s*다르나|※|제10차\s*개정')
 
 
-def codes_of(text):
+def table_part(text):
+    """분류표 본문 → 대상질병 표 구간만. 표 머리말을 못 찾으면 원문을 그대로 돌려준다."""
+    m = TBL_HEAD.search(text)
+    if not m:
+        return text
+    body = text[m.end():]
+    t = TBL_TAIL.search(body)
+    return body[:t.start()] if t else body
+
+
+def codes_of(text, table_only=True):
     """본문 → 질병코드 목록(범위는 A15~A19 표기 그대로, 제외는 !코드)"""
+    if table_only:
+        text = table_part(text)
     text = BOILER.sub(' ', text)
     out, seen = [], set()
     for m in CODE.finditer(text):
@@ -160,6 +176,12 @@ def main():
             if k2 not in have and len(sc) < len(c):
                 found[k2] = sc
 
+    if '--dump' in sys.argv:                      # 추출 결과를 그대로 파일로 — 약관끼리 교차 대조할 때 쓴다
+        out = sys.argv[sys.argv.index('--dump') + 1]
+        json.dump({'src': os.path.basename(sys.argv[1]), 'groups': found,
+                   'same': [k for k, _, _ in same], 'diff': [k for k, _, _ in diff]},
+                  open(out, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+        print('덤프 →', out)
     print('기존 그룹과 일치 %d종 · 다름 %d종 · 새 그룹 후보 %d종' % (len(same), len(diff), len(found)))
     for k, a, b in diff[:10]:
         print('   [다름] %-28s 기존 %d개 / 약관 %d개' % (k[:28], a, b))
