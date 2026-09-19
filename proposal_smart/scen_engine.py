@@ -387,6 +387,8 @@ def pay_lines(riders, sc):
                 if nm not in INJ_KNOWN and noren(nm) not in INJ_KNOWN:
                     log('금액표없음', n, '약관 지급금액표(product_data.json RIDERS)에 없는 통합치료비 — 계산 제외 (금액표 보강 필요)')
                 continue
+            if rule['kind'] == 'skip' and (rule.get('opt') or {}).get('log'):
+                log('조건부', n, rule['opt']['log']); continue   # 병기·상태 조건이 붙어 사례로 단정할 수 없는 담보(v8.21)
             h = HANDLER.get(rule['kind'])
             if h is None: continue                       # care·life·nonmed·skip = 사례 계산 대상 아님
             for amt, why, grp, freq in h(r, rule.get('opt') or {}, sc, nm, tokens(nm)):

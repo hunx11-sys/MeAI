@@ -474,9 +474,14 @@ def pick_cases():
 def flow_card(f):
     d = K[f['k']][1]; tl = K[f['k']][3]; acc = 0; cards = ''
     steps = f['steps'] + ([f['recur']] if f.get('recur') and F['recur'] else [])   # 재진단암 담보가 있는 설계만 5단계(v8.12)
+    paid = set()          # 한 사례 안에서 '연간 1회한·최초 1회한' 담보는 한 단계에서만 센다(v8.21)
     for i, (stg, ic, nm, itc, tg) in enumerate(steps):
         tags = dict(cause='질병', grp=[], hosp='상급종합', room=None, days=0); tags.update(tg)
-        L = Q(f['kcd'], tags, itc); v = T(L, 'first'); acc += v
+        L = Q(f['kcd'], tags, itc)
+        once = lambda x: x.get('freq') in ('year', 'once') and x.get('group') != '통합치료비'
+        L = [x for x in L if not (once(x) and x['name'] in paid)]
+        paid |= {x['name'] for x in L if once(x)}
+        v = T(L, 'first'); acc += v
         pos = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0]
         det2 = ''.join(f'<li><span>{disp(x["name"])[:22]}</span><b>{man(x["amt"])}</b></li>' for x in pos[:5])
         if len(pos) > 5: det2 += f'<li><span>외 {len(pos)-5}개 담보</span><b>{man(sum(x["amt"] for x in pos[5:]))}</b></li>'
@@ -877,7 +882,7 @@ def page_all():
         k = {'암': 'ca', '뇌·심장': 'cv', '통합치료비': 'yr', '수술': 'pr', '입원·간병': 'ms', '상해·사망': 'pk'}.get(nm, 'pr')
         d = K[k][1]
         cut = 30 if len(RID) <= 80 else 19
-        items = ''.join(f'<span class="al"><i>{r["no"]}</i>{r["name"][:cut]}<b>{man(r["man"])}</b></span>' for r in sorted(rs, key=lambda x: -x['man']))
+        items = ''.join(f'<span class="al"><i>{r["no"]}</i>{r["name"][:cut]}<b>{man(r["man"])}</b></span>' for r in sorted(rs, key=lambda x: (x.get('no') or 0)))
         blocks += f'''<div class="ablk"><div class="ah" style="color:{d}"><span class="adot" style="background:{d}"></span>{nm}<em>{len(rs)}개 · 합계 {won(sum(x["man"] for x in rs))}</em></div><div class="ag">{items}</div></div>'''
     return f'''{blocks}
  <div class="tip">{e('bulb','#D9480F')}<span><b>지급 기준 요약</b> · 진단비는 최초 1회 · 수술비는 수술할 때마다(1~5종은 동시 수술 시 가장 높은 종 1가지) · 통합치료비는 항목별 연간 1회, 연간 한도는 가입금액까지 해마다 새로 적용 · 입원일당은 병원 종별·병실 종류·한도일수 조건 충족 시 지급 · 131대질병수술비 등 일반 질병 담보는 <b>암·유사암에는 지급되지 않아요</b>.</span></div>'''
