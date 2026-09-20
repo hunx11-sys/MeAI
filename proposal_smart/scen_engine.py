@@ -111,6 +111,106 @@ INJ_KNOWN = set()                                     # 상해 통합치료비 :
 if os.path.exists(os.path.join(BASE, 'inj_itc.json')):
     INJ_KNOWN = {nname(k) for k in json.load(open(os.path.join(BASE, 'inj_itc.json'), encoding='utf-8'))}
 
+# 담보 → 항목표. 근거는 두 가지이며 순서가 정해져 있다.
+#   ① 이 설계서 상품설명서의 담보 설명문에 실린 항목표 — 1순위(그 상품·그 가입금액의 실제 표)
+#   ② 약관 지급금액표(life_support.json) — 설명문이 없을 때. 단 서로 다른 상품 약관에서
+#      같은 표임을 대조한 담보만 쓴다. 확인하지 못한 금액은 만들지 않는다.
+_LS_ITEMS = {}
+def ls_items(r):
+    """담보 → (항목표, 근거) · 근거는 'paper'(상품설명서) · 'book'(약관) · None(없음)"""
+    key = id(r)
+    if key in _LS_ITEMS: return _LS_ITEMS[key]
+    rid = ls_id(r['name'])
+    res = ([], None)
+    if rid:
+        v = LS.get(rid) or {}
+        book = ls_tier(rid, r['man'])
+        try:
+            import desc_engine as DE
+            paper = DE.life_items(r.get('desc') or '')
+        except Exception:
+            paper = []
+        if paper and book:
+            k = lambda xs: sorted((re.sub(r'\s', '', x['label']), x['amt']) for x in xs)
+            if k(paper) != k(book):
+                log('교차대조', r['name'], '상품설명서 설명문과 약관 지급금액표의 항목·금액이 달라 설명문 기준으로 표시함')
+        if paper: res = (paper, 'paper')
+        elif book and len(v.get('srcs') or []) >= 2: res = (book, 'book')
+        elif book: log('근거부족', r['name'], '이 상품 약관·설명문에서 항목표를 확인하지 못해 계산·지면에서 제외 (다른 상품 약관 1곳에만 있어 대조 불가)')
+        else: log('금액표없음', r['name'], '가입금액 %g만원 구간의 항목표가 설명문에도 약관에도 없어 계산·지면에서 제외' % r['man'])
+    _LS_ITEMS[key] = res
+    return res
+
+# 사례 단계 → 통합생활지원비 항목. 약관 항목명을 그대로 읽어 맞춘다.
+#   · 전신마취는 **기본(급여)만** 인정한다 — 4시간·6시간 이상 여부는 사례로 단정할 수 없다(과소 계산 쪽으로).
+#   · 산정특례 등록은 진단 단계에서 한 번, 그 사례의 병이 그 항목에 해당할 때만.
+#   · 희귀질환·중증난치·중증화상·중증외상 산정특례는 사례로 단정하지 않는다.
+def _ls_evkeys(sc):
+    ks = set()
+    for ev in (sc.get('itc_events') or []):
+        if len(ev) > 3: ks |= set(ev[3] or [])
+    return ks
+
+def ls_lines(r, sc):
+    """이 사례 단계에서 통합생활지원비가 얼마 나오는지 → [(항목명, 금액)] · 합계는 월간 한도(가입금액)까지"""
+    items, src = ls_items(r)
+    if not items: return [], False
+    tg = sc.get('tags') or {}
+    ks = _ls_evkeys(sc)
+    code = sc.get('kcd') or ''
+    dc = itc.cancer_cls(code)
+    dx = tg.get('dx') or ''
+    grp = tg.get('grp') or []
+    brain = (dx == 'brain') or ('뇌혈관질환' in grp)
+    heart = (dx == 'heart') or ('심장질환' in grp)
+    anes = bool(tg.get('anes'))                       # 전신마취 수술인지는 사례에 명시된 것만 본다
+    icu = bool(tg.get('icu')) or ('icu' in ks)
+    chemo = bool(tg.get('chemo')) or ('chemo' in ks)
+    rad = bool(tg.get('rad')) or ('rad' in ks)
+    thromb = ('thromb' in ks)
+    rehab = ('rehab' in ks)
+    got = []
+    for it in items:
+        lb = re.sub(r'\s', '', it['label'])
+        amt = it['amt']
+        if amt <= 0: continue
+        hit = False
+        if it['grp'] == '산정특례':
+            if not dx: continue                        # 산정특례 등록은 진단 단계에서 한 번
+            if '유사암' in lb and '제외' not in lb: hit = (dc in ('cis', 'thy', 'skin'))
+            elif '암(' in lb or lb.startswith('중증질환자(암'): hit = (dc == 'major')
+            elif '뇌·수막' in lb or '뇌·수막의양성신생물' in lb: hit = bool(re.match(r'^D3[23]', code))
+            elif '뇌혈관' in lb: hit = brain
+            elif '심장' in lb: hit = heart
+            else: hit = False                          # 희귀·중증난치·중증화상·중증외상 — 사례로 단정하지 않는다
+        elif '전신마취' in lb:
+            hit = anes and ('시간이상' not in lb)
+        elif '중환자실' in lb:
+            hit = icu
+        elif '항암방사선' in lb:
+            hit = rad and _ls_cancer_row(lb, dc)
+        elif '항암약물' in lb:
+            hit = chemo and _ls_cancer_row(lb, dc)
+        elif '혈전용해' in lb:
+            hit = thromb
+        elif '재활' in lb:
+            hit = rehab and '전문재활' in lb and '전문외' not in lb and '외래' not in lb
+        if hit: got.append((it['label'], amt))
+    tot = sum(a for _l, a in got)
+    if tot <= r['man']: return got, False
+    # 월간 총 지급금액 한도 — 한 달에 받는 합계는 가입금액까지
+    out, left = [], r['man']
+    for l, a in sorted(got, key=lambda x: -x[1]):
+        if left <= 0: break
+        out.append((l, min(a, left))); left -= min(a, left)
+    return out, True
+
+def _ls_cancer_row(lb, dc):
+    """'암(유사암제외) 항암…' / '유사암 항암…' 행 가리기"""
+    if lb.startswith('유사암'): return dc in ('cis', 'thy', 'skin')
+    if '암(유사암제외)' in lb: return dc == 'major'
+    return dc is not None
+
 ISSUES = []                                           # 미분류·검토필요 로그(운영 점검용)
 def log(kind, name, reason):
     it = {'구분': kind, '담보': name, '사유': reason}
@@ -431,7 +531,16 @@ def pay_lines(riders, sc):
                                 'group': '통합치료비', 'no': r.get('no'), 'freq': 'year',
                                 'each': min(ea, res['cap']), 'rule': 'itc', 'itc': r['itc']})
                 continue
-            # 2) 규칙표 판정
+            # 2) 통합생활지원비 — 산정특례 등록·치료 항목마다 월 단위 지급(가입금액 = 월간 한도)
+            if ls_id(n):
+                lines, capped = ls_lines(r, sc)
+                if lines:
+                    out.append({'name': n, 'amt': sum(a for _l, a in lines), 'group': '통합생활지원비',
+                                'why': ' · '.join('%s %s' % (l, format(a, ',.0f')) for l, a in lines)
+                                       + ('  (월간 한도 적용)' if capped else ''),
+                                'no': r.get('no'), 'freq': 'year', 'rule': 'ls_monthly'})
+                continue
+            # 3) 규칙표 판정
             rule = classify(n)
             if rule is None:
                 log('미분류', n, '규칙표에 해당 담보 유형이 없어 계산 제외 (rules.json 보강 필요)')

@@ -125,6 +125,10 @@ def tabhd(no, k, title, note=''):
 def Q(kcd, tags, itc=None):
     return S.pay_lines(RID, {'kcd': kcd, 'tags': tags, 'itc_events': itc or []})
 def T(L, mode='first'): return S.total_by(L, mode)
+def nols(L):
+    """진단비 칸에서 통합생활지원비를 뺀다 — 진단확정이 아니라 산정특례 등록·치료 때 나오는 돈이라
+       '진단확정 시 N만원' 칸에 섞으면 진단비를 부풀려 보이게 한다(v8.37)"""
+    return [x for x in L if x.get('group') != '통합생활지원비']
 
 # ══ 매트릭스 헬퍼 : 열 = 치료, 행 = 최초/반복/매회 ══
 def matrix(k, cols, rows=('최초 지급', '반복(연 1회)', '수술할 때마다'), modes=('first', 'year', 'each'), foot=''):
@@ -143,9 +147,13 @@ def disp(n):
     if m2 and '(1-5종)' not in n: return f'{m2.group(2)}종({m2.group(1)} 1-7종)'
     return n.replace('┗', '').strip()
 
-def det(L, n=3):
-    it = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0][:n]
-    return '<br>'.join(f'{disp(x["name"])[:19]} {man(x["amt"])}{cutmark(x["name"], 1)}' for x in it) or '—'
+def det(L, n=2):
+    """금액 칸 아래 '어느 담보에서 나오는지' — 큰 것 n개만 적고 나머지는 '+N개 특약'으로 줄인다(v8.37)"""
+    pos = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0]
+    if not pos: return '—'
+    line = [f'{disp(x["name"])[:19]} {man(x["amt"])}{cutmark(x["name"], 1)}' for x in pos[:n]]
+    if len(pos) > n: line.append(f'<i>+{len(pos)-n}개 특약 {man(sum(x["amt"] for x in pos[n:]))}</i>')
+    return '<br>'.join(line)
 
 ITCK = {'x': ['x_ct']}
 # ── 암 ─────────────────────────────────────────────
@@ -206,7 +214,7 @@ def page_cancer():
     dxrow = [('일반암', '위·대장·폐·간암 등', 'cancer', 'C16'), ('유사암', '갑상선암·기타피부암·제자리암·경계성종양', 'sim_cancer', 'C73')]
     dxcells = ''
     for t, s2, dx, kcd in dxrow:
-        L = Q(kcd, dict(dx=dx, cause='질병', grp=[]), [])
+        L = nols(Q(kcd, dict(dx=dx, cause='질병', grp=[]), []))
         dxcells += f'<div class="dxc"><b>{t}</b><span>{s2}</span>{big(T(L),d)}<em>{det(L,2)}</em></div>'
     return f'''{tabhd(1,'ca','암 진단','암으로 진단확정되면 진단비가 최초 1회 지급돼요')}
  <div class="dxs">{dxcells}
@@ -218,10 +226,10 @@ def page_cancer():
                {'ic':'robot','t':'다빈치 로봇수술','s':'비급여(전액본인부담)','L':c['robot'],'d':det(c['robot'])}],
         foot='※ 상급종합병원에서 수술한 경우의 예시 · 유사암(갑상선암·기타피부암·제자리암·경계성종양)은 암 진단비·131대질병수술비 대상이 아니며 유사암 금액이 별도 적용돼요.')}
  {tabhd(3,'pk','항암약물치료','표적·면역 등 고가 비급여 항암치료를 해마다 다시 보장')}
- {matrix('pk',[{'ic':'syringe','t':'화학항암약물','s':'급여 적용 치료','L':c['chemo'],'d':det(c['chemo'],3)},
-               {'ic':'target','t':'표적항암 1종','s':'비급여 · 약물 1종만 사용','L':c['target1'],'d':det(c['target1'],3)},
-               {'ic':'target','t':'표적항암 2종 이상','s':'비급여 · 연간 약물종류 2종~','L':c['target2'],'d':det(c['target2'],3)},
-               {'ic':'immune','t':'면역항암 + 표적','s':'비급여 · 면역관문억제제 병용','L':c['immune'],'d':det(c['immune'],3)}],
+ {matrix('pk',[{'ic':'syringe','t':'화학항암약물','s':'급여 적용 치료','L':c['chemo'],'d':det(c['chemo'])},
+               {'ic':'target','t':'표적항암 1종','s':'비급여 · 약물 1종만 사용','L':c['target1'],'d':det(c['target1'])},
+               {'ic':'target','t':'표적항암 2종 이상','s':'비급여 · 연간 약물종류 2종~','L':c['target2'],'d':det(c['target2'])},
+               {'ic':'immune','t':'면역항암 + 표적','s':'비급여 · 면역관문억제제 병용','L':c['immune'],'d':det(c['immune'])}],
         rows=('최초 지급','반복(연 1회)','수술할 때마다'),
         foot='' if len(RID) > 80 else '※ 표적항암약물허가치료비(2종 및 3종 이상)는 <b>연간 표적항암제 약물종류가 2종 이상</b>일 때 지급돼요. 1종만 쓰면 통합치료비 표적항암 항목만 지급되어 두 경우를 나눠 계산했어요(면역관문억제제는 약관상 표적항암제에 포함).')}
  {tabhd(4,'yr','항암방사선치료','정상 세포 손상을 줄이는 세기조절 · 양성자치료까지')}
@@ -253,14 +261,14 @@ def page_cv():
         r1 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="모든",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
         r2 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
         r3 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"each"),"#343A40")}</td>' for c in cols)
-        r4 = ''.join(f'<td class="dt">{det(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),3)}</td>' for c in cols)
-        dx_amt = T(Q(kcd, dict(dx=dx, cause='질병', grp=grp), []), 'first')
+        r4 = ''.join(f'<td class="dt">{det(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]))}</td>' for c in cols)
+        dx_amt = T(nols(Q(kcd, dict(dx=dx, cause='질병', grp=grp), [])), 'first')
         rows.append((k, kcd, dx, cells, r1, r2, r3, r4, dx_amt, cols, grp))
     def blk(x, no):
         k, kcd, dx, cells, r1, r2, r3, r4, dxa, cols, grp = x
         d = K[k][1]; nm = '뇌혈관 질환' if dx == 'brain' else '심혈관 질환'
         icon = 'neurology' if dx == 'brain' else 'heart_organ'
-        dxl = Q(kcd, dict(dx=dx, cause='질병', grp=grp))
+        dxl = nols(Q(kcd, dict(dx=dx, cause='질병', grp=grp)))
         return f'''{tabhd(no,k,nm+' 진단 · 치료','진단금은 최초 1회 · 치료 금액은 진단금을 뺀 순수 치료 보장액')}
      <div class="cvwrap"><div class="cvdx" style="background:{K[k][2]}">{et(icon,'#fff',26,d)}<b>{('뇌경색·뇌출혈 등' if dx=='brain' else '급성심근경색·협심증 등')}</b>
         <span>진단확정 시</span>{big(dxa,d) if dxa>0 else '<span class="nop">해당 진단비 미가입</span>'}<em>{det(dxl,2) if dxa>0 else '수술·치료 담보로 보장돼요'}</em></div>
@@ -435,7 +443,7 @@ def itc_items():
 FLOW = [
  dict(k='ca', ic='lungs', t='폐암', sub='진단 → 흉강경 폐절제 → 표적·면역(키트루다) 항암 → 입원', kcd='C34',
       steps=[('검사', 'microscope', '흉부 CT · PET · 조직검사', [['검사', '흉부 CT · PET · 조직검사', '', ['x_ct', 'x_pet', 'x_bio']]], dict(dx='cancer', hc=['CB003', 'CB004'])),   # NGS 유전자패널(고형암 Level I·II) 수가코드
-             ('수술', 'surgical_sterilization', '흉강경 폐엽절제술', [['수술', '흉강경 폐엽절제술', '', ['surg']]], dict(surg='C1', surg7='E012', hosp='상급종합')),
+             ('수술', 'surgical_sterilization', '흉강경 폐엽절제술', [['수술', '흉강경 폐엽절제술', '', ['surg']]], dict(surg='C1', surg7='E012', hosp='상급종합', anes=1)),
              ('항암', 'immune', '표적항암 → 키트루다(면역·비급여)', [['항암', '표적항암 · 면역항암(비급여)', '', ['chemo', 'target', 'immune'], {'nc': 1}]], dict(chemo=1, target=1, drug=2, tx_cnt=2, daycare=6, done=['surg'])),
              ('입원', 'hospital', '상급종합 1인실 10일 입원', [], dict(hosp='상급종합', room='1인실', days=10))],
       recur=('재진단', 'microscope', '첫 진단 2년 뒤 다른 부위 암 재진단', [], dict(dx='cancer', recur=True))),
@@ -452,32 +460,32 @@ FLOW = [
  # ── 보강 사례(v8.13) : 암·뇌·심장 중 일부 계열만 가입한 설계에서 빈 자리를 같은 계열의 다른 병으로 채운다 ──
  dict(k='ca', ic='stomach', t='위암', sub='진단 → 복강경 위아전절제 → 보조 항암 → 입원', kcd='C16', extra=True,
       steps=[('검사', 'microscope', '위내시경 · 조직검사 · 복부 CT', [['검사', '위내시경 · 조직검사 · CT', '', ['x_endo', 'x_bio', 'x_ct']]], dict(dx='cancer')),
-             ('수술', 'surgical_sterilization', '복강경 위아전절제술', [['수술', '복강경 위아전절제술', '', ['surg']]], dict(surg='33', surg7='G081', hosp='종합')),
+             ('수술', 'surgical_sterilization', '복강경 위아전절제술', [['수술', '복강경 위아전절제술', '', ['surg']]], dict(surg='33', surg7='G081', hosp='종합', anes=1)),
              ('항암', 'drop2', '수술 후 보조 항암약물치료(급여)', [['항암', '항암약물치료(급여)', '', ['chemo'], {'nc': 0}]], dict(chemo=1, done=['surg'])),
              ('입원', 'hospital', '종합병원 2-3인실 8일 입원', [], dict(hosp='종합', room='2-3인실', days=8))]),
  dict(k='ca', ic='breasts', t='유방암', sub='진단 → 유방절제술 → 방사선 → 항호르몬 치료', kcd='C50', extra=True, sex='F',
       steps=[('검사', 'microscope', '유방촬영 · 초음파 · 조직검사', [['검사', '유방촬영 · 초음파 · 조직검사', '', ['x_us', 'x_bio']]], dict(dx='cancer')),
-             ('수술', 'surgical_sterilization', '유방절제술', [['수술', '유방절제술', '', ['surg']]], dict(surg='3', surg7='J062', hosp='상급종합')),
+             ('수술', 'surgical_sterilization', '유방절제술', [['수술', '유방절제술', '', ['surg']]], dict(surg='3', surg7='J062', hosp='상급종합', anes=1)),
              ('방사선', 'immune', '수술 후 방사선치료 → 항호르몬약물', [['방사선', '방사선치료 · 호르몬', '', ['rad', 'hormone']]], dict(rad=1, hormone=1, done=['surg'])),
              ('입원', 'hospital', '상급종합 2-3인실 5일 입원', [], dict(hosp='상급종합', room='2-3인실', days=5))]),
  dict(k='ca', ic='prostate_cancer', t='전립선암', sub='진단 → 로봇 근치적 전립선절제 → 방사선 → 호르몬 치료', kcd='C61', extra=True, sex='M',
       steps=[('검사', 'microscope', 'PSA 혈액검사 · 전립선 MRI · 조직검사', [['검사', 'PSA · MRI · 조직검사', '', ['x_mri', 'x_bio']]], dict(dx='cancer')),
-             ('수술', 'surgical_sterilization', '로봇 보조 근치적 전립선절제술', [['수술', '근치적 전립선절제술', '', ['surg']]], dict(surg='50', surg7='M021', hosp='상급종합')),
+             ('수술', 'surgical_sterilization', '로봇 보조 근치적 전립선절제술', [['수술', '근치적 전립선절제술', '', ['surg']]], dict(surg='50', surg7='M021', hosp='상급종합', anes=1)),
              ('방사선', 'immune', '수술 후 방사선치료 → 남성호르몬 차단(호르몬)치료', [['방사선', '방사선치료 · 호르몬', '', ['rad', 'hormone']]], dict(rad=1, hormone=1, done=['surg'])),
              ('입원', 'hospital', '상급종합 2-3인실 7일 입원', [], dict(hosp='상급종합', room='2-3인실', days=7))]),
  dict(k='ca', ic='colon', t='대장암', sub='진단 → 복강경 결장절제 → 보조 항암 → 입원', kcd='C18', extra=True, neutral=True,
       steps=[('검사', 'microscope', '대장내시경 · 조직검사 · 복부 CT', [['검사', '대장내시경 · 조직검사 · CT', '', ['x_endo', 'x_bio', 'x_ct']]], dict(dx='cancer')),
-             ('수술', 'surgical_sterilization', '복강경 결장절제술(림프절절제 동반)', [['수술', '복강경 결장절제술', '', ['surg']]], dict(surg='43', surg7='G131', hosp='종합')),
+             ('수술', 'surgical_sterilization', '복강경 결장절제술(림프절절제 동반)', [['수술', '복강경 결장절제술', '', ['surg']]], dict(surg='43', surg7='G131', hosp='종합', anes=1)),
              ('항암', 'drop2', '수술 후 보조 항암약물치료(급여)', [['항암', '항암약물치료(급여)', '', ['chemo'], {'nc': 0}]], dict(chemo=1, done=['surg'])),
              ('입원', 'hospital', '종합병원 2-3인실 8일 입원', [], dict(hosp='종합', room='2-3인실', days=8))]),
  dict(k='cv', ic='neurology', t='뇌출혈', sub='진단 → 혈종제거 개두술 → 중환자실 → 재활', kcd='I61', extra=True,
       steps=[('검사', 'xray', '응급 뇌 CT · 혈관조영', [['진단', '뇌 CT · 혈관조영', '', ['x_ct']]], dict(dx='brain', grp=['뇌혈관질환', '뇌졸중', '뇌출혈'])),
-             ('수술', 'knife', '혈종제거 개두술', [['수술', '혈종제거 개두술', '', ['surg']]], dict(surg='59', surg7='B031', grp=['뇌혈관질환', '뇌졸중', '뇌출혈', '특정31대질병'], hosp='상급종합')),
+             ('수술', 'knife', '혈종제거 개두술', [['수술', '혈종제거 개두술', '', ['surg']]], dict(surg='59', surg7='B031', grp=['뇌혈관질환', '뇌졸중', '뇌출혈', '특정31대질병'], hosp='상급종합', anes=1)),
              ('입원', 'ambulance', '중환자실 5일 + 일반병실 20일', [['중환자', '중환자실', '', ['icu']]], dict(hosp='상급종합', room='2-3인실', days=20, icu=5)),
              ('재활', 'physical_therapy', '재활치료 20일', [['재활', '재활 20일', '', ['rehab'], {'n': 20}]], dict())]),
  dict(k='cv', ic='blood_vessel', t='뇌동맥류(미파열)', sub='진단 → 코일 색전술 → 입원 → 외래 추적', kcd='I67.1', extra=True,
       steps=[('검사', 'xray', '뇌 MRA · CT 혈관조영', [['진단', '뇌 MRA · CT 혈관조영', '', ['x_mri', 'x_ct']]], dict(dx='brain', grp=['뇌혈관질환'])),
-             ('시술', 'knife', '뇌동맥류 코일 색전술', [['시술', '코일 색전술', '', ['surg']]], dict(surg='88-1', surg7='B016', grp=['뇌혈관질환', '특정31대질병'], hosp='상급종합')),
+             ('시술', 'knife', '뇌동맥류 코일 색전술', [['시술', '코일 색전술', '', ['surg']]], dict(surg='88-1', surg7='B016', grp=['뇌혈관질환', '특정31대질병'], hosp='상급종합', anes=1)),
              ('입원', 'hospital', '상급종합 2-3인실 5일 입원', [], dict(hosp='상급종합', room='2-3인실', days=5)),
              ('통원', 'stethoscope', '외래 추적 MRA 2회', [], dict(visits=2))]),
  dict(k='yr', ic='heart_cardiogram', t='협심증', sub='진단 → 관상동맥 스텐트 → 입원 → 심장재활', kcd='I20', extra=True,
@@ -513,13 +521,13 @@ def flow_card(f):
     for i, (stg, ic, nm, itc, tg) in enumerate(steps):
         tags = dict(cause='질병', grp=[], hosp='상급종합', room=None, days=0); tags.update(tg)
         L = Q(f['kcd'], tags, itc)
-        once = lambda x: x.get('freq') in ('year', 'once') and x.get('group') != '통합치료비'
+        once = lambda x: x.get('freq') in ('year', 'once') and x.get('group') not in ('통합치료비', '통합생활지원비')
         L = [x for x in L if not (once(x) and x['name'] in paid)]
         paid |= {x['name'] for x in L if once(x)}
         v = T(L, 'first'); acc += v
         pos = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0]
-        det2 = ''.join(f'<li><span>{disp(x["name"])[:22]}</span>{cutmark(x["name"])}<b>{man(x["amt"])}</b></li>' for x in pos[:5])
-        if len(pos) > 5: det2 += f'<li><span>외 {len(pos)-5}개 담보</span><b>{man(sum(x["amt"] for x in pos[5:]))}</b></li>'
+        det2 = ''.join(f'<li><span>{disp(x["name"])[:22]}</span>{cutmark(x["name"])}<b>{man(x["amt"])}</b></li>' for x in pos[:2])
+        if len(pos) > 2: det2 += f'<li class="etc"><span>+{len(pos)-2}개 특약</span><b>{man(sum(x["amt"] for x in pos[2:]))}</b></li>'
         cards += f'''<div class="fs"><div class="fb" style="background:{tl}">{e(ic,d)}</div>
           <div class="fst" style="color:{d}">STEP {i+1} · {stg}</div><div class="fn">{nm}</div>
           <div class="fv">{big(v,d)}</div><ul>{det2 or "<li>해당 담보 없음</li>"}</ul></div>'''
@@ -682,6 +690,7 @@ ITC_GROUPS = [('ca', 'cancerous_cell_nuclei', '암 통합치료비', ('ca_basic'
               ('ms', 'stethoscope', '질병 통합치료비', ('dz',)),
               ('pk', 'wound', '상해 통합치료비', ('inj',))]
 ITC_ORDER = {i: n for n, g in enumerate(ITC_GROUPS) for i in g[3]}
+LS_ROOM = 660        # 통합치료비 지면에서 본문이 쓸 수 있는 세로(pt) 어림 — 이보다 커지면 생활지원비 블록을 뺀다
 ITC_SLIM = ('ms', 'pre')                       # 종수술비는 1종·5종만 예시
 # 대표 사례(폐암·뇌경색·심근경색)에 해당 항목이 없는 통합치료비의 대체 사례 — 약관 대상 질병(EMB.m61 · EMB.p60)에서 고른다(v8.13)
 ITC_ALT = {
@@ -770,36 +779,14 @@ LS_K = {'ca_ls': 'ca', 'two_ls': 'cv', 'dz_ls': 'ms', 'inj_ls': 'pk'}
 _LS_CACHE = []
 def ls_riders():
     """설계의 통합생활지원비 담보 → [(담보, id, 항목표, 근거)]
-
-    근거는 두 가지다.
-      ① 이 설계서 상품설명서의 담보 설명문에 실린 항목표 — **1순위**(그 상품·그 가입금액의 실제 표)
-      ② 약관 지급금액표(life_support.json) — 설명문이 없을 때. 단 **서로 다른 상품 약관에서
-         같은 표임을 대조한 담보만** 쓴다. 그 상품 약관을 확인하지 못한 금액은 지면에 싣지 않는다.
-    """
+       항목표와 근거 판정은 계산과 같은 것을 쓴다(scen_engine.ls_items) — 지면과 금액이 갈리지 않게."""
     if _LS_CACHE: return _LS_CACHE[0]
     out = []
     for r in RID:
         rid = S.ls_id(r['name'])
         if not rid: continue
-        v = S.LS.get(rid) or {}
-        book = S.ls_tier(rid, r['man'])
-        try:
-            import desc_engine as DE
-            paper = DE.life_items(r.get('desc') or '')
-        except Exception:
-            paper = []
-        if paper and book:                                # 둘 다 있으면 대조해 두고(운영 점검) 설명문을 쓴다
-            key = lambda xs: sorted((re.sub(r'\s', '', x['label']), x['amt']) for x in xs)
-            if key(paper) != key(book):
-                S.log('교차대조', r['name'], '상품설명서 설명문과 약관 지급금액표의 항목·금액이 달라 설명문 기준으로 표시함')
-        if paper:
-            out.append((r, rid, paper, 'paper'))
-        elif book and len(v.get('srcs') or []) >= 2:
-            out.append((r, rid, book, 'book'))
-        elif book:
-            S.log('근거부족', r['name'], '이 상품 약관·설명문에서 항목표를 확인하지 못해 지면에서 제외 (다른 상품 약관 1곳에만 있어 대조 불가)')
-        else:
-            S.log('금액표없음', r['name'], '가입금액 %s 구간의 항목표가 설명문에도 약관에도 없어 지면에서 제외' % won(r['man']))
+        items, src = S.ls_items(r)
+        if items: out.append((r, rid, items, src))
     out.sort(key=lambda x: (['ca_ls', 'two_ls', 'dz_ls', 'inj_ls'].index(x[1]), -x[0]['man']))
     _LS_CACHE.append(out)
     return out
@@ -823,78 +810,60 @@ def ls_src(rid):
             return (x['src'], x['page'])
     return (srcs[0]['src'], srcs[0]['page'])
 
-def ls_sections(no):
-    """담보별 약관 항목표 — 산정특례 / 주요치료 / 재활치료"""
-    secs = ''
-    for r, rid, items, _src in ls_riders():
-        k = LS_K.get(rid, 'ms')
-        cut = any(it['amt_pre'] < it['amt'] for it in items)
-        rows = ''
-        for gname, ic, gt, gsub in LS_GRP:
-            its = [it for it in items if it['grp'] == gname]
-            if not its: continue
-            cells = ''.join(
-                f'<div class="lsi"><b>{lsl(it["label"])}</b>'
-                f'<span>{it["cnt"] or its[0]["cnt"]}</span>{big(it["amt"], K[k][1])}</div>' for it in its)
-            rows += f'<div class="lsg"><div class="lsgh">{et(ic, K[k][3], 20, K[k][1])}<b>{gt}</b><span>{gsub}</span></div><div class="lsgrid">{cells}</div></div>'
-        cutn = '<em class="ct">계약 1년 이내는 50%</em>' if cut else ''
-        secs += (f'<div class="lssec">{tabhd(no, k, r["name"], "월간 총 지급금액 한도 " + won(r["man"]) + " · 아래는 계약 1년 경과 후 기준")}'
-                 f'<div class="lscap">{e("limit", K[k][1])}<span>이 담보에서 <b>한 달에</b> 받는 금액은 모두 합쳐 <b>{won(r["man"])}</b>까지예요. 달이 바뀌면 한도가 다시 채워져요.</span>{cutn}</div>'
-                 f'{rows}</div>')
-        no += 1
-    return secs, no
-
-def ls_month_rows():
-    """한 달 예시 — 약관 항목표에서 **겹치지 않는 세 항목**만 골라 한 달 지급액을 보인다.
-       산정특례 등록 1건 + '치료 1회당' 항목 중 가장 큰 1개 + '월간 1회한' 항목 중 가장 큰 1개.
-       전신마취(급여 / 4시간이상 / 6시간이상)처럼 한 치료의 단계별 금액을 모두 더하지 않기 위한 것이다."""
-    rows = ''
-    for r, rid, items, _src in ls_riders():
-        big1 = lambda f: max([it for it in items if it['grp'] == '주요치료' and f(it['cnt'] or '')],
-                             key=lambda x: x['amt'], default=None)
-        pick = [max([it for it in items if it['grp'] == '산정특례'], key=lambda x: x['amt'], default=None),
-                big1(lambda c: '1회당' in c), big1(lambda c: '월간' in c)]
-        use = [x for x in pick if x]
-        if len(use) < 2: continue
-        tot = sum(it['amt'] for it in use)
-        cap = min(tot, r['man'])
-        det = ''.join(f'<span><b>{lsl(it["label"])}</b>{won(it["amt"])}</span>' for it in use)
-        rows += (f'<tr><th class="rl">{r["name"][:22]}<br><span>월간 한도 {won(r["man"])}</span></th>'
-                 f'<td class="lsdet">{det}</td>'
-                 f'<td class="itcsum">{big(cap, "#C92A2A")}<em>{"한 달 한도까지" if tot > r["man"] else "그 달 지급액"}</em></td></tr>')
-    return rows
-
 def lsl(label):
-    """항목 라벨을 카드에 맞게 — 꼬리의 '산정특례(대상) 등록'은 묶음 제목에 이미 있다"""
-    return re.sub(r'\s*산정특례\s*(대상)?\s*등록\s*$', '', label or '').strip()
+    """항목 라벨을 칸에 맞게 — 꼬리의 '산정특례(대상) 등록'은 묶음 이름에 이미 있다"""
+    return re.sub(r'\\s*산정특례\\s*(대상)?\\s*등록\\s*$', '', label or '').strip()
 
-def page_ls():
-    secs, no = ls_sections(1)
-    if not secs: return '<div class="ic2">통합생활지원비 담보 미가입</div>'
-    mrows = ls_month_rows()
-    ex = (tabhd(no, 'ms', '이런 달에는 얼마가 나오나', '산정특례 등록 + 주요치료 두 가지를 받은 달 · 항목이 더 많은 달에는 한 달 한도까지')
-          + f'<table class="mx itcflow lsflow"><tbody>{mrows}</tbody></table>') if mrows else ''
-    paper = [r['name'] for r, _i, _t, k in ls_riders() if k == 'paper']
+LS_MINI_H = 0          # 아래 ls_mini() 가 채운다(지면 높이 어림값 · pt)
+
+def ls_mini():
+    """통합생활지원비 간추린 블록 — 통합치료비 지면 맨 아래에 **자리가 남을 때만** 붙인다.
+
+    통합생활지원비는 가입하는 설계가 드물고, 가입해도 담보가 한둘이다.
+    통합치료비를 많이 넣어 지면이 꽉 찬 설계에서는 이 블록을 통째로 뺀다(가로 지면을 억지로 줄이지 않는다).
+    금액 계산은 이 블록과 무관하게 사례·매트릭스에 그대로 들어간다.
+    """
+    global LS_MINI_H
+    rs = ls_riders()
+    if not rs:
+        LS_MINI_H = 0
+        return ''
+    GN = {'산정특례': '산정특례 등록', '주요치료': '주요치료', '재활치료': '재활치료'}
+    rows = ''; h = 26
+    for r, rid, items, _src in rs:
+        k = LS_K.get(rid, 'ms')
+        chips = ''
+        for g in ('산정특례', '주요치료', '재활치료'):
+            its = [x for x in items if x['grp'] == g]
+            if not its: continue
+            chips += f'<span class="lsmg" style="color:{K[k][1]}">{GN[g]}</span>'
+            chips += ''.join(f'<span class="lsmi"><b>{lsl(x["label"])}</b>{num(x["amt"])}</span>' for x in its)
+        n = len(items) + 3
+        h += max(26, -(-n // 5) * 15 + 8)
+        cut = '<em class="ct">계약 1년 이내 50%</em>' if any(x['amt_pre'] < x['amt'] for x in items) else ''
+        rows += (f'<div class="lsmr"><div class="lsmn" style="background:{K[k][2]}"><b>{r["name"]}</b>'
+                 f'<span>한 달 한도 {won(r["man"])}</span>{cut}</div><div class="lsmc">{chips}</div></div>')
+    srcn = ls_srcnote(rs)
+    h += 26 if srcn else 0
+    LS_MINI_H = h
+    return (f'<div class="lsmini"><div class="lsmh">{e("coins","#0B7285")}<b>통합생활지원비 — 치료 항목마다 <u>매달</u> 나오는 생활비</b>'
+            f'<span>진단만으로는 나오지 않아요 · 산정특례 등록·치료를 받은 <b>달</b>마다 항목별 금액 · 한 달 합계는 <b>가입금액</b>까지</span></div>'
+            f'{rows}{srcn}</div>')
+
+def ls_srcnote(rs):
+    paper = [r['name'] for r, _i, _t, k in rs if k == 'paper']
     book = {}
-    for r, rid, _t, k in ls_riders():                     # 약관에서 가져온 담보만 약관 쪽수를 적는다
+    for r, rid, _t, k in rs:
         if k != 'book': continue
         x = ls_src(rid)
         if x: book.setdefault(x[0], []).append((r['name'], x[1]))
     lines = []
     if paper:
-        lines.append('이 상품설명서에 실린 담보별 지급금액 표를 그대로 옮겼습니다(%s).' % ' · '.join(paper))
+        lines.append('이 상품설명서에 실린 담보별 지급금액 표 그대로(%s)' % ' · '.join(paper))
     for f, ns in book.items():
-        lines.append('%s는 이 상품설명서에 항목표가 실려 있지 않아, 같은 담보의 <b>%s</b> %s 지급금액표(서로 다른 상품 약관에서 같은 표임을 대조)를 기준으로 표시했습니다 — 확정 금액은 이 상품 약관을 확인하세요.'
+        lines.append('%s는 이 상품설명서에 항목표가 없어 같은 담보의 <b>%s</b> %s 지급금액표(서로 다른 상품 약관에서 같은 표임을 대조) 기준 — 확정 금액은 이 상품 약관 확인'
                      % (' · '.join(n for n, _ in ns), ls_bookname(f), ' · '.join('p.%d' % b for _n, b in ns)))
-    srcn = ('<div class="mnote">※ 금액 근거 : ' + ' / '.join(lines) + '</div>') if lines else ''
-    return f'''<div class="lshd">{e('bulb','#0B7285')}<b>통합생활지원비 — 치료 항목마다 <u>매달</u> 나오는 생활비</b><span>치료비와 별개로, 산정특례 등록·치료 항목별 금액을 달마다 지급해요</span></div>
- {secs}{ex}
- <div class="lscmp">
-   <div><b>통합치료비</b><span>치료 항목마다 지급 · 한도는 <b>1년</b> 단위(가입금액) · <b>해마다</b> 새로 채워짐</span></div>
-   <div><b>통합생활지원비</b><span>산정특례 등록·치료 항목마다 지급 · 한도는 <b>한 달</b> 단위(가입금액) · <b>달마다</b> 새로 채워짐</span></div>
-   <div><b>둘 다 가입하면</b><span>같은 치료에 대해 <b>각각 따로</b> 지급돼요 — 치료비는 치료비대로, 생활지원비는 생활비대로</span></div></div>
- {srcn}
- <div class="tip">{e('bulb','#D9480F')}<span>통합생활지원비는 <b>진단만으로는 지급되지 않아요</b>. 국민건강보험 <b>산정특례로 등록</b>되거나 약관에 정한 <b>치료를 실제로 받은 달</b>에 항목별 금액이 지급돼요. 항목마다 '산정특례 등록당 · 치료 1회당 · 월간 1회한'처럼 <b>횟수 조건</b>이 달라요.</span></div>'''
+    return ('<div class="mnote">※ 금액 근거 : ' + ' / '.join(lines) + '</div>') if lines else ''
 
 def page_itc():
     its = [r for r in RID if r.get('itc')]
@@ -908,7 +877,7 @@ def page_itc():
     ck = lambda r: K[next((g[0] for g in ITC_GROUPS if r['itc'] in g[3]), 'pr')]
     top = ''.join(f'<div class="itcr" style="background:{ck(r)[2]}">'
                   f'<b>{itc_name(r)[0]}</b><span>{itc_name(r)[1]}</span>{big(r["man"], ck(r)[1])}</div>' for r in its)
-    sections = ''; no = 0
+    sections = ''; no = 0; hh = []
     for k, ic, title, ids in ITC_GROUPS:
         rs = [r for r in its if r['itc'] in ids]
         if not rs: continue
@@ -928,12 +897,19 @@ def page_itc():
             else:
                 chips += f'<span class="itcchip"><b>{key[:14]}</b>{won(d["amt"])}</span>'
         cap = sum(r['man'] for r in rs)
+        hh.append(26 + -(-min(len(srt), 10 if k == 'ca' else 5) // 5) * 40 + (17 if chips else 0))   # 이 묶음이 차지하는 세로 어림(pt)
         no += 1
         sections += f'''<div class="itcsec">{tabhd(no, k, title, f'가입 {len(rs)}개 · 연간 한도 합계 {won(cap)} · 항목별 약관 금액(1년 경과 후)')}
           <div class="itcgrid">{cards}</div>{f'<div class="itcchips">{chips}</div>' if chips else ''}</div>'''
     extra = itc_filler(its, no) if len(its) <= 2 else ''       # 통합치료비가 1~2개뿐이면 남는 지면을 치료 흐름·설명으로 채운다(v8.13)
+    h = 50 + sum(hh) + 44 + (240 if extra else 0)              # 지면 높이 어림(pt) — 아래 블록을 붙일 자리가 있는지 보는 용도
+    lsm = ls_mini() if not extra else ''
+    if lsm and h + LS_MINI_H > LS_ROOM:                        # 통합치료비가 많아 자리가 없으면 통째로 뺀다(v8.37)
+        for r, _rid, _it, _k in ls_riders():
+            S.log('지면생략', r['name'], '통합치료비 지면에 자리가 없어 항목표는 싣지 않음(금액 계산에는 그대로 들어감)')
+        lsm = ''
     return f'''<div class="itctop"><div class="itcrs">{top}</div><div class="itctot"><span>통합치료비 연간 한도 합계</span>{big(total,'#C92A2A')}<em>해마다 새로 적용 · 담보별 한도는 각각</em></div></div>
- {sections}{extra}
+ {sections}{extra}{lsm}
  <div class="tip">{e('bulb','#D9480F')}<span>통합치료비는 <b>진단금과 별개</b>로 실제 받은 치료 항목마다 지급돼요. 검사·주요치료는 <b>항목별 연간 1회</b>, 수술은 <b>수술할 때마다</b>, 재활은 <b>1일 1회</b>이고, 한 해 합계는 가입금액까지 · <b>해마다 새로</b> 적용돼요. 계약 후 1년 이내에는 항목 금액과 연간 한도가 50%로 적용되는 담보가 있어요.</span></div>'''
 
 # ── 수술비 세부보장 ────────────────────────────────
@@ -962,7 +938,7 @@ def page_surg():
         cells = ''.join(f'<td>{big(v,d if hl else "#343A40")}</td>' for v in vals)
         return f'<tr class="{"mhl" if hl else ""}"><th class="rl">{label}</th>{cells}</tr>'
     dc = '질병' if F['surg'] else '상해'
-    detail = ''.join(f'<td class="dt">{det(S5(j,dc,"상급종합"),5)}</td>' for j in range(1, 6))
+    detail = ''.join(f'<td class="dt">{det(S5(j,dc,"상급종합"))}</td>' for j in range(1, 6))
     parts = []; no = 0                                    # 설계에 없는 블록은 빠진다(v8.4)
     if F['day'] or F['care']:
         no += 1; parts.append(tabhd(no,'ms','입원 · 간병','14일 입원 예시 · 상급종합병원은 종합병원 담보도 함께 지급 · 한도일수 담보별 적용') + f'<div class="stay">{stay_cards()}</div>')
@@ -1151,6 +1127,11 @@ def page_all():
     return f'''{blocks}
  <div class="tip">{e('bulb','#D9480F')}<span>{'<b>가입금액 뒤 회색 %% 표시</b>는 계약 1년이 지나기 전에는 그 비율만 지급된다는 뜻이에요(%d개 담보). · ' % len(CUT) if CUT else ''}<b>지급 기준 요약</b> · 진단비는 최초 1회 · 수술비는 수술할 때마다(1~5종은 동시 수술 시 가장 높은 종 1가지) · 통합치료비는 항목별 연간 1회, 연간 한도는 가입금액까지 해마다 새로 적용 · 입원일당은 병원 종별·병실 종류·한도일수 조건 충족 시 지급 · 131대질병수술비 등 일반 질병 담보는 <b>암·유사암에는 지급되지 않아요</b>.</span></div>'''
 
+# 사례 지면 주석 — 통합생활지원비는 '달' 단위 담보라 단계별 계산의 한계를 밝혀 둔다(v8.37)
+LSNOTE = ('<div class="mnote">※ 통합생활지원비는 <b>산정특례 등록·치료를 받은 달</b>마다 항목별로 지급되고, 한 달 합계는 가입금액까지예요. '
+          '위 표는 단계마다 그 달의 지급액을 적은 것이라, 여러 단계가 <b>같은 달</b>에 몰리면 그 달 합계는 가입금액까지로 줄어요. '
+          '전신마취는 <b>기본(급여)</b> 금액으로만 계산했어요 — 수술이 4시간·6시간 이상이면 더 커져요.</div>') if F['ls'] else ''
+
 _BUILD = [
  lambda: f'''<div class="lg">{e('coins','#E03131')}<b>{C['insured'] if C['insured'].endswith('고객님') else C['insured'] + ' 고객님'} 보장 한장요약</b><span class="sub">가입 담보 {len(RID)}개 · 월 보험료 {C['premium']} · 3대 진단 · 수술 · 입원/간병 요약</span></div>
  {summary_cards()}<div class="{'dense' if len(RID) > 80 else ''}">{page_all()}</div>''',
@@ -1161,8 +1142,6 @@ _BUILD = [
  {page_dzmap()}''',
  lambda: f'''<div class="lg">{e('money_bag','#C92A2A')}<b>통합치료비 한눈에</b><span class="sub">암 · 뇌심장 · 암전후 통합치료비 — 치료 항목별로 얼마가 나오는지</span></div>
  {page_itc()}''',
- lambda: f'''<div class="lg">{e('coins','#0B7285')}<b>통합생활지원비 한눈에</b><span class="sub">치료 항목마다 달마다 나오는 생활비 — 산정특례 · 주요치료 · 재활치료</span></div>
- {page_ls()}''',
  lambda: f'''<div class="lg">{e('knife','#087F5B')}<b>수술비 · 입원일당 세부보장</b><span class="sub">모든 수술비 합산 · 종별 · 병원 종별 비교 · 입원 · 간병</span></div>
  {page_surg()}''',
  lambda: f'''<div class="lg">{e('stethoscope','#087F5B')}<b>다빈도 질환 수술 시뮬레이션</b><span class="sub">건강검진·일상에서 자주 생기는 질환 10종 · 병원 종별 비교</span></div>
@@ -1171,6 +1150,7 @@ _BUILD = [
  <div class="mnote">※ 질환 선정 근거 : 주요수술 통계연보(국민건강보험공단, 2023) 다빈도 수술 · 국가암등록통계(2023) · 수술 종은 약관 별표 수술코드로 판정 — 상세 근거표(scenario_sources) 별첨</div>''',
  lambda: f'''<div class="lg">{e('money_bag','#5F3DC4')}<b>사례로 보는 치료비 보장</b><span class="sub">치료 단계별로 어느 담보에서 얼마가 나오는지</span></div>
  {''.join(flow_card(f) for f in pick_cases())}
+ {LSNOTE}
  <div class="mnote">※ 조건부 담보는 보수적으로 계산 — 표적항암약물허가치료비는 연간 약물종류 2종 이상(폐암 사례 : 표적항암제 → 키트루다), 특정혈전치료비는 두 치료를 모두 받은 단계에서만.</div>
  <div class="mnote">※ 사례 근거 : 사망원인통계(국가데이터처, 2024) · 국가암등록통계(2023) · 치료 단계는 국가암정보센터·대한심장학회·대한뇌졸중학회 진료지침 · 입원일수는 예시 — 상세 근거표(scenario_sources) 별첨</div>''',
 ]
@@ -1297,7 +1277,6 @@ PAGE_COND = [('보장 한장요약', True),
              ('뇌혈관 · 심혈관 보장', F['brain'] or F['heart']),
              ('뇌·심혈관 질병코드 지도', F['brain'] or F['heart']),
              ('통합치료비 한눈에', F['itc']),
-             ('통합생활지원비 한눈에', F['ls']),
              ('수술비 · 입원일당 세부보장', F['surg'] or F['inj_surg'] or F['day'] or F['care']),
              ('다빈도 질환 수술 시뮬레이션', F['surg']),
              ('사례로 보는 치료비 보장', F['cancer'] or F['brain'] or F['heart']),

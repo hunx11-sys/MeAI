@@ -397,3 +397,24 @@ table.dzb{width:100%;border-collapse:separate;border-spacing:1.2pt 2pt;table-lay
 .lsdet>span b{font-family:JU;font-weight:400;margin-right:4pt;color:#212529}
 .lsflow th.rl{line-height:1.25;padding:4pt 6pt 4pt 0;word-break:keep-all;vertical-align:middle}
 .lsflow th.rl span{margin-top:1.5pt;line-height:1.2}
+.mx td.dt i{font-style:normal;color:#ADB5BD}
+.fs li.etc span{color:#868E96}
+.fs li.etc b{color:#495057}
+
+/* ── 통합생활지원비 간추린 블록(v8.37) — 통합치료비 지면 맨 아래 ── */
+.lsmini{margin-top:6pt;border-top:1pt solid #E9ECEF;padding-top:5pt}
+.lsmh{display:flex;align-items:center;gap:5pt;margin-bottom:4pt}
+.lsmh b{font-family:JU;font-weight:400;font-size:8.4pt;color:#0B7285;white-space:nowrap}
+.lsmh u{text-decoration:none;border-bottom:1.6pt solid #66D9E8}
+.lsmh span{font-size:5.8pt;color:#495057;line-height:1.35;word-break:keep-all}
+.lsmh span b{display:inline;font-size:5.8pt;color:#212529;white-space:normal}
+.lsmr{display:grid;grid-template-columns:96pt 1fr;gap:5pt;align-items:start;margin-bottom:3pt}
+.lsmn{border-radius:8pt;padding:3.5pt 7pt 4pt}
+.lsmn b{display:block;font-family:JU;font-weight:400;font-size:6.6pt;line-height:1.2;word-break:keep-all}
+.lsmn span{display:block;font-size:5.6pt;color:#495057;margin-top:1pt}
+.lsmn .ct{display:block;margin-top:1pt;margin-left:0;font-size:5pt;color:#868E96}
+.lsmc{display:flex;flex-wrap:wrap;gap:3pt;align-content:flex-start}
+.lsmg{font-family:JU;font-size:5.8pt;align-self:center;margin-right:1pt}
+.lsmi{background:#F8F9FA;border-radius:16pt;padding:1.5pt 7pt;font-size:5.8pt;color:#495057;white-space:nowrap}
+.lsmi b{font-family:JU;font-weight:400;margin-right:4pt;color:#212529}
+.lsmi small{font-size:.8em;color:#868E96;margin-left:1pt}
