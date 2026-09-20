@@ -269,8 +269,11 @@ table.dzb{width:100%;border-collapse:separate;border-spacing:1.2pt 2pt;table-lay
 .itctop{display:flex;gap:6pt;margin-bottom:6pt;align-items:stretch}
 .itcrs{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:4pt}
 .itcr{border-radius:10pt;padding:5pt 8pt}
-.itcr b{display:block;font-family:JU;font-weight:400;font-size:7.4pt;line-height:1.2}
-.itcr span{display:block;font-size:5.4pt;color:#868E96;line-height:1.25;min-height:12pt}
+/* 담보명·설명은 글자 수로 자르지 않고 두 줄까지만 보인다 — 말이 중간에 끊기지 않게(v8.35) */
+.itcr b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+        font-family:JU;font-weight:400;font-size:7.4pt;line-height:1.2;min-height:17.8pt}
+.itcr span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+        font-size:5.4pt;color:#868E96;line-height:1.25;min-height:13.5pt}
 .itcr .n2{font-size:13pt}
 .itctot{flex:0 0 170pt;background:#FFF5F5;border:1.2pt solid #FFC9C9;border-radius:12pt;padding:7pt 10pt;display:flex;flex-direction:column;justify-content:center}
 .itctot>span{font-family:JU;font-size:7.4pt;color:#C92A2A}

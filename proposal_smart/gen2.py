@@ -672,10 +672,15 @@ def page_dzmap():
     return out
 
 # ── 통합치료비 한눈에 ────────────────────────────────
+# 암 → 순환계 → 질병 → 상해 순. 상단 카드 줄과 아래 섹션이 같은 순서를 따른다(v8.35).
+# 설계서 담보번호 순으로 두면 질병 통합치료비가 맨 앞에 오는 등 계열이 뒤섞인다.
 ITC_GROUPS = [('ca', 'cancerous_cell_nuclei', '암 통합치료비', ('ca_basic', 'ca_basic_c', 'ca_lite', 'ca_lite_c', 'ca_nc2', 'ca_nc2_c', 'ca_ncm', 'ca_ncm_c')),
+              ('pr', 'microscope', '암 전후 · 양성신생물 통합치료비', ('pre',)),
               ('cv', 'neurology', '특정순환계질환 통합치료비', ('circ', 'circ_top')),
               ('yr', 'heart_organ', '주요손상및질환 통합치료비', ('ms',)),
-              ('pr', 'microscope', '암 전후 · 양성신생물 통합치료비', ('pre',))]
+              ('ms', 'stethoscope', '질병 통합치료비', ('dz',)),
+              ('pk', 'wound', '상해 통합치료비', ('inj',))]
+ITC_ORDER = {i: n for n, g in enumerate(ITC_GROUPS) for i in g[3]}
 ITC_SLIM = ('ms', 'pre')                       # 종수술비는 1종·5종만 예시
 # 대표 사례(폐암·뇌경색·심근경색)에 해당 항목이 없는 통합치료비의 대체 사례 — 약관 대상 질병(EMB.m61 · EMB.p60)에서 고른다(v8.13)
 ITC_ALT = {
@@ -729,27 +734,49 @@ def itc_filler(its, no):
       <div><b>④ 치료가 많은 암일수록 더 많이</b>수술·항암·방사선·재활을 오래 여러 번 받는 암, 표적·면역항암처럼 <b>치료비가 많이 드는 암</b>일수록 항목이 쌓여 지급액이 커짐 — 정액 진단비와 달리 <b>실제 치료 부담에 비례</b>하는 구조.</div></div>'''
     return out
 
+def itc_name(r):
+    """담보 → (표시 이름, 한 줄 설명). 상해 통합치료비는 금액표가 따로라 별도 처리(v8.35)"""
+    if r['itc'] == 'inj':
+        return r['name'], '다쳤을 때 검사·수술·주요치료·재활을 항목별로 보장해요'
+    m = S.itc.RM[r['itc']]
+    return m['nm'], m.get('about', '')
+
+def itc_amounts(r):
+    """담보 → [(항목 라벨, 금액, 분류, 지급빈도키)] — 약관 지급금액표에서"""
+    if r['itc'] == 'inj':
+        _r, items = inj_itc_rider()
+        for it in (items or []):
+            p = 'd' if '재활' in it['l'] else ('o' if it.get('c', '').startswith('수술') else 'y')
+            yield it['l'], it['amt'], it.get('c', ''), p
+        return
+    ty = S.itc.RM[r['itc']]['ty']
+    amts = S.itc.AMT[ty].get(str(r['man']))
+    for it, a in zip(S.itc.IT[ty], amts or []):
+        if a <= 0: continue
+        if r['itc'] in ITC_SLIM and it.get('j') in (2, 3, 4): continue
+        yield it['l'], a, it.get('c', ''), it.get('p', 'y')
+
 def page_itc():
     its = [r for r in RID if r.get('itc')]
+    _ir, _ii = inj_itc_rider()                  # 상해 통합치료비는 itc 키가 없어 따로 끌어온다
+    if _ir and _ii:
+        _ir = dict(_ir); _ir['itc'] = 'inj'; its = its + [_ir]
     if not its:
         return '<div class="ic2">통합치료비 담보 미가입</div>'
+    its.sort(key=lambda r: (ITC_ORDER.get(r['itc'], 99), -r['man']))    # 암 → 순환계 → 질병 → 상해
     total = sum(r['man'] for r in its)
-    top = ''.join(f'<div class="itcr" style="background:{K[next((g[0] for g in ITC_GROUPS if r["itc"] in g[3]),"pr")][2]}">'
-                  f'<b>{S.itc.RM[r["itc"]]["nm"][:22]}</b><span>{S.itc.RM[r["itc"]].get("about","")[:26]}</span>{big(r["man"],K[next((g[0] for g in ITC_GROUPS if r["itc"] in g[3]),"pr")][1])}</div>' for r in its)
+    ck = lambda r: K[next((g[0] for g in ITC_GROUPS if r['itc'] in g[3]), 'pr')]
+    top = ''.join(f'<div class="itcr" style="background:{ck(r)[2]}">'
+                  f'<b>{itc_name(r)[0]}</b><span>{itc_name(r)[1]}</span>{big(r["man"], ck(r)[1])}</div>' for r in its)
     sections = ''; no = 0
     for k, ic, title, ids in ITC_GROUPS:
         rs = [r for r in its if r['itc'] in ids]
         if not rs: continue
         items = {}
         for r in rs:
-            ty = S.itc.RM[r['itc']]['ty']; tier = str(r['man'])
-            amts = S.itc.AMT[ty].get(tier)
-            if not amts: continue
-            for it, a in zip(S.itc.IT[ty], amts):
-                if a <= 0: continue
-                if r['itc'] in ITC_SLIM and it.get('j') in (2, 3, 4): continue
-                key = re.sub(r'\((급여|비급여[^)]*)\)', '', it['l']).strip()
-                d = items.setdefault(key, {'amt': 0, 'c': it.get('c', ''), 'p': it.get('p', 'y'), 'nc': '비급여' in it['l'], 'n': 0})
+            for lbl, a, c, p in itc_amounts(r):
+                key = re.sub(r'\((급여|비급여[^)]*)\)', '', lbl).strip()
+                d = items.setdefault(key, {'amt': 0, 'c': c, 'p': p, 'nc': '비급여' in lbl, 'n': 0})
                 d['amt'] += a; d['n'] += 1
         srt = sorted(items.items(), key=lambda x: -x[1]['amt'])
         cards = ''; chips = ''
