@@ -871,15 +871,22 @@ def _care_sum():
     (요양병원제외) · (요양병원) 두 담보를 금액을 달리해 한 세트로 가입한다(v8.29).
     """
     nm = lambda r: r['name'].replace(' ', '')
+    isnano = lambda n: ('간호·간병통합' in n or '간호간병통합' in n)
     sup = any('간병인지원' in nm(r) for r in RID)
-    nano = max([r['man'] for r in RID if ('간호·간병통합' in nm(r) or '간호간병통합' in nm(r))] or [0])
+    nano = max([r['man'] for r in RID if isnano(nm(r))] or [0])
+    # 간병인지원일당은 '간병인 현물 지원'과 '가입금액만큼의 입원일당' 중 하나를 고르는 구조다
+    #   (약관 제1항 입원 1일당 가입금액 지급 · 제2항 간병인을 원하면 그 대신 간병인을 보내고 제1항은 지급하지 않음).
+    # Ⅶ형처럼 간병인만 보내는 담보는 가입금액이 0으로 찍히므로, 0이 아닐 때만 '미사용 시' 금액을 밝힌다.
+    # 같은 간병인지원이어도 (간호·간병통합서비스 사용추가보장)형은 간호·간병통합서비스를 쓴 날에만
+    # 지급하는 담보라(약관 제1조) 이 금액에서 뺀다 — 그쪽은 nano 로 따로 센다.
+    supday = max([r['man'] for r in RID if '간병인지원' in nm(r) and not isnano(nm(r))] or [0])
     use = {}
     for r in RID:
         n = nm(r)
         if '간병인사용' not in n: continue
         k = '요양제외' if re.search(r'요양[^)]*병원제외', n) else ('요양병원' if '(요양병원)' in n else '하루')
         use[k] = max(use.get(k, 0), r['man'])       # 상해·질병 같은 금액이라 큰 쪽 하나만 쓴다
-    return sup, nano, use
+    return sup, supday, nano, use
 
 def summary_cards():
     """3대 진단 · 수술 · 입원/간병 한눈 요약 (질병 단위 합산금액)"""
@@ -888,7 +895,7 @@ def summary_cards():
     ht = T(Q('I21', dict(dx='heart', cause='질병', grp=['심장질환']), []))
     sg = T(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), []))
     day = T(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), []))
-    sup, nano, use = _care_sum()
+    sup, supday, nano, use = _care_sum()
     # ── 간병 카드(v8.30) ──────────────────────────────────────────────
     # 큰 자리는 '간병을 누가·얼마로 받는가'만 쓴다 : 간병인지원(현물) > 간병인사용(요양 구분별 두 줄).
     # 간호·간병통합병실은 두 담보 어느 쪽과도 세트로 설계하는 일이 많아 큰 자리를 차지하면 안 된다
@@ -911,7 +918,7 @@ def summary_cards():
     else:                                            # 간병 담보가 없는 설계 — 다른 카드처럼 조건(소제목) + 금액(큰 자리)
         care, s2 = (big(day, MS) if day else one('미가입')), (DAYC if day else '입원일당 미가입')
     caresub = []
-    if sup: caresub.append('간병인지원')
+    if sup: caresub.append('간병인지원' + (f'(미사용 시 하루 {won(supday)})' if supday else ''))
     if use and not usebox: caresub.append('간병인사용 ' + ' · '.join(f'{k} {won(use[k])}' for k in CARE_USE if use.get(k)))
     if nano: caresub.append(f'간호간병통합병실 {won(nano)}')
     dxnote = lambda v: '진단비 합산' if v > 0 else '진단비 미가입 · 수술·치료 담보로 보장'
@@ -925,7 +932,10 @@ def summary_cards():
     cards = [c for c in cards if c[0]]                   # 설계에 없는 계열 카드는 빠진다(v8.4)
     html = ''
     for on, ic, k, t, s2, v, note in cards:
-        html += f'<div class="sc" style="background:{K[k][2]}">{et(ic,"#fff",22,K[k][1])}<b>{t}</b><span>{s2}</span>{v}<em>{note}</em></div>'
+        # 아이콘과 이름을 한 줄로(v8.31) — 카드가 위아래로 짧아진다
+        html += (f'<div class="sc" style="background:{K[k][2]}">'
+                 f'<div class="sh">{et(ic,"#fff",19,K[k][1])}<b>{t}</b></div>'
+                 f'<span>{s2}</span>{v}<em>{note}</em></div>')
     return f'<div class="sum5" style="grid-template-columns:repeat({max(len(cards),1)},1fr)">{html}</div>'
 
 def page_all():
