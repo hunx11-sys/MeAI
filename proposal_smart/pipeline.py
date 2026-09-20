@@ -76,6 +76,8 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
          'matched': sum(1 for x in c['riders'] if x.get('matched')),
          'insert_after': c['insert_after'], 'base_pages': c['base_pages'],
          'new_pages': new, 'pages_html': html}
+    if audit['요약'].get('제외상품'):     # 제작 대상에서 뺀 상품 — 왜 안 붙였는지 호출한 쪽에 알린다
+        r['excluded'] = audit['요약']['제외상품']
 
     if not new:                              # 대상 담보 없는 설계(운전자·치아 등) → 원본 그대로
         shutil.copyfile(src_pdf, out_pdf)

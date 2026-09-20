@@ -94,7 +94,17 @@ def insured_sex():
     if re.search(r'전립선|남성|고환', names) and not re.search(r'유방|자궁|난소|여성', names): return 'M'
     return ''
 SEX = insured_sex()
-ATTACH = any(F[k] for k in ATTACH_KEYS)
+# ── 제작 대상에서 뺀 상품(v8.34) ─────────────────────────────────
+# 담보 구조가 이 생성기의 계산 전제와 다른 상품은 지면을 붙이지 않고 원본을 그대로 돌려준다.
+# 목록은 규칙표(rules.json > exclude_products)에 있으므로 코드를 고치지 않고 늘릴 수 있다.
+def excluded_product():
+    nm = re.sub(r'\s+', '', C.get('product') or '')
+    for x in S.RULEDOC.get('exclude_products', []):
+        if nm and re.search(x['m'], nm):
+            return x
+    return None
+EXCL = excluded_product()
+ATTACH = (EXCL is None) and any(F[k] for k in ATTACH_KEYS)
 def header():
     return f'''<div class="h-t">[고객용]가입제안서</div><div class="h-p">{C['product']}</div>
  <img class="h-logo" src="file://{A}logo.png"><div class="h-bar">{C['head']}</div>'''
@@ -1116,6 +1126,7 @@ html = '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>%s</st
 open(sys.argv[2], 'w', encoding='utf-8').write(html)
 A = S.audit(RID)
 A['생성쪽수'] = NEW; A['첨부'] = bool(P); A['제외지면'] = SKIPPED; A['보장계열'] = F
+if EXCL: A['제외상품'] = {'상품': EXCL.get('nm') or EXCL['m'], '사유': EXCL['why']}
 # 2차 안전장치(v8.22) : 1차(약관+규칙표)로 계산하지 못한 담보에 상품설명서 요약에서 읽은 지급조건을 붙인다
 try:
     import desc_engine as DE
