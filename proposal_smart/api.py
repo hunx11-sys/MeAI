@@ -27,7 +27,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v8.39'
+VERSION = 'v8.40'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 동시 생성 2건까지(렌더가 무거워 과부하 방지)
 

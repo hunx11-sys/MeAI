@@ -1193,7 +1193,7 @@ def inj_itc_block(no=2):
         cards += f'''<div class="frow">{et(ic,K['yr'][3],22,K['yr'][1])}<div class="fnm"><b>{nm}</b><em>{desc}</em></div>
           <div class="fitems">{chips or '<span class="fi none">해당 항목 없음</span>'}</div><div class="fpay"><div><span>통합치료비</span>{big(tot,K['yr'][1])}</div></div></div>'''
     top = ''.join(f'<span class="itcchip"><b>{it["l"][:14]}</b>{won(it["amt"])}</span>' for it in sorted(items, key=lambda x: -x['amt'])[:10])
-    return (tabhd(no, 'yr', '상해 통합치료비 보장 예시', f'{r["name"]} {won(r["man"])} · 약관 지급금액표 · 검사·주요치료 연간 1회, 수술은 수술마다, 재활 1일 1회')
+    return (tabhd(no, 'yr', '상해 통합치료비 항목별 내역', f'위 사고 예시 합계에 들어간 금액의 내역 · {r["name"]} {won(r["man"])} · 약관 지급금액표 · 검사·주요치료 연간 1회, 수술은 수술마다, 재활 1일 1회')
             + f'<div class="frows">{cards}</div><div class="itcchips">{top}</div>')
 
 # ── 체증형 담보 — 수술 회차가 늘수록 지급액이 올라간다(v8.33) ──────────────
@@ -1244,13 +1244,25 @@ def _tl_cards():
 TL = _tl_cards()
 
 
+def inj_itc_by_case():
+    """사고 유형 → 상해 통합치료비 지급액. 이 담보는 금액표가 따로(inj_itc.json) 있어
+       규칙표 계산(pay_lines)에 잡히지 않으므로, 사고 예시 합계에 직접 더해 준다(v8.40)."""
+    r, items = inj_itc_rider()
+    if not r or not items: return {}, ''
+    return ({nm: sum(a for _l, a in inj_itc_pay(items, set(acts), j, rh))
+             for nm, _ic, acts, j, rh, _d in INJ_CASES}, r['name'])
+
 def page_inj():
     rows = ''
+    iby, inm = inj_itc_by_case()
     for nm, kcd, ic, tg, itc in INJ:
         L = [x for x in Q(kcd, tg, itc) if x['group'] not in ('입원일당', '통원일당')]
-        items = ''.join(f'<span class="fi">{disp(x["name"])[:22]}{cutmark(x["name"])}<b>{man(x["amt"])}</b></span>' for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0) or '<span class="fi none">해당 담보 없음</span>'
+        ia = iby.get(nm, 0)
+        pos = [(disp(x['name'])[:22] + cutmark(x['name']), x['amt']) for x in L if x['amt'] > 0]
+        if ia: pos.append(('상해 통합치료비', ia))
+        items = ''.join(f'<span class="fi">{l}<b>{man(a)}</b></span>' for l, a in sorted(pos, key=lambda y: -y[1])) or '<span class="fi none">해당 담보 없음</span>'
         rows += f'''<div class="frow">{et(ic,K['ms'][3],22,K['ms'][1])}<div class="fnm"><b>{nm}</b><span>{kcd}</span><em>상해 치료 예시</em></div>
-          <div class="fitems">{items}</div><div class="fpay"><div><span>지급 합계</span>{big(T(L),'#D9480F')}</div></div></div>'''
+          <div class="fitems">{items}</div><div class="fpay"><div><span>지급 합계</span>{big(T(L) + ia,'#D9480F')}</div></div></div>'''
     dth = [r for r in RID if '사망' in r['name'] or '후유장해' in r['name']]
     dcard = ''.join(f'<div class="dcard"><b>{r["name"][:26]}</b>{big(r["man"],"#C2255C")}</div>' for r in dth)
     parts = []; no = 0                                    # 설계에 없는 블록은 빠진다(v8.4)
