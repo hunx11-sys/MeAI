@@ -135,7 +135,7 @@
 .sc .sh{display:flex;align-items:center;gap:4.5pt;margin-bottom:1pt}
 .sc b{display:block;font-family:JU;font-weight:400;font-size:8.6pt;margin-top:0}
 .sc span{display:block;font-size:5.9pt;color:#868E96;line-height:1.3;min-height:14pt}
-.sc em{display:block;font-style:normal;font-size:5.6pt;color:#495057;margin-top:1pt;line-height:1.3}
+.sc em{display:block;font-style:normal;font-size:5.6pt;color:#495057;margin-top:1pt;line-height:1.3;word-break:keep-all}
 .sc .n2{font-size:17pt}
 /* 간병인사용일당 — 요양병원 제외 / 요양병원을 각각 한 줄로 (v8.29) */
 .sc .crh{display:block;min-height:0;font-family:JU;font-size:6.6pt;color:#495057;margin-top:2pt}
