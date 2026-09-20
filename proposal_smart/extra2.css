@@ -89,7 +89,8 @@
 .itci .n2{font-size:10.5pt}
 .tlx{display:grid;grid-template-columns:repeat(4,1fr);gap:5pt}
 .tlc{border-radius:10pt;padding:6pt 8pt}
-.tlc b{display:block;font-family:DH;font-weight:400;font-size:9.5pt;margin-bottom:2pt}
+.tlc>b{display:block;font-family:DH;font-weight:400;font-size:9.5pt;margin-bottom:2pt;white-space:nowrap}
+.tlc span b{font-family:JU;font-weight:400;color:#212121}
 .tlc span{display:block;font-size:6.2pt;color:#495057;line-height:1.4}
 
 .mx td .n2,.mx td .z{font-size:12.5pt}
@@ -355,3 +356,8 @@ table.dzb{width:100%;border-collapse:separate;border-spacing:1.2pt 2pt;table-lay
 .prow.esc .pc b{font-size:5.8pt}
 .prow.esc .pc .n2{font-size:10pt}
 .prow.esc .pc .n2 small{font-size:.46em}
+
+/* 보장 시작 칸이 5개가 되면 조금 좁아진다(v8.34) */
+.tlx:has(.tlc:nth-child(5)) .tlc>b{font-size:8.4pt}
+.tlx:has(.tlc:nth-child(5)) .tlc{padding:5pt 6pt}
+.tlx:has(.tlc:nth-child(5)) .tlc span{font-size:5.8pt}

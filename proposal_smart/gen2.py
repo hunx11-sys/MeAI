@@ -78,6 +78,11 @@ for _r in RID:
     _c = (_r.get('desc2') or {}).get('cut_1y')
     if _c and 0 < _c < 1:
         CUT[S.nname(_r['name'])] = _c
+CUT90 = {}
+for _r in RID:
+    _c = (_r.get('desc2') or {}).get('cut_90d')
+    if _c and 0 < _c < 1:
+        CUT90[S.nname(_r['name'])] = _c
 def cutmark(name, short=False):
     """담보명 → '1년 내 50%' 작은 글씨. 감액이 없으면 빈 문자열."""
     c = CUT.get(S.nname(name))
@@ -1076,6 +1081,24 @@ def esc_block(no):
             f'(계약 1년이 지나기 전에는 그 절반).</div>')
 
 
+# 보장 시작 안내 칸(v8.34) — 문구를 고정하지 않고 이 설계에서 실제로 감액이 걸린 담보 수를 센다.
+# 90일 미만 감액은 걸린 담보가 없으면 칸 자체가 빠진다(암 단독상품 등).
+def _tl_cards():
+    out = [('계약 즉시', '상해·수술·입원일당 등은 기다리는 기간 없이 1회 보험료를 받은 때부터 보장 (아래 감액은 적용될 수 있어요)', '#EDF2FF')]
+    if CUT90:
+        r90 = max(set(CUT90.values()), key=list(CUT90.values()).count)
+        out.append(('90일 전 %g%%' % (r90 * 100),
+                    f'이 설계에서 {len(CUT90)}개 담보는 계약 90일이 지나기 전에 진단·수술을 받으면 가입금액의 {r90 * 100:g}%만 지급돼요',
+                    '#FFF5F5'))
+    out.append(('90일 후', '암 진단비·암 수술비·암 입원일당·항암치료비 등 암 담보는 계약일부터 90일이 지난 다음날부터 보장', '#FFF0F0'))
+    out.append(('1년 경과 전 50%',
+                (f'이 설계에서 {len(CUT)}개 담보는 계약 1년 이내 가입금액의 50%만 지급 — 담보 목록과 지급 예시에 <b>1년 내 50%</b>로 표시했어요'
+                 if CUT else '일부 담보는 계약 1년 이내 가입금액의 50%만 지급돼요'), '#F3F0FF'))
+    out.append(('1년 경과 후 100%', '1년이 지나면 약관 금액 전액 지급 · 연간 한도도 해마다 새로 적용', '#E6FCF5'))
+    return out
+TL = _tl_cards()
+
+
 def page_inj():
     rows = ''
     for nm, kcd, ic, tg, itc in INJ:
@@ -1096,12 +1119,7 @@ def page_inj():
  {''.join(parts)}
  {esc_block(no+1)}
  {tabhd(no+1+(1 if esc_rows() else 0),'cv','보장은 언제부터 시작되나요?','담보별 보장 시작 시점')}
- <div class="tlx">{''.join(f'<div class="tlc" style="background:{b2}"><b>{t}</b><span>{d2}</span></div>' for t,d2,b2 in [
-   ('계약 즉시','상해·수술·입원일당 등은 기다리는 기간 없이 1회 보험료를 받은 때부터 보장 (아래 감액은 적용될 수 있어요)','#EDF2FF'),
-   ('90일 후','암 진단비·암 수술비·암 입원일당·항암치료비 등 암 담보는 계약일부터 90일이 지난 다음날부터 보장','#FFF0F0'),
-   ('1년 경과 전 50%', (f'이 설계에서 {len(CUT)}개 담보는 계약 1년 이내 가입금액의 50%만 지급 — 담보 목록과 지급 예시에 <b>1년 내 50%</b>로 표시했어요'
-     if CUT else '일부 담보는 계약 1년 이내 가입금액의 50%만 지급돼요'),'#F3F0FF'),
-   ('1년 경과 후 100%','1년이 지나면 약관 금액 전액 지급 · 연간 한도도 해마다 새로 적용','#E6FCF5')])}</div>
+ <div class="tlx" style="grid-template-columns:repeat({len(TL)},1fr)">{''.join(f'<div class="tlc" style="background:{b2}"><b>{t}</b><span>{d2}</span></div>' for t,d2,b2 in TL)}</div>
  <div class="tip">{e('bulb','#D9480F')}<span>상해 담보는 <b>급격하고 우연한 외래의 사고</b>로 인한 경우에만 지급돼요. 질병 담보와 상해 담보는 각각 별도로 지급되며, 같은 사고로 여러 수술을 받으면 1-5종 수술비는 가장 높은 종 1가지만 지급돼요.</span></div>'''
 _BUILD.append(page_inj)
 # 지면별 표시 조건 — 설계에 없는 계열의 지면은 빠지고, 쪽번호는 실제 생성 쪽수로 매긴다(v8.4)

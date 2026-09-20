@@ -117,6 +117,9 @@ RATE = re.compile(r'가입금액의\s*(\d+(?:\.\d+)?)\s*%')
 CUT1Y = [re.compile(r'1년경과시점전일이전[^※]{0,40}?가입금액의(\d+(?:\.\d+)?)%'),
          re.compile(r'1년경과시점전일이전[^※]{0,40}?(\d+(?:\.\d+)?)%감액'),
          re.compile(r'1년미만시[^※]{0,20}?가입금액의(\d+(?:\.\d+)?)%')]
+# 90일 미만 감액 — 1년 감액과 문형이 같고 '90일경과시점' 만 다르다(v8.34)
+CUT90 = [re.compile(r'90일경과시점전일이전[^※]{0,40}?가입금액의(\d+(?:\.\d+)?)%'),
+         re.compile(r'90일경과시점전일이전[^※]{0,40}?(\d+(?:\.\d+)?)%감액')]
 DAYS = re.compile(r'(\d+)일\s*한도|(\d+)일을\s*한도')
 HOSPS = [('상급종합병원', '상급종합'), ('종합병원', '종합'), ('요양병원', '요양')]
 ACTS = [('surg', r'수술'), ('chemo', r'항암약물|항암화학'), ('rad', r'항암방사선|방사선치료'),
@@ -156,6 +159,9 @@ def derive(desc, name=''):
     m = next((x for x in (p.search(dz) for p in CUT1Y) if x), None)
     if m:
         r['cut_1y'] = float(m.group(1)) / 100
+    m = next((x for x in (p.search(dz) for p in CUT90) if x), None)
+    if m:
+        r['cut_90d'] = float(m.group(1)) / 100
     m = DAYS.search(d)
     if m:
         r['limit_days'] = int(m.group(1) or m.group(2))
@@ -191,6 +197,8 @@ def explain(r):
         p.append(FN[r['freq']])
     if r.get('rate') is not None:
         p.append('가입금액' + ('' if r['rate'] == 1 else '의 %g%%' % (r['rate'] * 100)))
+    if r.get('cut_90d'):
+        p.append('90일 이내 %g%%' % (r['cut_90d'] * 100))
     if r.get('cut_1y'):
         p.append('1년 이내 %g%%' % (r['cut_1y'] * 100))
     if r.get('hosp'):
