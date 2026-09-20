@@ -150,10 +150,15 @@ def ls_items(r):
 #   · 산정특례 등록 시점은 **질환마다 다르다**(약관 별표87~89 · 본인일부부담금 산정특례 기준).
 #       암·유사암·뇌수막 양성신생물 : 등록된 암환자가 **등록일로부터 5년간** → 사실상 진단과 함께.
 #                                    그래서 진단 단계에서 지급하고, 진단비 칸에도 함께 센다.
-#       뇌혈관질환 : 그 상병의 치료를 위하여 【별표88-2】의 **수술을 받은 경우** 최대 30일
-#                    (수술을 받지 않으면 중증 뇌출혈 급성기 입원·뇌경색 NIHSS 5점 이상 같은 별도 조건).
-#       심장질환   : 그 상병의 치료를 위하여 【별표89-2】의 **수술 또는 약제 투여** 최대 30일.
-#     → 뇌·심장은 진단만으로 등록되지 않으므로 **수술·시술 단계**에서 지급하고 진단비 칸에는 넣지 않는다.
+#       뇌혈관질환 : 그 상병의 치료를 위하여 【별표88-2】의 **수술을 받은 경우** 최대 30일.
+#                    그 목록에 **경피적뇌혈관약물성형술(M6599 · 동맥내 혈전용해)** 이 들어 있고,
+#                    수술을 받지 않아도 뇌경색은 24시간 이내 내원·NIHSS 5점 이상이면 등록된다.
+#                    → **혈전용해치료도 등록 사유로 본다.**
+#       심장질환   : 그 상병의 치료를 위하여 【별표89-2】의 수술 **또는 【별표89-3】의 약제** 투여 최대 30일.
+#                    그 약제가 **Alteplase · Tenecteplase · Urokinase 주사제** — 전부 혈전용해제다.
+#                    → **혈전용해치료만 받아도 등록**된다(약관 명시).
+#     → 뇌·심장은 진단만으로 등록되지 않으므로 **수술·시술·혈전용해 단계**에서 지급하고
+#       진단비 칸에는 넣지 않는다. 산정특례는 '등록당' 지급이라 한 사례에서 한 번만 센다(gen2.flow_card).
 #   · 희귀질환·중증난치·중증화상·중증외상 산정특례는 사례로 단정하지 않는다.
 def _ls_evkeys(sc):
     ks = set()
@@ -171,8 +176,12 @@ def ls_lines(r, sc):
     dc = itc.cancer_cls(code)
     dx = tg.get('dx') or ''
     grp = tg.get('grp') or []
-    brain = (dx == 'brain') or ('뇌혈관질환' in grp)
-    heart = (dx == 'heart') or ('심장질환' in grp)
+    # 계열 판정 — 진단 태그·질병군 말고 'series' 로도 본다.
+    # 혈전용해 같은 단계는 질병군 태그를 달면 그 그룹의 다른 담보까지 지급되어 버리므로,
+    # 계산에 영향을 주지 않는 표시 태그를 따로 둔다.
+    ser = tg.get('series') or ''
+    brain = (dx == 'brain') or (ser == 'brain') or ('뇌혈관질환' in grp)
+    heart = (dx == 'heart') or (ser == 'heart') or ('심장질환' in grp)
     anes = bool(tg.get('anes'))                       # 전신마취 수술인지는 사례에 명시된 것만 본다
     surgstep = bool(tg.get('surg')) or ('surg' in ks)  # 이 단계에서 수술·시술을 받았는지
     icu = bool(tg.get('icu')) or ('icu' in ks)
@@ -180,6 +189,7 @@ def ls_lines(r, sc):
     rad = bool(tg.get('rad')) or ('rad' in ks)
     thromb = ('thromb' in ks)
     rehab = ('rehab' in ks)
+    regstep = surgstep or thromb                      # 뇌·심장 산정특례 등록 사유(수술 또는 혈전용해)
     got = []
     for it in items:
         lb = re.sub(r'\s', '', it['label'])
@@ -190,8 +200,8 @@ def ls_lines(r, sc):
             if '유사암' in lb and '제외' not in lb: hit = bool(dx) and (dc in ('cis', 'thy', 'skin'))
             elif '암(' in lb or lb.startswith('중증질환자(암'): hit = bool(dx) and (dc == 'major')
             elif '뇌·수막' in lb or '뇌·수막의양성신생물' in lb: hit = bool(dx) and bool(re.match(r'^D3[23]', code))
-            elif '뇌혈관' in lb: hit = brain and surgstep      # 수술을 받아야 등록(별표88-2)
-            elif '심장' in lb: hit = heart and surgstep        # 수술·약제 투여로 등록(별표89-2·89-3)
+            elif '뇌혈관' in lb: hit = brain and regstep       # 수술 또는 혈전용해로 등록(별표88-2 M6599)
+            elif '심장' in lb: hit = heart and regstep         # 수술 또는 혈전용해제 투여로 등록(별표89-2·89-3)
             else: hit = False                          # 희귀·중증난치·중증화상·중증외상 — 사례로 단정하지 않는다
         elif '전신마취' in lb:
             hit = anes and ('시간이상' not in lb)
@@ -205,14 +215,14 @@ def ls_lines(r, sc):
             hit = thromb
         elif '재활' in lb:
             hit = rehab and '전문재활' in lb and '전문외' not in lb and '외래' not in lb
-        if hit: got.append((it['label'], amt))
-    tot = sum(a for _l, a in got)
+        if hit: got.append((it['label'], amt, it['grp']))
+    tot = sum(a for _l, a, _g in got)
     if tot <= r['man']: return got, False
     # 월간 총 지급금액 한도 — 한 달에 받는 합계는 가입금액까지
     out, left = [], r['man']
-    for l, a in sorted(got, key=lambda x: -x[1]):
+    for l, a, g in sorted(got, key=lambda x: -x[1]):
         if left <= 0: break
-        out.append((l, min(a, left))); left -= min(a, left)
+        out.append((l, min(a, left), g)); left -= min(a, left)
     return out, True
 
 def _ls_cancer_row(lb, dc):
@@ -548,10 +558,13 @@ def pay_lines(riders, sc):
             if ls_id(n):
                 lines, capped = ls_lines(r, sc)
                 if lines:
-                    out.append({'name': n, 'amt': sum(a for _l, a in lines), 'group': '통합생활지원비',
-                                'why': ' · '.join('%s %s' % (l, format(a, ',.0f')) for l, a in lines)
+                    _sp = sum(a for _l, a, g in lines if g == '산정특례')
+                    out.append({'name': n, 'amt': sum(a for _l, a, _g in lines), 'group': '통합생활지원비',
+                                'why': ' · '.join('%s %s' % (l, format(a, ',.0f')) for l, a, _g in lines)
                                        + ('  (월간 한도 적용)' if capped else ''),
-                                'no': r.get('no'), 'freq': 'year', 'rule': 'ls_monthly'})
+                                'no': r.get('no'), 'freq': 'year', 'rule': 'ls_monthly',
+                                # 산정특례는 '등록당' 지급 — 한 사례에서 두 단계에 걸쳐 세지 않도록 따로 싣는다
+                                'sp': _sp, 'ls_rest': [(l, a) for l, a, g in lines if g != '산정특례']})
                 continue
             # 3) 규칙표 판정
             rule = classify(n)

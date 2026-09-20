@@ -455,7 +455,7 @@ FLOW = [
              ('재활','physical_therapy','외래 심장재활 10회',[['재활','심장재활 10회','',['rehab'],{'n':10}]],dict())]),
  dict(k='cv', ic='neurology', t='뇌경색', sub='진단 → 혈전용해·혈전제거 → 중환자실 → 재활', kcd='I63',
       steps=[('검사', 'xray', '뇌 CT + MRI', [['진단', '뇌 CT + MRI', '', ['x_ct', 'x_mri']]], dict(dx='brain', grp=['뇌혈관질환', '뇌졸중'])),
-             ('시술', 'drop2', '혈전용해제 주사(tPA)', [['시술', '혈전용해치료', '', ['thromb']]], dict()),
+             ('시술', 'drop2', '혈전용해제 주사(tPA)', [['시술', '혈전용해치료', '', ['thromb']]], dict(series='brain')),
              ('수술', 'knife', '동맥내 기계적 혈전제거술', [['시술', '혈전제거술', '', ['surg']]], dict(surg='88-1', surg7='B027', grp=['뇌혈관질환', '뇌졸중', '특정31대질병'], hosp='종합', acts=['thrombectomy'], done=['thromb'])),
              ('입원', 'ambulance', '중환자실 3일 + 일반병실 14일', [['중환자', '중환자실', '', ['icu']], ['재활', '재활 10일', '', ['rehab'], {'n': 10}]], dict(hosp='종합', room='2-3인실', days=14, icu=3))]),
  # ── 보강 사례(v8.13) : 암·뇌·심장 중 일부 계열만 가입한 설계에서 빈 자리를 같은 계열의 다른 병으로 채운다 ──
@@ -519,12 +519,25 @@ def flow_card(f):
     d = K[f['k']][1]; tl = K[f['k']][3]; acc = 0; cards = ''
     steps = f['steps'] + ([f['recur']] if f.get('recur') and F['recur'] else [])   # 재진단암 담보가 있는 설계만 5단계(v8.12)
     paid = set()          # 한 사례 안에서 '연간 1회한·최초 1회한' 담보는 한 단계에서만 센다(v8.21)
+    spdone = set()        # 통합생활지원비의 산정특례는 '등록당' 지급 — 한 사례에서 한 번만(v8.45)
     for i, (stg, ic, nm, itc, tg) in enumerate(steps):
         tags = dict(cause='질병', grp=[], hosp='상급종합', room=None, days=0); tags.update(tg)
         L = Q(f['kcd'], tags, itc)
         once = lambda x: x.get('freq') in ('year', 'once') and x.get('group') not in ('통합치료비', '통합생활지원비')
         L = [x for x in L if not (once(x) and x['name'] in paid)]
         paid |= {x['name'] for x in L if once(x)}
+        L2 = []
+        for x in L:                                   # 산정특례를 이미 센 담보면 그 몫만 덜어 낸다
+            sp = x.get('sp') or 0
+            if sp and x['name'] in spdone:
+                rest = x.get('ls_rest') or []
+                if not rest: continue
+                x = dict(x); x['amt'] -= sp
+                x['why'] = ' · '.join('%s %s' % (l, format(a, ',.0f')) for l, a in rest)
+            elif sp:
+                spdone.add(x['name'])
+            L2.append(x)
+        L = L2
         v = T(L, 'first'); acc += v
         pos = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0]
         det2 = ''.join(f'<li><span>{disp(x["name"])[:22]}</span>{cutmark(x["name"])}<b>{man(x["amt"])}</b></li>' for x in pos[:2])
