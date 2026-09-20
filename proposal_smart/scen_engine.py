@@ -86,6 +86,27 @@ def noren(n):
 def itc_id(name):
     """약관 지급금액표가 있는 통합치료비면 그 id, 아니면 None(→ 규칙표 itc_unknown 이 계산 제외+로그)"""
     return _ITC_NORM.get(nname(name)) or _ITC_NORM.get(noren(name))
+# ══ 통합생활지원비 식별 (v8.36) ════════════════════════════════════════════════
+# 통합생활지원비는 통합치료비와 구조가 다르다 — 산정특례 등록·치료 항목마다 **월** 단위로 지급하고
+# 가입금액은 '월간 총 지급금액 한도'다. 정액 치료비로 계산하면 진단만으로 가입금액 전액이 잡히므로
+# 사례 계산에서는 빼고(rules.json ls_monthly), 지면에는 약관 항목표(life_support.json)를 그대로 보여준다.
+LS = {}
+if os.path.exists(os.path.join(BASE, 'life_support.json')):
+    LS = json.load(open(os.path.join(BASE, 'life_support.json'), encoding='utf-8'))
+_LS_PAT = [('two_ls', '2대질환'), ('inj_ls', '상해'), ('dz_ls', '질병'), ('ca_ls', '암')]
+def ls_id(name):
+    """통합생활지원비면 그 id(ca_ls·two_ls·dz_ls·inj_ls), 아니면 None"""
+    nm = noren(name)
+    if '통합생활지원비' not in nm: return None
+    head = nm.split('통합생활지원비')[0]
+    for rid, key in _LS_PAT:
+        if key in head and rid in LS: return rid
+    return None
+def ls_tier(rid, man):
+    """가입금액(월간 총 지급금액) → 약관 항목표. 구간이 없으면 None — 금액을 추정하지 않는다."""
+    t = (LS.get(rid) or {}).get('tiers') or {}
+    return t.get(str(int(man))) or t.get(str(man))
+
 INJ_KNOWN = set()                                     # 상해 통합치료비 : gen2 가 inj_itc.json 으로 별도 계산
 if os.path.exists(os.path.join(BASE, 'inj_itc.json')):
     INJ_KNOWN = {nname(k) for k in json.load(open(os.path.join(BASE, 'inj_itc.json'), encoding='utf-8'))}

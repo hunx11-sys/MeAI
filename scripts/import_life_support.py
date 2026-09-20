@@ -93,43 +93,39 @@ def parse_tables(page):
 def parse_rider(doc, start, rid, title_re):
     """특별약관 본문을 읽어 가입금액 구간별 항목표를 만든다.
 
-    구간-표 짝짓기를 페이지 좌표로 하지 않는다(2단 조판이라 마커와 표가 어긋난다).
-    표를 묶음(산정특례 / 주요치료·재활)별로 모아 **대표 금액이 작은 것부터 작은 구간에 배정**한다.
-    가입금액이 크면 항목 금액도 크다는 약관의 성질을 쓰는 것이고, 배정 뒤 verify() 로 다시 검증한다.
+    구간-표 짝짓기는 **사람이 읽는 순서**(쪽 → 단 → 위에서 아래)로 한다.
+    금액 크기로 정렬해 짝짓던 예전 방식은, 2대질환처럼 '제2항(상해로 인한 경우)' 표가
+    한 벌 더 붙는 약관에서 구간을 한 칸씩 밀어 잘못 붙였다.
+    같은 구간에 같은 묶음(산정특례/주요치료) 표가 두 번 나오면 **먼저 나온 표**를 쓴다.
     """
-    marks, tabs = [], []
+    seq = []                                        # (쪽, 단, y, 종류, 값)
     for i in range(start, min(start + 8, len(doc))):
         page = doc[i]
         text = page.get_text()
-        if tabs and i > start and re.search(r'\d+\.\s*[^\n]{2,60}보장\s*특별약관', text):
+        if seq and i > start and re.search(r'\d+\.\s*[^\n]{2,60}보장\s*특별약관', text):
             break                                  # 다음 특별약관 시작
+        w = page.rect.width
         for r in page.search_for('월간 총 지급금액'):
             line = page.get_textbox([r[0] - 200, r[1] - 2, r[2] + 200, r[3] + 2])
             mm = MARK.search(re.sub(r'\s+', ' ', line))
             if mm:
-                v = int(mm.group(1).replace(',', ''))
-                if v not in marks:
-                    marks.append(v)
+                seq.append((i, col_of(r, w), r[1], 'mark', int(mm.group(1).replace(',', ''))))
         for c, y, items in parse_tables(page):
-            tabs.append(items)
-    marks.sort()
-    if not marks or not tabs:
-        return {}
-    sp = [t for t in tabs if all(x['grp'] == '산정특례' for x in t)]      # 산정특례만 있는 표
-    rest = [t for t in tabs if t not in sp]                              # 주요치료(+재활) 표
-    top = lambda t: max(x['amt'] for x in t)
-    sp.sort(key=top)
-    rest.sort(key=top)
-    tiers = {}
-    for n, tv in enumerate(marks):
-        got = []
-        if n < len(sp):
-            got += sp[n]
-        if n < len(rest):
-            got += rest[n]
-        if got:
-            tiers[str(tv)] = got
-    return tiers
+            seq.append((i, c, y, 'tab', items))
+    seq.sort(key=lambda x: (x[0], x[1], x[2]))
+    tiers, cur = {}, None
+    for _, _, _, kind, v in seq:
+        if kind == 'mark':
+            cur = str(v)
+            tiers.setdefault(cur, [])
+            continue
+        if cur is None:
+            continue
+        have = set(x['grp'] for x in tiers[cur])
+        if any(x['grp'] in have for x in v):        # 같은 묶음이 이미 있으면 뒤 표는 버린다
+            continue
+        tiers[cur] += v
+    return {k: v for k, v in tiers.items() if v}
 
 
 def nice(pat):
@@ -138,29 +134,27 @@ def nice(pat):
 
 
 def verify(tiers):
-    """자동 추출한 구간표가 믿을 만한지 — 구간이 커지면 같은 항목 금액도 커져야 하고,
-       가입금액 대비 비율이 구간마다 크게 튀면 표·구간 짝이 어긋난 것으로 본다."""
+    """짝지은 구간표가 믿을 만한지 — 구간마다 묶음이 다 있어야 하고, 항목 수가 같아야 하며,
+       가입금액이 커질 때 **같은 항목**의 금액이 줄어들면 안 된다."""
     bad = []
     ks = sorted(tiers, key=lambda x: int(x))
-    top = {}
     for k in ks:
-        sp = [it['amt'] for it in tiers[k] if it['grp'] == '산정특례']
-        if sp:
-            top[k] = max(sp)
-    prev = None
-    for k in ks:
-        if k not in top:
-            continue
-        if prev is not None and top[k] < top[prev]:
-            bad.append('%s만원 구간 금액(%g)이 %s만원 구간(%g)보다 작음' % (k, top[k], prev, top[prev]))
-        prev = k
+        g = set(it['grp'] for it in tiers[k])
+        if '산정특례' not in g or '주요치료' not in g:
+            bad.append('%s만원 구간에 %s 표가 없음' % (k, ' · '.join(sorted({'산정특례', '주요치료'} - g))))
     n = {k: len(v) for k, v in tiers.items()}
     if n and len(set(n.values())) > 1:
         bad.append('구간마다 항목 수가 다름(%s)' % ' / '.join('%s:%d' % (k, n[k]) for k in ks))
-    rat = {k: top[k] / int(k) for k in top}
-    if rat and (max(rat.values()) - min(rat.values())) > 0.25:
-        worst = min(rat, key=lambda x: rat[x])
-        bad.append('가입금액 대비 비율이 구간마다 달라 표-구간 짝이 의심됨(%s만원 구간 %.2f)' % (worst, rat[worst]))
+    key = lambda it: re.sub(r'\s', '', it['label'])
+    prev = None
+    for k in ks:
+        cur = {key(it): it['amt'] for it in tiers[k]}
+        if prev:
+            drop = [l for l in cur if l in prev[1] and cur[l] < prev[1][l]]
+            if drop:
+                bad.append('%s만원 구간 금액이 %s만원 구간보다 작은 항목 %d개(%s)'
+                           % (k, prev[0], len(drop), drop[0][:20]))
+        prev = (k, cur)
     return bad
 
 
@@ -198,6 +192,7 @@ def main():
             tiers[k] = uniq
         warn = verify(tiers)
         found[rid] = {'nm': nice(pat), 'src': os.path.basename(src), 'page': start + 1,
+                      'srcs': [{'src': os.path.basename(src), 'page': start + 1}],
                       'verified': not warn, 'warn': warn, 'tiers': tiers}
         if warn:
             print('   [검증실패] ' + ' · '.join(warn))
@@ -205,6 +200,24 @@ def main():
 
     if '--write' in sys.argv:
         old = json.load(open(OUT, encoding='utf-8')) if os.path.exists(OUT) else {}
+        # 같은 담보가 여러 상품 약관에 있다 — 금액표가 같은지 교차 대조하고, 출처는 약관마다 모아 둔다.
+        # 약관마다 띄어쓰기가 조금씩 달라(예 '종합병원 중환자실치료' / '종합병원중환자실치료')
+        # 공백을 지운 뒤 (묶음·항목명·지급횟수·금액) 이 같은지로 대조한다.
+        def norm(tiers):
+            return {k: sorted((it['grp'], re.sub(r'\s', '', it['label']), re.sub(r'\s', '', it['cnt'] or ''),
+                               it['amt'], it['amt_pre']) for it in v) for k, v in tiers.items()}
+        for rid, v in found.items():
+            prev = old.get(rid)
+            if prev and norm(prev.get('tiers') or {}) == norm(v['tiers']):
+                srcs = prev.get('srcs') or [{'src': prev.get('src'), 'page': prev.get('page')}]
+                for x in v['srcs']:
+                    if x not in srcs: srcs.append(x)
+                v['srcs'] = srcs
+                v['src'], v['page'] = srcs[0]['src'], srcs[0]['page']
+            elif prev:
+                v['warn'] = (v.get('warn') or []) + ['다른 약관(%s)과 금액표가 다름 — 상품별로 따로 확인 필요' % prev.get('src')]
+                v['verified'] = False
+                print('   [교차대조] %s : %s 와 금액표가 다릅니다' % (rid, prev.get('src')))
         old.update(found)
         json.dump(old, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
         print('\n저장 →', OUT, '· 담보', len(old), '종')

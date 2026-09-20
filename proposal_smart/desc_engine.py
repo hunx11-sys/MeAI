@@ -225,6 +225,29 @@ def attach(riders, pdf_path):
     return riders, {'ok': True, '설명문보유': hit, '전체': len(riders)}
 
 
+# ══ 통합생활지원비 항목표 (v8.36) ═══════════════════════════════════════════
+# 상품설명서의 담보 설명문에는 '- 항목명 : N만원(지급횟수)' 형태로 항목표가 그대로 실려 있다.
+# 약관 PDF 가 없는 상품도 있으므로, **이 설계서의 설명문을 1순위 근거**로 쓴다.
+LSITEM = re.compile(r'[-·]\s*([^:\n]{2,60}?)\s*:\s*([\d,.]+)\s*만원\s*[(（]\s*([^)）]{1,24})\s*[)）]')
+
+def life_items(desc):
+    """담보 설명문 → [{grp,label,cnt,amt}] · 항목표가 없으면 빈 목록"""
+    d = re.sub(r'\s+', ' ', desc or '')
+    d = d.split('※')[0]                                    # ※ 주석부터는 항목표가 아니다
+    out, seen = [], set()
+    for m in LSITEM.finditer(d):
+        label = m.group(1).strip(' -·')
+        cnt = re.sub(r'\s+', '', m.group(3))
+        amt = float(m.group(2).replace(',', ''))
+        if not label or amt <= 0: continue
+        grp = ('산정특례' if '산정특례' in cnt else ('재활치료' if '재활' in label else '주요치료'))
+        key = re.sub(r'\s', '', label)
+        if key in seen: continue
+        seen.add(key)
+        out.append({'grp': grp, 'label': label, 'cnt': cnt, 'amt': amt, 'amt_pre': amt})
+    return out
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print(__doc__)

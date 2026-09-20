@@ -364,3 +364,36 @@ table.dzb{width:100%;border-collapse:separate;border-spacing:1.2pt 2pt;table-lay
 .tlx:has(.tlc:nth-child(5)) .tlc>b{font-size:8.4pt}
 .tlx:has(.tlc:nth-child(5)) .tlc{padding:5pt 6pt}
 .tlx:has(.tlc:nth-child(5)) .tlc span{font-size:5.8pt}
+
+/* ── 통합생활지원비(v8.36) — 월 단위 지급이라 통합치료비 카드와 톤을 갈라 놓는다 ── */
+.lshd{display:flex;align-items:center;gap:5pt;margin:7pt 0 4pt;padding:4pt 8pt;border-radius:9pt;background:#E3FAFC}
+.lshd b{font-family:JU;font-weight:400;font-size:8.6pt;color:#0B7285}
+.lshd u{text-decoration:none;border-bottom:1.6pt solid #66D9E8}
+.lshd span{font-size:5.8pt;color:#0C8599;margin-left:auto;text-align:right;word-break:keep-all}
+.lssec{margin-bottom:4pt}
+.lscap{display:flex;align-items:center;gap:4pt;background:#F8F9FA;border-radius:8pt;padding:3pt 8pt;margin-bottom:3pt}
+.lscap span{font-size:6pt;color:#495057;line-height:1.35;word-break:keep-all}
+.lscap b{font-family:JU;font-weight:400;color:#212529}
+.lscap .ct{margin-left:auto;white-space:nowrap}
+.lsg{display:flex;align-items:flex-start;gap:5pt;margin-bottom:3pt}
+.lsgh{width:74pt;flex:0 0 74pt;display:flex;flex-direction:column;align-items:flex-start;padding-top:2pt}
+.lsgh b{font-family:JU;font-weight:400;font-size:7pt;line-height:1.2;margin-top:2pt}
+.lsgh span{font-size:5pt;color:#868E96;line-height:1.2;word-break:keep-all}
+.lsgrid{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:3pt}
+.lsi{background:#F8F9FA;border-radius:8pt;padding:3.5pt 7pt 4pt;display:flex;flex-direction:column}
+.lsi b{font-family:JU;font-weight:400;font-size:6.4pt;line-height:1.2;word-break:keep-all;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lsi span{font-size:5pt;color:#868E96;line-height:1.2;margin-bottom:1pt}
+.lsi .n2{font-size:10pt}
+.lsflow th.rl{width:104pt}
+.lsdet{font-size:5.6pt;color:#495057;line-height:1.35;text-align:left;word-break:keep-all}
+.lscmp{display:grid;grid-template-columns:repeat(3,1fr);gap:4pt;margin:4pt 0}
+.lscmp>div{background:#F8F9FA;border-radius:9pt;padding:4pt 8pt 5pt}
+.lscmp b{display:block;font-family:JU;font-weight:400;font-size:7.4pt;color:#0B7285;margin-bottom:1.5pt}
+.lscmp span{font-size:5.8pt;color:#495057;line-height:1.4;word-break:keep-all}
+.lscmp span b{display:inline;font-size:5.8pt;color:#212529}
+.lsdet{display:flex;flex-wrap:wrap;gap:4pt}
+.lsdet>span{background:#fff;border:1pt solid #E9ECEF;border-radius:20pt;padding:1.5pt 8pt;font-size:5.8pt;color:#495057}
+.lsdet>span b{font-family:JU;font-weight:400;margin-right:4pt;color:#212529}
+.lsflow th.rl{line-height:1.25;padding:4pt 6pt 4pt 0;word-break:keep-all;vertical-align:middle}
+.lsflow th.rl span{margin-top:1.5pt;line-height:1.2}
