@@ -57,6 +57,11 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
         c['riders'], c['desc_info'] = desc_engine.attach(c['riders'], src_pdf)
     except Exception as e:
         c['desc_info'] = {'ok': False, 'err': str(e)}
+    try:                                   # 3차 안전장치(v8.41) : 설계서 뒤쪽 「특약 안내사항」 표와 금액 대조
+        import verify3
+        c['verify3'] = verify3.compare(c['riders'], src_pdf)
+    except Exception as e:
+        c['verify3'] = [{'오류': str(e)}]
     c['insert_after'] = BA.last_cover_page(src_pdf)
     c['base_pages'] = BA.page_count(src_pdf)
 

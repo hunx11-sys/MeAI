@@ -34,8 +34,15 @@ SKIPLINE = re.compile(r'^(\[고객용\]|계약사항|담보사항|가입담보|�
                       r'영업담당자|발행정보|고객콜센터|www\.|page\s*:|※ 인수지침|설계번호)')
 
 
-def read_desc(pdf_path):
-    """상품설명서 → {담보번호(int): {'name':…, 'desc':…}}  — 「가입담보 및 보장내용」 구간만 읽는다."""
+# 담보 시작 줄이 '치료비 18 암 통합치료비Ⅱ(…)' 처럼 **앞 담보의 보장구분 칸과 한 줄로 붙어** 나오는
+# 경우가 있다(PDF 열 순서). 이때 번호를 못 읽으면 그 담보의 설명문이 통째로 앞 담보에 붙어,
+# 앞 담보에 있지도 않은 '1년 이내 50% 감액'이 표시되고 정작 그 담보에는 설명문이 비게 된다(v8.41).
+MIDROW = re.compile(r'^(.{0,14}?)\s(\d{1,3})\s+([가-힣A-Za-z(\[][^\n]{2,90})$')
+
+
+def read_desc(pdf_path, nos=None):
+    """상품설명서 → {담보번호(int): {'name':…, 'desc':…}}  — 「가입담보 및 보장내용」 구간만 읽는다.
+       nos : 설계 담보번호 집합. 주면 줄 한가운데서 시작하는 담보도 그 번호일 때만 갈라낸다."""
     import pdfplumber
     out, cur, started = {}, None, False
     with pdfplumber.open(pdf_path) as pdf:
@@ -56,6 +63,17 @@ def read_desc(pdf_path):
                     cur = {'name': m.group(2).strip(), 'desc': ''}
                     out[no] = cur
                     continue
+                if nos and cur is not None:                     # 앞 칸과 붙어 나온 담보 시작 줄
+                    m2 = MIDROW.match(s)
+                    if m2 and not AMT.match(m2.group(3).strip()):
+                        n2 = int(m2.group(2))
+                        if n2 in nos and n2 not in out:
+                            pre = m2.group(1).strip()
+                            if pre:
+                                cur['desc'] += (' ' if cur['desc'] else '') + pre
+                            cur = {'name': m2.group(3).strip(), 'desc': ''}
+                            out[n2] = cur
+                            continue
                 if cur is None:
                     continue
                 if AMT.match(s) or re.fullmatch(r'\d+\s*년\s*/\s*\d+\s*세', s) or re.fullmatch(r'[\d,]+', s):
@@ -211,7 +229,7 @@ def explain(r):
 def attach(riders, pdf_path):
     """설계 담보 목록에 설명문 기반 2차 판정을 붙인다. 1차(약관+규칙표) 결과는 건드리지 않는다."""
     try:
-        desc = read_desc(pdf_path)
+        desc = read_desc(pdf_path, {r.get('no') for r in riders if r.get('no')})
     except Exception as e:                                  # 설명문을 못 읽어도 본 계산은 그대로 간다
         return riders, {'ok': False, 'err': str(e)}
     hit = 0

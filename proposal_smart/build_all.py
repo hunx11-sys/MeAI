@@ -66,6 +66,11 @@ if __name__=='__main__':
             c['riders'], c['desc_info'] = desc_engine.attach(c['riders'], orig)
         except Exception as e:
             c['desc_info'] = {'ok': False, 'err': str(e)}
+        try:                                   # 3차 안전장치(v8.41) : 설계서 뒤쪽 「특약 안내사항」 표와 금액 대조
+            import verify3
+            c['verify3'] = verify3.compare(c['riders'], orig)
+        except Exception as e:
+            c['verify3'] = [{'오류': str(e)}]
         c['src'] = os.path.basename(orig)
         json.dump(c, open(cust, 'w', encoding='utf-8'), ensure_ascii=False)
         print('자동 인식 —', c['insured'], c['premium'], '· 담보', len(c['riders']), '건 · 매칭', sum(1 for r in c['riders'] if r.get('matched')), '건')

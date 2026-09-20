@@ -43,6 +43,7 @@ def big(m, c='#E03131'):
 
 C = json.load(open(sys.argv[1], encoding='utf-8'))
 RID = C['riders']; IA = C['insert_after']; NEW = 9; TOTAL = C['base_pages'] + NEW
+V3 = C.get('verify3') or []      # 3차 안전장치 — 설계서 뒤쪽 「특약 안내사항」 표와 금액 대조 결과(v8.41)
 def pno(o): return o if o <= IA else o + NEW
 
 # ══ 보장 계열 판정 (v8.4) — 설계에 없는 계열의 지면·블록은 자동으로 빠진다 ══
@@ -861,6 +862,19 @@ def ls_srcnote(rs):
             if x: S.log('금액근거', r['name'], '상품설명서에 항목표가 없어 같은 담보의 %s p.%d 지급금액표 기준(서로 다른 상품 약관에서 같은 표임을 대조)' % (ls_bookname(x[0]), x[1]))
     return '<div class="mnote">※ 자세한 특약의 이해는 해당 상품의 약관 참조 확인 바랍니다.</div>' if rs else ''
 
+def v3note():
+    """설계서 뒤쪽 「특약 안내사항」 표와 대조한 결과 한 줄 — 모두 맞을 때만 적는다(v8.41)"""
+    ok = [x for x in V3 if x.get('일치') is True]
+    bad = [x for x in V3 if x.get('일치') is False]
+    if bad:
+        return ('<div class="mnote">※ 이 설계서 뒤쪽 「특약 안내사항」 표와 금액이 다른 담보가 있어요 — '
+                + ' · '.join(x['담보'][:24] for x in bad[:2]) + '. 약관을 확인해 주세요.</div>')
+    if not ok:
+        return ''
+    pg = ' · '.join('p.%d' % n for n in sorted({x['쪽'] for x in ok}))
+    return ('<div class="mnote">※ 위 금액은 이 설계서 뒤쪽 「특약 안내사항」 표(%s · 담보 %d개)와 '
+            '항목·금액·연간 한도까지 모두 같은지 확인했어요.</div>' % (pg, len(ok)))
+
 def page_itc():
     its = [r for r in RID if r.get('itc')]
     _ir, _ii = inj_itc_rider()                  # 상해 통합치료비는 itc 키가 없어 따로 끌어온다
@@ -906,6 +920,7 @@ def page_itc():
         lsm = ''
     return f'''<div class="itctop"><div class="itcrs">{top}</div><div class="itctot"><span>통합치료비 연간 한도 합계</span>{big(total,'#C92A2A')}<em>해마다 새로 적용 · 담보별 한도는 각각</em></div></div>
  {sections}{extra}{lsm}
+ {v3note()}
  <div class="tip">{e('bulb','#D9480F')}<span>통합치료비는 <b>진단금과 별개</b>로 실제 받은 치료 항목마다 지급돼요. 검사·주요치료는 <b>항목별 연간 1회</b>, 수술은 <b>수술할 때마다</b>, 재활은 <b>1일 1회</b>이고, 한 해 합계는 가입금액까지 · <b>해마다 새로</b> 적용돼요. 계약 후 1년 이내에는 항목 금액과 연간 한도가 50%로 적용되는 담보가 있어요.</span></div>'''
 
 # ── 수술비 세부보장 ────────────────────────────────
@@ -1312,6 +1327,24 @@ try:
     A['설명문인식'] = C.get('desc_info') or {}
 except Exception as _e:
     A['2차판정'] = []
+# 3차 안전장치(v8.41) — 설계서 뒤쪽 「특약 안내사항」 표와 우리 금액표를 대조한 결과.
+# 출처가 다른 세 번째 눈이라, 다르면 사람이 약관을 다시 봐야 한다는 뜻이다.
+A['3차대조'] = V3
+for _v in V3:
+    if _v.get('오류'):
+        S.log('3차대조', '-', '설계서 뒤쪽 표를 읽지 못함 — %s' % _v['오류'][:80]); continue
+    if _v.get('일치') is True:
+        S.log('3차대조', _v['담보'], '설계서 뒤쪽 특약 안내사항 표(p.%d · %s 기준)와 항목 %d개·연간 한도까지 모두 일치'
+              % (_v['쪽'], _v.get('기준', '-'), _v['항목수']))
+    elif _v.get('일치') is None:
+        S.log('3차대조', _v['담보'], _v.get('사유') or '대조하지 못함')
+    else:
+        _d = _v.get('차이') or []
+        S.log('3차대조', _v['담보'], '설계서 뒤쪽 표(p.%d)와 다름 — %s%s' % (
+            _v['쪽'],
+            ' · '.join('%s 설계서 %g / 우리 %s' % (k, v, '없음' if o is None else '%g' % o) for k, v, o in _d[:3]),
+            ' 외 %d건' % (len(_d) - 3) if len(_d) > 3 else ''))
+
 A['피보험자성별'] = {'M': '남', 'F': '여'}.get(SEX, '미확인(성별 중립 사례)'); A['사례'] = [f['t'] for f in pick_cases()] if P else []
 print('ok', len(P), '쪽 · 담보', A['담보수'], '건', A['구조별'])
 if not P: print('  [미첨부] 암·뇌·심장·통합치료비 계열 담보가 없어 스마트제안서를 만들지 않습니다(단일상품 등)')
