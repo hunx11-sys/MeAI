@@ -215,7 +215,7 @@ def page_cancer():
     dxrow = [('일반암', '위·대장·폐·간암 등', 'cancer', 'C16'), ('유사암', '갑상선암·기타피부암·제자리암·경계성종양', 'sim_cancer', 'C73')]
     dxcells = ''
     for t, s2, dx, kcd in dxrow:
-        L = nols(Q(kcd, dict(dx=dx, cause='질병', grp=[]), []))
+        L = Q(kcd, dict(dx=dx, cause='질병', grp=[]), [])
         dxcells += f'<div class="dxc"><b>{t}</b><span>{s2}</span>{big(T(L),d)}<em>{det(L,2)}</em></div>'
     return f'''{tabhd(1,'ca','암 진단','암으로 진단확정되면 진단비가 최초 1회 지급돼요')}
  <div class="dxs">{dxcells}
@@ -263,13 +263,13 @@ def page_cv():
         r2 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
         r3 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"each"),"#343A40")}</td>' for c in cols)
         r4 = ''.join(f'<td class="dt">{det(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]))}</td>' for c in cols)
-        dx_amt = T(nols(Q(kcd, dict(dx=dx, cause='질병', grp=grp), [])), 'first')
+        dx_amt = T(Q(kcd, dict(dx=dx, cause='질병', grp=grp), []), 'first')
         rows.append((k, kcd, dx, cells, r1, r2, r3, r4, dx_amt, cols, grp))
     def blk(x, no):
         k, kcd, dx, cells, r1, r2, r3, r4, dxa, cols, grp = x
         d = K[k][1]; nm = '뇌혈관 질환' if dx == 'brain' else '심혈관 질환'
         icon = 'neurology' if dx == 'brain' else 'heart_organ'
-        dxl = nols(Q(kcd, dict(dx=dx, cause='질병', grp=grp)))
+        dxl = Q(kcd, dict(dx=dx, cause='질병', grp=grp))
         return f'''{tabhd(no,k,nm+' 진단 · 치료','진단금은 최초 1회 · 치료 금액은 진단금을 뺀 순수 치료 보장액')}
      <div class="cvwrap"><div class="cvdx" style="background:{K[k][2]}">{et(icon,'#fff',26,d)}<b>{('뇌경색·뇌출혈 등' if dx=='brain' else '급성심근경색·협심증 등')}</b>
         <span>진단확정 시</span>{big(dxa,d) if dxa>0 else '<span class="nop">해당 진단비 미가입</span>'}<em>{det(dxl,2) if dxa>0 else '수술·치료 담보로 보장돼요'}</em></div>
@@ -1075,12 +1075,14 @@ def _care_sum():
 
 def summary_cards():
     """3대 진단 · 수술 · 입원/간병 한눈 요약 (질병 단위 합산금액)"""
-    # 한장요약의 세 진단 카드·수술·입원 카드에서는 통합생활지원비를 뺀다(v8.43).
-    # 산정특례 등록은 진단확정과 다른 지급사유이고, 이 카드는 '진단비 합산'을 말하는 자리다.
-    # (뇌심 지면·암 지면 진단 카드는 v8.37 에서 이미 뺐는데 한장요약만 빠져 있었다)
-    ca = T(nols(Q('C16', dict(dx='cancer', cause='질병', grp=[]), [])))
-    cv = T(nols(Q('I63', dict(dx='brain', cause='질병', grp=['뇌혈관질환']), [])))
-    ht = T(nols(Q('I21', dict(dx='heart', cause='질병', grp=['심장질환']), [])))
+    # 진단 카드에는 **암 산정특례만** 함께 센다(v8.44).
+    # 암 산정특례는 등록된 암환자가 등록일로부터 5년간이라 사실상 진단과 함께 시작된다.
+    # 뇌·심장 산정특례는 그 상병의 치료를 위한 **수술을 받아야** 등록되므로(약관 별표88-2·89-2)
+    # scen_engine.ls_lines 가 수술·시술 단계에서만 지급한다 — 진단 칸에는 자연히 들어오지 않는다.
+    # 수술·입원 카드는 '모든 수술비 합산'·입원일당을 말하는 자리라 생활지원비를 뺀다.
+    ca = T(Q('C16', dict(dx='cancer', cause='질병', grp=[]), []))
+    cv = T(Q('I63', dict(dx='brain', cause='질병', grp=['뇌혈관질환']), []))
+    ht = T(Q('I21', dict(dx='heart', cause='질병', grp=['심장질환']), []))
     sg = T(nols(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), [])))
     day = T(nols(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), [])))
     sup, supday, nano, use = _care_sum()

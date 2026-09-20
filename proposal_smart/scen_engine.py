@@ -147,7 +147,13 @@ def ls_items(r):
 
 # 사례 단계 → 통합생활지원비 항목. 약관 항목명을 그대로 읽어 맞춘다.
 #   · 전신마취는 **기본(급여)만** 인정한다 — 4시간·6시간 이상 여부는 사례로 단정할 수 없다(과소 계산 쪽으로).
-#   · 산정특례 등록은 진단 단계에서 한 번, 그 사례의 병이 그 항목에 해당할 때만.
+#   · 산정특례 등록 시점은 **질환마다 다르다**(약관 별표87~89 · 본인일부부담금 산정특례 기준).
+#       암·유사암·뇌수막 양성신생물 : 등록된 암환자가 **등록일로부터 5년간** → 사실상 진단과 함께.
+#                                    그래서 진단 단계에서 지급하고, 진단비 칸에도 함께 센다.
+#       뇌혈관질환 : 그 상병의 치료를 위하여 【별표88-2】의 **수술을 받은 경우** 최대 30일
+#                    (수술을 받지 않으면 중증 뇌출혈 급성기 입원·뇌경색 NIHSS 5점 이상 같은 별도 조건).
+#       심장질환   : 그 상병의 치료를 위하여 【별표89-2】의 **수술 또는 약제 투여** 최대 30일.
+#     → 뇌·심장은 진단만으로 등록되지 않으므로 **수술·시술 단계**에서 지급하고 진단비 칸에는 넣지 않는다.
 #   · 희귀질환·중증난치·중증화상·중증외상 산정특례는 사례로 단정하지 않는다.
 def _ls_evkeys(sc):
     ks = set()
@@ -168,6 +174,7 @@ def ls_lines(r, sc):
     brain = (dx == 'brain') or ('뇌혈관질환' in grp)
     heart = (dx == 'heart') or ('심장질환' in grp)
     anes = bool(tg.get('anes'))                       # 전신마취 수술인지는 사례에 명시된 것만 본다
+    surgstep = bool(tg.get('surg')) or ('surg' in ks)  # 이 단계에서 수술·시술을 받았는지
     icu = bool(tg.get('icu')) or ('icu' in ks)
     chemo = bool(tg.get('chemo')) or ('chemo' in ks)
     rad = bool(tg.get('rad')) or ('rad' in ks)
@@ -180,12 +187,11 @@ def ls_lines(r, sc):
         if amt <= 0: continue
         hit = False
         if it['grp'] == '산정특례':
-            if not dx: continue                        # 산정특례 등록은 진단 단계에서 한 번
-            if '유사암' in lb and '제외' not in lb: hit = (dc in ('cis', 'thy', 'skin'))
-            elif '암(' in lb or lb.startswith('중증질환자(암'): hit = (dc == 'major')
-            elif '뇌·수막' in lb or '뇌·수막의양성신생물' in lb: hit = bool(re.match(r'^D3[23]', code))
-            elif '뇌혈관' in lb: hit = brain
-            elif '심장' in lb: hit = heart
+            if '유사암' in lb and '제외' not in lb: hit = bool(dx) and (dc in ('cis', 'thy', 'skin'))
+            elif '암(' in lb or lb.startswith('중증질환자(암'): hit = bool(dx) and (dc == 'major')
+            elif '뇌·수막' in lb or '뇌·수막의양성신생물' in lb: hit = bool(dx) and bool(re.match(r'^D3[23]', code))
+            elif '뇌혈관' in lb: hit = brain and surgstep      # 수술을 받아야 등록(별표88-2)
+            elif '심장' in lb: hit = heart and surgstep        # 수술·약제 투여로 등록(별표89-2·89-3)
             else: hit = False                          # 희귀·중증난치·중증화상·중증외상 — 사례로 단정하지 않는다
         elif '전신마취' in lb:
             hit = anes and ('시간이상' not in lb)
