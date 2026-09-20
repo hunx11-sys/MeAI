@@ -851,19 +851,15 @@ def ls_mini():
             f'{rows}{srcn}</div>')
 
 def ls_srcnote(rs):
-    paper = [r['name'] for r, _i, _t, k in rs if k == 'paper']
-    book = {}
+    """지면에는 한 줄만 — 어느 약관·어느 쪽에서 왔는지는 고객에게 필요한 정보가 아니다.
+       상세 출처(상품설명서 / 약관·쪽수)는 감사 로그에 남겨 운영·검수에서 확인한다(v8.38)."""
     for r, rid, _t, k in rs:
-        if k != 'book': continue
-        x = ls_src(rid)
-        if x: book.setdefault(x[0], []).append((r['name'], x[1]))
-    lines = []
-    if paper:
-        lines.append('이 상품설명서에 실린 담보별 지급금액 표 그대로(%s)' % ' · '.join(paper))
-    for f, ns in book.items():
-        lines.append('%s는 이 상품설명서에 항목표가 없어 같은 담보의 <b>%s</b> %s 지급금액표(서로 다른 상품 약관에서 같은 표임을 대조) 기준 — 확정 금액은 이 상품 약관 확인'
-                     % (' · '.join(n for n, _ in ns), ls_bookname(f), ' · '.join('p.%d' % b for _n, b in ns)))
-    return ('<div class="mnote">※ 금액 근거 : ' + ' / '.join(lines) + '</div>') if lines else ''
+        if k == 'paper':
+            S.log('금액근거', r['name'], '이 상품설명서의 담보별 지급금액 표 그대로')
+        elif k == 'book':
+            x = ls_src(rid)
+            if x: S.log('금액근거', r['name'], '상품설명서에 항목표가 없어 같은 담보의 %s p.%d 지급금액표 기준(서로 다른 상품 약관에서 같은 표임을 대조)' % (ls_bookname(x[0]), x[1]))
+    return '<div class="mnote">※ 자세한 특약의 이해는 해당 상품의 약관 참조 확인 바랍니다.</div>' if rs else ''
 
 def page_itc():
     its = [r for r in RID if r.get('itc')]

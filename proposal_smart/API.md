@@ -1,6 +1,6 @@
 # 스마트 제안서 생성 API — 프론트엔드 연동 가이드
 
-> proposal_smart v8.37 · AI추진파트 세일즈혁신TF
+> proposal_smart v8.38 · AI추진파트 세일즈혁신TF
 > **LLM·외부 API를 쓰지 않습니다.** 규칙표(rules.json)와 약관 데이터(JSON)에 따른 계산만 수행하며,
 > 실행 중 외부 네트워크 통신이 없습니다. 같은 PDF를 넣으면 항상 같은 결과가 나옵니다.
 
@@ -34,7 +34,7 @@ python api.py 0.0.0.0 9000                # 호스트·포트 지정
 
 | 메서드 | 경로 | 요청 | 응답 |
 |---|---|---|---|
-| GET | `/health` | — | `{"ok":true,"version":"v8.37","llm":false,"network":false}` |
+| GET | `/health` | — | `{"ok":true,"version":"v8.38","llm":false,"network":false}` |
 | GET | `/` | — | 연동 데모 화면(HTML) |
 | GET | `/assets/<파일>` | — | 지면이 쓰는 글꼴·로고(미리보기용 정적 파일) |
 | POST | `/v1/proposal/pdf` | 상품설명서 PDF | **결과 PDF**(원본 + 생성 지면) `application/pdf` |
