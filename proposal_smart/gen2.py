@@ -500,9 +500,9 @@ FREQ = [
  ('자궁근종', 'D25', 'cervical_cancer', '하이푸 · 복강경 절제', '비급여 600~1,000만원', dict(surg='88-2', surg7='N031', grp=['다빈도62대질병']), [['수술', '복강경 근종 절제', '', ['surg'], {'j': 2}]]),
  ('대장 용종', 'D12', 'colon', '내시경 용종절제술', '급여 · 1종 수술', dict(surg='88-2', surg7='G523', grp=['다빈도62대질병'], five_major=True, hc=['Q7701', 'Q7702', 'Q7703', 'QX706']), [['진단', '대장내시경', '', ['x_endo']], ['수술', '용종 절제', '', ['surg'], {'j': 1}]]),
  ('담석증', 'K80.0', 'gallbladder', '복강경 담낭절제술', '급여 · 2종 수술', dict(surg='36', surg7='H107', grp=['다빈도62대질병'], days=5, room='2-3인실', hosp='모든'), [['진단', '복부 CT', '', ['x_ct']], ['수술', '복강경 담낭 절제', '', ['surg'], {'j': 2}]]),
- ('백내장', 'H25.9', 'body', '수정체 유화술 + 인공수정체', '급여 · 1종 수술', dict(surg='71', surg7='C061', grp=['백내장']), []),
- ('디스크(추간판장애)', 'M51', 'body', '신경성형술 · 내시경 수술', '비급여 160~380만원', dict(surg='88-2', surg7='B174', grp=['다빈도62대질병']), []),
- ('치핵', 'K64', 'intestine', '치핵절제술', '급여 · 1종 수술', dict(surg='44', surg7='G272', grp=['치핵']), []),
+ ('백내장', 'H25.9', 'body', '수정체 유화술 + 인공수정체', '급여 · 1종 수술', dict(surg='71', surg7='C061', grp=['백내장']), [['수술', '수정체 유화술 + 인공수정체', '', ['surg'], {'j': 1}]]),
+ ('디스크(추간판장애)', 'M51', 'body', '신경성형술 · 내시경 수술', '비급여 160~380만원', dict(surg='88-2', surg7='B174', grp=['다빈도62대질병']), [['수술', '내시경 추간판 수술', '', ['surg'], {'j': 2}]]),
+ ('치핵', 'K64', 'intestine', '치핵절제술', '급여 · 1종 수술', dict(surg='44', surg7='G272', grp=['치핵']), [['수술', '치핵절제술', '', ['surg'], {'j': 1}]]),
  ('급성 충수염(맹장염)', 'K35', 'intestine', '복강경 충수절제술', '급여 · 2종 수술', dict(surg='41', surg7='G212', grp=[]), [['진단', '복부 CT', '', ['x_ct']], ['수술', '복강경 충수 절제', '', ['surg'], {'j': 2}]]),
  ('편도염(만성·재발)', 'J35', 'body', '편도절제술', '급여 · 1종 수술', dict(surg='17', surg7='D162', grp=['다빈도62대질병']), [['수술', '편도 절제', '', ['surg'], {'j': 1}]]),
 ]
@@ -739,14 +739,26 @@ def page_itc():
 def page_surg():
     """모든 수술비를 종(1~5종)·원인·병원 종별로 합산 표기 + 연간 2회 이상(plus) 별도"""
     d = K['pr'][1]; tl = K['pr'][3]
+    # 이 표는 **1-5종 수술분류표로 종을 가려 지급하는 담보만** 합산한다(v8.27).
+    # 종과 무관하게 정액으로 나오는 질병·상해수술비, 질병군 수술비(131대 등)를 섞으면
+    # 1종부터 5종까지 금액이 똑같아져 '종별 지급금액' 표의 뜻이 사라진다. 그것들은 아래에 따로 적는다.
+    G5RULE = ('surg_grade_1_5',)
     def S5(j, cause, hosp, cnt=1):
-        return Q('Z99', dict(cause=cause, surg=j, hosp=hosp, grp=[], surg_cnt=cnt), [])
+        L = Q('Z99', dict(cause=cause, surg=j, hosp=hosp, grp=[], surg_cnt=cnt),
+              [['수술', '%d종 수술' % j, '', ['surg'], {'j': j}]])
+        return [x for x in L if x.get('rule') in G5RULE or x.get('group') == '통합치료비']
+    def FLAT(cause, hosp):
+        """종과 무관하게 나오는 수술비(정액) — 위 표 금액에 더해진다"""
+        L = Q('Z99', dict(cause=cause, surg=1, hosp=hosp, grp=[], surg_cnt=1), [])
+        return [x for x in L if x.get('rule') not in G5RULE and x.get('group') != '통합치료비']
     cols = ''.join(f'<th>{et(ic,tl,24,d)}<b>{j}종 수술</b><span>{s2}</span></th>'
                    for j, ic, s2 in [(1, 'bandage_adhesive', '내시경·간단 수술'), (2, 'syringe', '복강경·관혈 수술'),
                                      (3, 'knife', '내시경·카테터 암수술 · 갑상선'), (4, 'surgical_sterilization', '위·간·장 개복 절제'),
                                      (5, 'heart_organ', '암 근치수술 · 이식 · 개두 · 심장')])
     def row(label, cause, hosp, cnt=1, hl=False):
-        cells = ''.join(f'<td>{big(T(S5(j,cause,hosp,cnt)),d if hl else "#343A40")}</td>' for j in range(1, 6))
+        vals = [T(S5(j, cause, hosp, cnt)) for j in range(1, 6)]
+        if not any(vals): return ''                      # 1-5종 담보가 없는 원인은 빈 줄을 만들지 않는다(v8.27)
+        cells = ''.join(f'<td>{big(v,d if hl else "#343A40")}</td>' for v in vals)
         return f'<tr class="{"mhl" if hl else ""}"><th class="rl">{label}</th>{cells}</tr>'
     dc = '질병' if F['surg'] else '상해'
     detail = ''.join(f'<td class="dt">{det(S5(j,dc,"상급종합"),5)}</td>' for j in range(1, 6))
@@ -757,10 +769,21 @@ def page_surg():
         no += 1
         trs = (row('질병 · 모든 병원', '질병', '모든') + row('질병 · 상급종합병원', '질병', '상급종합', hl=True) if F['surg'] else '') + \
               (row('상해 · 모든 병원', '상해', '모든') + row('상해 · 상급종합병원', '상해', '상급종합', hl=not F['surg']) if F['inj_surg'] else '')
-        parts.append(tabhd(no,'pr','수술 종별 지급금액 — 모든 수술비 합산','1-5종 수술분류표Ⅱ 기준 · 수술할 때마다 다시 지급') + f'''
+        fl = []
+        for cz, on in (('질병', F['surg']), ('상해', F['inj_surg'])):
+            if not on: continue
+            L = FLAT(cz, '상급종합'); v = T(L)
+            if v > 0: fl.append(f'<b>{cz} {man(v)}만원</b> ({det(L, 4).replace("<br>", " · ")})')
+        fnote = ('<div class="mnote"><b>종과 상관없이 더해지는 수술비</b> — 상급종합 기준 ' + ' / '.join(fl) +
+                 '. 위 표 금액에 <b>더해</b> 지급돼요.</div>') if fl else ''
+        gnote = '<div class="mnote">※ 131대(130대)질병수술비 등 질병군 담보는 아래와 같이 <b>위 금액에 더해</b> 지급돼요.</div>'
+        if trs:                                          # 1-5종 담보가 있을 때만 종별 표를 그린다(v8.27)
+            parts.append(tabhd(no,'pr','수술 종별 지급금액 — 1-5종 수술비 계열','약관 [1-5종 수술분류표Ⅱ]로 종을 가려 지급하는 담보만 · 수술할 때마다 다시 지급') + f'''
  <table class="mx"><thead><tr><th class="rl"></th>{cols}</tr></thead><tbody>{trs}
    <tr class="dtr"><th class="rl">주요 지급 담보<br><span>{dc} · 상급종합</span></th>{detail}</tr></tbody></table>
- <div class="mnote">※ 같은 수술로 1-5종 수술비는 가장 높은 종 1가지만 지급돼요. 131대(130대)질병수술비 등 질병군 담보는 아래와 같이 <b>위 금액에 더해</b> 지급돼요.</div>''')
+ <div class="mnote">※ 같은 수술로 1-5종 수술비는 가장 높은 종 1가지만 지급돼요. 질병 통합치료비도 1-5종 분류표를 쓰므로 함께 넣었어요.</div>{fnote}{gnote}''')
+        else:
+            parts.append(tabhd(no,'pr','수술비 — 수술 종과 상관없이 정액 지급','이 설계에는 1-5종 수술분류표로 종을 가리는 담보가 없어요') + fnote + gnote)
     pc = plus_cards()
     if pc:
         no += 1; parts.append(tabhd(no,'pr','연간 2회 이상 수술하면 — 1-5종 수술비(plus)','한 해에 두 번째 수술부터 가장 높은 종 기준으로 연간 1회 더') + f'<div class="plus5">{pc}</div>')

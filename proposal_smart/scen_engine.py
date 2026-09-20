@@ -360,6 +360,9 @@ def h_tx(r, o, sc, nm, t):
     if m2: nd = int(m2.group(1))
     if nd and tg.get('drug', 0) < nd: return []                                 # 연간 약물종류 개수 조건
     if not need and not tg.get('dx') and o.get('kcd') != 'hc': return []     # 수가코드 담보는 진단 단계가 아니어도 해당 시술이 있으면 지급(v8.14)
+    # 비급여(전액본인부담) 전용 담보는 그 치료의 비용이 비급여일 때만 지급한다(약관 '비급여(전액본인부담 포함)
+    # ○○치료의 정의' — 진료비 세부내역서의 해당 비용이 비급여·전액본인부담인 경우). 급여 치료 예시에는 넣지 않는다.
+    if re.search(r'비급여|전액본인부담', nm) and not tg.get('nc'): return []
     if t['cause'] and tg.get('cause') != t['cause']: return []
     if not hosp_ok(t['hosp'], tg.get('hosp')): return []
     if re.search(r'유사암|기타피부암|갑상선암', nm) and '제외' not in nm:        # 유사암 전용 치료비는 유사암에만
@@ -378,6 +381,10 @@ def pay_lines(riders, sc):
        sc     : {'kcd','tags',...}  →  [{'name','amt','why','group','no','freq'}]"""
     out = []
     sc.setdefault('itc_events', [])
+    # 사례 단계가 비급여(전액본인부담)인지 태그로 옮긴다 — 지금까지는 통합치료비 엔진만 이 표시를 보고
+    # 일반 치료비 담보는 못 봐서, '비급여 암 주요치료비'가 급여 치료 예시에도 더해지고 있었다(v8.27)
+    if any((e[4] or {}).get('nc') for e in sc['itc_events'] if len(e) > 4):
+        sc['tags'] = dict(sc['tags']); sc['tags']['nc'] = 1
     for r in riders:
         try:
             if (r.get('man') or 0) <= 0: continue
@@ -386,6 +393,9 @@ def pay_lines(riders, sc):
             # 1) 통합치료비 — 약관 지급금액표 엔진에 위임
             if r.get('itc'):
                 if not sc.get('itc_events'): continue
+                # 담보명이 원인을 못박은 통합치료비(질병 통합치료비·상해 통합치료비)는 그 원인일 때만(v8.27)
+                _c = tokens(nm)['cause']
+                if _c and sc['tags'].get('cause') != _c: continue
                 try:
                     res = itc.calc_rider(r['itc'], r['man'], sc['kcd'], {'e': sc['itc_events']}, sc.get('within1y', False))
                 except KeyError:
@@ -397,7 +407,8 @@ def pay_lines(riders, sc):
                     ea = sum(l['amt'] for l in res['lines'] if l['amt'] > 0
                              and itc.IT[itc.RM[r['itc']]['ty']][l['i']]['p'] == 'o')
                     out.append({'name': n, 'amt': res['total'], 'why': det + ('  (연간 한도 적용)' if res['capped'] else ''),
-                                'group': '통합치료비', 'no': r.get('no'), 'freq': 'year', 'each': min(ea, res['cap'])})
+                                'group': '통합치료비', 'no': r.get('no'), 'freq': 'year',
+                                'each': min(ea, res['cap']), 'rule': 'itc', 'itc': r['itc']})
                 continue
             # 2) 규칙표 판정
             rule = classify(n)
