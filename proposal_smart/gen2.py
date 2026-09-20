@@ -1093,9 +1093,18 @@ def summary_cards():
     # 뇌·심장 산정특례는 그 상병의 치료를 위한 **수술을 받아야** 등록되므로(약관 별표88-2·89-2)
     # scen_engine.ls_lines 가 수술·시술 단계에서만 지급한다 — 진단 칸에는 자연히 들어오지 않는다.
     # 수술·입원 카드는 '모든 수술비 합산'·입원일당을 말하는 자리라 생활지원비를 뺀다.
-    ca = T(Q('C16', dict(dx='cancer', cause='질병', grp=[]), []))
-    cv = T(Q('I63', dict(dx='brain', cause='질병', grp=['뇌혈관질환']), []))
-    ht = T(Q('I21', dict(dx='heart', cause='질병', grp=['심장질환']), []))
+    caL = Q('C16', dict(dx='cancer', cause='질병', grp=[]), [])
+    cvL = Q('I63', dict(dx='brain', cause='질병', grp=['뇌혈관질환']), [])
+    htL = Q('I21', dict(dx='heart', cause='질병', grp=['심장질환']), [])
+    ca, cv, ht = T(caL), T(cvL), T(htL)
+    # 큰 숫자에 산정특례(통합생활지원비)가 섞였으면 아래 작은 글씨에 구성을 풀어 적는다(v8.46).
+    # '진단비 합산 5,050' 만 적으면 진단비가 5,050 인 줄 알게 되고, 암 지면의 5,000 과 다른 것처럼 보인다.
+    def dxnote2(L):
+        v = T(L)
+        if v <= 0: return '진단비 미가입 · 수술·치료 담보로 보장'
+        sp = sum(x['amt'] for x in L if x.get('group') == '통합생활지원비')
+        if sp: return f'진단비 {man(v - sp)} + 산정특례 등록 {man(sp)}'
+        return '진단비 합산'
     sg = T(nols(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), [])))
     day = T(nols(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), [])))
     sup, supday, nano, use = _care_sum()
@@ -1124,10 +1133,9 @@ def summary_cards():
     if sup: caresub.append('간병인지원' + (f'(미사용 시 하루 {won(supday)})' if supday else ''))
     if use and not usebox: caresub.append('간병인사용 ' + ' · '.join(f'{k} {won(use[k])}' for k in CARE_USE if use.get(k)))
     if nano: caresub.append(f'간호간병통합병실 {won(nano)}')
-    dxnote = lambda v: '진단비 합산' if v > 0 else '진단비 미가입 · 수술·치료 담보로 보장'
-    cards = [(F['cancer'], 'cancerous_cell_nuclei', 'ca', '암 진단', '암(유사암제외) 진단확정 시', big(ca, K['ca'][1]), dxnote(ca)),
-             (F['brain'], 'neurology', 'cv', '뇌혈관 질환', '뇌경색·뇌출혈 진단확정 시', big(cv, K['cv'][1]), dxnote(cv)),
-             (F['heart'], 'heart_organ', 'yr', '심혈관 질환', '급성심근경색 진단확정 시', big(ht, K['yr'][1]), dxnote(ht)),
+    cards = [(F['cancer'], 'cancerous_cell_nuclei', 'ca', '암 진단', '암(유사암제외) 진단확정 시', big(ca, K['ca'][1]), dxnote2(caL)),
+             (F['brain'], 'neurology', 'cv', '뇌혈관 질환', '뇌경색·뇌출혈 진단확정 시', big(cv, K['cv'][1]), dxnote2(cvL)),
+             (F['heart'], 'heart_organ', 'yr', '심혈관 질환', '급성심근경색 진단확정 시', big(ht, K['yr'][1]), dxnote2(htL)),
              (F['surg'] or F['inj_surg'], 'knife', 'pr', '수술', '질병 5종 수술 1회(상급종합)', big(sg, K['pr'][1]), '모든 수술비 합산'),
              (F['day'] or F['care'], 'nurse', 'ms', '입원 · 간병',
               s2, care,
