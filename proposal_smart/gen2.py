@@ -876,7 +876,10 @@ def summary_cards():
     sg = T(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), []))
     day = T(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), []))
     sup, nano, use = _care_sum()
-    care = '간병인 지원' if sup else (f'하루 {won(nano)}' if nano else (f'하루 {won(day)}' if day else '미가입'))
+    # 간병 카드의 큰 금액 : 현물지원 > 간병인사용·간호간병통합 중 큰 금액 > (간병 담보가 없을 때만) 일반 입원일당
+    # v8.28 — 간병인사용일당만 가입한 설계에서 '미가입'으로 나오던 오류 수정
+    nurse = max(use, nano)
+    care = '간병인 지원' if sup else (f'하루 {won(nurse)}' if nurse else (f'하루 {won(day)}' if day else '미가입'))
     caresub = []
     if sup: caresub.append('간병인지원')
     if nano: caresub.append(f'간호·간병통합 {won(nano)}')
