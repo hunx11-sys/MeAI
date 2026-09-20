@@ -1075,11 +1075,14 @@ def _care_sum():
 
 def summary_cards():
     """3대 진단 · 수술 · 입원/간병 한눈 요약 (질병 단위 합산금액)"""
-    ca = T(Q('C16', dict(dx='cancer', cause='질병', grp=[]), []))
-    cv = T(Q('I63', dict(dx='brain', cause='질병', grp=['뇌혈관질환']), []))
-    ht = T(Q('I21', dict(dx='heart', cause='질병', grp=['심장질환']), []))
-    sg = T(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), []))
-    day = T(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), []))
+    # 한장요약의 세 진단 카드·수술·입원 카드에서는 통합생활지원비를 뺀다(v8.43).
+    # 산정특례 등록은 진단확정과 다른 지급사유이고, 이 카드는 '진단비 합산'을 말하는 자리다.
+    # (뇌심 지면·암 지면 진단 카드는 v8.37 에서 이미 뺐는데 한장요약만 빠져 있었다)
+    ca = T(nols(Q('C16', dict(dx='cancer', cause='질병', grp=[]), [])))
+    cv = T(nols(Q('I63', dict(dx='brain', cause='질병', grp=['뇌혈관질환']), [])))
+    ht = T(nols(Q('I21', dict(dx='heart', cause='질병', grp=['심장질환']), [])))
+    sg = T(nols(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), [])))
+    day = T(nols(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), [])))
     sup, supday, nano, use = _care_sum()
     # ── 간병 카드(v8.30) ──────────────────────────────────────────────
     # 큰 자리는 '간병을 누가·얼마로 받는가'만 쓴다 : 간병인지원(현물) > 간병인사용(요양 구분별 두 줄).
