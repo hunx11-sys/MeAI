@@ -33,10 +33,13 @@ def man(m):
 def won(m):
     """금액 + 단위 — 1억처럼 만원 자리가 0이면 '원', 아니면 '만원' (v8.20 : '1억만원' 표기 오류 수정)"""
     return man(m) + ('원' if m >= 10000 and m % 10000 == 0 else '만원')
+def num(m):
+    """숫자 + 작은 단위 (겉 span 없이) — 표·카드 안에서 단위만 작게 쓸 때"""
+    return f'{man(m)}<small>{"원" if m >= 10000 and m % 10000 == 0 else "만원"}</small>'
 def big(m, c='#E03131'):
     # 지급액이 없으면 숫자 0 대신 줄표 — 가입하지 않은 칸을 0원으로 인쇄하지 않는다(v8.20)
     if m <= 0: return '<span class="z">&mdash;</span>'
-    return f'<span class="n2" style="color:{c}">{man(m)}<small>{"원" if m>=10000 and m%10000==0 else "만원"}</small></span>'
+    return f'<span class="n2" style="color:{c}">{num(m)}</span>'
 
 C = json.load(open(sys.argv[1], encoding='utf-8'))
 RID = C['riders']; IA = C['insert_after']; NEW = 9; TOTAL = C['base_pages'] + NEW
@@ -860,12 +863,22 @@ def tag_of(r):
     for kw, nm in [('암', '암'), ('뇌', '뇌·심장'), ('심장', '뇌·심장'), ('입원', '입원·간병'), ('간병', '입원·간병'), ('수술', '수술'), ('상해', '상해·사망')]:
         if kw in r['name']: return nm
     return '기타'
+CARE_USE = ('요양제외', '요양병원', '하루')          # 간병인사용일당 표기 순서
 def _care_sum():
-    """간병 관련 담보 요약 — 간병인지원(현물) · 간호간병통합 · 간병인사용"""
+    """간병 관련 담보 요약 — 간병인지원(현물) · 간호간병통합 · 간병인사용(요양병원 구분별)
+
+    간병인사용일당은 간병인지원일당과 동시에 설계할 수 없고, 보통
+    (요양병원제외) · (요양병원) 두 담보를 금액을 달리해 한 세트로 가입한다(v8.29).
+    """
     nm = lambda r: r['name'].replace(' ', '')
     sup = any('간병인지원' in nm(r) for r in RID)
     nano = max([r['man'] for r in RID if ('간호·간병통합' in nm(r) or '간호간병통합' in nm(r))] or [0])
-    use = max([r['man'] for r in RID if '간병인사용' in nm(r)] or [0])
+    use = {}
+    for r in RID:
+        n = nm(r)
+        if '간병인사용' not in n: continue
+        k = '요양제외' if re.search(r'요양[^)]*병원제외', n) else ('요양병원' if '(요양병원)' in n else '하루')
+        use[k] = max(use.get(k, 0), r['man'])       # 상해·질병 같은 금액이라 큰 쪽 하나만 쓴다
     return sup, nano, use
 
 def summary_cards():
@@ -876,22 +889,32 @@ def summary_cards():
     sg = T(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), []))
     day = T(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), []))
     sup, nano, use = _care_sum()
-    # 간병 카드의 큰 금액 : 현물지원 > 간병인사용·간호간병통합 중 큰 금액 > (간병 담보가 없을 때만) 일반 입원일당
-    # v8.28 — 간병인사용일당만 가입한 설계에서 '미가입'으로 나오던 오류 수정
-    nurse = max(use, nano)
-    care = '간병인 지원' if sup else (f'하루 {won(nurse)}' if nurse else (f'하루 {won(day)}' if day else '미가입'))
+    # 간병 카드 값 : 현물지원 > 간병인사용(요양 구분별 여러 줄) > 간호·간병통합 > (간병 담보가 없을 때만) 일반 입원일당
+    MS = K['ms'][1]
+    one = lambda t: f'<span class="n2" style="color:{MS}">{t}</span>'
+    usebox = False
+    if sup:
+        care = one('간병인 지원')
+    elif use:                                        # v8.29 — 요양병원 제외 / 요양병원을 각각 한 줄로
+        usebox = True
+        rows = ''.join(f'<i>{k}</i><u>{num(v)}</u>' for k in CARE_USE if use.get(k) for v in [use[k]])
+        care = f'<span class="crh">간병인사용</span><span class="cr2" style="color:{MS}">{rows}</span>'
+    elif nano:
+        care = one(f'하루 {won(nano)}')
+    else:
+        care = one(f'하루 {won(day)}' if day else '미가입')
     caresub = []
     if sup: caresub.append('간병인지원')
     if nano: caresub.append(f'간호·간병통합 {won(nano)}')
-    if use: caresub.append(f'간병인사용 {won(use)}')
+    if use and not usebox: caresub.append('간병인사용 ' + ' · '.join(f'{k} {won(use[k])}' for k in CARE_USE if use.get(k)))
     dxnote = lambda v: '진단비 합산' if v > 0 else '진단비 미가입 · 수술·치료 담보로 보장'
     cards = [(F['cancer'], 'cancerous_cell_nuclei', 'ca', '암 진단', '암(유사암제외) 진단확정 시', big(ca, K['ca'][1]), dxnote(ca)),
              (F['brain'], 'neurology', 'cv', '뇌혈관 질환', '뇌경색·뇌출혈 진단확정 시', big(cv, K['cv'][1]), dxnote(cv)),
              (F['heart'], 'heart_organ', 'yr', '심혈관 질환', '급성심근경색 진단확정 시', big(ht, K['yr'][1]), dxnote(ht)),
              (F['surg'] or F['inj_surg'], 'knife', 'pr', '수술', '질병 5종 수술 1회(상급종합)', big(sg, K['pr'][1]), '모든 수술비 합산'),
              (F['day'] or F['care'], 'nurse', 'ms', '입원 · 간병',
-              f'입원 하루 {won(day)}' if day else '입원일당 미가입', f'<span class="n2" style="color:{K["ms"][1]}">{care}</span>',
-              ' · '.join(caresub) or ('간병 담보 미가입' if day else '입원일당 · 간병 담보 미가입'))]
+              f'입원 하루 {won(day)}' if day else '입원일당 미가입', care,
+              ' · '.join(caresub) or ('간병인을 직접 고용한 날 지급' if use else ('간병 담보 미가입' if day else '입원일당 · 간병 담보 미가입')))]
     cards = [c for c in cards if c[0]]                   # 설계에 없는 계열 카드는 빠진다(v8.4)
     html = ''
     for on, ic, k, t, s2, v, note in cards:
