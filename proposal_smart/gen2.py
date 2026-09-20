@@ -99,8 +99,8 @@ def insured_sex():
     if re.search(r'전립선|남성|고환', names) and not re.search(r'유방|자궁|난소|여성', names): return 'M'
     return ''
 SEX = insured_sex()
-# ── 제작 대상에서 뺀 상품(v8.34) ─────────────────────────────────
-# 담보 구조가 이 생성기의 계산 전제와 다른 상품은 지면을 붙이지 않고 원본을 그대로 돌려준다.
+# ── 차후 검토 대상 상품(v8.34) ───────────────────────────────────
+# 상품·담보 구조가 이 생성기의 계산 전제와 다른 상품은 지면을 붙이지 않고 원본을 그대로 돌려준다.
 # 목록은 규칙표(rules.json > exclude_products)에 있으므로 코드를 고치지 않고 늘릴 수 있다.
 def excluded_product():
     nm = re.sub(r'\s+', '', C.get('product') or '')
