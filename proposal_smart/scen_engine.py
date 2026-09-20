@@ -160,6 +160,10 @@ def ls_items(r):
 #     → 뇌·심장은 진단만으로 등록되지 않으므로 **수술·시술·혈전용해 단계**에서 지급하고
 #       진단비 칸에는 넣지 않는다. 산정특례는 '등록당' 지급이라 한 사례에서 한 번만 센다(gen2.flow_card).
 #   · 희귀질환·중증난치·중증화상·중증외상 산정특례는 사례로 단정하지 않는다.
+# 유사암 = 제자리암(cis) · 경계성종양(bord) · 기타피부암(skin) · 갑상선암(thy) — 약관 별표87-2 그대로.
+# 경계성종양(D37~D48)이 빠져 있어 유사암 산정특례·유사암 항암 항목이 그 사례에서 안 잡히던 것을 바로잡음(v8.47).
+SIM_CLS = ('cis', 'bord', 'thy', 'skin')
+
 def _ls_evkeys(sc):
     ks = set()
     for ev in (sc.get('itc_events') or []):
@@ -197,7 +201,7 @@ def ls_lines(r, sc):
         if amt <= 0: continue
         hit = False
         if it['grp'] == '산정특례':
-            if '유사암' in lb and '제외' not in lb: hit = bool(dx) and (dc in ('cis', 'thy', 'skin'))
+            if '유사암' in lb and '제외' not in lb: hit = bool(dx) and (dc in SIM_CLS)   # 별표87-2 : C44·C73·D00~D09·D37~D48
             elif '암(' in lb or lb.startswith('중증질환자(암'): hit = bool(dx) and (dc == 'major')
             elif '뇌·수막' in lb or '뇌·수막의양성신생물' in lb: hit = bool(dx) and bool(re.match(r'^D3[23]', code))
             elif '뇌혈관' in lb: hit = brain and regstep       # 수술 또는 혈전용해로 등록(별표88-2 M6599)
@@ -227,7 +231,7 @@ def ls_lines(r, sc):
 
 def _ls_cancer_row(lb, dc):
     """'암(유사암제외) 항암…' / '유사암 항암…' 행 가리기"""
-    if lb.startswith('유사암'): return dc in ('cis', 'thy', 'skin')
+    if lb.startswith('유사암'): return dc in SIM_CLS
     if '암(유사암제외)' in lb: return dc == 'major'
     return dc is not None
 
