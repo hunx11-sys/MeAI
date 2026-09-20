@@ -52,6 +52,10 @@ def surg7_grade(x):
 def surg7_name(x):
     r = SURG7.get(str(x).upper()) if isinstance(x, str) else None
     return r['name'] if r else ''
+def surg7_group(x):
+    """수술코드 → 분류표의 수술구분 이름(예 B016 → '뇌동맥류수술'). 모르면 ''."""
+    r = SURG7.get(str(x).upper()) if isinstance(x, str) else None
+    return (r.get('group') or '') if r else ''
 
 # ══ 1-5종 수술분류표Ⅱ (약관 별표76, extract_surg5.py 로 생성) — 항목번호 → 종, 질병코드 예외 (v8.6) ═══
 SURG5 = {}
@@ -472,6 +476,9 @@ def h_tx(r, o, sc, nm, t):
         if not codes:
             log('KCD없음', r['name'], f'세부급부 암종 "{raw}"이 약관 별표 「암종별(13종)」 분류표·코드 사전에 없어 계산 제외'); return []
         if not code_hit(codes, sc['kcd']): return []
+    # 약관 별표 1-7종 수술분류표의 **수술구분**으로 가리는 담보(예 '뇌동맥류수술' = B011~B018).
+    # 담보명·설명문에서 질병코드를 만들지 않고, 사례 단계에 적힌 수술코드가 그 구분에 드는지만 본다(v8.39).
+    if o.get('surg7_grp') and surg7_group(tg.get('surg7')) != o['surg7_grp']: return []
     if need and not (need & _acts(sc)): return []
     allneed = set(o.get('acts_all') or [])          # 둘 다 받아야 지급되는 담보(예: 혈전용해 + 기계적혈전제거술)
     if allneed and not allneed <= _acts(sc, True): return []

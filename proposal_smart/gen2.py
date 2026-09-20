@@ -247,7 +247,7 @@ def page_cv():
     for k, kcd, dx, grp, cols in [
         ('cv', 'I63', 'brain', G, [('혈전용해치료만', '혈전용해제(tPA) 주사 · 수술 없음', [['시술', '혈전용해', '', ['thromb']]], None, None, None),
                                    ('혈전용해 + 혈전제거술', '두 치료를 모두 받은 경우', [['시술', '혈전용해', '', ['thromb']], ['수술', '기계적 혈전제거술', '', ['surg']]], '88-1', ['thrombectomy'], 'B027'),
-                                   ('스텐트 · 코일색전술', '신의료기술(비관혈)', [['시술', '스텐트·코일', '', ['surg']]], '88-1', None, 'B026'),
+                                   ('경동맥 스텐트 삽입술', '신의료기술(비관혈)', [['시술', '스텐트 삽입', '', ['surg']]], '88-1', None, 'B026'),
                                    ('개두 수술', '클립결찰술 · 개두술', [['수술', '개두술', '', ['surg']]], '59', None, 'B031')]),
         ('yr', 'I21', 'heart', H, [('혈전용해치료만', '혈전용해제 주사 · 수술 없음', [['시술', '혈전용해', '', ['thromb']]], None, None, None),
                                    ('혈전용해 + 혈전제거술', '두 치료를 모두 받은 경우', [['시술', '혈전용해', '', ['thromb']], ['수술', '기계적 혈전제거술', '', ['surg']]], '88-1', ['thrombectomy'], 'F121'),
@@ -256,7 +256,7 @@ def page_cv():
         d = K[k][1]
         cells = ''
         for t, s2, itc, j, ac, j7 in cols:
-            ico = {'혈전용해치료만':'drop2','혈전용해 + 혈전제거술':'drop2','스텐트 · 코일색전술':'stent','개두 수술':'neuro_surgery','관상동맥 스텐트':'stent','심장 개흉수술':'heart_organ'}.get(t,'stethoscope')
+            ico = {'혈전용해치료만':'drop2','혈전용해 + 혈전제거술':'drop2','경동맥 스텐트 삽입술':'stent','개두 수술':'neuro_surgery','관상동맥 스텐트':'stent','심장 개흉수술':'heart_organ'}.get(t,'stethoscope')
             cells += f'<th>{et(ico,K[k][3],26,d)}<b>{t}</b><span>{s2}</span></th>'
         r1 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="모든",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
         r2 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
