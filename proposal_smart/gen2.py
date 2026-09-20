@@ -69,6 +69,22 @@ def coverage_flags():
     return F
 F = coverage_flags()
 
+# ── 계약 1년 이내 감액(v8.33) ────────────────────────────────────
+# 설계서의 담보별 약관 요약 설명문에서 desc_engine 이 읽어 둔 값이다.
+# **계산에는 넣지 않는다** — 예시는 1년이 지난 뒤 기준으로 두고, 금액 옆에 작은 글씨로만 알린다.
+# 1년 이내 지급액까지 예시로 만들면 고객이 읽기에 너무 어렵기 때문이다.
+CUT = {}
+for _r in RID:
+    _c = (_r.get('desc2') or {}).get('cut_1y')
+    if _c and 0 < _c < 1:
+        CUT[S.nname(_r['name'])] = _c
+def cutmark(name, short=False):
+    """담보명 → '1년 내 50%' 작은 글씨. 감액이 없으면 빈 문자열."""
+    c = CUT.get(S.nname(name))
+    if not c: return ''
+    v = '%g%%' % (c * 100)
+    return f'<em class="ct">{v if short else "1년내 " + v}</em>'
+
 def insured_sex():
     """피보험자 성별 : 설계서에서 읽은 값(C['sex'])이 우선, 없으면 성별 전용 담보명으로 추정, 끝내 모르면 '' (성별 중립 사례 사용)"""
     s = (C.get('sex') or '').upper()
@@ -113,7 +129,7 @@ def disp(n):
 
 def det(L, n=3):
     it = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0][:n]
-    return '<br>'.join(f'{disp(x["name"])[:19]} {man(x["amt"])}' for x in it) or '—'
+    return '<br>'.join(f'{disp(x["name"])[:19]} {man(x["amt"])}{cutmark(x["name"], 1)}' for x in it) or '—'
 
 ITCK = {'x': ['x_ct']}
 # ── 암 ─────────────────────────────────────────────
@@ -486,7 +502,7 @@ def flow_card(f):
         paid |= {x['name'] for x in L if once(x)}
         v = T(L, 'first'); acc += v
         pos = [x for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0]
-        det2 = ''.join(f'<li><span>{disp(x["name"])[:22]}</span><b>{man(x["amt"])}</b></li>' for x in pos[:5])
+        det2 = ''.join(f'<li><span>{disp(x["name"])[:22]}</span>{cutmark(x["name"])}<b>{man(x["amt"])}</b></li>' for x in pos[:5])
         if len(pos) > 5: det2 += f'<li><span>외 {len(pos)-5}개 담보</span><b>{man(sum(x["amt"] for x in pos[5:]))}</b></li>'
         cards += f'''<div class="fs"><div class="fb" style="background:{tl}">{e(ic,d)}</div>
           <div class="fst" style="color:{d}">STEP {i+1} · {stg}</div><div class="fn">{nm}</div>
@@ -517,7 +533,7 @@ def freq_rows():
         b2 = dict(base); b2['hosp'] = '상급종합'
         L2 = Q(kcd, b2, itc)
         L1 = [x for x in L1 if x['group'] not in ('입원일당', '통원일당')]; L2 = [x for x in L2 if x['group'] not in ('입원일당', '통원일당')]
-        items = ''.join(f'<span class="fi">{disp(x["name"])[:22]}<b>{man(x["amt"])}</b></span>' for x in sorted(L2, key=lambda y: -y['amt']) if x['amt'] > 0) or '<span class="fi none">해당 담보 없음</span>'
+        items = ''.join(f'<span class="fi">{disp(x["name"])[:22]}{cutmark(x["name"])}<b>{man(x["amt"])}</b></span>' for x in sorted(L2, key=lambda y: -y['amt']) if x['amt'] > 0) or '<span class="fi none">해당 담보 없음</span>'
         out += f'''<div class="frow">{et(ic,K['pr'][3],30,K['pr'][1])}
           <div class="fnm"><b>{nm}</b><span>{kcd}</span><em>{op} · {note}</em></div>
           <div class="fitems">{items}</div>
@@ -948,10 +964,10 @@ def page_all():
         k = {'암': 'ca', '뇌·심장': 'cv', '통합치료비': 'yr', '수술': 'pr', '입원·간병': 'ms', '상해·사망': 'pk'}.get(nm, 'pr')
         d = K[k][1]
         cut = 30 if len(RID) <= 80 else 19
-        items = ''.join(f'<span class="al"><i>{r["no"]}</i>{r["name"][:cut]}<b>{man(r["man"])}</b></span>' for r in sorted(rs, key=lambda x: (x.get('no') or 0)))
+        items = ''.join(f'<span class="al"><i>{r["no"]}</i>{r["name"][:cut]}<b>{man(r["man"])}</b>{cutmark(r["name"], 1)}</span>' for r in sorted(rs, key=lambda x: (x.get('no') or 0)))
         blocks += f'''<div class="ablk"><div class="ah" style="color:{d}"><span class="adot" style="background:{d}"></span>{nm}<em>{len(rs)}개 · 합계 {won(sum(x["man"] for x in rs))}</em></div><div class="ag">{items}</div></div>'''
     return f'''{blocks}
- <div class="tip">{e('bulb','#D9480F')}<span><b>지급 기준 요약</b> · 진단비는 최초 1회 · 수술비는 수술할 때마다(1~5종은 동시 수술 시 가장 높은 종 1가지) · 통합치료비는 항목별 연간 1회, 연간 한도는 가입금액까지 해마다 새로 적용 · 입원일당은 병원 종별·병실 종류·한도일수 조건 충족 시 지급 · 131대질병수술비 등 일반 질병 담보는 <b>암·유사암에는 지급되지 않아요</b>.</span></div>'''
+ <div class="tip">{e('bulb','#D9480F')}<span>{'<b>가입금액 뒤 회색 %% 표시</b>는 계약 1년이 지나기 전에는 그 비율만 지급된다는 뜻이에요(%d개 담보). · ' % len(CUT) if CUT else ''}<b>지급 기준 요약</b> · 진단비는 최초 1회 · 수술비는 수술할 때마다(1~5종은 동시 수술 시 가장 높은 종 1가지) · 통합치료비는 항목별 연간 1회, 연간 한도는 가입금액까지 해마다 새로 적용 · 입원일당은 병원 종별·병실 종류·한도일수 조건 충족 시 지급 · 131대질병수술비 등 일반 질병 담보는 <b>암·유사암에는 지급되지 않아요</b>.</span></div>'''
 
 _BUILD = [
  lambda: f'''<div class="lg">{e('coins','#E03131')}<b>{C['insured'] if C['insured'].endswith('고객님') else C['insured'] + ' 고객님'} 보장 한장요약</b><span class="sub">가입 담보 {len(RID)}개 · 월 보험료 {C['premium']} · 3대 진단 · 수술 · 입원/간병 요약</span></div>
@@ -1020,11 +1036,41 @@ def inj_itc_block(no=2):
     return (tabhd(no, 'yr', '상해 통합치료비 보장 예시', f'{r["name"]} {won(r["man"])} · 약관 지급금액표 · 검사·주요치료 연간 1회, 수술은 수술마다, 재활 1일 1회')
             + f'<div class="frows">{cards}</div><div class="itcchips">{top}</div>')
 
+# ── 체증형 담보 — 수술 회차가 늘수록 지급액이 올라간다(v8.33) ──────────────
+# 약관(예 : 통합간편 p227 암수술비(25%체증형) · p1660 뇌혈관질환수술비Ⅱ(25%체증형))
+#   1년 경과 후 1회차 100% → 2회차 125% → 3회차 150% → 4회차 175% → 5회차 이후 200%
+# 담보명의 '(25%체증형)' 에서 체증폭을 읽으므로 상품이 달라도 그대로 쓴다.
+ESC = re.compile(r'\((\d+(?:\.\d+)?)%체증형\)')
+def esc_rows():
+    out = []
+    for r in RID:
+        m = ESC.search(r['name'].replace(' ', ''))
+        if m and r['man'] > 0:
+            nm = re.sub(r'\s*\(\s*\d+(?:\.\d+)?\s*%\s*체증형\s*\)', '', r['name']).strip()
+            out.append((nm, float(m.group(1)), r['man']))
+    return sorted(out, key=lambda x: -x[2])[:3]
+
+def esc_block(no):
+    """체증형 담보 — 회차별 지급 비율 한 줄 + 해당 담보 목록 한 줄 (마지막 지면, v8.33)"""
+    rs = esc_rows()
+    if not rs: return ''
+    pct = rs[0][1]
+    LB = ['1회차', '2회차', '3회차', '4회차', '5회차~']
+    cells = ''.join('<div class="pc"><b>%s</b><span class="n2" style="color:%s">%g<small>%%</small></span></div>'
+                    % (LB[i], K['pr'][1], 100 + pct * i) for i in range(5))
+    who = ' · '.join('%s <b>%s</b>' % (nm[:20], won(m0)) for nm, _, m0 in rs)
+    return (tabhd(no, 'pr', '수술을 또 받으면 더 올라가요 — 체증형 담보',
+                  '같은 담보라도 수술 회차가 늘수록 지급액이 커져요') +
+            f'<div class="plus5"><div class="prow esc"><span>지급 비율</span>{cells}</div></div>'
+            f'<div class="mnote">※ 이 설계의 체증형 담보 — {who} · 가입금액에 위 비율을 곱해 지급해요'
+            f'(계약 1년이 지나기 전에는 그 절반).</div>')
+
+
 def page_inj():
     rows = ''
     for nm, kcd, ic, tg, itc in INJ:
         L = [x for x in Q(kcd, tg, itc) if x['group'] not in ('입원일당', '통원일당')]
-        items = ''.join(f'<span class="fi">{disp(x["name"])[:22]}<b>{man(x["amt"])}</b></span>' for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0) or '<span class="fi none">해당 담보 없음</span>'
+        items = ''.join(f'<span class="fi">{disp(x["name"])[:22]}{cutmark(x["name"])}<b>{man(x["amt"])}</b></span>' for x in sorted(L, key=lambda y: -y['amt']) if x['amt'] > 0) or '<span class="fi none">해당 담보 없음</span>'
         rows += f'''<div class="frow">{et(ic,K['ms'][3],22,K['ms'][1])}<div class="fnm"><b>{nm}</b><span>{kcd}</span><em>상해 치료 예시</em></div>
           <div class="fitems">{items}</div><div class="fpay"><div><span>지급 합계</span>{big(T(L),'#D9480F')}</div></div></div>'''
     dth = [r for r in RID if '사망' in r['name'] or '후유장해' in r['name']]
@@ -1038,11 +1084,13 @@ def page_inj():
         no += 1; parts.append(tabhd(no,'pk','사망 · 후유장해','상해로 사망하거나 장해가 남았을 때') + f'<div class="dcards">{dcard}</div>')
     return f'''<div class="lg">{e('wound','#D9480F')}<b>상해 · 사고와 사망 · 후유장해</b><span class="sub">다치거나 사고가 났을 때</span></div>
  {''.join(parts)}
- {tabhd(no+1,'cv','보장은 언제부터 시작되나요?','담보별 보장 시작 시점')}
+ {esc_block(no+1)}
+ {tabhd(no+1+(1 if esc_rows() else 0),'cv','보장은 언제부터 시작되나요?','담보별 보장 시작 시점')}
  <div class="tlx">{''.join(f'<div class="tlc" style="background:{b2}"><b>{t}</b><span>{d2}</span></div>' for t,d2,b2 in [
-   ('계약 즉시','상해·수술·입원일당 등 대부분의 담보는 1회 보험료를 받은 때부터 보장','#EDF2FF'),
-   ('90일 후','암 진단비·암 통합치료비는 계약일부터 90일이 지난 다음날부터 보장','#FFF0F0'),
-   ('1년 경과 전 50%','암 통합치료비Ⅱ·특정순환계질환·암전후 통합치료비는 1년 이내 50% 지급','#F3F0FF'),
+   ('계약 즉시','상해·수술·입원일당 등은 기다리는 기간 없이 1회 보험료를 받은 때부터 보장 (아래 감액은 적용될 수 있어요)','#EDF2FF'),
+   ('90일 후','암 진단비·암 수술비·암 입원일당·항암치료비 등 암 담보는 계약일부터 90일이 지난 다음날부터 보장','#FFF0F0'),
+   ('1년 경과 전 50%', (f'이 설계에서 {len(CUT)}개 담보는 계약 1년 이내 가입금액의 50%만 지급 — 담보 목록과 지급 예시에 <b>1년 내 50%</b>로 표시했어요'
+     if CUT else '일부 담보는 계약 1년 이내 가입금액의 50%만 지급돼요'),'#F3F0FF'),
    ('1년 경과 후 100%','1년이 지나면 약관 금액 전액 지급 · 연간 한도도 해마다 새로 적용','#E6FCF5')])}</div>
  <div class="tip">{e('bulb','#D9480F')}<span>상해 담보는 <b>급격하고 우연한 외래의 사고</b>로 인한 경우에만 지급돼요. 질병 담보와 상해 담보는 각각 별도로 지급되며, 같은 사고로 여러 수술을 받으면 1-5종 수술비는 가장 높은 종 1가지만 지급돼요.</span></div>'''
 _BUILD.append(page_inj)

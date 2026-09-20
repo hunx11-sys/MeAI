@@ -341,3 +341,17 @@ table.dzb{width:100%;border-collapse:separate;border-spacing:1.2pt 2pt;table-lay
 .itcflow td .itcst{display:block;font-size:5.6pt;color:#868E96;margin-bottom:1pt}
 .itcflow td.itcsum{background:#FFF5F5}
 .itcflow td.itcsum em{display:block;font-size:5.4pt;color:#868E96;font-style:normal}
+
+/* 계약 1년 이내 감액 표시(v8.33) — 계산에는 반영하지 않고 금액 옆에 알리기만 한다 */
+.ct{font-style:normal;font-size:.8em;color:#ADB5BD;margin-left:3pt;white-space:nowrap;letter-spacing:-.2pt}
+.al .ct{margin-left:2pt;font-size:4.6pt}
+.dense .al .ct{font-size:4pt;margin-left:1.5pt}
+.fs li .ct,.fi .ct{font-size:4.9pt;flex:none;margin-left:2pt}
+
+/* 체증형 담보 표(v8.33) */
+.prow.esc{gap:3pt;grid-template-columns:62pt repeat(5,1fr)}
+.prow.esc>span{font-size:6.2pt;line-height:1.1}
+.prow.esc .pc{padding:2.5pt 5pt;border-radius:7pt}
+.prow.esc .pc b{font-size:5.8pt}
+.prow.esc .pc .n2{font-size:10pt}
+.prow.esc .pc .n2 small{font-size:.46em}

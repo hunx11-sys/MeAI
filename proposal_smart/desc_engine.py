@@ -111,7 +111,12 @@ FREQ_PAT = [
     ('once', r'최초\s*\d*\s*회한|최초1회한|최초\s*1회'),
 ]
 RATE = re.compile(r'가입금액의\s*(\d+(?:\.\d+)?)\s*%')
-CUT1Y = re.compile(r'1년\s*경과시점\s*전일\s*이전[^.]{0,60}?가입금액의\s*(\d+)\s*%')
+# 1년 미만 감액 — 상품마다 문형이 다르고, PDF 줄바꿈 때문에 낱말 가운데 공백이 섞인다
+#   ('가 입금액의 50%' · '전일 이 전 까 지 50% 감액적용').
+#   그래서 공백을 모두 지운 문자열에서 찾는다(v8.33).
+CUT1Y = [re.compile(r'1년경과시점전일이전[^※]{0,40}?가입금액의(\d+(?:\.\d+)?)%'),
+         re.compile(r'1년경과시점전일이전[^※]{0,40}?(\d+(?:\.\d+)?)%감액'),
+         re.compile(r'1년미만시[^※]{0,20}?가입금액의(\d+(?:\.\d+)?)%')]
 DAYS = re.compile(r'(\d+)일\s*한도|(\d+)일을\s*한도')
 HOSPS = [('상급종합병원', '상급종합'), ('종합병원', '종합'), ('요양병원', '요양')]
 ACTS = [('surg', r'수술'), ('chemo', r'항암약물|항암화학'), ('rad', r'항암방사선|방사선치료'),
@@ -147,9 +152,10 @@ def derive(desc, name=''):
         r['rate'] = float(m.group(1)) / 100
     elif '가입금액' in body:
         r['rate'] = 1.0
-    m = CUT1Y.search(d)
+    dz = re.sub(r'\s+', '', d)
+    m = next((x for x in (p.search(dz) for p in CUT1Y) if x), None)
     if m:
-        r['cut_1y'] = int(m.group(1)) / 100
+        r['cut_1y'] = float(m.group(1)) / 100
     m = DAYS.search(d)
     if m:
         r['limit_days'] = int(m.group(1) or m.group(2))
