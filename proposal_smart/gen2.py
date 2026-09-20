@@ -889,31 +889,38 @@ def summary_cards():
     sg = T(Q('Z99', dict(cause='질병', surg=5, hosp='상급종합', grp=[]), []))
     day = T(Q('Z99', dict(cause='질병', hosp='상급종합', room='1인실', days=1, grp=[]), []))
     sup, nano, use = _care_sum()
-    # 간병 카드 값 : 현물지원 > 간병인사용(요양 구분별 여러 줄) > 간호·간병통합 > (간병 담보가 없을 때만) 일반 입원일당
+    # ── 간병 카드(v8.30) ──────────────────────────────────────────────
+    # 큰 자리는 '간병을 누가·얼마로 받는가'만 쓴다 : 간병인지원(현물) > 간병인사용(요양 구분별 두 줄).
+    # 간호·간병통합병실은 두 담보 어느 쪽과도 세트로 설계하는 일이 많아 큰 자리를 차지하면 안 된다
+    #   → 아래 작은 글씨로만 적는다(간병인지원·간병인사용이 둘 다 없을 때만 큰 자리로 올라온다).
+    # 일반 입원일당은 소제목이 금액까지 말하므로 큰 자리에서 되풀이하지 않는다
+    #   → 간병 담보가 하나도 없는 설계에서만 '조건(소제목) + 금액(큰 자리)' 꼴로 쓴다.
     MS = K['ms'][1]
     one = lambda t: f'<span class="n2" style="color:{MS}">{t}</span>'
+    DAYC = '상급종합병원 1인실 하루 기준'
+    s2 = (f'{DAYC} {won(day)}' if day else '입원일당 미가입')      # 간병 담보가 큰 자리를 쓸 때의 소제목
     usebox = False
     if sup:
         care = one('간병인 지원')
     elif use:                                        # v8.29 — 요양병원 제외 / 요양병원을 각각 한 줄로
         usebox = True
-        rows = ''.join(f'<i>{k}</i><u>{num(v)}</u>' for k in CARE_USE if use.get(k) for v in [use[k]])
+        rows = ''.join(f'<i>{k}</i><u>{num(use[k])}</u>' for k in CARE_USE if use.get(k))
         care = f'<span class="crh">간병인사용</span><span class="cr2" style="color:{MS}">{rows}</span>'
     elif nano:
         care = one(f'하루 {won(nano)}')
-    else:
-        care = one(f'하루 {won(day)}' if day else '미가입')
+    else:                                            # 간병 담보가 없는 설계 — 다른 카드처럼 조건(소제목) + 금액(큰 자리)
+        care, s2 = (big(day, MS) if day else one('미가입')), (DAYC if day else '입원일당 미가입')
     caresub = []
     if sup: caresub.append('간병인지원')
-    if nano: caresub.append(f'간호·간병통합 {won(nano)}')
     if use and not usebox: caresub.append('간병인사용 ' + ' · '.join(f'{k} {won(use[k])}' for k in CARE_USE if use.get(k)))
+    if nano: caresub.append(f'간호간병통합병실 {won(nano)}')
     dxnote = lambda v: '진단비 합산' if v > 0 else '진단비 미가입 · 수술·치료 담보로 보장'
     cards = [(F['cancer'], 'cancerous_cell_nuclei', 'ca', '암 진단', '암(유사암제외) 진단확정 시', big(ca, K['ca'][1]), dxnote(ca)),
              (F['brain'], 'neurology', 'cv', '뇌혈관 질환', '뇌경색·뇌출혈 진단확정 시', big(cv, K['cv'][1]), dxnote(cv)),
              (F['heart'], 'heart_organ', 'yr', '심혈관 질환', '급성심근경색 진단확정 시', big(ht, K['yr'][1]), dxnote(ht)),
              (F['surg'] or F['inj_surg'], 'knife', 'pr', '수술', '질병 5종 수술 1회(상급종합)', big(sg, K['pr'][1]), '모든 수술비 합산'),
              (F['day'] or F['care'], 'nurse', 'ms', '입원 · 간병',
-              f'입원 하루 {won(day)}' if day else '입원일당 미가입', care,
+              s2, care,
               ' · '.join(caresub) or ('간병인을 직접 고용한 날 지급' if use else ('간병 담보 미가입' if day else '입원일당 · 간병 담보 미가입')))]
     cards = [c for c in cards if c[0]]                   # 설계에 없는 계열 카드는 빠진다(v8.4)
     html = ''
