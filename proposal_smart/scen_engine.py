@@ -442,9 +442,12 @@ def h_surg(r, o, sc, nm, t):
         if t['gj'] and t['gj'] != g7: return []
     elif not j: return []
     if 'cancer' in (o.get('ex') or []) and is_cancer(sc['kcd']): return []
-    for g in t['ex']:                                   # 특정N대질병 제외 담보
-        if g != '5': log('검토필요', r['name'], '특정%s대질병 제외목록 미확정 — 특정5대질병 기준으로 판정' % g)
-        if tg.get('five_major') or code_hit(FIVE_MAJOR, sc['kcd']): return []
+    for g in t['ex']:                                   # 특정N대질병 제외 담보 — N 에 맞는 제외 목록으로(v8.50)
+        lst = KCDG.get('특정%s대질병' % g)
+        if not lst:
+            log('검토필요', r['name'], '특정%s대질병 제외목록이 규칙표에 없음 — 특정5대질병 기준으로 판정' % g); lst = FIVE_MAJOR
+        # 대장 용종·양성신생물 내시경 절제(사례 태그 five_major)는 특정5대·6대의 ① 항 — 특정2대에는 없다
+        if (g in ('5', '6') and tg.get('five_major')) or code_hit(lst, sc['kcd']): return []
     if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
     why = o.get('why', '수술 1회').replace('{j}', str(t['gj'] or surg5_grade(j, sc['kcd']) or '')).replace(
         '{g}', (r.get('benefit') or r.get('sub') or '').strip())
