@@ -310,6 +310,9 @@ def is_cancer(kcd):
     return bool(itc.cancer_cls(kcd))
 
 RNG = re.compile(r'^([A-Z])(\d{2})~([A-Z])(\d{2})$')
+# 세분류 범위 표기 — 약관·마스터가 'Q26.0~Q26.4' 처럼 적는 것(v8.51). 앞의 RNG 는 3자리 범위만 읽어
+# 이 표기가 어느 갈래에도 걸리지 않고 조용히 대상에서 빠졌다(산정특례·중증화상·5대골절 등 34건).
+RNG_SUB = re.compile(r'^([A-Z]\d{2})\.(\d{1,2})~([A-Z]\d{2})\.(\d{1,2})$')
 def code_hit(codes, kcd):
     """약관 KCD 목록(개별코드·세분류·범위표기 A15~A19·제외표기 !N74.0 모두 지원) 대조"""
     if not codes: return False
@@ -326,6 +329,11 @@ def code_hit(codes, kcd):
         r = RNG.match(e)
         if r and m3 and r.group(1) == m3.group(1) == r.group(3) and int(r.group(2)) <= int(m3.group(2)) <= int(r.group(4)):
             return True
+        rs = RNG_SUB.match(e)                         # 'Q26.0~Q26.4' — 세분류 자리로 비교(v8.51)
+        if rs and rs.group(1) == rs.group(3) == c3 and '.' in kcd:
+            sub, w = kcd.split('.', 1)[1], len(rs.group(2))
+            if sub[:w].isdigit() and int(rs.group(2)) <= int(sub[:w]) <= int(rs.group(4)):
+                return True
     return False
 
 def excluded(r, kcd):
@@ -359,13 +367,49 @@ def grp_hit(nm, sc, r=None):
     return False
 
 DXFAM = {'cancer': '암', 'sim_cancer': '암', 'brain': '뇌', 'heart': '심장'}
+
+_BRAIN3 = lambda c: c.startswith('I6') or c.startswith('G45')
+_HEART3 = lambda c: c[:2] in ('I2', 'I4', 'I5')
+_SPAN = {}
+
+
+def spans_brain_heart(codes):
+    """약관 KCD 목록이 뇌(I6·G45)와 심장(I2·I4·I5) 두 계열에 **모두** 걸쳐 있는가.
+
+    sub_ok 가 원래 막으려던 것은 5대질환수술비처럼 마스터가 두 계열 코드를 한 목록에
+    묶어 둔 담보다. 목록이 한 계열만 담고 있으면 좁힐 이유가 없다(v8.51).
+    """
+    key = tuple(codes)
+    if key in _SPAN: return _SPAN[key]
+    c3 = set()
+    for e in codes:
+        e = e.strip().lstrip('!')
+        m = RNG.match(e)
+        if m:
+            c3.update('%s%02d' % (m.group(1), i) for i in range(int(m.group(2)), int(m.group(4)) + 1))
+        else:
+            c3.add(e.split('.')[0])
+    _SPAN[key] = any(_BRAIN3(c) for c in c3) and any(_HEART3(c) for c in c3)
+    return _SPAN[key]
+
+
 def sub_ok(r, kcd):
-    """세부급부/하위그룹 라벨이 뇌·심장 질병군을 가리키면 그 계열 코드에만 지급 (마스터가 뇌·심 코드를 한 목록에 묶어 둔 경우 대비)"""
+    """세부급부/하위그룹 라벨이 뇌·심장 질병군을 가리키면 그 계열 코드에만 지급.
+
+    담보의 약관 KCD 목록이 두 계열에 걸쳐 있을 때만 좁힌다(v8.51). 그 전에는 담보명만 보고
+    좁혀서, 약관 목록이 한 계열만 담은 담보까지 깎였다 — 중증질환자(심장질환) 산정특례
+    진단비가 I01·I05~I09·I30~I39·I71·Q20~Q26 등에서, (뇌혈관질환) 산정특례가 I72.0·I77.0·
+    Q28·S06 에서 0원으로 계산되던 문제.
+    """
+    codes = r.get('codes') or []
+    if not spans_brain_heart(codes): return True
     lab = ((r.get('sub') or '') + (r.get('benefit') or '') + r.get('name', '')).replace(' ', '')
     brain = any(k in lab for k in ('뇌졸중', '뇌혈관', '뇌출혈', '뇌경색'))
-    heart = any(k in lab for k in ('심장질환', '허혈성', '심근경색', '협심증'))
-    if brain and not heart: return kcd.startswith('I6') or kcd.startswith('G45')
-    if heart and not brain: return kcd.startswith('I2') or kcd.startswith('I5') or kcd.startswith('I4')
+    # '심장질환' 만 찾으면 「5대질환(심장,뇌혈관,…)수술비」 가 뇌 전용으로 읽혀 심장 코드가
+    # 전부 막혔다 — 담보명에 '심장' 만 적힌 경우도 심장 계열 표시로 본다(v8.51)
+    heart = any(k in lab for k in ('심장', '허혈성', '심근경색', '협심증'))
+    if brain and not heart: return _BRAIN3(kcd)
+    if heart and not brain: return _HEART3(kcd)
     return True
 def kcd_ok(mode, r, sc, nm, o=None):
     """mode : major / sim / major_or_sim / codes / g131 / group / hc / none
