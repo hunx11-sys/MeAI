@@ -1,19 +1,21 @@
 import asyncio,sys
 from playwright.async_api import async_playwright
 
-# 자동 맞춤(v8.10) — 본문(.body 632pt)보다 내용이 길면 그 쪽만 축소한다.
-#   CSS zoom 으로 글자·간격을 같은 비율로 줄이고, 폭은 zoom 을 나눠 545pt 를 그대로 채운다.
-#   축소 하한 0.78. 그래도 넘치면 .body 의 overflow:hidden 이 발행정보 띠 침범을 막고 아래 로그에 남는다.
-# 자동 맞춤에서 위치까지 되돌린다 — .body 는 position:absolute 이고 CSS zoom 은 left/top 도 함께 줄인다.
-# 그래서 zoom 만 주면 본문이 위로 밀려 올라가 머리말(계약사항 띠)과 겹친다. 폭·높이처럼 좌표도 zoom 으로 나눈다.
+# 자동 맞춤(v8.48) — 본문 틀(.body 545×632pt)보다 내용이 길면 그 쪽만 줄인다.
+#   줄이는 것은 **본문 안의 겉싸개(.fit)뿐**이고, 잘라내는 틀(.body)은 손대지 않는다.
+#   그래서 아무리 줄여도 발행정보 띠·주석 자리를 침범할 수 없다.
+#
+#   예전에는 .body 에 CSS zoom 을 걸고 left/top/width/height 를 zoom 으로 나눠 되돌렸다.
+#   그런데 zoom 은 크로미엄 128 에서 표준 동작으로 바뀐 속성이라, 그보다 낮은 판에서는
+#   되돌리기가 거꾸로 먹어 **틀 자체가 810pt 로 늘어나** 내용이 주석·발행정보 위로 겹쳤다.
+#   transform:scale 은 배치에 영향을 주지 않고 판마다 동작이 같아 이런 일이 생기지 않는다.
 FIT='''()=>{const GAP=4/0.75, MIN=0.78, out=[];
- document.querySelectorAll('.page').forEach((p,i)=>{const body=p.querySelector('.body'); const R0=body.getBoundingClientRect(); const W=R0.width, H=R0.height;
-  const cs=getComputedStyle(body); const L0=parseFloat(cs.left)||0, T0=parseFloat(cs.top)||0; let z=1;
-  for(let k=0;k<6;k++){const B=body.getBoundingClientRect(); const kids=[...body.children]; if(!kids.length) break;
-   const bottom=Math.max(...kids.map(e=>e.getBoundingClientRect().bottom)); const over=bottom+GAP-B.bottom; if(over<=0) break;
-   const need=(B.bottom-B.top)/(bottom+GAP-B.top); z=Math.max(MIN, Math.floor(z*need*0.995*1000)/1000);
-   body.style.zoom=z; body.style.width=(W/z)+'px'; body.style.height=(H/z)+'px';
-   body.style.left=(L0/z)+'px'; body.style.top=(T0/z)+'px'; if(z<=MIN) break;}
+ document.querySelectorAll('.page').forEach((p,i)=>{const body=p.querySelector('.body'); if(!body) return;
+  const fit=body.querySelector(':scope > .fit'); if(!fit) return;
+  const B=body.getBoundingClientRect(); const W=B.width, H=B.height; let z=1;
+  for(let k=0;k<6;k++){const h=fit.getBoundingClientRect().height; if(h+GAP<=H) break;
+   z=Math.max(MIN, Math.floor(z*(H/(h+GAP))*0.995*1000)/1000);
+   fit.style.width=(W/z)+'px'; fit.style.transform='scale('+z+')'; if(z<=MIN) break;}
   if(z<1) out.push(`p${i+1} 축소 ${z}`);});
  return out;}'''
 CHECK='''()=>{const o=[];document.querySelectorAll('.page').forEach((p,i)=>{const B=p.querySelector('.body').getBoundingClientRect();

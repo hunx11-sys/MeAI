@@ -1338,7 +1338,7 @@ NEW = len(P); TOTAL = C['base_pages'] + NEW
 
 css = open(os.path.join(BASE, 'style.css'), encoding='utf-8').read().replace('__A__', A) + open(os.path.join(BASE, 'extra2.css'), encoding='utf-8').read()
 html = '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>%s</style></head><body>%s</body></html>' % (
-    css, ''.join(f'<section class="page">{header()}<div class="body">{b}</div>{footer(IA+1+i)}</section>' for i, b in enumerate(P)))
+    css, ''.join(f'<section class="page">{header()}<div class="body"><div class="fit">{b}</div></div>{footer(IA+1+i)}</section>' for i, b in enumerate(P)))
 open(sys.argv[2], 'w', encoding='utf-8').write(html)
 A = S.audit(RID)
 A['생성쪽수'] = NEW; A['첨부'] = bool(P); A['제외지면'] = SKIPPED; A['보장계열'] = F

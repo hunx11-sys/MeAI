@@ -88,7 +88,19 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
         shutil.copyfile(src_pdf, out_pdf)
         r.update(out_pdf=out_pdf, pages_pdf=None, total_pages=c['base_pages'])
     else:
-        subprocess.check_call([sys.executable, os.path.join(BASE, 'render.py'), html, pages_pdf])
+        # 지면 검사 결과(축소·이탈·잘림·여백)를 감사 로그로 올린다(v8.48).
+        # 예전에는 화면에만 찍혀, 다른 크로미엄 판에서 글자가 겹쳐도 호출한 쪽은 알 수 없었다.
+        out = subprocess.run([sys.executable, os.path.join(BASE, 'render.py'), html, pages_pdf],
+                             check=True, capture_output=True, text=True).stdout
+        lay = [x.strip() for x in out.splitlines() if x.strip()]
+        audit['요약']['지면검사'] = lay
+        bad = [x for x in lay if '이탈' in x or '잘림' in x]
+        if bad:
+            audit['로그'].append({'구분': '지면넘침', '담보': '-',
+                                 '사유': '지면에서 글자가 틀 밖으로 나갔습니다 — ' + ' / '.join(bad[:3])})
+            r['layout_warn'] = bad
+        json.dump(audit, open(os.path.splitext(html)[0] + '_audit.json', 'w', encoding='utf-8'),
+                  ensure_ascii=False, indent=2)
         total = merge(src_pdf, pages_pdf, out_pdf, insert_after=c['insert_after'], new=new)
         r.update(out_pdf=out_pdf, pages_pdf=pages_pdf, total_pages=total)
 
