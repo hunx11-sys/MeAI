@@ -26,6 +26,7 @@
 | 1-7종 수술분류표 갱신 | `python extract_surg7.py 별표3_1-7종수술분류표.pdf` (약관 개정 시) |
 | 1-5종 수술분류표 갱신 | `python extract_surg5.py 별표76_1-5종수술분류표.pdf` |
 | 131대질병 그룹표 갱신 | `python extract_g131.py 131대질병_질병코드정리.xlsx` |
+| 지급 규칙 검수표 | `python export_rules_xlsx.py out/rules-76.xlsx` (rules.json 76줄을 한글로 풀어 엑셀로 내보낸다. 규칙은 손대지 않고 읽어서 옮기기만 하며, 특약 마스터 1,757건을 실제로 통과시켜 규칙별 적용 담보 수·예시와 0건인 이유를 함께 적는다) |
 | 글꼴·아이콘 | `python fetch_assets.py 원본.pdf` 1회 (나눔고딕 3종 → `assets/`, Healthicons → `icons.json`, 로고 → `assets/logo.png`) |
 | 로고 추출 | poppler-utils(`pdfimages`)가 있으면 자동, 없으면 `assets/logo.png`를 직접 넣는다 |
 `assets/`와 `out/`은 저장소에 올리지 않는다(`.gitignore`). `icons.json`은 포함되어 있어 네트워크 없이도 생성이 된다.

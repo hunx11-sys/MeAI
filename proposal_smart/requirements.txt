@@ -6,3 +6,5 @@ reportlab>=4.0
 # 지면 계산은 판에 기대지 않게 고쳤지만(v8.48), 너무 낮은 판은 글꼴 자간이 달라질 수 있어 바닥을 올려 둔다.
 playwright>=1.47
 pillow>=10.0
+# export_rules_xlsx.py(지급 규칙 검수표)에만 쓴다. 제안서 생성에는 필요 없다.
+openpyxl>=3.1
