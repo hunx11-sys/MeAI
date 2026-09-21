@@ -93,6 +93,11 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
         out = subprocess.run([sys.executable, os.path.join(BASE, 'render.py'), html, pages_pdf],
                              check=True, capture_output=True, text=True).stdout
         lay = [x.strip() for x in out.splitlines() if x.strip()]
+        # 어느 크로미엄 판으로 찍었는지 남긴다(v8.49). 현장에서 지면이 이상하다는 말이 나오면
+        # 생성 PC와 현장 PC의 판을 바로 맞춰 볼 수 있다.
+        ver = [x[9:] for x in lay if x.startswith('RENDERER ')]
+        lay = [x for x in lay if not x.startswith('RENDERER ')]
+        audit['요약']['렌더러'] = ver[0] if ver else '알 수 없음'
         audit['요약']['지면검사'] = lay
         bad = [x for x in lay if '이탈' in x or '잘림' in x]
         if bad:

@@ -21,7 +21,7 @@
 |---|---|
 | Python | **3.10 이상** (3.10 · 3.11 · 3.12 · 3.13에서 컴파일 확인) |
 | 패키지 | `pip install -r requirements.txt` → pdfplumber · pypdf · reportlab · playwright · pillow |
-| 브라우저 | `python -m playwright install chromium` (HTML → PDF 렌더) |
+| 브라우저 | `python -m playwright install chromium` (HTML → PDF 렌더). playwright 가 크로미엄을 함께 들고 오므로 **playwright 1.47 이상**(크로미엄 129 이상)을 쓴다 |
 | 특약 마스터 갱신 | `python extract_db.py ../tool.html` (tool.html 데이터가 바뀌었을 때) |
 | 1-7종 수술분류표 갱신 | `python extract_surg7.py 별표3_1-7종수술분류표.pdf` (약관 개정 시) |
 | 1-5종 수술분류표 갱신 | `python extract_surg5.py 별표76_1-5종수술분류표.pdf` |
@@ -29,6 +29,15 @@
 | 글꼴·아이콘 | `python fetch_assets.py 원본.pdf` 1회 (나눔고딕 3종 → `assets/`, Healthicons → `icons.json`, 로고 → `assets/logo.png`) |
 | 로고 추출 | poppler-utils(`pdfimages`)가 있으면 자동, 없으면 `assets/logo.png`를 직접 넣는다 |
 `assets/`와 `out/`은 저장소에 올리지 않는다(`.gitignore`). `icons.json`은 포함되어 있어 네트워크 없이도 생성이 된다.
+
+### v8.49 — 어느 크로미엄 판으로 찍었는지 남긴다 (2026-09-21)
+v8.48 의 겹침을 제보한 현장 PC는 **사내 노트북에 크로미엄이 함께 딸려 설치된** 환경이었다. 렌더는 `playwright` 가 들고 오는 크로미엄을 쓰므로, `playwright` 판이 낮으면 크로미엄도 그만큼 낮게 깔린다 — 1.45 는 127, 1.46 은 128 이 붙는다. 제보 환경이 128 미만이었을 가능성이 높고, 그렇다면 v8.48 의 원인 분석과 정확히 맞는다.
+
+지면 계산은 이제 판에 기대지 않지만, **어느 판으로 찍었는지 모르면 현장 제보를 다시 맞춰 볼 수가 없다.** 그래서 두 가지를 더했다.
+- `render.py` 가 실제 크로미엄 판을 찍고, 감사 로그 `요약.렌더러` 에 `chromium/141.0.7390.37` 형태로 남는다. 생성 PC와 현장 PC의 판을 바로 대 볼 수 있다.
+- `requirements.txt` 의 `playwright` 바닥을 **1.47**(크로미엄 129 이상)로 올렸다. 계산은 판에 기대지 않게 고쳤지만, 너무 낮은 판은 글꼴 자간이 달라져 줄바꿈 위치가 미세하게 어긋날 수 있다.
+
+대조 6건 : 쪽별 글자 **차이 0쪽**, 이탈·잘림 **0건**.
 
 ### v8.48 — 자동 맞춤을 크로미엄 판에 기대지 않게 (2026-09-21)
 현장에서 모듈을 돌려 보니 **수술비 지면 아래쪽 글자가 주석·발행정보 띠 위로 겹쳐** 인쇄됐다는 제보. 우리 환경(크로미엄 141)에서는 재현되지 않았고, 측정·잘라내기 모두 정상이었다.
