@@ -27,10 +27,11 @@
 | 1-5종 수술분류표 갱신 | `python extract_surg5.py 별표76_1-5종수술분류표.pdf` |
 | 131대질병 그룹표 갱신 | `python extract_g131.py 131대질병_질병코드정리.xlsx` |
 | 질병코드 그룹표 검증·갱신 | `python extract_kcd_groups.py ../tool.html` (대조만) · `--write` (다른 그룹만 약관대로 고침). 「○○ 분류표」 20종과 특정2대·5대·6대질병을 약관 원문에서 다시 읽어 `rules.json > kcd_groups` 와 대조한다 |
+| 회귀 점검 | `python regress.py snap before <설계서폴더>` → 수정 → `snap after` → `python regress.py diff before after`. README 의 「실설계 N건 재생성 · 쪽별 글자 차이 0쪽」이 이 스크립트다 |
 | 지급 규칙 검수표 | `python export_rules_xlsx.py out/rules-76.xlsx` (rules.json 76줄을 한글로 풀어 엑셀로 내보낸다. 규칙은 손대지 않고 읽어서 옮기기만 하며, 특약 마스터 1,757건을 실제로 통과시켜 규칙별 적용 담보 수·예시와 0건인 이유를 함께 적는다) |
 | 글꼴·아이콘 | `python fetch_assets.py 원본.pdf` 1회 (나눔고딕 3종 → `assets/`, Healthicons → `icons.json`, 로고 → `assets/logo.png`) |
 | 로고 추출 | poppler-utils(`pdfimages`)가 있으면 자동, 없으면 `assets/logo.png`를 직접 넣는다 |
-`assets/`와 `out/`은 저장소에 올리지 않는다(`.gitignore`). `icons.json`은 포함되어 있어 네트워크 없이도 생성이 된다.
+회귀 스냅샷은 `out/regress/` 에 쌓인다. `assets/`와 `out/`은 저장소에 올리지 않는다(`.gitignore`). `icons.json`은 포함되어 있어 네트워크 없이도 생성이 된다.
 
 ### v8.53 — 약관이 수가코드·대상질병을 열거한 검사비 담보 (2026-09-22)
 다른 대화(통합치료비 시뮬레이터 작업, `session_01VgFw22mS5U33HgsVvw99dZ`)에서 **같은 이름의 검사라도 특약마다 대상 범위가 다르다**는 것을 확인하고, 그 기준을 이 모듈의 규칙표에도 대입해 **검사비 담보 2건**을 보고서(`dist/규칙표_KCD검수결과.xlsx` 「2차 검수 · 검사비 항목」 시트)로 남겼다. 모듈은 고쳐지지 않은 상태였으므로 약관 원문으로 다시 확인하고 여기서 고쳤다. **확인 결과 지적 2건 모두 실제 오류였고, 같은 구조의 3번째 담보를 하나 더 찾았다.**

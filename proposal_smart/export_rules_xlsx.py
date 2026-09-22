@@ -493,6 +493,23 @@ def build():
     ws5.column_dimensions['C'].width = 34
     ws5.column_dimensions['D'].width = 90
 
+    # 같은 파일에 다른 세션이 덧붙여 둔 시트(예 「2차 검수 · 검사비 항목」)는 살려 둔다.
+    # 이 스크립트가 만드는 시트만 갈아 끼우고 나머지는 그대로 옮긴다.
+    mine = set(wb.sheetnames)
+    if os.path.exists(OUT):
+        try:
+            from openpyxl import load_workbook
+            old = load_workbook(OUT)
+            for nm in old.sheetnames:
+                if nm in mine: continue
+                src = old[nm]; dst = wb.create_sheet(nm)
+                for row in src.iter_rows():
+                    for c in row:
+                        if c.value is not None: dst.cell(row=c.row, column=c.column, value=c.value)
+                for k, d in src.column_dimensions.items(): dst.column_dimensions[k].width = d.width
+                print('  기존 시트 유지 :', nm)
+        except Exception as ex:
+            print('  ! 기존 파일의 시트를 옮기지 못했습니다(%s) — 새로 만듭니다' % type(ex).__name__)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     wb.save(OUT)
     print('저장 %s · 규칙 %d줄 · 담보 대조 %d건' % (OUT, len(rules), total_riders))
