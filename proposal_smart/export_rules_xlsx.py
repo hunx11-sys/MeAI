@@ -45,6 +45,7 @@ KCD = {
     'sim':          '유사암 — 제자리암·경계성종양·갑상선암·기타피부암',
     'major_or_sim': '암 또는 유사암',
     'codes':        '특약 마스터(db.json)에 실린 약관 KCD 목록과 대조',
+    'codes_listed': '마스터에 약관 KCD 목록이 있으면 대조 (없으면 조건 없이 계산하고 로그)',
     'g131':         '131대질병 그룹표(g131.json)와 대조',
     'group':        '질병코드 그룹표(rules.json)와 대조',
     'hc':           '약관 별표 진료행위(수가)코드와 대조',
@@ -96,6 +97,7 @@ def etc_ko(o):
     if 'surg7_grp' in o:  out.append('1-7종 분류표의 수술구분이 「%s」일 때만' % o['surg7_grp'])
     if 'grp' in o:        out.append('질병코드 그룹표를 「%s」로 지정' % o['grp'])
     if o.get('by_benefit'): out.append('세부급부 이름에서 치료행위·암종을 다시 읽음')
+    if o.get('hc_listed'): out.append('약관이 진료행위(수가)코드를 열거한 항목은 그 목록에 있을 때만')
     if 'type' in o:       out.append('종류 : ' + o['type'])
     if 'unit' in o:       out.append('지급 방식 : ' + o['unit'])
     if 'log' in o:        out.append('기록 사유 : ' + o['log'])

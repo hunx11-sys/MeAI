@@ -412,7 +412,7 @@ def sub_ok(r, kcd):
     if heart and not brain: return _HEART3(kcd)
     return True
 def kcd_ok(mode, r, sc, nm, o=None):
-    """mode : major / sim / major_or_sim / codes / g131 / group / hc / none
+    """mode : major / sim / major_or_sim / codes / codes_listed / g131 / group / hc / none
        o    : 규칙 opt — 'grp' 가 있으면 담보명에서 찾지 않고 그 그룹표를 쓴다(v8.25)"""
     kcd = sc['kcd']
     if mode in (None, 'none'): return True
@@ -435,6 +435,14 @@ def kcd_ok(mode, r, sc, nm, o=None):
         if not lst:
             log('KCD없음', r['name'], f'{key or "세부급부"} 분류표가 규칙표에 없어 지급 판정 제외 (약관 별표 보강 필요)'); return False
         return code_hit(lst, kcd)
+    if mode == 'codes_listed':
+        # 약관이 대상 질병을 정해 둔 검사비 담보(예 3대질환 MRI촬영검사비 = 암·유사암·뇌혈관·허혈성심장)인데
+        # 규칙에 질병 조건이 없어 어떤 질병이든 잡히던 것을 막는다. 마스터에 목록이 없는 담보는 종전대로(v8.53).
+        if not r.get('codes'):
+            log('검토필요', r['name'],
+                '특약 마스터에 약관 KCD 목록이 없어 질병 조건 없이 계산 — 약관에 대상 질병 제한이 있는지 확인 필요')
+            return True
+        return sub_ok(r, kcd) and code_hit(r['codes'], kcd)
     if mode == 'codes':
         if not sub_ok(r, kcd): return False
         if r.get('codes'): return code_hit(r['codes'], kcd)
@@ -546,6 +554,13 @@ def h_tx(r, o, sc, nm, t):
     # 약관 별표 1-7종 수술분류표의 **수술구분**으로 가리는 담보(예 '뇌동맥류수술' = B011~B018).
     # 담보명·설명문에서 질병코드를 만들지 않고, 사례 단계에 적힌 수술코드가 그 구분에 드는지만 본다(v8.39).
     if o.get('surg7_grp') and surg7_group(tg.get('surg7')) != o['surg7_grp']: return []
+    # 같은 규칙 안에서도 약관이 대상 범위를 적는 방식이 다르다(v8.53).
+    #   「암 내시경검사」  = 급여 제2부 제2장 제4절 내시경 **구간 전체** → 치료행위 키만 봐도 같다
+    #   「암 특정생검조직병리검사Ⅱ」·「암 특정단일유전자검사」 = 제4조가 **진료행위코드를 낱낱이 열거**
+    #        (침생검(심부) C8511~C8514 등) → 목록에 없는 검사(내시경 겸자생검·림프절·피부 생검)는 대상이 아니다
+    # 그래서 마스터에 수가코드 목록이 실린 담보만 그 목록과 대조한다. 목록이 없는 담보는 종전대로.
+    if o.get('hc_listed') and (r.get('hc') or []):
+        if not (set(r['hc']) & set(tg.get('hc') or [])): return []
     if need and not (need & _acts(sc)): return []
     allneed = set(o.get('acts_all') or [])          # 둘 다 받아야 지급되는 담보(예: 혈전용해 + 기계적혈전제거술)
     if allneed and not allneed <= _acts(sc, True): return []
