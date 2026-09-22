@@ -1206,18 +1206,33 @@ def inj_itc_rider():
         for k, tiers in INJ_ITC.items():
             if S.nname(k) in (S.nname(r['name']), S.noren(r['name'])) and str(r['man']) in tiers: return r, tiers[str(r['man'])]
     return None, None
-def inj_itc_pay(items, acts, surg=None, rehab=0):
-    """상해 통합치료비 — 시나리오 행위(acts)·수술 종·재활 일수로 항목별 지급액 계산"""
+INJ_REHAB_MAX = 15        # 약관 제20항 : 입원 재활과 외래 재활 횟수를 합산하여 연간 최대 15회 한도
+
+def inj_itc_pay(items, acts, surg=None, rehab=0, cap=None):
+    """상해 통합치료비 — 시나리오 행위(acts)·수술 종·재활 일수로 항목별 지급액 계산.
+
+    재활치료는 약관·상품설명서 모두 **입원과 외래를 한 줄로 묶어** 싣고 합산 연간 15회 한도를 둔다.
+    그래서 입원·외래 어느 쪽이든 그 줄로 지급하고 횟수만 15회에서 끊는다(v8.52).
+    cap(가입금액)을 주면 연간 총 지급액 한도까지만 싣는다 — 약관 제5항.
+    """
     out = []
     for it in items:
         l = it['l']
         if it['c'].startswith('수술'):
             j = int(l[0]);  amt = it['amt'] if surg == j else 0
-        elif '재활' in l: amt = it['amt'] * rehab if ('rehab_in' in acts if '입원' in l else 'rehab_out' in acts) else 0
+        elif '재활' in l:
+            n = rehab if (acts & {'rehab_in', 'rehab_out'}) else 0
+            amt = it['amt'] * min(n, INJ_REHAB_MAX)
         else:
             key = next((v for k, v in INJ_ACT.items() if k in l), None)
             amt = it['amt'] if key and key in acts else 0
         if amt: out.append((l, amt))
+    if cap is not None and sum(a for _l, a in out) > cap:      # 연간 총 지급액은 가입금액 한도
+        trim, left = [], cap
+        for l, a in sorted(out, key=lambda x: -x[1]):
+            if left <= 0: break
+            trim.append((l, min(a, left))); left -= min(a, left)
+        out = trim
     return out
 INJ_CASES = [('교통사고 두개내손상', 'ambulance', ['x_ct', 'x_mri', 'icu', 'vent', 'anes6', 'rehab_in'], 5, 10, '검사 → 개두수술(5종) → 중환자실·인공호흡기 → 입원 재활 10일'),
              ('손목 골절 · 관절 고정술', 'body', ['x_ct', 'reduction', 'cast'], 2, 0, '도수정복 후 고정술(2종) · 깁스'),
@@ -1228,7 +1243,7 @@ def inj_itc_block(no=2):
     if not r: return ''
     cards = ''
     for nm, ic, acts, j, rh, desc in INJ_CASES:
-        pays = inj_itc_pay(items, set(acts), j, rh)
+        pays = inj_itc_pay(items, set(acts), j, rh, cap=r['man'])
         tot = sum(a for _, a in pays)
         chips = ''.join(f'<span class="fi">{l[:16]}<b>{man(a)}</b></span>' for l, a in sorted(pays, key=lambda x: -x[1])[:6])
         cards += f'''<div class="frow">{et(ic,K['yr'][3],22,K['yr'][1])}<div class="fnm"><b>{nm}</b><em>{desc}</em></div>
@@ -1290,7 +1305,7 @@ def inj_itc_by_case():
        규칙표 계산(pay_lines)에 잡히지 않으므로, 사고 예시 합계에 직접 더해 준다(v8.40)."""
     r, items = inj_itc_rider()
     if not r or not items: return {}, ''
-    return ({nm: sum(a for _l, a in inj_itc_pay(items, set(acts), j, rh))
+    return ({nm: sum(a for _l, a in inj_itc_pay(items, set(acts), j, rh, cap=r['man']))
              for nm, _ic, acts, j, rh, _d in INJ_CASES}, r['name'])
 
 def page_inj():
