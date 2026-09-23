@@ -16,6 +16,7 @@
 실행 : python3 scripts/split_subbenefits2.py   (저장소 루트, 1회)
 """
 import io, json, os, re, sys, collections
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from tooldata import inflate, deflate
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, 'tool.html')
@@ -23,7 +24,7 @@ G131 = json.load(io.open(os.path.join(ROOT, 'proposal_smart', 'g131.json'), enco
 
 html = io.open(TOOL, encoding='utf-8').read()
 m = re.search(r'(<script id="DATA" type="application/json">)(.*?)(</script>)', html, re.S)
-D = json.loads(m.group(2))
+D = inflate(json.loads(m.group(2)))
 R, T = D['riders'], D['tables']
 done_parents = {r['parent'] for r in R if r.get('parent')}
 
@@ -202,7 +203,7 @@ D['meta']['prodcount'] = dict(collections.Counter(r['p'] for r in D['riders']))
 for c in D.get('categories', []):
     if isinstance(c, dict) and 'id' in c: c['count'] = sum(1 for r in D['riders'] if r.get('c') == c['id'])
 
-html = html[:m.start(2)] + json.dumps(D, ensure_ascii=False, separators=(',', ':')) + html[m.end(2):]
+html = html[:m.start(2)] + json.dumps(deflate(D), ensure_ascii=False, separators=(',', ':')) + html[m.end(2):]
 html = html.replace('ver2610', 'ver2611')
 io.open(TOOL, 'w', encoding='utf-8').write(html)
 print('분리 특약 %d건 → 세부 %d개 · 전체 %d건' % (len(new), added, len(D['riders'])))

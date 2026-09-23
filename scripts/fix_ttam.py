@@ -24,12 +24,13 @@
 실행 : python3 scripts/fix_ttam.py [--write]
 """
 import io, json, os, re, sys, collections
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from tooldata import inflate, deflate
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, 'tool.html')
 html = io.open(TOOL, encoding='utf-8').read()
 m = re.search(r'(<script id="DATA" type="application/json">)(.*?)(</script>)', html, re.S)
-D = json.loads(m.group(2))
+D = inflate(json.loads(m.group(2)))
 T, R = D['tables'], D['riders']
 RM = {r['id']: r for r in R}
 CN = D.get('codenames', {})
@@ -411,7 +412,7 @@ def fix_individual():
 for line in fix_individual(): print('개별 :', line)
 
 if '--write' in sys.argv:
-    body = json.dumps(D, ensure_ascii=False, separators=(',', ':'))
+    body = json.dumps(deflate(D), ensure_ascii=False, separators=(',', ':'))
     html = html[:m.start(2)] + body + html[m.end(2):]
     io.open(TOOL, 'w', encoding='utf-8').write(html)
     print('tool.html 저장')

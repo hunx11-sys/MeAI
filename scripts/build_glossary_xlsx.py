@@ -14,6 +14,8 @@ import collections, datetime, json, os, re, unicodedata
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from tooldata import inflate, deflate
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'dist', '보험용어사전.xlsx')
@@ -22,7 +24,7 @@ ENDS = ('합니다.', '입니다.', '됩니다.', '한다.', '말합니다.', '�
 
 # ── 자료 읽기 ──────────────────────────────────────────────
 html = open(os.path.join(ROOT, 'tool.html'), encoding='utf-8').read()
-D = json.loads(re.search(r'<script id="DATA" type="application/json">(.*?)</script>', html, re.S).group(1))
+D = inflate(json.loads(re.search(r'<script id="DATA" type="application/json">(.*?)</script>', html, re.S).group(1)))
 G = json.loads(re.search(r'var G = (\{.*?\});\s*\n',
                          open(os.path.join(ROOT, 'gloss.js'), encoding='utf-8').read(), re.S).group(1))
 riders, tables = D['riders'], D['tables']

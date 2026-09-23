@@ -10,6 +10,7 @@
 - 사전은 화면을 그릴 때 얹는 방식이라, 손보지 않아도 도구는 그대로 동작합니다.
 """
 import json, os, re, sys, collections
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from tooldata import inflate, deflate
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, 'tool.html')
@@ -26,7 +27,7 @@ print(f'사전 용어 {len(G)}개')
 
 # ── 약관 본문 읽기 ──────────────────────────────────────────
 html = open(TOOL, encoding='utf-8').read()
-D = json.loads(re.search(r'<script id="DATA" type="application/json">(.*?)</script>', html, re.S).group(1))
+D = inflate(json.loads(re.search(r'<script id="DATA" type="application/json">(.*?)</script>', html, re.S).group(1)))
 riders, tables = D['riders'], D['tables']
 print(f'약관 특약 {len(riders)}건 · 분류표 {len(tables)}건 · 버전 {D["meta"].get("version")}')
 

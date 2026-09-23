@@ -9,6 +9,7 @@
 """
 import json, re, os, sys, glob, difflib, collections
 import pymupdf
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from tooldata import inflate, deflate
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, 'tool.html')
@@ -23,7 +24,7 @@ for prod in PRODS:
 
 src = open(TOOL, encoding='utf-8').read()
 _m = re.search(r'(<script id="DATA" type="application/json">)(.*?)(</script>)', src, re.S)
-d = json.loads(_m.group(2))
+d = inflate(json.loads(_m.group(2)))
 R = d['riders']; T = d['tables']
 ROMAN = 'ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ'
 
@@ -372,7 +373,7 @@ for tid,nt in NT.items():
 for t in T.values():
     t['text']=trim_tail(t['text'])
 d['meta']['version']='ver2609'
-out=json.dumps(d,ensure_ascii=False,separators=(',',':'))
+out=json.dumps(deflate(d),ensure_ascii=False,separators=(',',':'))
 src=src[:_m.start(2)]+out+src[_m.end(2):]
 open(TOOL,'w',encoding='utf-8').write(src)
 ends=sum(1 for r in R if re.search(r'(다\.|니다\.)\s*$',r['b'].rstrip()))
