@@ -7,7 +7,7 @@
 특약 마스터(db.json) 1,757건을 실제로 이 규칙표에 통과시켜 규칙마다 몇 건이 걸리는지,
 어떤 담보가 걸리는지도 함께 적는다. 규칙 내용은 손대지 않고 읽어서 옮기기만 한다.
 """
-import json, os, sys, collections
+import json, os, re, sys, collections
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -15,6 +15,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
 BASE = os.path.dirname(os.path.abspath(__file__))
+VER = (re.search(r"VERSION = '([^']+)'", open(os.path.join(BASE, 'api.py'), encoding='utf-8').read()) or [None, ''])[1]
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(BASE, 'out', 'rules-76.xlsx')
 
 FONT = '맑은 고딕'
@@ -214,7 +215,7 @@ def build():
     ws.sheet_view.showGridLines = False
     LINES = [
         ('t', '보험금 지급 규칙표 — 검수용'),
-        ('s', '메리츠 스마트 제안서 생성기 v8.49 · rules.json 의 규칙 %d줄' % len(rules)),
+        ('s', '메리츠 스마트 제안서 생성기 %s · rules.json 의 규칙 %d줄' % (VER, len(rules))),
         ('', ''),
         ('h', '이 표가 하는 일'),
         ('p', '고객 설계서에서 담보명을 하나 읽으면, 이 표를 위에서부터 훑어 처음 걸리는 한 줄로 그 담보를 계산합니다.'),
@@ -501,7 +502,7 @@ def build():
             from openpyxl import load_workbook
             old = load_workbook(OUT)
             for nm in old.sheetnames:
-                if nm in mine: continue
+                if nm in mine or re.match(r'^규칙 \d+개$', nm): continue   # 규칙 수가 바뀌면 옛 규칙 시트는 버린다
                 src = old[nm]; dst = wb.create_sheet(nm)
                 for row in src.iter_rows():
                     for c in row:

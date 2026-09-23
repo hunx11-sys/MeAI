@@ -73,6 +73,20 @@ def surg5_grade(x, kcd=None):
 def surg5_name(x):
     it = SURG5.get(str(x)) if isinstance(x, str) else None
     return it['name'] if it else ''
+def surg_open(tg):
+    """사례 수술이 관혈(True)인지 비관혈(False)인지 — 모르면 None (v8.55)
+
+    약관(5대질환수술비 제5조 ⑤⑥) : 관혈 = 피부를 절개해 병변을 노출하는 수술(대뇌내시경·복강경·흉강경은
+    관혈에 준함) / 비관혈 = 내시경·카테터·신의료수술. 사례에 'open' 태그가 있으면 그대로 쓰고, 없으면
+    1-5종 항목으로 가린다 — 88-x(카테터·고주파·내시경 등)·C2 는 비관혈, C1 과 이름에 관혈·개흉·개복·개두가
+    적힌 항목은 관혈. 그 밖은 모름."""
+    if 'open' in tg: return bool(tg['open'])
+    j = tg.get('surg')
+    if not isinstance(j, str) or j not in SURG5: return None
+    if j.startswith('88') or j == 'C2': return False
+    nm = SURG5[j]['name']
+    if j.startswith('C1') or any(k in nm for k in ('관혈', '개흉', '개복', '개두')): return True
+    return None
 
 # 고지유형 꼬리표 — rules.json goji_tags 한 곳에서만 관리(v8.3). matcher.py 도 이 GOJI 를 가져다 쓴다.
 GOJI = r'\((?:%s)\)' % '|'.join(re.escape(t) for t in RULEDOC['goji_tags'])
@@ -424,6 +438,11 @@ def kcd_ok(mode, r, sc, nm, o=None):
     if mode == 'g131':
         key = g131_key(r.get('benefit') or r.get('sub') or '')
         if key: return code_hit(G131[key], kcd)
+        # 130대질병수술비[○○]처럼 세부급부 라벨 없이 담보명에 질병군이 붙은 담보는 특약 마스터의 약관 KCD 목록으로 판정한다.
+        # 전에는 사례가 선언한 질병군(grp)으로만 맞춰서, 뇌경색·심근경색 사례에 [특정31대질병] 1,000만원이 붙고
+        # 편도염·담석증 등에는 [다빈도61대질병]이 빠졌다(사례 grp 는 131대 이름 '다빈도62대')(v8.55).
+        # 131대질병수술비(○○)처럼 괄호형 담보는 마스터 목록이 131대 전체(부모) 목록이라 질병군을 가를 수 없으므로 종전대로 둔다.
+        if r.get('codes') and re.search(r'\[[^\]]+\]\s*$', r['name']): return code_hit(r['codes'], kcd)
         return grp_hit(nm, sc, r)
     if mode == 'group':
         key = (o or {}).get('grp')                          # 규칙이 그룹표를 직접 지정한 경우
@@ -501,9 +520,18 @@ def h_surg(r, o, sc, nm, t):
         # 대장 용종·양성신생물 내시경 절제(사례 태그 five_major)는 특정5대·6대의 ① 항 — 특정2대에는 없다
         if (g in ('5', '6') and tg.get('five_major')) or code_hit(lst, sc['kcd']): return []
     if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
+    # 관혈/비관혈로 나뉜 담보(5대질환수술비[관혈]·[비관혈], 32대질병관혈수술비) — 한 번의 수술은 둘 중 하나다.
+    # 전에는 둘 다 지급되어 뇌·심장 수술마다 1,000만원(비관혈 가입금액)이 더 붙었다(v8.55)
+    lab = r['name'].replace(' ', '')
+    if '관혈' in lab:
+        op = surg_open(tg)
+        if op is None:
+            log('검토필요', r['name'], '관혈·비관혈 구분이 사례에 없어 계산 제외'); return []
+        if op != ('비관혈' not in lab): return []
     why = o.get('why', '수술 1회').replace('{j}', str(t['gj'] or surg5_grade(j, sc['kcd']) or '')).replace(
         '{g}', (r.get('benefit') or r.get('sub') or '').strip())
-    return [(r['man'], why, o.get('group', '수술비'), o.get('freq', 'each'))]
+    freq = 'year' if '연간1회한' in lab else o.get('freq', 'each')     # 약관이 연간 1회로 정한 수술비(v8.55)
+    return [(r['man'], why, o.get('group', '수술비'), freq)]
 
 def h_day(r, o, sc, nm, t):
     tg = sc['tags']; mode = o.get('mode', 'day')

@@ -48,13 +48,13 @@
    내Mom대로 · 또또암 · 내Mom 5.10.5 · 내Mom대로 30년납).
 3. **결과가 안 바뀌어도 고친 것이 듣는지 따로 확인한다.** 테스트 설계서에 그 담보가 없으면 지면은 그대로다 — 담보를 직접 넣어 지급 경로(`scen_engine.pay_lines`)로 확인한다.
 4. `api.py` 의 `VERSION` 을 올리고 **`README.md` 맨 위에 변경 기록을 추가한다.** 무엇이 왜 틀렸는지, 금액이 얼마에서 얼마로 바뀌는지 숫자로 적는다. 정상으로 확인한 것도 남겨 다시 건드리지 않게 한다.
-5. 규칙표를 고쳤으면 검수표를 다시 뽑는다 — `python export_rules_xlsx.py out/rules-76.xlsx`
+5. 규칙표를 고쳤으면 검수표를 다시 뽑는다 — `python export_rules_xlsx.py ../dist/규칙표_KCD검수결과.xlsx` (다른 세션이 붙인 시트는 그대로 남는다)
 
 ## 어디를 고치나
 
 | 하려는 일 | 파일 |
 |---|---|
-| 지급 조건·보상 유형 | `rules.json` (규칙 76줄 · 질병코드 그룹표) |
+| 지급 조건·보상 유형 | `rules.json` (규칙 78줄 · 질병코드 그룹표) |
 | 특약별 약관 KCD·제외코드·수가코드 | `db.json` — **직접 고치지 않는다.** `tool.html` 데이터를 바로잡고 `python extract_db.py ../tool.html` |
 | 통합치료비 지급금액표 | `product_data.json` / 상해는 `inj_itc.json` / 생활지원비는 `life_support.json` |
 | 계산 엔진 | `scen_engine.py`(규칙 판정·핸들러) · `engine.py`(통합치료비 금액표) |
