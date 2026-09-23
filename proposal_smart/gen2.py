@@ -132,7 +132,7 @@ def nols(L):
     return [x for x in L if x.get('group') != '통합생활지원비']
 
 # ══ 매트릭스 헬퍼 : 열 = 치료, 행 = 최초/반복/매회 ══
-def matrix(k, cols, rows=('최초 지급', '반복(연 1회)', '수술할 때마다'), modes=('first', 'year', 'each'), foot=''):
+def matrix(k, cols, rows=('최초 지급', '반복(연 1회)'), modes=('first', 'year'), foot=''):   # 「수술할 때마다」 줄은 v8.57에서 뺐다(소유자 요청)
     m, d, t, tl = K[k]
     head = ''.join(f'<th>{et(c["ic"],tl,26,d) if c.get("ic") else ""}<b>{c["t"]}</b><span>{c["s"]}</span></th>' for c in cols)
     body = ''
@@ -220,7 +220,7 @@ def page_cancer():
     return f'''{tabhd(1,'ca','암 진단','암으로 진단확정되면 진단비가 최초 1회 지급돼요')}
  <div class="dxs">{dxcells}
    <div class="dxc alt"><b>치료비로 보장되는 치료 영역</b><span>가입한 특약 기준 · 진단금과 별개로 치료마다 지급</span><em class="areas">{cancer_tx_areas()}</em></div></div>
- {tabhd(2,'ca','암 수술 (신의료기술 포함)','진단금을 뺀 순수 수술 보장액 · 수술할 때마다 다시 받는 금액까지')}
+ {tabhd(2,'ca','암 수술 (신의료기술 포함)','진단금을 뺀 순수 수술 보장액 · 해마다 다시 받는 금액까지')}
  {matrix('ca',[{'ic':'magnifying_glass','t':'내시경 수술','s':'급여 적용 수술','L':c['endo'],'d':det(c['endo'])},
                {'ic':'surgical_sterilization','t':'개복 · 개흉 수술','s':'급여 적용 수술','L':c['open_'],'d':det(c['open_'])},
                {'ic':'ultrasound_scanner','t':'복강경 · 흉강경','s':'급여 적용 수술','L':c['lap'],'d':det(c['lap'])},
@@ -231,7 +231,6 @@ def page_cancer():
                {'ic':'target','t':'표적항암 1종','s':'비급여 · 약물 1종만 사용','L':c['target1'],'d':det(c['target1'])},
                {'ic':'target','t':'표적항암 2종 이상','s':'비급여 · 연간 약물종류 2종~','L':c['target2'],'d':det(c['target2'])},
                {'ic':'immune','t':'면역항암 + 표적','s':'비급여 · 면역관문억제제 병용','L':c['immune'],'d':det(c['immune'])}],
-        rows=('최초 지급','반복(연 1회)','수술할 때마다'),
         foot='' if len(RID) > 80 else '※ 표적항암약물허가치료비(2종 및 3종 이상)는 <b>연간 표적항암제 약물종류가 2종 이상</b>일 때 지급돼요. 1종만 쓰면 통합치료비 표적항암 항목만 지급되어 두 경우를 나눠 계산했어요(면역관문억제제는 약관상 표적항암제에 포함).')}
  {tabhd(4,'yr','항암방사선치료','정상 세포 손상을 줄이는 세기조절 · 양성자치료까지')}
  {matrix('yr',[{'ic':'xray','t':'항암방사선','s':'급여 적용 치료','L':c['rad'],'d':det(c['rad'])},
