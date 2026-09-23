@@ -261,12 +261,11 @@ def page_cv():
             cells += f'<th>{et(ico,K[k][3],26,d)}<b>{t}</b><span>{s2}</span></th>'
         r1 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="모든",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
         r2 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"first"),d)}</td>' for c in cols)
-        r3 = ''.join(f'<td>{big(T(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]),"each"),"#343A40")}</td>' for c in cols)
         r4 = ''.join(f'<td class="dt">{det(b(kcd,dx,c[2],surg=c[3],grp=grp,hosp="상급종합",acts=c[4],surg7=c[5]))}</td>' for c in cols)
         dx_amt = T(Q(kcd, dict(dx=dx, cause='질병', grp=grp), []), 'first')
-        rows.append((k, kcd, dx, cells, r1, r2, r3, r4, dx_amt, cols, grp))
+        rows.append((k, kcd, dx, cells, r1, r2, r4, dx_amt, cols, grp))
     def blk(x, no):
-        k, kcd, dx, cells, r1, r2, r3, r4, dxa, cols, grp = x
+        k, kcd, dx, cells, r1, r2, r4, dxa, cols, grp = x
         d = K[k][1]; nm = '뇌혈관 질환' if dx == 'brain' else '심혈관 질환'
         icon = 'neurology' if dx == 'brain' else 'heart_organ'
         dxl = Q(kcd, dict(dx=dx, cause='질병', grp=grp))
@@ -276,7 +275,6 @@ def page_cv():
       <table class="mx cvmx"><thead><tr><th class="rl"></th>{cells}</tr></thead><tbody>
         <tr><th class="rl">모든 병원</th>{r1}</tr>
         <tr class="mhl"><th class="rl">상급종합병원</th>{r2}</tr>
-        <tr><th class="rl">수술할 때마다</th>{r3}</tr>
         <tr class="dtr"><th class="rl">주요 지급 담보<br><span>상급종합 기준</span></th>{r4}</tr></tbody></table></div>'''
     L = Q('I63', dict(dx='brain', cause='질병', hosp='종합', room='2-3인실', days=14, icu=3, grp=['뇌혈관질환']),
           [['중환자', '중환자실', '', ['icu']]])
