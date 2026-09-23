@@ -1,0 +1,10 @@
+pdfplumber>=0.11
+pymupdf>=1.24
+pypdf>=4.0
+reportlab>=4.0
+# playwright 는 크로미엄을 함께 들고 온다. 1.47 부터 크로미엄 129 이상이 붙는다.
+# 지면 계산은 판에 기대지 않게 고쳤지만(v8.48), 너무 낮은 판은 글꼴 자간이 달라질 수 있어 바닥을 올려 둔다.
+playwright>=1.47
+pillow>=10.0
+# export_rules_xlsx.py(지급 규칙 검수표)에만 쓴다. 제안서 생성에는 필요 없다.
+openpyxl>=3.1
