@@ -961,14 +961,15 @@ def page_surg():
         cells = ''.join(f'<td>{big(v,d if hl else "#343A40")}</td>' for v in vals)
         return f'<tr class="{"mhl" if hl else ""}"><th class="rl">{label}</th>{cells}</tr>'
     dc = '질병' if F['surg'] else '상해'
-    detail = ''.join(f'<td class="dt">{det(S5(j,dc,"상급종합"))}</td>' for j in range(1, 6))
+    detail = ''.join(f'<td class="dt">{det(S5(j,dc,"모든"))}</td>' for j in range(1, 6))
     parts = []; no = 0                                    # 설계에 없는 블록은 빠진다(v8.4)
     if F['day'] or F['care']:
         no += 1; parts.append(tabhd(no,'ms','입원 · 간병','14일 입원 예시 · 상급종합병원은 종합병원 담보도 함께 지급 · 한도일수 담보별 적용') + f'<div class="stay">{stay_cards()}</div>')
     if F['surg'] or F['inj_surg']:
         no += 1
-        trs = (row('질병 · 모든 병원', '질병', '모든') + row('질병 · 상급종합병원', '질병', '상급종합', hl=True) if F['surg'] else '') + \
-              (row('상해 · 모든 병원', '상해', '모든') + row('상해 · 상급종합병원', '상해', '상급종합', hl=not F['surg']) if F['inj_surg'] else '')
+        # 1-5종 수술비는 병원 종별 조건이 없어 '모든 병원 / 상급종합병원' 두 줄이 늘 같았다 → 질병 · 상해 한 줄씩(v8.58, 소유자 요청)
+        trs = (row('질병', '질병', '모든', hl=True) if F['surg'] else '') + \
+              (row('상해', '상해', '모든', hl=not F['surg']) if F['inj_surg'] else '')
         fl = []
         for cz, on in (('질병', F['surg']), ('상해', F['inj_surg'])):
             if not on: continue
@@ -980,7 +981,7 @@ def page_surg():
         if trs:                                          # 1-5종 담보가 있을 때만 종별 표를 그린다(v8.27)
             parts.append(tabhd(no,'pr','수술 종별 지급금액 — 1-5종 수술비 계열','약관 [1-5종 수술분류표Ⅱ]로 종을 가려 지급하는 담보만 · 수술할 때마다 다시 지급') + f'''
  <table class="mx"><thead><tr><th class="rl"></th>{cols}</tr></thead><tbody>{trs}
-   <tr class="dtr"><th class="rl">주요 지급 담보<br><span>{dc} · 상급종합</span></th>{detail}</tr></tbody></table>
+   <tr class="dtr"><th class="rl">주요 지급 담보<br><span>{dc}</span></th>{detail}</tr></tbody></table>
  <div class="mnote">※ 같은 수술로 1-5종 수술비는 가장 높은 종 1가지만 지급돼요. 질병 통합치료비도 1-5종 분류표를 쓰므로 함께 넣었어요.</div>{fnote}{gnote}''')
         else:
             parts.append(tabhd(no,'pr','수술비 — 수술 종과 상관없이 정액 지급','이 설계에는 1-5종 수술분류표로 종을 가리는 담보가 없어요') + fnote + gnote)
