@@ -64,6 +64,19 @@ if __name__ == '__main__':
     out = {k: grab(html, k, env) for k in ('EMB', 'AMT', 'RIDERS', 'IT', 'GLOSS', 'DZ', 'CHIPS', 'DEFAULT_COMBO')}
     out.update(env)
     dst = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'product_data.json')
-    json.dump(out, open(dst, 'w', encoding='utf-8'), ensure_ascii=False)
+    # 질병 통합치료비(DZ)는 시뮬레이터에 없다 — 약관 PDF 에서 scripts/import_dz_itc.py --write 로 넣은 것(v8.24).
+    # 다시 뽑을 때 기존 파일의 DZ 블록(RIDERS 'dz' · IT.DZ · AMT.DZ)을 그대로 옮겨 온다. 없으면 만들지 않는다(금액 추정 금지).
+    if os.path.exists(dst):
+        old = json.load(open(dst, encoding='utf-8'))
+        dz = [r for r in old.get('RIDERS', []) if r.get('id') == 'dz']
+        if dz and old.get('IT', {}).get('DZ') and old.get('AMT', {}).get('DZ'):
+            out['RIDERS'] = [r for r in out['RIDERS'] if r.get('id') != 'dz'] + dz
+            out['IT']['DZ'] = old['IT']['DZ']; out['AMT']['DZ'] = old['AMT']['DZ']
+            print('질병 통합치료비(DZ) 블록 보존 : 항목', len(out['IT']['DZ']), '· 구간', ', '.join(out['AMT']['DZ']))
+        else:
+            print('주의 : 기존 파일에 질병 통합치료비(DZ) 블록이 없어 넣지 않았다 → python scripts/import_dz_itc.py 약관.pdf --write')
+    else:
+        print('주의 : 기존 product_data.json 이 없어 질병 통합치료비(DZ) 블록을 넣지 못했다 → scripts/import_dz_itc.py --write')
+    json.dump(out, open(dst, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
     print('product_data.json 생성 :', dst,
           '| 특약', len(out['RIDERS']), '· 질병 시나리오', len(out['DZ']), '· KCD', len(out['EMB']['kcd']))

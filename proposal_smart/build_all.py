@@ -73,7 +73,9 @@ if __name__=='__main__':
             c['verify3'] = [{'오류': str(e)}]
         c['src'] = os.path.basename(orig)
         json.dump(c, open(cust, 'w', encoding='utf-8'), ensure_ascii=False)
-        print('자동 인식 —', c['insured'], c['premium'], '· 담보', len(c['riders']), '건 · 매칭', sum(1 for r in c['riders'] if r.get('matched')), '건')
+        import scen_engine as S
+        print('자동 인식 —', c['insured'], c['premium'], '· 담보', len(c['riders']), '건 · 매칭', sum(1 for r in c['riders'] if r.get('matched')), '건',
+              '(마스터 %(마스터)d · 부모연결 %(부모연결)d · 규칙만 %(규칙만)d · 계산제외 %(계산제외)d)' % S.recog(c['riders']))
     else:
         cust, orig, out = sys.argv[1], sys.argv[2], sys.argv[3]
     c = json.load(open(cust, encoding='utf-8'))

@@ -178,6 +178,54 @@ def ls_items(r):
 # 경계성종양(D37~D48)이 빠져 있어 유사암 산정특례·유사암 항암 항목이 그 사례에서 안 잡히던 것을 바로잡음(v8.47).
 SIM_CLS = ('cis', 'bord', 'thy', 'skin')
 
+def cancer_scope_ok(text, kcd):
+    """담보명이나 세부급부 라벨이 암 구분을 못박았으면 사례의 암 구분이 그에 맞는지(v8.61).
+       '유사암제외' → 일반암만 / '기타피부암 및 갑상선암' → C44·C73 / '갑상선암' → C73 / '기타피부암' → C44 / '유사암' → 유사암 4종.
+       '…포함'(재진단암진단비(…갑상선암및전립선암포함) 등)은 범위를 넓히는 말이라 좁히지 않는다.
+       전에는 '유사암 전용'만 가려서, 갑상선암(C73) 사례에 「기타피부암 및 갑상선암 항암방사선약물치료비(기타피부암)」과
+       「암 주요치료비(암(유사암제외))」가 함께 붙었다(약관 통117 제1조 「기타피부암」및「갑상선암」 각각 최초 1회 · 통81 제1조 유사암 제외)."""
+    t = re.sub(r'[\s․·,]', '', text or '')
+    if not t or '포함' in t: return True
+    dc = itc.cancer_cls(kcd)
+    if dc is None: return True
+    if re.search(r'유사암[^)]{0,8}제외', t): return dc == 'major'
+    thy, skin = '갑상선암' in t, '기타피부암' in t
+    if thy and skin: return dc in ('thy', 'skin')
+    if thy: return dc == 'thy'
+    if skin: return dc == 'skin'
+    if '유사암' in t: return dc in SIM_CLS
+    return True
+
+def special_reg(r, sc, nm, dx):
+    """산정특례대상 진단비 — 「산정특례대상으로 등록된 경우」가 지급사유다(통203·통204 제1조 등). 등록 시점은 질환마다 다르다
+       (ls_lines 주석·약관 별표와 같은 근거).
+       · 암·유사암·뇌수막 양성신생물 : 등록일로부터 5년 → 사실상 진단과 함께 → 진단 단계 그대로.
+       · 뇌혈관 : 별표(산정특례 뇌혈관질환의 수술 · M6599 동맥내 혈전용해 포함)의 수술을 받은 경우 최대 30일
+         심장   : 별표의 수술 또는 혈전용해제(Alteplase 등) 투여 → 수술·시술·혈전용해 단계에서만. 그 단계에는 진단 태그가 없으므로
+                  계열 표시(series·grp)로 뇌·심을 가른다.
+       · 그 밖(중증화상·중증외상·희귀·중증난치·결핵·중복암/재등록암) : 사례로 단정하지 않는다 → 계산 제외 + 로그.
+       반환 (지급 가능 여부, 진단 태그)"""
+    tg = sc['tags']
+    if re.search(r'중복암|재등록암', nm):
+        log('조건부', r['name'], '암 산정특례 재등록(중복암 · 5년 뒤 재등록) 조건 — 사례로 단정할 수 없어 계산 제외'); return False, dx
+    if re.search(r'\(암|유사암|뇌·수막|뇌수막', nm): return True, dx
+    if re.search(r'뇌혈관|심장', nm):
+        acts = _acts(sc, True)
+        if not (tg.get('surg') or 'surg' in acts or 'thromb' in acts): return False, dx
+        ser = tg.get('series') or ''; grp = tg.get('grp') or []
+        if '뇌혈관' in nm and (dx == 'brain' or ser == 'brain' or '뇌혈관질환' in grp): return True, 'brain'
+        if '심장' in nm and (dx == 'heart' or ser == 'heart' or '심장질환' in grp): return True, 'heart'
+        return False, dx
+    log('조건부', r['name'], '산정특례 등록 조건(중증화상·중증외상·희귀·중증난치·결핵 등)은 사례로 단정할 수 없어 계산 제외'); return False, dx
+
+# 통합치료비·통합생활지원비의 **항목 한정 면책**(v8.61). 특약 전체 제외코드(x)가 아니라 「종합병원 전신마취치료」항목에만 적용되는
+# 질병 목록이라 db.json 의 x 에는 넣지 않고 규칙표 kcd_groups 에 둔다(코드는 약관 조문 원문 그대로).
+#   질병 통합치료비        : 통139 · 케233 제16조③  → 전신마취치료(6시간이상) 항목
+#   암전후관련 통합치료비  : 케N397 제22조②③(방사선직장염 K62.7) → 전신마취치료(6시간이상) 항목
+#   질병 통합생활지원비    : 케401 제17조② → 전신마취치료(급여 · 4시간이상 · 6시간이상) 3항목
+ANES_X_GROUP = '전신마취치료 항목면책(질병 통합치료비·질병 통합생활지원비)'
+ITC_ITEM_X = {'dz': {'anes6': ANES_X_GROUP}, 'pre': {'anes6': '전신마취치료 항목면책(암전후관련 통합치료비)'}}
+
 def _ls_evkeys(sc):
     ks = set()
     for ev in (sc.get('itc_events') or []):
@@ -189,6 +237,12 @@ def ls_lines(r, sc):
     items, src = ls_items(r)
     if not items: return [], False
     tg = sc.get('tags') or {}
+    rid = ls_id(r['name'])
+    # 원인 조건(v8.61) — 상해 통합생활지원비(케396 제1조②)는 '상해의 치료를 직접적인 목적으로' 받은 주요치료만,
+    # 질병·암 통합생활지원비(케401·케235 제1조②)는 '대상상병으로 진단확정되고 그 치료를 직접적인 목적으로' 받은 것만.
+    # 2대질환(케255 제1조①)은 질병 또는 상해로 뇌·심장 산정특례에 등록되면 지급하므로 원인을 가리지 않는다.
+    if rid == 'inj_ls' and tg.get('cause') != '상해': return [], False
+    inj_case = tg.get('cause') == '상해'
     ks = _ls_evkeys(sc)
     code = sc.get('kcd') or ''
     dc = itc.cancer_cls(code)
@@ -200,7 +254,12 @@ def ls_lines(r, sc):
     ser = tg.get('series') or ''
     brain = (dx == 'brain') or (ser == 'brain') or ('뇌혈관질환' in grp)
     heart = (dx == 'heart') or (ser == 'heart') or ('심장질환' in grp)
+    # 입원·재활처럼 진단 태그가 없는 단계도 사례 질병코드가 약관 산정특례 목록(규칙표 kcd_groups · 별표 원문)에 들면 그 계열로 본다(v8.61).
+    # 2대질환 통합생활지원비는 「질병 또는 상해로」 등록되면 지급하므로(통145 제1조①) 외상성 두개내손상(S06 · 별표 뇌혈관 목록)도 여기서 뇌 계열이 된다.
+    brain = brain or code_hit(KCDG.get('중증질환자(뇌혈관질환) 산정특례대상') or [], code)
+    heart = heart or code_hit(KCDG.get('중증질환자(심장질환) 산정특례대상') or [], code)
     anes = bool(tg.get('anes'))                       # 전신마취 수술인지는 사례에 명시된 것만 본다
+    anes_h = tg.get('anes_h') or 0                    # 마취시간(시간 · 사례의 가정값) — 없으면 기본(급여) 항목만
     surgstep = bool(tg.get('surg')) or ('surg' in ks)  # 이 단계에서 수술·시술을 받았는지
     icu = bool(tg.get('icu')) or ('icu' in ks)
     chemo = bool(tg.get('chemo')) or ('chemo' in ks)
@@ -213,6 +272,15 @@ def ls_lines(r, sc):
         lb = re.sub(r'\s', '', it['label'])
         amt = it['amt']
         if amt <= 0: continue
+        # 질병·암 통합생활지원비의 주요치료 항목(케401 제3조③⑦~⑪ · 케235 제1조②)은 '진단확정된 질병(암)의 치료를 직접적인 목적으로' 받은 것만 —
+        # 상해 사례에는 산정특례 행(질병 또는 상해로 등록 : 뇌혈관·심장·중증난치)만 남긴다(v8.61)
+        if inj_case and rid in ('dz_ls', 'ca_ls') and it['grp'] != '산정특례': continue
+        # 계열 담보의 주요치료 항목은 그 계열의 치료일 때만(v8.61) — 2대질환(통145·케255 제1조③ 「2대질환」의 치료를 직접적인 목적으로 …
+        # 전신마취·중환자실·혈전용해 각 호) 은 뇌·심장 사례만, 암(케235)은 암·유사암 사례만. 종전에는 중환자실·혈전용해가 계열을 안 가려
+        # 폐암 수술·교통사고 개두술에도 2대질환 통합생활지원비의 중환자실 항목이 붙었다.
+        if it['grp'] != '산정특례':
+            if rid == 'two_ls' and not (brain or heart): continue
+            if rid == 'ca_ls' and dc is None: continue
         hit = False
         if it['grp'] == '산정특례':
             if '유사암' in lb and '제외' not in lb: hit = bool(dx) and (dc in SIM_CLS)   # 별표87-2 : C44·C73·D00~D09·D37~D48
@@ -222,7 +290,16 @@ def ls_lines(r, sc):
             elif '심장' in lb: hit = heart and regstep         # 수술 또는 혈전용해제 투여로 등록(별표89-2·89-3)
             else: hit = False                          # 희귀·중증난치·중증화상·중증외상 — 사례로 단정하지 않는다
         elif '전신마취' in lb:
-            hit = anes and ('시간이상' not in lb)
+            # 약관 항목표는 (급여) / (급여, 4시간이상) / (급여, 6시간이상) 세 항목이 각각 '치료 1회당' — 마취시간이 구간에 들면
+            # 그 항목도 함께 지급한다. 「종합병원」항목이므로 병원 종별을 보고, 계열 담보는 그 계열의 치료일 때만 :
+            #   2대질환(케255 제1조②) = 「2대질환」의 치료 목적 → 뇌·심장 사례만 / 암(케235) = 행 이름의 암(유사암제외)·유사암 구분
+            #   질병(케401 제17조②) = 정신질환·임신출산·선천기형·비만·요실금·치핵·치과질환 치료의 전신마취 항목은 지급하지 않음(v8.61)
+            hit = anes and hosp_ok('종합', tg.get('hosp'))
+            if '6시간이상' in lb: hit = hit and anes_h >= 6
+            elif '4시간이상' in lb: hit = hit and anes_h >= 4
+            if rid == 'ca_ls': hit = hit and _ls_cancer_row(lb, dc)
+            elif rid == 'dz_ls' and hit and code_hit(KCDG.get(ANES_X_GROUP) or [], code):
+                hit = False; log('면책', r['name'], '%s — 약관 제17조② 항목 한정 면책 질병(%s)이라 전신마취 항목 제외' % (it['label'], code))
         elif '중환자실' in lb:
             hit = icu
         elif '항암방사선' in lb:
@@ -253,6 +330,51 @@ ISSUES = []                                           # 미분류·검토필요 
 def log(kind, name, reason):
     it = {'구분': kind, '담보': name, '사유': reason}
     if it not in ISSUES: ISSUES.append(it)
+
+# 특약 마스터(db.json)가 담고 있는 상품 — 로그 문구에 '어느 약관 데이터에 없는지'를 적기 위해 읽는다(v8.61)
+_pdb = os.path.join(BASE, 'db.json')
+DB_PRODUCTS = (json.load(open(_pdb, encoding='utf-8')).get('meta') or {}).get('products') or [] if os.path.exists(_pdb) else []
+
+def no_master_why(r, what):
+    """'KCD 목록이 없다'는 로그를 두 경우로 가른다(v8.61).
+       · 담보 자체가 마스터에 없다(matched False) : 설계 상품의 약관이 데이터(6개 상품)에 없는 것 —
+         다른 상품의 같은 이름 담보로 대신 계산하지 않고 빈칸으로 둔다(CLAUDE.md 1·4).
+       · 마스터에는 있는데 목록만 비어 있다 : 마스터 보강 대상."""
+    if r.get('matched') is False:
+        return ('이 담보는 특약 마스터(약관 데이터 : %s)에 없다 — 설계 상품의 약관이 데이터에 없어 %s을 붙일 수 없으므로 지급 판정 제외. '
+                '다른 상품의 같은 이름 담보로 대신 계산하지 않음(약관 데이터 추가 전까지 빈칸)') % ('·'.join(DB_PRODUCTS) or 'db.json', what)
+    return '특약 마스터에 %s이 없어 지급 판정 제외 (마스터 보강 필요)' % what
+
+def issues_grouped(items=None):
+    """같은 구분·사유의 로그를 담보 그룹 1줄로 묶는다(v8.61). 예) '1-7종 수술분류표 종 구분이 사례에 없어 계산 제외' 14줄 → 1줄.
+       담보명은 '담보목록'에 모두 남기므로 정보는 잃지 않는다. 사유가 담보마다 다른 로그(3차대조 등)는 그대로 한 줄씩."""
+    out, idx = [], {}
+    for it in (ISSUES if items is None else items):
+        key = (it['구분'], it['사유'])
+        if key in idx:
+            g = out[idx[key]]
+            if it['담보'] not in g['담보목록']: g['담보목록'].append(it['담보'])
+            g['담보'] = '%s 외 %d건' % (g['담보목록'][0], len(g['담보목록']) - 1) if len(g['담보목록']) > 1 else g['담보목록'][0]
+        else:
+            idx[key] = len(out); out.append(dict(it, 담보목록=[it['담보']]))
+    return out
+
+def recog(riders):
+    """담보 인식 상태 집계(v8.61) — 「마스터」(설계서 담보명이 특약 마스터에 있음) · 「부모연결」(┗ 세부 행을 부모
+       특약의 마스터에 물림 : 1-7종 수술비 종별 행) · 「규칙만」(마스터에 없지만 규칙표로 계산됨) · 「계산제외」(마스터에도
+       없고 규칙이 없거나 약관 KCD 목록이 필요한데 없어 빈칸이 되는 담보). 넷의 합 = 담보 수.
+       전에는 matched 한 숫자만 있어 부모연결·규칙만 담보가 모두 '미인식'으로 보고됐다."""
+    c = {'마스터': 0, '부모연결': 0, '규칙만': 0, '계산제외': 0, '규칙만목록': [], '계산제외목록': []}
+    for r in riders:
+        if r.get('matched'):
+            c['부모연결' if r.get('via') else '마스터'] += 1; continue
+        if r.get('itc') or ls_id(r['name']):                        # 통합치료비·생활지원비는 금액표 엔진이 계산
+            c['규칙만'] += 1; c['규칙만목록'].append(r['name']); continue
+        rule = classify(r['name']); o = (rule or {}).get('opt') or {}
+        calc = rule is not None and rule['kind'] in HANDLER and not (o.get('kcd') in ('codes', 'codes_listed') and not r.get('codes'))
+        if calc: c['규칙만'] += 1; c['규칙만목록'].append(r['name'])
+        else: c['계산제외'] += 1; c['계산제외목록'].append(r['name'])
+    return c
 
 _CC = {}
 _XSUB = re.compile(r'\[[^\]]*(진단비|치료비|수술비|입원일당|통원일당)[^\]]*\]')
@@ -431,7 +553,9 @@ def kcd_ok(mode, r, sc, nm, o=None):
     kcd = sc['kcd']
     if mode in (None, 'none'): return True
     if mode == 'hc':                                        # 약관 별표의 진료행위(수가)코드 ∩ 사례 단계의 수가코드(v8.14)
-        return bool(set(r.get('hc') or []) & set(sc['tags'].get('hc') or []))
+        if not r.get('hc'):                                 # 목록이 비어 있으면 조용히 0 이 아니라 사유를 남긴다(v8.61)
+            log('수가코드없음', r['name'], no_master_why(r, '약관 별표 진료행위(수가)코드 목록')); return False
+        return bool(set(r['hc']) & set(sc['tags'].get('hc') or []))
     if mode == 'major': return itc.cancer_cls(kcd) == 'major'
     if mode == 'sim': return itc.cancer_cls(kcd) in ('cis', 'bord', 'thy', 'skin')
     if mode == 'major_or_sim': return bool(itc.cancer_cls(kcd))
@@ -466,7 +590,7 @@ def kcd_ok(mode, r, sc, nm, o=None):
         if not sub_ok(r, kcd): return False
         if r.get('codes'): return code_hit(r['codes'], kcd)
         if grp_hit(nm, sc, r): return True
-        log('KCD없음', r['name'], '특약 마스터에 약관 KCD 목록이 없어 지급 판정 제외 (마스터 보강 필요)')
+        log('KCD없음', r['name'], no_master_why(r, '약관 KCD 목록'))
         return False
     return False
 
@@ -477,18 +601,30 @@ def _acts(sc, with_done=False):
     for ev in sc.get('itc_events') or []:
         if len(ev) > 3: a.update(ev[3])
     if sc['tags'].get('surg'): a.add('surg')
+    # 전신마취 — 사례에 anes=1 이 적힌 단계만 본다. 마취시간 anes_h(시간 · 사례의 가정값)가 4·6시간 이상이면
+    # 그 구간 행위(anes4 · anes6)도 받은 것으로 본다. 약관(종합병원 전신마취치료비 3종 제2조①) : 마취시간은
+    # 전신마취치료 1회당 기준이고 2회 이상 받아도 더하지 않는다 → 단계(수술) 하나씩 따로 판정한다(v8.61).
+    if sc['tags'].get('anes'):
+        a.add('anes')
+        _h = sc['tags'].get('anes_h') or 0
+        if _h >= 4: a.add('anes4')
+        if _h >= 6: a.add('anes6')
     if 'immune' in a: a.add('target')      # 면역항암 치료 시 표적항암약물허가치료 합산(약관)
     return a
 
 def h_dx(r, o, sc, nm, t):
     tg = sc['tags']
     dx = tg.get('dx')
+    if o.get('reg'):                                            # 산정특례 등록 조건부 진단비(v8.61)
+        ok, dx = special_reg(r, sc, nm, dx)
+        if not ok: return []
     if not dx and o.get('cause') != '상해': return []
     if o.get('fam') and DXFAM.get(dx) not in o['fam']: return []
     if o.get('cause') and tg.get('cause') != o['cause']: return []
     if bool(tg.get('recur')) != (o.get('stage') == 'recur'): return []     # 재진단 단계에서는 재진단암 진단비만, 첫 진단 단계에서는 그 밖의 진단비만(v8.12)
     if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
-    return [(r['man'], o.get('why', '진단확정'), o.get('group', '진단비'), o.get('freq', 'once'))]
+    freq = 'year' if '연간1회한' in nm else o.get('freq', 'once')      # 산정특례 진단비(연간1회한) 등 담보명이 연 1회로 정한 것(v8.61)
+    return [(r['man'], o.get('why', '진단확정'), o.get('group', '진단비'), freq)]
 
 def h_surg(r, o, sc, nm, t):
     tg = sc['tags']; j = tg.get('surg')
@@ -603,8 +739,8 @@ def h_tx(r, o, sc, nm, t):
     if re.search(r'비급여|전액본인부담', nm) and not tg.get('nc'): return []
     if t['cause'] and tg.get('cause') != t['cause']: return []
     if not hosp_ok(t['hosp'], tg.get('hosp')): return []
-    if re.search(r'유사암|기타피부암|갑상선암', nm) and '제외' not in nm:        # 유사암 전용 치료비는 유사암에만
-        if itc.cancer_cls(sc['kcd']) not in ('cis', 'bord', 'thy', 'skin'): return []
+    # 담보명·세부급부 라벨이 암 구분을 못박은 담보는 그 구분의 암에만(v8.61) — 유사암 전용 / 유사암제외 / 갑상선암 / 기타피부암
+    if not cancer_scope_ok(nm, sc['kcd']) or not cancer_scope_ok(r.get('sub') or r.get('benefit') or '', sc['kcd']): return []
     if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
     freq = o.get('freq', 'year')
     if '계속받는' in nm or '연간1회한' in nm: freq = 'year'
@@ -634,11 +770,25 @@ def pay_lines(riders, sc):
                 # 담보명이 원인을 못박은 통합치료비(질병 통합치료비·상해 통합치료비)는 그 원인일 때만(v8.27)
                 _c = tokens(nm)['cause']
                 if _c and sc['tags'].get('cause') != _c: continue
+                evs = list(sc['itc_events'])
+                # 6시간 이상 전신마취 단계(anes_h ≥ 6)면 「종합병원 전신마취치료(6시간이상)(급여)」 항목도 받은 것으로 본다(v8.61)
+                if ('anes6' in _acts(sc) and hosp_ok('종합', sc['tags'].get('hosp'))       # 「종합병원」 항목 — 병원·의원 전신마취는 대상 아님
+                        and not any(len(e) > 3 and 'anes6' in (e[3] or []) for e in evs)):
+                    evs.append(['치료', '전신마취(6시간이상)', '', ['anes6']])
+                # 항목 한정 면책 — 질병 통합치료비(통139·케233 제16조③)·암전후 통합치료비(케N397 제22조②③)는 아래 질병 치료의
+                # 전신마취(6시간이상) 항목만 지급하지 않는다. 특약 전체 제외가 아니므로 그 항목만 0 으로 두고 로그를 남긴다.
+                xk = {k for k, g in ITC_ITEM_X.get(r['itc'], {}).items() if code_hit(KCDG.get(g) or [], sc['kcd'])}
+                if xk and any(len(e) > 3 and set(e[3] or []) & xk for e in evs):
+                    log('면책', n, '약관 항목 한정 면책 질병(%s) — 전신마취치료(6시간이상) 항목 제외' % sc['kcd'])
                 try:
-                    res = itc.calc_rider(r['itc'], r['man'], sc['kcd'], {'e': sc['itc_events']}, sc.get('within1y', False))
+                    res = itc.calc_rider(r['itc'], r['man'], sc['kcd'], {'e': evs}, sc.get('within1y', False), skip_keys=xk)
                 except KeyError:
                     log('금액표없음', n, '가입금액 %s만원이 약관 지급금액표에 없어 계산 제외 (설계 금액 확인 필요)' % r['man'])
                     continue
+                for l in res['lines']:                    # 약관 수가코드 목록 밖의 검사 → 0원 + 사유(v8.61)
+                    if l.get('why') == 'def':
+                        log('수가코드제외', n, '%s 0원 — %s' % (itc.item_label(r['itc'], l['i']),
+                            l.get('nor') or '약관이 정한 수가코드에 해당하지 않음'))
                 if res['total'] > 0:
                     det = ' · '.join('%s %s' % (itc.item_label(r['itc'], l['i']), format(l['amt'], ',.0f'))
                                      for l in res['lines'] if l['amt'] > 0)
@@ -675,6 +825,9 @@ def pay_lines(riders, sc):
             if h is None: continue                       # care·life·nonmed·skip = 사례 계산 대상 아님
             for amt, why, grp, freq in h(r, rule.get('opt') or {}, sc, nm, tokens(nm)):
                 if amt > 0:
+                    if r.get('matched') is False:        # 설계서 담보가 특약 마스터에 없는데(설계 상품 약관이 데이터에 없음) 규칙표로 지급 계산됨 — 근거를 남긴다(v8.61)
+                        log('마스터없음', n, '특약 마스터(약관 데이터 : %s)에 없는 담보인데 규칙표 %s 로 계산됨 — 근거 : %s. 해당 상품 약관으로 확인 필요'
+                            % ('·'.join(DB_PRODUCTS) or 'db.json', rule['id'], ((rule.get('opt') or {}).get('note') or rule.get('label') or '-').rstrip('. ')))
                     out.append({'name': n, 'amt': amt, 'why': why, 'group': grp, 'no': r.get('no'),
                                 'freq': freq, 'rule': rule['id']})
         except Exception as ex:                          # 어떤 담보가 와도 생성이 중단되지 않게 한다
@@ -702,4 +855,4 @@ def audit(riders):
             un.append(r['name']); by['미분류'] = by.get('미분류', 0) + 1
         else:
             by[rule['kind']] = by.get(rule['kind'], 0) + 1
-    return {'담보수': len(riders), '구조별': by, '미분류': un, '규칙수': len(RULES)}
+    return {'담보수': len(riders), '구조별': by, '미분류': un, '규칙수': len(RULES), '인식': recog(riders)}
