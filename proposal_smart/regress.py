@@ -50,14 +50,20 @@ def snap(name, folder):
             continue
         lay = r['audit']['요약'].get('지면검사') or []
         res[key] = {'pages': _pages(r['out_pdf']), 'audit': r['audit'],
-                    'matched': r['matched'], 'riders': r['rider_count'],
+                    'matched': r['matched'], 'riders': r['rider_count'], 'recog': r.get('recog'),
                     'made': r['audit']['요약'].get('생성쪽수'),
                     'warn': [x for x in lay if '이탈' in x or '잘림' in x]}
-        print('  %-28s 생성 %s쪽 · 인식 %d/%d · 이탈잘림 %d'
-              % (key[:28], res[key]['made'], r['matched'], r['rider_count'], len(res[key]['warn'])), flush=True)
+        print('  %-28s 생성 %s쪽 · 인식 %d/%d (%s) · 이탈잘림 %d'
+              % (key[:28], res[key]['made'], r['matched'], r['rider_count'], _recog_s(r.get('recog')), len(res[key]['warn'])), flush=True)
     p = os.path.join(OUT, name + '.json')
     json.dump(res, open(p, 'w', encoding='utf-8'), ensure_ascii=False)
     print('저장 %s · 설계 %d건' % (p, len(res)))
+
+
+def _recog_s(rc):
+    """인식 집계 한 줄 — 마스터·부모연결·규칙만·계산제외(v8.61). 옛 스냅샷(집계 없음)은 '-'"""
+    if not rc: return '-'
+    return '마스터 %(마스터)d·부모연결 %(부모연결)d·규칙만 %(규칙만)d·계산제외 %(계산제외)d' % rc
 
 
 def _logs(a):
@@ -78,11 +84,13 @@ def diff(before, after):
         pa, pb = a['pages'], b['pages']
         d = [i + 1 for i, (x, y) in enumerate(zip(pa, pb)) if x != y]
         gone, new = _logs(a['audit']) - _logs(b['audit']), _logs(b['audit']) - _logs(a['audit'])
-        flag = d or gone or new or b['warn'] or a['matched'] != b['matched'] or len(pa) != len(pb)
+        flag = d or gone or new or b['warn'] or a['matched'] != b['matched'] or len(pa) != len(pb) or a.get('recog') != b.get('recog')
         bad += bool(flag)
         print('### %-26s 쪽 %d→%d · 글자다른쪽 %s · 인식 %d/%d→%d/%d · 이탈잘림 %d · 로그 -%d/+%d'
               % (k[:26], len(pa), len(pb), d or '없음', a['matched'], a['riders'], b['matched'], b['riders'],
                  len(b['warn']), len(gone), len(new)))
+        if a.get('recog') != b.get('recog'):
+            print('    인식 상태 : %s → %s' % (_recog_s(a.get('recog')), _recog_s(b.get('recog'))))
         for x in sorted(gone)[:5]: print('    - 사라진 로그 :', x[:150])
         for x in sorted(new)[:5]:  print('    + 새 로그     :', x[:150])
         for i in d[:3]:

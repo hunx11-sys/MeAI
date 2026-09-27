@@ -19,6 +19,7 @@ sys.path.insert(0, BASE)
 
 import build_all as BA                      # auto_meta · last_cover_page · page_count · guess_line
 import matcher
+import scen_engine as S                     # recog : 담보 인식 상태 집계(v8.61)
 from build_pdf import merge
 
 OUT = os.path.join(BASE, 'out')
@@ -79,6 +80,7 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
          'meta': {k: v for k, v in c.items() if k != 'riders'},
          'riders': c['riders'], 'rider_count': len(c['riders']),
          'matched': sum(1 for x in c['riders'] if x.get('matched')),
+         'recog': S.recog(c['riders']),      # 마스터 / 부모연결 / 규칙만 / 계산제외 — matched 는 앞 둘의 합(v8.61)
          'insert_after': c['insert_after'], 'base_pages': c['base_pages'],
          'new_pages': new, 'pages_html': html}
     if audit['요약'].get('제외상품'):     # 제작 대상에서 뺀 상품 — 왜 안 붙였는지 호출한 쪽에 알린다

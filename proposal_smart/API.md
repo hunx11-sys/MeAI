@@ -82,6 +82,7 @@ d.new_pages       // 9       생성한 지면 수 (0이면 대상 담보 없음)
 d.insert_after    // 43      원본 43쪽 뒤에 삽입
 d.rider_count     // 151     인식한 담보 수
 d.matched         // 133     특약 마스터와 매칭된 담보 수
+d.recog           // {마스터:137, 부모연결:14, 규칙만:0, 계산제외:0, 규칙만목록:[], 계산제외목록:[]}  담보 인식 상태(v8.61) — 넷의 합 = rider_count. 부모연결 = 1-7종 수술비 ┗ 종별 행처럼 부모 특약 마스터에 물린 담보 · 규칙만 = 마스터에 없지만 규칙표로 계산 · 계산제외 = 빈칸이 되는 담보
 d.attached        // true    지면을 붙였는지
 d.elapsed_sec     // 31.7    처리 시간
 d.meta            // 피보험자·보험료·상품명·계약사항 등 PDF에서 읽은 값
@@ -96,7 +97,7 @@ d.pdf_base64      // 결과 PDF (base64)
 {
   "ok": true, "attached": true,
   "base_pages": 56, "new_pages": 9, "total_pages": 65, "insert_after": 43,
-  "rider_count": 151, "matched": 133, "elapsed_sec": 31.7,
+  "rider_count": 151, "matched": 151, "recog": { "마스터": 137, "부모연결": 14, "규칙만": 0, "계산제외": 0, "규칙만목록": [], "계산제외목록": [] }, "elapsed_sec": 31.7,
   "meta": { "insured": "고객님", "premium": "669,590원", "product": "(무)메리츠 The건강한 …" },
   "audit": {
     "요약": { "담보수": 151, "구조별": { "dx": 14, "surg": 56, "tx": 48, "day": 11, "care": 9,

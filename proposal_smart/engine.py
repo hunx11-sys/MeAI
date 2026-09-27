@@ -48,9 +48,13 @@ def _ev_keys(ev):
         i = k.index('immune'); return k[:i] + ['target'] + k[i:]
     return k
 
-def calc_rider(rider_id, tier, code, path, within_1y=False):
+def calc_rider(rider_id, tier, code, path, within_1y=False, skip_keys=None):
     """path = {'e': [ [단계, 치료명, 설명, [치료키], {옵션}], ... ]}
-       옵션 : nc(비급여) · j(1-5종) · n(재활 일수)"""
+       옵션 : nc(비급여) · j(1-5종) · n(재활 일수)
+              no({특약종류(ty) 또는 'all': [치료키]}) — 이 단계의 그 항목은 이 특약 종류에서 해당 없음(why 'def' · 0원)
+              nor({치료키: 사유}) — 그 이유(약관 수가코드 목록 등), 로그·지면 설명용
+       skip_keys : 이 사례 질병에 **항목 한정 면책**이 걸린 치료키(예 anes6). 호출한 쪽(scen_engine)이 약관 조문 목록으로 판정해 넘긴다.
+                   그 항목은 0 으로 두고 why='excl' 로 남긴다 — 금액표(product_data.json) 자체는 건드리지 않는다(v8.61)."""
     r = RM[rider_id]; items = IT[r['ty']]; A = AMT[r['ty']][str(tier)]
     res = {'id': rider_id, 'tier': tier, 'cov': cover(r, code), 'lines': [],
            'raw': 0, 'total': 0, 'cap': 0, 'capped': False}
@@ -61,11 +65,22 @@ def calc_rider(rider_id, tier, code, path, within_1y=False):
     f = 0.5 if (r['half'] and within_1y and not inj) else 1        # 1년 이내 감액
     used = {}; rehab = 0
     for ei, ev in enumerate(path['e']):
-        o = ev[4] if len(ev) > 4 else {}
+        o = (ev[4] if len(ev) > 4 else None) or {}
+        # 약관이 수가코드를 낱낱이 적어 둔 항목은 같은 검사라도 특약 종류마다 해당 여부가 다르다(시뮬레이터 09-22 · v8.61).
+        #   예) 대장내시경 : 「암 내시경검사(급여)」(급여 제2부 제2장 제4절 내시경 전체)에는 들어가지만
+        #                  「특정내시경(급여)」(약관 제9조 수가코드 열거)에는 없다.
+        #   사례 단계의 no:{ty:[키]} 가 그 표시 — 해당 키는 why 'def' 0원, nor 에 사유를 실어 돌려준다.
+        _no = o.get('no') or {}
+        off = _no.get(r['ty']) if _no.get(r['ty']) is not None else (_no.get('all') or [])
         for k in _ev_keys(ev):
+            if skip_keys and k in skip_keys:
+                res['lines'].append({'ei': ei, 'k': k, 'amt': 0, 'why': 'excl'}); continue
             cands = [(i, it) for i, it in enumerate(items) if it['k'] == k]
             if not cands:
                 res['lines'].append({'ei': ei, 'k': k, 'amt': 0, 'why': 'none'}); continue
+            if k in off:
+                res['lines'].append({'ei': ei, 'k': k, 'i': cands[0][0], 'amt': 0, 'why': 'def',
+                                     'nor': (o.get('nor') or {}).get(k)}); continue
             el = [(i, it) for i, it in cands
                   if (not it.get('cl') or dc in it['cl'])
                   and ('sp' not in it or bool(it['sp']) == sp)

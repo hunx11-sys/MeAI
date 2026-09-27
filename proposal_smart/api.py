@@ -27,7 +27,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v8.60'
+VERSION = 'v8.61'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 동시 생성 2건까지(렌더가 무거워 과부하 방지)
 
@@ -164,12 +164,13 @@ class Handler(BaseHTTPRequestHandler):
                 rid = pipeline.read_riders(src)
                 return self._send(200, _json({'ok': True, 'count': len(rid),
                                               'matched': sum(1 for r in rid if r.get('matched')),
+                                              'recog': pipeline.S.recog(rid),        # 마스터 / 부모연결 / 규칙만 / 계산제외(v8.61)
                                               'riders': rid}))
             r = pipeline.build(src)
             summary = {'ok': True, 'attached': r['attached'], 'base_pages': r['base_pages'],
                        'new_pages': r['new_pages'], 'total_pages': r['total_pages'],
                        'insert_after': r['insert_after'], 'rider_count': r['rider_count'],
-                       'matched': r['matched'], 'elapsed_sec': r['elapsed_sec'],
+                       'matched': r['matched'], 'recog': r.get('recog'), 'elapsed_sec': r['elapsed_sec'],
                        'meta': r['meta']}
             if path in ('/v1/proposal/pdf', '/v1/proposal'):
                 body = open(r['out_pdf'], 'rb').read()
