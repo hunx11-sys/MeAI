@@ -12,7 +12,7 @@
 '🏠 대문' 버튼만 같은 폴더에 6개가 다 있어야 동작하고,
 그 밖의 기능은 파일 하나만 있어도 전부 됩니다.
 """
-import base64, importlib.util, os, re, sys
+import base64, gzip, importlib.util, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 spec = importlib.util.spec_from_file_location('bp', os.path.join(ROOT, 'scripts', 'build_package.py'))
@@ -50,6 +50,21 @@ def inline_gloss(s, gloss, log):
     return s
 
 
+def pack_bodies(s, log):
+    """특약검색기의 약관 본문(파일의 3/4)을 압축해 BODYZ 로 따로 싣는다.
+    파일이 1/4 크기로 줄고, 브라우저가 첫 화면을 띄운 뒤 뒤에서 풀어 채운다(tool.html 의 __MEAI_BODY__).
+    저장소의 tool.html 은 그대로 둔다 — 데이터 추출 스크립트들이 원래 모양을 읽는다."""
+    m = re.search(r'(<script id="DATA" type="application/json">)(.*?)(</script>)', s, re.S)
+    if not m or '__MEAI_BODY__' not in s:
+        return s
+    D = json.loads(m.group(2))
+    B = {r['id']: r.pop('b') for r in D['riders'] if 'b' in r}
+    z = base64.b64encode(gzip.compress(json.dumps(B, ensure_ascii=False, separators=(',', ':')).encode('utf-8'), 9)).decode('ascii')
+    data = json.dumps(D, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    log.append(f'  약관 본문 {len(B):,}건을 압축해 따로 실음 ({len(m.group(2).encode()) / 1e6:.1f}MB → 목록 {len(data.encode()) / 1e6:.1f}MB + 본문 {len(z) / 1e6:.1f}MB)')
+    return s[:m.start(2)] + data + m.group(3) + '\n<script id="BODYZ" type="text/plain">' + z + '</script>' + s[m.end(3):]
+
+
 def relink(s, log):
     """대문이 부르는 도구 링크를 보낼 이름으로 맞춘다 (대문 링크는 bp 가 이미 처리)"""
     n = 0
@@ -80,6 +95,7 @@ def main():
         s = bp.offline(out, s, log, font_b64)
         s = inline_gloss(s, gloss, log)
         s = relink(s, log)
+        s = pack_bodies(s, log)
 
         # 남의 파일을 부르는 곳이 없어야 한다 (글꼴·사전·CDN 이 전부 안에 들어갔는지)
         bad = re.findall(r'<script[^>]+src="(?!data:)[^"]+"|'
