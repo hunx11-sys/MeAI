@@ -17,6 +17,8 @@
 import os, re, sys, base64, zipfile, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, 'scripts'))
+import tooldata
 HOME = '영업지원도구_대문.html'
 TOOLS = ['tool.html', 'products.html', 'prompts.html', '명패생성기.html', '통합치료비.html']
 ASSETS = [('gloss.js', 'gloss.js')]
@@ -147,6 +149,8 @@ def build(outname, with_font):
         log = []
         s = offline(name, open(os.path.join(ROOT, src), encoding='utf-8').read(),
                     log, font_b64)
+        s, nb = tooldata.pack_html(s)      # 약관 본문(tool_body.js)을 압축해 파일 안에 넣는다
+        if nb: log.append(f'  약관 본문 {nb:,}건을 압축해 파일 안에 넣음')
         print(f'  {name}')
         for line in log:
             print('  ' + line)

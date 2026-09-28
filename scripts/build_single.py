@@ -12,7 +12,7 @@
 '🏠 대문' 버튼만 같은 폴더에 6개가 다 있어야 동작하고,
 그 밖의 기능은 파일 하나만 있어도 전부 됩니다.
 """
-import base64, gzip, importlib.util, json, os, re, sys
+import base64, importlib.util, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 spec = importlib.util.spec_from_file_location('bp', os.path.join(ROOT, 'scripts', 'build_package.py'))
@@ -20,6 +20,8 @@ bp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bp)
 
 OUTDIR = os.path.join(ROOT, 'dist', 'single')
+sys.path.insert(0, os.path.join(ROOT, 'scripts'))
+import tooldata
 
 # 대문 이름을 먼저 바꿔 둔다. 그래야 bp.offline() 이 tool.html 안에 base64 로
 # 들어 있는 보상시뮬레이터의 '🏠 대문' 링크까지 같은 이름으로 맞춰 준다.
@@ -51,19 +53,12 @@ def inline_gloss(s, gloss, log):
 
 
 def pack_bodies(s, log):
-    """특약검색기의 약관 본문(파일의 3/4)을 압축해 BODYZ 로 따로 싣는다.
-    파일이 1/4 크기로 줄고, 브라우저가 첫 화면을 띄운 뒤 뒤에서 풀어 채운다(tool.html 의 __MEAI_BODY__).
-    저장소의 tool.html 은 그대로 둔다 — 데이터 추출 스크립트들이 원래 모양을 읽는다."""
-    m = re.search(r'(<script id="DATA" type="application/json">)(.*?)(</script>)', s, re.S)
-    if not m or '__MEAI_BODY__' not in s:
-        return s
-    D = json.loads(m.group(2))
-    B = {r['id']: r.pop('b') for r in D['riders'] if 'b' in r}
-    z = base64.b64encode(gzip.compress(json.dumps(B, ensure_ascii=False, separators=(',', ':')).encode('utf-8'), 9)).decode('ascii')
-    data = json.dumps(D, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
-    log.append(f'  약관 본문 {len(B):,}건을 압축해 따로 실음 ({len(m.group(2).encode()) / 1e6:.1f}MB → 목록 {len(data.encode()) / 1e6:.1f}MB + 본문 {len(z) / 1e6:.1f}MB)')
-    return s[:m.start(2)] + data + m.group(3) + '\n<script id="BODYZ" type="text/plain">' + z + '</script>' + s[m.end(3):]
-
+    """특약검색기의 약관 본문(저장소에서는 옆 파일 tool_body.js)을 압축해 파일 안(BODYZ)에 넣는다.
+    메일로 보내는 파일은 혼자서 돌아가야 하고, 압축해 두면 크기가 1/4 로 준다(tooldata.pack_html)."""
+    s, n = tooldata.pack_html(s)
+    if n:
+        log.append(f'  약관 본문 {n:,}건을 압축해 파일 안에 넣음')
+    return s
 
 def relink(s, log):
     """대문이 부르는 도구 링크를 보낼 이름으로 맞춘다 (대문 링크는 bp 가 이미 처리)"""
