@@ -9,6 +9,7 @@
 만드는 방법
   1) build_single.py 로 낱개 자립형 6개를 만든다(글꼴·용어사전을 안에 넣고, 통계 전송을 끈 판).
   2) 6개를 한 파일 안에 '보관'만 해 두고, 화면에는 한 번에 하나를 칸막이(iframe) 안에 띄운다.
+     한 번 연 칸막이는 지우지 않고 숨겨 두었다가 다시 보여준다(다시 열 때 기다림 없음).
      도구끼리 디자인·기능 이름이 겹쳐도 칸막이가 달라 서로 망가뜨리지 않는다.
   3) 대문 카드·🏠 버튼처럼 다른 파일로 가는 링크는 파일 안의 해당 도구로 바꿔 띄운다.
      보상시뮬레이터(특약검색기 안의 또 한 겹)의 🏠 버튼도 같게 맞춘다.
@@ -57,27 +58,40 @@ SHELL = """<!DOCTYPE html>
 <meta name="robots" content="noindex, nofollow">
 <title>메리츠 영업지원도구 (올인원)</title>
 <style>html,body{margin:0;height:100%;background:#fff}
-#v{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}
+iframe.v{position:fixed;inset:0;width:100%;height:100%;border:0;display:none}
+iframe.v.on{display:block}
 #w{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:15px/1.6 sans-serif;color:#666}</style>
 </head><body>
 <div id="w">여는 중입니다…</div>
-<iframe id="v" title="영업지원도구"></iframe>
 __PAGES__
 <script>
 (function(){
-  var NAMES=__NAMES__, urls={}, cur=null, v=document.getElementById('v');
+  /* 한 번 연 도구는 틀째로 남겨 두고 보였다 숨겼다만 한다 — 다시 누를 때 처음부터 여는 시간이 없다.
+     (특약검색기처럼 큰 도구는 여는 데 몇 초가 걸린다) 입력해 둔 검색어·화면 위치도 그대로 남는다. */
+  var NAMES=__NAMES__, urls={}, F={}, cur=null, W=document.getElementById('w');
   function url(p){
     if(urls[p]) return urls[p];
     var t=document.getElementById('pg-'+p).textContent
       .split('<@@MEAI_S@@/script').join('</script').split('<@@MEAI_C@@!--').join('<!--');
     return (urls[p]=URL.createObjectURL(new Blob([t],{type:'text/html;charset=utf-8'})));
   }
+  function frame(p,hash){
+    var f=F[p];
+    if(!f){
+      f=F[p]=document.createElement('iframe'); f.className='v'; f.title='영업지원도구'; f._h=hash||'';
+      f.onload=function(){ f._ok=1; if(cur===p) W.style.display='none'; };
+      f.src=url(p)+(hash||''); document.body.appendChild(f);
+    } else {
+      // 이미 연 도구 : 주소 끝(#)만 바꿔 탭(특약검색 ↔ 보상시뮬레이터)을 맞춘다 — 다시 열지 않는다
+      f._h=hash||''; try{ f.contentWindow.location.replace(url(p)+(hash||'#')); }catch(e){}
+    }
+    return f;
+  }
   function show(p,hash,push){
     if(NAMES.indexOf(p)<0) p='home';
-    // 틀을 새로 만들어 끼운다 — 기존 틀의 주소만 바꾸면 브라우저 '뒤로'가 틀 안에서 따로 쌓인다
-    var n=document.createElement('iframe'); n.id='v'; n.title='영업지원도구'; n.src=url(p)+(hash||'');
-    v.parentNode.replaceChild(n,v); v=n; cur=p;
-    document.getElementById('w').style.display='none';
+    var f=frame(p,hash); cur=p;
+    for(var k in F) F[k].classList.toggle('on', k===p);
+    W.style.display=f._ok?'none':'flex';
     if(push){ try{ history.pushState({p:p,h:hash||''},'','#'+p+(hash?hash.replace('#','-'):'')); }catch(e){} }
   }
   window.addEventListener('message',function(e){ var d=e.data; if(d&&d.meaiGo) show(d.meaiGo,d.hash,true); });
@@ -85,6 +99,8 @@ __PAGES__
   var h=(location.hash||'').replace('#','').split('-');
   try{ history.replaceState({p:h[0]||'home',h:h[1]?'#'+h[1]:''},'',location.href); }catch(e){}
   show(h[0]||'home', h[1]?'#'+h[1]:'', false);
+  // 대문을 보는 동안 가장 무거운 특약검색기를 뒤에서 미리 열어 둔다
+  setTimeout(function(){ if(!F.tool) frame('tool',''); }, 1200);
 })();
 </script>
 </body></html>

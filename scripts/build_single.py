@@ -20,6 +20,8 @@ bp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bp)
 
 OUTDIR = os.path.join(ROOT, 'dist', 'single')
+sys.path.insert(0, os.path.join(ROOT, 'scripts'))
+import tooldata
 
 # 대문 이름을 먼저 바꿔 둔다. 그래야 bp.offline() 이 tool.html 안에 base64 로
 # 들어 있는 보상시뮬레이터의 '🏠 대문' 링크까지 같은 이름으로 맞춰 준다.
@@ -49,6 +51,14 @@ def inline_gloss(s, gloss, log):
     log.append(f'  보험용어 사전을 파일 안에 넣음 ({len(gloss) // 1024:,}KB)')
     return s
 
+
+def pack_bodies(s, log):
+    """특약검색기의 약관 본문(저장소에서는 옆 파일 tool_body.js)을 압축해 파일 안(BODYZ)에 넣는다.
+    메일로 보내는 파일은 혼자서 돌아가야 하고, 압축해 두면 크기가 1/4 로 준다(tooldata.pack_html)."""
+    s, n = tooldata.pack_html(s)
+    if n:
+        log.append(f'  약관 본문 {n:,}건을 압축해 파일 안에 넣음')
+    return s
 
 def relink(s, log):
     """대문이 부르는 도구 링크를 보낼 이름으로 맞춘다 (대문 링크는 bp 가 이미 처리)"""
@@ -80,6 +90,7 @@ def main():
         s = bp.offline(out, s, log, font_b64)
         s = inline_gloss(s, gloss, log)
         s = relink(s, log)
+        s = pack_bodies(s, log)
 
         # 남의 파일을 부르는 곳이 없어야 한다 (글꼴·사전·CDN 이 전부 안에 들어갔는지)
         bad = re.findall(r'<script[^>]+src="(?!data:)[^"]+"|'
