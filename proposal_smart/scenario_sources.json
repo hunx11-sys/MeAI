@@ -1,0 +1,585 @@
+{
+  "_note": "지면 7쪽(다빈도)·8쪽(사례)의 병 선정·치료 단계 근거. 설명은 scenario_sources.md. 수치는 발표 원문에서 옮겼고, assumed=true 는 가정값(준법 심의 전 재확인).",
+  "version": "1.8",
+  "date": "2026-09-18",
+  "footnote": "근거 : 국가암등록통계(2023) · 사망원인통계(2024) · 주요수술 통계연보(2023) · 학회 진료지침 — 상세 근거표 별첨",
+  "sources": {
+    "death_2024": {
+      "name": "2024년 사망원인통계",
+      "org": "국가데이터처",
+      "published": "2025-09-25",
+      "url": "https://www.korea.kr/news/policyNewsView.do?newsId=156721880"
+    },
+    "surgery_2023": {
+      "name": "2023년 주요수술 통계연보",
+      "org": "국민건강보험공단",
+      "published": "2024-12-16",
+      "url": "https://www.data.go.kr/data/15103034/fileData.do"
+    },
+    "ncc_lung": {
+      "name": "폐암 — 진단·치료",
+      "org": "국가암정보센터(국립암센터)",
+      "url": "https://www.cancer.go.kr/lay1/program/S1T211C215/cancer/view.do?cancer_seq=5237&menu_seq=5253"
+    },
+    "ksc_ami_2021": {
+      "name": "급성 심근경색증 중재시술 치료 전문가 합의문",
+      "org": "대한심장학회",
+      "published": "2021",
+      "url": "https://www.doctorsnews.co.kr/news/articleView.html?idxno=138996"
+    },
+    "hira_cardiac_rehab": {
+      "name": "심장재활 급여기준(사45) — 2017.2 급여화, 외래 최대 36회",
+      "org": "건강보험심사평가원",
+      "url": "https://www.rm.or.kr/?c=3%2F22&uid=5535"
+    },
+    "kss_stroke": {
+      "name": "급성 허혈성 뇌졸중 진료지침 · 혈전용해술 부분개정(4.5시간) · 혈관내 재개통치료 지침",
+      "org": "대한뇌졸중학회",
+      "url": "https://www.jkna.org/upload/pdf/jkna-34-4-297.pdf"
+    },
+    "kstr_rfa": {
+      "name": "갑상선 결절 고주파절제술 권고안",
+      "org": "대한갑상선영상의학회"
+    },
+    "hira_nonpay_2025": {
+      "name": "2025년 비급여 진료비용 공개(693항목)",
+      "org": "건강보험심사평가원",
+      "url": "https://www.mohw.go.kr/board.es?mid=a10503000000&bid=0027&list_no=1487329&act=view"
+    },
+    "kdca_discharge": {
+      "name": "퇴원손상심층조사(질병별 평균 재원일수)",
+      "org": "질병관리청"
+    },
+    "cancer_reg_2023": {
+      "name": "2023년 국가암등록통계",
+      "org": "보건복지부·중앙암등록본부",
+      "published": "2026-01-20",
+      "url": "https://www.mohw.go.kr/board.es?mid=a10503010100&bid=0027&act=view&list_no=1488742"
+    },
+    "policy_recur": {
+      "name": "재진단암보장개시일 정의 — 첫번째암 진단확정일부터 2년(1·5년형 있음) 경과",
+      "org": "메리츠 또 걸려도 또 받는 암보험(세만기형)2607 약관 2-9·2-40"
+    },
+    "ncc_stomach": {
+      "name": "위암 — 치료",
+      "org": "국가암정보센터(국립암센터)"
+    },
+    "ncc_breast": {
+      "name": "유방암 — 치료",
+      "org": "국가암정보센터(국립암센터)"
+    },
+    "kss_ich": {
+      "name": "뇌내출혈 진료지침",
+      "org": "대한뇌졸중학회"
+    },
+    "khrs_af": {
+      "name": "심방세동 진료지침",
+      "org": "대한부정맥학회"
+    },
+    "ksnr_aneurysm": {
+      "name": "미파열 뇌동맥류 치료 권고",
+      "org": "대한신경중재치료의학회·대한뇌혈관외과학회"
+    },
+    "ncc_prostate": {
+      "name": "전립선암 — 치료",
+      "org": "국가암정보센터(국립암센터)"
+    },
+    "ncc_colon": {
+      "name": "대장암 — 치료",
+      "org": "국가암정보센터(국립암센터)"
+    },
+    "kuo_prostate": {
+      "name": "전립선암 진료지침",
+      "org": "대한비뇨기종양학회"
+    }
+  },
+  "flow": {
+    "폐암": {
+      "kcd": "C34",
+      "why": [
+        "death_2024: 암 사망률 1위 폐암(10만 명당 38.0명)",
+        "cancer_reg_2023: 전체 발생 2위 · 남성 2위(1위 전립선암)"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "흉부 CT · PET · 조직검사",
+          "basis": "ncc_lung"
+        },
+        {
+          "stage": "수술",
+          "text": "흉강경 폐엽절제술",
+          "basis": "ncc_lung",
+          "surg7": "E012",
+          "grade7": 6,
+          "surg5": "C1"
+        },
+        {
+          "stage": "항암",
+          "text": "표적항암 → 키트루다(면역)",
+          "basis": "ncc_lung",
+          "note": "약물 2종 이상 조건부 담보 예시",
+          "daycare": {
+            "days": 6,
+            "assumed": true
+          }
+        },
+        {
+          "stage": "입원",
+          "text": "상급종합 1인실 10일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        },
+        {
+          "stage": "재진단",
+          "text": "첫 진단 2년 뒤 다른 부위 암 재진단 (재진단암·재발암 담보가 있는 설계만)",
+          "basis": "policy_recur"
+        }
+      ]
+    },
+    "급성 심근경색": {
+      "kcd": "I21",
+      "why": [
+        "death_2024: 사망원인 2위 심장질환"
+      ],
+      "steps": [
+        {
+          "stage": "진단",
+          "text": "응급 CT·심전도",
+          "basis": "ksc_ami_2021"
+        },
+        {
+          "stage": "시술",
+          "text": "관상동맥 스텐트 삽입술(PCI)",
+          "basis": "ksc_ami_2021",
+          "surg7": "F121",
+          "grade7": 4,
+          "surg5": "88-1"
+        },
+        {
+          "stage": "입원",
+          "text": "중환자실 2일 + 일반병실 7일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        },
+        {
+          "stage": "재활",
+          "text": "외래 심장재활 10회",
+          "basis": "hira_cardiac_rehab"
+        }
+      ]
+    },
+    "뇌경색": {
+      "kcd": "I63",
+      "why": [
+        "death_2024: 사망원인 4위 뇌혈관질환"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "뇌 CT + MRI",
+          "basis": "kss_stroke"
+        },
+        {
+          "stage": "시술",
+          "text": "혈전용해제 주사(tPA)",
+          "basis": "kss_stroke"
+        },
+        {
+          "stage": "수술",
+          "text": "동맥내 기계적 혈전제거술",
+          "basis": "kss_stroke",
+          "surg7": "B027",
+          "grade7": 5,
+          "surg5": "88-1"
+        },
+        {
+          "stage": "입원",
+          "text": "중환자실 3일 + 일반병실 14일 · 재활 10일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ]
+    }
+  },
+  "freq_criteria": [
+    "공공 통계 상위(다빈도)",
+    "당사 담보에서 의미 있는 지급·제외가 드러남",
+    "고객이 이름을 아는 병"
+  ],
+  "freq": {
+    "백내장": {
+      "kcd": "H25",
+      "why": "surgery_2023: 다빈도 수술 1위 63만 8천 건",
+      "surg7": "C061",
+      "grade7": 1,
+      "surg5": "71"
+    },
+    "디스크(추간판장애)": {
+      "kcd": "M51",
+      "why": "surgery_2023: 일반 척추수술 2위 20만 7천 건",
+      "surg7": "B174",
+      "grade7": 2,
+      "surg5": "88-2"
+    },
+    "치핵": {
+      "kcd": "K64",
+      "why": "surgery_2023: 치핵수술 3위 15만 2천 건",
+      "surg7": "G272",
+      "grade7": 1,
+      "surg5": "44"
+    },
+    "담석증": {
+      "kcd": "K80.0",
+      "why": "surgery_2023: 담낭절제술 주요수술 항목(건수 원문 확인)",
+      "surg7": "H107",
+      "grade7": 4,
+      "surg5": "36"
+    },
+    "급성 충수염(맹장염)": {
+      "kcd": "K35",
+      "why": "surgery_2023: 충수절제술은 주요수술 33항목 중 하나(건수는 원문 확인) — 절제 수술로 약관 수술 정의 논란이 없는 병 · 다빈도62대질병 목록 밖 → 131대질병수술비 0원 vs 1-5종·1-7종·질병수술비 지급",
+      "surg7": "G212",
+      "grade7": 3,
+      "surg5": "41",
+      "grade5": 2
+    },
+    "갑상선결절": {
+      "kcd": "D34",
+      "why": "cancer_reg_2023: 갑상선암 발생 1위 → 결절 검진·시술 수요",
+      "basis": "kstr_rfa",
+      "surg7": 1,
+      "surg5": "3"
+    },
+    "자궁근종": {
+      "kcd": "D25",
+      "why": "surgery_2023: 자궁 수술(자궁절제술) 주요수술 항목",
+      "surg7": "N031",
+      "grade7": 2,
+      "surg5": "88-2"
+    },
+    "대장 용종": {
+      "kcd": "D12",
+      "why": "cancer_reg_2023: 대장암 발생 3위 · 국가암검진 대장내시경",
+      "surg7": "G523",
+      "grade7": 1,
+      "surg5": "88-2"
+    },
+    "편도염": {
+      "kcd": "J35",
+      "why": "surgery_2023: 편도절제술은 주요수술 항목 · 연령별 다빈도에서 9세 이하 1위(원문 확인) — 절제 수술 · 다빈도62대질병 목록에 든 병 → 131대질병수술비까지 지급",
+      "surg7": "D162",
+      "grade7": 1,
+      "surg5": "17",
+      "grade5": 1
+    },
+    "자궁경부이형성증": {
+      "kcd": "N87.1",
+      "why": "국가암검진(자궁경부) 발견 전암 병변 · 원추절제술 표준 치료 — 수가코드 R4261·R4262 담보 지급 예시",
+      "surg7": "N082",
+      "grade7": 1,
+      "surg5": "53",
+      "hc": [
+        "R4261",
+        "R4262"
+      ]
+    }
+  },
+  "assumed": [
+    {
+      "item": "사례 입원일수",
+      "value": "폐암 10일 · 심근경색 2+7일 · 뇌경색 3+14일",
+      "check": "kdca_discharge"
+    },
+    {
+      "item": "다빈도 비급여 치료비 범위",
+      "value": "'비급여 150~300만원' 등",
+      "check": "hira_nonpay_2025",
+      "action": "공개자료 중간금액 기준으로 갱신"
+    },
+    {
+      "item": "항암 단계 낮병동 입원 일수",
+      "value": "6일",
+      "check": "kdca_discharge"
+    }
+  ],
+  "flow_extra": {
+    "위암": {
+      "kcd": "C16",
+      "why": [
+        "cancer_reg_2023: 전체 발생 5위"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "위내시경 · 조직검사 · 복부 CT",
+          "basis": "ncc_stomach"
+        },
+        {
+          "stage": "수술",
+          "text": "복강경 위아전절제술",
+          "basis": "ncc_stomach",
+          "surg7": "G081",
+          "grade7": 6,
+          "surg5": "33"
+        },
+        {
+          "stage": "항암",
+          "text": "수술 후 보조 항암약물치료(급여)",
+          "basis": "ncc_stomach"
+        },
+        {
+          "stage": "입원",
+          "text": "종합병원 2-3인실 8일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ]
+    },
+    "유방암": {
+      "kcd": "C50",
+      "why": [
+        "cancer_reg_2023: 전체 4위 · 여성 1위"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "유방촬영 · 초음파 · 조직검사",
+          "basis": "ncc_breast"
+        },
+        {
+          "stage": "수술",
+          "text": "유방절제술",
+          "basis": "ncc_breast",
+          "surg7": "J062",
+          "grade7": 6,
+          "surg5": "3"
+        },
+        {
+          "stage": "방사선",
+          "text": "방사선치료 → 항호르몬약물",
+          "basis": "ncc_breast"
+        },
+        {
+          "stage": "입원",
+          "text": "상급종합 2-3인실 5일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ],
+      "sex": "F"
+    },
+    "전립선암": {
+      "kcd": "C61",
+      "sex": "M",
+      "why": [
+        "cancer_reg_2023: 남성 1위"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "PSA 혈액검사 · 전립선 MRI · 조직검사",
+          "basis": "ncc_prostate"
+        },
+        {
+          "stage": "수술",
+          "text": "로봇 보조 근치적 전립선절제술",
+          "basis": "kuo_prostate",
+          "surg7": "M021",
+          "grade7": 4,
+          "surg5": "50"
+        },
+        {
+          "stage": "방사선",
+          "text": "방사선치료 → 남성호르몬 차단(호르몬)치료",
+          "basis": "kuo_prostate"
+        },
+        {
+          "stage": "입원",
+          "text": "상급종합 2-3인실 7일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ]
+    },
+    "대장암": {
+      "kcd": "C18",
+      "sex": "",
+      "neutral": true,
+      "why": [
+        "cancer_reg_2023: 전체 3위(남녀 공통 상위) — 성별을 읽지 못한 설계의 중립 사례"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "대장내시경 · 조직검사 · 복부 CT",
+          "basis": "ncc_colon"
+        },
+        {
+          "stage": "수술",
+          "text": "복강경 결장절제술(림프절절제 동반)",
+          "basis": "ncc_colon",
+          "surg7": "G131",
+          "grade7": 6,
+          "surg5": "43"
+        },
+        {
+          "stage": "항암",
+          "text": "수술 후 보조 항암약물치료(급여)",
+          "basis": "ncc_colon"
+        },
+        {
+          "stage": "입원",
+          "text": "종합병원 2-3인실 8일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        }
+      ]
+    },
+    "뇌출혈": {
+      "kcd": "I61",
+      "why": [
+        "death_2024: 사망원인 4위 뇌혈관질환"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "응급 뇌 CT · 혈관조영",
+          "basis": "kss_ich"
+        },
+        {
+          "stage": "수술",
+          "text": "혈종제거 개두술",
+          "basis": "kss_ich",
+          "surg7": "B031",
+          "grade7": 7,
+          "surg5": "59"
+        },
+        {
+          "stage": "입원",
+          "text": "중환자실 5일 + 일반병실 20일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        },
+        {
+          "stage": "재활",
+          "text": "재활치료 20일",
+          "assumed": true
+        }
+      ]
+    },
+    "협심증": {
+      "kcd": "I20",
+      "why": [
+        "death_2024: 사망원인 2위 심장질환"
+      ],
+      "steps": [
+        {
+          "stage": "진단",
+          "text": "심전도 · 관상동맥 CT · 조영술",
+          "basis": "ksc_ami_2021"
+        },
+        {
+          "stage": "시술",
+          "text": "관상동맥 스텐트 삽입술(PCI)",
+          "basis": "ksc_ami_2021",
+          "surg7": "F133",
+          "grade7": 4,
+          "surg5": "88-1"
+        },
+        {
+          "stage": "입원",
+          "text": "종합병원 2-3인실 3일",
+          "assumed": true,
+          "check": "kdca_discharge"
+        },
+        {
+          "stage": "재활",
+          "text": "외래 심장재활 10회",
+          "basis": "hira_cardiac_rehab"
+        }
+      ]
+    },
+    "심방세동": {
+      "kcd": "I48",
+      "why": [
+        "death_2024: 사망원인 2위 심장질환",
+        "허혈성심장질환 진단비 비보장 심장병 — 통합치료비·수술비가 대신 작동"
+      ],
+      "steps": [
+        {
+          "stage": "진단",
+          "text": "심전도 · 홀터 · 심초음파",
+          "basis": "khrs_af"
+        },
+        {
+          "stage": "시술",
+          "text": "고주파 전극도자절제술",
+          "basis": "khrs_af",
+          "surg7": "F142",
+          "grade7": 4,
+          "surg5": "88-1"
+        },
+        {
+          "stage": "입원",
+          "text": "상급종합 2-3인실 3일",
+          "assumed": true
+        },
+        {
+          "stage": "통원",
+          "text": "외래 추적 4회",
+          "assumed": true
+        }
+      ]
+    },
+    "뇌동맥류": {
+      "kcd": "I67.1",
+      "why": [
+        "뇌혈관질환진단비 보장 · 뇌졸중진단비 비보장 — 담보 간 차이 사례"
+      ],
+      "steps": [
+        {
+          "stage": "검사",
+          "text": "뇌 MRA · CT 혈관조영",
+          "basis": "ksnr_aneurysm"
+        },
+        {
+          "stage": "시술",
+          "text": "뇌동맥류 코일 색전술",
+          "basis": "ksnr_aneurysm",
+          "surg7": "B016",
+          "grade7": 5,
+          "surg5": "88-1"
+        },
+        {
+          "stage": "입원",
+          "text": "상급종합 2-3인실 5일",
+          "assumed": true
+        },
+        {
+          "stage": "통원",
+          "text": "외래 추적 MRA 2회",
+          "assumed": true
+        }
+      ]
+    }
+  },
+  "history": [
+    {
+      "version": "1.7",
+      "date": "2026-09-18",
+      "change": "다빈도 요로결석·하지정맥류 → 급성 충수염·편도염 교체 (약관 수술 정의의 절단·절제 요건 논란 회피)"
+    },
+    {
+      "version": "1.8",
+      "date": "2026-09-18",
+      "change": "암 보강 사례 성별 맞춤 — 남성 전립선암 · 여성 유방암 · 미확인 대장암 추가"
+    }
+  ],
+  "sex_rule": {
+    "read": "상품설명서 전체 텍스트에서 '피보험자명 ○○ 생년월일 (남|여)' → 없으면 '계약자명 ○○((남|여),' → 없으면 담보명(유방·자궁·난소·여성 / 전립선·남성·고환)으로 추정",
+    "F": "유방암",
+    "M": "전립선암",
+    "unknown": "대장암"
+  }
+}

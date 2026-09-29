@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스마트 제안서 생성 — 연동 데모</title>
+<style>
+  :root{ --ink:#191F28; --body:#4E5968; --mute:#8B95A1; --line:#E5E8EB; --surf:#F2F4F6;
+         --red:#E01F26; --blue:#3182F6; --teal:#00A88E; }
+  *{box-sizing:border-box}
+  body{margin:0;background:#F7F8FA;color:var(--ink);font-family:'맑은 고딕','Malgun Gothic',system-ui,sans-serif;font-size:14px;line-height:1.6}
+  .wrap{max-width:1120px;margin:0 auto;padding:36px 24px 72px}
+  h1{font-size:24px;margin:0 0 6px}
+  .sub{color:var(--mute);margin:0 0 26px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:18px}
+  .drop{border:2px dashed #C7CDD4;border-radius:14px;background:#fff;padding:44px 20px;text-align:center;cursor:pointer;transition:.15s}
+  .drop:hover,.drop.on{border-color:var(--red);background:#FFF7F7}
+  .drop b{display:block;font-size:16px;margin-bottom:6px}
+  .drop span{color:var(--mute)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  button{font:inherit;font-weight:700;border:0;border-radius:9px;padding:10px 16px;cursor:pointer;background:var(--ink);color:#fff}
+  button.ghost{background:var(--surf);color:var(--ink)}
+  button:disabled{opacity:.45;cursor:default}
+  .stat{display:flex;gap:26px;flex-wrap:wrap;margin:4px 0 0}
+  .stat div{min-width:96px}
+  .stat .k{color:var(--mute);font-size:12px}
+  .stat .v{font-size:22px;font-weight:800}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--surf)}
+  iframe{width:100%;height:760px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  pre{background:#0F1319;color:#D7DEE8;border-radius:10px;padding:14px;overflow:auto;font-size:12px;line-height:1.5}
+  .bar{height:6px;background:var(--surf);border-radius:99px;overflow:hidden;margin-top:14px;display:none}
+  .bar i{display:block;height:100%;width:35%;background:var(--red);animation:go 1.1s infinite}
+  @keyframes go{0%{margin-left:-35%}100%{margin-left:100%}}
+  .msg{margin-top:12px;font-weight:700}
+  .msg.err{color:var(--red)}
+  .tabs{display:flex;gap:8px;margin:0 0 12px}
+  .tabs button{background:var(--surf);color:var(--body);font-weight:700}
+  .tabs button.on{background:var(--ink);color:#fff}
+  .hide{display:none}
+  code{background:var(--surf);padding:2px 5px;border-radius:4px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>스마트 제안서 생성 — 연동 데모</h1>
+  <p class="sub">상품설명서 PDF를 넣으면 가입담보를 읽어 보상 시뮬레이션 지면을 만들고, 담보사항이 끝나는 쪽 뒤에 끼워 넣습니다.
+     프론트엔드는 이 화면이 호출하는 API 두 개만 쓰면 됩니다.</p>
+
+  <div id="warnFile" class="card hide" style="border-color:#F3B9BC;background:#FFF5F5">
+    <b style="color:var(--red);font-size:16px">이 파일을 직접 열면 동작하지 않습니다</b>
+    <p style="margin:10px 0 0">이 화면은 파이썬 서버가 켜져 있어야 동작합니다. 아래 순서로 하세요.</p>
+    <ol style="margin:8px 0 0 18px;padding:0">
+      <li><b>proposal_smart</b> 폴더의 <code>start_windows.bat</code> 을 두 번 누릅니다(맥·리눅스는 <code>start.sh</code>).</li>
+      <li>검은 창이 열리고 <i>스마트 제안서 API … http://127.0.0.1:8080</i> 이 보이면 준비된 것입니다.</li>
+      <li>브라우저 주소창에 <b>http://127.0.0.1:8080</b> 을 입력해 그 화면에서 PDF를 올립니다.</li>
+    </ol>
+    <p style="margin:10px 0 0;color:var(--mute)">이미 서버를 켜 두셨다면 아래 'API 주소'가 맞는지 확인하고 <b>연결 확인</b>을 누르세요.</p>
+  </div>
+
+  <div class="card">
+    <div class="row" style="margin:0 0 14px;gap:8px">
+      <span style="font-weight:700">API 주소</span>
+      <input id="api" value="http://127.0.0.1:8080" spellcheck="false"
+             style="font:inherit;flex:1;min-width:220px;max-width:320px;padding:8px 10px;border:1px solid var(--line);border-radius:8px">
+      <button id="ping" class="ghost">연결 확인</button>
+      <span id="conn" style="font-weight:700;color:var(--mute)">확인 중…</span>
+    </div>
+    <div id="drop" class="drop">
+      <b>여기에 상품설명서 PDF를 끌어다 놓으세요</b>
+      <span>또는 클릭해서 선택 · 설계시스템에서 내려받은 PDF 그대로</span>
+      <input id="file" type="file" accept="application/pdf" hidden>
+    </div>
+    <div class="row">
+      <button id="run" disabled>지면 생성</button>
+      <button id="ridersOnly" class="ghost" disabled>담보 인식만 보기</button>
+      <span id="fname" style="color:var(--mute)"></span>
+    </div>
+    <div id="bar" class="bar"><i></i></div>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <div id="result" class="hide">
+    <div class="card">
+      <div class="stat">
+        <div><div class="k">인식 담보</div><div class="v" id="s_rider">–</div></div>
+        <div><div class="k">마스터 매칭</div><div class="v" id="s_match">–</div></div>
+        <div><div class="k">생성 지면</div><div class="v" id="s_new">–</div></div>
+        <div><div class="k">삽입 위치</div><div class="v" id="s_ins">–</div></div>
+        <div><div class="k">결과 쪽수</div><div class="v" id="s_total">–</div></div>
+        <div><div class="k">처리 시간</div><div class="v" id="s_time">–</div></div>
+      </div>
+      <div class="row">
+        <button id="dl">결과 PDF 내려받기</button>
+        <button id="dlPages" class="ghost">생성 지면만 PDF</button>
+      </div>
+      <div id="notAttached" class="msg hide" style="color:var(--blue)">
+        대상 담보(암·뇌·심장·통합치료비)가 없는 설계입니다 — 지면을 만들지 않고 원본을 그대로 내보냈습니다.
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button data-t="pv" class="on">지면 미리보기</button>
+      <button data-t="au">감사 로그</button>
+      <button data-t="rd">인식 담보</button>
+      <button data-t="js">응답 JSON</button>
+    </div>
+    <div class="card" id="t_pv"><iframe id="prev" title="생성 지면 미리보기"></iframe></div>
+    <div class="card hide" id="t_au">
+      <div class="stat" id="kinds"></div>
+      <table><thead><tr><th style="width:110px">구분</th><th style="width:38%">담보</th><th>사유</th></tr></thead>
+        <tbody id="logs"></tbody></table>
+    </div>
+    <div class="card hide" id="t_rd">
+      <table><thead><tr><th style="width:70px">번호</th><th>담보명</th><th style="width:110px">가입금액</th><th style="width:90px">매칭</th></tr></thead>
+        <tbody id="riders"></tbody></table>
+    </div>
+    <div class="card hide" id="t_js"><pre id="json"></pre></div>
+  </div>
+
+  <div class="card">
+    <b>프론트엔드 연동 방법</b>
+    <p style="color:var(--body);margin:8px 0 0">
+      PDF 바이트를 그대로 <code>POST</code> 하면 됩니다. 별도 인증·LLM 호출은 없습니다.
+      서버는 <code>python api.py</code> 로 띄웁니다(추가 패키지 설치 없음).</p>
+<pre>// ① 결과 PDF 만 받기
+const pdf = await fetch(API + '/v1/proposal/pdf',
+  { method:'POST', headers:{'Content-Type':'application/pdf'}, body: file })
+  .then(r =&gt; r.blob());
+
+// ② 요약 · 감사로그 · 지면 HTML · PDF(base64) 한 번에 받기
+const data = await fetch(API + '/v1/proposal/all',
+  { method:'POST', headers:{'Content-Type':'application/pdf'}, body: file })
+  .then(r =&gt; r.json());
+// data.total_pages / data.new_pages / data.audit / data.pages_html / data.pdf_base64</pre>
+  </div>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const api = () => $('api').value.replace(/\/+$/, '');     // 화면에서 입력한 API 주소
+const isFile = location.protocol === 'file:';
+let file = null, lastPdf = null;
+
+// 브라우저로 서버에 접속해 열었으면 그 주소를 그대로 쓴다
+if (!isFile) $('api').value = location.origin;
+$('warnFile').classList.toggle('hide', !isFile);
+try { const v = localStorage.getItem('sp_api'); if (isFile && v) $('api').value = v; } catch (e) {}
+
+async function ping() {
+  $('conn').textContent = '확인 중…'; $('conn').style.color = 'var(--mute)';
+  try {
+    const h = await fetch(api() + '/health', { cache: 'no-store' }).then(r => r.json());
+    $('conn').textContent = '서버 연결됨 · ' + h.version;
+    $('conn').style.color = 'var(--teal)';
+    try { localStorage.setItem('sp_api', api()); } catch (e) {}
+    return true;
+  } catch (e) {
+    $('conn').textContent = '서버가 꺼져 있습니다 — api.py 를 먼저 실행하세요';
+    $('conn').style.color = 'var(--red)';
+    return false;
+  }
+}
+$('ping').onclick = ping;
+ping();
+
+$('drop').onclick = () => $('file').click();
+$('file').onchange = (e) => pick(e.target.files[0]);
+['dragover','dragenter'].forEach(t => $('drop').addEventListener(t, e => { e.preventDefault(); $('drop').classList.add('on'); }));
+['dragleave','drop'].forEach(t => $('drop').addEventListener(t, e => { e.preventDefault(); $('drop').classList.remove('on'); }));
+$('drop').addEventListener('drop', e => pick(e.dataTransfer.files[0]));
+
+function pick(f) {
+  if (!f) return;
+  if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) return say('PDF 파일만 넣어 주세요', true);
+  file = f;
+  $('fname').textContent = f.name + '  (' + (f.size / 1048576).toFixed(1) + 'MB)';
+  $('run').disabled = $('ridersOnly').disabled = false;
+  say('');
+}
+function say(t, err) { $('msg').textContent = t || ''; $('msg').className = 'msg' + (err ? ' err' : ''); }
+function busy(on) { $('bar').style.display = on ? 'block' : 'none'; $('run').disabled = $('ridersOnly').disabled = on; }
+
+async function post(path) {
+  let r;
+  try {
+    r = await fetch(api() + path, { method: 'POST', headers: { 'Content-Type': 'application/pdf' }, body: file });
+  } catch (e) {                                  // 서버가 꺼져 있거나 주소가 틀린 경우
+    ping();
+    throw new Error('서버에 연결할 수 없습니다 — ' + api() + ' 에서 api.py 가 실행 중인지 확인하세요'
+                    + (isFile ? ' (이 화면을 파일로 직접 열었습니다 — http://127.0.0.1:8080 으로 접속하세요)' : ''));
+  }
+  if (!r.ok) {
+    let m = r.status + ' ' + r.statusText;
+    try { m = (await r.json()).error || m; } catch (e) {}
+    throw new Error(m);
+  }
+  return r;
+}
+
+$('run').onclick = async () => {
+  busy(true); say('생성 중입니다 — 담보 수에 따라 20~40초 걸립니다');
+  try {
+    const d = await (await post('/v1/proposal/all')).json();
+    render(d);
+    say('완료 — 총 ' + d.total_pages + '쪽');
+  } catch (e) { say('실패 : ' + e.message, true); }
+  busy(false);
+};
+
+$('ridersOnly').onclick = async () => {
+  busy(true); say('담보를 읽고 있습니다');
+  try {
+    const d = await (await post('/v1/proposal/riders')).json();
+    $('result').classList.remove('hide');
+    $('s_rider').textContent = d.count; $('s_match').textContent = d.matched;
+    fillRiders(d.riders); tab('rd');
+    say('담보 ' + d.count + '건 인식 · 마스터 매칭 ' + d.matched + '건');
+  } catch (e) { say('실패 : ' + e.message, true); }
+  busy(false);
+};
+
+function render(d) {
+  lastPdf = d.pdf_base64;
+  $('result').classList.remove('hide');
+  $('s_rider').textContent = d.rider_count;
+  $('s_match').textContent = d.matched;
+  $('s_new').textContent = d.new_pages + '쪽';
+  $('s_ins').textContent = d.insert_after + '쪽 뒤';
+  $('s_total').textContent = d.total_pages + '쪽';
+  $('s_time').textContent = d.elapsed_sec + '초';
+  $('notAttached').classList.toggle('hide', d.attached);
+  $('dlPages').disabled = !d.attached;
+
+  const f = $('prev');
+  // 지면 HTML의 글꼴·로고 경로(/assets/…)를 API 주소 기준 절대경로로 — 파일로 열어도 제대로 보인다
+  const html = (d.pages_html || '').split('/assets/').join(api() + '/assets/');
+  f.srcdoc = html || '<p style="font-family:sans-serif;padding:24px">생성된 지면이 없습니다.</p>';
+
+  const k = d.audit['요약']['구조별'] || {};
+  const NM = { dx: '진단비', surg: '수술비', day: '입원·통원', tx: '치료비', care: '간병',
+               itc: '통합치료비', itc_unknown: '금액표없음', life: '사망·장해', nonmed: '비대상', skip: '제외' };
+  $('kinds').innerHTML = Object.keys(k).map(x =>
+    '<div><div class="k">' + (NM[x] || x) + '</div><div class="v">' + k[x] + '</div></div>').join('');
+  $('logs').innerHTML = (d.audit['로그'] || []).map(x =>
+    '<tr><td>' + esc(x['구분']) + '</td><td>' + esc(x['담보']) + '</td><td>' + esc(x['사유']) + '</td></tr>').join('')
+    || '<tr><td colspan="3">제외된 담보가 없습니다.</td></tr>';
+  $('json').textContent = JSON.stringify(
+    Object.assign({}, d, { pdf_base64: '(생략 ' + Math.round((d.pdf_base64 || '').length / 1365) + 'KB)', pages_html: '(생략)' }), null, 2);
+  tab('pv');
+}
+
+function fillRiders(rs) {
+  $('riders').innerHTML = rs.map(r =>
+    '<tr><td>' + (r.no ?? '') + '</td><td>' + esc(r.name) + '</td><td>' +
+    (r.man != null ? Number(r.man).toLocaleString() + '만원' : '') + '</td><td>' +
+    (r.matched ? 'O' : '–') + '</td></tr>').join('');
+}
+function esc(s) { return String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+
+$('dl').onclick = () => {
+  if (lastPdf) return save(b64(lastPdf), '스마트제안서.pdf');
+  post('/v1/proposal/pdf').then(r => r.blob()).then(b => save(b, '스마트제안서.pdf')).catch(e => say('실패 : ' + e.message, true));
+};
+$('dlPages').onclick = () =>
+  post('/v1/proposal/pages.pdf').then(r => r.blob()).then(b => save(b, '생성지면.pdf')).catch(e => say('실패 : ' + e.message, true));
+
+function b64(s) {
+  const bin = atob(s), u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return new Blob([u], { type: 'application/pdf' });
+}
+function save(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => tab(b.dataset.t));
+function tab(t) {
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  ['pv', 'au', 'rd', 'js'].forEach(x => $('t_' + x).classList.toggle('hide', x !== t));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+[
+ {"id": "통1-3", "target": "rider", "kind": "sub_scope", "k_set": true, "k_add": [], "t_remove": ["54f780ae84"], "evidence_page": 125, "product": "통합간편",
+  "summary_ko": "중증화상및부식진단비는 약관 제6조가 '신체표면적 20% 이상의 3도 화상 또는 부식'이라는 상태로만 정한다. 제2조 ②항은 화상분류표(별표29)를 제1호·제2호(화상진단비·화상수술비)에만 적용한다. 케7-3 과 같은 약관 문구 → 코드 목록을 비운다."},
+ {"id": "운24-3", "target": "rider", "kind": "sub_scope", "k_set": true, "k_add": [], "t_remove": ["332a1ad035"], "product": "운전자", "evidence_page": 0,
+  "summary_ko": "통1-3 과 같음(화상분류표 별표6 은 제1호·제2호에만 적용, 중증화상은 제6조 상태 정의)."},
+ {"id": "치30-3", "target": "rider", "kind": "sub_scope", "k_set": true, "k_add": [], "t_remove": ["ed46a522a7"], "product": "치아", "evidence_page": 0,
+  "summary_ko": "통1-3 과 같음(화상분류표 별표5 는 제1호·제2호에만 적용, 중증화상은 제6조 상태 정의)."}
+]

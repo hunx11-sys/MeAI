@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<!-- 검색엔진 수집 거부 : 링크를 받은 사람만 들어오게 한다.
+     URL 은 그대로 동작하며, 구글·네이버 등의 검색 결과에는 나오지 않는다. -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="Yeti" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>상품 라인업 ver2609 · 메리츠 세일즈혁신</title>
@@ -533,6 +540,7 @@
       }).catch(function(){});
     }catch(e){}
   }
+  logEvent('open',{});
   var _searchTimer;
   function logSearchDebounced(term){          // 타이핑 중 매 글자 기록 방지 (0.8초 멈추면 1회)
     clearTimeout(_searchTimer);
@@ -673,6 +681,7 @@
     box.querySelectorAll('.ph').forEach(function(ph){
       ph.onclick = function(){
         var p = ph.parentNode, was = p.classList.contains('open');
+        if(!was) setTimeout(function(){ try{ var b=p.querySelector('.pb'); if(b&&window.MeAIGloss) MeAIGloss.apply(b); }catch(e){} }, 30);
         p.classList.toggle('open');
         if(!was){
           logEvent('view', {term: p.getAttribute('data-n')});
@@ -703,6 +712,7 @@
     });
     var v = document.getElementById('viewDuty');
     v.innerHTML = h;
+    try{ window.MeAIGloss && MeAIGloss.apply(v); }catch(e){}
     v.querySelectorAll('[data-go]').forEach(function(s){
       s.onclick = function(){
         tab('prod');
@@ -1290,5 +1300,6 @@ $('#ex-copyBtn').onclick=()=>{
   render();
 })();
 </script>
+<script src="gloss.js"></script>
 </body>
 </html>
