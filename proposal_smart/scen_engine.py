@@ -39,7 +39,20 @@ FIVE_MAJOR = KCDG['특정5대질병']                      # 특정5대질병(�
 
 G131 = json.load(open(os.path.join(BASE, 'g131.json'), encoding='utf-8'))
 SYN = json.load(open(os.path.join(BASE, 'product_data.json'), encoding='utf-8'))['EMB']['syn']   # 암종명 → KCD
-G131['유방의장애'] = ['N60', 'N61', 'N62', 'N63', 'N64', 'D24']; G131['편도염'] = ['J03', 'J35']
+# 그룹표(g131.json · 소유자 정리 엑셀)에 없는 세부보장 라벨(유방의장애 · 편도염)은 특약 마스터의 세부보장 레코드(131대질병수술비[유방의장애] 등,
+# 약관 별표80·81 에서 추출)의 KCD 목록으로 채운다. 전에는 코드에 D24·J03 을 손으로 적어 두었는데 별표80(N60~N64)·별표81(J35)에 없는 코드였다 —
+# 유방 양성신생물(D24) 맘모톰에 [유방의장애] 수술비가 잘못 붙었다(the510 195 → 115만원). 질병코드는 코드에서 만들지 않는다(CLAUDE.md 1)(v8.62)
+def _g131_from_master():
+    _p = os.path.join(BASE, 'db.json')
+    if not os.path.exists(_p): return
+    have = {re.sub(r'[\s․·,]', '', k) for k in G131}
+    for r in json.load(open(_p, encoding='utf-8')).get('riders') or []:
+        m = re.search(r'\[([^\[\]]+)\]$', r.get('n') or '')
+        if m and re.match(r'^(갱신형)?13[01]대질병수술비', r['n'].replace(' ', '')) and r.get('k'):
+            lab = re.sub(r'[\s․·,]', '', m.group(1))
+            if lab not in have and not re.search(r'다빈도\d+대', lab):
+                G131[lab] = list(r['k']); have.add(lab)
+_g131_from_master()
 
 # ══ 1-7종 수술분류표 (약관 별표3, extract_surg7.py 로 생성) — 수술코드 → 종 (v8.5) ═══════════
 SURG7 = {}
@@ -560,6 +573,10 @@ def kcd_ok(mode, r, sc, nm, o=None):
     if mode == 'sim': return itc.cancer_cls(kcd) in ('cis', 'bord', 'thy', 'skin')
     if mode == 'major_or_sim': return bool(itc.cancer_cls(kcd))
     if mode == 'g131':
+        # 세부보장 레코드(마스터 [○○] 자식 · 설계서가 (○○) 괄호로 적어 그 자식에 매칭된 담보)에 약관 KCD 목록이 있으면 그 목록이 우선(v8.62).
+        # 전에는 라벨이 있으면 그룹표(g131.json · 소유자 정리 엑셀의 '다빈도64대' 통합표)로 판정해, 케어프리 131대(다빈도62대)·통합간편 130대(다빈도61대)
+        # 별표와 다른 코드(J35 편도염 · N60~N64 유방 은 다른 세부보장 · H19.1/H19.2/H22.0/H67.1/N37.0 은 62대에만)가 섞였다. 약관 별표(마스터)가 맞다.
+        if r.get('codes') and (r.get('sub_rec') or re.search(r'\[[^\]]+\]\s*$', r['name'])): return code_hit(r['codes'], kcd)
         key = g131_key(r.get('benefit') or r.get('sub') or '')
         if key: return code_hit(G131[key], kcd)
         # 130대질병수술비[○○]처럼 세부급부 라벨 없이 담보명에 질병군이 붙은 담보는 특약 마스터의 약관 KCD 목록으로 판정한다.

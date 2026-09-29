@@ -144,7 +144,7 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                     row = {'no': no, 'name': re.sub(GOJI, '', name).replace('[기본계약]', '').strip(),
                            'man': S.amt_to_man(am.group(0)), 'amount_text': amt, 'cat': (m or {}).get('c'),
                            'codes': (m or {}).get('k') or [], 'excl': (m or {}).get('x') or [], 'hc': (m or {}).get('hc') or [], 'benefit': b, 'sub': s2, 'matched': bool(m),
-                           'itc': S.itc_id(name)}
+                           'itc': S.itc_id(name), 'sub_rec': bool(m and '[' in (m.get('n') or ''))}   # 세부보장([○○]) 레코드에 매칭됐는지(v8.62 · g131 판정에 그 목록 우선)
                     rows.append(row if m else _link(row, parent, name))
             if '세부보장' in t:                                    # 세부보장 표 : 번호+담보명이 한 셀에 있고 이름이 셀 경계에서 잘리므로 텍스트로 읽는다
                 lines = [x.strip() for x in t.split('\n')]
@@ -168,6 +168,6 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                             rows.append({'no': no, 'name': re.sub(GOJI, '', name).replace('[기본계약]', '').strip(),
                                          'man': S.amt_to_man(amt), 'amount_text': amt, 'cat': (mt or {}).get('c'),
                                          'codes': (mt or {}).get('k') or [], 'excl': (mt or {}).get('x') or [], 'benefit': b, 'sub': s2, 'matched': bool(mt),
-                                         'itc': S.itc_id(name)})
+                                         'itc': S.itc_id(name), 'sub_rec': bool(mt and '[' in (mt.get('n') or ''))})
                     k += 1
     return rows
