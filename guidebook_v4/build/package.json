@@ -1,0 +1,7 @@
+{
+  "name": "meai-guidebook-v4-build",
+  "private": true,
+  "description": "MeAI 활용 가이드북 v4 (CRM 대문 편) 생성기",
+  "scripts": { "build": "node deck.js MeAI_guidebook_v4_CRM_2026.10.pptx", "final": "bash finalize.sh" },
+  "dependencies": { "pptxgenjs": "^3.12.0", "sharp": "^0.33.0", "image-size": "^1.1.1", "playwright": "^1.45.0" }
+}
