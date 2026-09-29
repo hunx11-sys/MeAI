@@ -73,7 +73,7 @@ function frameImg(file, radius){
 function imgSize(file){ const k = 'sz_'+file; if (!imgSize.c) imgSize.c={}; if (!imgSize.c[k]){ const buf = fs.readFileSync(file); const m = pngSize(buf); imgSize.c[k]=m; } return imgSize.c[k]; }
 function pngSize(buf){ if (buf.readUInt32BE(0)===0x89504E47) return {w:buf.readUInt32BE(16), h:buf.readUInt32BE(20)}; throw new Error('not png'); }
 const MISSING = [];
-function img(slide, file, {x,y,w,h,round=true,radius=28,align='center',valign='middle',shadow=true,border=true}){
+function img(slide, file, {x,y,w,h,round=true,radius=28,align='center',valign='middle',shadow=true,border=true,alt='MeAI 화면 캡처'}){
   if (!fs.existsSync(file)){ MISSING.push(file); R(slide,{x,y,w,h,fill:C.g100,line:C.g300,radius:0.12}); T(slide,'캡처 준비 중\n'+path.basename(file),{x,y,w,h,fontSize:9,color:C.g500,align:'center',valign:'middle'}); return {x,y,w,h,scale:0.001}; }
   const src = round ? frameImg(file, radius) : file;
   const {w:pw,h:ph} = imgSize(file);
@@ -82,7 +82,7 @@ function img(slide, file, {x,y,w,h,round=true,radius=28,align='center',valign='m
   const dx = align==='left'? x : align==='right'? x+w-dw : x+(w-dw)/2;
   const dy = valign==='top'? y : valign==='bottom'? y+h-dh : y+(h-dh)/2;
   if (shadow) slide.addShape('roundRect', {x:dx, y:dy, w:dw, h:dh, fill:{color:C.white}, line:{color:C.white,width:0}, rectRadius:Math.min(0.14, dw*0.02), shadow:{type:'outer', blur:10, offset:3, angle:90, color:'000000', opacity:0.10}});
-  slide.addImage({ path:src, x:dx, y:dy, w:dw, h:dh });
+  slide.addImage({ path:src, x:dx, y:dy, w:dw, h:dh, altText:alt });
   return { x:dx, y:dy, w:dw, h:dh, scale: dw/pw };
 }
 // 캡처 좌표(원본 CSS px, dsf 반영 전) → 슬라이드 인치. g = img() 반환값, clip = 캡처 시 clip {x,y}, dsf

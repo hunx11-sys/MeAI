@@ -32,7 +32,7 @@ crop(H+'custom_start_full.png',(640,30,2560,1120),H+'custom_start_crop.png')
 # 카카오톡 알림톡: 이름 세 곳을 넉넉히 가림(설계사·고객 이름)
 from PIL import ImageDraw
 im=Image.open(F+'legacy/report_step4.png').convert('RGB'); im=im.crop((8,388,407,722)); d=ImageDraw.Draw(im)
-for box in [(64,108,152,129),(109,129,190,147),(163,180,228,199)]: d.rectangle(box,fill=(235,235,235))
+for box in [(64,108,152,129),(111,129,190,147),(163,180,228,199)]: d.rectangle(box,fill=(235,235,235))
 im.save(H+'report_kakao_crop.png')
 # 영업포탈 진입점(소유자 제공 그림 67e96ce4-image.png): 번호 원 온전히, 상태줄 제외
 # crop('portal_entry_full',(8,140,1625,1022)); crop('portal_entry_banner',(392,240,1160,450),2); crop('portal_entry_crm',(415,650,1160,1000),2)
