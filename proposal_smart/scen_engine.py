@@ -572,6 +572,8 @@ def kcd_ok(mode, r, sc, nm, o=None):
     if mode == 'major': return itc.cancer_cls(kcd) == 'major'
     if mode == 'sim': return itc.cancer_cls(kcd) in ('cis', 'bord', 'thy', 'skin')
     if mode == 'major_or_sim': return bool(itc.cancer_cls(kcd))
+    # 암(유사암제외)·기타피부암·갑상선암 — 세기조절·양성자·중입자·표적·면역·암재활 약관의 대상(제자리암 D00~D09·경계성종양 D37~D48 은 아님)(v8.63)
+    if mode == 'major_thy_skin': return itc.cancer_cls(kcd) in ('major', 'thy', 'skin')
     if mode == 'g131':
         # 세부보장 레코드(마스터 [○○] 자식 · 설계서가 (○○) 괄호로 적어 그 자식에 매칭된 담보)에 약관 KCD 목록이 있으면 그 목록이 우선(v8.62).
         # 전에는 라벨이 있으면 그룹표(g131.json · 소유자 정리 엑셀의 '다빈도64대' 통합표)로 판정해, 케어프리 131대(다빈도62대)·통합간편 130대(다빈도61대)
@@ -716,6 +718,8 @@ def h_day(r, o, sc, nm, t):
     if not d: return []
     return [(r['man'] * d, '입원 %d일 × %d만원' % (d, r['man']), o.get('group', '입원일당'), 'each')]
 
+_EXAM_KEYS = [(r'내시경', 'x_endo'), (r'MRI', 'x_mri'), (r'(?<![A-Z])CT', 'x_ct'), (r'PET|양전자', 'x_pet'), (r'초음파', 'x_us'),
+              (r'생검|조직병리', 'x_bio'), (r'단일유전자', 'x_gene'), (r'NGS', 'x_ngs')]
 def h_tx(r, o, sc, nm, t):
     tg = sc['tags']
     need = set(o.get('acts') or [])
@@ -742,6 +746,17 @@ def h_tx(r, o, sc, nm, t):
     # 그래서 마스터에 수가코드 목록이 실린 담보만 그 목록과 대조한다. 목록이 없는 담보는 종전대로.
     if o.get('hc_listed') and (r.get('hc') or []):
         if not (set(r['hc']) & set(tg.get('hc') or [])): return []
+    # 검사비 : 담보명이 검사 종류를 정했으면 그 검사를 받은 단계에서만(v8.63). 전에는 암 검사 8종·일반 검사 7종이 행위 키를
+    # 함께 써서 CT 만 받은 단계에 MRI 검사비·PET 검사비가, MRI 만 받은 단계에 내시경 검사비가 붙었다.
+    # 방사선·약물을 한 규칙으로 보는 담보(tx_chemo_rad)의 세부보장이 한쪽만 정했으면 그 치료만(v8.63) — 또128·또간92
+    # 통합항암방사선약물치료비[항암방사선치료비(…)] 가 약물치료 단계에, [항암약물치료비(…)] 가 방사선 단계에도 붙었다.
+    if o.get('split_by_label'):
+        lab = re.sub(r'\s', '', (r.get('benefit') or r.get('sub') or '') or (re.search(r'\[([^\[\]]+)\]$', nm) or [None, ''])[1])
+        if re.search(r'항암방사선치료비', lab): need = {'rad'}
+        elif re.search(r'항암약물치료비', lab): need = {'chemo'}
+    if o.get('exam_by_name'):
+        ek = {k for pat, k in _EXAM_KEYS if re.search(pat, nm)}
+        if ek: need = ek
     if need and not (need & _acts(sc)): return []
     allneed = set(o.get('acts_all') or [])          # 둘 다 받아야 지급되는 담보(예: 혈전용해 + 기계적혈전제거술)
     if allneed and not allneed <= _acts(sc, True): return []
@@ -754,6 +769,8 @@ def h_tx(r, o, sc, nm, t):
     # 비급여(전액본인부담) 전용 담보는 그 치료의 비용이 비급여일 때만 지급한다(약관 '비급여(전액본인부담 포함)
     # ○○치료의 정의' — 진료비 세부내역서의 해당 비용이 비급여·전액본인부담인 경우). 급여 치료 예시에는 넣지 않는다.
     if re.search(r'비급여|전액본인부담', nm) and not tg.get('nc'): return []
+    # 급여 항암치료비(담보명 '(급여')는 비급여 치료 단계(양성자·중입자·비급여 표적·면역)에서는 지급하지 않는다 — 약관 제4조 급여 정의(v8.63)
+    if o.get('covered_only') and re.search(r'\(급여', nm) and not re.search(r'비급여', nm) and tg.get('nc'): return []
     if t['cause'] and tg.get('cause') != t['cause']: return []
     if not hosp_ok(t['hosp'], tg.get('hosp')): return []
     # 담보명·세부급부 라벨이 암 구분을 못박은 담보는 그 구분의 암에만(v8.61) — 유사암 전용 / 유사암제외 / 갑상선암 / 기타피부암
