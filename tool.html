@@ -99,8 +99,8 @@
   .meta{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
   .count{font-size:13px;color:var(--muted)}
   .count b{color:var(--red);font-size:15px;font-family:var(--mono)}
-  .grp{margin-bottom:22px;content-visibility:auto;contain-intrinsic-size:auto 900px}
-  .cards>.card{content-visibility:auto;contain-intrinsic-size:auto 190px}
+  .grp{margin-bottom:22px;content-visibility:auto;contain-intrinsic-block-size:auto 900px}
+  .cards>.card{content-visibility:auto;contain-intrinsic-block-size:auto 190px}
   .grp-h{display:flex;align-items:center;gap:9px;margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line)}
   .grp-h .bar{width:4px;height:16px;border-radius:2px}
   .grp-h h2{font-size:14px;font-weight:800;margin:0;letter-spacing:-.2px}
@@ -777,6 +777,22 @@
 .hd-tel:hover{text-decoration:underline}
 .hd-addr{display:flex;align-items:flex-start;gap:6px;font-size:12.5px;color:#41506A;font-weight:500;line-height:1.5}
 @media(max-width:560px){.hd-contact{padding:10px 12px}.hd-tel{font-size:14px}}
+</style>
+<style id="mobile-fit">
+/* 모바일 화면 맞춤 (2026.09) — 어떤 내용도 화면 폭을 넘기지 않게 */
+html,body{max-width:100%;overflow-x:hidden}
+.wrap{grid-template-columns:228px minmax(0,1fr)}
+.wrap>*,main,.rail,#results,.grp,.cards,.card{min-width:0}
+.cards{grid-template-columns:repeat(auto-fill,minmax(min(252px,100%),1fr))}
+@media (max-width:780px){
+  .wrap{grid-template-columns:minmax(0,1fr)}
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .pname,.row2,.chips{min-width:0;max-width:100%}
+  .pname{overflow-wrap:anywhere}
+  .modal{width:100%;max-width:100vw;box-sizing:border-box}
+  .modal *{max-width:100%}
+  .modal input,.modal select,.modal textarea{box-sizing:border-box}
+}
 </style>
 </head>
 <body>
