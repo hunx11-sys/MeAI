@@ -152,7 +152,8 @@ def main():
            'ecmo': '부분체외순환치료(급여)', 'anes6': '종합병원 전신마취치료(6시간이상)(급여)'}
     IT, AMT = [], {}
     for k, j, c in order:
-        it = {'k': k, 'l': (LBL.get(k) or ('%d종수술' % j)), 'c': c, 'p': 'y'}
+        # 수술(1-5종)은 약관 금액표에 「수술 1회당」(통139·케233 제1조②) — 나머지 항목은 연간 1회한(v8.63)
+        it = {'k': k, 'l': (LBL.get(k) or ('%d종수술' % j)), 'c': c, 'p': 'o' if k == 'surg' else 'y'}
         if j:
             it['j'] = j
         IT.append(it)

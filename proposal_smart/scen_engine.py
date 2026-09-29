@@ -391,7 +391,7 @@ def recog(riders):
 
 _CC = {}
 _XSUB = re.compile(r'\[[^\]]*(진단비|치료비|수술비|입원일당|통원일당)[^\]]*\]')
-_SUBN = re.compile(r'\[([^\[\]]+)\]$')
+_SUBN = re.compile(r'\[([^\[\]]+)\]\]*$')   # 겹대괄호 '…[암치료,후유장해및진단비[항암약물치료비]]' 의 안쪽 세부보장도 읽는다(v8.63 · 또177·또211)
 
 
 def _rule_for(nm):
@@ -683,8 +683,9 @@ def h_surg(r, o, sc, nm, t):
         if op is None:
             log('검토필요', r['name'], '관혈·비관혈 구분이 사례에 없어 계산 제외'); return []
         if op != ('비관혈' not in lab): return []
-    why = o.get('why', '수술 1회').replace('{j}', str(t['gj'] or surg5_grade(j, sc['kcd']) or '')).replace(
-        '{g}', (r.get('benefit') or r.get('sub') or '').strip())
+    _jj = t['gj'] or (surg7_grade(tg.get('surg7')) if o.get('grade') == '1-7' else surg5_grade(j, sc['kcd'])) or ''
+    _gl = (r.get('benefit') or r.get('sub') or (re.search(r'[\[(]([^\[\]()]+)[\])]\s*$', r['name']) or [None, ''])[1] or '').strip()
+    why = o.get('why', '수술 1회').replace('{j}', str(_jj)).replace('{g}', _gl).strip()   # (v8.63) 1-7종 부모 행 사유에 1-5종 종이 찍히던 것 · 130대[○○] 질병군 이름 빠짐
     freq = 'year' if '연간1회한' in lab else o.get('freq', 'each')     # 약관이 연간 1회로 정한 수술비(v8.55)
     return [(r['man'], why, o.get('group', '수술비'), freq)]
 
@@ -758,6 +759,7 @@ def h_tx(r, o, sc, nm, t):
         ek = {k for pat, k in _EXAM_KEYS if re.search(pat, nm)}
         if ek: need = ek
     if need and not (need & _acts(sc)): return []
+    if o.get('not_acts') and set(o['not_acts']) & set(_acts(sc)): return []   # 서로 배타적인 세부보장(특정표적 ↔ 특정면역)(v8.63)
     allneed = set(o.get('acts_all') or [])          # 둘 다 받아야 지급되는 담보(예: 혈전용해 + 기계적혈전제거술)
     if allneed and not allneed <= _acts(sc, True): return []
     if o.get('need_cnt') and tg.get('tx_cnt', 0) < o['need_cnt']: return []
@@ -765,7 +767,8 @@ def h_tx(r, o, sc, nm, t):
     m2 = re.search(r'[\[(](\d)종(?:및\d종)?이상', nm)                       # [1종이상]·(2종및3종이상) 담보명 표기 우선
     if m2: nd = int(m2.group(1))
     if nd and tg.get('drug', 0) < nd: return []                                 # 연간 약물종류 개수 조건
-    if not need and not tg.get('dx') and o.get('kcd') != 'hc': return []     # 수가코드 담보는 진단 단계가 아니어도 해당 시술이 있으면 지급(v8.14)
+    _hc_step = bool(o.get('hc_listed') and set(r.get('hc') or []) & set(tg.get('hc') or []))   # 약관 수가코드 시술을 받은 단계(v8.63)
+    if not need and not tg.get('dx') and o.get('kcd') != 'hc' and not _hc_step: return []     # 수가코드 담보는 진단 단계가 아니어도 해당 시술이 있으면 지급(v8.14)
     # 비급여(전액본인부담) 전용 담보는 그 치료의 비용이 비급여일 때만 지급한다(약관 '비급여(전액본인부담 포함)
     # ○○치료의 정의' — 진료비 세부내역서의 해당 비용이 비급여·전액본인부담인 경우). 급여 치료 예시에는 넣지 않는다.
     if re.search(r'비급여|전액본인부담', nm) and not tg.get('nc'): return []
@@ -779,7 +782,13 @@ def h_tx(r, o, sc, nm, t):
     freq = o.get('freq', 'year')
     if '계속받는' in nm or '연간1회한' in nm: freq = 'year'
     elif '최초1회한' in nm: freq = 'once'
-    return [(r['man'], o.get('why', '약관 대상 치료'), o.get('group', '치료비'), freq)]
+    # 「(2종및3종이상)」 세부보장은 2종이상·3종이상 두 구분을 각각 연간 1회 지급(통240·케298 제3조③ · 약관 예시 3종 → 가입금액 2배)(v8.63)
+    if re.search(r'2종및3종이상', nm) and tg.get('drug', 0) >= 3:
+        return [(r['man'], '연간 약물종류 2종이상 구분', o.get('group', '치료비'), freq), (r['man'], '연간 약물종류 3종이상 구분', o.get('group', '치료비'), freq)]
+    why = o.get('why', '약관 대상 치료')
+    if freq == 'year' and o.get('freq') == 'once': why = why.replace('최초 1회', '연간 1회')
+    elif freq == 'once' and o.get('freq', 'year') == 'year': why = why.replace('연간 1회', '최초 1회').replace('연 1회', '최초 1회')
+    return [(r['man'], why, o.get('group', '치료비'), freq)]
 
 HANDLER = {'dx': h_dx, 'surg': h_surg, 'day': h_day, 'tx': h_tx}
 
@@ -802,9 +811,20 @@ def pay_lines(riders, sc):
             if r.get('itc'):
                 if not sc.get('itc_events'): continue
                 # 담보명이 원인을 못박은 통합치료비(질병 통합치료비·상해 통합치료비)는 그 원인일 때만(v8.27)
-                _c = tokens(nm)['cause']
+                _t = tokens(nm); _c = _t['cause']
                 if _c and sc['tags'].get('cause') != _c: continue
-                evs = list(sc['itc_events'])
+                # 담보명이 병원 종별을 못박은 통합치료비(상급종합병원,권역심뇌혈관질환센터 특정순환계질환 통합치료비 · 암중점치료기관형)는
+                # 그 종별 이상에서 받은 치료만(통110 제1조①~③)(v8.63). 전에는 병원급 사례에도 금액표 전액이 붙었다.
+                if _t['hosp'] and not hosp_ok(_t['hosp'], sc['tags'].get('hosp')): continue
+                evs = []
+                for e in sc['itc_events']:
+                    # 사례 단계에 1-5종 표시(j)가 없는 수술은 사례의 1-5종 분류표 항목(tags.surg)으로 종을 정한다(v8.63) —
+                    # 질병 통합치료비·암전후 통합치료비의 「수술(1-5종)」 항목이 j 가 없어 0 이던 것(개두술·관상동맥우회술·암 개복수술 등)
+                    if len(e) > 3 and 'surg' in (e[3] or []) and not ((e[4] if len(e) > 4 else None) or {}).get('j'):
+                        _j = surg5_grade(sc['tags'].get('surg'), sc['kcd'])
+                        if isinstance(_j, int):
+                            e = list(e[:4]) + [dict((e[4] if len(e) > 4 else None) or {}, j=_j)]
+                    evs.append(e)
                 # 6시간 이상 전신마취 단계(anes_h ≥ 6)면 「종합병원 전신마취치료(6시간이상)(급여)」 항목도 받은 것으로 본다(v8.61)
                 if ('anes6' in _acts(sc) and hosp_ok('종합', sc['tags'].get('hosp'))       # 「종합병원」 항목 — 병원·의원 전신마취는 대상 아님
                         and not any(len(e) > 3 and 'anes6' in (e[3] or []) for e in evs)):
@@ -812,6 +832,8 @@ def pay_lines(riders, sc):
                 # 항목 한정 면책 — 질병 통합치료비(통139·케233 제16조③)·암전후 통합치료비(케N397 제22조②③)는 아래 질병 치료의
                 # 전신마취(6시간이상) 항목만 지급하지 않는다. 특약 전체 제외가 아니므로 그 항목만 0 으로 두고 로그를 남긴다.
                 xk = {k for k, g in ITC_ITEM_X.get(r['itc'], {}).items() if code_hit(KCDG.get(g) or [], sc['kcd'])}
+                # 「종합병원 중환자실치료」 항목은 종합병원 이상에서만(통109 제4조⑥ 등 · 병원·의원 중환자실은 대상 아님)(v8.63)
+                if not hosp_ok('종합', sc['tags'].get('hosp')): xk = xk | {'icu'}
                 if xk and any(len(e) > 3 and set(e[3] or []) & xk for e in evs):
                     log('면책', n, '약관 항목 한정 면책 질병(%s) — 전신마취치료(6시간이상) 항목 제외' % sc['kcd'])
                 try:
