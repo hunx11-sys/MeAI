@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>암통합치료비 가입금액 시뮬레이터</title>
+<!-- 글꼴: Pretendard GOV (정부 디자인 시스템 KRDS 기본 글꼴) · 인터넷이 막힌 PC 에서는 맑은 고딕으로 대체 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-gov-dynamic-subset.min.css">
+<style>
+/* ===== 디자인 토큰 : 범정부 UI/UX 디자인 시스템(KRDS) 색·간격 체계 ===== */
+:root{
+  --scale:1;
+  --bg:#f4f5f6; --card:#ffffff; --ink:#1e2124; --ink2:#464c53; --muted:#6d7882; --line:#cdd1d5; --line2:#e6e8ea; --soft:#f4f5f6;
+  --primary:#256ef4; --primary-d:#0b50d0; --primary-soft:#ecf2fe; --primary-soft2:#d8e5fd;
+  --navy:#063a74; --navy-soft:#e6ecf4;
+  --brand:#256ef4; --brand-soft:#ecf2fe;
+  --basic:#256ef4; --basic-soft:#ecf2fe;
+  --tert:#063a74; --tert-soft:#e3eaf3;
+  --ok:#228738; --ok-soft:#eaf6ec; --warn:#8a5c00; --warn-soft:#fff3db; --bad:#de3412; --bad-soft:#fdefec; --info:#0b78cb; --info-soft:#e7f4fe;
+  --proton:#0b78cb; --carbon:#de3412; --plan:#b1b8be;
+  --land:#e6e8ea; --land-stroke:#b1b8be; --sea:#f8f9fa;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --focus:#256ef4; --masthead:#f4f5f6; --foot:#f4f5f6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131416; --card:#1e2124; --ink:#f4f5f6; --ink2:#cdd1d5; --muted:#9ea6ad; --line:#464c53; --line2:#33363d; --soft:#26292e;
+    --primary:#6d9cf8; --primary-d:#9dbdfb; --primary-soft:#12254a; --primary-soft2:#1b3566;
+    --navy:#a9c3ec; --navy-soft:#1c2940;
+    --brand:#6d9cf8; --brand-soft:#12254a; --basic:#6d9cf8; --basic-soft:#12254a; --tert:#b7c9ea; --tert-soft:#232f45;
+    --ok:#5fc27a; --ok-soft:#10301a; --warn:#ffc555; --warn-soft:#3a2d10; --bad:#ff7b5f; --bad-soft:#3d1a12; --info:#5db3f2; --info-soft:#0f2a40;
+    --proton:#5db3f2; --carbon:#ff7b5f; --land:#2d3136; --land-stroke:#4a5058; --sea:#17191c;
+    --shadow:0 1px 2px rgba(0,0,0,.5); --focus:#9dbdfb; --masthead:#1a1c1f; --foot:#1a1c1f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131416; --card:#1e2124; --ink:#f4f5f6; --ink2:#cdd1d5; --muted:#9ea6ad; --line:#464c53; --line2:#33363d; --soft:#26292e;
+  --primary:#6d9cf8; --primary-d:#9dbdfb; --primary-soft:#12254a; --primary-soft2:#1b3566;
+  --navy:#a9c3ec; --navy-soft:#1c2940;
+  --brand:#6d9cf8; --brand-soft:#12254a; --basic:#6d9cf8; --basic-soft:#12254a; --tert:#b7c9ea; --tert-soft:#232f45;
+  --ok:#5fc27a; --ok-soft:#10301a; --warn:#ffc555; --warn-soft:#3a2d10; --bad:#ff7b5f; --bad-soft:#3d1a12; --info:#5db3f2; --info-soft:#0f2a40;
+  --proton:#5db3f2; --carbon:#ff7b5f; --land:#2d3136; --land-stroke:#4a5058; --sea:#17191c;
+  --shadow:0 1px 2px rgba(0,0,0,.5); --focus:#9dbdfb; --masthead:#1a1c1f; --foot:#1a1c1f;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;font-size:calc(16px * var(--scale));scroll-padding-top:9rem}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard GOV Variable","Pretendard GOV",Pretendard,"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;line-height:1.6;font-size:1rem;word-break:keep-all;overflow-wrap:anywhere}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:8px;top:-60px;z-index:100;background:var(--primary);color:#fff;padding:10px 16px;border-radius:6px;font-weight:700;text-decoration:none}
+.skip:focus{top:8px}
+
+/* ===== 상단 : 안내띠 · 머리글 · 주메뉴 ===== */
+.masthead{background:var(--masthead);border-bottom:1px solid var(--line2);font-size:.8125rem;color:var(--ink2)}
+.masthead .wrap{display:flex;align-items:center;gap:8px;min-height:36px;flex-wrap:wrap}
+.masthead .flag{display:inline-block;background:var(--navy);color:#fff;font-weight:700;font-size:.75rem;padding:1px 8px;border-radius:4px}
+:root[data-theme="dark"] .masthead .flag{color:#131416}
+header.top{background:var(--card);border-bottom:1px solid var(--line)}
+.hd-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:18px;padding-bottom:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:44px;height:44px;border-radius:10px;background:var(--primary);display:grid;place-items:center;flex:none}
+.logo svg{width:26px;height:26px}
+.eyebrow{margin:0;font-size:.8125rem;color:var(--muted);font-weight:600}
+h1{font-size:1.625rem;line-height:1.35;margin:0;letter-spacing:-.02em;font-weight:700}
+h2{font-size:1.375rem;line-height:1.4;margin:0 0 4px;letter-spacing:-.01em;font-weight:700}
+h3{font-size:1.0625rem;line-height:1.45;margin:0;font-weight:700}
+.util{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.fsz{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.fsz button{appearance:none;border:0;border-right:1px solid var(--line);background:var(--card);color:var(--ink2);font:inherit;font-size:.8125rem;padding:5px 10px;cursor:pointer;min-height:32px}
+.fsz button:last-child{border-right:0}
+.fsz button[aria-pressed="true"]{background:var(--primary-soft);color:var(--primary);font-weight:700}
+.gnb{border-top:1px solid var(--line2)}
+.gnb .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.gnb .wrap::-webkit-scrollbar{display:none}
+.gnb a,.gnb button{appearance:none;border:0;background:none;font:inherit;color:var(--ink);font-size:1rem;font-weight:600;padding:14px 14px 12px;text-decoration:none;white-space:nowrap;cursor:pointer;border-bottom:3px solid transparent;display:inline-flex;align-items:center;gap:6px}
+.gnb a:hover,.gnb button:hover{color:var(--primary)}
+.gnb a.on{color:var(--primary);border-bottom-color:var(--primary)}
+.gnb .sep{flex:1 1 auto}
+.gnb .map{color:var(--primary)}
+.crumb{font-size:.8125rem;color:var(--muted);padding:14px 0 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.crumb span+span::before{content:"›";margin-right:6px;color:var(--line)}
+
+/* ===== 공통 부품 ===== */
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:0 16px;min-height:40px;font:inherit;font-size:.9375rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--soft);border-color:var(--ink2)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{background:var(--primary-d);border-color:var(--primary-d)}
+:root[data-theme="dark"] .btn.primary{color:#131416}
+.btn.line{border-color:var(--primary);color:var(--primary)}
+.btn.line:hover{background:var(--primary-soft)}
+.btn.sm{padding:0 12px;min-height:32px;font-size:.8125rem;border-radius:4px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+section{padding:40px 0 8px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+.sec-head .sub{max-width:860px}
+.num{display:inline-grid;place-items:center;width:1.75rem;height:1.75rem;border-radius:50%;background:var(--primary);color:#fff;font-size:.9375rem;margin-right:8px;vertical-align:2px}
+:root[data-theme="dark"] .num{color:#131416}
+.sub{color:var(--ink2);font-size:.9375rem;margin:4px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g-prod{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+.g-scn{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.g-cancer{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+.infobox{background:var(--primary-soft);border:1px solid var(--primary-soft2);border-radius:12px;padding:16px 20px;margin-top:18px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:.9375rem}
+.infobox .ic{grid-row:span 3;width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.875rem}
+:root[data-theme="dark"] .infobox .ic{color:#131416}
+.infobox ul{margin:0;padding-left:18px;color:var(--ink2)}
+.infobox b{color:var(--ink)}
+
+/* 단계 표시 */
+.steps{list-style:none;margin:20px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:st}
+.steps li{position:relative;padding:0 8px 0 0}
+.steps a{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--muted);font-size:.875rem;font-weight:600}
+.steps a::before{counter-increment:st;content:counter(st);width:2rem;height:2rem;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;font-weight:700;color:var(--muted);position:relative;z-index:1}
+.steps li:not(:last-child)::after{content:"";position:absolute;left:2rem;right:0;top:1rem;height:2px;background:var(--line)}
+.steps li.done a::before{background:var(--primary);border-color:var(--primary);color:#fff;content:"✓"}
+.steps li.done:not(:last-child)::after{background:var(--primary)}
+.steps li.cur a{color:var(--primary)}
+.steps li.cur a::before{border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 4px var(--primary-soft)}
+.steps em{font-style:normal}
+@media (max-width:620px){.steps a{font-size:.75rem}}
+
+/* ===== ① 가입금액 선택 ===== */
+.prod{padding:20px}
+.prod .pname{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.prod .pdesc{color:var(--muted);font-size:.8125rem;margin:4px 0 12px}
+.tier-label{font-size:.8125rem;font-weight:700;margin:14px 0 8px;display:flex;align-items:center;gap:6px}
+.tier-label.basic{color:var(--basic)} .tier-label.tert{color:var(--tert)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:6px;padding:0 12px;min-height:36px;font:inherit;font-size:.875rem;font-weight:600;cursor:pointer;min-width:56px}
+.seg button:hover{border-color:var(--ink2)}
+.seg button[aria-pressed="true"].b{background:var(--basic);border-color:var(--basic);color:#fff}
+.seg button[aria-pressed="true"].t{background:var(--tert);border-color:var(--tert);color:#fff}
+:root[data-theme="dark"] .seg button[aria-pressed="true"]{color:#131416}
+.seg button.over{opacity:.5;text-decoration:line-through}
+.prod .contrib{margin-top:16px;font-size:.8125rem;color:var(--muted);border-top:1px solid var(--line2);padding-top:12px;display:flex;justify-content:space-between}
+.prod .contrib b{color:var(--ink)}
+
+/* ===== 누적합산 한도 띠 ===== */
+.limit{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:10px 0;border-bottom:1px solid var(--line)}
+.limit .card{padding:12px 18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;border-radius:8px}
+.limit .meter{flex:1 1 440px;min-width:240px}
+#lim-num{white-space:nowrap;font-weight:700}
+.limit .mtop{display:flex;justify-content:space-between;font-size:.8125rem;margin-bottom:6px;gap:8px;flex-wrap:wrap}
+.inp-sm{width:4.5rem;padding:2px 6px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink);font:inherit;font-size:.8125rem;text-align:right;min-height:26px}
+.bar{height:12px;border-radius:99px;background:var(--line2);overflow:hidden;position:relative;display:flex}
+.bar i{display:block;height:100%}
+.status{font-size:.875rem;font-weight:700;padding:6px 12px;border-radius:6px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.status.ok{background:var(--ok-soft);color:var(--ok)} .status.bad{background:var(--bad-soft);color:var(--bad)} .status.none{background:var(--soft);color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.75rem;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--ink2);white-space:nowrap;border:1px solid var(--line2)}
+.chip.b{background:var(--basic-soft);color:var(--basic);border-color:transparent} .chip.t{background:var(--tert-soft);color:var(--tert);border-color:transparent}
+
+/* ===== ② 치료별 ===== */
+.filter{display:flex;flex-wrap:wrap;gap:6px}
+.filter button{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:99px;padding:0 14px;min-height:34px;font:inherit;font-size:.875rem;font-weight:600;cursor:pointer}
+.filter button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card)}
+.scn{padding:20px;display:flex;flex-direction:column;gap:12px}
+.scn .hd{display:flex;gap:14px;align-items:center}
+.ill{width:74px;height:74px;flex:none;border-radius:12px;background:var(--soft);display:grid;place-items:center;border:1px solid var(--line2)}
+.ill svg{width:62px;height:62px}
+.scn .drug{font-size:.8125rem;color:var(--muted)}
+.tot{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tot div{border-radius:8px;padding:10px 12px}
+.tot .tb{background:var(--basic-soft)} .tot .tt{background:var(--tert-soft)}
+.tot small{display:block;font-size:.75rem;color:var(--ink2);font-weight:600}
+.tot strong{font-size:1.25rem;letter-spacing:-.02em}
+.tot .tb strong{color:var(--basic)} .tot .tt strong{color:var(--tert)}
+table.bd{width:100%;border-collapse:collapse;font-size:.8125rem;border-top:2px solid var(--ink)}
+table.bd th,table.bd td{padding:7px 6px;border-bottom:1px solid var(--line2);text-align:right;white-space:nowrap}
+table.bd th:first-child,table.bd td:first-child{text-align:left;white-space:normal}
+table.bd th{color:var(--ink2);font-weight:700;background:var(--soft)}
+table.bd td.zero{color:var(--muted)}
+.alt{font-size:.8125rem;background:var(--soft);border-radius:6px;padding:8px 10px;color:var(--ink2)}
+.cost{font-size:.8125rem;background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:8px 10px;border-left:3px solid currentColor}
+.empty{color:var(--muted);font-size:.875rem;background:var(--soft);border-radius:8px;padding:14px;text-align:center;border:1px dashed var(--line)}
+
+/* ===== ③ 암종별 ===== */
+.tabs{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tabs button{appearance:none;border:0;border-right:1px solid var(--line);background:var(--card);color:var(--ink2);font:inherit;font-weight:700;font-size:.9375rem;padding:0 22px;min-height:40px;cursor:pointer}
+.tabs button:last-child{border-right:0}
+.tabs button[aria-selected="true"]{background:var(--primary);color:#fff}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{color:#131416}
+.cc{padding:20px}
+.cc .ctop{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.rank{width:32px;height:32px;border-radius:6px;background:var(--navy);color:#fff;font-weight:800;display:grid;place-items:center;font-size:.9375rem;flex:none}
+:root[data-theme="dark"] .rank{color:#131416}
+.cc .cdesc{color:var(--muted);font-size:.8125rem;margin:0 0 10px}
+.plan{border:1px solid var(--line2);border-radius:8px;padding:12px 14px;margin-top:8px;background:var(--card)}
+.plan .pl{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.plan .pl b{font-size:.9375rem}
+.plan .need{font-size:.8125rem;color:var(--warn);font-weight:700;white-space:nowrap}
+.plan .note{font-size:.75rem;color:var(--muted);margin:3px 0 6px}
+.cov{display:flex;justify-content:space-between;font-size:.8125rem;margin-top:6px;gap:8px;flex-wrap:wrap}
+.cov .gap{font-weight:700}
+.cov .gap.ok{color:var(--ok)} .cov .gap.bad{color:var(--bad)}
+.bar2{height:8px;border-radius:99px;background:var(--line2);position:relative;margin-top:6px;overflow:hidden}
+.bar2 .c{position:absolute;left:0;top:0;bottom:0;background:var(--tert);border-radius:99px}
+.bar2 .b{position:absolute;left:0;top:0;bottom:0;background:var(--basic);border-radius:99px}
+.bar2 .r{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--warn) 45%,transparent) 0 4px,transparent 4px 8px)}
+
+/* ===== ④ 상담 요약 ===== */
+.sum{padding:22px}
+.sum-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px}
+@media (max-width:820px){.sum-grid{grid-template-columns:1fr}}
+.sum h3{margin-bottom:8px}
+.kv{width:100%;border-collapse:collapse;font-size:.875rem;border-top:2px solid var(--ink)}
+.kv th,.kv td{padding:9px 8px;border-bottom:1px solid var(--line2);text-align:left}
+.kv th{background:var(--soft);color:var(--ink2);font-weight:700;white-space:nowrap}
+.kv td:nth-child(2){white-space:nowrap}
+.kv td.r,.kv th.r{text-align:right;white-space:nowrap}
+.sum-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--card);padding:10px 18px;border-radius:8px;font-size:.875rem;opacity:0;pointer-events:none;transition:.2s;z-index:80}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== 지도 창 ===== */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.open{display:flex}
+.modal .box{background:var(--card);border-radius:12px;width:min(1100px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:24px;border:1px solid var(--line)}
+.modal .mh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;padding-bottom:12px;border-bottom:1px solid var(--line2)}
+.mapwrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}
+@media (max-width:820px){.mapwrap{grid-template-columns:1fr}}
+.mapbox{align-self:start;background:var(--sea);border:1px solid var(--line2);border-radius:8px;position:relative;overflow:hidden}
+.mapbox svg{width:100%;height:auto;display:block;max-height:70vh}
+.mapbox .prov{fill:var(--land);stroke:var(--land-stroke);stroke-width:12;stroke-linejoin:round}
+.mapbox .mk{cursor:pointer;stroke:var(--card)}
+.mapbox .mk.plan{fill-opacity:.25;stroke-dasharray:0}
+.mapbox .mk.hl{stroke:var(--ink)}
+.maptools{position:absolute;right:8px;top:8px;display:flex;gap:6px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--card);font-size:.75rem;padding:6px 8px;border-radius:6px;max-width:240px;display:none;z-index:3;line-height:1.4}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.8125rem;color:var(--ink2);margin:8px 0}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.hsearch{width:100%;min-height:40px;border:1px solid var(--line);border-radius:6px;padding:0 12px;font:inherit;font-size:.9375rem;background:var(--card);color:var(--ink);margin-bottom:10px}
+.hlist{max-height:66vh;overflow:auto;padding-right:4px}
+.hgroup{margin-bottom:12px}
+.hgroup h4{font-size:.8125rem;margin:0 0 5px;color:var(--muted)}
+.hitem{display:flex;gap:8px;align-items:flex-start;padding:7px 9px;border-radius:6px;cursor:pointer;font-size:.875rem}
+.hitem:hover,.hitem.on{background:var(--primary-soft)}
+.hitem .dot{margin-top:7px}
+.hitem small{display:block;color:var(--muted);font-size:.75rem}
+.badge{font-size:.6875rem;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:4px;white-space:nowrap}
+.badge.run{background:var(--ok-soft);color:var(--ok)} .badge.plan{background:var(--warn-soft);color:var(--warn)}
+
+/* ===== 금액표 설정 ===== */
+details.ed{padding:18px 20px}
+details.ed summary{cursor:pointer;font-weight:700;font-size:1rem}
+.edtabs{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.edtabs button[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.edtable{overflow-x:auto}
+.edtable table{border-collapse:collapse;font-size:.8125rem;min-width:1100px;width:100%;border-top:2px solid var(--ink)}
+.edtable th,.edtable td{border-bottom:1px solid var(--line2);padding:6px;text-align:center}
+.edtable th{color:var(--ink2);font-weight:700;font-size:.75rem;background:var(--soft)}
+.edtable input{width:74px;padding:5px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink);font:inherit;font-size:.8125rem;text-align:right}
+.edtable input.surg{border-color:var(--bad);border-width:2px}
+textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font:.75rem/1.4 ui-monospace,Menlo,Consolas,monospace;padding:8px}
+.notice{font-size:.8125rem;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:10px 14px;margin-top:12px;border-left:3px solid currentColor}
+
+/* ===== 바닥글 ===== */
+footer{background:var(--foot);border-top:1px solid var(--line);color:var(--ink2);font-size:.8125rem;padding:28px 0 44px;margin-top:48px}
+footer .fh{font-weight:700;color:var(--ink);font-size:.9375rem;margin:0 0 8px}
+footer a{color:inherit}
+.muted{color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+@media (max-width:520px){.limit #lim-chips{display:none}.limit .card{gap:8px;padding:10px 12px}h1{font-size:1.25rem}.tot strong{font-size:1.0625rem}.g-cancer{grid-template-columns:1fr}.util .btn span{display:none}section{padding-top:32px}}
+
+/* ===== 인쇄 : 상담 요약과 선택 결과만 ===== */
+@media print{
+  :root{--bg:#fff;--shadow:none}
+  .masthead,.gnb,.util,.skip,.steps,.limit,#editor,.modal,.filter,.sum-act,.crumb,.toast{display:none!important}
+  body{font-size:11pt}
+  section{padding:14pt 0 0;break-inside:avoid-page}
+  .card{box-shadow:none;break-inside:avoid}
+  .seg button:not([aria-pressed="true"]){display:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<div class="masthead"><div class="wrap"><span class="flag">사내</span> 메리츠화재 설계사 내부 교육용 도구입니다 · 고객·외부 배포·게시 금지(금융소비자보호법 제22조)</div></div>
+<header class="top">
+  <div class="wrap hd-row">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6z"/><path d="M12 8.5v7M8.5 12h7"/></svg></span>
+      <div><p class="eyebrow">영업지원도구 · 예시표 ver.25.10.31 기준</p><h1>암통합치료비 가입금액 시뮬레이터</h1></div>
+    </div>
+    <div class="util">
+      <div class="fsz" role="group" aria-label="글자 크기">
+        <button type="button" data-fs="0.9" aria-pressed="false">작게</button>
+        <button type="button" data-fs="1" aria-pressed="true">보통</button>
+        <button type="button" data-fs="1.12" aria-pressed="false">크게</button>
+        <button type="button" data-fs="1.25" aria-pressed="false">아주 크게</button>
+      </div>
+      <button class="btn sm" type="button" id="theme-btn" aria-label="화면 밝기 바꾸기">◐ <span>화면 모드</span></button>
+      <button class="btn sm" type="button" id="print-btn">🖨 <span>인쇄</span></button>
+    </div>
+  </div>
+  <nav class="gnb" aria-label="주 메뉴"><div class="wrap">
+    <a href="#sel" data-spy="sel">가입금액 선택</a>
+    <a href="#scn" data-spy="scn">치료별 보상금액</a>
+    <a href="#cancer" data-spy="cancer">암종별 필요금액</a>
+    <a href="#summary" data-spy="summary">상담 요약</a>
+    <a href="#editor" data-spy="editor">금액표 설정</a>
+    <span class="sep"></span>
+    <button type="button" class="map" data-map="tert"><span class="dot" style="background:var(--primary)"></span>상급종합담보 병원 지도</button>
+    <button type="button" class="map" data-map="particle"><span class="dot" style="background:var(--carbon)"></span>중입자·양성자센터 지도</button>
+  </div></nav>
+</header>
+
+<div class="wrap">
+  <div class="crumb" aria-label="현재 위치"><span>홈</span><span>영업지원도구</span><span>암통합치료비 시뮬레이터</span></div>
+  <div class="infobox" role="note">
+    <span class="ic" aria-hidden="true">i</span>
+    <b>이용 안내</b>
+    <ul>
+      <li>대상 담보 : 암통합치료비(기본형) · 암통합치료비Ⅱ · 암통합치료비(주요치료) · 암통합치료비(실속형) — 기본담보 + 상급종합담보 조합</li>
+      <li>누적합산 한도 <b>3,500만원</b>(65세 이하) · 「암통합치료비 설계시 보장금액 예시표 ver.25.10.31」 기준 · 비급여 암통합치료비는 판매중지로 제외</li>
+      <li>고른 값은 이 PC 브라우저에만 저장되며, 아래 단계 순서대로 보면 상담 요약까지 한 번에 정리됩니다.</li>
+    </ul>
+  </div>
+  <ol class="steps" id="steps" aria-label="진행 단계">
+    <li data-step="sel"><a href="#sel"><em>가입금액 선택</em></a></li>
+    <li data-step="scn"><a href="#scn"><em>치료별 보상금액</em></a></li>
+    <li data-step="cancer"><a href="#cancer"><em>암종별 필요금액</em></a></li>
+    <li data-step="summary"><a href="#summary"><em>상담 요약</em></a></li>
+  </ol>
+</div>
+
+<div class="limit" id="limitbar">
+  <div class="wrap"><div class="card" role="status" aria-live="polite">
+    <div class="meter">
+      <div class="mtop"><span><b>누적합산</b> <span class="muted">(기존 암주요치료비 <input id="major-amt" class="inp-sm" type="number" step="500" min="0" value="0" aria-label="기존 암주요치료비 가입금액(만원)">만원 포함 · 한도 <input id="uw-limit" class="inp-sm" type="number" step="500" min="0" aria-label="누적합산 한도(만원)">만원)</span></span><span id="lim-num">0 / 3,500만원</span></div>
+      <div class="bar" id="lim-bar"></div>
+    </div>
+    <div class="chips" id="lim-chips"></div>
+    <div class="status none" id="lim-status">담보를 선택하세요</div>
+  </div></div>
+</div>
+
+<main class="wrap" id="main" tabindex="-1">
+  <section id="sel">
+    <div class="sec-head">
+      <div><h2><span class="num">1</span>가입금액 선택</h2>
+      <p class="sub">담보마다 <b style="color:var(--basic)">기본담보</b>와 <b style="color:var(--tert)">상급종합담보</b>를 따로 고를 수 있습니다. 하나만 골라도 되고, 여러 담보를 섞어도 됩니다. 담보·가입금액마다 정해진 <b>누적합산값</b>(기본형·Ⅱ 1억 → 2천만, 8천·7천 → 1천5백만, 4천 → 1천만 / 주요치료·실속형은 수술 금액과 동일)과 기존 암주요치료비를 더해 3,500만원을 넘는 금액은 <s>취소선</s>으로 표시됩니다.</p></div>
+      <button class="btn sm" type="button" id="reset-sel">↺ 선택 초기화</button>
+    </div>
+    <div class="grid g-prod" id="prod-grid"></div>
+  </section>
+
+  <section id="scn">
+    <div class="sec-head">
+      <div><h2><span class="num">2</span>대표 치료별 보상 가능 금액</h2>
+      <p class="sub">「암통합치료비 설계시 보장금액 예시표」의 치료행위별 계산식과 같습니다(예: 표적 = 항암약물 + (비급여)항암약물 + 표적, 유사암·특정암 다빈치 = 20%). 카드 상단 태그(급여/비급여)가 기준이고, 아래 회색 줄은 반대 경우 금액입니다. 수술은 수술당 지급, 가입 후 1년 이내 50% 지급. <b style="color:var(--basic)">일반병원</b>은 기본담보만, <b style="color:var(--tert)">상급종합병원</b>은 기본담보와 상급종합담보를 합산한 금액입니다.</p></div>
+      <div class="filter" id="scn-filter" role="group" aria-label="치료 분류">
+        <button type="button" data-cat="" aria-pressed="true">전체</button>
+        <button type="button" data-cat="약물" aria-pressed="false">약물</button>
+        <button type="button" data-cat="수술" aria-pressed="false">수술</button>
+        <button type="button" data-cat="방사선" aria-pressed="false">방사선</button>
+      </div>
+    </div>
+    <div class="grid g-scn" id="scn-grid"></div>
+  </section>
+
+  <section id="cancer">
+    <div class="sec-head">
+      <div><h2><span class="num">3</span>성별 다빈도 암 · 추천치료별 필요금액</h2>
+      <p class="sub">2023년 국가암등록통계(2026년 발표) 기준 성별 발생 순위입니다. 치료비는 1년 치료를 기준으로 한 <b>비급여 포함 추정 범위</b>(공개 보도·병원 안내 기반 가정값)이며, 현재 선택한 가입금액과 비교해 보여줍니다.</p></div>
+      <div class="tabs" role="tablist" id="sex-tabs" aria-label="성별">
+        <button role="tab" aria-selected="true" tabindex="0" data-sex="M">남성</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-sex="F">여성</button>
+      </div>
+    </div>
+    <div class="grid g-cancer" id="cancer-grid" role="tabpanel"></div>
+  </section>
+
+  <section id="summary">
+    <div class="sec-head">
+      <div><h2><span class="num">4</span>상담 요약</h2>
+      <p class="sub">지금 고른 조합을 한 장으로 정리했습니다. 상담 메모로 복사하거나 인쇄(PDF 저장)할 수 있습니다. <b>설계사 내부 참고용</b>이며 고객에게 그대로 전달하지 않습니다.</p></div>
+    </div>
+    <div class="card sum" id="sum-box"></div>
+  </section>
+
+  <section id="editor">
+    <div class="card"><details class="ed">
+      <summary>⚙ 담보별 가입금액표 설정 (상품설명서 기준 금액으로 수정)</summary>
+      <div class="notice">「암통합치료비 설계시 보장금액 예시표 ver.25.10.31」 가입금액 시트의 금액·누적합산값입니다. 판매중지된 비급여 암통합치료비는 제외했습니다. 상품 개정 시 이 표에서 금액을 고치면 바로 반영되며, 이 브라우저에 저장됩니다. 붉은 테두리 칸(누적합산값)이 3,500만원 한도 계산에 쓰입니다.</div>
+      <div class="edtabs" id="ed-tabs"></div>
+      <div class="edtable" id="ed-table"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn sm" type="button" id="ed-export">JSON 내보내기</button>
+        <button class="btn sm" type="button" id="ed-import">JSON 불러오기</button>
+        <button class="btn sm" type="button" id="ed-reset">기본값으로 되돌리기</button>
+        <span class="muted" id="ed-msg" style="font-size:.8125rem"></span>
+      </div>
+      <textarea id="ed-json" placeholder="내보내기를 누르면 현재 금액표가 JSON으로 표시됩니다. 수정 후 불러오기를 누르세요." style="margin-top:8px" aria-label="금액표 JSON"></textarea>
+    </details></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="fh">유의사항</p>
+    <p>※ 내부 설계사 교육용 참고 자료입니다. 고객 및 외부에 배포·게시할 수 없습니다(금융소비자보호법 제22조). 이 화면은 가입금액 설계를 돕기 위한 예시입니다. 실제 보험금 지급 여부와 금액은 약관, 상품설명서, 치료 내용(급여·비급여, 약제 분류, 의료기관 종별)에 따라 달라집니다. 치료비는 공개 보도와 병원 안내 자료를 바탕으로 추정한 범위이며 환자마다 다릅니다.</p>
+    <p>출처: 「암통합치료비 설계시 보장금액 예시표 ver.25.10.31」(내부 교육용) · 보건복지부·중앙암등록본부 「2023년 국가암등록통계」 · 보건복지부 「제5기(’24~’26) 상급종합병원 47개소 지정」 · 병원 및 언론 보도(세브란스·서울대병원 기장·서울아산병원 중입자, 국립암센터·삼성서울·서울성모·계명대동산·고려대의료원 양성자 등). 제6기(’27~’29) 상급종합병원 명단은 2026년 12월 발표 예정이라 반영되지 않았습니다. 지도 윤곽: Highcharts Map Collection. 화면 디자인: 범정부 UI/UX 디자인 시스템(KRDS) 색·글꼴 체계 참고.</p>
+  </div>
+</footer>
+
+<div class="modal" id="map-modal" aria-hidden="true">
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="map-title">
+    <div class="mh">
+      <div><h2 id="map-title">지도</h2><p class="sub" id="map-sub"></p></div>
+      <button class="btn sm" type="button" id="map-close">닫기 ✕</button>
+    </div>
+    <div class="legend" id="map-legend"></div>
+    <div class="mapwrap">
+      <div class="mapbox" id="mapbox">
+        <div class="maptools">
+          <button class="btn sm" type="button" id="zoom-metro">수도권 확대</button>
+          <button class="btn sm" type="button" id="zoom-all">전국</button>
+        </div>
+        <svg id="map-svg" viewBox="-1100 -100 10300 11050" role="img" aria-label="대한민국 지도"></svg>
+        <div class="tip" id="map-tip"></div>
+      </div>
+      <div>
+        <input class="hsearch" id="map-q" type="search" placeholder="병원·지역 이름으로 찾기 (예: 부산, 아산)" aria-label="병원 찾기">
+        <div class="hlist" id="map-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ 기본 데이터 (금액 단위: 만원) ============ */
+let UW_LIMIT = 3500;   // 누적합산 한도(65세 이하) — 설정에서 변경 가능
+// 「암통합치료비 설계시 보장금액 예시표 ver.25.10.31」 가입금액 시트 항목
+const ITEMS = [
+  {k:'surg',   n:'수술(급여/비급여)'},
+  {k:'chemo',  n:'항암약물(급여/비급여)'},
+  {k:'radio',  n:'방사선(급여/비급여)'},
+  {k:'imrt',   n:'세기조절방사선'},
+  {k:'nsurg',  n:'(비급여)수술'},
+  {k:'nchemo', n:'(비급여)항암약물'},
+  {k:'nradio', n:'(비급여)항암방사선'},
+  {k:'robot',  n:'(비급여)다빈치로봇수술'},
+  {k:'target', n:'(비급여)표적항암약물'},
+  {k:'immune', n:'(비급여)면역항암약물'},
+  {k:'proton', n:'(비급여)항암양성자'},
+];
+const ITEM_NAME = Object.fromEntries(ITEMS.map(i=>[i.k,i.n]));
+const o=(amt,uw,v)=>({amt,uw,v});
+function defaultProducts(){
+  const P = [
+    {id:'base', name:'암통합치료비(기본형)', desc:'급여·비급여 수술/항암약물/방사선 + 세기조절 + 비급여 다빈치·표적·면역·양성자',
+     opts:[o(10000,2000,{surg:1000,chemo:1000,radio:1000,imrt:1000,robot:1000,target:3000,immune:3000,proton:3000}),
+           o(8000, 1500,{surg:750, chemo:750, radio:750, imrt:750, robot:750, target:2000,immune:2000,proton:2000}),
+           o(4000, 1000,{surg:500, chemo:500, radio:500, imrt:500, robot:500, target:1000,immune:1000,proton:1000})]},
+    {id:'ii', name:'암통합치료비Ⅱ', desc:'비급여 전용: (비급여)수술/항암약물/방사선 + 다빈치·표적·면역·양성자',
+     opts:[o(10000,2000,{nsurg:1000,nchemo:1000,nradio:1000,robot:1000,target:3000,immune:3000,proton:3000}),
+           o(7000, 1500,{nsurg:750, nchemo:750, nradio:750, robot:750, target:2000,immune:2000,proton:2000}),
+           o(4000, 1000,{nsurg:500, nchemo:500, nradio:500, robot:500, target:1000,immune:1000,proton:1000})]},
+    {id:'major', name:'암통합치료비(주요치료)', desc:'비급여 주요치료: (비급여)수술 · (비급여)항암약물 · (비급여)항암방사선',
+     opts:[o(7000,1000,{nsurg:1000,nchemo:1000,nradio:1000}),
+           o(5000,750, {nsurg:750, nchemo:750, nradio:750}),
+           o(3000,500, {nsurg:500, nchemo:500, nradio:500})]},
+    {id:'lite', name:'암통합치료비(실속형)', desc:'급여·비급여 수술/항암약물/방사선 + 비급여 표적·면역·양성자 (세기조절·다빈치 제외)',
+     opts:[o(7000,1000,{surg:1000,chemo:1000,radio:1000,target:1000,immune:1000,proton:1000}),
+           o(5000,750, {surg:750, chemo:750, radio:750, target:750, immune:750, proton:750}),
+           o(3000,500, {surg:500, chemo:500, radio:500, target:500, immune:500, proton:500}),
+           o(1000,250, {surg:250, chemo:250, radio:250, target:250, immune:250, proton:250})]},
+  ];
+  const fill=v=>Object.fromEntries(ITEMS.map(i=>[i.k,v[i.k]||0]));
+  const cp=opts=>opts.map(x=>({amt:x.amt,uw:x.uw,v:fill(x.v)}));
+  return P.map(p=>({id:p.id,name:p.name,desc:p.desc,tiers:{basic:cp(p.opts),tert:cp(p.opts)}}));
+}
+
+// 치료행위별 보장금액 = 해당 항목 합계 × 배수 (예시표 계산식과 동일)
+const f=(label,items,mult=1)=>({label,items,mult});
+const SCENARIOS = [
+  {id:'immune', cat:'약물', name:'면역항암치료', drug:'키트루다 · 옵디보 · 임핀지 · 티쎈트릭 (표적과 중복되는 경우)',
+   main:f('비급여',['chemo','nchemo','target','immune']), alt:f('급여(산정특례)',['chemo']),
+   cost:'비급여 투여 시 연 5,000만~1억원 이상', note:'항암약물 + 표적 + 면역 누적. 예) 기본형 1억: 1천 + 3천 + 3천 = 7천만원'},
+  {id:'target', cat:'약물', name:'표적항암치료', drug:'타그리소 · 허셉틴 · 엔허투 · 렌비마 · 아바스틴',
+   main:f('비급여',['chemo','nchemo','target']), alt:f('급여(산정특례)',['chemo']), cost:'비급여·병용요법 시 연 3,000만~1억원'},
+  {id:'chemo', cat:'약물', name:'항암약물치료', drug:'세포독성 항암제(FOLFOX, 파클리탁셀 등) · 유사암 제외',
+   main:f('급여',['chemo']), alt:f('비급여',['chemo','nchemo']), cost:'급여 중심, 연 수백만~1,000만원'},
+  {id:'surg', cat:'수술', name:'암수술 (개복·복강경)', drug:'위·대장·간·폐 절제술 등 — 수술당 지급',
+   main:f('급여',['surg']), alt:f('비급여',['surg','nsurg']), cost:'본인부담 수백만~1,000만원'},
+  {id:'robot', cat:'수술', name:'다빈치 로봇수술', drug:'위·대장·자궁·신장·폐 등 (전립선·갑상선 제외)',
+   main:f('비급여',['surg','nsurg','robot']), cost:'로봇 사용료(비급여) 700만~1,500만원 + 입원비'},
+  {id:'robotS', cat:'수술', name:'특정암 다빈치 (전립선·갑상선)', drug:'전립선암 · 갑상선암 로봇수술 — 다빈치수술 금액의 20%',
+   main:f('비급여',['surg','nsurg','robot'],0.2), cost:'로봇 사용료(비급여) 700만~1,200만원'},
+  {id:'minor', cat:'수술', name:'유사암 수술', drug:'기타피부암 · 갑상선암 · 제자리암 · 경계성종양 — 수술 금액의 20%',
+   main:f('급여',['surg'],0.2), alt:f('비급여',['surg','nsurg'],0.2), cost:'본인부담 수십만~수백만원'},
+  {id:'levo', cat:'수술', name:'레보아이', drug:'비급여 수술 금액으로 지급',
+   main:f('비급여',['surg','nsurg']), cost:'비급여'},
+  {id:'radio', cat:'방사선', name:'항암방사선치료', drug:'일반 방사선치료 (유사암 제외)',
+   main:f('급여',['radio']), alt:f('비급여',['radio','nradio']), cost:'급여 중심, 본인부담 수백만원'},
+  {id:'imrt', cat:'방사선', name:'세기조절방사선(IMRT)', drug:'두경부·전립선·유방·폐암 정밀 방사선',
+   main:f('급여',['radio','imrt']), alt:f('비급여',['radio','nradio','imrt']), cost:'본인부담 수백만~1,500만원'},
+  {id:'proton', cat:'방사선', name:'양성자 방사선치료', drug:'간암·폐암·소아암·뇌종양 등 (국립암센터·삼성서울병원)',
+   main:f('비급여',['radio','nradio','proton']), alt:f('급여',['radio']), cost:'급여 여부에 따라 수백만~3,000만원'},
+  {id:'carbon', cat:'방사선', name:'중입자 방사선치료', drug:'전립선·췌장·간·폐암 (연세암병원 운영, 서울대 기장 예정)',
+   main:f('비급여',['radio','nradio']), cost:'비급여 약 5,000만~7,000만원', note:'중입자 전용 항목은 없고 (비급여) 항암방사선 금액으로 지급됩니다.'},
+  {id:'minorTx', cat:'방사선', name:'갑상선·기타피부암 방사선', drug:'방사성요오드 등 — 항암방사선 금액의 20% (항암약물도 20%)',
+   main:f('급여',['radio'],0.2), alt:f('비급여',['radio','nradio'],0.2), cost:'본인부담 수십만~300만원'},
+];
+const SC = Object.fromEntries(SCENARIOS.map(s=>[s.id,s]));
+
+// 성별 다빈도 암 (2023년 국가암등록통계). 치료비: 1년 기준 추정 범위(만원)
+const CANCERS = [
+  {sex:'M', rank:1, name:'전립선암', desc:'고령화로 2023년 남성 암 1위. 조기 발견 시 수술·방사선, 진행 시 호르몬·표적치료.', plans:[
+    {label:'로봇 근치적 전립선절제술', calc:['robotS'], lo:1000, hi:2000, note:'특정암 다빈치 → 다빈치수술 금액의 20%'},
+    {label:'세기조절방사선(IMRT)', calc:['imrt'], lo:500, hi:1500},
+    {label:'중입자 방사선치료', calc:['carbon'], lo:4500, hi:5500, note:'약 5,000만원(비급여). (비급여) 항암방사선 금액으로 지급'},
+    {label:'전이성: 표적치료', calc:['target'], lo:1500, hi:5000, note:'급여 기준 충족 여부에 따라 차이 큼'},
+  ]},
+  {sex:'M', rank:2, name:'폐암', desc:'사망률 1위 암. 유전자 변이에 따라 표적·면역항암 비중이 큼.', plans:[
+    {label:'흉강경·로봇 폐엽절제술', calc:['robot'], lo:800, hi:2000},
+    {label:'EGFR 표적항암(타그리소 등)', calc:['target'], lo:1500, hi:6000, note:'병용·후속 요법이 비급여면 부담 증가'},
+    {label:'면역항암(키트루다 + 항암)', calc:['immune'], lo:5000, hi:10000},
+    {label:'중입자 방사선(국소진행)', calc:['carbon'], lo:5000, hi:7000},
+  ]},
+  {sex:'M', rank:3, name:'위암', desc:'조기위암은 내시경·복강경, 진행성은 수술 후 보조항암 + 면역·표적.', plans:[
+    {label:'로봇 위절제 + 보조항암', calc:['robot','chemo'], lo:1500, hi:3000},
+    {label:'진행성: 면역(옵디보) + 항암', calc:['immune'], lo:5000, hi:8000},
+  ]},
+  {sex:'M', rank:4, name:'대장암', desc:'수술 + FOLFOX 보조항암이 표준. 전이 시 표적·면역.', plans:[
+    {label:'로봇 수술 + 보조항암', calc:['robot','chemo'], lo:1500, hi:3000},
+    {label:'전이성: 표적(아바스틴·얼비툭스) + 항암', calc:['target'], lo:3000, hi:6000},
+    {label:'MSI-H: 면역항암(키트루다)', calc:['immune'], lo:5000, hi:10000},
+  ]},
+  {sex:'M', rank:5, name:'간암', desc:'절제·고주파·색전술, 방사선(양성자), 진행 시 면역 + 표적 병용.', plans:[
+    {label:'간절제술 / 고주파열치료', calc:['surg'], lo:700, hi:1500},
+    {label:'양성자 방사선치료', calc:['proton'], lo:1500, hi:3000},
+    {label:'면역 + 표적(티쎈트릭 + 아바스틴)', calc:['immune'], lo:5000, hi:9000},
+  ]},
+  {sex:'M', rank:6, name:'갑상선암', desc:'유사암으로 분류돼 수술·방사선이 20% 지급. 로봇수술 선택 비중이 높음.', plans:[
+    {label:'로봇 갑상선절제술', calc:['robotS'], lo:800, hi:1500, note:'특정암 다빈치 → 다빈치수술 금액의 20%'},
+    {label:'방사성요오드 치료', calc:['minorTx'], lo:100, hi:300},
+  ]},
+  {sex:'F', rank:1, name:'유방암', desc:'여성 암 1위. 수술 + 방사선 + 항암 표준치료, 아형별 표적·면역.', plans:[
+    {label:'수술 + 세기조절방사선 + 항암', calc:['surg','imrt','chemo'], lo:1500, hi:3000},
+    {label:'HER2 표적(엔허투 등)', calc:['target'], lo:5000, hi:10000, note:'엔허투 비급여 시 연 약 1억원'},
+    {label:'삼중음성: 면역(키트루다) + 항암', calc:['immune'], lo:5000, hi:10000},
+  ]},
+  {sex:'F', rank:2, name:'갑상선암', desc:'유사암으로 분류돼 수술·방사선이 20% 지급. 로봇수술 선택 비중이 높음.', plans:[
+    {label:'로봇 갑상선절제술', calc:['robotS'], lo:800, hi:1500, note:'특정암 다빈치 → 다빈치수술 금액의 20%'},
+    {label:'방사성요오드 치료', calc:['minorTx'], lo:100, hi:300},
+  ]},
+  {sex:'F', rank:3, name:'대장암', desc:'수술 + FOLFOX 보조항암이 표준. 전이 시 표적·면역.', plans:[
+    {label:'로봇 수술 + 보조항암', calc:['robot','chemo'], lo:1500, hi:3000},
+    {label:'전이성: 표적(아바스틴·얼비툭스) + 항암', calc:['target'], lo:3000, hi:6000},
+  ]},
+  {sex:'F', rank:4, name:'폐암', desc:'비흡연 여성 폐선암 증가. EGFR 변이 비율이 높아 표적치료 비중 큼.', plans:[
+    {label:'흉강경·로봇 폐엽절제술', calc:['robot'], lo:800, hi:2000},
+    {label:'EGFR 표적항암(타그리소 등)', calc:['target'], lo:1500, hi:6000},
+    {label:'면역항암(키트루다 + 항암)', calc:['immune'], lo:5000, hi:10000},
+  ]},
+  {sex:'F', rank:5, name:'위암', desc:'조기위암은 내시경·복강경, 진행성은 수술 후 보조항암 + 면역·표적.', plans:[
+    {label:'로봇 위절제 + 보조항암', calc:['robot','chemo'], lo:1500, hi:3000},
+    {label:'진행성: 면역(옵디보) + 항암', calc:['immune'], lo:5000, hi:8000},
+  ]},
+  {sex:'F', rank:6, name:'췌장암', desc:'5년 생존율이 가장 낮은 암. 수술 가능 비율이 낮아 항암·중입자 수요 증가.', plans:[
+    {label:'췌십이지장절제(휘플) + 항암', calc:['surg','chemo'], lo:1500, hi:3000},
+    {label:'중입자 방사선치료', calc:['carbon'], lo:5000, hi:7000},
+  ]},
+];
+
+// 제5기('24~'26) 상급종합병원 47개소 — [이름, 권역, 위도, 경도]
+const TERTIARY = [
+  ['서울대학교병원','서울',37.5796,126.9990],['서울아산병원','서울',37.5268,127.1086],['삼성서울병원','서울',37.4881,127.0856],
+  ['세브란스병원(연세암병원)','서울',37.5622,126.9408],['가톨릭대 서울성모병원','서울',37.5016,127.0048],['강남세브란스병원','서울',37.4926,127.0463],
+  ['고려대 안암병원','서울',37.5872,127.0264],['고려대 구로병원','서울',37.4922,126.8847],['경희대학교병원','서울',37.5940,127.0520],
+  ['건국대학교병원','서울',37.5410,127.0722],['중앙대학교병원','서울',37.5069,126.9608],['한양대학교병원','서울',37.5596,127.0446],
+  ['이화여대 목동병원','서울',37.5364,126.8864],['강북삼성병원','서울',37.5685,126.9676],
+  ['가천대 길병원','경기서북부(인천)',37.4523,126.7075],['인하대병원','경기서북부(인천)',37.4573,126.6336],['가톨릭대 인천성모병원','경기서북부(인천)',37.4855,126.7249],['순천향대 부천병원','경기서북부(인천)',37.4994,126.7627],
+  ['분당서울대병원','경기남부',37.3519,127.1234],['아주대병원','경기남부',37.2798,127.0469],['한림대 성심병원','경기남부',37.3918,126.9617],['고려대 안산병원','경기남부',37.3187,126.8250],['분당차병원','경기남부',37.4100,127.1270],
+  ['강릉아산병원','강원',37.8187,128.8581],['연세대 원주세브란스기독병원','강원',37.3478,127.9464],
+  ['충북대학교병원','충북',36.6260,127.4620],
+  ['단국대병원','충남',36.8425,127.1720],['순천향대 천안병원','충남',36.8030,127.1360],['충남대학교병원','충남',36.3170,127.4150],
+  ['전북대학교병원','전북',35.8470,127.1410],['원광대학교병원','전북',35.9660,126.9580],
+  ['전남대학교병원','전남',35.1420,126.9210],['조선대학교병원','전남',35.1390,126.9290],['화순전남대병원','전남',35.0580,126.9790],
+  ['경북대학교병원','경북(대구)',35.8665,128.6040],['칠곡경북대병원','경북(대구)',35.9530,128.5660],['계명대 동산병원','경북(대구)',35.8540,128.4830],['대구가톨릭대병원','경북(대구)',35.8380,128.5880],['영남대병원','경북(대구)',35.8460,128.5840],
+  ['부산대학교병원','경남(부산·울산)',35.1010,129.0180],['양산부산대병원','경남(부산·울산)',35.3290,129.0060],['동아대학교병원','경남(부산·울산)',35.1190,129.0170],
+  ['인제대 부산백병원','경남(부산·울산)',35.1470,129.0200],['고신대 복음병원','경남(부산·울산)',35.0810,129.0140],['울산대학교병원','경남(부산·울산)',35.5210,129.4290],
+  ['경상국립대병원','경남(부산·울산)',35.1760,128.0950],['삼성창원병원','경남(부산·울산)',35.2440,128.6930],
+  // 상급포함 담보 추가 인정기관 (국립암센터 · 원자력병원 · 지역암센터)
+  ['국립암센터','국립암센터·원자력병원·지역암센터',37.6640,126.7480,1],['원자력병원(공릉 본원)','국립암센터·원자력병원·지역암센터',37.6289,127.0823,1],
+  ['동남권원자력의학원','국립암센터·원자력병원·지역암센터',35.3235,129.2300,1],['강원대학교병원(지역암센터)','국립암센터·원자력병원·지역암센터',37.8710,127.7430,1],
+  ['제주대학교병원(지역암센터)','국립암센터·원자력병원·지역암센터',33.4670,126.5450,1],
+];
+
+// 중입자·양성자 치료센터 (운영 / 예정·추진)
+const PARTICLE = [
+  {n:'연세암병원 중입자치료센터(세브란스)', t:'carbon', s:'run',  y:'2023.4 개시', lat:37.5622, lon:126.9408, note:'국내 유일 운영. 고정형(전립선) + 회전형(췌장·간·폐 등)'},
+  {n:'서울대병원 기장 중입자치료센터',      t:'carbon', s:'plan', y:'2027년 하반기 목표', lat:35.3160, lon:129.2550, note:'부산 기장 동남권방사선의과학산단. 수도권 밖 첫 중입자 시설'},
+  {n:'서울아산병원 중입자치료센터',         t:'carbon', s:'plan', y:'2031년 가동 목표', lat:37.5268, lon:127.1086, note:'2026.6 착공. 회전형 2 + 고정형 1, 멀티이온빔'},
+  {n:'국립암센터 양성자치료센터',           t:'proton', s:'run',  y:'2007 개시', lat:37.6640, lon:126.7480, note:'국내 최초. 2028.4 차세대 단일치료실 장비(프로테우스 원) 추가 예정'},
+  {n:'삼성서울병원 양성자치료센터',         t:'proton', s:'run',  y:'2016 개시', lat:37.4881, lon:127.0856, note:'국내 두 번째 양성자 치료기관'},
+  {n:'가톨릭대 서울성모병원',               t:'proton', s:'plan', y:'2029년 가동 목표', lat:37.5016, lon:127.0048, note:'IBA 차세대 양성자치료기 도입 확정'},
+  {n:'계명대 동산병원',                     t:'proton', s:'plan', y:'2029년 치료 개시 목표', lat:35.8540, lon:128.4830, note:'대구·경북 최초 양성자 치료 추진'},
+  {n:'고려대의료원',                        t:'proton', s:'plan', y:'2029년 가동 목표', lat:37.5872, lon:127.0264, note:'약 1,500억 투자. 안암·구로·안산 중 설치 부지 검토(지도는 안암 표시)'},
+  {n:'동남권원자력의학원(부산 기장)',       t:'proton', s:'plan', y:'2030년 이후 건립 추진', lat:35.3235, lon:129.2300, note:'부산시·기장군 업무협약(2025.11), 사전 타당성 조사 단계'},
+  {n:'울산대학교병원',                      t:'proton', s:'plan', y:'추진(계획 수립 단계)', lat:35.5210, lon:129.4290, note:'울산시와 양성자치료센터 설립 협약'},
+  {n:'원광대학교병원(익산)',                t:'proton', s:'plan', y:'추진(계획 수립 단계)', lat:35.9660, lon:126.9580, note:'익산시와 양성자치료센터 설립 협약'},
+];
+
+const KR_PATHS = [["Gyeonggi","M1421,2736L1359,2776L1329,2739L1307,2744L1335,2661L1421,2736ZM1934,2731L1902,2751L1866,2735L1867,2684L1909,2652L1946,2656L1968,2692L1934,2731ZM2090,2659L2145,2700L2152,2754L2068,2817L2030,2821L2066,2739L2060,2685L2037,2650L2090,2659ZM701,1862L692,1866L682,1812L723,1826L701,1862ZM1784,1888L1751,1889L1645,1801L1677,1735L1715,1710L1743,1794L1799,1847L1784,1888ZM1643,1575L1673,1594L1733,1600L1736,1652L1707,1676L1606,1661L1557,1675L1551,1653L1595,1573L1643,1575ZM-851,1485L-899,1495L-910,1452L-856,1409L-830,1430L-851,1485ZM1858,1903L1786,1765L1790,1632L1852,1563L1881,1556L1953,1627L2004,1654L2031,1707L2018,1763L2038,1819L2036,1908L2057,1950L2036,1962L2017,2004L1979,2014L1951,1987L1929,2000L1845,2003L1782,1942L1832,1931L1858,1903ZM-939,1151L-849,1124L-806,1143L-793,1195L-896,1195L-854,1237L-888,1261L-952,1249L-999,1205L-979,1135L-939,1151ZM2697,3426L2761,3381L2773,3332L2752,3303L2826,3274L2831,3251L2734,3276L2719,3296L2722,3359L2673,3384L2619,3375L2557,3337L2501,3279L2480,3225L2577,3217L2556,3189L2620,3205L2578,3093L2591,3040L2558,3050L2537,3149L2444,3154L2371,3130L2369,3025L2412,2962L2465,2940L2550,2930L2553,2872L2496,2911L2460,2897L2453,2857L2383,2897L2324,2957L2290,2975L2264,2945L2298,2894L2236,2899L2241,2851L2300,2824L2315,2791L2258,2787L2225,2713L2308,2700L2375,2728L2400,2717L2399,2761L2439,2780L2456,2718L2484,2678L2567,2693L2550,2664L2491,2636L2398,2628L2348,2611L2279,2557L2276,2533L2330,2468L2414,2431L2455,2338L2414,2295L2399,2208L2307,2115L2152,2117L2086,1998L2065,1867L2046,1701L2075,1670L2162,1704L2235,1685L2263,1723L2251,1872L2299,1914L2399,1945L2279,1844L2317,1731L2296,1669L2308,1541L2268,1559L2261,1386L2271,1338L2361,1308L2426,1259L2567,1055L2684,952L2741,820L2761,795L2871,864L2942,987L2962,984L3033,1054L3090,1082L3112,1051L3113,984L3130,951L3149,998L3217,1015L3274,956L3310,966L3281,1028L3282,1066L3331,1105L3391,1121L3458,1098L3517,1107L3542,1164L3548,1259L3567,1312L3607,1343L3680,1344L3702,1403L3762,1424L3799,1482L3789,1564L3656,1660L3649,1751L3668,1824L3621,1878L3639,1903L3682,1890L3673,1970L3653,2036L3688,2067L3775,2062L3944,2157L4075,2185L4117,2236L4016,2357L4012,2447L3910,2656L3836,2830L3746,2990L3696,3049L3599,3223L3558,3251L3518,3231L3458,3316L3390,3361L3374,3420L3251,3469L3178,3488L3102,3477L3041,3423L2971,3390L2836,3445L2697,3426ZM2972,2133L2988,2076L2988,2027L2963,1918L2937,1870L2879,1864L2829,1875L2796,1909L2735,2002L2663,2007L2650,2073L2577,2105L2526,2073L2482,2069L2456,2120L2524,2213L2531,2271L2609,2307L2654,2370L2723,2374L2861,2334L2879,2377L3015,2321L3059,2258L3046,2207L3093,2180L3087,2121L2972,2133Z"],["North Jeolla","M1568,5992L1565,6019L1485,6082L1484,6031L1517,5998L1568,5992ZM4156,5256L4221,5371L4212,5499L4152,5562L4135,5604L4053,5646L3974,5666L3943,5732L3869,5801L3844,5915L3797,6007L3762,6130L3739,6176L3736,6227L3778,6245L3804,6340L3801,6392L3840,6446L3830,6501L3760,6582L3745,6685L3710,6720L3617,6643L3512,6604L3452,6636L3403,6687L3237,6699L3176,6697L3123,6661L3010,6674L2962,6701L2901,6691L2862,6648L2866,6582L2824,6506L2839,6448L2807,6397L2759,6399L2730,6434L2714,6489L2663,6489L2588,6383L2539,6341L2480,6325L2452,6357L2397,6350L2355,6387L2355,6441L2318,6478L2321,6520L2285,6567L2182,6616L2025,6652L1984,6637L2011,6456L1964,6442L1768,6492L1739,6444L1752,6397L1829,6236L1868,6183L1922,6166L2036,6153L2084,6102L2117,6094L2175,6165L2197,6173L2163,6063L2138,6048L1904,6081L1824,6028L1833,5953L1871,5934L1938,5868L2049,5809L2096,5746L2105,5686L2159,5652L2276,5656L2337,5692L2354,5722L2370,5660L2225,5559L2257,5513L2364,5518L2399,5509L2421,5467L2451,5457L2401,5423L2280,5469L2082,5454L2079,5372L2016,5341L1943,5350L1938,5289L2303,5260L2399,5199L2509,5148L2513,5119L2417,5146L2492,5058L2663,5033L2833,4983L2893,4997L2876,5085L2910,5140L3095,5099L3176,5075L3227,5014L3278,5061L3349,5194L3424,5228L3428,5287L3522,5301L3654,5278L3734,5206L3763,5238L3787,5220L3839,5266L3952,5318L4066,5261L4113,5297L4156,5256Z"],["South Gyeongsang","M4779,8027L4817,8013L4803,8047L4720,8070L4702,8025L4726,7986L4779,8027ZM4960,7645L5042,7636L5062,7678L5056,7732L5005,7765L4972,7707L4943,7698L4962,7670L4882,7639L4915,7619L4960,7645ZM4732,7689L4673,7658L4709,7612L4763,7660L4732,7689ZM5711,7304L5661,7193L5684,7169L5730,7197L5711,7304ZM6433,6657L6401,6756L6411,6795L6367,6888L6318,6963L6185,6812L6175,6768L6143,6748L6062,6762L6008,6813L5990,6932L5928,7024L5920,7017L5855,7127L5832,7129L5821,7048L5795,7128L5645,7125L5628,7068L5613,7124L5558,7115L5540,7081L5495,7098L5495,7010L5474,7009L5461,7058L5392,6990L5359,7003L5359,6919L5333,6861L5293,6910L5325,7028L5373,7108L5369,7154L5414,7168L5334,7177L5296,7114L5207,7082L5127,7091L5132,7139L4980,7190L4950,7275L5115,7189L5143,7187L5162,7271L5127,7310L5030,7324L5063,7360L5050,7509L5080,7519L5097,7483L5119,7510L5054,7605L4967,7612L4968,7581L5022,7565L4897,7544L4871,7495L4926,7470L4889,7394L4834,7473L4796,7475L4761,7428L4705,7412L4679,7446L4676,7507L4564,7503L4534,7486L4529,7438L4440,7430L4418,7406L4427,7362L4425,7213L4451,7119L4377,7212L4338,7215L4367,7287L4302,7299L4258,7326L4213,7243L4189,7359L4154,7389L4076,7381L4053,7392L4012,7366L3987,7265L3885,7152L3854,7072L3777,7003L3755,6963L3750,6856L3734,6804L3701,6764L3710,6720L3745,6685L3760,6582L3830,6501L3840,6446L3801,6392L3804,6340L3778,6245L3736,6227L3739,6176L3762,6130L3797,6007L3844,5915L3869,5801L3943,5732L3974,5666L4053,5646L4135,5604L4152,5562L4212,5499L4225,5544L4288,5588L4296,5620L4372,5635L4419,5671L4513,5675L4555,5690L4658,5828L4705,5869L4683,5962L4708,6055L4906,6062L4993,6115L5039,6125L5127,6080L5172,6089L5213,6032L5251,6003L5264,6114L5305,6165L5357,6198L5478,6180L5583,6224L5644,6226L5698,6184L5745,6172L5786,6128L5846,6104L5957,6142L6003,6127L6010,6207L5969,6290L5994,6339L6095,6355L6138,6387L6209,6468L6332,6543L6343,6599L6379,6635L6433,6657ZM4337,7459L4371,7474L4355,7547L4393,7501L4430,7525L4443,7583L4468,7616L4376,7599L4335,7612L4286,7594L4272,7565L4337,7459ZM4346,7869L4288,7887L4254,7766L4205,7766L4174,7859L4111,7841L4095,7764L4051,7615L4050,7544L4105,7490L4113,7446L4172,7403L4231,7456L4214,7507L4176,7546L4190,7595L4249,7635L4268,7671L4380,7643L4447,7657L4455,7680L4436,7747L4438,7813L4415,7830L4429,7871L4396,7896L4346,7869ZM5469,7677L5459,7720L5421,7780L5481,7822L5455,7844L5335,7881L5299,7883L5356,7843L5323,7813L5333,7760L5282,7786L5260,7729L5312,7710L5334,7622L5294,7629L5208,7676L5147,7592L5142,7553L5175,7509L5222,7484L5301,7472L5372,7509L5402,7498L5354,7448L5345,7381L5367,7384L5483,7319L5463,7282L5498,7225L5527,7237L5535,7273L5524,7347L5532,7383L5550,7421L5516,7540L5571,7521L5571,7579L5549,7618L5526,7609L5561,7712L5519,7707L5469,7677Z"],["South Jeolla","M1538,9332L1511,9354L1495,9378L1471,9336L1538,9332ZM3138,9155L3139,9203L3183,9268L3136,9250L3109,9188L3138,9155ZM-475,9077L-499,9076L-549,9033L-531,8985L-498,9011L-475,9077ZM1925,8915L1968,8913L2005,8940L1948,8938L1872,8998L1822,8972L1837,8912L1893,8893L1925,8915ZM2086,9018L2042,8999L2056,8861L2098,8876L2082,8924L2111,8964L2086,9018ZM2250,8892L2226,8880L2255,8835L2264,8862L2250,8892ZM2514,8931L2458,8962L2396,8914L2416,8859L2481,8845L2523,8895L2514,8931ZM1961,8895L1927,8894L1895,8862L1915,8782L2002,8817L2009,8845L1961,8895ZM3085,8841L3021,8852L3035,8809L3082,8775L3085,8841ZM1071,8720L1089,8746L1073,8776L1052,8753L1071,8720ZM1040,8597L1132,8614L1132,8651L1065,8668L1020,8635L1040,8597ZM2626,8652L2580,8632L2586,8601L2650,8588L2669,8627L2626,8652ZM980,8542L1048,8548L1082,8587L980,8570L980,8542ZM2394,8560L2476,8580L2448,8638L2387,8654L2354,8609L2301,8617L2250,8585L2326,8582L2394,8560ZM2732,8552L2784,8550L2816,8594L2778,8600L2718,8642L2736,8605L2695,8570L2641,8553L2704,8506L2732,8552ZM2568,8455L2557,8515L2500,8552L2467,8536L2462,8492L2436,8520L2435,8457L2542,8474L2568,8455ZM3107,8511L3077,8505L3073,8470L3088,8464L3107,8511ZM2424,8463L2379,8466L2311,8501L2281,8549L2268,8497L2245,8483L2295,8404L2384,8383L2385,8422L2424,8463ZM2730,8349L2764,8367L2781,8417L2763,8458L2751,8418L2727,8427L2701,8362L2730,8349ZM3997,8466L3968,8423L3994,8366L4012,8387L3997,8466ZM3470,8351L3509,8339L3552,8411L3481,8451L3412,8372L3423,8332L3470,8351ZM1090,8256L1108,8262L1058,8304L1049,8266L1076,8231L1090,8256ZM3450,8245L3493,8274L3483,8308L3419,8320L3399,8287L3425,8281L3387,8243L3412,8196L3450,8245ZM3958,8308L3896,8280L3839,8215L3907,8182L3975,8277L3958,8308ZM3775,8131L3817,8133L3751,8174L3723,8145L3758,8110L3775,8131ZM3595,8046L3606,8067L3567,8087L3541,8043L3595,8046ZM766,7972L757,8008L703,8021L674,7969L766,7972ZM1063,8085L1034,8080L1030,8010L1051,7955L1101,8057L1063,8085ZM965,7963L964,7983L914,7946L951,7935L965,7963ZM1266,7914L1295,7902L1337,7956L1215,8001L1219,7945L1197,7928L1254,7885L1266,7914ZM67,7799L109,7818L20,7932L-3,7869L32,7805L67,7799ZM-314,7745L-297,7746L-310,7801L-347,7851L-314,7745ZM1005,7866L967,7907L889,7873L868,7842L977,7767L1010,7812L1005,7866ZM1208,7686L1299,7740L1304,7803L1273,7823L1239,7780L1194,7791L1127,7684L1208,7686ZM1274,7699L1254,7704L1167,7649L1262,7611L1293,7643L1274,7699ZM1254,7467L1251,7560L1212,7578L1206,7619L1171,7607L1123,7537L1173,7508L1204,7518L1206,7482L1254,7467ZM3872,7485L3910,7497L3873,7538L3827,7521L3872,7485ZM1168,7400L1152,7481L1108,7503L1070,7483L995,7493L1067,7400L1107,7406L1138,7364L1168,7400ZM1429,7398L1394,7402L1390,7365L1441,7363L1429,7398ZM1481,7293L1519,7356L1487,7358L1458,7295L1481,7293ZM1455,7278L1430,7278L1446,7219L1473,7248L1455,7278ZM1308,7226L1319,7270L1266,7293L1233,7330L1254,7248L1277,7231L1199,7232L1187,7217L1249,7175L1278,7182L1308,7226ZM1267,7108L1317,7119L1313,7178L1240,7127L1267,7108ZM1108,6517L1069,6551L1057,6525L1084,6488L1108,6517ZM2136,8450L2192,8493L2229,8609L2271,8675L2222,8661L2205,8678L2134,8653L2146,8614L2092,8607L2062,8579L2058,8507L2079,8463L2136,8450ZM3067,8344L3039,8412L3008,8424L2912,8431L2854,8394L2865,8358L2843,8338L2893,8312L3000,8297L3050,8311L3067,8344ZM1499,8435L1338,8517L1248,8527L1226,8504L1253,8467L1197,8423L1196,8466L1162,8424L1185,8357L1234,8304L1280,8302L1323,8227L1444,8191L1443,8136L1401,8101L1439,8083L1507,8128L1523,8161L1580,8145L1629,8244L1615,8332L1581,8401L1550,8433L1507,8391L1499,8435ZM1165,8110L1094,8161L1056,8157L1088,8121L1051,8111L1108,8098L1136,8065L1103,7983L1116,7974L1167,8016L1165,8110ZM4024,8023L4020,8081L3991,8125L3953,8116L3895,8056L3899,7995L3938,7963L3957,7900L3935,7857L3992,7855L3984,7919L4024,8023ZM995,7639L1025,7658L1024,7701L922,7704L893,7772L854,7777L830,7715L849,7673L995,7639ZM1514,7397L1592,7442L1549,7472L1548,7502L1614,7519L1616,7561L1582,7591L1577,7552L1525,7522L1429,7542L1400,7521L1469,7498L1513,7444L1514,7397ZM1294,7036L1345,7021L1390,7019L1426,7044L1392,7074L1442,7102L1459,7181L1429,7174L1420,7124L1335,7100L1294,7036ZM1270,7059L1218,7104L1203,7122L1122,7097L1146,7015L1196,6995L1218,6955L1282,6929L1308,6937L1244,6981L1270,7059ZM4012,7366L3911,7359L3870,7298L3872,7349L3837,7416L3739,7480L3684,7394L3640,7409L3631,7483L3700,7605L3762,7655L3835,7595L3929,7599L3960,7583L3958,7623L3915,7808L3901,7831L3842,7849L3759,7817L3728,7883L3705,7883L3727,7938L3730,8045L3687,8006L3617,7984L3591,7909L3641,7786L3540,7557L3551,7516L3532,7493L3482,7592L3411,7616L3307,7616L3301,7642L3378,7685L3272,7726L3279,7765L3310,7753L3343,7874L3442,7952L3476,8003L3418,8002L3489,8031L3502,8095L3469,8124L3416,8127L3317,8071L3235,8117L3258,8166L3295,8181L3359,8166L3393,8195L3313,8266L3284,8306L3254,8291L3205,8327L3231,8385L3185,8385L3118,8294L3096,8246L3034,8177L2949,8214L2959,8243L2884,8216L2879,8140L2928,8108L2996,8007L3021,7996L3010,8062L2984,8120L3074,8104L3099,8070L3100,8011L3067,7928L3125,7860L3153,7882L3147,7917L3170,7962L3215,7959L3263,7876L3221,7789L3152,7828L3083,7736L3024,7858L2976,7895L2914,7884L2832,7957L2715,8027L2682,8038L2676,8101L2641,8156L2653,8182L2559,8270L2560,8354L2500,8344L2479,8403L2487,8426L2420,8385L2342,8356L2330,8317L2343,8151L2313,8078L2276,8099L2256,8140L2272,8209L2220,8225L2263,8298L2174,8355L2203,8389L2142,8382L2128,8426L2065,8446L2039,8474L1995,8609L1991,8651L1950,8642L1873,8665L1852,8637L1866,8566L1787,8549L1803,8486L1848,8440L1847,8399L1785,8379L1800,8305L1770,8300L1779,8252L1813,8228L1898,8221L1853,8178L1896,8140L1877,8109L1844,8137L1809,8123L1774,8163L1693,8161L1648,8173L1632,8122L1576,8069L1530,8094L1492,8058L1533,7998L1455,7949L1454,7891L1489,7783L1493,7734L1541,7740L1600,7841L1578,7881L1617,8021L1774,8074L1788,8039L1726,8028L1689,7981L1697,7935L1646,7968L1633,7880L1637,7816L1752,7830L1759,7900L1894,8000L1868,7944L1888,7940L1958,7981L2005,7983L1929,7919L1853,7807L1782,7782L1733,7784L1700,7762L1658,7772L1615,7739L1663,7701L1712,7710L1776,7684L1851,7741L1899,7752L1896,7678L1958,7644L2072,7672L2061,7646L2118,7633L2094,7604L1970,7602L1972,7534L1995,7500L1983,7449L1935,7452L1914,7493L1923,7548L1864,7679L1821,7668L1845,7626L1823,7614L1770,7639L1727,7628L1709,7655L1650,7665L1628,7634L1695,7549L1696,7490L1724,7457L1703,7440L1677,7367L1682,7334L1747,7275L1706,7264L1638,7298L1647,7360L1593,7382L1544,7357L1567,7344L1523,7287L1602,7289L1599,7246L1646,7201L1635,7159L1589,7092L1530,7053L1542,7099L1506,7125L1499,7072L1458,7015L1478,6954L1575,6986L1602,6918L1613,6941L1602,7040L1629,7079L1710,7113L1702,7158L1730,7197L1775,7104L1780,7037L1718,6996L1702,6950L1638,6856L1661,6809L1640,6753L1550,6763L1569,6741L1664,6727L1630,6711L1676,6649L1667,6609L1688,6547L1726,6493L1759,6535L1802,6544L1768,6492L1964,6442L2011,6456L1984,6637L2025,6652L2182,6616L2285,6567L2321,6520L2318,6478L2355,6441L2355,6387L2397,6350L2452,6357L2480,6325L2539,6341L2588,6383L2663,6489L2714,6489L2730,6434L2759,6399L2807,6397L2839,6448L2824,6506L2866,6582L2862,6648L2901,6691L2962,6701L3010,6674L3123,6661L3176,6697L3237,6699L3403,6687L3452,6636L3512,6604L3617,6643L3710,6720L3701,6764L3734,6804L3750,6856L3755,6963L3777,7003L3854,7072L3885,7152L3987,7265L4012,7366ZM2441,6882L2530,6938L2631,6956L2698,6871L2667,6778L2582,6745L2493,6766L2434,6749L2398,6782L2441,6882Z"],["Busan","M6150,7174L6136,7191L6067,7132L6097,7097L6139,7140L6150,7174ZM6318,6963L6310,6979L6188,6991L6194,7089L6157,7106L6095,7049L6052,7095L6012,7181L5985,7140L5990,7200L5965,7183L5932,7204L5907,7145L5928,7024L5990,6932L6008,6813L6062,6762L6143,6748L6175,6768L6185,6812L6318,6963Z"],["North Gyeongsang","M4212,5499L4221,5371L4156,5256L4237,5224L4277,5124L4306,5082L4301,4968L4341,4934L4415,4944L4397,4839L4360,4812L4277,4831L4200,4777L4161,4763L4095,4778L4086,4682L4147,4606L4119,4539L4137,4381L4184,4307L4106,4191L4042,4180L4025,4133L4073,4118L4133,4045L4146,3982L4254,3923L4290,3871L4351,3898L4466,3917L4412,3832L4464,3714L4522,3729L4577,3676L4653,3711L4699,3715L4719,3651L4757,3604L4843,3680L4867,3729L4924,3748L5060,3692L5084,3613L5052,3574L5126,3448L5210,3371L5244,3361L5365,3252L5426,3225L5507,3264L5596,3278L5611,3189L5600,3139L5673,3083L5717,3087L5740,3127L5799,3148L5799,3218L5893,3164L5926,3190L6028,3194L6088,3221L6174,3187L6279,3230L6295,3277L6257,3305L6210,3287L6152,3319L6141,3369L6148,3434L6181,3484L6234,3509L6262,3589L6334,3624L6452,3633L6446,3678L6472,3706L6434,3811L6458,3961L6440,4009L6552,4050L6604,4027L6675,4040L6684,4122L6706,4205L6715,4288L6706,4460L6696,4497L6646,4557L6619,4631L6613,4874L6648,4943L6670,5064L6692,5084L6673,5133L6613,5169L6611,5197L6697,5288L6730,5293L6772,5260L6875,5147L6895,5113L6922,5134L6949,5245L6865,5402L6844,5592L6802,5712L6805,5786L6762,5917L6717,6012L6743,6062L6612,6032L6459,6060L6411,6038L6391,5956L6277,5920L6151,5953L6096,5996L6121,6050L6003,6127L5957,6142L5846,6104L5786,6128L5745,6172L5698,6184L5644,6226L5583,6224L5478,6180L5357,6198L5305,6165L5264,6114L5251,6003L5213,6032L5172,6089L5127,6080L5039,6125L4993,6115L4906,6062L4708,6055L4683,5962L4705,5869L4658,5828L4555,5690L4513,5675L4419,5671L4372,5635L4296,5620L4288,5588L4225,5544L4212,5499ZM5538,5583L5592,5559L5596,5461L5566,5426L5574,5346L5554,5310L5488,5262L5298,5281L5221,5344L5231,5436L5185,5506L5214,5514L5204,5553L5153,5557L5131,5588L5140,5626L5189,5659L5208,5697L5272,5746L5332,5676L5480,5707L5516,5685L5538,5583ZM9065,2213L9030,2309L8959,2317L8892,2263L8883,2222L8924,2172L9038,2142L9066,2162L9065,2213Z"],["Sejong","M3314,4295L3277,4292L3096,4337L2985,4365L2838,4334L2878,4269L2879,3964L2919,3860L3148,3956L3115,4025L3117,4058L3087,4177L3207,4156L3330,4166L3314,4295Z"],["Daejeon","M3096,4337L3277,4292L3314,4295L3350,4368L3343,4403L3392,4418L3445,4407L3464,4380L3503,4419L3521,4509L3466,4677L3327,4769L3247,4789L3215,4679L3209,4533L3181,4475L3096,4337Z"],["Ulsan","M6743,6062L6757,6085L6737,6258L6693,6328L6669,6342L6648,6260L6603,6220L6590,6259L6626,6281L6627,6361L6578,6383L6590,6473L6561,6523L6583,6580L6518,6611L6472,6656L6433,6657L6379,6635L6343,6599L6332,6543L6209,6468L6138,6387L6095,6355L5994,6339L5969,6290L6010,6207L6003,6127L6121,6050L6096,5996L6151,5953L6277,5920L6391,5956L6411,6038L6459,6060L6612,6032L6743,6062Z"],["Incheon","M1750,2273L1853,2215L1940,2212L1973,2196L1986,2151L2085,2185L2106,2210L2116,2235L1992,2281L1959,2318L1888,2369L1851,2365L1819,2318L1792,2333L1750,2273ZM2330,2468L2326,2454L2242,2442L2201,2490L2161,2458L2201,2391L2134,2337L2134,2272L2150,2245L2211,2226L2154,2223L2143,2165L2152,2117L2307,2115L2399,2208L2414,2295L2455,2338L2414,2431L2330,2468Z"],["Gangwon","M2761,795L2859,714L2962,653L3069,612L3171,603L3222,610L3418,596L3567,644L3709,614L4015,592L4088,656L4193,635L4360,647L4468,639L4577,602L4679,537L4764,450L4832,342L4853,281L4860,209L4844,105L4898,46L4987,0L5107,239L5158,400L5296,676L5404,967L5479,1069L5500,1128L5868,1657L6092,1905L6107,2038L6164,2069L6227,2255L6294,2326L6367,2469L6411,2524L6444,2617L6522,2702L6547,2772L6569,2924L6600,3008L6683,3122L6689,3146L6656,3213L6682,3475L6697,3558L6752,3727L6757,3810L6740,3887L6675,4040L6604,4027L6552,4050L6440,4009L6458,3961L6434,3811L6472,3706L6446,3678L6452,3633L6334,3624L6262,3589L6234,3509L6181,3484L6148,3434L6141,3369L6152,3319L6210,3287L6257,3305L6295,3277L6279,3230L6174,3187L6088,3221L6028,3194L5926,3190L5893,3164L5799,3218L5799,3148L5740,3127L5717,3087L5673,3083L5600,3139L5611,3189L5596,3278L5507,3264L5426,3225L5361,3190L5278,3176L5197,3119L5056,3140L5013,3080L5000,3033L4923,3042L4859,3064L4805,3031L4833,2989L4879,2956L4898,2914L4778,2890L4688,2857L4619,2902L4580,2893L4494,2947L4441,2959L4422,2888L4361,2823L4279,2850L4248,2887L4256,2984L4199,3030L4123,3011L4074,3022L4089,2925L3917,2946L3746,2990L3836,2830L3910,2656L4012,2447L4016,2357L4117,2236L4075,2185L3944,2157L3775,2062L3688,2067L3653,2036L3673,1970L3682,1890L3639,1903L3621,1878L3668,1824L3649,1751L3656,1660L3789,1564L3799,1482L3762,1424L3702,1403L3680,1344L3607,1343L3567,1312L3548,1259L3542,1164L3517,1107L3458,1098L3391,1121L3331,1105L3282,1066L3281,1028L3310,966L3274,956L3217,1015L3149,998L3130,951L3113,984L3112,1051L3090,1082L3033,1054L2962,984L2942,987L2871,864L2761,795Z"],["South Chungcheong","M1660,4226L1649,4107L1634,4051L1678,4007L1709,3997L1733,4045L1712,4069L1739,4145L1735,4181L1775,4233L1741,4244L1775,4260L1786,4340L1815,4406L1704,4396L1677,4311L1708,4271L1650,4274L1660,4226ZM3148,3956L2919,3860L2879,3964L2878,4269L2838,4334L2985,4365L3096,4337L3181,4475L3209,4533L3215,4679L3247,4789L3327,4769L3466,4677L3521,4509L3571,4461L3614,4479L3510,4662L3489,4739L3489,4852L3542,4842L3639,4890L3655,4950L3652,5020L3665,5089L3734,5206L3654,5278L3522,5301L3428,5287L3424,5228L3349,5194L3278,5061L3227,5014L3176,5075L3095,5099L2910,5140L2876,5085L2893,4997L2833,4983L2663,5033L2492,5058L2417,5146L2383,5156L2321,5204L2219,5237L2194,5224L2176,5166L2122,5082L2145,5065L2093,5035L2057,4970L1960,4922L1928,4926L1911,4976L1908,4907L2014,4866L2082,4888L2045,4831L1994,4817L1973,4789L2030,4655L2037,4617L1943,4581L1969,4559L2041,4543L2047,4496L1968,4486L1926,4443L1947,4430L1924,4384L1988,4359L2020,4315L2120,4282L2025,4279L1965,4343L1924,4327L1903,4229L1954,4166L1884,4141L1867,4029L1956,4016L1969,3970L1912,3922L1952,3881L1938,3853L1899,3844L1905,3786L1943,3781L1910,3725L1847,3771L1854,3851L1847,3943L1813,4006L1722,3958L1743,3811L1725,3801L1732,3750L1689,3733L1656,3814L1619,3814L1672,3926L1655,3958L1681,3995L1635,4011L1602,4048L1593,3993L1617,3944L1571,3865L1587,3826L1576,3771L1501,3840L1434,3860L1398,3848L1393,3793L1478,3785L1462,3722L1391,3683L1376,3757L1346,3797L1342,3681L1390,3616L1406,3573L1436,3643L1481,3645L1449,3589L1494,3604L1526,3576L1460,3560L1486,3492L1450,3461L1453,3433L1522,3398L1513,3461L1576,3467L1598,3442L1609,3286L1646,3276L1641,3347L1665,3445L1628,3497L1639,3553L1594,3585L1608,3632L1668,3603L1714,3636L1672,3518L1689,3498L1730,3543L1738,3521L1795,3501L1751,3472L1815,3415L1810,3337L1754,3330L1718,3301L1744,3294L1745,3244L1691,3237L1737,3209L1787,3227L1781,3197L1869,3208L1880,3235L1845,3291L1855,3324L1904,3302L1920,3360L1897,3394L1894,3484L1922,3536L1985,3323L2031,3369L2062,3425L2085,3426L2049,3336L1946,3223L1966,3205L2036,3274L2072,3266L2063,3239L2010,3217L1977,3185L1961,3107L1990,3107L2160,3231L2175,3259L2151,3304L2169,3349L2164,3401L2194,3358L2189,3308L2222,3247L2302,3240L2372,3264L2432,3318L2434,3361L2406,3448L2474,3394L2491,3441L2484,3570L2510,3658L2478,3683L2511,3726L2547,3626L2535,3576L2602,3591L2532,3494L2666,3449L2697,3426L2836,3445L2971,3390L3041,3423L3102,3477L3178,3488L3278,3623L3276,3665L3302,3720L3273,3818L3243,3820L3148,3956Z"],["Jeju","M2403,10526L2345,10651L2243,10658L2177,10708L2006,10735L1947,10782L1877,10796L1802,10787L1716,10801L1646,10778L1485,10776L1434,10798L1403,10850L1349,10841L1312,10778L1261,10759L1213,10706L1197,10643L1230,10562L1278,10494L1337,10461L1389,10376L1436,10365L1458,10320L1711,10250L1755,10214L1919,10201L2032,10155L2059,10163L2274,10140L2326,10149L2370,10199L2451,10233L2475,10259L2506,10343L2542,10344L2506,10370L2516,10412L2461,10481L2403,10526Z"],["North Chungcheong","M3178,3488L3251,3469L3374,3420L3390,3361L3458,3316L3518,3231L3558,3251L3599,3223L3696,3049L3746,2990L3917,2946L4089,2925L4074,3022L4123,3011L4199,3030L4256,2984L4248,2887L4279,2850L4361,2823L4422,2888L4441,2959L4494,2947L4580,2893L4619,2902L4688,2857L4778,2890L4898,2914L4879,2956L4833,2989L4805,3031L4859,3064L4923,3042L5000,3033L5013,3080L5056,3140L5197,3119L5278,3176L5361,3190L5426,3225L5365,3252L5244,3361L5210,3371L5126,3448L5052,3574L5084,3613L5060,3692L4924,3748L4867,3729L4843,3680L4757,3604L4719,3651L4699,3715L4653,3711L4577,3676L4522,3729L4464,3714L4412,3832L4466,3917L4351,3898L4290,3871L4254,3923L4146,3982L4133,4045L4073,4118L4025,4133L4042,4180L4106,4191L4184,4307L4137,4381L4119,4539L4147,4606L4086,4682L4095,4778L4161,4763L4200,4777L4277,4831L4360,4812L4397,4839L4415,4944L4341,4934L4301,4968L4306,5082L4277,5124L4237,5224L4156,5256L4113,5297L4066,5261L3952,5318L3839,5266L3787,5220L3763,5238L3734,5206L3665,5089L3652,5020L3655,4950L3639,4890L3542,4842L3489,4852L3489,4739L3510,4662L3614,4479L3571,4461L3521,4509L3503,4419L3464,4380L3445,4407L3392,4418L3343,4403L3350,4368L3314,4295L3330,4166L3207,4156L3087,4177L3117,4058L3115,4025L3148,3956L3243,3820L3273,3818L3302,3720L3276,3665L3278,3623L3178,3488Z"],["Seoul","M2972,2133L3087,2121L3093,2180L3046,2207L3059,2258L3015,2321L2879,2377L2861,2334L2723,2374L2654,2370L2609,2307L2531,2271L2524,2213L2456,2120L2482,2069L2526,2073L2577,2105L2650,2073L2663,2007L2735,2002L2796,1909L2829,1875L2879,1864L2937,1870L2963,1918L2988,2027L2988,2076L2972,2133Z"],["Daegu","M5538,5583L5516,5685L5480,5707L5332,5676L5272,5746L5208,5697L5189,5659L5140,5626L5131,5588L5153,5557L5204,5553L5214,5514L5185,5506L5231,5436L5221,5344L5298,5281L5488,5262L5554,5310L5574,5346L5566,5426L5596,5461L5592,5559L5538,5583Z"],["Gwangju","M2441,6882L2398,6782L2434,6749L2493,6766L2582,6745L2667,6778L2698,6871L2631,6956L2530,6938L2441,6882Z"]];
+
+/* ============ 상태 ============ */
+const LS_DATA='amtongchi.data.v3', LS_SEL='amtongchi.sel.v3', LS_LIM='amtongchi.limit.v3', LS_MAJ='amtongchi.major.v3';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+let PRODUCTS = validData(lsGet(LS_DATA)) || defaultProducts();
+let SEL = lsGet(LS_SEL) || {'base.basic':10000};   // 예: 암통합치료비 기본 1억
+let SEX = 'M';
+
+function validData(d){
+  if(!Array.isArray(d)||!d.length) return null;
+  const ok=d.every(p=>p&&p.id&&p.name&&p.tiers&&['basic','tert'].every(t=>Array.isArray(p.tiers[t])&&p.tiers[t].every(o=>typeof o.amt==='number'&&typeof o.uw==='number'&&o.v&&'nsurg' in o.v)));
+  return ok?d:null;
+}
+
+/* ============ 유틸 ============ */
+function won(m){
+  m=Math.round(m); if(!m) return '0원';
+  const e=Math.floor(m/10000), r=m%10000;
+  return (e?e+'억':'')+(e&&r?' ':'')+(r?r.toLocaleString()+'만':'')+'원';
+}
+function short(m){ if(m>=10000&&m%10000===0) return (m/10000)+'억'; if(m>=10000) return (m/10000).toFixed(1).replace(/\.0$/,'')+'억'; return (m>=1000? (m/1000).toFixed(m%1000?1:0)+'천':m+'만'); }
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function optOf(pid,tier,amt){ const p=PRODUCTS.find(x=>x.id===pid); return p&&p.tiers[tier].find(o=>o.amt===amt); }
+function selections(){
+  const out=[];
+  for(const p of PRODUCTS) for(const tier of ['basic','tert']){
+    const amt=SEL[p.id+'.'+tier]; if(!amt) continue;
+    const o=optOf(p.id,tier,amt); if(o) out.push({p,tier,o});
+  }
+  return out;
+}
+let MAJOR = 0;  // 기존 암주요치료비 가입금액(누적합산에 포함)
+function surgSum(sel){ return MAJOR + sel.reduce((s,x)=>s+(x.o.uw||0),0); }
+// fs: 계산식 배열 [{items,mult}, ...] — 선택 담보별로 합산 후 연간한도 적용
+function payFor(o,fs){ const raw=fs.reduce((s,x)=>s+x.mult*x.items.reduce((a,k)=>a+(o.v[k]||0),0),0); return {raw, paid:Math.min(raw,o.amt)}; }
+function totals(fs){
+  const sel=selections(); let basic=0, all=0;
+  const rows=sel.map(x=>{ const r=payFor(x.o,fs); all+=r.paid; if(x.tier==='basic') basic+=r.paid; return {...x,...r}; });
+  return {basic, all, rows, n:sel.length, hasTert:sel.some(x=>x.tier==='tert')};
+}
+const planFs=calc=>calc.map(id=>SC[id].main);
+
+/* ============ ① 가입금액 선택 ============ */
+function renderProducts(){
+  const sel=selections(), cur=surgSum(sel);
+  const g=document.getElementById('prod-grid');
+  g.innerHTML=PRODUCTS.map(p=>{
+    const tiers=[['basic','기본담보','b'],['tert','상급종합담보','t']].map(([tier,lab,cls])=>{
+      const key=p.id+'.'+tier, curAmt=SEL[key]||0;
+      const curSurg=curAmt?(optOf(p.id,tier,curAmt)?.uw||0):0;
+      const btns=[`<button type="button" class="${cls}" data-key="${key}" data-amt="0" aria-pressed="${!curAmt}">미가입</button>`]
+        .concat(p.tiers[tier].map(o=>{
+          const over = cur - curSurg + (o.uw||0) > UW_LIMIT && curAmt!==o.amt;
+          return `<button type="button" class="${cls}${over?' over':''}" data-key="${key}" data-amt="${o.amt}" aria-pressed="${curAmt===o.amt}" title="누적합산값 ${won(o.uw||0)}${over?' · 합산한도 초과':''}">${short(o.amt)}</button>`;
+        })).join('');
+      return `<div class="tier-label ${tier==='basic'?'basic':'tert'}"><span class="dot" style="background:var(--${tier==='basic'?'basic':'tert'})"></span>${lab}${tier==='tert'?' <span class="muted" style="font-weight:500">(상급종합병원 치료 시)</span>':''}</div><div class="seg">${btns}</div>`;
+    }).join('');
+    const mine=sel.filter(x=>x.p.id===p.id);
+    const s=mine.reduce((a,x)=>a+(x.o.uw||0),0);
+    return `<div class="card prod"><div class="pname"><h3>${esc(p.name)}</h3></div><p class="pdesc">${esc(p.desc)}</p>${tiers}
+      <div class="contrib"><span>이 담보 누적합산값</span><b>${won(s)}</b></div></div>`;
+  }).join('');
+}
+document.getElementById('prod-grid').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-key]'); if(!b) return;
+  const amt=+b.dataset.amt; if(amt) SEL[b.dataset.key]=amt; else delete SEL[b.dataset.key];
+  lsSet(LS_SEL,SEL); renderAll();
+});
+document.getElementById('reset-sel').onclick=()=>{SEL={};lsSet(LS_SEL,SEL);renderAll();};
+
+function renderLimit(){
+  const sel=selections(), s=surgSum(sel);
+  document.getElementById('lim-num').textContent=`${won(s)} / ${won(UW_LIMIT)}`;
+  const bar=document.getElementById('lim-bar'); const scale=Math.max(UW_LIMIT,s);
+  bar.innerHTML=(MAJOR?`<i title="기존 암주요치료비 ${won(MAJOR)}" style="width:${MAJOR/scale*100}%;background:var(--muted);border-right:2px solid var(--card)"></i>`:'')+sel.map(x=>`<i title="${esc(x.p.name)} ${x.tier==='basic'?'기본':'상급'} 누적합산 ${won(x.o.uw||0)}" style="width:${(x.o.uw||0)/scale*100}%;background:var(--${x.tier==='basic'?'basic':'tert'});border-right:2px solid var(--card)"></i>`).join('')
+    + (s>UW_LIMIT?'':'') ;
+  if(s>UW_LIMIT) bar.style.outline='2px solid var(--bad)'; else bar.style.outline='none';
+  document.getElementById('lim-chips').innerHTML=sel.map(x=>`<span class="chip ${x.tier==='basic'?'b':'t'}">${esc(x.p.name)} ${x.tier==='basic'?'기본':'상급'} ${short(x.o.amt)}</span>`).join('');
+  const st=document.getElementById('lim-status');
+  if(!sel.length&&!MAJOR){st.className='status none';st.textContent='담보를 선택하세요';}
+  else if(s>UW_LIMIT){st.className='status bad';st.textContent=`인수 불가 · ${won(s-UW_LIMIT)} 초과`;}
+  else {st.className='status ok';st.textContent=`인수 가능 · 여유 ${won(UW_LIMIT-s)}`;}
+}
+
+/* ============ 일러스트 (인라인 SVG) ============ */
+const ILL = {
+ immune:`<svg viewBox="0 0 96 96"><g fill="none" stroke-width="3"><path d="M62 24c10 2 16 12 14 22s-4 18-14 20-20-2-22-12 4-16 8-22 6-10 14-8z" fill="#fca5a5" stroke="#dc2626"/><circle cx="58" cy="44" r="3" fill="#dc2626" stroke="none"/><circle cx="66" cy="52" r="2.5" fill="#dc2626" stroke="none"/></g><g stroke="#2563eb" stroke-width="3" stroke-linecap="round"><circle cx="28" cy="58" r="13" fill="#bfdbfe"/><path d="M28 41v-5M28 75v5M11 58H6M45 58h5M16 46l-3-3M40 70l3 3M16 70l-3 3M40 46l3-3"/></g><path d="M40 52l8-4" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/><path d="M45 44l6 3-3 6" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linejoin="round"/><text x="22" y="62" font-size="11" font-weight="800" fill="#1d4ed8" font-family="sans-serif">T</text></svg>`,
+ target:`<svg viewBox="0 0 96 96"><path d="M48 20c14 0 26 10 26 26S62 76 46 76 20 64 22 48s12-28 26-28z" fill="#fca5a5" stroke="#dc2626" stroke-width="3"/><g stroke="#111827" stroke-width="3" fill="none"><circle cx="48" cy="48" r="16"/><circle cx="48" cy="48" r="5" fill="#111827"/><path d="M48 18v14M48 64v14M18 48h14M64 48h14"/></g><path d="M78 16L60 34" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/><path d="M60 34l3-11 8 8z" fill="#7c3aed"/></svg>`,
+ chemo:`<svg viewBox="0 0 96 96"><rect x="30" y="10" width="36" height="42" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/><rect x="34" y="26" width="28" height="22" rx="4" fill="#60a5fa"/><path d="M40 18h16" stroke="#2563eb" stroke-width="3"/><path d="M48 52v10" stroke="#2563eb" stroke-width="3"/><rect x="43" y="62" width="10" height="10" rx="2" fill="#bfdbfe" stroke="#2563eb" stroke-width="2.5"/><path d="M48 72c0 10-6 12-14 14" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="67" r="2" fill="#2563eb"/></svg>`,
+ surg:`<svg viewBox="0 0 96 96"><path d="M14 74L58 30l8 8-44 44c-4 4-12 0-8-8z" fill="#e5e7eb" stroke="#374151" stroke-width="3" stroke-linejoin="round"/><path d="M58 30l12-12c4-4 12 4 8 8L66 38z" fill="#9ca3af" stroke="#374151" stroke-width="3" stroke-linejoin="round"/><path d="M20 68l6 6" stroke="#dc2626" stroke-width="3"/><path d="M60 80h24" stroke="#dc2626" stroke-width="3" stroke-dasharray="4 4" stroke-linecap="round"/></svg>`,
+ robot:`<svg viewBox="0 0 96 96"><rect x="36" y="8" width="24" height="16" rx="4" fill="#c7d2fe" stroke="#4338ca" stroke-width="3"/><g stroke="#4338ca" stroke-width="4" stroke-linecap="round" fill="none"><path d="M42 24L22 46l8 20"/><path d="M48 24v26l0 16"/><path d="M54 24l20 22-8 20"/></g><g fill="#4338ca"><circle cx="22" cy="46" r="4"/><circle cx="48" cy="50" r="4"/><circle cx="74" cy="46" r="4"/></g><ellipse cx="48" cy="80" rx="30" ry="8" fill="#fecaca" stroke="#dc2626" stroke-width="3"/><path d="M30 66l2 8M48 66v8M66 66l-2 8" stroke="#111827" stroke-width="2.5"/></svg>`,
+ imrt:`<svg viewBox="0 0 96 96"><circle cx="48" cy="52" r="26" fill="#e5e7eb" stroke="#6b7280" stroke-width="3"/><path d="M48 44c6 0 10 4 9 9s-6 9-11 8-8-5-7-10 4-7 9-7z" fill="#f87171" stroke="#dc2626" stroke-width="2.5"/><g stroke="#f59e0b" stroke-width="4" stroke-linecap="round" opacity=".9"><path d="M48 6v34"/><path d="M10 26l30 20"/><path d="M86 26L58 46"/><path d="M8 72l32-14"/><path d="M88 72L58 58"/></g></svg>`,
+ proton:`<svg viewBox="0 0 96 96"><path d="M8 70h80" stroke="#9ca3af" stroke-width="2"/><path d="M8 62c20 0 34-2 44-6s12-30 16-30 4 26 6 36 4 8 14 8" fill="none" stroke="#0891b2" stroke-width="4" stroke-linecap="round"/><rect x="56" y="16" width="20" height="54" rx="6" fill="#fecaca" opacity=".6"/><g fill="#0891b2"><circle cx="14" cy="36" r="5"/><circle cx="28" cy="36" r="5"/><circle cx="42" cy="36" r="5"/></g><path d="M8 84h18" stroke="#0891b2" stroke-width="3"/><text x="30" y="88" font-size="10" fill="#0e7490" font-family="sans-serif" font-weight="700">브래그 피크</text></svg>`,
+ carbon:`<svg viewBox="0 0 96 96"><path d="M52 34c12-2 24 6 24 18s-10 20-22 20-20-8-18-20 6-16 16-18z" fill="#fca5a5" stroke="#dc2626" stroke-width="3"/><g fill="#e11d48"><circle cx="12" cy="52" r="7"/><circle cx="30" cy="52" r="7"/></g><g fill="#fff" font-size="9" font-weight="800" font-family="sans-serif" text-anchor="middle"><text x="12" y="55">C</text><text x="30" y="55">C</text></g><path d="M38 52h12" stroke="#e11d48" stroke-width="4" stroke-linecap="round"/><g stroke="#e11d48" stroke-width="3" stroke-linecap="round"><path d="M56 46l6 6-6 6"/><path d="M62 42l10 10-10 10" opacity=".5"/></g><path d="M20 22l4 8 8-2-4 8" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linejoin="round"/></svg>`,
+ combo:`<svg viewBox="0 0 96 96"><g transform="translate(4 6) scale(.5)"><path d="M14 74L58 30l8 8-44 44c-4 4-12 0-8-8z" fill="#e5e7eb" stroke="#374151" stroke-width="5"/><path d="M58 30l12-12c4-4 12 4 8 8L66 38z" fill="#9ca3af" stroke="#374151" stroke-width="5"/></g><g transform="translate(50 4) scale(.46)"><rect x="30" y="10" width="36" height="42" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="5"/><rect x="34" y="26" width="28" height="22" rx="4" fill="#60a5fa"/><path d="M48 52v20" stroke="#2563eb" stroke-width="5"/></g><g transform="translate(26 48) scale(.46)"><circle cx="48" cy="52" r="26" fill="#e5e7eb" stroke="#6b7280" stroke-width="5"/><circle cx="48" cy="52" r="9" fill="#f87171"/><g stroke="#f59e0b" stroke-width="6" stroke-linecap="round"><path d="M48 6v34"/><path d="M10 26l30 20"/><path d="M86 26L58 46"/></g></g><path d="M44 44h8M48 40v8" stroke="#059669" stroke-width="3" stroke-linecap="round"/></svg>`,
+};
+
+ILL.robotS=ILL.robot; ILL.minor=ILL.surg; ILL.levo=ILL.surg; ILL.radio=ILL.imrt; ILL.minorTx=ILL.imrt;
+
+/* ============ ② 치료별 보상금액 ============ */
+function renderScenarios(){
+  const g=document.getElementById('scn-grid');
+  const nm=r=>`<span class="dot" style="background:var(--${r.tier==='basic'?'basic':'tert'});margin-right:5px"></span>${esc(r.p.name.replace('암통합치료비','암통치'))} ${short(r.o.amt)}${r.tier==='tert'?' <small class="muted">상급</small>':''}`;
+  const parts=(r,fm)=>fm.items.filter(k=>r.o.v[k]).map(k=>`${ITEM_NAME[k].replace(/\(급여\/비급여\)/,'')} ${short(r.o.v[k])}`).join(' + ')+(fm.mult!==1?` × ${fm.mult*100}%`:'');
+  g.innerHTML=SCENARIOS.filter(s=>!SCN_CAT||s.cat===SCN_CAT).map(s=>{
+    const t=totals([s.main]), ta=s.alt?totals([s.alt]):null;
+    let body;
+    if(!t.n) body=`<div class="empty">위에서 가입금액을 선택하면 보상 가능 금액이 표시됩니다.</div>`;
+    else{
+      const rows=t.rows.map(r=>`<tr><td>${nm(r)}<br><small class="muted">${r.raw?esc(parts(r,s.main)):'미보장'}</small></td><td class="${r.paid?'':'zero'}"><b>${r.paid?won(r.paid):'—'}</b></td></tr>`).join('');
+      body=`<div class="tot"><div class="tb"><small>일반병원 (기본담보)</small><strong>${won(t.basic)}</strong></div><div class="tt"><small>상급종합병원 (기본+상급)</small><strong>${won(t.all)}</strong></div></div>
+        <table class="bd"><tr><th>담보 · 계산</th><th>지급</th></tr>${rows}</table>
+        ${ta?`<div class="alt"><b>${esc(s.alt.label)}</b>로 치료 시 · 일반 ${won(ta.basic)} / 상급 ${won(ta.all)}</div>`:''}`;
+    }
+    return `<div class="card scn"><div class="hd"><div class="ill">${ILL[s.id]||ILL.surg}</div><div><span class="chip">${s.cat}</span> <span class="chip ${s.main.label==='급여'?'b':'t'}">${esc(s.main.label)}</span><h3 style="margin-top:4px">${esc(s.name)}</h3><div class="drug">${esc(s.drug)}</div></div></div>
+      ${body}
+      <div class="cost">예상 치료비: ${esc(s.cost)}</div>${s.note?`<div class="muted" style="font-size:.75rem">${esc(s.note)}</div>`:''}</div>`;
+  }).join('');
+}
+
+/* ============ ③ 암종별 필요금액 ============ */
+function renderCancers(){
+  const g=document.getElementById('cancer-grid');
+  const list=CANCERS.filter(c=>c.sex===SEX);
+  g.innerHTML=list.map(c=>{
+    const plans=c.plans.map(pl=>{
+      const t=totals(planFs(pl.calc));
+      const scale=Math.max(pl.hi,t.all,1);
+      const gap=t.all-pl.hi;
+      const cov=t.n?`<div class="bar2"><span class="r" style="left:${pl.lo/scale*100}%;width:${(pl.hi-pl.lo)/scale*100}%"></span><span class="c" style="width:${t.all/scale*100}%"></span><span class="b" style="width:${t.basic/scale*100}%"></span></div>
+        <div class="cov"><span>보장 <b style="color:var(--tert)">${won(t.all)}</b>${t.hasTert?` <span class="muted">(일반 ${short(t.basic)})</span>`:''}</span><span class="gap ${gap>=0?'ok':'bad'}">${gap>=0?'최대 치료비 충족':'최대 기준 '+won(-gap)+' 부족'}</span></div>`
+        :`<div class="muted" style="font-size:.8125rem;margin-top:4px">가입금액을 선택하면 보장액과 비교됩니다.</div>`;
+      return `<div class="plan"><div class="pl"><b>${esc(pl.label)}</b><span class="need">${won(pl.lo)} ~ ${won(pl.hi)}</span></div>
+        ${pl.note?`<div class="note">${esc(pl.note)}</div>`:''}<div class="chips" style="margin-top:4px">${pl.calc.map(id=>`<span class="chip">${esc(SC[id].name)} · ${esc(SC[id].main.label)}</span>`).join('')}</div>${cov}</div>`;
+    }).join('');
+    const need=Math.max(...c.plans.map(p=>p.hi));
+    return `<div class="card cc"><div class="ctop"><div class="rank">${c.rank}</div><div><h3>${esc(c.name)}</h3></div><span class="chip" style="margin-left:auto">권장 준비금액 최대 ${won(need)}</span></div>
+      <p class="cdesc">${esc(c.desc)}</p>${plans}</div>`;
+  }).join('');
+}
+document.getElementById('sex-tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-sex]'); if(!b) return; SEX=b.dataset.sex;
+  document.querySelectorAll('#sex-tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  renderCancers();
+});
+
+/* ============ 금액표 설정 ============ */
+let ED_KEY = PRODUCTS[0].id+'.basic';
+function renderEditor(){
+  const tabs=document.getElementById('ed-tabs');
+  tabs.innerHTML=PRODUCTS.flatMap(p=>['basic','tert'].map(t=>{const k=p.id+'.'+t;return `<button class="btn sm" type="button" data-ed="${k}" aria-selected="${k===ED_KEY}">${esc(p.name)} · ${t==='basic'?'기본':'상급종합'}</button>`})).join('');
+  const [pid,tier]=ED_KEY.split('.'); const p=PRODUCTS.find(x=>x.id===pid);
+  const head=`<tr><th>연간한도</th><th>누적합산값</th>${ITEMS.map(i=>`<th>${i.n}</th>`).join('')}</tr>`;
+  const rows=p.tiers[tier].map((o,oi)=>`<tr><td><b>${won(o.amt)}</b></td><td><input type="number" min="0" step="50" class="surg" data-oi="${oi}" data-k="__uw" value="${o.uw||0}"></td>${ITEMS.map(i=>`<td><input type="number" min="0" step="50" data-oi="${oi}" data-k="${i.k}" value="${o.v[i.k]||0}"></td>`).join('')}</tr>`).join('');
+  document.getElementById('ed-table').innerHTML=`<table>${head}${rows}</table><p class="muted" style="font-size:.75rem;margin:6px 0 0">단위: 만원 · 0 = 미보장</p>`;
+}
+document.getElementById('ed-tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-ed]');if(!b)return;ED_KEY=b.dataset.ed;renderEditor();});
+document.getElementById('ed-table').addEventListener('change',e=>{
+  const i=e.target.closest('input[data-k]'); if(!i) return;
+  const [pid,tier]=ED_KEY.split('.'); const p=PRODUCTS.find(x=>x.id===pid);
+  const val=Math.max(0,+i.value||0), op=p.tiers[tier][+i.dataset.oi]; if(i.dataset.k==='__uw') op.uw=val; else op.v[i.dataset.k]=val;
+  lsSet(LS_DATA,PRODUCTS); msg('저장했습니다.'); renderAll(false);
+});
+function msg(t){const m=document.getElementById('ed-msg');m.textContent=t;clearTimeout(msg._t);msg._t=setTimeout(()=>m.textContent='',2500);}
+document.getElementById('ed-export').onclick=()=>{document.getElementById('ed-json').value=JSON.stringify(PRODUCTS,null,1);msg('아래 칸에 JSON을 표시했습니다.');};
+document.getElementById('ed-import').onclick=()=>{
+  try{const d=validData(JSON.parse(document.getElementById('ed-json').value)); if(!d) throw 0; PRODUCTS=d; lsSet(LS_DATA,PRODUCTS); ED_KEY=PRODUCTS[0].id+'.basic'; renderAll(); msg('불러왔습니다.');}
+  catch(e){msg('JSON 형식이 올바르지 않습니다.');}
+};
+document.getElementById('ed-reset').onclick=()=>{ if(!confirm('금액표를 기본값으로 되돌릴까요?')) return; PRODUCTS=defaultProducts(); try{localStorage.removeItem(LS_DATA)}catch(e){} renderAll(); msg('기본값으로 되돌렸습니다.'); };
+
+/* ============ 지도 ============ */
+// WGS84 → UTM 52N → 지도 좌표 (Highcharts kr-all 변환값)
+const HC={scale:0.00116959721971,res:15.5,mx:-999,my:9851,xo:114507.650342,yo:4275280.75883};
+function project(lat,lon){
+  const a=6378137,f=1/298.257223563,k0=0.9996,e2=f*(2-f),ep2=e2/(1-e2),d=Math.PI/180;
+  const ph=lat*d, lam=(lon-129)*d, s=Math.sin(ph), c=Math.cos(ph), tn=Math.tan(ph);
+  const N=a/Math.sqrt(1-e2*s*s), T=tn*tn, C=ep2*c*c, A=c*lam, e4=e2*e2, e6=e4*e2;
+  const M=a*((1-e2/4-3*e4/64-5*e6/256)*ph-(3*e2/8+3*e4/32+45*e6/1024)*Math.sin(2*ph)+(15*e4/256+45*e6/1024)*Math.sin(4*ph)-(35*e6/3072)*Math.sin(6*ph));
+  const E=k0*N*(A+(1-T+C)*A**3/6+(5-18*T+T*T+72*C-58*ep2)*A**5/120)+500000;
+  const No=k0*(M+N*tn*(A*A/2+(5-T+9*C+4*C*C)*A**4/24+(61-58*T+T*T+600*C-330*ep2)*A**6/720));
+  const x=(E-HC.xo)*HC.scale*HC.res+HC.mx, y=(No-HC.yo)*HC.scale*HC.res+HC.my;
+  return [x, 9851-y];
+}
+const VB_ALL=[-1100,-100,10300,11050], VB_METRO=[1950,1550,1650,1400];
+let MAP_MODE='tert', VB=VB_ALL, MAP_ITEMS=[];
+const svg=document.getElementById('map-svg');
+function mapItems(){
+  if(MAP_MODE==='tert') return TERTIARY.map(([n,r,lat,lon,x])=>({n,group:r,lat,lon,color:x?'var(--tert)':'var(--brand)',plan:false,sub:x?'상급포함 담보 인정기관':r}));
+  return PARTICLE.map(p=>({n:p.n,group:(p.t==='carbon'?'중입자':'양성자')+(p.s==='run'?' · 운영 중':' · 예정·추진'),lat:p.lat,lon:p.lon,
+    color:p.t==='carbon'?'var(--carbon)':'var(--proton)',plan:p.s!=='run',sub:`${p.y} — ${p.note}`,status:p.s}));
+}
+function drawMap(){
+  svg.setAttribute('viewBox',VB.join(' '));
+  const r=VB[2]/95, sw=VB[2]/700;
+  const land=KR_PATHS.map(([n,d])=>`<path class="prov" d="${d}" style="stroke-width:${sw*1.3}"><title>${n}</title></path>`).join('');
+  // 같은 좌표 겹침 방지: 동일 위치 마커는 살짝 옆으로
+  const seen={};
+  const marks=MAP_ITEMS.map((m,i)=>{
+    let [x,y]=project(m.lat,m.lon); const key=Math.round(x/40)+','+Math.round(y/40);
+    const k=seen[key]=(seen[key]||0)+1; if(k>1){x+=r*1.6*(k-1);}
+    m._x=x; m._y=y;
+    const shape = m.plan
+      ? `<circle class="mk plan" data-i="${i}" cx="${x}" cy="${y}" r="${r}" fill="${m.color}" stroke="${m.color}" stroke-width="${sw*2.2}" stroke-dasharray="${r*.5} ${r*.35}"/>`
+      : `<circle class="mk" data-i="${i}" cx="${x}" cy="${y}" r="${r}" fill="${m.color}" stroke-width="${sw*1.8}"/>`;
+    return shape;
+  }).join('');
+  svg.innerHTML=`<g>${land}</g><g>${marks}</g>`;
+}
+function renderMapList(){
+  const groups={}; MAP_ITEMS.forEach((m,i)=>{if(MAP_Q&&!(m.n+' '+m.group+' '+m.sub).includes(MAP_Q))return;(groups[m.group]=groups[m.group]||[]).push([m,i]);});
+  document.getElementById('map-list').innerHTML=Object.entries(groups).map(([g,arr])=>`<div class="hgroup"><h4>${esc(g)} (${arr.length})</h4>${arr.map(([m,i])=>
+    `<div class="hitem" data-i="${i}" tabindex="0" role="button"><span class="dot" style="background:${m.color};${m.plan?'opacity:.45;outline:2px dashed '+m.color+';outline-offset:1px':''}"></span><div>${esc(m.n)}${m.status?`<span class="badge ${m.status==='run'?'run':'plan'}">${m.status==='run'?'운영':'예정'}</span>`:''}${MAP_MODE==='particle'?`<small>${esc(m.sub)}</small>`:''}</div></div>`).join('')}</div>`).join('')||`<div class="empty">‘${esc(MAP_Q)}’에 맞는 곳이 없습니다.</div>`;
+}
+function openMap(mode){
+  MAP_Q=''; document.getElementById('map-q').value='';
+  MAP_MODE=mode; MAP_ITEMS=mapItems(); VB=VB_ALL;
+  document.getElementById('map-title').textContent= mode==='tert'?'상급종합담보 보장 병원 (상급종합 47 + 5)':'중입자·양성자 치료센터';
+  document.getElementById('map-sub').textContent= mode==='tert'
+    ? '상급포함 담보는 상급종합병원 47개소(제5기 2024~2026 지정)와 국립암센터, 원자력병원(공릉 본원·동남권원자력의학원), 지역암센터(강원대·제주대병원)에서 치료받을 때 지급됩니다. 제6기(2027~2029) 명단은 2026년 12월 발표 예정입니다.'
+    : '운영 중인 센터는 채운 원, 예정·추진 중인 곳은 점선 원으로 표시했습니다. (2026년 9월까지 보도 기준)';
+  document.getElementById('map-legend').innerHTML= mode==='tert'
+    ? `<span><i class="dot" style="background:var(--brand)"></i>상급종합병원</span><span><i class="dot" style="background:var(--tert)"></i>국립암센터·원자력병원·지역암센터</span><span class="muted">마커나 목록을 누르면 위치가 강조됩니다 · 수도권은 “수도권 확대”로 보세요</span>`
+    : `<span><i class="dot" style="background:var(--carbon)"></i>중입자 운영</span><span><i class="dot" style="background:var(--carbon);opacity:.35;outline:2px dashed var(--carbon)"></i>중입자 예정</span><span><i class="dot" style="background:var(--proton)"></i>양성자 운영</span><span><i class="dot" style="background:var(--proton);opacity:.35;outline:2px dashed var(--proton)"></i>양성자 예정·추진</span>`;
+  drawMap(); renderMapList();
+  const md=document.getElementById('map-modal'); md.classList.add('open'); md.setAttribute('aria-hidden','false'); md.dataset.was='1';
+  document.getElementById('map-close').focus();
+}
+function closeMap(){const md=document.getElementById('map-modal');md.classList.remove('open');md.setAttribute('aria-hidden','true');hideTip();if(MAP_RET&&md.dataset.was==='1')MAP_RET.focus();md.dataset.was='';}
+document.querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>openMap(b.dataset.map)));
+document.getElementById('map-close').onclick=closeMap;
+document.getElementById('map-modal').addEventListener('click',e=>{if(e.target.id==='map-modal')closeMap();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMap();});
+document.getElementById('zoom-metro').onclick=()=>{VB=VB_METRO;drawMap();hideTip();};
+document.getElementById('zoom-all').onclick=()=>{VB=VB_ALL;drawMap();hideTip();};
+const tip=document.getElementById('map-tip');
+function showTip(i){
+  const m=MAP_ITEMS[i]; if(!m) return;
+  svg.querySelectorAll('.mk').forEach(c=>c.classList.toggle('hl',+c.dataset.i===i));
+  document.querySelectorAll('.hitem').forEach(h=>h.classList.toggle('on',+h.dataset.i===i));
+  const box=document.getElementById('mapbox').getBoundingClientRect(), sr=svg.getBoundingClientRect();
+  const px=(m._x-VB[0])/VB[2]*sr.width+(sr.left-box.left), py=(m._y-VB[1])/VB[3]*sr.height+(sr.top-box.top);
+  tip.innerHTML=`<b>${esc(m.n)}</b><br>${esc(m.sub)}`; tip.style.display='block';
+  const tw=tip.offsetWidth; tip.style.left=Math.max(4,Math.min(box.width-tw-4,px-tw/2))+'px'; tip.style.top=Math.max(4,py-tip.offsetHeight-12)+'px';
+}
+function hideTip(){tip.style.display='none';}
+svg.addEventListener('mouseover',e=>{const c=e.target.closest('.mk');if(c)showTip(+c.dataset.i);});
+svg.addEventListener('click',e=>{const c=e.target.closest('.mk');if(c)showTip(+c.dataset.i);else hideTip();});
+document.getElementById('map-list').addEventListener('click',e=>{
+  const h=e.target.closest('.hitem'); if(!h) return; const i=+h.dataset.i, m=MAP_ITEMS[i];
+  const [x,y]=project(m.lat,m.lon); const inMetro=x>VB_METRO[0]&&x<VB_METRO[0]+VB_METRO[2]&&y>VB_METRO[1]&&y<VB_METRO[1]+VB_METRO[3];
+  const want=inMetro?VB_METRO:VB_ALL; if(want!==VB){VB=want;drawMap();}
+  showTip(i);
+});
+
+const limIn=document.getElementById('uw-limit');
+UW_LIMIT = +(lsGet(LS_LIM)||3500); limIn.value=UW_LIMIT;
+limIn.addEventListener('change',()=>{UW_LIMIT=Math.max(0,+limIn.value||0);lsSet(LS_LIM,UW_LIMIT);renderAll(false);});
+const majIn=document.getElementById('major-amt');
+MAJOR = +(lsGet(LS_MAJ)||0); majIn.value=MAJOR;
+majIn.addEventListener('change',()=>{MAJOR=Math.max(0,+majIn.value||0);lsSet(LS_MAJ,MAJOR);renderAll(false);});
+
+/* ============ ④ 상담 요약 ============ */
+function scnRow(s){ const t=totals([s.main]); return {s,t}; }
+function renderSummary(){
+  const box=document.getElementById('sum-box');
+  const sel=selections(), used=surgSum(sel);
+  if(!sel.length){ box.innerHTML=`<div class="empty">① 단계에서 가입금액을 고르면 상담 요약이 만들어집니다.</div>`; return; }
+  const selRows=sel.map(x=>`<tr><td>${esc(x.p.name)}</td><td>${x.tier==='basic'?'기본':'상급종합'}</td><td class="r"><b>${won(x.o.amt)}</b></td><td class="r">${won(x.o.uw||0)}</td></tr>`).join('');
+  const st = used>UW_LIMIT ? `<span class="status bad">인수 불가 · ${won(used-UW_LIMIT)} 초과</span>` : `<span class="status ok">인수 가능 · 여유 ${won(UW_LIMIT-used)}</span>`;
+  const scRows=SCENARIOS.map(scnRow).map(({s,t})=>`<tr><td>${esc(s.name)} <small class="muted">${esc(s.main.label)}</small></td><td class="r">${t.basic?won(t.basic):'—'}</td><td class="r"><b>${t.all?won(t.all):'—'}</b></td></tr>`).join('');
+  const short_=CANCERS.flatMap(c=>c.plans.map(pl=>({c,pl,t:totals(planFs(pl.calc))}))).filter(x=>x.t.all<x.pl.hi);
+  const gapTxt = short_.length
+    ? `<p class="sub" style="margin-top:12px">최대 치료비 기준으로 <b style="color:var(--bad)">${short_.length}개 치료</b>가 부족합니다. 큰 부족 순 : ${short_.sort((a,b)=>(b.pl.hi-b.t.all)-(a.pl.hi-a.t.all)).slice(0,3).map(x=>`${esc(x.c.name)}(${x.c.sex==='M'?'남':'여'}) ${esc(x.pl.label)} ${won(x.pl.hi-x.t.all)}`).join(' · ')}</p>`
+    : `<p class="sub" style="margin-top:12px"><b style="color:var(--ok)">③ 단계의 모든 추천치료</b>가 최대 치료비 기준으로 충족됩니다.</p>`;
+  box.innerHTML=`<div class="sum-grid">
+    <div><h3>가입 조합</h3>
+      <table class="kv"><tr><th>담보</th><th>구분</th><th class="r">연간한도</th><th class="r">누적합산값</th></tr>${selRows}
+      ${MAJOR?`<tr><td colspan="3">기존 암주요치료비</td><td class="r">${won(MAJOR)}</td></tr>`:''}
+      <tr><th colspan="3">누적합산 합계 / 한도</th><th class="r">${won(used)} / ${won(UW_LIMIT)}</th></tr></table>
+      <div style="margin-top:12px">${st}</div>${gapTxt}</div>
+    <div><h3>치료별 보상 가능 금액</h3>
+      <table class="kv"><tr><th>치료</th><th class="r">일반병원</th><th class="r">상급종합병원</th></tr>${scRows}</table></div>
+  </div>
+  <div class="sum-act"><button class="btn primary" type="button" id="sum-copy">📋 상담 메모로 복사</button><button class="btn line" type="button" id="sum-print">🖨 인쇄 · PDF 저장</button></div>`;
+}
+function summaryText(){
+  const sel=selections(), used=surgSum(sel), d=new Date();
+  const L=[`[암통합치료비 가입금액 시뮬레이션] ${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} · 예시표 ver.25.10.31 기준 · 내부 참고용`,'','■ 가입 조합'];
+  sel.forEach(x=>L.push(`- ${x.p.name} ${x.tier==='basic'?'기본':'상급종합'} ${won(x.o.amt)} (누적합산값 ${won(x.o.uw||0)})`));
+  if(MAJOR) L.push(`- 기존 암주요치료비 ${won(MAJOR)}`);
+  L.push(`→ 누적합산 ${won(used)} / 한도 ${won(UW_LIMIT)} : ${used>UW_LIMIT?'인수 불가 ('+won(used-UW_LIMIT)+' 초과)':'인수 가능 (여유 '+won(UW_LIMIT-used)+')'}`,'','■ 치료별 보상 가능 금액 (일반병원 / 상급종합병원)');
+  SCENARIOS.forEach(s=>{const t=totals([s.main]); L.push(`- ${s.name}(${s.main.label}) : ${won(t.basic)} / ${won(t.all)}`);});
+  L.push('','※ 실제 지급 여부·금액은 약관·상품설명서·치료 내용에 따라 다릅니다. 고객·외부 배포 금지.');
+  return L.join('\n');
+}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('on'),2200);}
+document.getElementById('sum-box').addEventListener('click',async e=>{
+  if(e.target.closest('#sum-print')) return window.print();
+  if(!e.target.closest('#sum-copy')) return;
+  const txt=summaryText();
+  try{ await navigator.clipboard.writeText(txt); toast('상담 메모를 복사했습니다.'); }
+  catch(err){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
+    try{document.execCommand('copy');toast('상담 메모를 복사했습니다.');}catch(e2){toast('복사하지 못했습니다. 인쇄를 이용하세요.');} ta.remove(); }
+});
+
+/* ============ 치료 분류 거르기 ============ */
+let SCN_CAT='';
+document.getElementById('scn-filter').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-cat]'); if(!b) return; SCN_CAT=b.dataset.cat;
+  document.querySelectorAll('#scn-filter button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  renderScenarios();
+});
+
+/* ============ 성별 탭 : 방향키 이동 ============ */
+document.getElementById('sex-tabs').addEventListener('keydown',e=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return;
+  const bs=[...document.querySelectorAll('#sex-tabs button')], i=bs.indexOf(document.activeElement); if(i<0) return;
+  const n = e.key==='Home'?0 : e.key==='End'?bs.length-1 : (i+(e.key==='ArrowRight'?1:-1)+bs.length)%bs.length;
+  e.preventDefault(); bs[n].focus(); bs[n].click();
+});
+document.getElementById('sex-tabs').addEventListener('click',()=>{
+  document.querySelectorAll('#sex-tabs button').forEach(x=>x.tabIndex=x.getAttribute('aria-selected')==='true'?0:-1);
+});
+
+/* ============ 글자 크기 · 화면 모드 · 인쇄 ============ */
+const LS_FS='amtongchi.fs.v1', LS_TH='amtongchi.theme.v1';
+function setFs(v){
+  document.documentElement.style.setProperty('--scale',v);
+  document.querySelectorAll('.fsz button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.fs===+v));
+}
+setFs(lsGet(LS_FS)||1);
+document.querySelector('.fsz').addEventListener('click',e=>{const b=e.target.closest('button[data-fs]');if(!b)return;setFs(b.dataset.fs);lsSet(LS_FS,+b.dataset.fs);});
+const th0=lsGet(LS_TH); if(th0==='dark'||th0==='light') document.documentElement.dataset.theme=th0;
+document.getElementById('theme-btn').onclick=()=>{
+  const cur=document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  const nx=cur==='dark'?'light':'dark'; document.documentElement.dataset.theme=nx; lsSet(LS_TH,nx);
+  toast(nx==='dark'?'어두운 화면으로 바꿨습니다.':'밝은 화면으로 바꿨습니다.');
+};
+document.getElementById('print-btn').onclick=()=>window.print();
+
+/* ============ 현재 위치 표시 (주메뉴 · 단계) ============ */
+const SPY=['sel','scn','cancer','summary','editor'];
+function markSpy(id){
+  document.querySelectorAll('.gnb a[data-spy]').forEach(a=>a.classList.toggle('on',a.dataset.spy===id));
+  const order=['sel','scn','cancer','summary'], ci=order.indexOf(id==='editor'?'summary':id);
+  document.querySelectorAll('#steps li').forEach((li,i)=>{li.classList.toggle('cur',i===ci);li.classList.toggle('done',i<ci);});
+}
+if('IntersectionObserver' in window){
+  const seen=new Map();
+  const io=new IntersectionObserver(es=>{
+    es.forEach(en=>seen.set(en.target.id,en.isIntersecting));
+    const id=SPY.find(k=>seen.get(k)); if(id) markSpy(id);
+  },{rootMargin:'-35% 0px -55% 0px'});
+  SPY.forEach(k=>{const el=document.getElementById(k); if(el) io.observe(el);});
+}
+markSpy('sel');
+
+/* ============ 지도 : 찾기 · 포커스 가두기 ============ */
+let MAP_Q='', MAP_RET=null;
+document.getElementById('map-q').addEventListener('input',e=>{MAP_Q=e.target.value.trim();renderMapList();});
+document.querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{MAP_RET=b;},true));
+document.getElementById('map-modal').addEventListener('keydown',e=>{
+  if(e.key!=='Tab') return;
+  const f=[...document.querySelectorAll('#map-modal button, #map-modal input, #map-modal .hitem')].filter(x=>x.offsetParent);
+  if(!f.length) return; const a=f[0], z=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus();}
+  else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus();}
+});
+document.getElementById('map-list').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('hitem')){e.preventDefault();e.target.click();}
+});
+
+/* ============ 렌더 ============ */
+function renderAll(withEditor=true){ renderProducts(); renderLimit(); renderScenarios(); renderCancers(); renderSummary(); if(withEditor) renderEditor(); }
+renderAll();
+</script>
+</body>
+</html>
