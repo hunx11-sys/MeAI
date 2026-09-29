@@ -1,67 +1,91 @@
 module.exports = (S, ctx) => {
   const { L, C, W, H, M, HERO, LEG } = ctx;
   const SRC1 = '출처: 데이터분석팀 「MeAI 사용 실태 분석」·「MeAI 효과 분석」, 2026.08 · TA 개인영업 채널 기준';
-  S.push({ part:'01', fn:(pres,no)=> L.divider(pres,{num:'01',title:'영업의 방향이 바뀝니다\n찾는 영업에서 찾아가는 영업으로',sub:'누구에게, 왜, 무슨 말로 연락할지 고르는 일을 이제 MeAI가 먼저 해요.',learn:['지금까지 영업의 절반이 "찾는 일"이었던 이유','MeAI 대문이 바꾸는 네 가지 · 카드 한 장의 구조','숫자로 보는 MeAI 효과와 아침 3분 루틴'],pageNo:no}) });
+  // 큰 글씨 단계 흐름(파트 안에서만 쓰는 도우미)
+  function bigSteps(s,{x,y,w,h,items,activeIdx=-1}){
+    const gap=0.22, cw=(w-gap*(items.length-1))/items.length;
+    items.forEach((it,i)=>{ const cx=x+i*(cw+gap), active=i===activeIdx;
+      L.R(s,{x:cx,y,w:cw,h,fill:active?C.blue:C.white,line:active?null:C.g200,radius:0.14,shadow:!active});
+      L.T(s,`STEP ${it.n}`,{x:cx+0.24,y:y+0.22,w:cw-0.48,h:0.28,fontSize:10.5,bold:true,color:active?'FFFFFF':C.blue,transparency:active?20:0});
+      L.T(s,it.title,{x:cx+0.24,y:y+0.52,w:cw-0.48,h:0.5,fontSize:15,bold:true,color:active?'FFFFFF':C.navy,valign:'top'});
+      L.T(s,it.desc,{x:cx+0.24,y:y+1.1,w:cw-0.48,h:h-1.25,fontSize:11.5,color:active?'FFFFFF':C.g600,lineSpacingMultiple:1.35});
+      if(i<items.length-1) L.T(s,'›',{x:cx+cw-0.02,y:y+h/2-0.2,w:gap+0.04,h:0.4,fontSize:16,color:C.g400,align:'center',valign:'middle'});
+    });
+  }
+  // 폭이 다른 칸으로 그림+설명을 가로로 나열. st = [번호|null, 제목, 설명, [그림...], 폭]
+  function flowRow(s, list, {y, h, ty}){
+    const total = W-2*M, gap = (total - list.reduce((a,st)=>a+st[4],0))/(list.length-1);
+    let x = M;
+    list.forEach((st,i)=>{ const w = st[4], files = st[3], vg = 0.12;
+      if (files.length===1) L.img(s,files[0],{x,y,w,h,valign:'middle'});
+      else { // 쌓을 때: 각 그림을 폭에 맞춘 높이를 더해 가운데 정렬
+        const hs = files.map(f=>{ const z = L.imgSize(f); return w*z.h/z.w; });
+        let cy = y + (h - (hs.reduce((a,b)=>a+b,0) + vg*(files.length-1)))/2;
+        files.forEach((f,k)=>{ L.img(s,f,{x,y:cy,w,h:hs[k],valign:'top'}); cy += hs[k]+vg; });
+      }
+      if (st[0]){ L.badge(s,{x,y:ty+0.01,n:st[0],d:0.3}); L.T(s,st[1],{x:x+0.4,y:ty,w:w-0.4,h:0.34,fontSize:13.5,bold:true,color:C.navy}); }
+      else L.T(s,st[1],{x,y:ty,w,h:0.34,fontSize:13.5,bold:true,color:C.navy});
+      L.T(s,st[2],{x,y:ty+0.37,w,h:0.65,fontSize:12,color:C.g600,lineSpacingMultiple:1.3});
+      if (i<list.length-1) L.arrow(s,{x:x+w+gap/2-0.175,y:y+h/2-0.25,w:0.35});
+      x += w + gap;
+    });
+  }
+  S.push({ part:'01', fn:(pres,no)=> L.divider(pres,{num:'01',title:'영업의 방향이 바뀝니다\n찾는 영업에서 찾아가는 영업으로',sub:'누구에게, 왜, 무슨 말로 연락할지, 이제 MeAI가 먼저 골라요.',learn:['영업의 절반이 "찾는 일"이었던 이유','MeAI 대문이 바꾸는 하루의 순서','숫자로 보는 효과 · 아침 3분 루틴'],pageNo:no}) });
   // 1-1
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 1 · 지금까지',title:'지금까지 영업의 절반은 "찾는 일"이었어요',sub:'고객을 만나기 전에 세 가지를 스스로 정해야 했어요. 여기서 힘을 다 쓰면 정작 만나는 일이 뒤로 밀려요.',pageNo:no});
-    const qs = [['?','누구에게 연락하지?','내고객다나와·자동차 만기 목록을 하나씩 뒤지며 오늘 연락할 사람을 골라야 했어요. 고르는 데만 시간이 갔어요.'],['!','왜 지금이지?','연락할 명분을 스스로 만들어야 했어요. "그냥 안부 전화"로는 다음 말이 이어지지 않아요.'],['"','무슨 말로 시작하지?','첫 마디를 고민하다 하루를 넘기기 일쑤였어요. 자료를 찾으려면 메뉴 3단계를 내려가야 했고요.']];
-    qs.forEach((q,i)=> L.card(s,{x:M+i*4.1,y:1.95,w:3.9,h:2.15,icon:q[0],iconFill:C.g100,iconColor:C.g700,title:q[1],desc:q[2],titleSize:14.5,descSize:10.5}));
-    L.stat(s,{x:M,y:4.4,w:3.9,h:2.05,value:'7%',unit:'미만',label:'보유 고객 중 실제 영업 시도 비율',desc:'열 명 중 아홉 명에게는 아직 연락조차 못 하고 있어요.',accent:C.red});
-    L.stat(s,{x:M+4.1,y:4.4,w:3.9,h:2.05,value:'2%',unit:'미만',label:'이관 고객 중 영업 시도 비율',desc:'넘겨받은 고객은 어디서부터 시작할지 몰라 더 묵혀 두게 돼요.',accent:C.red});
-    L.note(s,{x:M+8.2,y:4.4,w:3.9,h:2.05,label:'',text:'문제는 의지가 아니라 순서예요. 찾는 일이 앞에 있으면 만나는 일은 언제나 뒤로 밀려요. 순서를 바꾸는 것이 이번 대문의 목적이에요.',tone:'dark',size:11});
-    L.caption(s,{x:M,y:6.55,w:8,text:'출처: 세일즈혁신TF 「MeAI CRM 대문 고도화 제안」 2026.09 (2026.08 MeAI 워크샵 자료 기준)',align:'left'});
+    const s = L.base(pres,{kicker:'PART 1 · 지금까지',title:'영업의 절반은 "찾는 일"이었어요',sub:'고객을 만나기 전에 세 가지를 스스로 정해야 했어요.',pageNo:no});
+    const qs = [['?','누구에게 연락하지?','목록을 하나씩 뒤져 오늘 연락할 사람을 골라야 했어요.'],['!','왜 지금이지?','연락할 명분을 스스로 만들어야 했어요.'],['"','무슨 말로 시작하지?','첫 마디를 고민하다 하루를 넘기기 일쑤였어요.']];
+    qs.forEach((q,i)=> L.card(s,{x:M+i*4.1,y:1.85,w:3.9,h:2.05,icon:q[0],iconFill:C.g100,iconColor:C.g700,title:q[1],desc:q[2],titleSize:16,descSize:13}));
+    L.stat(s,{x:M,y:4.2,w:3.9,h:2.05,value:'7%',unit:'미만',label:'보유 고객 중 영업 시도 비율',desc:'열 명 중 아홉 명 넘게 연락조차 못 하고 있어요.',accent:C.red});
+    L.stat(s,{x:M+4.1,y:4.2,w:3.9,h:2.05,value:'2%',unit:'미만',label:'이관 고객 중 영업 시도 비율',desc:'넘겨받은 고객은 더 묵혀 두게 돼요.',accent:C.red});
+    L.note(s,{x:M+8.2,y:4.2,w:3.9,h:2.05,label:'',text:'문제는 의지가 아니라 순서예요. 찾는 일이 앞에 있으면 만나는 일은 뒤로 밀려요.',tone:'dark',size:12.5});
+    L.caption(s,{x:M,y:6.4,w:8,text:'출처: 세일즈혁신TF 「MeAI CRM 대문 고도화 제안」 2026.09',align:'left',size:10});
   }});
   // 1-2
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 1 · 이제는',title:'이제는 MeAI가 먼저 찾아옵니다',sub:'"찾는 영업"에서 "찾아가는 영업"으로. 바뀌는 것은 화면이 아니라 하루의 순서예요.',pageNo:no});
-    const rows = [['','찾는 영업 (지금까지)','찾아가는 영업 (MeAI 대문)'],['누구에게','목록을 뒤져 내가 고른다','대문이 오늘의 추천 고객을 먼저 보여준다'],['왜 지금','명분을 스스로 만든다','"부담보 해제가 5일 남았습니다"처럼 이유가 한 문장으로 붙는다'],['첫 마디','고민하다 미룬다','카드의 이유 문장이 곧 첫 말이 된다'],['다음 행동','메뉴를 찾아 헤맨다','[MeAI 고객찾기에서 열기] → [이 고객으로 맞춤대화 시작] 클릭 두 번'],['자료 준비','메뉴 3단계 아래에서 찾는다','MeAI가 추천 질문과 보장분석을 옆에 준비해 둔다']];
-    const data = rows.map((r,ri)=> r.map((c,ci)=>({text:c, options:{fontFace:L.FONT,fontSize: ri===0?10.5:11, bold: ri===0 || ci===0, color: ri===0? C.g600 : (ci===2? C.blue700 : C.g800), fill:{color: ri===0? C.g100 : (ci===2? C.blue50 : C.white)}, valign:'middle', margin:[4,8,4,8]}})));
-    s.addTable(data,{x:M,y:1.95,w:7.6,colW:[1.2,2.6,3.8],rowH:0.62,border:{type:'solid',color:C.g200,pt:0.75}});
-    L.img(s,HERO('gate_card_z'),{x:8.6,y:1.95,w:4.1,h:4.2,valign:'top'});
-    L.caption(s,{x:8.6,y:6.2,w:4.1,text:'대문 「오늘의 추천 고객」 카드 한 장 (예시 데이터)'});
-    L.note(s,{x:M,y:5.85,w:7.6,h:0.8,label:'기억할 것',text:'발굴은 시스템이, 설득은 사람이 해요. MeAI가 "누구·왜·첫 마디"를 준비하면, 영업가족은 고객을 만나는 일에만 집중하면 돼요.',tone:'blue',size:10.5});
+    const s = L.base(pres,{kicker:'PART 1 · 이제는',title:'이제는 MeAI가 먼저 찾아옵니다',sub:'바뀌는 것은 화면이 아니라 하루의 순서예요.',pageNo:no});
+    const rows = [['','찾는 영업 (지금까지)','찾아가는 영업 (MeAI 대문)'],['누구에게','목록을 뒤져 내가 고른다','대문이 오늘의 추천 고객을 보여준다'],['왜 지금','명분을 스스로 만든다','"부담보 해제가 5일 남았습니다" 이유가 붙는다'],['첫 마디','고민하다 미룬다','카드의 이유 문장이 곧 첫 말'],['다음 행동','메뉴를 찾아 헤맨다','[MeAI 고객찾기에서 열기] →\n[이 고객으로 맞춤대화 시작]']];
+    const data = rows.map((r,ri)=> r.map((c,ci)=>({text:c, options:{fontFace:L.FONT,fontSize: ri===0?11:12.5, bold: ri===0 || ci===0, color: ri===0? C.g600 : (ci===2? C.blue700 : C.g800), fill:{color: ri===0? C.g100 : (ci===2? C.blue50 : C.white)}, valign:'middle', margin:[4,8,4,8]}})));
+    s.addTable(data,{x:M,y:1.85,w:7.6,colW:[1.2,2.4,4.0],rowH:0.7,border:{type:'solid',color:C.g200,pt:0.75}});
+    L.img(s,HERO('gate_card_z'),{x:8.5,y:1.85,w:4.2,h:4.45,valign:'top'});
+    L.caption(s,{x:8.5,y:6.38,w:4.2,text:'「오늘의 추천 고객」 카드 한 장 (예시)',size:10});
+    L.note(s,{x:M,y:5.6,w:7.6,h:0.8,label:'기억할 것',text:'발굴은 시스템이, 설득은 사람이 해요. 누구·왜·첫 마디는 MeAI가 준비해요.',tone:'blue',size:12});
   }});
   // 1-3 카드에서 리포트까지
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 1 · 한 흐름',title:'카드에서 시작해 리포트로 끝나요. 클릭 두 번이면 대화가 열려요',sub:'대문 카드 → 고객찾기 → 맞춤대화 → 요약 리포트. 화면마다 다음 버튼이 준비돼 있어서 헤맬 곳이 없어요.',pageNo:no});
-    const steps = [['1','대문 · 추천 카드','이유 문장을 읽고 [MeAI 고객찾기에서 열기]',HERO('gate_card_z')],['2','고객찾기 · 펼친 카드','한눈에 보기 6칸으로 상황 파악, 태그로 부족한 보장 확인',HERO('find_card_z')],['3','다음 행동 · 맞춤대화 시작','추천 질문을 그대로 쓰고 [이 고객으로 맞춤대화 시작]',HERO('find_right_z')],['4','요약 리포트 · 카카오톡','좋았던 답만 골라 리포트로 만들어 고객에게 보내요.',HERO('report_kakao_crop')]];
-    steps.forEach((st,i)=>{ const x = M + i*3.08, w = 2.9;
-      L.img(s,st[3],{x,y:1.95,w,h:2.95,valign:'middle'});
-      L.badge(s,{x,y:5.06,n:st[0],d:0.3});
-      L.T(s,st[1],{x:x+0.4,y:5.05,w:w-0.4,h:0.34,fontSize:12.5,bold:true,color:C.navy});
-      L.T(s,st[2],{x,y:5.4,w,h:0.8,fontSize:10.5,color:C.g600,lineSpacingMultiple:1.3});
-      if (i<3) L.arrow(s,{x:x+w-0.08,y:3.2,w:0.35});
-    });
-    L.note(s,{x:M,y:6.25,w:W-2*M,h:0.5,label:'',text:'어느 화면에서 시작해도 고객이 이미 정해진 상태로 대화가 열려요. 고객을 다시 찾거나 정보를 다시 입력할 일이 없어요.',tone:'grey',size:10.5});
+    const s = L.base(pres,{kicker:'PART 1 · 한 흐름',title:'클릭 두 번이면 대화가 열려요',sub:'대문 카드 → 고객찾기 → 맞춤대화 → 요약 리포트',pageNo:no});
+    const steps = [['1','대문 · 추천 카드','이유 문장을 읽고\n[MeAI 고객찾기에서 열기]',[HERO('gate_card_z')],2.55],['2','고객찾기 · 펼친 카드','한눈에 보기 6칸과 태그로 상황 파악',[HERO('fix_card_tags_clean'),HERO('find_six_z')],3.75],['3','맞춤대화 시작','추천 질문을 확인하고\n[이 고객으로 맞춤대화 시작]',[HERO('find_right_z')],2.65],['4','요약 리포트 · 카카오톡','좋았던 답만 골라\n고객에게 보내요',[HERO('report_kakao_crop')],2.5]];
+    flowRow(s, steps, {y:1.85, h:3.15, ty:5.15});
+    L.note(s,{x:M,y:6.28,w:W-2*M,h:0.55,label:'',text:'어느 화면에서 시작해도 고객이 정해진 상태로 대화가 열려요.',tone:'grey',size:12});
   }});
   // 1-4 MeAI는 이렇게 준비해요
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 1 · MeAI가 하는 일',title:'찾아가는 영업, MeAI는 매일 이렇게 준비해요',sub:'계약·보상·부담보·동의·상령일 같은 정보를 모아 그룹을 다시 계산하고, 대문 카드로 알려줘요.',pageNo:no});
-    L.steps(s,{x:M,y:1.95,w:W-2*M,h:2.15,items:[{n:1,title:'고객 정보 모으기',desc:'계약·보상·부담보·동의 상태·상령일·생일·접촉 이력을 고객 단위로 모아요.'},{n:2,title:'그룹으로 묶기',desc:'"암진단비 부족", "상령일 임박"처럼 조건별 그룹을 매일 다시 계산해요.'},{n:3,title:'대문 카드로 알려주기',desc:'오늘의 추천 고객 3장 × 세트 3개. 이유 한 문장과 태그, 동의 D-n을 함께 보여줘요.',},{n:4,title:'영업가족 실행',desc:'카드에서 고객찾기 → 맞춤대화 → 리포트까지 버튼으로 이어져요.'},{n:5,title:'다음 날 다시 계산',desc:'오늘 바뀐 계약·동의 상태를 반영해 그룹과 추천을 다시 계산하고, 다음 날 대문에 보여줘요.'}],activeIdx:2});
-    const pr = [['발굴은 시스템, 설득은 사람','누구에게 연락할지 고르는 시간을 없애고, 영업가족은 고객을 만나는 일에 집중해요.'],['타겟에는 반드시 이유가 있어요','"부담보 해제가 5일 남았습니다"처럼 연락 사유가 한 문장으로 붙어요. 첫 말을 고민할 필요가 없어요.'],['클릭 세 번이면 시작','[MeAI 고객찾기에서 열기] → [이 고객으로 맞춤대화 시작]. 고객이 정해진 상태로 대화가 열려요.']];
-    pr.forEach((p,i)=> L.card(s,{x:M+i*4.1,y:4.35,w:3.9,h:1.7,title:p[0],desc:p[1],titleSize:13,descSize:10.5}));
-    L.caption(s,{x:M,y:6.2,w:W-2*M,text:'※ 고객 데이터와 추천 결과는 매일 새로 계산되어 익일에 반영돼요(대문 「데이터 갱신 안내」 기준). 화면의 "최근 업데이트" 시각을 확인하세요.',align:'left'});
+    const s = L.base(pres,{kicker:'PART 1 · MeAI가 하는 일',title:'MeAI는 매일 이렇게 준비해요',sub:'고객 정보를 모아 그룹을 다시 계산하고, 대문 카드로 알려줘요.',pageNo:no});
+    bigSteps(s,{x:M,y:1.85,w:W-2*M,h:2.55,items:[{n:1,title:'고객 정보 모으기',desc:'계약·보상·부담보·동의·상령일·생일·접촉 이력을 모아요.'},{n:2,title:'그룹으로 묶기',desc:'"암진단비 부족" "상령일 임박" 같은 그룹을 매일 다시 계산해요.'},{n:3,title:'대문 카드로 알려주기',desc:'오늘의 추천 고객 3장 × 세트 3. 이유 한 문장·태그·동의 D-n.'},{n:4,title:'영업가족 실행',desc:'고객찾기 → 맞춤대화 → 리포트, 버튼으로 이어져요.'},{n:5,title:'다음 날 다시 계산',desc:'오늘 바뀐 계약·동의 상태를 반영해 다음 날 대문에 보여줘요.'}],activeIdx:2});
+    const pr = [['발굴은 시스템, 설득은 사람','고르는 시간을 없애고, 만나는 일에 집중해요.'],['타겟에는 반드시 이유가 있어요','"부담보 해제가 5일 남았습니다"처럼 사유가 한 문장으로 붙어요.'],['클릭 두 번이면 시작','[MeAI 고객찾기에서 열기] →\n[이 고객으로 맞춤대화 시작]']];
+    pr.forEach((p,i)=> L.card(s,{x:M+i*4.1,y:4.65,w:3.9,h:1.55,title:p[0],desc:p[1],titleSize:15,descSize:12}));
+    L.caption(s,{x:M,y:6.35,w:W-2*M,text:'※ 데이터·추천 결과는 익일 반영 · 화면의 "최근 업데이트" 시각을 확인하세요.',align:'left',size:10});
   }});
   // 1-5 숫자로 보기
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 1 · 숫자로 보기',title:'열 명 중 아홉 분이 써봤고, 쓴 분의 계약 성사율이 2.8배 높았어요',sub:'도구는 이미 손에 있어요. 대문은 그 도구를 "매일 아침 켜게" 만드는 장치예요.',pageNo:no});
-    [['91.1%','','MeAI 사용 경험','10,968명이 한 번 이상 사용. 한 번도 안 써본 분은 1,075명(8.9%)뿐.',C.navy],['2.8배','','체결전환율 차이','미활용 12.7% → 활용 35.4%. 병목이던 설계 단계를 MeAI가 뚫었어요.',C.blue],['4배','','같은 FP 고객 간 비교','미활용 9.0% → 활용 36.0%. FP 역량·조직 차이로는 설명되지 않아요.',C.blue],['2.3배','','질문을 하나만 더 하면','질문 1개 11.99건 → 3개 이상 27.79건(평균 가계약). 꼬리질문 한 번의 차이.',C.navy]].forEach((d,i)=> L.stat(s,{x:M+i*3.08,y:1.95,w:2.9,h:2.15,value:d[0],unit:d[1],label:d[2],desc:d[3],accent:d[4]}));
+    const s = L.base(pres,{kicker:'PART 1 · 숫자로 보기',title:'쓴 분의 계약 성사율이 2.8배 높았어요',sub:'열 명 중 아홉 분이 써봤어요. 대문은 매일 아침 켜게 만드는 장치예요.',pageNo:no});
+    [['91.1%','','MeAI 사용 경험','10,968명이 한 번 이상 사용',C.navy],['2.8배','','체결전환율 차이','미활용 12.7% → 활용 35.4%',C.blue],['4배','','같은 FP 고객 간 비교','미활용 9.0% → 활용 36.0%',C.blue],['2.3배','','질문을 3개 이상 이어 쓰면','질문 1개 11.99건 → 3개 이상 27.79건',C.navy]].forEach((d,i)=> L.stat(s,{x:M+i*3.08,y:1.85,w:2.9,h:1.85,value:d[0],unit:d[1],label:d[2],desc:d[3],accent:d[4]}));
     const rows=[['7월 활동일','인원','매출 보유율','평균 가계약(건)','매출자 평균'],['미사용','5,987명','53.1%','10.22','256,194원'],['1일','1,835명','79.6%','19.81','310,383원'],['2~4일','2,487명','85.7%','26.35','328,237원'],['5~9일','1,372명','92.5%','38.47','378,083원'],['10일 이상','362명','94.8%','55.04','408,166원']];
-    L.table(s,{x:M,y:4.35,w:7.6,rows,colW:[1.5,1.4,1.5,1.6,1.6],size:10,rowH:0.3});
-    L.note(s,{x:8.4,y:4.35,w:4.3,h:1.8,label:'한 달에 며칠 쓰느냐',text:'모든 지표가 한 방향으로 움직여요. 매출 보유율 1.8배, 평균 가계약 5.4배. 대문을 아침마다 여는 습관이 곧 "활동일"이에요.',tone:'blue',size:10.5});
-    L.caption(s,{x:M,y:6.3,w:W-2*M,text:SRC1,align:'left'});
+    L.table(s,{x:M,y:3.95,w:7.6,rows,colW:[1.5,1.4,1.5,1.6,1.6],size:11,rowH:0.36});
+    L.R(s,{x:8.4,y:3.95,w:4.3,h:2.16,fill:C.blue50,line:null,radius:0.12});
+    s.addText([
+      {text:'한 달에 며칠 쓰느냐', options:{bold:true,color:C.blue,fontSize:12,breakLine:true}},
+      {text:'매출 보유율 1.8배 · 평균 가계약 5.4배', options:{bold:true,color:C.g800,fontSize:12,breakLine:true}},
+      {text:'(10일 이상 vs 미사용)', options:{color:C.g600,fontSize:11,breakLine:true}},
+      {text:'대문을 아침마다 여는 습관이 곧 활동일이에요.', options:{color:C.g800,fontSize:12}},
+    ],{x:8.65,y:4.05,w:3.8,h:1.96,fontFace:L.FONT,isTextBox:true,margin:0,valign:'middle',lineSpacingMultiple:1.35,paraSpaceAfter:2});
+    L.caption(s,{x:M,y:6.28,w:W-2*M,text:SRC1,align:'left',size:10});
   }});
   // 1-6 아침 3분 미리보기
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 1 · 그래서 이 책은',title:'매일 아침 3분, 대문에서 시작하는 습관을 제안해요',sub:'PART 2~4에서 화면을 익히고, PART 7에서 루틴으로 굳혀요. 익숙해지면 정말 3분이에요.',pageNo:no});
-    const items=[['☀','01 · 대문 열기','내 고객 숫자 4개를 훑어요. "사전조회 동의 필요"가 늘었는지 확인.',HERO('gate_top')],['▤','02 · 추천 카드 읽기','오늘의 추천 고객 카드의 이유 문장과 태그를 읽어요.',HERO('reco1_card1')],['🔍','03 · 고객찾기에서 열기','펼친 카드의 한눈에 보기 6칸으로 상황 파악, 추천 질문 확인.',HERO('find_card_z')],['↑','04 · 맞춤대화 → 리포트','[이 고객으로 맞춤대화 시작] → "보장분석 해줘" → 요약 리포트.',HERO('find_right_z')]];
-    items.forEach((it,i)=>{ const x=M+i*3.08, w=2.9;
-      L.img(s,it[3],{x,y:1.95,w,h:2.4,valign:'middle'});
-      L.T(s,it[1],{x,y:4.5,w,h:0.34,fontSize:12.5,bold:true,color:C.navy});
-      L.T(s,it[2],{x,y:4.86,w,h:0.9,fontSize:10.5,color:C.g600,lineSpacingMultiple:1.3});
-      if(i<3) L.arrow(s,{x:x+w-0.08,y:2.9,w:0.35});
-    });
-    L.note(s,{x:M,y:5.95,w:W-2*M,h:0.8,label:'기억할 것',text:'추천 카드의 이유 문장은 고객에게 하는 첫 말이 되고, 고객찾기의 추천 질문은 MeAI에게 하는 첫 질문이 돼요. 두 문장이 준비돼 있으니 망설일 이유가 없어요.',tone:'dark',size:11});
+    const s = L.base(pres,{kicker:'PART 1 · 그래서 이 책은',title:'매일 아침 3분, 대문에서 시작해요',sub:'PART 2~4에서 화면을 익히고, PART 7에서 루틴으로 굳혀요.',pageNo:no});
+    const items=[[null,'01 · 대문 열기','내 고객 숫자 4개,\n"사전조회 동의 필요"가 늘었는지.',[HERO('fix_gate_stats_2row')],2.75],[null,'02 · 추천 카드 읽기','오늘의 추천 고객의\n이유 문장과 태그를 읽어요.',[HERO('reco1_card1')],2.45],[null,'03 · 고객찾기에서 열기','한눈에 보기 6칸으로 상황 파악,\n추천 질문 확인.',[HERO('fix_card_tags_clean'),HERO('find_six_z')],3.5],[null,'04 · 맞춤대화 → 리포트','[이 고객으로 맞춤대화 시작]\n→ 요약 리포트.',[HERO('find_right_z')],2.75]];
+    flowRow(s, items, {y:1.85, h:2.95, ty:4.9});
+    L.note(s,{x:M,y:6.08,w:W-2*M,h:0.72,label:'기억할 것',text:'카드의 이유 문장은 고객에게 첫 말, 고객찾기의 추천 질문은 MeAI에게 첫 질문이에요.',tone:'dark',size:12});
   }});
 };

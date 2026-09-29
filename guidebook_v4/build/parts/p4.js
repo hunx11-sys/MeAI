@@ -1,105 +1,140 @@
 module.exports = (S, ctx) => {
   const { L, C, W, H, M, HERO, AG } = ctx;
-  S.push({ part:'04', fn:(pres,no)=> L.divider(pres,{num:'04',title:'고객찾기\n내 고객을 MeAI가 그룹으로 묶어줘요',sub:'"암진단비 부족 35명"처럼 그룹을 누르면 그 조건의 고객만 나열돼요. 그룹 분류와 고객 정보는 매일 새로 계산돼 다음 날 반영돼요.',learn:['왼쪽 그룹 · 가운데 목록 · 오른쪽 다음 행동, 3단 구조','그룹 14개의 뜻과 설명 문구 · 펼친 카드의 한눈에 보기 6칸','동의 상태별로 달라지는 다음 행동 · 검색과 필터'],pageNo:no}) });
+  S.push({ part:'04', fn:(pres,no)=> L.divider(pres,{num:'04',title:'고객찾기\n내 고객을 MeAI가 그룹으로 묶어줘요',sub:'"암진단비 부족 35명", 그룹을 누르면 그 고객만 모여요.',learn:['왼쪽 · 가운데 · 오른쪽 3단 화면','그룹 14개와 설명 문구','고객 카드 · 한눈에 보기 6칸','동의별 다음 행동 · 검색'],pageNo:no}) });
   // 4-1 전체
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 화면 구성',title:'고객찾기는 왼쪽 → 가운데 → 오른쪽, 세 단으로 읽어요',pageNo:no});
-    const g = L.img(s,HERO('find_full'),{x:M,y:1.45,w:8.75,h:5.5,valign:'top',align:'left'});
+    const s = L.base(pres,{kicker:'PART 4 · 화면 구성',title:'고객찾기는 세 단으로 읽어요',pageNo:no});
+    const g = L.img(s,HERO('find_full'),{x:M,y:1.45,w:8.5,h:5.45,valign:'top',align:'left'});
     const clip={x:0,y:0};
-    L.pin(s,g,150,100,1,{clip}); L.pin(s,g,270,204,2,{clip}); L.pin(s,g,522,105,3,{clip}); L.pin(s,g,955,220,4,{clip}); L.pin(s,g,700,615,5,{clip}); L.pin(s,g,1160,102,6,{clip}); L.pin(s,g,1345,527,7,{clip}); L.pin(s,g,395,31,8,{clip});
-    L.numList(s,{x:9.6,y:1.45,w:3.15,gap:0.05,titleSize:10.5,descSize:9,items:[
-      {n:1,title:'고객 그룹 (왼쪽)',desc:'신규 등록 고객 + 보장 기준 / 영업 기회 탭.'},
-      {n:2,title:'탭 전환',desc:'보장 기준(담보 부족·당월 타겟·증권·납입) / 영업 기회(상령일·생일·사전동의 만료).'},
-      {n:3,title:'그룹 제목 · 인원 · 설명',desc:'왜 이 그룹인지 한 줄. [전체]는 동의 조건 필터.'},
-      {n:4,title:'펼친 고객 카드',desc:'이유 · 태그 · 한눈에 보기 6칸. 한 번에 한 장만.'},
-      {n:5,title:'접힌 카드 · AI 추천 리본',desc:'누르면 펼쳐지고 오른쪽 패널이 바뀌어요.'},
-      {n:6,title:'MeAI에 이렇게 물어보세요',desc:'일반대화용 · 맞춤대화용 추천 질문.'},
-      {n:7,title:'[보장분석] · [맞춤대화 시작]',desc:'동의가 없으면 [사전조회동의 요청하기]로 바뀌어요.'},
-      {n:8,title:'검색창',desc:'이름 또는 조건으로 검색. 왼쪽 위 [MeAI 홈]으로 대문 복귀.'},
+    L.pin(s,g,150,100,1,{clip}); L.pin(s,g,275,226,2,{clip}); L.pin(s,g,522,105,3,{clip}); L.pin(s,g,955,220,4,{clip}); L.pin(s,g,309,632,5,{clip}); L.pin(s,g,1211,146,6,{clip}); L.pin(s,g,1362,531,7,{clip}); L.pin(s,g,395,31,8,{clip}); L.pin(s,g,1150,75,9,{clip});
+    L.numList(s,{x:9.4,y:1.42,w:3.33,gap:0.02,titleSize:12.5,descSize:10.5,items:[
+      {n:1,title:'고객 그룹',desc:'그룹을 누르면 목록이 바뀌어요.'},
+      {n:2,title:'탭 전환',desc:'보장 기준 10개 · 영업 기회 3개'},
+      {n:3,title:'그룹 설명',desc:'묶인 이유 한 줄 · [전체] 필터'},
+      {n:4,title:'펼친 카드',desc:'이유 · 태그 · 한눈에 보기 6칸'},
+      {n:5,title:'접힌 카드',desc:'누르면 펼쳐지고 패널이 바뀌어요.'},
+      {n:6,title:'추천 질문',desc:'일반대화용 · 맞춤대화용'},
+      {n:7,title:'다음 버튼',desc:'[보장분석] · [맞춤대화 시작]'},
+      {n:8,title:'검색창',desc:'이름·조건으로 검색해요.'},
+      {n:9,title:'[글씨 확대]',desc:'기본 ON, 끄면 원래 크기'},
     ]});
   }});
   // 4-2 그룹 목록
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 고객 그룹',title:'그룹 14개, 이름만 보면 왜 연락할지 알 수 있어요',sub:'보장 기준 10개, 영업 기회 3개, 그리고 신규 등록 고객. 인원 숫자는 예시이고, 매일 새로 계산돼 다음 날 반영돼요.',pageNo:no});
-    L.img(s,HERO('find_groups_z'),{x:M,y:1.85,w:1.9,h:4.6,valign:'top',align:'left'}); L.caption(s,{x:M,y:6.5,w:1.9,text:'보장 기준 탭'});
-    L.img(s,HERO('find_left_opp_top_z'),{x:M+2.05,y:1.85,w:1.9,h:4.6,valign:'top',align:'left'}); L.caption(s,{x:M+2.05,y:6.5,w:1.9,text:'영업 기회 탭'});
-    const rows=[['그룹','뜻 (누가 들어오나)','우선순위'],['신규 등록 고객','아직 그룹으로 분류되지 않은 신규 고객. "AI가 이 고객을 분석하고 있어요" · 상세는 익일 반영','-'],['암·뇌·심진단비 부족','진단비가 2천만원 이하인 고객','3'],['표적항암 부족 · 종수술비 부족','표적항암치료비 5천만원 이하 · 질병 종수술비 없음','3'],['지원일당 없음 · 치아 부족','간병인지원 입원일당 없음 · 치아보철치료비 없음','3'],['당월 영업 타겟 NEW','당월 회사 전략 담보(수술비·표적항암 등) 대상 (보라 태그)','1 (최상)'],['증권 5건 이상 · 월 50만원 이상','가입 증권 5건 이상 · 월납 보험료 50만원 이상인 우량 고객','2'],['상령일 임박 NEW · 생일 임박','30일 안에 보험 나이가 오르는 고객 · 곧 생일인 고객','2'],['사전동의 만료 NEW','사전동의 만료가 임박한 고객. 재동의 캠페인 목록','2']];
-    const data = rows.map((r,ri)=> r.map((c,ci)=>({text:c, options:{fontFace:L.FONT,fontSize: 9.8, bold: ri===0||ci===0, color: ri===0? C.g600 : (ci===2? C.blue : C.g800), fill:{color: ri===0? C.g100 : C.white}, valign:'middle', margin:[3,8,3,8], align: ci===2?'center':'left'}})));
-    s.addTable(data,{x:M+4.2,y:1.85,w:7.93,colW:[2.5,4.4,1.03],rowH:0.44,border:{type:'solid',color:C.g200,pt:0.75}});
-    L.caption(s,{x:M+4.2,y:6.0,w:7.93,text:'우선순위: 화면 태그 분류표 기준. 카드의 태그 칩은 우선순위 순으로 보여요(1=최상). 한 고객이 여러 그룹에 들어갈 수 있어요.',align:'left'});
-    L.note(s,{x:M+4.2,y:6.3,w:7.93,h:0.5,label:'읽는 법',text:'빨간 그룹은 "무엇이 부족한가", 파란(증권·납입)·주황(상령일·생일·사전동의 만료) 그룹은 "언제 연락하면 좋은가", 보라 그룹은 "이번 달 목표"예요.',tone:'blue',size:10});
+    const s = L.base(pres,{kicker:'PART 4 · 고객 그룹',title:'그룹 이름이 곧 연락 이유예요',sub:'보장 기준 10개 · 영업 기회 3개 · 신규 등록. 인원은 예시예요.',pageNo:no});
+    const g1 = L.img(s,HERO('find_groups_z'),{x:M,y:1.85,w:1.9,h:4.72,valign:'top',align:'left'}); L.caption(s,{x:M,y:g1.y+g1.h+0.05,w:g1.w,text:'보장 기준 탭',size:10});
+    const g2 = L.img(s,HERO('find_left_opp_top_z'),{x:M+2.0,y:1.85,w:2.15,h:4.6,valign:'top',align:'left'}); L.caption(s,{x:g2.x,y:g2.y+g2.h+0.05,w:g2.w,text:'영업 기회 탭',size:10});
+    const tagPg = (ctx.parts['04']||1)+6; // NEW 태그 색 장
+    L.note(s,{x:M+2.0,y:5.3,w:2.15,h:0.55,text:`태그 색은 ${tagPg}쪽에서 봐요.`,tone:'blue',size:10.5});
+    const rows=[['그룹','누가 들어오나','우선순위'],['신규 등록 고객','아직 분류 전인 신규 고객 · 다음 날 반영','-'],['암·뇌·심진단비 부족','진단비 2천만원 이하','3'],['표적항암 · 종수술비 부족','표적항암 5천만원 이하 · 종수술비 없음','3'],['지원일당 없음 · 치아 부족','간병인지원 입원일당 · 치아보철 없음','3'],['당월 영업 타겟|NEW','당월 회사 전략 담보 대상','1 (최상)'],['증권 5건 이상 · 월 50만원 이상','증권이 많거나 보험료가 큰 우량 고객','2'],['상령일 임박|NEW| · 생일 임박','30일 안에 보험 나이가 오름 · 곧 생일','2'],['사전동의 만료|NEW','만료 임박 · 재동의 대상','2']];
+    // 'A|NEW|B' → NEW 만 작은 빨간 글씨
+    const runs = (c)=> c.split('|').map(t=> t==='NEW'? {text:' NEW',options:{fontSize:8,bold:true,color:C.red}} : {text:t,options:{}});
+    const data = rows.map((r,ri)=> r.map((c,ci)=>({text: c.includes('|')? runs(c) : c, options:{fontFace:L.FONT,fontSize: 11, bold: ri===0||ci===0, color: ri===0? C.g600 : (ci===2? C.blue : C.g800), fill:{color: ri===0? C.g100 : C.white}, valign:'middle', margin:[3,8,3,8], align: ci===2?'center':'left'}})));
+    s.addTable(data,{x:M+4.4,y:1.85,w:7.73,colW:[2.7,3.98,1.05],rowH:0.5,border:{type:'solid',color:C.g200,pt:0.75}});
+    L.caption(s,{x:M+4.4,y:6.45,w:7.73,text:'한 고객이 여러 그룹에 들 수 있어요.',align:'left',size:10});
   }});
   // 4-3 그룹 설명 문구
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 그룹 설명',title:'그룹을 누르면 "왜 이 고객인지"가 한 줄로 설명돼요',sub:'설명 문구는 곧 상담 화법이에요. "치료비 실제 부담액을 기준으로 설명하면 필요가 분명해집니다"처럼요.',pageNo:no});
-    L.img(s,HERO('find_header'),{x:M,y:1.85,w:7.4,h:1.45,valign:'top',align:'left'});
-    L.img(s,AG('find010','11_group_brain_header'),{x:M,y:3.45,w:7.4,h:1.45,valign:'top',align:'left'});
+    const s = L.base(pres,{kicker:'PART 4 · 그룹 설명',title:'설명 한 줄이 곧 상담 화법이에요',sub:'그룹을 누르면 묶인 이유가 한 줄로 붙어요.',pageNo:no});
+    const h1 = L.img(s,HERO('find_header'),{x:M,y:1.85,w:7.4,h:1.45,valign:'top',align:'left'});
+    const h2 = L.img(s,AG('find010','11_group_brain_header'),{x:M,y:3.45,w:7.4,h:1.45,valign:'top',align:'left'});
+    const px={dsf:1}; // 캡처 픽셀 좌표 그대로
+    L.pin(s,h1,365,72,1,px); L.pin(s,h1,125,195,2,px); L.pin(s,h2,315,186,3,px);
     L.img(s,AG('find010','17_group_monthly_target_header'),{x:M,y:5.05,w:7.4,h:1.45,valign:'top',align:'left'});
-    L.numList(s,{x:8.4,y:1.85,w:4.3,gap:0.1,titleSize:11.5,descSize:10,items:[{n:1,title:'그룹 이름 · 인원',desc:'"암진단비 부족 35명". 오른쪽 [전체] 드롭다운으로 사전조회동의·상품소개동의 고객만 걸러요.'},{n:2,title:'설명 한 줄',desc:'어떤 기준으로 묶였는지, 어떻게 설명하면 좋은지가 붙어요.'},{n:3,title:'그대로 첫 말로',desc:'설명 문구를 고객에게 하는 말로 바꾸기만 하면 돼요. "뇌질환은 재활·간병 기간이 길어서 진단비가 곧 생활비예요."'},{n:4,title:'조회 자료로 활용',desc:'조직장이 조회에서 그룹 인원과 설명 문구를 함께 읽어 주면, 그날의 영업 방향이 정리돼요(PART 8).'}]});
+    [{n:1,title:'그룹 이름 · 인원',desc:'"암진단비 부족 35명". [전체]로 동의 고객만 걸러요.'},{n:2,title:'설명 한 줄',desc:'어떤 기준으로 묶였는지, 어떻게 말할지.'},{n:3,title:'그대로 첫마디로',desc:'"재활·간병 기간이 길어 진단비가 곧 생활비예요."'},{n:4,title:'조회 자료로',desc:'조직장이 조회에서 인원과 문구를 읽어 줘요(PART 8).'}].forEach((it,i)=> L.numList(s,{x:8.4,y:2.0+i*1.12,w:4.33,titleSize:14,descSize:12,items:[it]}));
   }});
   // 4-3b 그룹 설명 전체 표
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 그룹 설명 문구 모음',title:'그룹 14개의 설명 문구, 한 장에 모았어요',pageNo:no});
-    const rows=[['그룹','화면의 설명 문구 (그대로)'],['암진단비 부족','암 진단비가 2천만원 이하인 고객입니다. 치료비 실제 부담액을 기준으로 설명하면 필요가 분명해집니다.'],['뇌진단비 부족','뇌혈관 진단비가 2천만원 이하인 고객입니다. 뇌질환은 재활·간병 기간이 길어 진단비가 곧 생활비 대체 수단이 됩니다.'],['심진단비 부족','허혈성 심장질환 진단비가 2천만원 이하인 고객입니다. 심장질환은 시술 반복과 재발이 잦아 한 번의 진단비로는 부족합니다.'],['표적항암 부족','표적항암치료비가 5천만원 이하인 고객입니다. 표적,면역 항암은 회차당 비용이 커서 별도 특약 없이는 감당이 어렵습니다.'],['종수술비 부족','질병 종수술비 보장이 없는 고객입니다. 수술은 암보다 발생 빈도가 높아 실제 청구가 가장 많이 일어나는 담보입니다.'],['지원일당 없음','간병인지원 입원일당 보장이 없는 고객입니다. 간병비는 하루 단위로 나가는 실지출이라 일당이 없으면 부담이 그대로 남습니다.'],['치아 부족','치아보철치료비 보장이 없는 고객입니다. 임플란트,브릿지는 실손으로 보장되지 않아 전액 본인 부담입니다.'],['당월 영업 타겟','당월 회사 전략 담보(수술비·표적항암 등) 대상 고객입니다. 이번 달 안에 우선 접촉하는 것이 유리합니다.'],['증권 5건 이상','가입 증권이 5건 이상인 고객입니다. 보험에 대한 관심과 니즈가 높은 고객입니다.'],['월 50만원 이상','월납 보험료가 50만원 이상인 고객입니다. 납입 규모가 큰 편이므로 보험료 대비 보장 수준을 점검할 대상입니다.'],['상령일 임박','30일 안에 보험 나이가 오르는 고객입니다. 같은 보장을 더 싸게 준비할 수 있는 마지막 구간입니다.'],['생일 임박','곧 생일을 맞는 고객입니다. 축하 인사로 대화를 열고 자연스럽게 보장 점검으로 이어가기 좋은 시점입니다.'],['사전동의 만료','사전동의 만료가 임박한 고객입니다. 만료 전에 재동의를 받아야 이후에도 안내와 연락을 이어갈 수 있습니다.'],['신규 등록 고객','아직 그룹으로 분류되지 않은 신규 등록 고객입니다. 상세 정보는 익일 반영됩니다.']];
-    const data = rows.map((r,ri)=> r.map((c,ci)=>({text:c, options:{fontFace:L.FONT,fontSize: ri===0?9.5:9.5, bold: ri===0||ci===0, color: ri===0? C.g600 : (ci===0? C.navy : C.g800), fill:{color: ri===0? C.g100 : C.white}, valign:'middle', margin:[2,8,2,8]}})));
-    s.addTable(data,{x:M,y:1.45,w:W-2*M,colW:[2.0,10.13],rowH:0.335,border:{type:'solid',color:C.g200,pt:0.75}});
-    L.caption(s,{x:M,y:6.55,w:W-2*M,text:'2026.09.29 확정 화면의 문구예요. 오픈 시 문구가 다듬어질 수 있으니 화면의 설명을 우선하세요.',align:'left'});
+    const s = L.base(pres,{kicker:'PART 4 · 그룹 설명 문구 모음',title:'그룹별 한 줄 화법 모음',sub:'화면 설명 문구에서 기준 문장 뒤의 화법만 모았어요.',pageNo:no});
+    const rows=[['그룹','화면의 화법 문장 (그대로)'],['암진단비 부족','치료비 실제 부담액을 기준으로 설명하면 필요가 분명해집니다.'],['뇌진단비 부족','뇌질환은 재활·간병 기간이 길어 진단비가 곧 생활비 대체 수단이 됩니다.'],['심진단비 부족','심장질환은 시술 반복과 재발이 잦아 한 번의 진단비로는 부족합니다.'],['표적항암 부족','표적·면역 항암은 회차당 비용이 커서 별도 특약 없이는 감당이 어렵습니다.'],['종수술비 부족','수술은 암보다 발생 빈도가 높아 실제 청구가 가장 많이 일어나는 담보입니다.'],['지원일당 없음','간병비는 하루 단위로 나가는 실지출이라 일당이 없으면 부담이 그대로 남습니다.'],['치아 부족','임플란트·브릿지는 실손으로 보장되지 않아 전액 본인 부담입니다.'],['당월 영업 타겟','이번 달 안에 우선 접촉하는 것이 유리합니다.'],['증권 5건 이상','보험에 대한 관심과 니즈가 높은 고객입니다.'],['월 50만원 이상','납입 규모가 큰 편이므로 보험료 대비 보장 수준을 점검할 대상입니다.'],['상령일 임박','같은 보장을 더 싸게 준비할 수 있는 마지막 구간입니다.'],['생일 임박','축하 인사로 대화를 열고 자연스럽게 보장 점검으로 이어가기 좋은 시점입니다.'],['사전동의 만료','만료 전에 재동의를 받아야 이후에도 안내와 연락을 이어갈 수 있습니다.'],['신규 등록 고객','상세 정보는 익일 반영됩니다.']];
+    const data = rows.map((r,ri)=> r.map((c,ci)=>({text:c, options:{fontFace:L.FONT,fontSize: ri===0?10.5:11.5, bold: ri===0||ci===0, color: ri===0? C.g600 : (ci===0? C.navy : C.g800), fill:{color: ri===0? C.g100 : C.white}, valign:'middle', margin:[2,10,2,10]}})));
+    s.addTable(data,{x:M,y:1.85,w:W-2*M,colW:[2.3,9.83],rowH:0.31,border:{type:'solid',color:C.g200,pt:0.75}});
+    L.caption(s,{x:M,y:6.6,w:W-2*M,text:'2026.09.29 확정 화면 기준 · 오픈 시 바뀔 수 있어요',align:'left',size:10});
   }});
   // 4-4 카드 접힌/펼친
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 고객 카드',title:'접힌 카드는 한 줄, 누르면 펼쳐져 여섯 칸이 나와요',sub:'가운데 목록의 카드예요. 한 번에 한 장만 펼쳐지고, 오른쪽 패널이 그 고객으로 바뀌어요.',pageNo:no});
-    L.img(s,HERO('find_aicard_z'),{x:M,y:1.85,w:7.4,h:1.3,valign:'top',align:'left'}); L.caption(s,{x:M,y:3.15,w:7.4,text:'접힌 카드 · AI 추천 고객 리본 · 이유 한 줄 · 동의 상태'});
-    const g = L.img(s,HERO('find_card_z'),{x:M,y:3.5,w:7.4,h:3.35,valign:'top',align:'left'});
+    const s = L.base(pres,{kicker:'PART 4 · 고객 카드',title:'카드를 누르면 여섯 칸이 펼쳐져요',pageNo:no});
+    const a = L.img(s,HERO('find_aicard_z'),{x:M,y:1.5,w:7.4,h:1.3,valign:'top',align:'left'}); L.caption(s,{x:M,y:a.y+a.h+0.04,w:7.4,text:'접힌 카드 · AI 추천 고객 리본',size:10});
+    const g = L.img(s,HERO('find_card_z'),{x:M,y:3.2,w:7.4,h:3.7,valign:'top',align:'left'});
     const clip={x:320,y:195}, o={clip,dsf:3};
-    L.pin(s,g,326,235,1,o); L.pin(s,g,326,268,2,o); L.pin(s,g,962,268,3,o); L.pin(s,g,326,325,4,o); L.pin(s,g,326,365,5,o); L.pin(s,g,962,470,6,o);
-    L.numList(s,{x:8.4,y:1.85,w:4.3,gap:0.08,titleSize:11.5,descSize:9.8,items:[{n:1,title:'이름 · 나이 · 유형',desc:'담당자가 다른 고객은 "담당 OOO"이 함께 보여요.'},{n:2,title:'이유 한 문장',desc:'"암진단비가 1천만원대에 머물러 있습니다. 상향 여지가 큽니다."'},{n:3,title:'사전조회동의 D-n',desc:'만료면 "사전조회동의 필요", 철회한 고객은 "사전조회동의 철회"로 바뀌어요.'},{n:4,title:'태그 칩 (우선순위 순)',desc:'#당월 영업 타겟(보라) → #암진단비 부족 · #종수술비 부족 · #지원일당 없음(빨강). 한 고객이 여러 그룹에 속할 수 있어요.'},{n:5,title:'이 고객 한눈에 보기',desc:'가입 · 납입 · 접촉기회 · 부족 금액 · 주요 담보 유무. 다음 장에서 자세히.'},{n:6,title:'점선 칸 · 미확인',desc:'자료가 없는 항목은 "미확인"으로 비워 둬요. 추정하지 않아요.'}]});
+    L.pin(s,g,321,228,1,o); L.pin(s,g,321,275,2,o); L.pin(s,g,962,268,3,o); L.pin(s,g,321,320,4,o); L.pin(s,g,321,370,5,o); L.pin(s,g,962,470,6,o);
+    [{n:1,title:'이름 · 나이 · 유형',desc:'담당자가 다르면 "담당 OOO"이 붙어요.'},{n:2,title:'이유 한 문장',desc:'"암진단비가 1천만원대에 머물러 있습니다."'},{n:3,title:'사전조회동의 D-n',desc:'만료면 "필요", 철회면 "철회"로 바뀌어요.'},{n:4,title:'태그 (우선순위 순)',desc:'보라 = 당월 타겟. 부족 그룹은 그룹마다 색이 달라요.'},{n:5,title:'이 고객 한눈에 보기',desc:'여섯 칸은 다음 장에서 자세히 봐요.'},{n:6,title:'점선 칸 · 미확인',desc:'자료가 없으면 "미확인". 추정하지 않아요.'}].forEach((it,i)=> L.numList(s,{x:8.4,y:1.6+i*0.9,w:4.33,titleSize:13.5,descSize:11.5,items:[it]}));
+  }});
+  // 4-x NEW 부족 태그 색 (새 목업 v2)
+  S.push({ fn:(pres,no)=>{
+    const s = L.base(pres,{kicker:'PART 4 · NEW 태그 색',title:'부족 태그가 이제 색으로 구분돼요',sub:'부족 그룹 7개가 저마다 다른 색이에요. 여러 개 붙어도 한눈에 보여요.',pageNo:no,tag:{text:'NEW',fill:C.blue50,color:C.blue}});
+    const chip=(n,x,y)=> L.img(s,HERO('v2_chip_'+n),{x,y,w:1.7,h:0.36,round:false,shadow:false,align:'left',valign:'top'});
+    L.R(s,{x:M,y:1.9,w:5.75,h:4.95,fill:C.white,line:C.g200,radius:0.14});
+    L.T(s,'부족 그룹 · 색 7가지',{x:M+0.25,y:2.05,w:3.2,h:0.34,fontSize:13,bold:true,color:C.navy,valign:'middle'});
+    L.T(s,'우선순위 3',{x:M+3.6,y:2.05,w:1.9,h:0.34,fontSize:11,color:C.g600,align:'right',valign:'middle'});
+    ['cancer','brain','heart','target'].forEach((n,i)=>chip(n,M+0.25,2.5+i*0.46));
+    ['surgery','daily','tooth'].forEach((n,i)=>chip(n,M+2.2,2.5+i*0.46));
+    const grp=[['당월 영업 타겟','1',['monthly']],['증권 · 납입','2',['policy5','premium50']],['날짜 임박','2',['ageup','birthday','consentexp']]];
+    grp.forEach((g,k)=>{ const x=M+0.25+k*1.85; L.T(s,g[0],{x,y:4.5,w:1.8,h:0.3,fontSize:11.5,bold:true,color:C.navy,valign:'middle'}); L.T(s,'우선순위 '+g[1],{x,y:4.8,w:1.8,h:0.26,fontSize:10,color:C.g600,valign:'middle'}); g[2].forEach((n,i)=>chip(n,x,5.15+i*0.46)); });
+    L.label(s,{x:6.65,y:1.95,w:6.1,text:'고객 카드에서는 우선순위 순서로 붙어요',color:C.blue,size:12});
+    const g=L.img(s,HERO('v2_card_tags_z'),{x:6.65,y:2.3,w:6.08,h:2.3,valign:'top',align:'left'});
+    s.addShape('roundRect',{x:g.x+62*g.scale,y:g.y+338*g.scale,w:1030*g.scale,h:96*g.scale,fill:{type:'none'},line:{color:C.blue,width:2},rectRadius:0.06});
+    [['1','보라','이번 달 목표',C.purple,C.purple50],['2','파랑 · 주황','우량 · 날짜 임박',C.blue,C.blue50],['3','색 7가지','부족한 보장',C.red,C.red50]].forEach((c,k)=>{ const x=6.65+k*2.07, y=4.95, w=1.94, h=1.9;
+      L.R(s,{x,y,w,h,fill:c[4],line:null,radius:0.14});
+      L.T(s,'우선순위 '+c[0],{x:x+0.2,y:y+0.18,w:w-0.4,h:0.3,fontSize:11,bold:true,color:c[3],valign:'middle'});
+      L.T(s,c[1],{x:x+0.2,y:y+0.6,w:w-0.4,h:0.5,fontSize:18,bold:true,color:C.navy,valign:'middle'});
+      L.T(s,c[2],{x:x+0.2,y:y+1.15,w:w-0.4,h:0.4,fontSize:13,color:C.g700,valign:'middle'}); });
   }});
   // 4-5 여섯 칸
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 이 고객 한눈에 보기',title:'여섯 칸이면 이 고객의 상황이 잡혀요',sub:'상담 전에 볼 것은 이 여섯 개면 충분해요. 숫자는 예시예요.',pageNo:no});
-    L.img(s,HERO('find_six_z'),{x:M,y:1.85,w:W-2*M,h:2.4,valign:'top'});
-    const cells=[['가입한 보험','장기 3건','보유 계약 수. "지금 세 건 갖고 계세요"로 대화를 열어요. 자동차보험이 있으면 "장기 2건 · 자동차 1건"처럼 보여요.'],['보험료 납입','연 142만원','연간 납입액. 예산 감각을 잡는 기준이에요.'],['접촉기회','계약변경조회','최근 고객이 한 행동. 계약 변경을 조회했다면 관심이 있다는 신호예요.'],['부족 금액','1,000만원','권장 기준 대비 부족한 진단비. 제안의 크기가 여기서 나와요.'],['1-5종수술비(plus)','없음','수술 담보 유무. "없음"은 곧 제안 포인트.'],['표적항암약물허가치료비(비급여)','미확인','자료가 없으면 미확인. 보장분석에서 확인해요.']];
-    cells.forEach((c,i)=>{ const col=i%3,row=Math.floor(i/3); const x=M+col*4.1,y=4.5+row*1.15,w=3.9,h=1.05; L.R(s,{x,y,w,h,fill:C.white,line:C.g200,radius:0.12,shadow:true}); L.T(s,c[0],{x:x+0.2,y:y+0.1,w:1.9,h:0.28,fontSize:9.5,color:C.g500}); L.T(s,c[1],{x:x+0.2,y:y+0.36,w:1.9,h:0.36,fontSize:13,bold:true,color:C.navy}); L.T(s,c[2],{x:x+2.0,y:y+0.1,w:w-2.15,h:h-0.2,fontSize:9.3,color:C.g600,lineSpacingMultiple:1.22,valign:'middle'}); });
+    const s = L.base(pres,{kicker:'PART 4 · 이 고객 한눈에 보기',title:'여섯 칸이면 이 고객의 상황이 잡혀요',pageNo:no});
+    const g = L.img(s,HERO('find_six_z'),{x:M,y:1.5,w:W-2*M,h:2.7,valign:'top'});
+    L.caption(s,{x:g.x,y:g.y+g.h+0.04,w:g.w,text:'숫자는 예시예요',size:10});
+    const cells=[['가입한 보험','보유 계약 수. "지금 세 건 갖고 계세요"로 대화를 열어요.'],['보험료 납입','연간 납입액. 예산 감각을 잡는 기준이에요.'],['접촉기회','최근 고객 행동. 계약변경조회는 관심 신호예요.'],['부족 금액','권장 기준 대비 부족한 진단비. 제안 크기가 여기서 나와요.'],['1-5종수술비(plus)','수술 담보 유무. "없음"이 곧 제안 포인트예요.'],['표적항암약물허가치료비(비급여)','자료가 없으면 미확인. 보장분석에서 확인해요.']];
+    cells.forEach((c,i)=>{ const col=i%3,row=Math.floor(i/3); const x=M+col*4.115,y=4.62+row*1.2,w=3.9,h=1.08; L.R(s,{x,y,w,h,fill:C.white,line:C.g200,radius:0.12,shadow:true}); L.T(s,c[0],{x:x+0.22,y:y+0.13,w:w-0.4,h:0.3,fontSize:13.5,bold:true,color:C.navy,valign:'middle'}); L.T(s,c[1],{x:x+0.22,y:y+0.48,w:w-0.4,h:0.52,fontSize:11.5,color:C.g600,lineSpacingMultiple:1.2}); });
   }});
   // 4-6 다음 행동
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 다음 행동',title:'오른쪽 패널에는 물어볼 질문과 다음 버튼이 준비돼 있어요',sub:'추천 질문은 일반대화용·맞춤대화용 두 가지예요. 누르면 질문이 채워진 채로 대화가 열려요.',pageNo:no});
-    const g = L.img(s,HERO('find_right_z'),{x:M,y:1.85,w:4.8,h:5.0,valign:'top',align:'left'});
+    const s = L.base(pres,{kicker:'PART 4 · 다음 행동',title:'오른쪽 패널에서 다음 행동을 골라요',pageNo:no});
+    const g = L.img(s,HERO('find_right_z'),{x:M,y:1.5,w:5.2,h:5.4,valign:'top',align:'left'});
     const clip={x:1000,y:75}, o={clip,dsf:3};
     const o2={clip,dsf:3,d:0.28};
     L.pin(s,g,1004,102,1,o2); L.pin(s,g,1004,190,2,o2); L.pin(s,g,1004,317,3,o2); L.pin(s,g,1436,416,4,o2); L.pin(s,g,1436,478,5,o2); L.pin(s,g,1004,527,6,o2);
-    L.numList(s,{x:5.8,y:1.85,w:6.9,gap:0.08,titleSize:12,descSize:10,items:[{n:1,title:'선택한 고객',desc:'가운데 목록에서 누른 고객의 이름·나이. 카드를 바꾸면 패널도 바뀌어요.'},{n:2,title:'일반대화용 추천 질문',desc:'"#암진단비 부족, #40대, #보유 — 이 조건에 해당하는 고객에게 보낼 안내 문자 문안을 작성해줘…" 그룹을 바꾸면 조건 태그도 바뀌어요. 누르면 일반대화 화면에 이 질문이 채워져요.'},{n:3,title:'맞춤대화용 추천 질문',desc:'"이 고객에게 암진단비를 왜 지금 늘려야 하는지 설명해줘". 누르면 이 고객의 맞춤대화에 질문이 채워진 채로 열려요.'},{n:4,title:'[보장분석]',desc:'영업포탈의 이 고객 보장분석 화면으로 이동해요. 부족·충분·미가입이 색으로 보여요.'},{n:5,title:'[이 고객으로 맞춤대화 시작]',desc:'빨간 버튼. 고객 타겟팅이 끝난 상태로 맞춤대화 화면에 들어가요.'},{n:6,title:'안내 문구',desc:'"고객 타겟팅이 끝난 상태로 맞춤대화 화면에 진입합니다." 고객을 다시 찾을 일이 없다는 뜻이에요.'}]});
+    L.numList(s,{x:6.2,y:1.6,w:6.5,gap:0.24,titleSize:14,descSize:12,items:[{n:1,title:'선택한 고객',desc:'카드를 바꾸면 패널도 바뀌어요.'},{n:2,title:'일반대화용 추천 질문',desc:'그룹 조건에 맞는 안내 문자 문안을 요청해요.'},{n:3,title:'맞춤대화용 추천 질문',desc:'누르면 이 고객의 맞춤대화에 채워져 열려요.'},{n:4,title:'[보장분석]',desc:'영업포탈의 이 고객 보장분석 화면으로 가요.'},{n:5,title:'[이 고객으로 맞춤대화 시작]',desc:'고객을 고른 상태로 맞춤대화에 들어가요.'},{n:6,title:'안내 문구',desc:'고객을 다시 찾을 필요가 없다는 뜻이에요.'}]});
   }});
   // 4-6b 추천 질문 클릭 결과
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 추천 질문 → 대화',title:'추천 질문을 누르면, 질문이 채워진 채로 대화가 열려요',sub:'맞춤대화용 질문을 누른 직후 화면이에요. 계약 목록이 먼저 보이고, 입력창에 질문이 들어가 있어요. 전송만 누르면 돼요.',pageNo:no});
-    const g = L.img(s,HERO('custom_q_crop'),{x:M,y:1.85,w:7.4,h:4.85,valign:'top',align:'left'});
-    const clip={x:420,y:0}, o={clip,dsf:2,d:0.3};
-    L.pin(s,g,455,128,1,o); L.pin(s,g,1200,80,2,o); L.pin(s,g,455,540,3,o); L.pin(s,g,455,742,4,o); L.pin(s,g,455,797,5,o); L.pin(s,g,1030,27,6,o);
-    L.numList(s,{x:8.3,y:1.85,w:4.4,gap:0.08,titleSize:11.5,descSize:9.8,items:[{n:1,title:'선택된 정상 계약 리스트',desc:'상품명 · 보험료 · 납입기간 · 납입횟수 · 기납입보험료. 왼쪽에는 담당 고객 이름과 동의 남은 일수가 보여요.'},{n:2,title:'약관DB 상태',desc:'구성 완료 · 구성 중 · 미확보. 약관DB가 없는 상품은 답이 부정확할 수 있어요.'},{n:3,title:'MeAI 안내',desc:'"이번 대화에서 활용될 보험 가입 내역이에요… 추가 고객정보를 입력해주시면 더 상세하게 답변해드릴 수 있어요."'},{n:4,title:'질문 예시 · [보장분석 해줘]',desc:'입력창 위 버튼 하나로 전체 그림부터.'},{n:5,title:'채워진 질문',desc:'"이 고객에게 암진단비를 왜 지금 늘려야 하는지 설명해줘" → 전송(↑).'},{n:6,title:'상단 버튼',desc:'보장 분석 · 사용중인 정보 수정 · 요약 리포트.'}]});
-    L.caption(s,{x:M,y:6.74,w:7.4,text:'※ 예시 화면이라 안내 문장의 고객 이름이 담당 고객과 다를 수 있어요. 실제 화면에는 같은 고객이 보여요.',align:'left',size:9});
+    const s = L.base(pres,{kicker:'PART 4 · 추천 질문 → 대화',title:'질문이 채워진 채로 대화가 열려요',pageNo:no});
+    // 여백을 덜어낸 캡처(fix_c_custom_q = CSS x445~1428, y0~843, dsf 2)를 세로로 꽉 차게
+    const g = L.img(s,HERO('fix_c_custom_q'),{x:M,y:1.45,w:6.6,h:5.45,valign:'top',align:'left'});
+    const clip={x:445,y:0}, o={clip,dsf:2,d:0.3};
+    L.pin(s,g,461,128,1,o); L.pin(s,g,897,100,2,o); L.pin(s,g,461,541,3,o); L.pin(s,g,465,742,4,o); L.pin(s,g,465,798,5,o); L.pin(s,g,1030,27,6,o);
+    const rx = g.x+g.w+0.4, rw = W-M-rx;
+    [{n:1,title:'정상 계약 리스트',desc:'상품명 · 보험료 · 납입기간 · 기납입보험료'},{n:2,title:'약관 자료 준비 상태',desc:'구성 완료 · 구성 중 · 미확보. 없으면 답이 부정확할 수 있어요.'},{n:3,title:'MeAI 안내',desc:'"이번 대화에서 활용될 보험 가입 내역이에요…"'},{n:4,title:'[보장분석 해줘]',desc:'입력창 위 버튼 하나로 전체 그림부터.'},{n:5,title:'채워진 질문',desc:'맞춤대화용 질문이 들어가 있어요. 전송(↑)만 누르세요.'},{n:6,title:'상단 버튼',desc:'보장 분석 · 사용중인 정보 수정 · 요약 리포트'}].forEach((it,i)=> L.numList(s,{x:rx,y:1.6+i*0.8,w:rw,titleSize:13.5,descSize:11.5,items:[it]}));
+    L.caption(s,{x:rx,y:6.55,w:rw,text:'※ 예시 화면이라 고객 이름이 다를 수 있어요',align:'left',size:10});
   }});
   // 4-7 동의 상태별
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 동의 상태별',title:'동의 상태에 따라 오른쪽 패널의 다음 행동이 달라져요',sub:'D-n이면 맞춤대화 시작, 동의 필요면 그 자리에서 알림톡 요청, 철회면 정보 확인 불가. 세 가지뿐이에요.',pageNo:no});
-    const trio=[['사전조회동의 D-30 · 유효','30_right_panel_kimdoyun','추천 질문 두 가지 + [보장분석] + [이 고객으로 맞춤대화 시작]. 바로 시작해요.',C.blue],['사전조회동의 필요 · 만료','32_right_panel_kimminsu','일반대화용 질문 + [보장분석] + [사전조회동의 요청하기]. 안내 문구: 사전조회동의를 받아야 맞춤대화를 시작할 수 있습니다. 위 버튼 선택 시 고객의 휴대폰 번호를 입력하는 팝업이 열립니다.',C.red],['사전조회동의 철회','34_right_panel_kimboram','"오늘 동의가 철회되어 정보를 확인할 수 없는 고객입니다." 버튼이 없어요. 새 동의 없이는 진행할 수 없어요.',C.g700]];
-    trio.forEach((t,i)=>{ const x=M+i*4.1,w=3.9; L.label(s,{x,y:1.85,w,text:t[0],color:t[3]}); const gg=L.img(s,AG('find010',t[1]),{x,y:2.2,w,h:3.1,valign:'top',align:'left'}); L.T(s,t[2],{x,y:gg.y+gg.h+0.12,w,h:1.1,fontSize:10,color:C.g700,lineSpacingMultiple:1.3}); });
-    L.note(s,{x:M,y:6.5,w:W-2*M,h:0.45,label:'',text:'"사전조회 동의 필요" 고객이 대문 숫자로 186명이라면, 그 186명이 이번 달 동의 캠페인 목록이에요. 만료된 고객은 [사전조회동의 요청하기]로, 만료가 가까운 고객(D-n)은 만료 전에 미리 안내해요.',tone:'blue',size:10});
+    const s = L.base(pres,{kicker:'PART 4 · 동의 상태별',title:'동의 상태별로 다음 행동이 달라요',pageNo:no});
+    const trio=[['사전조회동의 D-30 · 유효','30_right_panel_kimdoyun','[이 고객으로 맞춤대화 시작]으로 바로 시작해요.',C.blue,3.9],['사전조회동의 필요 · 만료','32_right_panel_kimminsu','[사전조회동의 요청하기] → 휴대폰 번호 입력 → 알림톡.',C.red,3.9],['사전조회동의 철회','34_right_panel_kimboram','버튼이 없어요. 새 동의 없이는 진행할 수 없어요.',C.g700,1.4]];
+    trio.forEach((t,i)=>{ const x=M+i*4.115,w=3.9; L.label(s,{x,y:1.5,w,text:t[0],color:t[3],size:12}); const gg=L.img(s,AG('find010',t[1]),{x,y:1.88,w,h:t[4],valign:'top',align:'left'}); L.T(s,t[2],{x,y:gg.y+gg.h+0.15,w,h:0.75,fontSize:12,color:C.g700,lineSpacingMultiple:1.25}); });
+    // 186명 상자는 가운데 '필요 · 만료' 열의 이야기 → 빨강 톤 + 가운데 [사전조회동의 요청하기] 버튼 쪽을 가리키는 꼬리
+    const bx=M+2*4.115, by=4.2, bw=3.9, bh=1.95, ty=1.88+648*0.004688; // ty = 가운데 캡처 속 요청 버튼 높이
+    L.R(s,{x:bx,y:by,w:bw,h:bh,fill:C.red50,line:null,radius:0.14});
+    s.addShape('triangle',{x:bx-0.27,y:ty-0.1,w:0.34,h:0.2,rotate:270,fill:{color:C.red},line:{color:C.red,width:0}}); // ◀ 가운데 열을 가리킴
+    L.T(s,'필요 · 만료 고객 = 대문 "사전조회 동의 필요"',{x:bx+0.3,y:by+0.2,w:bw-0.45,h:0.3,fontSize:11,bold:true,color:C.red,valign:'middle'});
+    s.addText([{text:'186',options:{fontSize:40,bold:true,color:C.navy,fontFace:L.FONT}},{text:' 명',options:{fontSize:16,bold:true,color:C.g700,fontFace:L.FONT}},{text:'   예시',options:{fontSize:10,color:C.g500,fontFace:L.FONT}}],{x:bx+0.3,y:by+0.55,w:bw-0.6,h:0.8,isTextBox:true,margin:0,valign:'middle'});
+    L.T(s,'이 고객들이 이번 달 동의 캠페인 목록이에요.',{x:bx+0.3,y:by+1.42,w:bw-0.35,h:0.35,fontSize:12,color:C.g700,valign:'middle'});
   }});
   // 4-8 검색·필터
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 검색 · 필터 · 페이지',title:'이름으로도, 조건으로도 찾아요',sub:'검색창을 누르면 추천 속성이, 조건을 치면 연관검색어가 떠요. 목록 위 [전체]는 동의 조건 필터예요.',pageNo:no});
-    L.img(s,HERO('search_attr_crop'),{x:M,y:1.85,w:5.95,h:1.5,valign:'top',align:'left'}); L.caption(s,{x:M,y:3.4,w:5.95,text:'빈 검색창을 누르면 · 추천 속성: 암진단비 · 실손 · 상령일 · 자동차 · 부담보'});
-    L.img(s,HERO('search_suggest_crop'),{x:M+6.2,y:1.85,w:5.95,h:2.4,valign:'top',align:'left'}); L.caption(s,{x:M+6.2,y:4.3,w:5.95,text:'"암진단비"를 치면 · 연관검색어: 없음 / 1천만원 이하 / 2천만원 이하'});
-    L.img(s,AG('find010','55_filter_dropdown_open'),{x:M,y:4.6,w:2.2,h:2.1,valign:'top',align:'left'});
-    L.numList(s,{x:M+2.4,y:4.6,w:3.55,gap:0.06,titleSize:10.5,descSize:9.3,items:[{n:1,title:'[전체] 드롭다운',desc:'전체 · 사전조회동의 · 상품소개동의. 동의 조건으로 걸러요.'},{n:2,title:'검색 결과 N명',desc:'검색하면 그룹 대신 "검색 결과 8명"처럼 제목이 바뀌어요.'},{n:3,title:'페이지',desc:'목록 아래 ‹ 1 2 › 로 넘겨요.'}]});
-    L.img(s,AG('find010','53_search_no_result'),{x:M+6.2,y:4.7,w:5.95,h:1.6,valign:'top',align:'left'}); L.caption(s,{x:M+6.2,y:6.32,w:5.95,text:'결과가 없으면 "검색 결과가 없습니다. 다른 이름이나 속성으로 찾아보세요."'});
+    const s = L.base(pres,{kicker:'PART 4 · 검색 · 필터 · 페이지',title:'이름으로도, 조건으로도 찾아요',sub:'검색창을 누르면 추천 속성, 글자를 치면 연관검색어가 떠요.',pageNo:no});
+    const a = L.img(s,HERO('fix_c_search_attr'),{x:M,y:1.85,w:5.95,h:1.5,valign:'top',align:'left'}); L.caption(s,{x:M,y:a.y+a.h+0.04,w:5.95,text:'빈 검색창 → 추천 속성',size:10});
+    const b = L.img(s,HERO('search_suggest_crop'),{x:M+6.2,y:1.85,w:5.93,h:2.4,valign:'top',align:'left'}); L.caption(s,{x:M+6.2,y:b.y+b.h+0.04,w:5.93,text:'"암진단비" 입력 → 연관검색어',size:10});
+    L.img(s,HERO('fix_c_filter_dropdown'),{x:M,y:3.9,w:2.3,h:2.3,valign:'top',align:'left'});
+    [{n:1,title:'[전체] 드롭다운',desc:'사전조회동의 · 상품소개동의 고객만 걸러요.'},{n:2,title:'검색 결과 N명',desc:'그룹 제목이 "검색 결과 8명"으로 바뀌어요.'},{n:3,title:'페이지',desc:'목록 아래 ‹ 1 2 ›로 넘겨요.'}].forEach((it,i)=> L.numList(s,{x:M+2.55,y:3.95+i*0.8,w:3.45,titleSize:13,descSize:11,items:[it]}));
+    const c = L.img(s,AG('find010','53_search_no_result'),{x:M+6.2,y:4.72,w:5.93,h:1.85,valign:'top',align:'left'}); L.caption(s,{x:M+6.2,y:c.y+c.h+0.04,w:5.93,text:'결과가 없을 때',size:10});
   }});
   // 4-9 시나리오
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 4 · 그룹 활용',title:'그룹 하나가 곧 이번 주 연락 목록이에요',sub:'자주 쓰게 될 네 그룹이에요. 월초·매주·매달·수시로 나눠 습관으로 만들어요.',pageNo:no});
-    const sc=[['월초','당월 영업 타겟 7명','우선순위 1. 당월 회사 전략 담보(수술비·표적항암 등) 대상이에요. 월초 조회에서 이 그룹을 먼저 열어 보세요. 카드에 적힌 추천 이유를 첫마디로 쓰면 돼요.',C.purple,C.purple50],['매주','상령일 임박 11명 · 생일 임박 7명','30일 안에 보험 나이가 오르는 고객. 보험료가 오르기 전에 점검해 드린다는 말로 시작해요. 생일은 축하 인사로 대화를 열어요.',C.orange,C.orange50],['매달','사전동의 만료 35명','만료된 고객은 [사전조회동의 요청하기]로 재동의를 받고, 만료가 가까운 고객은 미리 안내해요. 대문 숫자 "사전조회 동의 필요"와 함께 봐요.',C.red,C.red50],['수시','신규 등록 고객 4명','"AI가 이 고객을 분석하고 있어요" · 상세 정보는 다음 날 반영. 지금 보려면 [이 고객으로 맞춤대화 시작]을 눌러요.',C.blue,C.blue50]];
-    sc.forEach((c,i)=>{ const x=M+i*3.08,w=2.9,y=1.9,h=3.3; L.R(s,{x,y,w,h,fill:C.white,line:C.g200,radius:0.14,shadow:true}); L.chip(s,{x:x+0.25,y:y+0.25,text:c[0],fill:c[4],color:c[3]}); L.T(s,c[1],{x:x+0.25,y:y+0.7,w:w-0.5,h:0.75,fontSize:13,bold:true,color:C.navy,valign:'top',lineSpacingMultiple:1.15}); L.T(s,c[2],{x:x+0.25,y:y+1.5,w:w-0.5,h:2.0,fontSize:10.5,color:C.g600,lineSpacingMultiple:1.3}); });
-    L.note(s,{x:M,y:5.45,w:W-2*M,h:1.0,label:'보장 기준 그룹은',text:'"무엇이 부족한가"로 묶여요. 암·뇌·심진단비 부족, 표적항암·종수술비 부족, 지원일당 없음, 치아 부족. 이번 달 주력 상품이 정해지면 그 담보의 그룹부터 열어 보세요. 인원 숫자는 예시이고 매일 새로 계산돼요.',tone:'dark',size:10.5});
+    const s = L.base(pres,{kicker:'PART 4 · 그룹 활용',title:'그룹 하나가 곧 연락 목록이에요',sub:'월초 · 매주 · 매달 · 수시, 네 그룹을 습관으로. 인원은 예시예요.',pageNo:no});
+    const sc=[['월초','당월 영업 타겟','7명','우선순위 1위.\n추천 이유를 첫마디로 써요.',C.purple,C.purple50],['매주','상령일 · 생일 임박','11명 · 7명','보험료가 오르기 전 점검, 생일엔 축하 인사로 열어요.',C.orange,C.orange50],['매달','사전동의 만료','35명','만료 전에 미리 안내해요.\n만료되면\n[사전조회동의 요청하기].',C.orange,C.orange50],['수시','신규 등록 고객','4명','상세는 다음 날 반영돼요.\n바로 보려면\n[이 고객으로 맞춤대화 시작].',C.blue,C.blue50]];
+    sc.forEach((c,i)=>{ const x=M+i*3.077,w=2.9,y=1.9,h=3.35; L.R(s,{x,y,w,h,fill:C.white,line:C.g200,radius:0.14,shadow:true}); L.chip(s,{x:x+0.25,y:y+0.25,text:c[0],fill:c[5],color:c[4],size:11,h:0.32}); L.T(s,c[1],{x:x+0.25,y:y+0.78,w:w-0.5,h:0.36,fontSize:16,bold:true,color:C.navy,valign:'middle'}); L.T(s,c[2],{x:x+0.25,y:y+1.18,w:w-0.5,h:0.66,fontSize:30,bold:true,color:c[4],valign:'middle'}); L.T(s,c[3],{x:x+0.25,y:y+2.05,w:w-0.5,h:1.15,fontSize:12.5,color:C.g600,lineSpacingMultiple:1.3}); });
+    L.note(s,{x:M,y:5.55,w:W-2*M,h:0.95,label:'보장 부족 그룹은',text:'이번 달 주력 상품이 정해지면 그 담보의 부족 그룹부터 열어요.',tone:'dark',size:13});
   }});
 };

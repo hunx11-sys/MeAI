@@ -58,7 +58,7 @@ function divider(pres, {num, title, sub, learn=[], pageNo, color=C.blue}){
   if (sub) T(s, sub, { x:M+0.2, y:3.55, w:8.5, h:0.5, fontSize:14, color:'FFFFFF', transparency:15 });
   if (learn.length){
     T(s, '이 파트에서 배우는 것', { x:M+0.2, y:4.45, w:6, h:0.3, fontSize:11, bold:true, color:'FFFFFF', transparency:25 });
-    learn.forEach((t,i)=>{ circle(s,{x:M+0.2,y:4.9+i*0.42+0.05,d:0.16,fill:'FFFFFF'}); T(s, t, { x:M+0.5, y:4.9+i*0.42, w:9, h:0.32, fontSize:12.5, color:'FFFFFF', valign:'middle' }); });
+    learn.forEach((t,i)=>{ circle(s,{x:M+0.2,y:4.9+i*0.42+0.08,d:0.16,fill:'FFFFFF'}); T(s, t, { x:M+0.5, y:4.9+i*0.42, w:9, h:0.32, fontSize:12.5, color:'FFFFFF', valign:'middle' }); });
   }
   footer(s, pageNo, true);
   return s;

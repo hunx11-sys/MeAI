@@ -1,28 +1,40 @@
 module.exports = (S, ctx) => {
   const { L, C, W, H, M, HERO, AG } = ctx;
-  S.push({ part:'05', fn:(pres,no)=> L.divider(pres,{num:'05',title:'게시판 · 사전조회 동의',sub:'공지는 게시판에서, 동의는 알림톡 요청으로. 대문 오른쪽 위 버튼 두 개만 알면 돼요.',learn:['게시판 목록과 글 상세 · 새 글 빨간 점','사전조회 동의가 왜 먼저인지 · 요청부터 반영까지','[고객 동의] 버튼과 [사전조회동의 요청하기]'],pageNo:no}) });
+  S.push({ part:'05', fn:(pres,no)=> L.divider(pres,{num:'05',title:'게시판 · 사전조회 동의',sub:'공지는 게시판에서, 동의는 알림톡 한 통으로 받아요.',learn:['게시판 목록과 글 상세','사전조회 동의가 먼저인 이유','알림톡 요청부터 반영까지'],pageNo:no}) });
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 5 · 게시판',title:'공지 · 이슈 · 기능안내, 게시판 한 곳에서 봐요',pageNo:no});
-    const g = L.img(s,HERO('board_list_crop'),{x:M,y:1.45,w:8.75,h:5.5,valign:'top',align:'left'});
+    const s = L.base(pres,{kicker:'PART 5 · 게시판',title:'공지·이슈·기능안내를 한 곳에서',pageNo:no});
+    const g = L.img(s,HERO('board_list_crop'),{x:M,y:1.45,w:6.5,h:5.15,valign:'top',align:'left'});
+    L.caption(s,{x:M,y:g.y+g.h+0.04,w:g.w,text:'※ 목업 예시 글이에요. 실제 진입점(10/2부터 6군데)은 PART 2에서 봐요.',align:'left',size:10});
     const clip={x:270,y:85}, o={clip,dsf:2,d:0.3};
-    L.pin(s,g,588,122,1,o); L.pin(s,g,1058,122,2,o); L.pin(s,g,300,224,3,o); L.pin(s,g,735,192,4,o); L.pin(s,g,942,192,5,o); L.pin(s,g,620,823,6,o);
-    L.numList(s,{x:9.6,y:1.45,w:3.15,gap:0.07,titleSize:11,descSize:9.5,items:[{n:1,title:'분류 필터',desc:'전체 · 공지사항 · 이슈 · 기능안내.'},{n:2,title:'정렬',desc:'최신순이 기본, 조회순으로 바꿀 수 있어요.'},{n:3,title:'분류 표시',desc:'공지사항(파랑) · 이슈(노랑) · 기능안내(초록).'},{n:4,title:'제목 · 핀 · NEW · 첨부',desc:'핀은 고정 글(항상 맨 위), NEW는 7일 이내 새 글, 클립은 첨부 수.'},{n:5,title:'날짜 · 조회',desc:'게시일과 조회수.'},{n:6,title:'페이지',desc:'한 쪽 6건. ‹ 1 2 › 로 넘겨요.'}]});
-    L.note(s,{x:9.6,y:5.6,w:3.15,h:1.2,label:'[MeAI 홈]',text:'화면 왼쪽 위 빨간 [MeAI 홈] 버튼으로 대문에 돌아가요. 오른쪽에는 "게시판 · MeAI 공지와 활용 안내를 확인하세요" 제목이 있어요.',tone:'grey',size:9.5});
+    L.pin(s,g,588,122,1,o); L.pin(s,g,1058,122,2,o); L.pin(s,g,300,224,3,o); L.pin(s,g,735,192,4,o); L.pin(s,g,942,192,5,o); L.pin(s,g,610,823,6,o);
+    [{n:1,title:'분류 필터',desc:'전체 · 공지사항 · 이슈 · 기능안내'},{n:2,title:'정렬',desc:'최신순이 기본, 조회순으로도 봐요.'},{n:3,title:'분류 표시',desc:'공지사항 파랑 · 이슈 주황 · 기능안내 초록'},{n:4,title:'핀 · NEW · 첨부',desc:'핀 = 고정 글 · NEW = 7일 이내 · 클립 = 첨부 수'},{n:5,title:'날짜 · 조회',desc:'게시일과 조회수예요.'},{n:6,title:'페이지',desc:'한 쪽 6건, ‹ 1 2 ›로 넘겨요.'}].forEach((it,i)=> L.numList(s,{x:7.2,y:1.5+i*0.7,w:5.53,titleSize:14,descSize:12,items:[it]}));
+    // 화면 위쪽 : 게시판 윗줄 캡처(v2_board_topbar_z 에서 왼쪽·오른쪽 끝만 잘라 씀) + 한 줄
+    const tx=7.2, ty=5.72, tw=W-M-7.2, th=1.18;
+    L.R(s,{x:tx,y:ty,w:tw,h:th,fill:C.g100,line:null,radius:0.12});
+    const tl = L.img(s,HERO('fix_c_board_top_left'),{x:tx+0.2,y:ty+0.16,w:3.2,h:0.36,radius:14,shadow:false,align:'left',valign:'top'});
+    L.img(s,HERO('fix_c_board_top_right'),{x:tx+tw-0.2-1.2,y:ty+0.16,w:1.2,h:0.36,radius:14,shadow:false,align:'right',valign:'top'});
+    L.T(s,'· · ·',{x:tl.x+tl.w,y:ty+0.16,w:(tx+tw-0.2-0.98)-(tl.x+tl.w),h:0.36,fontSize:11,color:C.g400,align:'center',valign:'middle'});
+    s.addText([{text:'화면 위쪽  ',options:{bold:true,color:C.g700,fontSize:11,fontFace:L.FONT}},{text:'왼쪽 위 [MeAI 홈]은 대문으로, 오른쪽 위 [글씨 확대]는 기본 ON.',options:{color:C.g800,fontSize:11,fontFace:L.FONT}}],{x:tx+0.2,y:ty+0.64,w:tw-0.4,h:0.4,isTextBox:true,margin:0,valign:'middle'});
   }});
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 5 · 글 상세',title:'글을 누르면 본문과 첨부파일이 열려요',sub:'대문 오픈 안내, 동의 절차 변경, 고객찾기 사용 방법처럼 꼭 읽어야 할 공지가 올라와요.',pageNo:no});
-    const g = L.img(s,HERO('board_detail_crop'),{x:M,y:1.85,w:6.2,h:5.0,valign:'top',align:'left'});
-    const clip={x:380,y:135}, o={clip,dsf:2,d:0.3};
-    L.pin(s,g,490,165,1,o); L.pin(s,g,955,332,2,o); L.pin(s,g,418,595,3,o); L.pin(s,g,1022,885,4,o); L.pin(s,g,765,1065,5,o);
-    L.numList(s,{x:7.0,y:1.85,w:5.7,gap:0.08,titleSize:12,descSize:10,items:[{n:1,title:'‹ 목록',desc:'글 목록으로 돌아가요. 분류·정렬 상태는 그대로 유지돼요.'},{n:2,title:'분류 · 제목 · NEW · 날짜 · 조회',desc:'제목 앞 핀은 고정 글이에요.'},{n:3,title:'본문',desc:'"맞춤대화는 고객을 먼저 선택해야 시작되며, 사전조회동의가 없는 고객은 동의를 받은 뒤 진행할 수 있습니다." 같은 운영 기준이 여기 적혀요.'},{n:4,title:'첨부파일',desc:'카드를 누르면 바로 내려받아요(PDF·엑셀·PPT·워드·한글). 파일명·용량이 함께 보여요.'},{n:5,title:'이전 글 · 다음 글',desc:'목록으로 나가지 않고 이어서 읽어요.'}]});
-    L.note(s,{x:7.0,y:5.35,w:5.7,h:1.35,label:'빨간 점',text:'새 글이 올라오면 대문 오른쪽 위 [게시판] 버튼에 빨간 점이 붙어요. 아침에 대문을 열 때 점이 보이면 먼저 읽어 두세요. 이슈(응답 지연·결과 누락 조치)는 여기서 확인해요.',tone:'red',size:10.5});
+    const s = L.base(pres,{kicker:'PART 5 · 글 상세',title:'글을 누르면 본문과 첨부파일이 열려요',pageNo:no});
+    const g = L.img(s,HERO('board_detail_crop'),{x:M,y:1.5,w:6.8,h:5.1,valign:'top',align:'left'}); L.caption(s,{x:M,y:6.66,w:g.w,text:'※ 목업 예시 글이에요. 실제 진입점(10/2부터 6군데)은 PART 2에서 봐요.',align:'left',size:9.5});
+    const clip={x:270,y:95}, o={clip,dsf:2,d:0.3};
+    L.pin(s,g,362,119,1,o); L.pin(s,g,692,240,2,o); L.pin(s,g,297,355,3,o); L.pin(s,g,742,638,4,o); L.pin(s,g,720,769,5,o);
+    [{n:1,title:'‹ 목록',desc:'분류·정렬 상태 그대로 목록으로 돌아가요.'},{n:2,title:'제목 줄',desc:'분류 · NEW · 날짜 · 조회. 핀은 고정 글이에요.'},{n:3,title:'본문',desc:'맞춤대화 시작 조건 같은 운영 기준이 적혀요.'},{n:4,title:'첨부파일',desc:'카드를 누르면 바로 내려받아요.'},{n:5,title:'이전 글 · 다음 글',desc:'목록으로 나가지 않고 이어서 읽어요.'}].forEach((it,i)=> L.numList(s,{x:7.65,y:1.6+i*0.85,w:5.08,titleSize:14,descSize:12,items:[it]}));
+    L.note(s,{x:7.65,y:5.85,w:5.08,h:1.05,label:'빨간 점',text:'새 글이 오면 대문 [게시판] 버튼에 빨간 점이 붙어요. 보이면 먼저 읽어요.',tone:'red',size:12});
   }});
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 5 · 사전조회 동의',title:'동의가 있어야 맞춤대화가 열려요. 요청은 알림톡 한 통이면 돼요',sub:'맞춤대화는 고객의 보장 내역을 읽어서 답해요. 그 내역을 보려면 사전조회 동의가 필요해요.',pageNo:no});
-    L.steps(s,{x:M,y:1.85,w:W-2*M,h:1.95,items:[{n:1,step:'요청',title:'알림톡 요청',desc:'대문 [고객 동의] 또는 고객찾기 [사전조회동의 요청하기]에 휴대폰 번호 입력 → [보내기].'},{n:2,step:'동의',title:'고객이 동의',desc:'고객이 안내 문자에서 동의를 완료하면 상태가 바뀌어요.'},{n:3,step:'반영',title:'약 15분 · D-n',desc:'준실시간(약 15분 내외) 반영. 동의일로부터 1년 동안 D-n으로 보여요.'},{n:4,step:'만료 전',title:'재요청',desc:'[사전동의 만료] 그룹과 대문 "사전조회 동의 필요" 숫자로 챙겨요.'},{n:5,step:'철회',title:'정보 확인 불가',desc:'고객이 철회하면 회색으로 표시되고 정보 확인이 막혀요.'}],activeIdx:0});
-    L.img(s,AG('gate010','12_consent_modal'),{x:M,y:4.05,w:3.9,h:2.15,valign:'top',align:'left'}); L.caption(s,{x:M,y:6.22,w:3.9,text:'대문 [고객 동의] → 팝업 · 번호를 넣으면 [보내기]가 켜져요',size:9});
-    L.img(s,AG('find010','32_right_panel_kimminsu'),{x:M+4.1,y:4.05,w:3.9,h:2.45,valign:'top',align:'left'}); L.caption(s,{x:M+4.1,y:6.52,w:3.9,text:'고객찾기 · 동의 필요 고객의 [사전조회동의 요청하기]',size:9});
-    L.img(s,HERO('consent_toast_crop'),{x:M+8.2,y:4.05,w:3.93,h:0.7,valign:'top',align:'left'}); L.caption(s,{x:M+8.2,y:4.78,w:3.93,text:'보내기 뒤 알림 · 고객에게 사전조회동의 요청 알림톡을 발송했습니다',size:9});
-    L.note(s,{x:M+8.2,y:5.25,w:3.93,h:1.3,label:'상품소개 동의',text:'상품 소개에 동의한 고객은 상품 제안이 가능해요. 대문 숫자 "상품제안 가능"이 이 고객 수이고, 카드에 "AI 추천 고객" 리본이 붙어요.',tone:'grey',size:9.8});
+    const s = L.base(pres,{kicker:'PART 5 · 사전조회 동의',title:'동의는 알림톡 한 통으로 받아요',sub:'맞춤대화는 보장 내역을 읽어요. 그래서 사전조회 동의가 먼저예요.',pageNo:no});
+    const st=[['요청','알림톡 요청','휴대폰 번호를 넣고\n[보내기]를 눌러요.'],['동의','고객이 동의','고객이 안내 문자에서 동의를 완료해요.'],['반영','약 15분 · D-n','준실시간 반영.\n동의일부터 1년간\nD-n으로 보여요.'],['만료 전','재요청','[사전동의 만료] 그룹으로 미리 챙겨요.'],['철회','정보 확인 불가','회색으로 표시되고 정보 확인이 막혀요.']];
+    const gap=0.22, sw=(W-2*M-gap*4)/5, sy=1.85, sh=1.8;
+    st.forEach((t,i)=>{ const x=M+i*(sw+gap), on=i===0; L.R(s,{x,y:sy,w:sw,h:sh,fill:on?C.blue:C.white,line:on?null:C.g200,radius:0.14,shadow:!on}); L.T(s,t[0],{x:x+0.2,y:sy+0.18,w:sw-0.4,h:0.26,fontSize:10.5,bold:true,color:on?'FFFFFF':C.blue}); L.T(s,t[1],{x:x+0.2,y:sy+0.46,w:sw-0.4,h:0.36,fontSize:15,bold:true,color:on?'FFFFFF':C.navy,valign:'middle'}); L.T(s,t[2],{x:x+0.2,y:sy+0.9,w:sw-0.35,h:sh-1.0,fontSize:11.5,color:on?'FFFFFF':C.g600,lineSpacingMultiple:1.25}); if(i<st.length-1) L.T(s,'›',{x:x+sw-0.06,y:sy+sh/2-0.25,w:gap+0.12,h:0.5,fontSize:22,bold:true,color:C.g700,align:'center',valign:'middle'}); });
+    // 아래 줄 : 팝업만 잘라낸 그림 | 요청 버튼 크게 + [보내기] 뒤 알림 | 상품소개 동의 안내
+    const a = L.img(s,HERO('fix_c_consent_modal'),{x:M,y:3.95,w:4.3,h:2.55,valign:'top',align:'left'}); L.caption(s,{x:M,y:a.y+a.h+0.05,w:a.w,text:'대문 [고객 동의] 팝업',size:10});
+    const bx=M+4.55, bw=3.75;
+    const b = L.img(s,HERO('fix_c_consent_request_btn'),{x:bx,y:3.95,w:bw,h:1.3,valign:'top',align:'left'}); L.caption(s,{x:b.x,y:b.y+b.h+0.05,w:b.w,text:'고객찾기에서 요청',size:10});
+    const c = L.img(s,HERO('consent_toast_crop'),{x:bx,y:b.y+b.h+0.5,w:bw,h:0.7,valign:'top',align:'left'}); L.caption(s,{x:c.x,y:c.y+c.h+0.05,w:c.w,text:'[보내기] 뒤 뜨는 알림',size:10});
+    const nx=bx+bw+0.25;
+    L.note(s,{x:nx,y:3.95,w:W-M-nx,h:a.h,label:'상품소개 동의',text:'이 고객은 "AI 추천 고객" 리본이 붙고, 대문 "상품제안 가능" 숫자에 들어가요.',tone:'grey',size:12});
   }});
 };

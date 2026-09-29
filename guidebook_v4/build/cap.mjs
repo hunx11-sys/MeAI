@@ -2,7 +2,7 @@
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import fs from 'fs';
 import path from 'path';
-export const SRC = "file://" + new URL('../prototype/index_260929.html', import.meta.url).pathname + "";
+export const SRC = process.env.CAP_SRC || ("file://" + new URL('../prototype/index_260929_v2.html', import.meta.url).pathname);
 export const ROUTES = {
   gate010:'#/mg-gate-010', gate020:'#/mg-gate-020', find010:'#/mg-find-010', board010:'#/mg-board-010',
   tags:'#/mg-tag-legend', term_pc:'#/term-glossary-pc', term_mo:'#/term-glossary-m', mode_pc:'#/analysis-mode-pc', mode_mo:'#/analysis-mode-m',
