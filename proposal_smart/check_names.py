@@ -1,6 +1,6 @@
 """담보명 꼬리표 점검 — 특약 마스터 전 담보 × 상품 꼬리표·갱신형·상품라인 변형(약 10만 건)을 읽혀
    ① 오류(멈춤)가 없는지 ② 꼬리표만 다른 같은 특약이 똑같이 판정되는지(마스터·KCD·제외코드·세부·통합치료비·규칙) 확인한다.
-   python check_names.py   (새 상품 꼬리표가 나오면 SUF 에 넣어 다시 돌린다)
+   python check_names.py   (새 상품 꼬리표가 나오면 SUF 에 넣어 다시 돌린다)"""
 import sys, re, json, collections, traceback
 sys.path.insert(0, '.')
 import matcher, scen_engine as S
