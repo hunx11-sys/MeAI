@@ -4,7 +4,9 @@ const pptxgen = require('pptxgenjs'); const fs = require('fs'); const path = req
 const [dir, notesFile, out] = process.argv.slice(2);
 const notes = JSON.parse(fs.readFileSync(notesFile,'utf8'));
 const files = fs.readdirSync(dir).filter(f=>/^s-\d+\.jpg$/.test(f)).sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));
-if (files.length!==notes.length) { console.error('장 수와 노트 수가 다름', files.length, notes.length); process.exit(1); }
-const pres = new pptxgen(); pres.layout='LAYOUT_WIDE'; pres.title='MeAI 대문 30분 방송 (이미지판)'; pres.author='세일즈혁신TF';
-files.forEach((f,i)=>{ const s = pres.addSlide(); s.addImage({path:path.join(dir,f), x:0, y:0, w:13.333, h:7.5}); s.addNotes(notes[i]); });
+// 숨김 장(진행 큐시트)은 PDF·JPG로 나오지 않으므로 앞에서부터 JPG 수만큼만 노트를 붙인다
+if (files.length>notes.length) { console.error('JPG가 노트보다 많음', files.length, notes.length); process.exit(1); }
+if (files.length<notes.length) console.log('숨김 장 제외: 노트', notes.length, '→', files.length);
+const pres = new pptxgen(); pres.layout='LAYOUT_WIDE'; pres.title='MeAI 홈 영업가족 방송 (이미지판)'; pres.author='세일즈혁신TF';
+files.forEach((f,i)=>{ const s = pres.addSlide(); s.addImage({path:path.join(dir,f), x:0, y:0, w:13.333, h:7.5, altText:`방송 화면 ${i+1}`}); s.addNotes(notes[i]); });
 pres.writeFile({fileName:out}).then(()=>console.log('images deck', files.length, 'slides + notes →', out));

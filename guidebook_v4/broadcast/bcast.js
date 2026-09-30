@@ -94,7 +94,7 @@ add(5,(pres,no)=>{ const c=CP(5); const s=head(pres,{kicker:c.kicker,title:c.tit
     if(pill) chipX(s,{x:x+0.85+L.textW(tt,17)+0.2,y:y+0.08,text:pill,fill:C.purple50,color:C.purple,size:12,h:0.3});
     T(s,B(5,`step${k}-desc`),{x:x+0.85,y:y+0.4,w:w-1.1,h:0.3,fontSize:14,color:C.g600,valign:'middle'}); });
   const gx=7.65, gw=W-M-gx; const g=L.img(s,HERO('bc2_gate_reco_s3'),{x:gx,y:2.1,w:gw,h:2.35,valign:'top',align:'right'});
-  pin(s,g,1030,962,3,{dsf:1,d:0.4}); pin(s,g,24,300,4,{dsf:1,d:0.4});
+  pin(s,g,1290,962,3,{dsf:1,d:0.4}); pin(s,g,24,300,4,{dsf:1,d:0.4});
   T(s,B(5,'caption'),{x:gx,y:g.y+g.h+0.05,w:gw,h:0.28,fontSize:12,color:C.g500,align:'right',valign:'middle'});
   const qy=4.95; R(s,{x:gx,y:qy,w:gw,h:1.35,fill:C.navy,line:null,radius:0.16});
   T(s,B(5,'q-label'),{x:gx+0.3,y:qy+0.12,w:gw-0.5,h:0.34,fontSize:14,bold:true,color:C.blue100,valign:'middle'});
@@ -121,7 +121,7 @@ add(6,(pres,no)=>{ const c=CP(6); const s=head(pres,{kicker:c.kicker,title:c.tit
   row(B(6,'item5-title'),'',5.2);
   T(s,B(6,'group2-title'),{x,y:5.68,w,h:0.36,fontSize:16,bold:true,color:C.g600,valign:'middle'});
   T(s,B(6,'group2-desc'),{x,y:6.02,w,h:0.52,fontSize:13.5,color:C.g600,valign:'top',lineSpacingMultiple:1.1});
-  T(s,B(6,'note'),{x:M,y:6.72,w:7.6,h:0.26,fontSize:12,color:C.g500,valign:'middle'});
+  T(s,B(6,'note')+'  ·  '+B(6,'source'),{x:M,y:6.72,w:W-2*M,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
   foot(s,no); });
 
 // 7 MeAI 홈 한 화면
@@ -165,7 +165,7 @@ add(9,(pres,no)=>{ const c=CP(9); const s=head(pres,{kicker:c.kicker,title:c.tit
   const px=(fx)=>g.x+g.w*fx, py=(fy)=>g.y+g.h*fy;
   const zone=(x1,y1,x2,y2,dash)=>s.addShape('roundRect',{x:px(x1),y:py(y1),w:g.w*(x2-x1),h:g.h*(y2-y1),fill:{type:'none'},line:{color:C.blue,width:dash?1.25:2,dashType:dash?'dash':'solid'},rectRadius:0.05});
   zone(0.01,0.07,0.20,0.92); zone(0.228,0.22,0.662,0.70); zone(0.70,0.09,0.99,0.54); zone(0.24,0.45,0.65,0.68,true);
-  badge(s,px(0.10)-0.21,py(0.07)-0.21,1,{d:0.42,size:15}); badge(s,px(0.228)-0.21,py(0.22)-0.21,2,{d:0.42,size:15}); badge(s,px(0.70)-0.21,py(0.09)-0.21,3,{d:0.42,size:15});
+  badge(s,px(0.10)-0.21,py(0.07)-0.21,1,{d:0.42,size:15}); badge(s,px(0.48)-0.21,py(0.22)-0.21,2,{d:0.42,size:15}); badge(s,px(0.92)-0.21,py(0.095)-0.21,3,{d:0.42,size:15});
   s.addShape('line',{x:px(0.71),y:py(0.475),w:g.w*0.275,h:0,line:{color:C.red,width:2.5}});
   let xx=M; xx+=chipX(s,{x:xx,y:g.y+g.h+0.12,text:B(9,'pill'),fill:C.purple50,color:C.purple,size:12.5,h:0.36})+0.2;
   T(s,B(9,'note'),{x:xx,y:g.y+g.h+0.12,w:6.9-(xx-M),h:0.36,fontSize:14,color:C.g600,valign:'middle'});
@@ -253,7 +253,7 @@ add(12,(pres,no)=>{ const c=CP(12); const s=head(pres,{kicker:c.kicker,title:c.t
 // 13 보장분석 해줘
 add(13,(pres,no)=>{ const c=CP(13); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
   const g=L.img(s,HERO('custom_start_crop'),{x:M,y:1.85,w:5.4,h:2.95,valign:'top',align:'left'});
-  [[390,516,1],[390,640,2],[390,722,3],[1500,910,4]].forEach(([px,py,n])=>pin(s,g,px,py,n,{dsf:1,d:0.36}));
+  [[390,516,1],[390,722,3],[1500,910,4]].forEach(([px,py,n])=>pin(s,g,px,py,n,{dsf:1,d:0.36})); pin(s,g,760,640,2,{dsf:1,d:0.28});
   const k=g.scale; s.addShape('roundRect',{x:g.x+1555*k,y:g.y+865*k,w:235*k,h:90*k,fill:{type:'none'},line:{color:C.red,width:2},rectRadius:0.04});
   const x=6.35, w=W-M-x;
   chipX(s,{x,y:1.85,text:B(13,'section-a'),fill:C.navy,color:'FFFFFF',size:13,h:0.36});
@@ -263,7 +263,7 @@ add(13,(pres,no)=>{ const c=CP(13); const s=head(pres,{kicker:c.kicker,title:c.t
   R(s,{x,y:4.8,w,h:0.62,fill:C.g50,line:null,radius:0.12}); T(s,B(13,'note'),{x:x+0.2,y:4.8,w:w-0.3,h:0.62,fontSize:12,color:C.g700,valign:'middle',lineSpacingMultiple:1.1});
   const g2=L.img(s,HERO('bc2_custom_input'),{x:M,y:5.2,w:5.4,h:1.1,valign:'top',align:'left'});
   const k2=g2.scale; s.addShape('roundRect',{x:g2.x+40*k2,y:g2.y+83*k2,w:238*k2,h:67*k2,fill:{type:'none'},line:{color:C.red,width:2},rectRadius:0.04});
-  pin(s,g2,300,116,5,{dsf:1,d:0.34}); pin(s,g2,1420,185,6,{dsf:1,d:0.34});
+  pin(s,g2,330,116,5,{dsf:1,d:0.34}); pin(s,g2,1420,185,6,{dsf:1,d:0.34});
   chipX(s,{x,y:5.55,text:B(13,'section-b'),fill:C.navy,color:'FFFFFF',size:13,h:0.36});
   [5,6].forEach((n,i)=>{ const iy=5.98+i*0.4; badge(s,x,iy+0.02,n,{d:0.32,size:12}); T(s,B(13,`item${n}-title`),{x:x+0.42,y:iy,w:2.4,h:0.36,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
     T(s,B(13,`item${n}-desc`),{x:x+2.85,y:iy,w:w-2.85,h:0.36,fontSize:12.5,color:C.g600,valign:'middle'}); });
@@ -275,7 +275,7 @@ add(13,(pres,no)=>{ const c=CP(13); const s=head(pres,{kicker:c.kicker,title:c.t
 add(14,(pres,no)=>{ const c=CP(14); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
   T(s,B(14,'caption'),{x:M,y:2.05,w:8,h:0.3,fontSize:13,color:C.g600,valign:'middle'});
   const ga=L.img(s,HERO('bc2_answer_top'),{x:M,y:2.4,w:6.0,h:2.95,valign:'top',align:'left'});
-  const gb=L.img(s,HERO('fix_answer_bottom'),{x:6.8,y:2.4,w:W-M-6.8,h:2.95,valign:'top',align:'left'});
+  const gb=L.img(s,HERO('bc2_answer_bottom'),{x:6.8,y:2.4,w:W-M-6.8,h:2.95,valign:'top',align:'left'});
   const bx=(g,x1,y1,x2,y2,col)=>s.addShape('roundRect',{x:g.x+x1*g.scale,y:g.y+y1*g.scale,w:(x2-x1)*g.scale,h:(y2-y1)*g.scale,fill:{type:'none'},line:{color:col,width:2},rectRadius:0.04});
   bx(ga,60,470,1680,820,C.green); bx(gb,1150,172,1658,330,C.red); bx(gb,60,610,560,675,C.blue);
   pin(s,ga,60,280,1,{dsf:1,d:0.36,color:C.navy}); pin(s,ga,60,500,2,{dsf:1,d:0.36,color:C.green}); pin(s,gb,1110,250,3,{dsf:1,d:0.36,color:C.red}); pin(s,gb,60,640,4,{dsf:1,d:0.36,color:C.blue});
