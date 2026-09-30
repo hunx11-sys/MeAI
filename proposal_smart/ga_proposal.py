@@ -264,24 +264,40 @@ def amt_cell(L, keys, exclude=(), kcd=None):
     v = rowsum(L, keys, exclude)
     if v == 0 and kcd and all(S.excluded(r, kcd) for r in rs): return '<span class="na">면책</span>'
     return M(v)
+CONSERV = '*위 수치는 표의 예시금액 합산으로 표 외에 가입한 담보 총합의 보상금액은 더 클 수 있습니다.'
+def row_lines(L, specs):
+    """표의 담보행(specs : (keys, exclude) 목록) 중 하나에라도 드는 지급 줄 — 총 보장은 표에 나온 것만 보수적으로 합산(v8.65)"""
+    return [l for l in L if any(hit(l['name'], k, x) for k, x in specs)]
+P4_SURG = {'질병수술비': (['질병수술비'], ('131대', '130대', '척추질병')), '1-5종수술비': (['1-5종'], ('상해',)), '1-7종수술비': (['┗ 수술비', '수술비(1-7종'], ('상해',)),
+           '암수술비': (['암수술비'], ('다빈치',)), '암통합치료비': (['암 통합치료비(기본형)', '암 통합치료비(실속형)'], ()),
+           '비급여암통합치료비': (['통합치료비Ⅱ(비급여', '통합치료비(주요치료)(비급여'], ()), '다빈치로봇암수술비': (['다빈치'], ())}
+P4_TARGET = [('항암방사선약물치료비', (['항암방사선약물치료비'], ('26종', '기타피부암'))), ('26종항암방사선약물', (['26종'], ())),
+             ('암통합치료비', (['암 통합치료비(기본형)', '암 통합치료비(실속형)'], ())), ('비급여암통합치료비', (['통합치료비Ⅱ(비급여', '통합치료비(주요치료)(비급여'], ())),
+             ('암진단비 및 치료비(치료비)', (['암진단및치료비Ⅱ[표적', '암치료,후유장해및진단비[표적'], ())),
+             ('표적항암약물치료비', (['표적항암약물허가치료비'], ('연간 약물종류', '암진단및치료비', '후유장해및진단비'))),
+             ('표적항암약물치료비<small>(연간약물종류)</small>', (['연간 약물종류'], ()))]
 def p4():
     R = C['robot']
-    a = det([('질병수술비', amt_cell(R, ['질병수술비'], exclude=('131대', '130대', '척추질병'))), ('1-5종수술비', amt_cell(R, ['1-5종'], exclude=('상해',))), ('암수술비', amt_cell(R, ['암수술비'], exclude=('다빈치',))),
-             ('암통합치료비', amt_cell(R, ['암 통합치료비(기본형)', '암 통합치료비(실속형)'])), ('비급여암통합치료비', amt_cell(R, ['통합치료비Ⅱ(비급여', '통합치료비(주요치료)(비급여'])), ('다빈치로봇암수술비', amt_cell(R, ['다빈치']))],
-            [('최초 :', M(F(R), True)), ('매 회 :', M(E(R), True))], '*암수술비(체증형) 5회이상 수술시 최대 2배보장')
+    ka = ['질병수술비', '1-5종수술비', '암수술비', '암통합치료비', '비급여암통합치료비', '다빈치로봇암수술비']
+    Ra = row_lines(R, [P4_SURG[k] for k in ka])
+    a = det([(k, amt_cell(R, *P4_SURG[k])) for k in ka],
+            [('최초 :', M(F(Ra), True)), ('매 회 :', M(E(Ra), True))], '*암수술비(체증형) 5회이상 수술시 최대 2배보장<br>' + CONSERV)
     O = C['open']
-    b = det([('질병수술비', amt_cell(O, ['질병수술비'], exclude=('131대', '130대', '척추질병'))), ('1-5종수술비', amt_cell(O, ['1-5종'], exclude=('상해',))), ('1-7종수술비', amt_cell(O, ['┗ 수술비', '수술비(1-7종'], exclude=('상해',))), ('암수술비', amt_cell(O, ['암수술비'], exclude=('다빈치',))),
-             ('암통합치료비', amt_cell(O, ['암 통합치료비(기본형)', '암 통합치료비(실속형)'])), ('비급여암통합치료비', amt_cell(O, ['통합치료비Ⅱ(비급여', '통합치료비(주요치료)(비급여']))],
-            [('최초 :', M(F(O), True)), ('매 회 :', M(E(O), True))], '*암수술비(체증형) 5회이상 수술시 최대 2배보장')
+    kb = ['질병수술비', '1-5종수술비', '1-7종수술비', '암수술비', '암통합치료비', '비급여암통합치료비']
+    Ob = row_lines(O, [P4_SURG[k] for k in kb])
+    b = det([(k, amt_cell(O, *P4_SURG[k])) for k in kb],
+            [('최초 :', M(F(Ob), True)), ('매 회 :', M(E(Ob), True))], '*암수술비(체증형) 5회이상 수술시 최대 2배보장<br>' + CONSERV)
     tg = lambda d: s('C16', [['항암', '표적(비급여)', '', ['chemo', 'target'], {'nc': 1}]], chemo=1, target=1, drug=d)
     T1, T2, T3 = tg(1), tg(2), tg(3)
+    K = dict(P4_TARGET)
     two3 = lambda L2, L3, keys, ex=(): ('<small>2가지</small> %s <small>3가지</small> %s' % (M(rowsum(L2, keys, ex)), M(rowsum(L3, keys, ex)))) if any(hit(r['name'], keys, ex) for r in RID) else '<span class="na">미가입</span>'
-    c = det([('항암방사선약물치료비', amt_cell(T2, ['항암방사선약물치료비'], exclude=('26종', '기타피부암'))), ('26종항암방사선약물', amt_cell(T2, ['26종'])),
-             ('암통합치료비', amt_cell(T2, ['암 통합치료비(기본형)', '암 통합치료비(실속형)'])), ('비급여암통합치료비', amt_cell(T2, ['통합치료비Ⅱ(비급여', '통합치료비(주요치료)(비급여'])),
-             ('암진단비 및 치료비(치료비)', two3(T2, T3, ['암진단및치료비Ⅱ[표적', '암치료,후유장해및진단비[표적'])),
-             ('표적항암약물치료비', amt_cell(T2, ['표적항암약물허가치료비'], exclude=('연간 약물종류', '암진단및치료비', '후유장해및진단비'))),
-             ('표적항암약물치료비<small>(연간약물종류)</small>', ('<small>1가지</small> %s <small>2가지</small> %s <small>3가지</small> %s' % (M(rowsum(T1, ['연간 약물종류'])), M(rowsum(T2, ['연간 약물종류'])), M(rowsum(T3, ['연간 약물종류'])))) if any(hit(r['name'], ['연간 약물종류']) for r in RID) else '<span class="na">미가입</span>')],
-            [('최초 :', M(F(T1), True)), ('2가지 :', M(F(T2), True)), ('3가지 :', M(F(T3), True))])
+    yk = K['표적항암약물치료비<small>(연간약물종류)</small>'][0]
+    c = det([('항암방사선약물치료비', amt_cell(T2, *K['항암방사선약물치료비'])), ('26종항암방사선약물', amt_cell(T2, *K['26종항암방사선약물'])),
+             ('암통합치료비', amt_cell(T2, *K['암통합치료비'])), ('비급여암통합치료비', amt_cell(T2, *K['비급여암통합치료비'])),
+             ('암진단비 및 치료비(치료비)', two3(T2, T3, *K['암진단비 및 치료비(치료비)'])),
+             ('표적항암약물치료비', amt_cell(T2, *K['표적항암약물치료비'])),
+             ('표적항암약물치료비<small>(연간약물종류)</small>', ('<small>1가지</small> %s <small>2가지</small> %s <small>3가지</small> %s' % (M(rowsum(T1, yk)), M(rowsum(T2, yk)), M(rowsum(T3, yk)))) if any(hit(r['name'], yk) for r in RID) else '<span class="na">미가입</span>')],
+            [('최초 :', M(F(row_lines(T1, list(K.values()))), True)), ('2가지 :', M(F(row_lines(T2, list(K.values()))), True)), ('3가지 :', M(F(row_lines(T3, list(K.values()))), True))], CONSERV)
     body = '<img class="char p4" src="%s"><h1>암치료 세부내역</h1>' % CH['p4'] + hl('다빈치로봇암수술') + a + hl('개복수술') + b + hl('표적항암치료비') + c
     return '<div class="page">%s%s</div>' % (body, foot())
 
@@ -337,22 +353,14 @@ def bh_section(no):
         if not bh_joined(k): return '<span class="na">미가입</span>'
         return M(int(round(sum(l['amt'] for l in L if bh_group(l) == k))))
     rows = [(BH_ROWS[k][0], v(Lb, k), v(Lh, k)) for k in keys]
+    Lb = [l for l in Lb if bh_group(l) in keys]; Lh = [l for l in Lh if bh_group(l) in keys]   # 총 보장은 표에 나온 줄만(v8.65 · 보수적)
     if no == 1:
         tots = [('최초', M(F(Lb)), M(F(Lh))), ('다음 해', M(Y(Lb)), M(Y(Lh)))]
         note = '*다음 해 = 최초 1회 담보(혈전용해치료비Ⅱ 등)를 뺀 연간 반복분'
     else:
         tots = [('최초', M(F(Lb)), M(F(Lh))), ('매 회', M(E(Lb)), M(E(Lh)))]
         note = '*매 회 = 수술 1회당 담보만(연간·최초 1회 담보 제외)'
-    # 표에 줄이 없는 지급(통합생활지원비·전신마취·기계적혈전제거술 등)도 총 보장에는 들어간다 — 무엇이 더해졌는지 적어 둔다(v8.65)
-    out = []
-    for l in Lb + Lh:
-        if bh_group(l) in keys or l['amt'] <= 0: continue
-        n = _ns(l['name'])
-        lab = next((v for p, v in _BH_OUT if re.search(p, n)), re.sub(r'^갱신형', '', re.sub(r'\(.*$', '', n)))
-        if lab not in out: out.append(lab)
-    if out: note += '<br>*총 보장에 표 밖 담보 포함 : ' + ' · '.join(out)
-    return hl(title) + det2(cols, rows, tots, note)
-_BH_OUT = [(r'통합생활지원비', '통합생활지원비'), (r'전신마취', '전신마취치료비'), (r'기계적혈전제거', '기계적혈전제거술치료비'), (r'특정혈전치료비', '특정혈전치료비')]
+    return hl(title) + det2(cols, rows, tots, note + '<br>' + CONSERV)
 def p_bh():
     sev_rows = []
     for lab, k in BH_SEV:
