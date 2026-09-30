@@ -27,6 +27,7 @@
 | 1-5종 수술분류표 갱신 | `python extract_surg5.py 별표76_1-5종수술분류표.pdf` |
 | 131대질병 그룹표 갱신 | `python extract_g131.py 131대질병_질병코드정리.xlsx` |
 | 질병코드 그룹표 검증·갱신 | `python extract_kcd_groups.py ../tool.html` (대조만) · `--write` (다른 그룹만 약관대로 고침). 「○○ 분류표」 20종과 특정2대·5대·6대질병을 약관 원문에서 다시 읽어 `rules.json > kcd_groups` 와 대조한다 |
+| 담보명 꼬리표 점검 | `python check_names.py` — 특약 마스터 1,758건 × 꼬리표 10종((통합간편가입)·(편한가입)·(355입원,수술고지간편가입)·처음 보는 '(○○가입)' 등) × 갱신형 × 상품라인 = 105,480개 이름을 읽혀 **오류 0 · 꼬리표에 따라 판정이 달라진 것 0** 인지 본다(v8.65 기준 통과) |
 | 회귀 점검 | `python regress.py snap before <설계서폴더>` → 수정 → `snap after` → `python regress.py diff before after`. README 의 「실설계 N건 재생성 · 쪽별 글자 차이 0쪽」이 이 스크립트다 |
 | 지급 규칙 검수표 | `python export_rules_xlsx.py ../dist/규칙표_KCD검수결과.xlsx` (rules.json 의 규칙(v8.64 기준 107줄)을 한글로 풀어 엑셀로 내보낸다. 다른 시트는 그대로 둔다. 규칙은 손대지 않고 읽어서 옮기기만 하며, 특약 마스터 1,758건을 실제로 통과시켜 규칙별 적용 담보 수·예시와 0건인 이유를 함께 적는다) |
 | 글꼴·아이콘 | `python fetch_assets.py 원본.pdf` 1회 (나눔고딕 3종 → `assets/`, Healthicons → `icons.json`, 로고 → `assets/logo.png`) |
