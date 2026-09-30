@@ -50,7 +50,7 @@ def vsurg(hosp):
     h = [F(s('I21', [['시술', '혈전용해', '', ['thromb']]], series='heart', hosp=hosp)),
          F(s('I20', [['시술', '스텐트 삽입', '', ['surg']]], surg='88-1', surg7='F133', grp=HG + ['허혈성심장질환', '특정31대질병'], hosp=hosp)),
          F(s('I48', [['시술', '전극도자절제술', '', ['surg']]], surg='88-1', surg7='F142', grp=HG + ['특정31대질병'], hosp=hosp)),
-         F(s('I20', [['수술', '관상동맥 우회술', '', ['surg']]], surg='26', surg7='F042', grp=HG + ['허혈성심장질환', '특정31대질병'], hosp=hosp, anes=1, anes_h=6))]
+         F(s('I20', [['수술', '관상동맥 우회술', '', ['surg']]], surg='24', surg7='F042', grp=HG + ['허혈성심장질환', '특정31대질병'], hosp=hosp, anes=1, anes_h=6))]
     return b, h
 
 def load(design_pdf, age=''):
@@ -222,7 +222,7 @@ def p3():
         return [s('I21', [['시술', '혈전용해', '', ['thromb']]], series='heart', hosp=hosp),
                 s('I21', [['시술', '혈전용해', '', ['thromb']], ['시술', '혈전제거술', '', ['surg']]], surg='88-1', surg7='F121', grp=HG + ['허혈성심장질환', '특정31대질병'], hosp=hosp, acts=['thrombectomy']),
                 s('I20', [['시술', '스텐트 삽입', '', ['surg']]], surg='88-1', surg7='F133', grp=HG + ['허혈성심장질환', '특정31대질병'], hosp=hosp),
-                s('I20', [['수술', '관상동맥 우회술', '', ['surg']]], surg='26', surg7='F042', grp=HG + ['허혈성심장질환', '특정31대질병'], hosp=hosp, anes=1, anes_h=6)]
+                s('I20', [['수술', '관상동맥 우회술', '', ['surg']]], surg='24', surg7='F042', grp=HG + ['허혈성심장질환', '특정31대질병'], hosp=hosp, anes=1, anes_h=6)]
     def block(kind):
         if kind == 'brain':
             dxs = [('뇌혈관', BDX[0]), ('뇌출혈', BDX[3])]; cols = ['혈전용해치료', '혈전용해+<br>혈전제거술', '스텐트<br>코일색전술', '개두 수술']
@@ -294,7 +294,7 @@ BH_SEC = {
               s('I21', [['시술', '스텐트 삽입', '', ['surg']]], surg='88-1', surg7='F133', grp=HG + ['허혈성심장질환', '특정31대질병'])]),
  3: ('수술(관혈) · 개두·개흉', ('뇌출혈<small>개두술</small>', '협심증<small>관상동맥 우회술</small>'), ['bhsurg', 'dzsurg', 'grade', 'two', 'itc'],
      lambda: [s('I61', [['수술', '혈종제거 개두술', '', ['surg']]], surg='59', surg7='B031', grp=BG + ['뇌졸중', '뇌출혈', '특정31대질병'], anes=1),
-              s('I20', [['수술', '관상동맥 우회술', '', ['surg']]], surg='26', surg7='F042', grp=HG + ['허혈성심장질환', '특정31대질병'], anes=1, anes_h=6)]),
+              s('I20', [['수술', '관상동맥 우회술', '', ['surg']]], surg='24', surg7='F042', grp=HG + ['허혈성심장질환', '특정31대질병'], anes=1, anes_h=6)]),
 }
 BH_SEV = [('중환자실 치료', 'icu'), ('부분에크모(ECMO)', 'ecmo'), ('지속적신대체요법(CRRT)', 'crrt'), ('인공호흡기(12시간 초과)', 'vent'), ('저체온요법', 'hypo')]
 def bh_sev_case(kcd, grp, keys):
