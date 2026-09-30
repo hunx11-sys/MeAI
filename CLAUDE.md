@@ -56,8 +56,9 @@
 
 | 하려는 일 | 파일 |
 |---|---|
-| 지급 조건·보상 유형 | `rules.json` (규칙 107줄 · 질병코드 그룹표) |
+| 지급 조건·보상 유형 | `rules.json` (규칙 109줄 · 질병코드 그룹표) |
 | 특약별 약관 KCD·제외코드·수가코드 | `db.json` — **직접 고치지 않는다.** `tool.html` 데이터를 바로잡고 `python extract_db.py ../tool.html` |
+| 내Mom대로·내Mom같은 어린이보험 특약(스마트 제안서 전용) | `db_terms_extra.json` — **영업지원도구(tool.html 등)에 넣지 않는다**(소유자 지시). 약관 PDF 에서 `python extract_terms_extra.py "../약관.pdf" 상품명 접두어` 로 다시 뽑는다(같은 이름 특약은 db.json 감수 코드를 쓴다) |
 | 통합치료비 지급금액표 | `product_data.json` / 상해는 `inj_itc.json` / 생활지원비는 `life_support.json` |
 | 계산 엔진 | `scen_engine.py`(규칙 판정·핸들러) · `engine.py`(통합치료비 금액표) |
 | 지면·문구·사례 | `gen2.py` |

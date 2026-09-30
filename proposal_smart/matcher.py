@@ -5,6 +5,10 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import scen_engine as S
 DB = json.load(open(os.path.join(BASE, 'db.json'), encoding='utf-8'))
+# 스마트 제안서 전용 보강 마스터(영업지원도구 미반영 · extract_terms_extra.py 로 약관에서 추출) — 내Mom대로·내Mom같은 어린이보험(v8.66)
+_EX = os.path.join(BASE, 'db_terms_extra.json')
+if os.path.exists(_EX):
+    DB = dict(DB, riders=DB['riders'] + json.load(open(_EX, encoding='utf-8'))['riders'])
 GOJI = S.GOJI                        # 고지유형 꼬리표는 rules.json goji_tags 한 곳에서만 관리(v8.3)
 _A = '(?:' + S.AMT_RE + ')'          # 가입금액 표기(1억5천만원·3천5백만원·1억 등 전부)
 RENEW = r'\((?:\d+년)?갱신\)'          # 설계서 표기 (20년갱신) → 마스터의 '갱신형'과 맞추기 위해 제거
@@ -58,8 +62,9 @@ def _sub_pick(n, line):
         if not ps:                                        # 설계서 'Ⅱ' 꼬리 등 표기 차이 — 앞부분이 같은 가장 긴 이름
             ks = [k for k in INDEX if k and (parent.startswith(k) or k.startswith(parent)) and any(CHILD.get(r['id']) for r in INDEX[k])]
             if ks: ps = INDEX[max(ks, key=len)]
-        if line: ps = [r for r in ps if r['p'] == line] or ps
-        kids = [k for r in ps for k in CHILD.get(r['id'], [])]
+        kids = [k for r in ps if r['p'] == line for k in CHILD.get(r['id'], [])] if line else []
+        if not kids:                                      # 설계 상품 레코드에 세부가 없으면(파싱 못 한 세부 — 내Mom대로 131대질병수술비) 같은 이름 특약의 다른 상품 세부(v8.66)
+            kids = [k for r in ps for k in CHILD.get(r['id'], [])]
         if not kids: continue
         key = _norm(lab)
         def label(k):
