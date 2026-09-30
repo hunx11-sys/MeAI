@@ -46,6 +46,8 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
     src_pdf = os.path.abspath(src_pdf)
     if not os.path.exists(src_pdf):
         raise FileNotFoundError(src_pdf)
+    import assets_ready                    # 글꼴·로고가 없는 PC 에서도 멈추지 않게(assets/ 가 저장소에 없다)
+    assets_ready.ensure(src_pdf)
     w = workdir or _work()
     t0 = time.time()
 

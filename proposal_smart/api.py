@@ -12,6 +12,8 @@
   POST /v1/proposal/audit     원본 PDF 업로드      → 감사 로그 JSON(요약·제외 담보와 사유)
   POST /v1/proposal/riders    원본 PDF 업로드      → 인식한 담보 목록 JSON
   POST /v1/proposal/all       원본 PDF 업로드      → 위 내용을 한 번에(JSON, PDF는 base64)
+  POST /v1/ga/pdf             원본 PDF 업로드      → GA 양식 스마트 제안서 6쪽 PDF
+  POST /v1/ga/all             원본 PDF 업로드      → GA PDF(base64) + 로그(빈칸·0원 이유) JSON
 
 업로드 방법 두 가지 모두 받는다.
   · multipart/form-data 의 file 필드 (HTML <input type=file>)
@@ -30,6 +32,7 @@ import pipeline
 VERSION = 'v8.64'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 동시 생성 2건까지(렌더가 무거워 과부하 방지)
+GA_LOCK = threading.Lock()                   # GA 생성기는 한 건씩(모듈 안에 설계서 상태를 둔다)
 
 
 def _json(o):
@@ -47,6 +50,8 @@ def html_for_web(path):
     지면 HTML은 인쇄용이라 글꼴·로고를 file:/// 절대경로로 참조한다. 브라우저는 http 문서에서
     file:/// 를 읽지 못하므로 /assets/ 경로로 바꿔 준다(같은 서버가 /assets/ 를 내려준다)."""
     h = io.open(path, encoding='utf-8').read()
+    import pathlib
+    h = h.replace(pathlib.Path(BASE, 'assets').as_uri() + '/', '/assets/')      # 윈도우·한글 폴더 주소(gen2 A_URI)
     return h.replace('file://' + os.path.join(BASE, 'assets') + '/', '/assets/') \
             .replace('file://' + os.path.join(BASE, 'assets'), '/assets')
 
@@ -143,7 +148,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split('?')[0]
-        if not path.startswith('/v1/proposal'):
+        if not (path.startswith('/v1/proposal') or path.startswith('/v1/ga')):
             return self._err(404, 'not found : ' + path)
         try:
             pdf = self._read_pdf()
@@ -160,6 +165,18 @@ class Handler(BaseHTTPRequestHandler):
             shutil.rmtree(tmp, ignore_errors=True)
             return self._err(503, '처리 대기가 길어졌습니다 — 잠시 후 다시 시도해 주세요')
         try:
+            if path in ('/v1/ga/pdf', '/v1/ga/all'):              # GA 양식 6쪽(ga_proposal.py)
+                import ga_proposal
+                with GA_LOCK:
+                    out = os.path.join(tmp, 'ga_proposal.pdf')
+                    _pdf, log, warn = ga_proposal.build(src, out)
+                    body = open(out, 'rb').read()
+                    if path == '/v1/ga/pdf':
+                        return self._send(200, body, 'application/pdf', 'ga_proposal.pdf')
+                    return self._send(200, _json({'ok': True, 'rider_count': ga_proposal.NRID, 'product': ga_proposal.PRODUCT,
+                                                  'premium': ga_proposal.PREMIUM, 'warn': warn,
+                                                  'log': io.open(log, encoding='utf-8').read(),
+                                                  'pdf_base64': base64.b64encode(body).decode()}))
             if path == '/v1/proposal/riders':                     # 담보 인식만(빠름)
                 rid = pipeline.read_riders(src)
                 return self._send(200, _json({'ok': True, 'count': len(rid),
@@ -202,6 +219,7 @@ def main():
     host = sys.argv[1] if len(sys.argv) > 1 else '127.0.0.1'
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 8080
     os.makedirs(os.path.join(BASE, 'out'), exist_ok=True)
+    import assets_ready; assets_ready.fonts()         # 글꼴이 없는 PC(zip 으로 받은 경우) — ga_assets 의 나눔고딕을 assets/ 로
     srv = ThreadingHTTPServer((host, port), Handler)
     print('스마트 제안서 API %s — http://%s:%d  (Ctrl+C 로 종료)' % (VERSION, host, port))
     print('  데모 화면 : http://%s:%d/' % (host, port))

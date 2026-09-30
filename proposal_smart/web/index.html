@@ -75,11 +75,24 @@
     </div>
     <div class="row">
       <button id="run" disabled>지면 생성</button>
+      <button id="gaRun" disabled style="background:#C12027">GA 제안서 생성</button>
       <button id="ridersOnly" class="ghost" disabled>담보 인식만 보기</button>
       <span id="fname" style="color:var(--mute)"></span>
     </div>
     <div id="bar" class="bar"><i></i></div>
     <div id="msg" class="msg"></div>
+  </div>
+
+  <div id="gaResult" class="card hide">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+      <b style="font-size:17px">GA 스마트 제안서 (6쪽)</b>
+      <span id="gaInfo" style="color:var(--mute)"></span>
+      <span style="flex:1"></span>
+      <button id="gaDl">GA PDF 내려받기</button>
+      <button id="gaLogBtn" class="ghost">빈칸 이유(로그) 보기</button>
+    </div>
+    <iframe id="gaPrev" title="GA 제안서 미리보기" style="width:100%;height:1100px;border:1px solid var(--line);border-radius:10px"></iframe>
+    <pre id="gaLog" class="hide" style="white-space:pre-wrap;max-height:420px;overflow:auto;margin-top:10px"></pre>
   </div>
 
   <div id="result" class="hide">
@@ -178,11 +191,11 @@ function pick(f) {
   if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) return say('PDF 파일만 넣어 주세요', true);
   file = f;
   $('fname').textContent = f.name + '  (' + (f.size / 1048576).toFixed(1) + 'MB)';
-  $('run').disabled = $('ridersOnly').disabled = false;
+  $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = false;
   say('');
 }
 function say(t, err) { $('msg').textContent = t || ''; $('msg').className = 'msg' + (err ? ' err' : ''); }
-function busy(on) { $('bar').style.display = on ? 'block' : 'none'; $('run').disabled = $('ridersOnly').disabled = on; }
+function busy(on) { $('bar').style.display = on ? 'block' : 'none'; $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = on; }
 
 async function post(path) {
   let r;
@@ -210,6 +223,28 @@ $('run').onclick = async () => {
   } catch (e) { say('실패 : ' + e.message, true); }
   busy(false);
 };
+
+let gaUrl = null, gaName = 'ga_proposal.pdf';
+$('gaRun').onclick = async () => {
+  busy(true); say('GA 제안서를 만드는 중입니다 — 20~40초 걸립니다');
+  try {
+    const d = await (await post('/v1/ga/all')).json();
+    const blob = b64(d.pdf_base64);
+    if (gaUrl) URL.revokeObjectURL(gaUrl);
+    gaUrl = URL.createObjectURL(blob);
+    const stem = (file && file.name ? file.name.replace(/\.pdf$/i, '') : 'design').replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+    gaName = (/[A-Za-z]/.test(stem) ? stem : 'design') + '_GA.pdf';
+    $('gaPrev').src = gaUrl;
+    $('gaLog').textContent = d.log || '';
+    $('gaInfo').textContent = '담보 ' + d.rider_count + '건 · ' + (d.premium || '') + (d.warn && d.warn.length ? ' · 지면 경고 ' + d.warn.length + '건' : '');
+    $('gaResult').classList.remove('hide');
+    $('gaResult').scrollIntoView({ behavior: 'smooth' });
+    say('완료 — GA 제안서 6쪽');
+  } catch (e) { say('실패 : ' + e.message, true); }
+  busy(false);
+};
+$('gaDl').onclick = () => { if (gaUrl) { const a = document.createElement('a'); a.href = gaUrl; a.download = gaName; a.click(); } };
+$('gaLogBtn').onclick = () => $('gaLog').classList.toggle('hide');
 
 $('ridersOnly').onclick = async () => {
   busy(true); say('담보를 읽고 있습니다');
