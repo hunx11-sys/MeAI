@@ -2,3 +2,8 @@ out/
 assets/
 __pycache__/
 *.pyc
+# GA 제안서 생성기(make_ga.bat) — 설계서 PDF(개인정보)와 결과물은 올리지 않는다
+ga_input/*.pdf
+ga_input/*.PDF
+ga_output/
+.ga_ready
