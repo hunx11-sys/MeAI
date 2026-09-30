@@ -13,7 +13,7 @@
   POST /v1/proposal/riders    원본 PDF 업로드      → 인식한 담보 목록 JSON
   POST /v1/proposal/all       원본 PDF 업로드      → 위 내용을 한 번에(JSON, PDF는 base64)
   POST /v1/ga/pdf             원본 PDF 업로드      → GA 양식 스마트 제안서 6쪽 PDF
-  POST /v1/ga/all             원본 PDF 업로드      → GA PDF(base64) + 로그(빈칸·0원 이유) JSON
+  POST /v1/ga/all             원본 PDF 업로드      → GA PDF(base64) + 감사 로그 + 인식 담보 + 로그 텍스트 JSON
 
 업로드 방법 두 가지 모두 받는다.
   · multipart/form-data 의 file 필드 (HTML <input type=file>)
@@ -173,8 +173,11 @@ class Handler(BaseHTTPRequestHandler):
                     body = open(out, 'rb').read()
                     if path == '/v1/ga/pdf':
                         return self._send(200, body, 'application/pdf', 'ga_proposal.pdf')
-                    return self._send(200, _json({'ok': True, 'rider_count': ga_proposal.NRID, 'product': ga_proposal.PRODUCT,
-                                                  'premium': ga_proposal.PREMIUM, 'warn': warn,
+                    a = ga_proposal.AUDIT
+                    return self._send(200, _json({'ok': True, 'rider_count': ga_proposal.NRID, 'matched': a['요약']['마스터매칭'],
+                                                  'recog': a['요약']['인식'], 'new_pages': 6, 'elapsed_sec': a['요약']['처리시간'],
+                                                  'product': ga_proposal.PRODUCT, 'premium': ga_proposal.PREMIUM, 'warn': warn,
+                                                  'audit': a, 'riders': ga_proposal.RID,
                                                   'log': io.open(log, encoding='utf-8').read(),
                                                   'pdf_base64': base64.b64encode(body).decode()}))
             if path == '/v1/proposal/riders':                     # 담보 인식만(빠름)

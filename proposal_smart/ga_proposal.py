@@ -31,6 +31,7 @@ def won(v):
 # ───────── 설계서 읽기 + 공통 계산(한 건마다 load() 가 다시 채운다) ─────────
 RID, META, WHO, PRODUCT, PREMIUM, NRID, SHORTP = [], {}, '', '', '', 0, ''
 C, DX, BDX, HDX = {}, {}, [], []
+AUDIT = {}                                      # 마지막 build 의 감사 로그(요약·계산 제외 사유) — 웹 화면 「감사 로그」 탭
 def Q(kcd, tags, itc=None):
     return S.pay_lines(RID, {'kcd': kcd, 'tags': tags, 'itc_events': itc or []})
 def s(kcd, itc, **kw):
@@ -444,6 +445,13 @@ def build(design_pdf, out_pdf=None, age='', keep_html=False):
     warn = render(hp, out_pdf)
     if not keep_html: os.remove(hp)
     rc = S.recog(RID)
+    global AUDIT
+    lg = [dict(구분=it['구분'], 담보=it['담보'], 사유=it['사유'], 담보목록=it.get('담보목록', [it['담보']])) for it in S.issues_grouped()]
+    lg += [dict(구분='지면넘침', 담보='-', 사유=w, 담보목록=[]) for w in warn]
+    AUDIT = {'요약': {'담보수': NRID, '마스터매칭': sum(1 for r in RID if r.get('matched')), '인식': {k: v for k, v in rc.items() if not k.endswith('목록')},
+                    '계산제외목록': rc['계산제외목록'], '구조별': S.audit(RID)['구조별'], '생성쪽수': 6, '지면검사': warn,
+                    '상품': PRODUCT, '보험료': PREMIUM, '계산엔진': VERSION, '처리시간': round(time.time() - t0, 1)},
+             '로그': lg}
     log = os.path.splitext(out_pdf)[0] + '_log.txt'
     with open(log, 'w', encoding='utf-8') as f:
         f.write('원본 설계서 : %s\n상품 : %s\n보험료 : %s\n담보 %d건 · 인식 : 마스터 %d · 부모연결 %d · 규칙만 %d · 계산제외 %d\n계산 엔진 %s · %.1f초\n\n'

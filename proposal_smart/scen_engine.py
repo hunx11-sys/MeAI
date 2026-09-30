@@ -832,10 +832,15 @@ def pay_lines(riders, sc):
                 # 항목 한정 면책 — 질병 통합치료비(통139·케233 제16조③)·암전후 통합치료비(케N397 제22조②③)는 아래 질병 치료의
                 # 전신마취(6시간이상) 항목만 지급하지 않는다. 특약 전체 제외가 아니므로 그 항목만 0 으로 두고 로그를 남긴다.
                 xk = {k for k, g in ITC_ITEM_X.get(r['itc'], {}).items() if code_hit(KCDG.get(g) or [], sc['kcd'])}
-                # 「종합병원 중환자실치료」 항목은 종합병원 이상에서만(통109 제4조⑥ 등 · 병원·의원 중환자실은 대상 아님)(v8.63)
-                if not hosp_ok('종합', sc['tags'].get('hosp')): xk = xk | {'icu'}
                 if xk and any(len(e) > 3 and set(e[3] or []) & xk for e in evs):
                     log('면책', n, '약관 항목 한정 면책 질병(%s) — 전신마취치료(6시간이상) 항목 제외' % sc['kcd'])
+                # 「종합병원 중환자실치료」 항목은 종합병원 이상에서만(통109 제4조⑥ 등 · 병원·의원 중환자실은 대상 아님)(v8.63)
+                # 사유를 면책과 따로 남긴다 — 전에는 병원급 사례에서 이 항목을 뺄 때도 「전신마취 면책」 문구가 찍혔다
+                if not hosp_ok('종합', sc['tags'].get('hosp')):
+                    if (itc.cover(itc.RM[r['itc']], sc['kcd']) != 'no' and any(it['k'] == 'icu' for it in itc.IT[itc.RM[r['itc']]['ty']])
+                            and any(len(e) > 3 and 'icu' in (e[3] or []) for e in evs)):
+                        log('병원종별', n, '「종합병원 중환자실치료」 항목은 종합병원 이상에서만 지급 — 사례 병원(%s)이라 0' % (sc['tags'].get('hosp') or '미지정'))
+                    xk = xk | {'icu'}
                 try:
                     res = itc.calc_rider(r['itc'], r['man'], sc['kcd'], {'e': evs}, sc.get('within1y', False), skip_keys=xk)
                 except KeyError:
