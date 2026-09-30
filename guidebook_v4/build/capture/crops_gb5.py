@@ -44,3 +44,13 @@ crop(G+'gb5_board_detail.png',(540,190,2340,1380),G+'gb5_board_detail_crop.png')
 #    SP='/tmp/claude-0/-home-user-MeAI/f5d765e8-a442-5f2c-87c4-ad64e47ba212/scratchpad'
 #    Image.open(SP+'/final/gb5/gb5_board_detail.png').convert('RGB').crop((540,190,2340,1560)).save(SP+'/gb5/captures/hero/gb5_board_detail_1370.png')   # 1800x1370
 #    결과: 0..1190 행은 gb5_board_detail_crop 과 같고, 아래에 이전 글·다음 글 카드 전체가 들어옴(옛 board_detail_crop 1280..1460 행과 글자 같음)
+# 10) (2026.10.02) 정재민 카드: 가림 상자 대신 예시 문장으로 채운 화면(cap_gb5_jae.mjs)으로 다시 만든다 — 날짜만 가림
+import json as _j
+_J=_j.load(open(G+'cap_gb5.json'))
+im=Image.open(G+'gb5_gate_full_r.png').convert('RGB'); d=ImageDraw.Draw(im)
+dt=_J['date'][0]; bg=im.getpixel((2600,320)); d.rectangle((round((dt['x']+84)*2),round((dt['y']-2)*2),round((dt['x']+dt['w']+2)*2),round((dt['y']+dt['h']+2)*2)),fill=bg)
+im.save(G+'gb5_gate_full_m.png'); print('gate full (정재민 채움)', im.size)
+im=Image.open(G+'gb5_gate_reco3_r.png').convert('RGB'); im.save(G+'gb5_gate_reco3_m.png')
+for i,b in enumerate([_J['kim'],_J['jae'],_J['seo']]):
+    x0=round((b['x']-150-6)*2); y0=round((b['y']-580-6)*2); im.crop((x0,y0,x0+round((b['w']+12)*2),y0+round((b['h']+12)*2))).save(G+f'gb5_reco3_card{i+1}.png')
+print('reco3 (정재민 채움)', im.size)

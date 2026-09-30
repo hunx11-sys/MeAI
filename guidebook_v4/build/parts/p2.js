@@ -39,7 +39,7 @@ module.exports = (S, ctx) => {
       {n:6,title:'오른쪽 위 스위치·버튼',desc:'[글씨 확대] ON/OFF · [고객 동의] · [게시판]'},
     ]});
     L.note(s,{x:7.1,y:6.3,w:5.63,h:0.6,label:'',text:'데이터와 추천 결과는 매일 새로 계산해 다음 날 반영.',tone:'grey',size:11.5});
-    L.caption(s,{x:W-M-6.2,y:1.12,w:6.2,text:'※ 이름과 숫자는 예시 · 정재민 카드 문구와 업데이트 시각은 가림',align:'right',size:10});
+    L.caption(s,{x:W-M-6.2,y:1.12,w:6.2,text:'※ 이름과 숫자는 예시 · 업데이트 시각은 가림',align:'right',size:10});
   }});
   // 2-1b NEW 글씨 확대 스위치 (새 목업 v2)
   S.push({ fn:(pres,no)=>{
@@ -80,7 +80,7 @@ module.exports = (S, ctx) => {
     const clip={x:150,y:580};
     L.pin(s,g,330,603,1,{clip}); L.pin(s,g,410,672,2,{clip}); L.pin(s,g,161,735,3,{clip}); L.pin(s,g,340,890,4,{clip}); L.pin(s,g,705,925,5,{clip}); L.pin(s,g,372,992,6,{clip}); L.pin(s,g,866,629,7,{clip}); L.pin(s,g,776,1056,8,{clip});
     L.pinStrip(s,{x:M,y:6.3,w:W-2*M,cols:4,rowH:0.31,size:10.5,items:[{n:1,text:'오늘의 추천 고객 구역'},{n:2,text:'이름 · 나이 · 유형 · 담당'},{n:3,text:'연락할 이유 + 근거'},{n:4,text:'태그'},{n:5,text:'사전조회동의 D-n / 필요'},{n:6,text:'[MeAI 고객찾기에서 열기]'},{n:7,text:'AI 추천 고객 리본'},{n:8,text:'세트 위치'}]});
-    L.caption(s,{x:W-M-6,y:1.37,w:6,text:'※ 이름과 숫자는 예시 · 일부 카드 문구는 가림',align:'right',size:10});
+    L.caption(s,{x:W-M-6,y:1.37,w:6,text:'※ 이름과 숫자는 예시',align:'right',size:10});
   }});
   // 2-5 카드 읽는 법
   S.push({ fn:(pres,no)=>{
@@ -115,7 +115,7 @@ module.exports = (S, ctx) => {
     L.T(s,'다음 날 반영',{x:px+0.3,y:4.75,w:pw-0.6,h:0.35,fontSize:15,bold:true,color:C.navy});
     L.T(s,'고객 데이터와 추천 결과는\n다음 날 MeAI 홈에 반영.',{x:px+0.3,y:5.12,w:pw-0.6,h:0.6,fontSize:12.5,color:C.g700,lineSpacingMultiple:1.3});
     L.T(s,'카드를 누르면 고객찾기의\n그 고객으로 바로 이동.',{x:px+0.3,y:5.8,w:pw-0.6,h:0.6,fontSize:11.5,bold:true,color:C.blue,lineSpacingMultiple:1.3});
-    L.caption(s,{x:M,y:6.65,w:8.8,text:'※ 이름과 숫자는 예시 · 세트 1은 생략 · 정재민 카드 문구 일부는 가림',align:'left',size:10});
+    L.caption(s,{x:M,y:6.65,w:8.8,text:'※ 이름과 숫자는 예시 · 세트 1은 생략',align:'left',size:10});
   }});
   // 2-6b 이유 유형
   S.push({ fn:(pres,no)=>{

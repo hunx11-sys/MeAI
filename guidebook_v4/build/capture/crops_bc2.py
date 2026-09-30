@@ -42,3 +42,8 @@ for (y1,y2) in [(348,452),(534,641)]:
     bgc=Counter(im.getpixel((x,y)) for x in range(120,1000,7) for y in range(y1,y2,3)).most_common(1)[0][0]
     d.rectangle((160,y1,1010,y2),fill=bgc)
 im.save(H+'bc2_mo_examples.png'); print('mo examples', im.size)
+# (2026.10.02) 정재민 카드: 가림 상자 대신 예시 문장으로 채운 전체 화면(final/gb5/bc2_gate_full_s3_r.png, cap_gb5_jae.mjs)을 바탕으로 다시 만든다
+Image.open(F+'gb5/bc2_gate_full_s3_r.png').convert('RGB').save(H+'bc2_gate_full_s3_fp.png')
+crop(H+'bc2_gate_full_s3_fp.png',(280,1150,2600,2160),H+'bc2_gate_reco_s3.png')
+im=Image.open(H+'bc2_gate_full_s3_fp.png').convert('RGB').crop((0,0,2880,2150)); d=ImageDraw.Draw(im); d.rectangle((2244,298,2514,350),fill=im.getpixel((2600,320))); im.save(H+'bc2_gate_s3_top.png')
+im=Image.open(H+'bc2_gate_full_s3_fp.png').convert('RGB'); d=ImageDraw.Draw(im); d.rectangle((2244,298,2514,350),fill=im.getpixel((2600,320))); im.save(H+'bc2_gate_full_s3_masked.png')
