@@ -15,10 +15,10 @@ list.forEach(({no,fn})=>{ fn(pres,no); const s=pres._slides[pres._slides.length-
   s.addNotes(n); notes.push(n); });
 // 큐시트
 if(!only.length || only.includes(CONTENT.length+1)){ const no=CONTENT.length+1;
-  const s=head(pres,{kicker:'진행용 · 송출 제외',title:'진행 큐시트',sub:'숨김 장 · 송출·PDF 제외 · 개발자 코너(5장)는 시간 유동 · 대본 전문은 각 장의 발표자 노트'}); s.hidden=true;
+  const s=head(pres,{kicker:'진행용 · 송출 제외',title:'진행 큐시트',sub:'숨김 장 · 송출·PDF 제외 · 개발자 코너(5장)는 시간 유동 · 대본 전문은 각 장의 발표자 노트'}); s.hidden=!process.env.SHOW_CUE;
   const colW=[0.95,0.42,0.72,3.3,W-2*M-5.39];
-  const data=rows.map((r,ri)=>r.map(cv=>({text:String(cv),options:{fontFace:L.FONT,fontSize:9.5,bold:ri===0,color:ri===0?C.g700:C.navy,fill:{color:ri===0?C.g100:(r[1]==='4'||r[1]==='5'?C.purple50:C.white)},valign:'middle',margin:[1,4,1,4]}})));
-  s.addTable(data,{x:M,y:2.1,w:W-2*M,colW,rowH:0.2,border:{type:'solid',color:C.g200,pt:0.5}});
+  const data=rows.map((r,ri)=>r.map(cv=>({text:String(cv),options:{fontFace:L.FONT,fontSize:8.8,bold:ri===0,color:ri===0?C.g700:C.navy,fill:{color:ri===0?C.g100:(r[1]==='4'||r[1]==='5'?C.purple50:C.white)},valign:'middle',margin:[1,4,1,4]}})));
+  s.addTable(data,{x:M,y:2.1,w:W-2*M,colW,rowH:0.178,border:{type:'solid',color:C.g200,pt:0.5}});
   foot(s,no); s.addNotes('진행용 큐시트 · 방송 송출 제외'); notes.push('진행용 큐시트 · 방송 송출 제외'); }
 const out=process.argv[2]||'test.pptx';
 fs.writeFileSync(out.replace(/\.pptx$/,'_notes.json'), JSON.stringify(notes,null,1));

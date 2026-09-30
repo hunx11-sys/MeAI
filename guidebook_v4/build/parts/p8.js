@@ -1,59 +1,205 @@
 module.exports = (S, ctx) => {
   const { L, C, W, H, M, HERO, AG } = ctx;
-  const SRC = '출처: 데이터분석팀 「MeAI 사용 실태 분석」·「MeAI 효과 분석」, 2026.08';
-  S.push({ part:'08', fn:(pres,no)=> L.divider(pres,{num:'08',title:'영업관리자 편\n대문을 아침 조회(회의) 자료로',sub:'본부장님은 전파, 조직장님은 정착. 조회 자료는 대문이에요.',learn:['누구부터 챙길까','대문으로 조회하는 법','체크리스트 · 스크립트 · 4주 플랜'],pageNo:no}) });
+  const SRC_DATA = '출처: 데이터분석팀 「MeAI 사용 실태 분석」·「MeAI 효과 분석」, 2026.08 · TA 개인영업 채널 기준';
+  // 캡처 위 테두리(캡처 픽셀 좌표, dsf 1)
+  const box = (s,g,x1,y1,x2,y2,{color=C.blue,width=1.5,radius=0.04}={}) => s.addShape('roundRect',{x:g.x+x1*g.scale,y:g.y+y1*g.scale,w:(x2-x1)*g.scale,h:(y2-y1)*g.scale,fill:{type:'none'},line:{color,width},rectRadius:radius});
+  // 캡처 위 밑줄(캡처 픽셀 좌표, dsf 1)
+  const ul = (s,g,x1,x2,y,color,width=2.25) => s.addShape('line',{x:g.x+x1*g.scale,y:g.y+y*g.scale,w:(x2-x1)*g.scale,h:0,line:{color,width}});
+  const P1 = {dsf:1, d:0.3};
+
+  // ---- 구분 장 ----
+  S.push({ part:'08', fn:(pres,no)=> L.divider(pres,{num:'08',title:'MeAI 활용 방법\n이렇게 물어보세요',sub:'질문은 만드는 게 아니라 고르는 거예요.',learn:['질문 창구 네 곳 · 누르기만 하면 돼요','직접 물을 땐 "누구에게 + 무엇을"','고객에게 할 말 초안 · 이렇게는 묻지 마세요','카드마다 고객에게 첫 말, MeAI에게 첫 질문'],pageNo:no}) });
+
+  // ---- 8-1 질문은 고르는 것 (방송판 15장) ----
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 8 · 왜 관리자인가',title:'도구는 손에, 정착은 조직이',sub:'본부가 함께 시작하면 셋 중 둘이 남았어요.',pageNo:no});
-    [['4,912명','과거엔 썼는데 이번 달 안 쓴 분','권한 부여자의 40.8%. 새 교육 없이 "다시 켜기"만 하면 돼요.',C.red],['65.2%','본부 단위로 시작한 분의 7개월 잔존','개별로 들어온 분은 35~41%만 남았어요.',C.blue],['26.9%','권한 받은 뒤 30일 안에 첫 사용','첫 사용이 빠를수록 정착률이 높아요. 첫 주가 골든타임.',C.green]].forEach((d,i)=>{ const x=M+i*4.1,y=1.95,w=3.9,h=2.95; L.R(s,{x,y,w,h,fill:C.white,line:C.g200,radius:0.14,shadow:true}); L.T(s,d[0],{x:x+0.32,y:y+0.3,w:w-0.64,h:0.85,fontSize:40,bold:true,color:d[3],valign:'middle'}); L.T(s,d[1],{x:x+0.32,y:y+1.3,w:w-0.64,h:0.4,fontSize:14,bold:true,color:C.navy,valign:'middle'}); L.T(s,d[2],{x:x+0.32,y:y+1.82,w:w-0.64,h:0.95,fontSize:12,color:C.g600,lineSpacingMultiple:1.3}); });
-    L.note(s,{x:M,y:5.2,w:W-2*M,h:1.0,label:'대화의 시작',text:'"도입이 안 됐다"가 아니라 "이미 다 써봤다"에서 시작하세요.',tone:'dark',size:14});
-    L.caption(s,{x:M,y:6.45,w:W-2*M,text:SRC,align:'left',size:10});
+    const s = L.base(pres,{kicker:'PART 8 · 질문 고르기',title:'질문은 만드는 게 아니라 고르는 거예요',sub:'MeAI 홈에서 시작하면 질문 창구가 네 곳 있어요. 타이핑 없이 누르기만 하면 돼요.',pageNo:no});
+    const gap = 0.2, cw = (W-2*M-gap*3)/4, cy = 1.85, chh = 3.55;
+    const cols = [
+      {title:'시작할 때', pill:'질문 예시 탭', desc:'담보 차이 · 용어 뜻 · 많이 물은 질문\n예시를 누르면 바로 대화가 시작돼요'},
+      {title:'고객이 정해졌을 때', pill:'MeAI에 이렇게 물어보세요', desc:'고객찾기 오른쪽 추천 질문을 누르면\n입력창에 채워져요 · 전송(↑)만 눌러요'},
+      {title:'답을 받은 뒤', pill:'답 아래 질문 버튼 3개', desc:'누르면 그 질문이 바로 전송돼요\n이 책에서는 ‘꼬리질문’이라고 불러요'},
+      {title:'더 필요할 때', pill:'질문 더보기 · 나의 질문', desc:'[질문 더보기]에서 골라 써요\n좋았던 질문은 저장 → 나의 질문'},
+    ];
+    const gs = [];
+    cols.forEach((c,i)=>{ const x = M+i*(cw+gap);
+      L.R(s,{x,y:cy,w:cw,h:chh,fill:C.g50,line:null,radius:0.14});
+      L.badge(s,{x:x+0.18,y:cy+0.17,n:i+1,d:0.3});
+      L.T(s,c.title,{x:x+0.56,y:cy+0.14,w:cw-0.66,h:0.36,fontSize:13.5,bold:true,color:C.navy,valign:'middle'});
+      L.chip(s,{x:x+0.18,y:cy+0.6,text:c.pill,size:10,h:0.28});
+      L.T(s,c.desc,{x:x+0.18,y:cy+2.88,w:cw-0.3,h:0.6,fontSize:10.5,color:C.g700,valign:'top',lineSpacingMultiple:1.2});
+      gs.push(x); });
+    const ib = (i)=>({x:gs[i]+0.14,y:cy+1.0,w:cw-0.28,h:1.78});
+    // ① 일반대화 첫 화면 — 질문 예시 탭 3개
+    const g1 = L.img(s,HERO('bc2_general_home'),Object.assign(ib(0),{valign:'middle',align:'center',shadow:false}));
+    box(s,g1,44,624,1012,726); L.pin(s,g1,1125,675,1,P1);
+    // ② 고객찾기 오른쪽 'MeAI에 이렇게 물어보세요'
+    const g2 = L.img(s,HERO('bc2_find_right_top'),Object.assign(ib(1),{valign:'middle',align:'center',shadow:false}));
+    box(s,g2,70,195,530,247); L.pin(s,g2,640,221,2,P1);
+    // ③ 답 아래 질문 버튼 · ④ [질문 더보기]
+    const g3 = L.img(s,HERO('bc2_mo_examples'),Object.assign(ib(2),{valign:'middle',align:'center',shadow:false}));
+    L.pin(s,g3,10,215,3,P1); L.pin(s,g3,10,795,4,P1);
+    // ④ 내 질문 아래 저장 아이콘
+    const x4 = gs[3];
+    const g4 = L.img(s,AG('term','35_pc_message_actions'),{x:x4+0.35,y:cy+1.0,w:cw-0.7,h:0.95,valign:'middle',align:'center',shadow:false});
+    box(s,g4,186,56,230,102,{color:C.red}); L.pin(s,g4,262,40,4,P1);
+    L.T(s,'내 질문 아래 복사 · 편집 · 저장',{x:x4+0.18,y:g4.y+g4.h+0.04,w:cw-0.3,h:0.24,fontSize:9.5,color:C.g500,align:'center',valign:'middle'});
+    L.R(s,{x:x4+0.18,y:cy+2.3,w:cw-0.36,h:0.5,fill:C.white,line:C.g200,radius:0.1});
+    L.T(s,'대화 이력 · 나의 질문은\nPC · 휴대폰에서 똑같이 보여요',{x:x4+0.18,y:cy+2.3,w:cw-0.36,h:0.5,fontSize:10,color:C.g700,align:'center',valign:'middle',lineSpacingMultiple:1.1});
+    // 아래 띠: 질문을 이어 쓸수록
+    const by = 5.55, bh = 0.8;
+    L.R(s,{x:M,y:by,w:W-2*M,h:bh,fill:C.purple50,line:null,radius:0.14});
+    L.T(s,'질문을 이어 쓸수록\n평균 가계약',{x:M+0.3,y:by,w:2.2,h:bh,fontSize:13,bold:true,color:C.purple,valign:'middle',lineSpacingMultiple:1.1});
+    const vals=[11.99,17.02,27.79], labs=['1개 · 11.99건','2개 · 17.02건','3개 이상 · 27.79건'];
+    vals.forEach((v,i)=>{ const bx = M+2.6+i*2.1, hh = 0.56*v/27.79;
+      L.R(s,{x:bx,y:by+bh-0.12-hh,w:0.3,h:hh,fill:i===2?C.purple:'B9A8F5',line:null,radius:0.03});
+      L.T(s,labs[i],{x:bx+0.4,y:by+0.1,w:1.75,h:bh-0.22,fontSize:12,bold:i===2,color:C.navy,valign:'bottom'}); });
+    L.T(s,'2.3배',{x:W-M-2.95,y:by,w:1.3,h:bh,fontSize:30,bold:true,color:C.purple,valign:'middle'});
+    L.T(s,'1개 대비\n3개 이상',{x:W-M-1.6,y:by,w:1.4,h:bh,fontSize:11.5,color:C.g700,valign:'middle',lineSpacingMultiple:1.1});
+    L.caption(s,{x:M,y:6.45,w:8.6,text:SRC_DATA,align:'left',size:10});
+    L.caption(s,{x:W-M-3.4,y:6.45,w:3.4,text:'※ 화면의 이름 · 질문 문장은 예시예요',align:'right',size:10});
   }});
+
+  // ---- 8-2 직접 묻는 공식 (방송판 18장) ----
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 8 · 대문을 조회 자료로',title:'10월부터 대문이 조회 자료예요',sub:'리스트를 따로 뽑지 않아도, 대문이 영업 방향을 보여줘요.',pageNo:no});
-    // 왼쪽: 고객 그룹(보장 기준 탭) 세로 캡처를 크게
-    const gg = L.img(s,HERO('find_groups_z'),{x:M,y:1.85,w:2.0,h:4.72,valign:'top',align:'left'}); L.caption(s,{x:M,y:gg.y+gg.h+0.06,w:gg.w,text:'고객 그룹 · 보장 기준 탭',size:10});
-    // 가운데: 숫자 4개 · 그룹 제목 · 물어볼 말(작게)
-    const mx = M+gg.w+0.3, mw = 8.75-mx;
-    const g1 = L.img(s,HERO('gate_stats'),{x:mx,y:1.85,w:mw,h:1.2,valign:'top',align:'left'}); L.caption(s,{x:mx,y:g1.y+g1.h+0.06,w:mw,text:'조회 첫 화면 · 팀원의 숫자 4개',size:10});
-    const g2 = L.img(s,HERO('find_header'),{x:mx,y:3.72,w:mw,h:1.2,valign:'top',align:'left'}); L.caption(s,{x:mx,y:g2.y+g2.h+0.06,w:mw,text:'그룹 제목 · 인원 · 설명 문구',align:'left',size:10});
-    L.note(s,{x:mx,y:5.72,w:mw,h:0.85,label:'이렇게 물어보세요',text:'"이번 주 상령일 고객 몇 명?"',tone:'dark',size:13});
-    // 오른쪽: 번호 없이 굵은 제목 + 한 줄 설명
-    const rx = 9.1, rw = W-M-rx;
-    [['숫자 4개','"사전조회 동의 필요"가 이번 주 동의 목표 인원.'],['당월 영업 타겟','우선순위 1. 인원과 설명 문장을 함께 읽어요.'],['상령일 · 생일 임박','영업 기회 탭. 그대로 이번 주 접촉 계획표가 돼요.'],['사전동의 만료','D-n 짧은 순으로 대응 순서를 정해요.'],['게시판','응답 지연 같은 운영 이슈를 먼저 공유해요.']].forEach((it,i)=>{ const y=1.9+i*0.96;
-      L.R(s,{x:rx,y:y+0.06,w:0.06,h:0.26,fill:C.blue,line:null,radius:0.03});
-      L.T(s,it[0],{x:rx+0.2,y,w:rw-0.2,h:0.38,fontSize:14,bold:true,color:C.navy,valign:'middle'});
-      L.T(s,it[1],{x:rx+0.2,y:y+0.4,w:rw-0.2,h:0.48,fontSize:12,color:C.g600,lineSpacingMultiple:1.2}); });
+    const s = L.base(pres,{kicker:'PART 8 · 직접 묻기',title:'직접 물을 땐 “누구에게 + 무엇을”이면 돼요',sub:'말하듯 써도 MeAI가 알아들어요. 형식은 덧붙이면 좋고, 없어도 괜찮아요.',pageNo:no});
+    const ws = [3.05,2.75,2.75,3.0], pg = 0.19, y = 1.9, h = 1.3;
+    const blocks = [
+      ['누구에게','“40대 자녀 둘 가장,\n암진단비만 있는 고객에게”',C.blue50,C.blue,null],
+      ['무엇을','“암 통합치료비가\n왜 필요한지 설명해줘”',C.white,C.navy,C.navy],
+      ['형식 · 있으면 좋아요','“표로” · “구어체로”\n“카톡 6줄로”',C.white,C.g600,C.g300],
+      ['안전장치 한 마디','“자료에 없으면 추정하지 말고\n‘확인필요’로 표시해”',C.yellow50,'B7791F',null],
+    ];
+    let x = M;
+    blocks.forEach((b,i)=>{ const w = ws[i];
+      L.R(s,{x,y,w,h,fill:b[2],line:b[4],lw:i===1?1.25:1,radius:0.14});
+      L.T(s,b[0],{x:x+0.22,y:y+0.14,w:w-0.35,h:0.32,fontSize:12.5,bold:true,color:b[3],valign:'middle'});
+      L.T(s,b[1],{x:x+0.22,y:y+0.52,w:w-0.35,h:0.68,fontSize:12.5,bold:i<2||i===3,color:C.navy,valign:'top',lineSpacingMultiple:1.15});
+      x += w; if (i<3){ L.T(s,'+',{x,y,w:pg,h,fontSize:18,bold:true,color:C.g400,align:'center',valign:'middle'}); x += pg; } });
+    // 전과 후
+    L.T(s,'한 줄만 바꿔도 답이 달라져요',{x:M,y:3.38,w:8,h:0.36,fontSize:14,bold:true,color:C.navy,valign:'middle'});
+    const cy = 3.82, ch = 1.3, bw = 3.6;
+    L.R(s,{x:M,y:cy,w:bw,h:ch,fill:C.g100,line:null,radius:0.14});
+    L.chip(s,{x:M+0.22,y:cy+0.16,text:'전',fill:C.g600,color:'FFFFFF',size:10.5,h:0.28});
+    L.T(s,'“실손 설명해줘”',{x:M+0.22,y:cy+0.5,w:bw-0.4,h:0.36,fontSize:15,bold:true,color:C.g700,valign:'middle'});
+    L.T(s,'→ 실손의 일반 개념을 길게 설명',{x:M+0.22,y:cy+0.9,w:bw-0.4,h:0.3,fontSize:11.5,color:C.g600,valign:'middle'});
+    L.T(s,'›',{x:M+bw,y:cy,w:0.45,h:ch,fontSize:26,color:C.blue,align:'center',valign:'middle'});
+    const ax = M+bw+0.45, aw = W-M-ax;
+    L.R(s,{x:ax,y:cy,w:aw,h:ch,fill:C.white,line:C.blue,lw:1.5,radius:0.14});
+    L.chip(s,{x:ax+0.22,y:cy+0.16,text:'후',fill:C.blue,color:'FFFFFF',size:10.5,h:0.28});
+    const f = (t,o)=>({text:t,options:Object.assign({fontFace:L.FONT,fontSize:12.5,bold:true,color:C.navy},o||{})});
+    s.addText([f('“'),f('3세대 실손 가입한 50대 고객에게',{color:C.blue}),f(', 4세대와 비교해서 자기부담과 비급여 한도의 차이를 '),f('표 1개로',{color:C.g600}),f(' 정리하고, 유지가 유리한 경우 3가지를 '),f('구어체로',{color:C.g600}),f(' 알려줘”')],
+      {x:ax+0.22,y:cy+0.46,w:aw-0.4,h:0.5,isTextBox:true,margin:0,valign:'middle',lineSpacingMultiple:1.12});
+    L.T(s,'→ 고객 세대 기준 비교표 + 바로 말할 수 있는 3가지',{x:ax+0.22,y:cy+0.96,w:aw-0.4,h:0.28,fontSize:12,bold:true,color:C.blue,valign:'middle'});
+    // 아래 띠: 고쳐 묻기 · 휴대폰 마이크
+    const by = 5.28, bh = 1.2;
+    L.R(s,{x:M,y:by,w:W-2*M,h:bh,fill:C.g50,line:null,radius:0.14});
+    const g = L.img(s,AG('mode','43_mo_zoom_input'),{x:M+0.3,y:by+0.08,w:2.8,h:0.84,valign:'top',align:'left',shadow:false});
+    L.pin(s,g,875,22,1,{dsf:1,d:0.26,color:C.red}); L.pin(s,g,983,212,2,{dsf:1,d:0.26,color:C.red});
+    L.T(s,'휴대폰 MeAI 입력창',{x:g.x,y:g.y+g.h+0.03,w:g.w,h:0.22,fontSize:9.5,color:C.g500,align:'center',valign:'middle'});
+    const tx = M+3.35, tw = W-M-tx-0.25, r = (t,o)=>({text:t,options:Object.assign({fontFace:L.FONT,fontSize:13,bold:true,color:C.navy},o||{})});
+    s.addText([r('틀려도 괜찮아요. 안 맞으면 “더 쉽게” · “표로 다시” 한 마디면 돼요.',{breakLine:true}),
+      r('휴대폰은 '),r('①',{color:C.red}),r(' 마이크를 누르고 평소 말투로 말해요. 오타만 확인하고 '),r('②',{color:C.red}),r(' 전송(↑).')],
+      {x:tx,y:by,w:tw,h:bh,isTextBox:true,margin:0,valign:'middle',lineSpacingMultiple:1.45});
+    L.caption(s,{x:M,y:6.58,w:W-2*M,text:'예시 문장 출처: 이전 판 「MeAI 활용 가이드북 · 영업가족 편」(2026.09)',align:'left',size:10});
   }});
+
+  // ---- 8-3 고객에게 할 말 초안 (방송판 19장) ----
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 8 · 누구부터 챙길까',title:'타겟은 사용 이력으로 잡으세요',sub:'이력이 말해주는 네 그룹부터 챙기세요.',pageNo:no});
-    [['4,912명','이탈','이번 달 쉬고 있는 사용자','"대문 한 번 열어 보세요" 한 마디면 돼요.',C.red],['3.9배','기존 FP','12차월 초과, 아직 미활용','10.0% → 38.6%.\n효과가 가장 큰 층이에요.',C.blue,'체결전환율 격차'],['2,156명','단발','"보장분석 해줘" 하나만 쓰는 분','꼬리질문을 알려주세요.\n질문 1개 11.99건 →\n2개 17.02건(가계약).',C.purple],['30일','신규 승인','권한 받은 지 30일 안 된 분','첫 7일이 골든타임. 본부장님이 직접 안내해 주세요.',C.green]].forEach((d,i)=>{ const x=M+i*3.08,w=2.9,y=1.85,h=3.25; L.R(s,{x,y,w,h,fill:C.white,line:C.g200,radius:0.14,shadow:true}); L.chip(s,{x:x+0.25,y:y+0.25,text:d[1],fill:C.g100,color:d[4],size:10.5,h:0.32}); if (d[5]) s.addText([{text:d[0],options:{fontSize:30,bold:true,color:d[4],fontFace:L.FONT}},{text:'  '+d[5],options:{fontSize:11.5,bold:true,color:C.g600,fontFace:L.FONT}}],{x:x+0.25,y:y+0.7,w:w-0.4,h:0.65,isTextBox:true,margin:0,valign:'middle'}); else L.T(s,d[0],{x:x+0.25,y:y+0.7,w:w-0.5,h:0.65,fontSize:30,bold:true,color:d[4],valign:'middle'}); L.T(s,d[2],{x:x+0.25,y:y+1.42,w:w-0.5,h:0.62,fontSize:13.5,bold:true,color:C.navy,valign:'top',lineSpacingMultiple:1.15}); L.T(s,d[3],{x:x+0.25,y:y+1.98,w:w-0.5,h:1.15,fontSize:12.5,color:C.g600,lineSpacingMultiple:1.3}); });
-    L.note(s,{x:M,y:5.35,w:W-2*M,h:0.85,label:'"신인이 안 쓴다"는 오해',text:'6차월 미만도 52.6%가 썼고, 팀원·관리자 차이는 1.3배뿐이에요.',tone:'grey',size:12});
-    L.caption(s,{x:M,y:6.4,w:W-2*M,text:SRC,align:'left',size:10});
+    const s = L.base(pres,{kicker:'PART 8 · 고객에게 할 말',title:'고객에게 할 말도 MeAI가 초안을 써요',sub:'한 줄만 부탁하면 초안이 나와요. 이름 대신 조건으로 물어요.',pageNo:no});
+    // 위 띠: 파란 추천 질문
+    const ty = 1.85, th = 1.85;
+    L.R(s,{x:M,y:ty,w:W-2*M,h:th,fill:C.white,line:C.g200,radius:0.14});
+    L.T(s,'파란 추천 질문 한 번',{x:M+0.25,y:ty+0.14,w:3.1,h:0.34,fontSize:14,bold:true,color:C.navy,valign:'middle'});
+    L.T(s,'고객찾기 오른쪽 파란 [일반대화]\n추천 질문을 누르면 이렇게 채워져요',{x:M+0.25,y:ty+0.5,w:3.1,h:0.44,fontSize:10.5,color:C.g700,valign:'top',lineSpacingMultiple:1.15});
+    const lg = [['그룹 · 나이대 · 유형 조건',C.blue],['3~4줄 · 부담스럽지 않은 톤',C.purple],['고객 성명 · 연락처는 빼요',C.red]];
+    lg.forEach(([t,col],i)=>{ const ly = ty+1.03+i*0.26; s.addShape('line',{x:M+0.25,y:ly+0.19,w:0.24,h:0,line:{color:col,width:3}}); L.T(s,t,{x:M+0.58,y:ly,w:2.8,h:0.24,fontSize:10.5,bold:true,color:C.g700,valign:'middle'}); });
+    const gx = M+3.45, gw = W-M-gx-0.15;
+    const g = L.img(s,HERO('bc2_general_input'),{x:gx,y:ty+0.1,w:gw,h:th-0.2,valign:'middle',align:'left',shadow:false,round:false});
+    ul(s,g,62,456,101,C.blue); ul(s,g,1280,1493,101,C.purple); ul(s,g,63,458,146,C.purple); ul(s,g,461,854,146,C.red);
+    // 왼쪽 아래: 직접 부탁
+    const by = 3.88, lw = 6.0;
+    L.T(s,'직접 부탁해도 돼요',{x:M,y:by,w:lw,h:0.34,fontSize:14,bold:true,color:C.navy,valign:'middle'});
+    [['카톡 안내문','“보장분석 결과를 고객에게 보낼 카톡 안내문 6줄로 써줘. 존댓말, 단정 표현은 빼고”'],['첫 만남 전','“이 고객에게 첫 만남에서 꺼낼 질문 3개 만들어줘”']].forEach(([lab,t],i)=>{ const yy = by+0.42+i*0.9;
+      L.R(s,{x:M,y:yy,w:lw,h:0.8,fill:C.white,line:C.blue,lw:1.25,radius:0.14});
+      L.T(s,lab,{x:M+0.22,y:yy+0.07,w:2.5,h:0.24,fontSize:10,bold:true,color:C.g500,valign:'middle'});
+      L.T(s,t,{x:M+0.22,y:yy+0.31,w:lw-0.4,h:0.44,fontSize:12,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.05}); });
+    // 오른쪽 아래: 고객 앞에서는 두 버튼
+    const rx = M+lw+0.35, rw = W-M-rx, hw = (rw-0.2)/2;
+    L.T(s,'고객 앞에서는 두 버튼',{x:rx,y:by,w:3,h:0.34,fontSize:14,bold:true,color:C.navy,valign:'middle'});
+    const ct = '개발 중 · 바뀔 수 있어요'; L.chip(s,{x:W-M-(L.textW(ct,10)+0.3),y:by+0.03,text:ct,fill:C.red50,color:C.red,size:10,h:0.28});
+    const gA = L.img(s,HERO('bc2_mode_simple'),{x:rx,y:by+0.45,w:hw,h:0.82,valign:'middle',align:'center',shadow:false});
+    const gB = L.img(s,HERO('fix_term_tooltip'),{x:rx+hw+0.2,y:by+0.42,w:hw,h:0.8,valign:'middle',align:'center',shadow:false});
+    L.T(s,'화면 속 숫자는 예시예요',{x:gB.x-0.3,y:gB.y+gB.h+0.01,w:gB.w+0.6,h:0.2,fontSize:9,color:C.g500,align:'center',valign:'middle'});
+    [['[간편 분석]','어려운 보험 용어를 일상 언어로\n약관을 따질 땐 상세 분석',rx],['[용어]','켜고 표시된 말을 누르면 뜻풀이\n고객 눈높이 문장, 그대로 읽어요',rx+hw+0.2]].forEach(([t,d,xx])=>{
+      L.T(s,t,{x:xx,y:by+1.5,w:hw,h:0.3,fontSize:13,bold:true,color:C.navy,valign:'middle'});
+      L.T(s,d,{x:xx,y:by+1.8,w:hw,h:0.42,fontSize:10,color:C.g600,valign:'top',lineSpacingMultiple:1.15}); });
+    // 노란 띠
+    L.R(s,{x:M,y:6.2,w:W-2*M,h:0.44,fill:C.yellow50,line:null,radius:0.12});
+    s.addText([{text:'답은 초안이에요   ',options:{bold:true,color:'B7791F',fontSize:12.5,fontFace:L.FONT}},{text:'숫자와 약관 근거를 확인하고, 내 말투로 다듬어 보내요.',options:{bold:true,color:C.navy,fontSize:12.5,fontFace:L.FONT}}],{x:M+0.25,y:6.2,w:W-2*M-0.5,h:0.44,isTextBox:true,margin:0,valign:'middle'});
+    L.caption(s,{x:M,y:6.7,w:W-2*M,text:'출처: MeAI 확정 화면 · 이전 판 「MeAI 활용 가이드북 · 영업가족 편」(2026.09) · [간편 분석]·[용어] 자세히는 PART 6',align:'left',size:9.5});
   }});
+
+  // ---- 8-4 이렇게는 묻지 마세요 (방송판 20장) ----
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 8 · 이번 달 체크리스트',title:'이번 달, 여덟 줄만 부탁드립니다',sub:'위 두 줄이 최우선, 나머지는 여유가 될 때.',pageNo:no});
-    const items=[['한동안 안 쓰신 분께 "대문 열어 보세요"','4,912명. 다시 켜기만 하면 돼요','최우선',C.red],['기존 FP(12차월 초과)를 먼저 챙겨 주세요','체결전환율 격차 3.9배, 가장 커요','최우선',C.red],['권한부여가 안 된 분을 찾아 주세요','기존 메뉴는 권한 필요 · 10/2 새 입구 3곳은 누구나','온보딩',C.blue,'적용 시점은 IT 일정에 따라 달라질 수 있어요'],['권한 받은 분께 직접 안내해 주세요','30일 안 첫 사용이 정착을 갈라요','온보딩',C.blue],['조회에서 대문을 함께 열어 주세요','숫자 4개 · 당월 타겟 · 추천 카드 1장','조회',C.blue],['"질문 이어 쓰기"를 안내해 주세요','꼬리질문 · 추천 질문. 질문 3개 이상이면 가계약 2.3배','확장',C.purple],['본부가 날짜를 정해 같이 시작해 주세요','7개월 잔존율 65.2% 대 개별 35~41%','정착',C.green],['도입 설명회에서 대문을 보여 주세요','"오늘 만날 고객을 회사가 찾아 준다"','리크루팅',C.g700]];
-    const rh=0.52, rp=0.58; // 출처 줄 자리를 만들려고 줄 간격을 조금 줄임
-    items.forEach((it,i)=>{ const y=1.85+i*rp; L.R(s,{x:M,y,w:W-2*M,h:rh,fill:C.white,line:C.g200,radius:0.1,shadow:false}); L.T(s,'✓',{x:M+0.22,y,w:0.4,h:rh,fontSize:14,bold:true,color:it[3],valign:'middle'}); L.T(s,it[0],{x:M+0.7,y,w:5.6,h:rh,fontSize:13.5,bold:true,color:C.navy,valign:'middle'});
-      if (it[4]) s.addText([{text:it[1],options:{fontSize:11.5,color:C.g600,fontFace:L.FONT,breakLine:true}},{text:it[4],options:{fontSize:10,color:C.g500,fontFace:L.FONT}}],{x:M+6.5,y,w:4.15,h:rh,isTextBox:true,margin:0,valign:'middle',lineSpacingMultiple:1.05});
-      else L.T(s,it[1],{x:M+6.5,y,w:4.15,h:rh,fontSize:11.5,color:C.g600,valign:'middle'});
-      L.chip(s,{x:W-M-1.35,y:y+(rh-0.31)/2,text:it[2],size:10.5,h:0.31,fill: it[3]===C.red? C.red50 : it[3]===C.blue? C.blue50 : it[3]===C.purple? C.purple50 : it[3]===C.green? C.green50 : C.g100,color:it[3]}); });
-    L.caption(s,{x:M,y:1.85+7*rp+rh+0.1,w:W-2*M,text:SRC,align:'left',size:10});
+    const s = L.base(pres,{kicker:'PART 8 · 묻지 말 것',title:'이렇게는 묻지 마세요',sub:'답도 나빠지고, 규정에도 어긋나요.',pageNo:no});
+    const gap = 0.14, cw = (W-2*M-gap)/2, ch = 1.45;
+    const items = [
+      ['개인정보를 넣는 질문','“김OO(연락처) 고객 보장분석”','맞춤대화에선 “이 고객”이라고만 해요'],
+      ['여러 질문을 한 번에','“보장분석하고 화법도 만들고 카톡도 써줘”','하나씩 이어서 물어요 · 고객·주제가 바뀌면 [새로 대화하기]'],
+      ['답을 그대로 고객에게','답변 복사 → 바로 카톡 전송','숫자 · 약관 근거를 확인하고 내 말로'],
+      ['단정을 강요하는 질문','“무조건 가입 가능하다고 말해줘”','“가능성과 확인할 조건을 알려줘”'],
+    ];
+    items.forEach((it,i)=>{ const x = M+(i%2)*(cw+gap), y = 1.85+Math.floor(i/2)*(ch+0.12);
+      L.R(s,{x,y,w:cw,h:ch,fill:C.white,line:C.g200,radius:0.14,shadow:true});
+      L.badge(s,{x:x+0.22,y:y+0.15,n:i+1,d:0.3});
+      L.T(s,it[0],{x:x+0.62,y:y+0.12,w:cw-0.8,h:0.36,fontSize:14,bold:true,color:C.navy,valign:'middle'});
+      s.addText([{text:'✕  ',options:{bold:true,color:C.red,fontSize:12.5,fontFace:L.FONT}},{text:it[1],options:{color:C.g600,fontSize:12,fontFace:L.FONT}}],{x:x+0.62,y:y+0.52,w:cw-0.8,h:0.3,isTextBox:true,margin:0,valign:'middle'});
+      s.addText([{text:'○  ',options:{bold:true,color:C.green,fontSize:12.5,fontFace:L.FONT}},{text:it[2],options:{bold:true,color:C.navy,fontSize:12.5,fontFace:L.FONT}}],{x:x+0.62,y:y+0.84,w:cw-0.8,h:0.3,isTextBox:true,margin:0,valign:'middle'});
+      if (i===0){ const gp = L.img(s,HERO('bc2_privacy_line'),{x:x+0.62,y:y+1.12,w:cw-0.9,h:0.26,valign:'middle',align:'left',round:false,shadow:false}); box(s,gp,4,4,826,51,{color:C.red,width:1.25,radius:0.02}); }
+    });
+    // 입력창 아래 안내문
+    const dy = 4.98;
+    L.badge(s,{x:M,y:dy+0.02,n:3,d:0.22}); L.T(s,'입력창 아래 안내문 (화면 그대로)',{x:M+0.3,y:dy,w:6,h:0.26,fontSize:10.5,bold:true,color:C.g600,valign:'middle'});
+    const gd = L.img(s,HERO('bc2_disclaimer'),{x:M,y:dy+0.3,w:W-2*M-0.5,h:0.62,valign:'top',align:'left',round:false,shadow:false});
+    ul(s,gd,585,1082,102,C.red,1.75); L.pin(s,gd,1122,81,3,P1);
+    // 함께 지킬 약속
+    const by = 6.08, bh = 0.48;
+    L.R(s,{x:M,y:by,w:W-2*M,h:bh,fill:C.g100,line:null,radius:0.12});
+    const cwid = L.chip(s,{x:M+0.15,y:by+0.1,text:'함께 지킬 약속',fill:C.navy,color:'FFFFFF',size:10.5,h:0.28});
+    L.T(s,'동의 없으면 보지 않기 · 자료 외부 반출 금지 · 미검증 책임은 사용자에게',{x:M+0.35+cwid,y:by,w:W-2*M-cwid-0.5,h:bh,fontSize:12,bold:true,color:C.navy,valign:'middle'});
+    L.caption(s,{x:M,y:6.64,w:W-2*M,text:'출처: 이전 판 「MeAI 활용 가이드북 · 영업가족 편」(2026.09) · MeAI 화면 안내문 · 다섯 가지 약속은 PART 9',align:'left',size:10});
   }});
+
+  // ---- 8-5 첫 말 · 첫 질문 짝 (방송판 22장) ----
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 8 · 조회에서 말씀해 보세요',title:'조회에선 세 문장이면 충분해요',sub:'숫자로, 타겟으로, 행동으로 한 줄씩. 반론 셋은 미리 준비.',pageNo:no});
-    const lines=[['숫자로','"같은 FP 안에서 비교해도 체결전환율이 9%에서 36%로 올라갑니다."','"같은 FP 비교"라는 조건을 꼭 함께 말해요.'],['타겟으로','"다시 권한부여 받을 분, 한동안 안 쓰신 분 계실까요?"','다음 행동을 바로 만드는 질문이에요.'],['행동으로','"10월부터 MeAI 대문이 열립니다. 조회 때 함께 열어보겠습니다."','대문 오픈을 조회 습관과 잇는 한 줄이에요.']];
-    lines.forEach((l,i)=>{ const y=1.85+i*1.36; L.R(s,{x:M,y,w:7.4,h:1.24,fill: i===2? C.blue : C.white,line: i===2? null : C.g200,radius:0.14,shadow:i!==2}); L.chip(s,{x:M+0.25,y:y+0.18,text:l[0],size:10.5,h:0.3,fill: i===2?'2B6FE0':C.blue50,color: i===2?'FFFFFF':C.blue}); L.T(s,l[1],{x:M+0.25,y:y+0.5,w:6.9,h:0.4,fontSize:13.5,bold:true,color: i===2?'FFFFFF':C.navy,valign:'middle'}); L.T(s,l[2],{x:M+0.25,y:y+0.88,w:6.9,h:0.3,fontSize:11,color: i===2?'FFFFFF':C.g600,valign:'middle'}); });
-    L.R(s,{x:8.3,y:1.85,w:4.43,h:3.96,fill:C.g50,line:C.g200,radius:0.14});
-    L.T(s,'현장 반론 3가지',{x:8.55,y:2.02,w:3.95,h:0.38,fontSize:14,bold:true,color:C.navy});
-    [['Q. 원래 될 고객이라 켠 거 아닌가요?','같은 FP 고객끼리 비교해도 9.0% → 36.0%예요.'],['Q. 계약이 더 빨라지나요?','속도 차이는 거의 없어요(12일 vs 13일).'],['Q. 신인용 도구 아닌가요?','연차별로는 기존 FP에서 격차가 가장 커요(미활용 10.0% → 활용 38.6%).']].forEach((q,i)=>{ const y=2.55+i*1.08; L.T(s,q[0],{x:8.55,y,w:3.95,h:0.32,fontSize:12,bold:true,color:C.blue,valign:'middle'}); L.T(s,q[1],{x:8.55,y:y+0.36,w:3.95,h:0.6,fontSize:11.5,color:C.g700,lineSpacingMultiple:1.3}); });
-    L.note(s,{x:M,y:5.98,w:W-2*M,h:0.62,label:'과장은 금물',text:'"빨라진다"·"많이 판다" 대신 "성사된다"·"좋은 상품을 고른다".',tone:'grey',size:12});
-    L.caption(s,{x:M,y:6.68,w:W-2*M,text:SRC,align:'left',size:10});
-  }});
-  S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 8 · 4주 도입 플랜',title:'4주 플랜, 이 순서면 정착해요',sub:'본부가 같은 날 시작하고, 주마다 한 가지씩만.',pageNo:no});
-    const wk=[['1주','권한 점검 · 대문 소개',['권한 미부여·이탈 명단 확인','PART 1 핵심 숫자 4개 공유','대문(PART 2) 함께 열기']],['2주','5일 미션 전원 시작',['PART 7 첫 5일 미션 시작','추천 카드 → 고객찾기 열기','"대문 열어보셨어요?" 한마디']],['3주','고객 한 명 맞춤대화',['추천 고객 1명 맞춤대화','요약 리포트 내 카톡으로 먼저','당월 영업 타겟 전원 접촉']],['4주','성과 공유와 뽐내기',['활용일수·가계약 변화 공유','우수 사례 3건 조회에서 발표','다음 달 타겟 그룹 미리 보기']]];
-    wk.forEach((w,i)=>{ const x=M+i*3.08,cw=2.9,y=1.85,h=3.8; L.R(s,{x,y,w:cw,h,fill: i===1? C.blue : C.white,line: i===1? null : C.g200,radius:0.14,shadow:i!==1}); const fg=i===1?'FFFFFF':C.navy; L.T(s,w[0],{x:x+0.25,y:y+0.22,w:cw-0.5,h:0.3,fontSize:11,bold:true,color:i===1?'FFFFFF':C.blue,transparency:i===1?20:0}); L.T(s,w[1],{x:x+0.25,y:y+0.55,w:cw-0.5,h:0.5,fontSize:15,bold:true,color:fg,valign:'middle'}); w[2].forEach((t,k)=>{ L.T(s,'✓',{x:x+0.25,y:y+1.35+k*0.8,w:0.3,h:0.4,fontSize:12.5,bold:true,color:i===1?'FFFFFF':C.blue,lineSpacingMultiple:1.3}); L.T(s,t,{x:x+0.55,y:y+1.35+k*0.8,w:cw-0.75,h:0.7,fontSize:12.5,color:i===1?'FFFFFF':C.g700,lineSpacingMultiple:1.3}); }); if(i<3) L.arrow(s,{x:x+cw-0.08,y:y+1.6,w:0.35,color: C.g300}); });
-    L.note(s,{x:M,y:5.95,w:W-2*M,h:0.85,label:'',text:'본질은 그대로, 바뀌는 건 도구뿐. 정착은 관리자님이 만들어 주세요.',tone:'dark',size:13});
+    const s = L.base(pres,{kicker:'PART 8 · 첫 말 · 첫 질문',title:'카드가 달라도 짝은 같아요',sub:'고객에게 첫 말, MeAI에게 첫 질문. 오늘 한 분께 터치해 보세요.',pageNo:no});
+    const cw = [2.95,5.2,3.78], gx = 0.1, xs = [M, M+cw[0]+gx, M+cw[0]+cw[1]+2*gx];
+    ['상황','고객에게 첫 말','MeAI에게 첫 질문'].forEach((t,i)=>{ L.R(s,{x:xs[i],y:1.88,w:cw[i],h:0.36,fill:C.g100,line:null,radius:0.1}); L.T(s,t,{x:xs[i]+0.15,y:1.88,w:cw[i]-0.2,h:0.36,fontSize:12,bold:true,color:C.g700,valign:'middle'}); });
+    const rows = [
+      {th:HERO('fix_reco3_card1'),bx:[45,572,266,620],title:'상령일 2주 전',desc:'동의 필요 · 김민수 고객',chip:'알림톡부터',
+       first:'“고객님, 2주 뒤 보험 나이가 올라가요.\n그 전에 점검하려고 동의 알림톡 보내요.”',qtag:'동의 반영 뒤',q:'상령일 전에 암진단비를 늘려야 하는\n이유를 쉽게 설명해줘'},
+      {th:HERO('reco1_card2'),bx:[45,522,284,568],title:'동의 만료 임박',desc:'이달 말 만료 · 윤태기 고객',
+       first:'“고객님, 이달 말 동의가 만료돼 연장 부탁드려요.\n새로 나온 보장도 봐 드릴게요.”',q:'최근 신담보 기준으로\n이 고객 보장의 빈 곳을 알려줘'},
+      {th:HERO('bc2_groups_opp'),bx:[16,240,510,340],title:'생일 임박 그룹',desc:'고객찾기 · 영업 기회 탭',ftag:'화면 안내 → 내 말로 풀어요',
+       first:'화면 안내: 축하 인사로 대화를 열고 자연스럽게\n보장 점검으로 이어가기 좋은 시점입니다.',qtag:'파란 일반대화 추천 질문(틀)',q:'#생일 임박, #나이대, #고객유형 —\n… 안내 문자 문안을 작성해줘 …',qfill:C.blue50},
+    ];
+    rows.forEach((r,i)=>{ const y = 2.32+i*1.18, h = 1.1;
+      [0,1,2].forEach(j=>L.R(s,{x:xs[j],y,w:cw[j],h,fill:C.white,line:C.g200,radius:0.12}));
+      const g = L.img(s,r.th,{x:xs[0]+0.1,y:y+0.07,w:0.95,h:0.96,valign:'middle',align:'center',shadow:false,round:false});
+      box(s,g,r.bx[0],r.bx[1],r.bx[2],r.bx[3],{color:C.red,width:1.25,radius:0.01});
+      L.badge(s,{x:xs[0]-0.1,y:y-0.1,n:i+1,d:0.3});
+      L.T(s,r.title,{x:xs[0]+1.12,y:y+0.1,w:cw[0]-1.2,h:0.34,fontSize:13.5,bold:true,color:C.navy,valign:'middle'});
+      L.T(s,r.desc,{x:xs[0]+1.12,y:y+0.45,w:cw[0]-1.2,h:0.28,fontSize:10.5,color:C.g600,valign:'middle'});
+      if (r.chip) L.chip(s,{x:xs[0]+1.12,y:y+0.76,text:r.chip,fill:C.red50,color:C.red,size:10,h:0.26});
+      if (r.ftag){ L.chip(s,{x:xs[1]+0.15,y:y+0.1,text:r.ftag,fill:C.g100,color:C.g700,size:10,h:0.26});
+        L.T(s,r.first,{x:xs[1]+0.15,y:y+0.42,w:cw[1]-0.3,h:0.6,fontSize:12,color:C.g700,valign:'top',lineSpacingMultiple:1.12}); }
+      else L.T(s,r.first,{x:xs[1]+0.15,y,w:cw[1]-0.3,h,fontSize:13,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.15});
+      let qy = y+0.1, qh = h-0.2;
+      if (r.qtag){ L.T(s,r.qtag,{x:xs[2]+0.15,y:y+0.06,w:cw[2]-0.3,h:0.24,fontSize:10,bold:true,color:C.blue,valign:'middle'}); qy = y+0.33; qh = h-0.42; }
+      L.R(s,{x:xs[2]+0.12,y:qy,w:cw[2]-0.24,h:qh,fill:r.qfill||C.white,line:C.blue,lw:1,radius:0.1});
+      L.T(s,r.q,{x:xs[2]+0.26,y:qy,w:cw[2]-0.45,h:qh,fontSize:12,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.1}); });
+    L.R(s,{x:M,y:5.94,w:W-2*M,h:0.52,fill:C.navy,line:null,radius:0.14});
+    s.addText([{text:'기억할 것   ',options:{bold:true,color:C.blue100,fontSize:13,fontFace:L.FONT}},{text:'카드 문장은 고객에게 첫 말, 추천 질문은 MeAI에게 첫 질문.',options:{bold:true,color:'FFFFFF',fontSize:14.5,fontFace:L.FONT}}],{x:M+0.3,y:5.94,w:W-2*M-0.6,h:0.52,isTextBox:true,margin:0,valign:'middle'});
+    L.caption(s,{x:M,y:6.54,w:W-2*M,text:'※ 2번 카드의 빨간 네모 = 사전조회동의 D-90(이달 말 만료되는 가입설계동의와 별개) · 화면의 이름·숫자는 예시 · 출처: MeAI 확정 화면 · 자세한 흐름: 1번 줄은 PART 7 시나리오 3, 2번 줄은 시나리오 2',align:'left',size:10});
   }});
 };

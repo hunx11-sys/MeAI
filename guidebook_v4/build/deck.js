@@ -1,4 +1,4 @@
-// MeAI 활용 가이드북 v4 · CRM 대문 편 — 생성기
+// MeAI 활용 가이드북 v4 · MeAI 홈 편 — 생성기
 const L = require('./lib.js');
 const path = require('path');
 const F = process.env.CAPTURES || path.join(__dirname, '..', 'captures');

@@ -224,8 +224,71 @@ add(11,(pres,no)=>{ const c=CP(11); const s=head(pres,{kicker:c.kicker,title:c.t
   foot(s,no); });
 
 
-// 12 질문은 고르는 것
+// 12 MeAI 홈에서 누르기만 하면 — 대화를 여는 세 길
 add(12,(pres,no)=>{ const c=CP(12); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
+  const g=L.img(s,HERO('bc3_home_cards'),{x:M,y:2.15,w:6.3,h:1.45,valign:'top',align:'left'});
+  const k=2*g.scale; const box=(x1,y1,x2,y2,col)=>s.addShape('roundRect',{x:g.x+x1*k,y:g.y+y1*k,w:(x2-x1)*k,h:(y2-y1)*k,fill:{type:'none'},line:{color:col||C.blue,width:2},rectRadius:0.08});
+  box(8,113,564,249); box(576,113,1132,249);
+  pin(s,g,34,118,1,{d:0.34}); pin(s,g,606,118,2,{d:0.34});
+  // 화면 문구
+  let y=g.y+g.h+0.16; R(s,{x:M,y,w:6.3,h:0.98,fill:C.blue50,line:null,radius:0.14});
+  T(s,B(12,'quote-label'),{x:M+0.25,y:y+0.1,w:1.5,h:0.3,fontSize:12.5,bold:true,color:C.blue,valign:'middle'});
+  T(s,B(12,'quote'),{x:M+0.25,y:y+0.38,w:5.9,h:0.56,fontSize:15,bold:true,color:C.navy,valign:'top',lineSpacingMultiple:1.0});
+  // 길을 잃으면 [MeAI 홈]
+  y+=1.08; R(s,{x:M,y,w:6.3,h:0.82,fill:C.white,line:C.g200,radius:0.14});
+  L.img(s,HERO('bc3_home_btn'),{x:M+0.25,y:y+0.18,w:1.3,h:0.46,round:false,shadow:false,border:false,align:'left'});
+  T(s,B(12,'home-label'),{x:M+1.75,y:y+0.08,w:4.3,h:0.3,fontSize:13.5,bold:true,color:C.navy,valign:'middle'});
+  T(s,B(12,'home-text').replace('\n',' '),{x:M+1.75,y:y+0.4,w:4.4,h:0.36,fontSize:13,color:C.g700,valign:'top'});
+  note2(s,M,y+0.86,6.3,B(12,'caption'),'left');
+  // 오른쪽: 세 길
+  const x=7.15, w=W-M-x, th=[HERO('bc3_general_home'),HERO('bc3_popup_modal'),HERO('bc3_find_km_right')];
+  [1,2,3].forEach((n,i)=>{ const nl=B(12,`path${n}-steps`).split('\n').length, yy=2.15+i*1.27, h=1.2; R(s,{x,y:yy,w,h,fill:C.white,line:C.g200,radius:0.14,shadow:true});
+    const t=L.img(s,th[i],{x:x+w-1.55,y:yy+0.125,w:1.4,h:0.95,align:'right',radius:14});
+    const tw=t.x-(x+0.66)-0.15; badge(s,x+0.16,yy+0.11,n,{d:0.4,size:15});
+    T(s,B(12,`path${n}-title`),{x:x+0.66,y:yy+0.08,w:tw,h:0.34,fontSize:15.5,bold:true,color:C.navy,valign:'middle'});
+    T(s,B(12,`path${n}-steps`),{x:x+0.66,y:yy+0.42,w:tw,h:0.23*nl,fontSize:12.5,bold:true,color:C.blue,valign:'top',lineSpacingMultiple:1.0});
+    T(s,B(12,`path${n}-desc`),{x:x+0.66,y:yy+0.42+0.23*nl+0.07,w:tw,h:0.22,fontSize:11.5,color:C.g600,valign:'middle'}); });
+  bar(s,{y:6.05,h:0.72,label:B(12,'bar-label'),text:B(12,'bar-text'),size:18});
+  foot(s,no); });
+
+// 작은 번호 항목(한 줄 설명)
+function mini(s,{x,y,w,n,title,desc,ts=15.5,ds=12,gap=0.08}){ badge(s,x,y+0.01,n,{d:0.36,size:13}); T(s,title,{x:x+0.5,y,w:w-0.5,h:0.32,fontSize:ts,bold:true,color:C.navy,valign:'middle'});
+  const nl=desc?desc.split('\n').length:0; if(desc) T(s,desc,{x:x+0.5,y:y+0.33,w:w-0.5,h:0.23*nl+0.02,fontSize:ds,color:C.g600,valign:'top',lineSpacingMultiple:1.05}); return 0.33+0.23*nl+gap; }
+function pills(s,{x,y,w,label,items,size=11.5,h=0.34,fill=C.white,color=C.navy}){
+  const lw=L.textW(label,12.5)+0.25; T(s,label,{x,y,w:lw,h,fontSize:12.5,bold:true,color:C.blue,valign:'middle'});
+  let cx=x+lw, cy=y; items.forEach(t=>{ const pw=L.textW(t,size)+0.36; if(cx+pw>x+w){ cx=x+lw; cy+=h+0.08; } R(s,{x:cx,y:cy,w:pw,h,fill,line:C.blue100,radius:h/2}); T(s,t,{x:cx,y:cy,w:pw,h,fontSize:size,bold:true,color,align:'center',valign:'middle'}); cx+=pw+0.1; });
+  return cy+h-y; }
+
+// 13 일반대화 화면
+add(13,(pres,no)=>{ const c=CP(13); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
+  const g=L.img(s,HERO('bc3_general_crop'),{x:M,y:2.12,w:6.4,h:4.5,valign:'top',align:'left'});
+  const o={d:0.4}; pin(s,g,182,48,1,o); pin(s,g,165,161,2,o); pin(s,g,165,285,3,o); pin(s,g,445,487,4,o); pin(s,g,445,776,5,o); pin(s,g,150,768,6,o);
+  const k=2*g.scale; s.addShape('roundRect',{x:g.x+484*k,y:g.y+689*k,w:414*k,h:27*k,fill:{type:'none'},line:{color:C.red,width:1.75},rectRadius:0.04});
+  T(s,B(13,'pii-callout'),{x:g.x+904*k,y:g.y+683*k,w:1.75,h:0.2,fontSize:10,bold:true,color:C.red,valign:'middle'});
+  T(s,B(13,'caption'),{x:g.x,y:g.y+g.h+0.04,w:g.w,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
+  const x=g.x+g.w+0.4, w=W-M-x; let y=2.12;
+  [1,2,3,4,5,6].forEach(n=>{ y+=mini(s,{x,y,w,n,gap:0.05,title:B(13,`item${n}-title`),desc:B(13,`item${n}-desc`)}); });
+  y+=0.02; const ph=0.34*2+0.08+0.28; R(s,{x,y,w,h:ph,fill:C.blue50,line:null,radius:0.14});
+  pills(s,{x:x+0.2,y:y+0.14,w:w-0.35,label:B(13,'use-label'),items:[1,2,3,4].map(i=>B(13,`use-${i}`))});
+  foot(s,no); });
+
+// 14 맞춤대화 화면
+add(14,(pres,no)=>{ const c=CP(14); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
+  const g=L.img(s,HERO('bc3_custom_main'),{x:M,y:2.14,w:6.3,h:3.95,valign:'top',align:'left'});
+  const k=2*g.scale; s.addShape('roundRect',{x:g.x+1050*k,y:g.y+9*k,w:376*k,h:38*k,fill:{type:'none'},line:{color:C.blue,width:1.75},rectRadius:0.05});
+  s.addShape('roundRect',{x:g.x+486*k,y:g.y+722*k,w:127*k,h:43*k,fill:{type:'none'},line:{color:C.red,width:1.75},rectRadius:0.04});
+  const o={d:0.4}; pin(s,g,225,140,1,o); pin(s,g,1003,28,2,o); pin(s,g,440,128,3,o); pin(s,g,436,742,4,o); pin(s,g,1300,798,5,o);
+  const fy=g.y+g.h+0.1; R(s,{x:M,y:fy,w:g.w,h:0.44,fill:C.g50,line:C.g200,radius:0.12});
+  s.addText([{text:B(14,'flow-label')+'   ',options:{bold:true,color:C.blue,fontSize:13,fontFace:L.FONT}},{text:B(14,'flow-text'),options:{color:C.navy,fontSize:13,fontFace:L.FONT,bold:true}}],{x:M+0.22,y:fy,w:g.w-0.4,h:0.44,isTextBox:true,margin:0,valign:'middle'});
+  const x=g.x+g.w+0.4, w=W-M-x; let y=2.12;
+  [1,2,3,4,5].forEach(n=>{ y+=mini(s,{x,y,w,n,title:B(14,`item${n}-title`),desc:B(14,`item${n}-desc`)}); });
+  y+=0.02; const ph=0.34*2+0.08+0.28; R(s,{x,y,w,h:ph,fill:C.blue50,line:null,radius:0.14});
+  pills(s,{x:x+0.2,y:y+0.14,w:w-0.35,label:B(14,'use-label'),items:[1,2,3].map(i=>B(14,`use-${i}`))});
+  T(s,B(14,'caption'),{x:M,y:fy+0.48,w:g.w,h:0.26,fontSize:10.5,color:C.g500,valign:'middle'});
+  foot(s,no); });
+
+// 15 질문은 고르는 것 (옛 12장)
+add(15,(pres,no)=>{ const c=CP(15); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
   const gap=0.24, cw=(W-2*M-gap*3)/4, cy=2.9, ch=2.1;
   const col=(i,title,pill,file,pins,desc)=>{ const x=M+i*(cw+gap);
     R(s,{x,y:2.05,w:cw,h:3.72,fill:C.g50,line:null,radius:0.16});
@@ -233,47 +296,47 @@ add(12,(pres,no)=>{ const c=CP(12); const s=head(pres,{kicker:c.kicker,title:c.t
     if(pill) chipX(s,{x:x+0.2,y:2.52,text:pill,fill:C.blue50,color:C.blue,size:11.5,h:0.3});
     let g=null; if(file){ g=L.img(s,file,{x:x+0.15,y:cy,w:cw-0.3,h:ch,valign:'middle',align:'center',shadow:false}); pins.forEach(([px,py,n])=>pin(s,g,px,py,n,{dsf:1,d:0.34,color:C.red})); }
     T(s,desc,{x:x+0.2,y:5.05,w:cw-0.3,h:0.68,fontSize:12.5,color:C.g700,valign:'top',lineSpacingMultiple:1.12}); return {x,g}; };
-  col(0,B(12,'item1-title'),B(12,'item1-pill'),HERO('bc2_general_home'),[[60,585,1]],B(12,'item1-desc'));
-  col(1,B(12,'item2-title'),B(12,'item2-pill'),HERO('bc2_find_right_top'),[[1240,220,2]],B(12,'item2-desc'));
-  col(2,B(12,'item3-title'),B(12,'item3-pill'),HERO('bc2_mo_examples'),[[40,215,3]],B(12,'item3-desc'));
-  const c4=col(3,B(12,'item4-title'),'',null,[],B(12,'item4-desc'));
+  col(0,B(15,'item1-title'),B(15,'item1-pill'),HERO('bc2_general_home'),[[60,585,1]],B(15,'item1-desc'));
+  col(1,B(15,'item2-title'),B(15,'item2-pill'),HERO('bc2_find_right_top'),[[1240,220,2]],B(15,'item2-desc'));
+  col(2,B(15,'item3-title'),B(15,'item3-pill'),HERO('bc2_mo_examples'),[[40,215,3]],B(15,'item3-desc'));
+  const c4=col(3,B(15,'item4-title'),'',null,[],B(15,'item4-desc'));
   const g4=L.img(s,AG('term','35_pc_message_actions'),{x:c4.x+0.4,y:3.0,w:cw-0.8,h:1.1,valign:'middle',align:'center',shadow:false}); pin(s,g4,275,18,4,{dsf:1,d:0.34,color:C.red});
-  T(s,B(12,'item4-note'),{x:c4.x+0.2,y:4.25,w:cw-0.4,h:0.6,fontSize:12,color:C.g600,valign:'top',lineSpacingMultiple:1.12});
+  T(s,B(15,'item4-note'),{x:c4.x+0.2,y:4.25,w:cw-0.4,h:0.6,fontSize:12,color:C.g600,valign:'top',lineSpacingMultiple:1.12});
   const by=5.88, bh=0.8; R(s,{x:M,y:by,w:W-2*M,h:bh,fill:C.purple50,line:null,radius:0.16});
-  T(s,B(12,'bar-label'),{x:M+0.3,y:by,w:2.6,h:bh,fontSize:14,bold:true,color:C.purple,valign:'middle'});
+  T(s,B(15,'bar-label'),{x:M+0.3,y:by,w:2.6,h:bh,fontSize:14,bold:true,color:C.purple,valign:'middle'});
   const vals=[11.99,17.02,27.79], mx=27.79; ['bar-1','bar-2','bar-3'].forEach((r,i)=>{ const bx=M+2.85+i*2.05, hh=0.5*vals[i]/mx;
     R(s,{x:bx,y:by+bh-0.1-hh,w:0.34,h:hh,fill:i===2?C.purple:'B9A8F5',line:null,radius:0.04});
-    T(s,B(12,r),{x:bx+0.42,y:by+0.1,w:i===2?1.95:1.62,h:bh-0.2,fontSize:13,bold:i===2,color:C.navy,valign:'bottom'}); });
-  T(s,B(12,'bar-big'),{x:W-M-2.75,y:by+0.02,w:1.35,h:bh-0.04,fontSize:32,bold:true,color:C.purple,valign:'middle'});
-  T(s,B(12,'bar-sub'),{x:W-M-1.5,y:by,w:1.35,h:bh,fontSize:12.5,color:C.g700,valign:'middle'});
-  T(s,B(12,'source'),{x:M,y:6.72,w:9.2,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
-  T(s,B(12,'caption'),{x:W-M-3.2,y:6.72,w:3.2,h:0.26,fontSize:11,color:C.g500,align:'right',valign:'middle'});
+    T(s,B(15,r),{x:bx+0.42,y:by+0.1,w:i===2?1.95:1.62,h:bh-0.2,fontSize:13,bold:i===2,color:C.navy,valign:'bottom'}); });
+  T(s,B(15,'bar-big'),{x:W-M-2.75,y:by+0.02,w:1.35,h:bh-0.04,fontSize:32,bold:true,color:C.purple,valign:'middle'});
+  T(s,B(15,'bar-sub'),{x:W-M-1.5,y:by,w:1.35,h:bh,fontSize:12.5,color:C.g700,valign:'middle'});
+  T(s,B(15,'source'),{x:M,y:6.72,w:9.2,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
+  T(s,B(15,'caption'),{x:W-M-3.2,y:6.72,w:3.2,h:0.26,fontSize:11,color:C.g500,align:'right',valign:'middle'});
   foot(s,no); });
 
 // 13 보장분석 해줘
-add(13,(pres,no)=>{ const c=CP(13); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
+add(16,(pres,no)=>{ const c=CP(16); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
   const g=L.img(s,HERO('custom_start_crop'),{x:M,y:1.85,w:5.4,h:2.95,valign:'top',align:'left'});
   [[390,516,1],[390,722,3],[1500,910,4]].forEach(([px,py,n])=>pin(s,g,px,py,n,{dsf:1,d:0.36})); pin(s,g,760,640,2,{dsf:1,d:0.28});
   const k=g.scale; s.addShape('roundRect',{x:g.x+1555*k,y:g.y+865*k,w:235*k,h:90*k,fill:{type:'none'},line:{color:C.red,width:2},rectRadius:0.04});
   const x=6.35, w=W-M-x;
-  chipX(s,{x,y:1.85,text:B(13,'section-a'),fill:C.navy,color:'FFFFFF',size:13,h:0.36});
-  [1,2,3,4].forEach((n,i)=>{ const iy=2.32+i*0.62, d=B(13,`item${n}-desc`);
-    badge(s,x,iy+0.03,n,{d:0.36,size:13}); T(s,B(13,`item${n}-title`),{x:x+0.48,y:iy,w:2.35,h:0.42,fontSize:15.5,bold:true,color:C.navy,valign:'middle'});
+  chipX(s,{x,y:1.85,text:B(16,'section-a'),fill:C.navy,color:'FFFFFF',size:13,h:0.36});
+  [1,2,3,4].forEach((n,i)=>{ const iy=2.32+i*0.62, d=B(16,`item${n}-desc`);
+    badge(s,x,iy+0.03,n,{d:0.36,size:13}); T(s,B(16,`item${n}-title`),{x:x+0.48,y:iy,w:2.35,h:0.42,fontSize:15.5,bold:true,color:C.navy,valign:'middle'});
     T(s,d,{x:x+2.85,y:iy-0.04,w:w-2.85,h:0.5,fontSize:12,color:C.g600,valign:'middle',lineSpacingMultiple:1.0}); });
-  R(s,{x,y:4.8,w,h:0.62,fill:C.g50,line:null,radius:0.12}); T(s,B(13,'note'),{x:x+0.2,y:4.8,w:w-0.3,h:0.62,fontSize:12,color:C.g700,valign:'middle',lineSpacingMultiple:1.1});
+  R(s,{x,y:4.8,w,h:0.62,fill:C.g50,line:null,radius:0.12}); T(s,B(16,'note'),{x:x+0.2,y:4.8,w:w-0.3,h:0.62,fontSize:12,color:C.g700,valign:'middle',lineSpacingMultiple:1.1});
   const g2=L.img(s,HERO('bc2_custom_input'),{x:M,y:5.2,w:5.4,h:1.1,valign:'top',align:'left'});
   const k2=g2.scale; s.addShape('roundRect',{x:g2.x+40*k2,y:g2.y+83*k2,w:238*k2,h:67*k2,fill:{type:'none'},line:{color:C.red,width:2},rectRadius:0.04});
   pin(s,g2,330,116,5,{dsf:1,d:0.34}); pin(s,g2,1420,185,6,{dsf:1,d:0.34});
-  chipX(s,{x,y:5.55,text:B(13,'section-b'),fill:C.navy,color:'FFFFFF',size:13,h:0.36});
-  [5,6].forEach((n,i)=>{ const iy=5.98+i*0.4; badge(s,x,iy+0.02,n,{d:0.32,size:12}); T(s,B(13,`item${n}-title`),{x:x+0.42,y:iy,w:2.4,h:0.36,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
-    T(s,B(13,`item${n}-desc`),{x:x+2.85,y:iy,w:w-2.85,h:0.36,fontSize:12.5,color:C.g600,valign:'middle'}); });
-  T(s,B(13,'bar-label')+'  '+B(13,'bar-text'),{x:M,y:6.42,w:5.6,h:0.5,fontSize:12,bold:true,color:C.purple,valign:'middle',lineSpacingMultiple:1.05});
-  T(s,B(13,'caption')+' · '+B(13,'source'),{x:M,y:6.84,w:W-2*M,h:0.22,fontSize:10,color:C.g500,valign:'middle'});
+  chipX(s,{x,y:5.55,text:B(16,'section-b'),fill:C.navy,color:'FFFFFF',size:13,h:0.36});
+  [5,6].forEach((n,i)=>{ const iy=5.98+i*0.4; badge(s,x,iy+0.02,n,{d:0.32,size:12}); T(s,B(16,`item${n}-title`),{x:x+0.42,y:iy,w:2.4,h:0.36,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
+    T(s,B(16,`item${n}-desc`),{x:x+2.85,y:iy,w:w-2.85,h:0.36,fontSize:12.5,color:C.g600,valign:'middle'}); });
+  T(s,B(16,'bar-label')+'  '+B(16,'bar-text'),{x:M,y:6.38,w:5.6,h:0.5,fontSize:12,bold:true,color:C.purple,valign:'middle',lineSpacingMultiple:1.05});
+  T(s,B(16,'caption')+' · '+B(16,'source'),{x:M,y:6.78,w:W-2*M,h:0.22,fontSize:10,color:C.g500,valign:'middle'});
   foot(s,no); });
 
 // 14 답 읽는 순서
-add(14,(pres,no)=>{ const c=CP(14); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
-  T(s,B(14,'caption'),{x:M,y:2.05,w:8,h:0.3,fontSize:13,color:C.g600,valign:'middle'});
+add(17,(pres,no)=>{ const c=CP(17); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
+  T(s,B(17,'caption'),{x:M,y:2.05,w:8,h:0.3,fontSize:13,color:C.g600,valign:'middle'});
   const ga=L.img(s,HERO('bc2_answer_top'),{x:M,y:2.4,w:6.0,h:2.95,valign:'top',align:'left'});
   const gb=L.img(s,HERO('bc2_answer_bottom'),{x:6.8,y:2.4,w:W-M-6.8,h:2.95,valign:'top',align:'left'});
   const bx=(g,x1,y1,x2,y2,col)=>s.addShape('roundRect',{x:g.x+x1*g.scale,y:g.y+y1*g.scale,w:(x2-x1)*g.scale,h:(y2-y1)*g.scale,fill:{type:'none'},line:{color:col,width:2},rectRadius:0.04});
@@ -282,119 +345,119 @@ add(14,(pres,no)=>{ const c=CP(14); const s=head(pres,{kicker:c.kicker,title:c.t
   const cols=[C.navy,C.green,C.red,C.blue], gap=0.18, cw=(W-2*M-gap*3)/4, y=5.5;
   [1,2,3,4].forEach((n,i)=>{ const x=M+i*(cw+gap); R(s,{x,y,w:cw,h:0.68,fill:C.white,line:cols[i],lw:1.25,radius:0.12});
     badge(s,x+0.12,y+0.13,n,{d:0.4,color:cols[i],size:14});
-    T(s,B(14,`item${n}-title`),{x:x+0.62,y:y+0.05,w:cw-0.7,h:0.32,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
-    T(s,B(14,`item${n}-desc`),{x:x+0.62,y:y+0.36,w:cw-0.7,h:0.28,fontSize:12,color:C.g600,valign:'middle'});
+    T(s,B(17,`item${n}-title`),{x:x+0.62,y:y+0.05,w:cw-0.7,h:0.32,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
+    T(s,B(17,`item${n}-desc`),{x:x+0.62,y:y+0.36,w:cw-0.7,h:0.28,fontSize:12,color:C.g600,valign:'middle'});
     if(i<3) T(s,'›',{x:x+cw-0.02,y,w:gap+0.04,h:0.68,fontSize:18,color:C.g400,align:'center',valign:'middle'}); });
   R(s,{x:M,y:6.3,w:8.3,h:0.5,fill:C.blue50,line:null,radius:0.12});
-  s.addText([{text:B(14,'pill')+'  ',options:{bold:true,color:C.blue,fontSize:13.5,fontFace:L.FONT}},{text:B(14,'pill-desc'),options:{color:C.g700,fontSize:12,fontFace:L.FONT}}],{x:M+0.2,y:6.3,w:8.0,h:0.5,isTextBox:true,margin:0,valign:'middle'});
-  T(s,B(14,'note')+'\n'+B(14,'source'),{x:9.05,y:6.3,w:W-M-9.05,h:0.5,fontSize:10.5,color:C.g500,align:'right',valign:'middle'});
+  s.addText([{text:B(17,'pill')+'  ',options:{bold:true,color:C.blue,fontSize:13.5,fontFace:L.FONT}},{text:B(17,'pill-desc'),options:{color:C.g700,fontSize:12,fontFace:L.FONT}}],{x:M+0.2,y:6.3,w:8.0,h:0.5,isTextBox:true,margin:0,valign:'middle'});
+  T(s,B(17,'note')+'\n'+B(17,'source'),{x:9.05,y:6.3,w:W-M-9.05,h:0.5,fontSize:10.5,color:C.g500,align:'right',valign:'middle'});
   foot(s,no); });
 
 
 // 15 직접 묻는 공식
-add(15,(pres,no)=>{ const c=CP(15); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
+add(18,(pres,no)=>{ const c=CP(18); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
   const ws=[3.05,2.75,2.75,3.0], pg=0.19; let x=M; const y=2.08, h=1.32;
   const sty=[[C.blue50,C.blue,null],[C.white,C.navy,C.navy],[C.white,C.g600,C.g300],[C.yellow50,'B7791F',null]];
   [1,2,3,4].forEach((k,i)=>{ const w=ws[i], st=sty[i];
     R(s,{x,y,w,h,fill:st[0],line:st[2],lw:k===3?1:1.25,radius:0.14});
-    T(s,B(15,`formula-${k}-label`),{x:x+0.2,y:y+0.1,w:w-0.3,h:0.34,fontSize:14,bold:true,color:st[1],valign:'middle'});
-    T(s,B(15,`formula-${k}`),{x:x+0.2,y:y+0.46,w:w-0.3,h:0.8,fontSize:13.5,bold:k<3,color:C.navy,valign:'top',lineSpacingMultiple:1.12});
+    T(s,B(18,`formula-${k}-label`),{x:x+0.2,y:y+0.1,w:w-0.3,h:0.34,fontSize:14,bold:true,color:st[1],valign:'middle'});
+    T(s,B(18,`formula-${k}`),{x:x+0.2,y:y+0.46,w:w-0.3,h:0.8,fontSize:13.5,bold:k<3,color:C.navy,valign:'top',lineSpacingMultiple:1.12});
     x+=w; if(i<3){ T(s,'+',{x,y,w:pg,h,fontSize:20,bold:true,color:C.g400,align:'center',valign:'middle'}); x+=pg; } });
-  T(s,B(15,'compare-label'),{x:M,y:3.55,w:8,h:0.36,fontSize:16,bold:true,color:C.navy,valign:'middle'});
+  T(s,B(18,'compare-label'),{x:M,y:3.55,w:8,h:0.36,fontSize:16,bold:true,color:C.navy,valign:'middle'});
   const cy=3.97, chh=1.25; R(s,{x:M,y:cy,w:3.9,h:chh,fill:C.g100,line:null,radius:0.14});
-  chipX(s,{x:M+0.2,y:cy+0.14,text:B(15,'before-title'),fill:C.g600,color:'FFFFFF',size:12,h:0.3});
-  T(s,B(15,'before-q'),{x:M+0.2,y:cy+0.48,w:3.5,h:0.38,fontSize:16,bold:true,color:C.g700,valign:'middle'});
-  T(s,B(15,'before-result'),{x:M+0.2,y:cy+0.86,w:3.5,h:0.32,fontSize:13,color:C.g600,valign:'middle'});
+  chipX(s,{x:M+0.2,y:cy+0.14,text:B(18,'before-title'),fill:C.g600,color:'FFFFFF',size:12,h:0.3});
+  T(s,B(18,'before-q'),{x:M+0.2,y:cy+0.48,w:3.5,h:0.38,fontSize:16,bold:true,color:C.g700,valign:'middle'});
+  T(s,B(18,'before-result'),{x:M+0.2,y:cy+0.86,w:3.5,h:0.32,fontSize:13,color:C.g600,valign:'middle'});
   T(s,'›',{x:M+3.9,y:cy,w:0.4,h:chh,fontSize:28,color:C.blue,align:'center',valign:'middle'});
   const ax=M+4.3, aw=W-M-ax; R(s,{x:ax,y:cy,w:aw,h:chh,fill:C.white,line:C.blue,lw:1.5,radius:0.14});
-  chipX(s,{x:ax+0.2,y:cy+0.14,text:B(15,'after-title'),fill:C.blue,color:'FFFFFF',size:12,h:0.3});
-  T(s,B(15,'after-q'),{x:ax+0.2,y:cy+0.46,w:aw-0.35,h:0.4,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
-  T(s,B(15,'after-result'),{x:ax+0.2,y:cy+0.86,w:aw-0.35,h:0.32,fontSize:13.5,bold:true,color:C.blue,valign:'middle'});
+  chipX(s,{x:ax+0.2,y:cy+0.14,text:B(18,'after-title'),fill:C.blue,color:'FFFFFF',size:12,h:0.3});
+  T(s,B(18,'after-q'),{x:ax+0.2,y:cy+0.46,w:aw-0.35,h:0.4,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
+  T(s,B(18,'after-result'),{x:ax+0.2,y:cy+0.86,w:aw-0.35,h:0.32,fontSize:13.5,bold:true,color:C.blue,valign:'middle'});
   const by=5.4; R(s,{x:M,y:by,w:W-2*M,h:1.18,fill:C.g50,line:null,radius:0.14});
   const g=L.img(s,AG('mode','43_mo_zoom_input'),{x:M+0.25,y:by+0.1,w:2.9,h:0.8,valign:'top',align:'left',shadow:false});
   pin(s,g,875,15,1,{dsf:1,d:0.26,color:C.red}); pin(s,g,983,225,2,{dsf:1,d:0.26,color:C.red});
-  T(s,B(15,'caption'),{x:M+0.2,y:by+0.88,w:2.9,h:0.26,fontSize:11,color:C.g500,align:'center',valign:'middle'});
-  const bts=CP(15).blocks.filter(b=>b.role==='bar-text').map(b=>b.text);
+  T(s,B(18,'caption'),{x:M+0.2,y:by+0.88,w:2.9,h:0.26,fontSize:11,color:C.g500,align:'center',valign:'middle'});
+  const bts=CP(18).blocks.filter(b=>b.role==='bar-text').map(b=>b.text);
   T(s,bts.join('\n'),{x:M+3.4,y:by,w:W-2*M-3.6,h:1.18,fontSize:15.5,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.35});
-  T(s,B(15,'source'),{x:M,y:6.66,w:W-2*M,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
+  T(s,B(18,'source'),{x:M,y:6.66,w:W-2*M,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
   foot(s,no); });
 
 // 16 고객에게 보낼 말 초안
-add(16,(pres,no)=>{ const c=CP(16); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
+add(19,(pres,no)=>{ const c=CP(19); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
   R(s,{x:M,y:2.05,w:W-2*M,h:1.85,fill:C.g50,line:null,radius:0.16});
-  T(s,B(16,'item1-title'),{x:M+0.25,y:2.15,w:3.1,h:0.4,fontSize:17,bold:true,color:C.navy,valign:'middle'});
-  T(s,B(16,'item1-desc'),{x:M+0.25,y:2.57,w:3.1,h:0.62,fontSize:13,color:C.g700,valign:'top',lineSpacingMultiple:1.12});
+  T(s,B(19,'item1-title'),{x:M+0.25,y:2.15,w:3.1,h:0.4,fontSize:17,bold:true,color:C.navy,valign:'middle'});
+  T(s,B(19,'item1-desc'),{x:M+0.25,y:2.57,w:3.1,h:0.62,fontSize:13,color:C.g700,valign:'top',lineSpacingMultiple:1.12});
   const g=L.img(s,HERO('bc2_general_input'),{x:M+3.5,y:2.18,w:W-2*M-3.7,h:1.25,valign:'top',align:'left',shadow:false});
   const k=g.scale, ul=(x1,x2,yy,col)=>s.addShape('line',{x:g.x+x1*k,y:g.y+yy*k,w:(x2-x1)*k,h:0,line:{color:col,width:2.5}});
   ul(60,480,100,C.blue); ul(1280,1495,100,C.purple); ul(62,458,143,C.purple); ul(461,857,143,C.red);
   const lg=[['pin-1',C.blue],['pin-2',C.purple],['pin-3',C.red]]; let lx=M+0.25;
-  lg.forEach(([r,col],i)=>{ badge(s,lx,3.5,i+1,{d:0.3,color:col,size:11}); T(s,B(16,r),{x:lx+0.38,y:3.47,w:3.2,h:0.36,fontSize:13,bold:true,color:C.g700,valign:'middle'}); lx+=0.38+L.textW(B(16,r),13)+0.45; });
+  lg.forEach(([r,col],i)=>{ badge(s,lx,3.5,i+1,{d:0.3,color:col,size:11}); T(s,B(19,r),{x:lx+0.38,y:3.47,w:3.2,h:0.36,fontSize:13,bold:true,color:C.g700,valign:'middle'}); lx+=0.38+L.textW(B(19,r),13)+0.45; });
   const lx2=M, lw2=6.2;
-  T(s,B(16,'item2-title'),{x:lx2,y:4.02,w:lw2,h:0.38,fontSize:17,bold:true,color:C.navy,valign:'middle'});
+  T(s,B(19,'item2-title'),{x:lx2,y:4.02,w:lw2,h:0.38,fontSize:17,bold:true,color:C.navy,valign:'middle'});
   [1,2].forEach((k2,i)=>{ const by=4.45+i*0.88; R(s,{x:lx2,y:by,w:lw2,h:0.8,fill:C.white,line:C.blue,lw:1.25,radius:0.14});
-    T(s,B(16,`bubble-${k2}-label`),{x:lx2+0.2,y:by+0.06,w:2,h:0.26,fontSize:12,bold:true,color:C.g600,valign:'middle'});
-    T(s,B(16,`bubble-${k2}`),{x:lx2+0.2,y:by+0.3,w:lw2-0.35,h:0.48,fontSize:13.5,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.05}); });
+    T(s,B(19,`bubble-${k2}-label`),{x:lx2+0.2,y:by+0.06,w:2,h:0.26,fontSize:12,bold:true,color:C.g600,valign:'middle'});
+    T(s,B(19,`bubble-${k2}`),{x:lx2+0.2,y:by+0.3,w:lw2-0.35,h:0.48,fontSize:13.5,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.05}); });
   const rx=7.05, rw=W-M-rx;
-  T(s,B(16,'item3-group'),{x:rx,y:4.02,w:3,h:0.38,fontSize:17,bold:true,color:C.navy,valign:'middle'});
-  const ct=B(16,'chip'); chipX(s,{x:W-M-L.textW(ct,12)-0.4,y:4.06,text:ct,fill:C.red50,color:C.red,size:12,h:0.3});
+  T(s,B(19,'item3-group'),{x:rx,y:4.02,w:3,h:0.38,fontSize:17,bold:true,color:C.navy,valign:'middle'});
+  const ct=B(19,'chip'); chipX(s,{x:W-M-L.textW(ct,12)-0.4,y:4.06,text:ct,fill:C.red50,color:C.red,size:12,h:0.3});
   const hw=(rw-0.2)/2;
   L.img(s,HERO('bc2_mode_simple'),{x:rx,y:4.5,w:hw,h:0.9,valign:'middle',align:'center',shadow:false});
   L.img(s,HERO('fix_term_tooltip'),{x:rx+hw+0.2,y:4.45,w:hw,h:0.85,valign:'middle',align:'center',shadow:false});
-  T(s,B(16,'caption'),{x:rx+hw+0.2,y:5.28,w:hw,h:0.22,fontSize:10.5,color:C.g500,align:'center',valign:'middle'});
-  [[3,rx],[4,rx+hw+0.2]].forEach(([k3,xx])=>{ T(s,B(16,`item${k3}-title`),{x:xx,y:5.5,w:hw,h:0.32,fontSize:15,bold:true,color:C.navy,valign:'middle'}); T(s,B(16,`item${k3}-desc`),{x:xx,y:5.82,w:hw,h:0.46,fontSize:11.5,color:C.g600,valign:'top',lineSpacingMultiple:1.05}); });
-  bar(s,{y:6.3,h:0.42,text:B(16,'bar-text'),size:14,tone:'yellow'});
-  T(s,B(16,'source'),{x:M,y:6.76,w:W-2*M,h:0.24,fontSize:10.5,color:C.g500,valign:'middle'});
+  T(s,B(19,'caption'),{x:rx+hw+0.2,y:5.28,w:hw,h:0.22,fontSize:10.5,color:C.g500,align:'center',valign:'middle'});
+  [[3,rx],[4,rx+hw+0.2]].forEach(([k3,xx])=>{ T(s,B(19,`item${k3}-title`),{x:xx,y:5.5,w:hw,h:0.32,fontSize:15,bold:true,color:C.navy,valign:'middle'}); T(s,B(19,`item${k3}-desc`),{x:xx,y:5.82,w:hw,h:0.46,fontSize:11.5,color:C.g600,valign:'top',lineSpacingMultiple:1.05}); });
+  bar(s,{y:6.3,h:0.42,text:B(19,'bar-text'),size:14,tone:'yellow'});
+  T(s,B(19,'source'),{x:M,y:6.76,w:W-2*M,h:0.24,fontSize:10.5,color:C.g500,valign:'middle'});
   foot(s,no); });
 
 // 17 이렇게는 묻지 마세요
-add(17,(pres,no)=>{ const c=CP(17); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
+add(20,(pres,no)=>{ const c=CP(20); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:2});
   const gap=0.14, cw=(W-2*M-gap)/2, ch=1.48;
   [1,2,3,4].forEach((k,i)=>{ const x=M+(i%2)*(cw+gap), y=2.05+Math.floor(i/2)*(ch+gap);
     R(s,{x,y,w:cw,h:ch,fill:C.white,line:C.g200,radius:0.14,shadow:true});
-    T(s,B(17,`item${k}-title`),{x:x+0.25,y:y+0.1,w:cw-0.4,h:0.38,fontSize:16.5,bold:true,color:C.navy,valign:'middle'});
-    const bad=B(17,`item${k}-bad`).replace(/^✕\s*/,''), good=B(17,`item${k}-good`).replace(/^○\s*/,'');
+    T(s,B(20,`item${k}-title`),{x:x+0.25,y:y+0.1,w:cw-0.4,h:0.38,fontSize:16.5,bold:true,color:C.navy,valign:'middle'});
+    const bad=B(20,`item${k}-bad`).replace(/^✕\s*/,''), good=B(20,`item${k}-good`).replace(/^○\s*/,'');
     s.addText([{text:'✕  ',options:{bold:true,color:C.red,fontSize:15,fontFace:L.FONT}},{text:bad,options:{color:C.g600,fontSize:13.5,fontFace:L.FONT}}],{x:x+0.25,y:y+0.5,w:cw-0.4,h:0.34,isTextBox:true,margin:0,valign:'middle'});
     const gl=good.split('\n');
     s.addText([{text:'○  ',options:{bold:true,color:C.green,fontSize:15,fontFace:L.FONT}},{text:gl.join(' · '),options:{bold:true,color:C.navy,fontSize:14,fontFace:L.FONT}}],{x:x+0.25,y:y+0.86,w:cw-0.4,h:0.5,isTextBox:true,margin:0,valign:'top'});
     });
-  const dy=5.2; T(s,B(17,'caption'),{x:M,y:dy,w:6,h:0.26,fontSize:11.5,color:C.g500,valign:'middle'});
+  const dy=5.2; T(s,B(20,'caption'),{x:M,y:dy,w:6,h:0.26,fontSize:11.5,color:C.g500,valign:'middle'});
   L.img(s,HERO('bc2_disclaimer'),{x:M,y:dy+0.28,w:W-2*M,h:0.52,valign:'top',align:'left',round:false,shadow:false});
   const by=6.1; R(s,{x:M,y:by,w:W-2*M,h:0.5,fill:C.g100,line:null,radius:0.12});
-  const cwid=chipX(s,{x:M+0.15,y:by+0.08,text:B(17,'band-label'),fill:C.navy,color:'FFFFFF',size:12.5,h:0.34});
-  T(s,B(17,'band-text'),{x:M+0.35+cwid,y:by,w:W-2*M-cwid-0.5,h:0.5,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
-  T(s,B(17,'source'),{x:M,y:6.68,w:W-2*M,h:0.24,fontSize:10.5,color:C.g500,valign:'middle'});
+  const cwid=chipX(s,{x:M+0.15,y:by+0.08,text:B(20,'band-label'),fill:C.navy,color:'FFFFFF',size:12.5,h:0.34});
+  T(s,B(20,'band-text'),{x:M+0.35+cwid,y:by,w:W-2*M-cwid-0.5,h:0.5,fontSize:14.5,bold:true,color:C.navy,valign:'middle'});
+  T(s,B(20,'source'),{x:M,y:6.68,w:W-2*M,h:0.24,fontSize:10.5,color:C.g500,valign:'middle'});
   foot(s,no); });
 
 
 // 21 첫 5일
-add(21,(pres,no)=>{ const c=CP(21); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:3});
+add(24,(pres,no)=>{ const c=CP(24); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:3});
   const gap=0.2, cw=(W-2*M-gap*4)/5;
   [1,2,3,4,5].forEach((d,i)=>{ const x=M+i*(cw+gap), y=2.2, h=3.55, on=i===0;
     R(s,{x,y,w:cw,h,fill:on?C.blue:C.white,line:on?null:C.g200,radius:0.16,shadow:!on});
-    T(s,B(21,`day${d}-label`),{x:x+0.25,y:y+0.22,w:cw-0.4,h:0.36,fontSize:14,bold:true,color:on?C.blue100:C.blue,valign:'middle'});
-    T(s,B(21,`day${d}-title`),{x:x+0.25,y:y+0.62,w:cw-0.35,h:0.8,fontSize:20,bold:true,color:on?'FFFFFF':C.navy,valign:'top',lineSpacingMultiple:1.1});
-    [1,2].forEach((k,j)=> T(s,B(21,`day${d}-check-${k}`),{x:x+0.25,y:y+1.5+j*0.98,w:cw-0.35,h:0.9,fontSize:14.5,color:on?'FFFFFF':C.g700,valign:'top',lineSpacingMultiple:1.2})); });
-  bar(s,{y:6.0,h:0.78,label:B(21,'bar-label'),text:B(21,'bar-text'),size:20});
+    T(s,B(24,`day${d}-label`),{x:x+0.25,y:y+0.22,w:cw-0.4,h:0.36,fontSize:14,bold:true,color:on?C.blue100:C.blue,valign:'middle'});
+    T(s,B(24,`day${d}-title`),{x:x+0.25,y:y+0.62,w:cw-0.35,h:0.8,fontSize:20,bold:true,color:on?'FFFFFF':C.navy,valign:'top',lineSpacingMultiple:1.1});
+    [1,2].forEach((k,j)=> T(s,B(24,`day${d}-check-${k}`),{x:x+0.25,y:y+1.5+j*0.98,w:cw-0.35,h:0.9,fontSize:14.5,color:on?'FFFFFF':C.g700,valign:'top',lineSpacingMultiple:1.2})); });
+  bar(s,{y:6.0,h:0.78,label:B(24,'bar-label'),text:B(24,'bar-text'),size:20});
   foot(s,no); });
 
 // 22 마무리
-add(22,(pres,no)=>{ const s=pres.addSlide(); s.background={color:C.blue};
-  T(s,B(22,'watermark'),{x:W-6.2,y:0.8,w:5.6,h:2.4,fontSize:120,bold:true,color:'FFFFFF',transparency:82,align:'right',valign:'top'});
-  T(s,CP(22).kicker,{x:M+0.2,y:0.55,w:4,h:0.36,fontSize:14,bold:true,color:C.blue100,valign:'middle'});
+add(25,(pres,no)=>{ const s=pres.addSlide(); s.background={color:C.blue};
+  T(s,B(25,'watermark'),{x:W-6.2,y:0.8,w:5.6,h:2.4,fontSize:120,bold:true,color:'FFFFFF',transparency:82,align:'right',valign:'top'});
+  T(s,CP(25).kicker,{x:M+0.2,y:0.55,w:4,h:0.36,fontSize:14,bold:true,color:C.blue100,valign:'middle'});
   let cx=M+0.2; ['1 찾기','2 고르기','3 묻기','4 터치하기'].forEach(t=>{ cx+=chipX(s,{x:cx,y:0.98,text:t,fill:'1B64DA',color:'FFFFFF',size:14,h:0.4})+0.14; });
-  T(s,B(22,'title-line1')+'\n'+B(22,'title-line2'),{x:M+0.2,y:1.6,w:9,h:2.4,fontSize:52,bold:true,color:'FFFFFF',valign:'top',lineSpacingMultiple:1.12});
-  T(s,B(22,'sub'),{x:M+0.2,y:4.1,w:9,h:0.55,fontSize:24,color:'FFFFFF',valign:'middle'});
-  cx=M+0.2; [B(22,'chip-1'),B(22,'chip-2')].forEach(t=>{ cx+=chipX(s,{x:cx,y:4.9,text:t,fill:'1B64DA',color:'FFFFFF',size:15,h:0.5})+0.2; });
-  T(s,B(22,'thanks'),{x:M+0.2,y:5.55,w:W-2*M-0.4,h:0.36,fontSize:15,color:'FFFFFF',transparency:15,valign:'middle'});
-  T(s,B(22,'note'),{x:M+0.2,y:6.08,w:W-2*M-0.4,h:0.55,fontSize:11.5,color:'FFFFFF',transparency:10,valign:'middle',lineSpacingMultiple:1.2});
+  T(s,B(25,'title-line1')+'\n'+B(25,'title-line2'),{x:M+0.2,y:1.6,w:9,h:2.4,fontSize:52,bold:true,color:'FFFFFF',valign:'top',lineSpacingMultiple:1.12});
+  T(s,B(25,'sub'),{x:M+0.2,y:4.1,w:9,h:0.55,fontSize:24,color:'FFFFFF',valign:'middle'});
+  cx=M+0.2; [B(25,'chip-1'),B(25,'chip-2')].forEach(t=>{ cx+=chipX(s,{x:cx,y:4.9,text:t,fill:'1B64DA',color:'FFFFFF',size:15,h:0.5})+0.2; });
+  T(s,B(25,'thanks'),{x:M+0.2,y:5.55,w:W-2*M-0.4,h:0.36,fontSize:15,color:'FFFFFF',transparency:15,valign:'middle'});
+  T(s,B(25,'note'),{x:M+0.2,y:6.08,w:W-2*M-0.4,h:0.55,fontSize:11.5,color:'FFFFFF',transparency:10,valign:'middle',lineSpacingMultiple:1.2});
   foot(s,no,true); });
 
 
 // 18 김민수 시연
-add(18,(pres,no)=>{ const c=CP(18); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:3});
+add(21,(pres,no)=>{ const c=CP(21); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:3});
   const gap=0.28, cw=(W-2*M-gap*3)/4, py=2.12, ph=2.72;
   [1,2,3,4].forEach((k,i)=>{ const x=M+i*(cw+gap); R(s,{x,y:py,w:cw,h:ph,fill:C.g100,line:null,radius:0.16});
-    T(s,B(18,`item${k}-place`),{x:x+0.15,y:py+0.06,w:cw-0.3,h:0.3,fontSize:12.5,bold:true,color:C.blue,valign:'middle'});
+    T(s,B(21,`item${k}-place`),{x:x+0.15,y:py+0.06,w:cw-0.3,h:0.3,fontSize:12.5,bold:true,color:C.blue,valign:'middle'});
     if(i<3) T(s,'›',{x:x+cw,y:py+ph/2-0.3,w:gap,h:0.6,fontSize:24,color:C.g400,align:'center',valign:'middle'}); });
   const X=i=>M+i*(cw+gap);
   const g1=L.img(s,HERO('fix_reco3_card1'),{x:X(0)+0.15,y:py+0.38,w:cw-0.3,h:ph-0.48,valign:'middle',align:'center',shadow:false});
@@ -402,46 +465,46 @@ add(18,(pres,no)=>{ const c=CP(18); const s=head(pres,{kicker:c.kicker,title:c.t
   const g2=L.img(s,HERO('bc2_km_consent_btn'),{x:X(1)+0.12,y:py+0.45,w:cw-0.24,h:0.78,valign:'top',align:'center',shadow:false});
   T(s,'↓',{x:X(1),y:g2.y+g2.h,w:cw,h:0.28,fontSize:14,color:C.g400,align:'center',valign:'middle'});
   L.img(s,HERO('bc2_consent_popup'),{x:X(1)+0.2,y:g2.y+g2.h+0.3,w:cw-0.4,h:1.25,valign:'top',align:'center',shadow:false});
-  const x3=X(2); chipX(s,{x:x3+0.2,y:py+0.45,text:B(18,'item3-chip'),fill:C.white,color:C.g700,size:12,h:0.32});
-  T(s,B(18,'item3-bubble-label'),{x:x3+0.2,y:py+0.9,w:cw-0.4,h:0.3,fontSize:13,bold:true,color:C.blue,valign:'middle'});
+  const x3=X(2); chipX(s,{x:x3+0.2,y:py+0.45,text:B(21,'item3-chip'),fill:C.white,color:C.g700,size:12,h:0.32});
+  T(s,B(21,'item3-bubble-label'),{x:x3+0.2,y:py+0.9,w:cw-0.4,h:0.3,fontSize:13,bold:true,color:C.blue,valign:'middle'});
   R(s,{x:x3+0.15,y:py+1.22,w:cw-0.3,h:1.32,fill:C.white,line:C.blue,lw:1.25,radius:0.14});
-  T(s,B(18,'item3-bubble'),{x:x3+0.3,y:py+1.22,w:cw-0.55,h:1.32,fontSize:14.5,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.18});
+  T(s,B(21,'item3-bubble'),{x:x3+0.3,y:py+1.22,w:cw-0.55,h:1.32,fontSize:14.5,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.18});
   const g4=L.phone(s,LEG('report_step3'),{x:X(3)+0.2,y:py+0.4,w:1.25,h:ph-0.5}); 
-  T(s,B(18,'item4-caption'),{x:X(3)+1.5,y:py+ph-0.62,w:cw-1.6,h:0.5,fontSize:11,color:C.g500,valign:'bottom'});
+  T(s,B(21,'item4-caption'),{x:X(3)+1.5,y:py+ph-0.62,w:cw-1.6,h:0.5,fontSize:11,color:C.g500,valign:'bottom'});
   [1,2,3,4].forEach((k,i)=>{ const x=X(i); badge(s,x,5.0,k,{d:0.38,size:13});
-    T(s,B(18,`item${k}-title`),{x:x+0.46,y:4.97,w:cw-0.46,h:0.42,fontSize:15.5,bold:true,color:C.navy,valign:'middle'});
-    T(s,B(18,`item${k}-desc`),{x:x+0.46,y:5.38,w:cw-0.46,h:0.5,fontSize:12,color:C.g600,valign:'top',lineSpacingMultiple:1.05}); });
-  bar(s,{y:5.98,h:0.62,label:B(18,'bar-label'),text:B(18,'bar-text'),size:16});
-  T(s,B(18,'note'),{x:M,y:6.66,w:W-2*M,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
+    T(s,B(21,`item${k}-title`),{x:x+0.46,y:4.97,w:cw-0.46,h:0.42,fontSize:15.5,bold:true,color:C.navy,valign:'middle'});
+    T(s,B(21,`item${k}-desc`),{x:x+0.46,y:5.38,w:cw-0.46,h:0.5,fontSize:12,color:C.g600,valign:'top',lineSpacingMultiple:1.05}); });
+  bar(s,{y:5.98,h:0.62,label:B(21,'bar-label'),text:B(21,'bar-text'),size:16});
+  T(s,B(21,'note'),{x:M,y:6.66,w:W-2*M,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
   foot(s,no); });
 
 // 19 첫 마디·첫 질문 짝
-add(19,(pres,no)=>{ const c=CP(19); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:3});
+add(22,(pres,no)=>{ const c=CP(22); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:3});
   const cw=[2.95,5.2,3.78], gx=0.1, x0=M, xs=[x0,x0+cw[0]+gx,x0+cw[0]+cw[1]+2*gx];
-  [1,2,3].forEach((k,i)=>{ R(s,{x:xs[i],y:2.1,w:cw[i],h:0.38,fill:C.g100,line:null,radius:0.1}); T(s,B(19,`table-head-${k}`),{x:xs[i]+0.15,y:2.1,w:cw[i]-0.2,h:0.38,fontSize:14,bold:true,color:C.g700,valign:'middle'}); });
+  [1,2,3].forEach((k,i)=>{ R(s,{x:xs[i],y:2.1,w:cw[i],h:0.38,fill:C.g100,line:null,radius:0.1}); T(s,B(22,`table-head-${k}`),{x:xs[i]+0.15,y:2.1,w:cw[i]-0.2,h:0.38,fontSize:14,bold:true,color:C.g700,valign:'middle'}); });
   const rows=[{th:HERO('fix_reco3_card1'),box:[45,572,266,620]},{th:HERO('reco1_card2'),box:[45,522,284,568]},{th:HERO('bc2_groups_opp'),box:[16,240,510,340]}];
   rows.forEach((r,i)=>{ const k=i+1, y=2.56+i*1.18, h=1.1;
     [0,1,2].forEach(j=>R(s,{x:xs[j],y,w:cw[j],h,fill:i===0?C.g50:C.white,line:i===0?null:C.g200,radius:0.12}));
     const g=L.img(s,r.th,{x:xs[0]+0.1,y:y+0.07,w:0.95,h:0.96,valign:'middle',align:'center',shadow:false,round:false});
     s.addShape('rect',{x:g.x+r.box[0]*g.scale,y:g.y+r.box[1]*g.scale,w:(r.box[2]-r.box[0])*g.scale,h:(r.box[3]-r.box[1])*g.scale,fill:{type:'none'},line:{color:C.red,width:1.25}});
     badge(s,xs[0]-0.12,y-0.1,k,{d:0.34,size:12});
-    T(s,B(19,`row${k}-title`),{x:xs[0]+1.12,y:y+0.1,w:cw[0]-1.2,h:0.36,fontSize:15,bold:true,color:C.navy,valign:'middle'});
-    T(s,B(19,`row${k}-desc`),{x:xs[0]+1.12,y:y+0.46,w:cw[0]-1.2,h:0.3,fontSize:12,color:C.g600,valign:'middle'});
-    const chip=B(19,`row${k}-chip`,''); if(chip) chipX(s,{x:xs[0]+1.12,y:y+0.76,text:chip,fill:C.red50,color:C.red,size:11.5,h:0.28});
-    const ft=B(19,`row${k}-first-tag`,''); 
+    T(s,B(22,`row${k}-title`),{x:xs[0]+1.12,y:y+0.1,w:cw[0]-1.2,h:0.36,fontSize:15,bold:true,color:C.navy,valign:'middle'});
+    T(s,B(22,`row${k}-desc`),{x:xs[0]+1.12,y:y+0.46,w:cw[0]-1.2,h:0.3,fontSize:12,color:C.g600,valign:'middle'});
+    const chip=B(22,`row${k}-chip`,''); if(chip) chipX(s,{x:xs[0]+1.12,y:y+0.76,text:chip,fill:C.red50,color:C.red,size:11.5,h:0.28});
+    const ft=B(22,`row${k}-first-tag`,''); 
     if(ft){ chipX(s,{x:xs[1]+0.15,y:y+0.08,text:ft,fill:C.g100,color:C.g700,size:11.5,h:0.28});
-      T(s,B(19,`row${k}-first`),{x:xs[1]+0.15,y:y+0.4,w:cw[1]-0.3,h:0.66,fontSize:13.5,color:C.g700,valign:'top',lineSpacingMultiple:1.12}); }
-    else T(s,B(19,`row${k}-first`),{x:xs[1]+0.15,y,w:cw[1]-0.3,h,fontSize:14.5,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.15});
-    const qt=B(19,`row${k}-question-tag`,''); let qy=y+0.1, qh=h-0.2;
+      T(s,B(22,`row${k}-first`),{x:xs[1]+0.15,y:y+0.4,w:cw[1]-0.3,h:0.66,fontSize:13.5,color:C.g700,valign:'top',lineSpacingMultiple:1.12}); }
+    else T(s,B(22,`row${k}-first`),{x:xs[1]+0.15,y,w:cw[1]-0.3,h,fontSize:14.5,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.15});
+    const qt=B(22,`row${k}-question-tag`,''); let qy=y+0.1, qh=h-0.2;
     if(qt){ T(s,qt,{x:xs[2]+0.15,y:y+0.06,w:cw[2]-0.3,h:0.26,fontSize:11.5,bold:true,color:C.blue,valign:'middle'}); qy=y+0.34; qh=h-0.42; }
     R(s,{x:xs[2]+0.12,y:qy,w:cw[2]-0.24,h:qh,fill:C.white,line:C.blue,lw:1,radius:0.1});
-    T(s,B(19,`row${k}-question`),{x:xs[2]+0.25,y:qy,w:cw[2]-0.45,h:qh,fontSize:13,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.1}); });
-  bar(s,{y:6.14,h:0.5,text:B(19,'bar-text'),size:16});
-  T(s,B(19,'note'),{x:M,y:6.7,w:W-2*M,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
+    T(s,B(22,`row${k}-question`),{x:xs[2]+0.25,y:qy,w:cw[2]-0.45,h:qh,fontSize:13,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.1}); });
+  bar(s,{y:6.14,h:0.5,text:B(22,'bar-text'),size:16});
+  T(s,B(22,'note'),{x:M,y:6.7,w:W-2*M,h:0.26,fontSize:11,color:C.g500,valign:'middle'});
   foot(s,no); });
 
 // 20 요약 리포트
-add(20,(pres,no)=>{ const c=CP(20); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:3});
+add(23,(pres,no)=>{ const c=CP(23); const s=head(pres,{kicker:c.kicker,title:c.title,sub:c.sub,ch:3});
   const st=[HERO('bc2_report_step1'),LEG('report_step2'),LEG('report_step3'),HERO('bc_kakao')];
   const pins=[[275,129],[65,285],[205,758],[40,240]];
   const gap=0.3, cw=(W-2*M-gap*3)/4;
@@ -449,12 +512,12 @@ add(20,(pres,no)=>{ const c=CP(20); const s=head(pres,{kicker:c.kicker,title:c.t
     if(i<3) g=L.phone(s,f,{x,y:2.08,w:cw,h:3.2}); else g=L.img(s,f,{x,y:2.5,w:cw,h:2.4,valign:'top',align:'center'});
     pin(s,g,pins[i][0],pins[i][1],i+1,{dsf:1,d:0.38});
     if(i===1) s.addShape('roundRect',{x:g.x+20*g.scale,y:g.y+733*g.scale,w:376*g.scale,h:54*g.scale,fill:{type:'none'},line:{color:C.red,width:1.5},rectRadius:0.03});
-    T(s,B(20,`item${i+1}-title`),{x,y:5.35,w:cw,h:0.36,fontSize:15.5,bold:true,color:C.navy,valign:'middle'});
-    T(s,B(20,`item${i+1}-desc`),{x,y:5.7,w:cw,h:0.46,fontSize:12,color:C.g600,valign:'top',lineSpacingMultiple:1.05});
+    T(s,B(23,`item${i+1}-title`),{x,y:5.35,w:cw,h:0.36,fontSize:15.5,bold:true,color:C.navy,valign:'middle'});
+    T(s,B(23,`item${i+1}-desc`),{x,y:5.7,w:cw,h:0.46,fontSize:12,color:C.g600,valign:'top',lineSpacingMultiple:1.05});
     if(i<3) T(s,'›',{x:x+cw+0.02,y:3.4,w:gap-0.04,h:0.6,fontSize:24,color:C.g400,align:'center',valign:'middle'}); });
-  const pt=B(20,'pill'); const pw=L.textW(pt,12.5)+0.4; R(s,{x:W-M-pw,y:2.08,w:pw,h:0.34,fill:C.white,line:C.blue,lw:1.25,radius:0.17}); T(s,pt,{x:W-M-pw,y:2.08,w:pw,h:0.34,fontSize:12.5,bold:true,color:C.blue,align:'center',valign:'middle'});
-  T(s,B(20,'caption'),{x:W-M-4,y:4.98,w:4,h:0.26,fontSize:11,color:C.g500,align:'right',valign:'middle'});
-  bar(s,{y:6.28,h:0.48,text:B(20,'bar-text'),size:14.5,tone:'yellow'});
+  const pt=B(23,'pill'); const pw=L.textW(pt,12.5)+0.4; R(s,{x:W-M-pw,y:2.08,w:pw,h:0.34,fill:C.white,line:C.blue,lw:1.25,radius:0.17}); T(s,pt,{x:W-M-pw,y:2.08,w:pw,h:0.34,fontSize:12.5,bold:true,color:C.blue,align:'center',valign:'middle'});
+  T(s,B(23,'caption'),{x:W-M-4,y:4.98,w:4,h:0.26,fontSize:11,color:C.g500,align:'right',valign:'middle'});
+  bar(s,{y:6.28,h:0.48,text:B(23,'bar-text'),size:14.5,tone:'yellow'});
   foot(s,no); });
 
 module.exports = { S, add, B, CP, BY, CONTENT, MISS, HERO, AG, LEG, F, mmss };

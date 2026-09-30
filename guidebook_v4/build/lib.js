@@ -14,11 +14,11 @@ const C = {
 };
 const FONT = '맑은 고딕';
 const W = 13.333, H = 7.5, M = 0.6;
-const FOOTER_TEXT = 'MeAI 활용 가이드북 v4 · CRM 대문 편 · 2026.10';
+const FOOTER_TEXT = 'MeAI 활용 가이드북 v4 · MeAI 홈 편 · 2026.10';
 const IMG_CACHE = path.join(__dirname, 'img');
 fs.mkdirSync(IMG_CACHE, {recursive:true});
 
-function newPres(){ const p = new pptxgen(); p.layout = 'LAYOUT_WIDE'; p.lang = 'ko-KR'; p.author = '세일즈혁신TF'; p.title = 'MeAI 활용 가이드북 v4 · CRM 대문 편'; return p; }
+function newPres(){ const p = new pptxgen(); p.layout = 'LAYOUT_WIDE'; p.lang = 'ko-KR'; p.author = '세일즈혁신TF'; p.title = 'MeAI 활용 가이드북 v4 · MeAI 홈 편'; return p; }
 
 // 텍스트 폭 추정(인치). 한글 1em, 영문/숫자 0.56em, 공백 0.3em
 function textW(s, pt){ let w=0; for (const ch of s){ if (/[가-힣]/.test(ch)) w+=1.0; else if (ch===' ') w+=0.3; else if (/[A-Z0-9]/.test(ch)) w+=0.62; else if (/[·•]/.test(ch)) w+=0.4; else w+=0.52; } return w*pt/72; }

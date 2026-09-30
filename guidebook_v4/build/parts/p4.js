@@ -6,7 +6,7 @@ module.exports = (S, ctx) => {
     const s = L.base(pres,{kicker:'PART 4 · 화면 구성',title:'고객찾기는 세 단으로 읽어요',pageNo:no});
     const g = L.img(s,HERO('find_full'),{x:M,y:1.45,w:8.5,h:5.45,valign:'top',align:'left'});
     const clip={x:0,y:0};
-    L.pin(s,g,150,100,1,{clip}); L.pin(s,g,275,226,2,{clip}); L.pin(s,g,522,105,3,{clip}); L.pin(s,g,955,220,4,{clip}); L.pin(s,g,309,632,5,{clip}); L.pin(s,g,1211,146,6,{clip}); L.pin(s,g,1362,531,7,{clip}); L.pin(s,g,395,31,8,{clip}); L.pin(s,g,1150,75,9,{clip});
+    L.pin(s,g,150,100,1,{clip}); L.pin(s,g,275,226,2,{clip}); L.pin(s,g,522,105,3,{clip}); L.pin(s,g,955,220,4,{clip}); L.pin(s,g,309,632,5,{clip}); L.pin(s,g,1211,146,6,{clip}); L.pin(s,g,1424,444,7,{clip}); L.pin(s,g,395,31,8,{clip}); L.pin(s,g,1150,75,9,{clip});
     L.numList(s,{x:9.4,y:1.42,w:3.33,gap:0.02,titleSize:12.5,descSize:10.5,items:[
       {n:1,title:'고객 그룹',desc:'그룹을 누르면 목록이 바뀌어요.'},
       {n:2,title:'탭 전환',desc:'보장 기준 10개 · 영업 기회 3개'},
@@ -41,7 +41,7 @@ module.exports = (S, ctx) => {
     const px={dsf:1}; // 캡처 픽셀 좌표 그대로
     L.pin(s,h1,365,72,1,px); L.pin(s,h1,125,195,2,px); L.pin(s,h2,315,186,3,px);
     L.img(s,AG('find010','17_group_monthly_target_header'),{x:M,y:5.05,w:7.4,h:1.45,valign:'top',align:'left'});
-    [{n:1,title:'그룹 이름 · 인원',desc:'"암진단비 부족 35명". [전체]로 동의 고객만 걸러요.'},{n:2,title:'설명 한 줄',desc:'어떤 기준으로 묶였는지, 어떻게 말할지.'},{n:3,title:'그대로 첫마디로',desc:'"재활·간병 기간이 길어 진단비가 곧 생활비예요."'},{n:4,title:'조회 자료로',desc:'조직장이 조회에서 인원과 문구를 읽어 줘요(PART 8).'}].forEach((it,i)=> L.numList(s,{x:8.4,y:2.0+i*1.12,w:4.33,titleSize:14,descSize:12,items:[it]}));
+    [{n:1,title:'그룹 이름 · 인원',desc:'"암진단비 부족 35명". [전체]로 동의 고객만 걸러요.'},{n:2,title:'설명 한 줄',desc:'어떤 기준으로 묶였는지, 어떻게 말할지.'},{n:3,title:'그대로 첫마디로',desc:'"재활·간병 기간이 길어 진단비가 곧 생활비예요."'},{n:4,title:'문자 초안은 MeAI에게',desc:'오른쪽 일반대화 추천 질문을 누르면 이 그룹에 보낼 안내 문자를 써 줘요(PART 8).'}].forEach((it,i)=> L.numList(s,{x:8.4,y:2.0+i*1.12,w:4.33,titleSize:14,descSize:12,items:[it]}));
   }});
   // 4-3b 그룹 설명 전체 표
   S.push({ fn:(pres,no)=>{
@@ -57,8 +57,9 @@ module.exports = (S, ctx) => {
     const a = L.img(s,HERO('find_aicard_z'),{x:M,y:1.5,w:7.4,h:1.3,valign:'top',align:'left'}); L.caption(s,{x:M,y:a.y+a.h+0.04,w:7.4,text:'접힌 카드 · AI 추천 고객 리본',size:10});
     const g = L.img(s,HERO('find_card_z'),{x:M,y:3.2,w:7.4,h:3.7,valign:'top',align:'left'});
     const clip={x:320,y:195}, o={clip,dsf:3};
+    const sixPg = (ctx.parts['04']||1)+7; // 여섯 칸 장(NEW 태그 색 장 다음)
     L.pin(s,g,321,228,1,o); L.pin(s,g,321,275,2,o); L.pin(s,g,962,268,3,o); L.pin(s,g,321,320,4,o); L.pin(s,g,321,370,5,o); L.pin(s,g,962,470,6,o);
-    [{n:1,title:'이름 · 나이 · 유형',desc:'담당자가 다르면 "담당 OOO"이 붙어요.'},{n:2,title:'이유 한 문장',desc:'"암진단비가 1천만원대에 머물러 있습니다."'},{n:3,title:'사전조회동의 D-n',desc:'만료면 "필요", 철회면 "철회"로 바뀌어요.'},{n:4,title:'태그 (우선순위 순)',desc:'보라 = 당월 타겟. 부족 그룹은 그룹마다 색이 달라요.'},{n:5,title:'이 고객 한눈에 보기',desc:'여섯 칸은 다음 장에서 자세히 봐요.'},{n:6,title:'점선 칸 · 미확인',desc:'자료가 없으면 "미확인". 추정하지 않아요.'}].forEach((it,i)=> L.numList(s,{x:8.4,y:1.6+i*0.9,w:4.33,titleSize:13.5,descSize:11.5,items:[it]}));
+    [{n:1,title:'이름 · 나이 · 유형',desc:'담당자가 다르면 "담당 OOO"이 붙어요.'},{n:2,title:'이유 한 문장',desc:'"암진단비가 1천만원대에 머물러 있습니다."'},{n:3,title:'사전조회동의 D-n',desc:'만료면 "필요", 철회면 "철회"로 바뀌어요.'},{n:4,title:'태그 (우선순위 순)',desc:'보라 = 당월 타겟. 부족 그룹은 그룹마다 색이 달라요.'},{n:5,title:'이 고객 한눈에 보기',desc:`여섯 칸은 ${sixPg}쪽에서 자세히 봐요.`},{n:6,title:'점선 칸 · 미확인',desc:'자료가 없으면 "미확인". 추정하지 않아요.'}].forEach((it,i)=> L.numList(s,{x:8.4,y:1.6+i*0.9,w:4.33,titleSize:13.5,descSize:11.5,items:[it]}));
   }});
   // 4-x NEW 부족 태그 색 (새 목업 v2)
   S.push({ fn:(pres,no)=>{
@@ -100,13 +101,14 @@ module.exports = (S, ctx) => {
   // 4-6b 추천 질문 클릭 결과
   S.push({ fn:(pres,no)=>{
     const s = L.base(pres,{kicker:'PART 4 · 추천 질문 → 대화',title:'질문이 채워진 채로 대화가 열려요',pageNo:no});
-    // 여백을 덜어낸 캡처(fix_c_custom_q = CSS x445~1428, y0~843, dsf 2)를 세로로 꽉 차게
-    const g = L.img(s,HERO('fix_c_custom_q'),{x:M,y:1.45,w:6.6,h:5.45,valign:'top',align:'left'});
-    const clip={x:445,y:0}, o={clip,dsf:2,d:0.3};
-    L.pin(s,g,461,128,1,o); L.pin(s,g,897,100,2,o); L.pin(s,g,461,541,3,o); L.pin(s,g,465,742,4,o); L.pin(s,g,465,798,5,o); L.pin(s,g,1030,27,6,o);
-    const rx = g.x+g.w+0.4, rw = W-M-rx;
-    [{n:1,title:'정상 계약 리스트',desc:'상품명 · 보험료 · 납입기간 · 기납입보험료'},{n:2,title:'약관 자료 준비 상태',desc:'구성 완료 · 구성 중 · 미확보. 없으면 답이 부정확할 수 있어요.'},{n:3,title:'MeAI 안내',desc:'"이번 대화에서 활용될 보험 가입 내역이에요…"'},{n:4,title:'[보장분석 해줘]',desc:'입력창 위 버튼 하나로 전체 그림부터.'},{n:5,title:'채워진 질문',desc:'맞춤대화용 질문이 들어가 있어요. 전송(↑)만 누르세요.'},{n:6,title:'상단 버튼',desc:'보장 분석 · 사용중인 정보 수정 · 요약 리포트'}].forEach((it,i)=> L.numList(s,{x:rx,y:1.6+i*0.8,w:rw,titleSize:13.5,descSize:11.5,items:[it]}));
-    L.caption(s,{x:rx,y:6.55,w:rw,text:'※ 예시 화면이라 고객 이름이 다를 수 있어요',align:'left',size:10});
+    // 앞 장 김도윤 패널에서 맞춤대화 추천 질문을 눌러 들어온 화면(bc3_custom_main = CSS 1440×900 전체, dsf 2)
+    const g = L.img(s,HERO('bc3_custom_main'),{x:M,y:1.5,w:7.9,h:5.3,valign:'top',align:'left'});
+    const o={clip:{x:0,y:0},dsf:2,d:0.28};
+    L.pin(s,g,180,153,1,o); L.pin(s,g,456,128,2,o); L.pin(s,g,1284,123,3,o); L.pin(s,g,456,541,4,o); L.pin(s,g,456,743,5,o); L.pin(s,g,456,798,6,o); L.pin(s,g,1030,28,7,o);
+    L.caption(s,{x:g.x,y:g.y+g.h+0.05,w:g.w,text:'김도윤 패널에서 맞춤대화 추천 질문을 누른 화면 · 이름·계약·남은 날은 예시예요',size:10});
+    const rx = g.x+g.w+0.35, rw = W-M-rx;
+    let cy=1.55;
+    [{n:1,title:'담당 고객',desc:'고른 고객이 이미 들어와 있어요.\n사전조회동의 남은 날(화면엔 \'보장분석 동의\')',two:true},{n:2,title:'정상 계약 리스트',desc:'상품명 · 보험료 · 납입기간 · 기납입보험료'},{n:3,title:'약관 자료 준비 상태',desc:'구성 완료 · 구성 중 · 미확보.\n구성 완료가 아닌 상품은 답이 부정확할 수 있어요.',two:true},{n:4,title:'MeAI 안내',desc:'"김도윤님의 보험 가입 내역이에요…"'},{n:5,title:'[보장분석 해줘]',desc:'입력창 위 버튼 하나로 전체 그림부터.'},{n:6,title:'채워진 질문',desc:'누른 추천 질문이 들어가 있어요. 전송(↑)만 누르세요.'},{n:7,title:'상단 버튼',desc:'보장 분석 · 사용중인 정보 수정 · 요약 리포트'}].forEach(it=>{ L.numList(s,{x:rx,y:cy,w:rw,titleSize:13,descSize:11,items:[{n:it.n,title:it.title,desc:it.desc}]}); cy += 0.72 + (it.two?0.24:0); });
   }});
   // 4-7 동의 상태별
   S.push({ fn:(pres,no)=>{
@@ -117,14 +119,14 @@ module.exports = (S, ctx) => {
     const bx=M+2*4.115, by=4.2, bw=3.9, bh=1.95, ty=1.88+648*0.004688; // ty = 가운데 캡처 속 요청 버튼 높이
     L.R(s,{x:bx,y:by,w:bw,h:bh,fill:C.red50,line:null,radius:0.14});
     s.addShape('triangle',{x:bx-0.27,y:ty-0.1,w:0.34,h:0.2,rotate:270,fill:{color:C.red},line:{color:C.red,width:0}}); // ◀ 가운데 열을 가리킴
-    L.T(s,'필요 · 만료 고객 = 대문 "사전조회 동의 필요"',{x:bx+0.3,y:by+0.2,w:bw-0.45,h:0.3,fontSize:11,bold:true,color:C.red,valign:'middle'});
-    s.addText([{text:'186',options:{fontSize:40,bold:true,color:C.navy,fontFace:L.FONT}},{text:' 명',options:{fontSize:16,bold:true,color:C.g700,fontFace:L.FONT}},{text:'   예시',options:{fontSize:10,color:C.g500,fontFace:L.FONT}}],{x:bx+0.3,y:by+0.55,w:bw-0.6,h:0.8,isTextBox:true,margin:0,valign:'middle'});
-    L.T(s,'이 고객들이 이번 달 동의 캠페인 목록이에요.',{x:bx+0.3,y:by+1.42,w:bw-0.35,h:0.35,fontSize:12,color:C.g700,valign:'middle'});
+    L.T(s,'필요 · 만료 고객 수는\nMeAI 홈 "사전조회 동의 필요"에 떠요',{x:bx+0.3,y:by+0.14,w:bw-0.45,h:0.56,fontSize:11,bold:true,color:C.red,valign:'middle',lineSpacingMultiple:1.15});
+    s.addText([{text:'186',options:{fontSize:40,bold:true,color:C.navy,fontFace:L.FONT}},{text:' 명',options:{fontSize:16,bold:true,color:C.g700,fontFace:L.FONT}},{text:'   예시',options:{fontSize:10,color:C.g500,fontFace:L.FONT}}],{x:bx+0.3,y:by+0.72,w:bw-0.6,h:0.72,isTextBox:true,margin:0,valign:'middle'});
+    L.T(s,'동의를 받아야 맞춤대화가 열리는 고객이에요.',{x:bx+0.3,y:by+1.47,w:bw-0.35,h:0.35,fontSize:12,color:C.g700,valign:'middle'});
   }});
   // 4-8 검색·필터
   S.push({ fn:(pres,no)=>{
     const s = L.base(pres,{kicker:'PART 4 · 검색 · 필터 · 페이지',title:'이름으로도, 조건으로도 찾아요',sub:'검색창을 누르면 추천 속성, 글자를 치면 연관검색어가 떠요.',pageNo:no});
-    const a = L.img(s,HERO('fix_c_search_attr'),{x:M,y:1.85,w:5.95,h:1.5,valign:'top',align:'left'}); L.caption(s,{x:M,y:a.y+a.h+0.04,w:5.95,text:'빈 검색창 → 추천 속성',size:10});
+    const a = L.img(s,HERO('gb5_search_attr_m'),{x:M,y:1.85,w:5.95,h:1.5,valign:'top',align:'left'}); L.caption(s,{x:M,y:a.y+a.h+0.04,w:5.95,text:'빈 검색창 → 추천 속성(암진단비 · 실손 · 상령일 · 자동차)',size:10});
     const b = L.img(s,HERO('search_suggest_crop'),{x:M+6.2,y:1.85,w:5.93,h:2.4,valign:'top',align:'left'}); L.caption(s,{x:M+6.2,y:b.y+b.h+0.04,w:5.93,text:'"암진단비" 입력 → 연관검색어',size:10});
     L.img(s,HERO('fix_c_filter_dropdown'),{x:M,y:3.9,w:2.3,h:2.3,valign:'top',align:'left'});
     [{n:1,title:'[전체] 드롭다운',desc:'사전조회동의 · 상품소개동의 고객만 걸러요.'},{n:2,title:'검색 결과 N명',desc:'그룹 제목이 "검색 결과 8명"으로 바뀌어요.'},{n:3,title:'페이지',desc:'목록 아래 ‹ 1 2 ›로 넘겨요.'}].forEach((it,i)=> L.numList(s,{x:M+2.55,y:3.95+i*0.8,w:3.45,titleSize:13,descSize:11,items:[it]}));
