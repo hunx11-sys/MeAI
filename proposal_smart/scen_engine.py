@@ -102,7 +102,9 @@ def surg_open(tg):
     return None
 
 # 고지유형 꼬리표 — rules.json goji_tags 한 곳에서만 관리(v8.3). matcher.py 도 이 GOJI 를 가져다 쓴다.
-GOJI = r'\((?:%s)\)' % '|'.join(re.escape(t) for t in RULEDOC['goji_tags'])
+# 목록에 없는 새 꼬리표도 떼도록 '(… 가입)' 형태(24자 이내)는 모두 고지유형으로 본다(v8.65) — (편한가입)·(355입원,수술고지간편가입)·
+# (맞춤 간편가입) 등 상품마다 붙는 꼬리표만 다르고 특약은 같다. 꼬리표가 남으면 마스터·규칙표 대조가 어긋난다.
+GOJI = r'(?:\((?:%s)\)|\([^()]{1,24}가입\))' % '|'.join(re.escape(t) for t in RULEDOC['goji_tags'])
 def nname(n):
     """고지유형 꼬리표·공백 제거 — 규칙표 매칭에 쓰는 정규화 담보명"""
     return re.sub(r'\s+', '', re.sub(GOJI, '', n or '').replace('[기본계약]', '').replace('┗', ''))
@@ -790,7 +792,37 @@ def h_tx(r, o, sc, nm, t):
     elif freq == 'once' and o.get('freq', 'year') == 'year': why = why.replace('연간 1회', '최초 1회').replace('연 1회', '최초 1회')
     return [(r['man'], why, o.get('group', '치료비'), freq)]
 
-HANDLER = {'dx': h_dx, 'surg': h_surg, 'day': h_day, 'tx': h_tx}
+def h_point2(r, o, sc, nm, t):
+    """최대두배받는2대질환치료비(포인트적립형) — 통106·케179 제2조·제5조(v8.65)
+    사례에서 받은 2대질환치료로 2대질환치료포인트를 매기고, 담보명의 점수 구간(1·2·3·4점이상)에 이르면
+    그 구간의 지급률(약관 제2조 표 · rules.json opt.rate, 계약일부터 1년 경과 후 기준)만큼 최초 1회 지급.
+      · 치료군(뇌혈관질환치료 / 허혈성심장질환치료 / 중환자실입원)별로 가장 높은 1회만 · 군별 점수를 합산(제5조 ①②)
+      · 뇌·심장 치료군 : 비관혈수술·혈전용해치료 1점, 관혈수술 2점 — 관혈 여부는 surg_open(사례 1-5종 항목)
+      · 중환자실입원 : 1회 입원 4일 이상 1점, 8일 이상 2점(제3조 ①) — 사례 tags.icu(일수)
+    KCD 는 특약 마스터 codes(약관 별표 2대질환)만 본다. 관혈·비관혈을 모르는 수술은 점수에서 빼고 로그."""
+    tg = sc['tags']
+    if not kcd_ok('codes', r, sc, nm, o): return []
+    m = re.search(r'(\d)점이상', (r.get('benefit') or '') + nm)
+    if not m:
+        log('검토필요', r['name'], '점수 구간(1~4점이상)이 담보명에 없어 계산 제외'); return []
+    k = int(m.group(1)); rate = (o.get('rate') or {}).get(str(k))
+    if rate is None:
+        log('검토필요', r['name'], '%d점이상 지급률이 규칙표에 없어 계산 제외' % k); return []
+    a = _acts(sc); dz = 0
+    if 'thromb' in a: dz = 1
+    if 'surg' in a:
+        op = surg_open(tg)
+        if op is None: log('검토필요', r['name'], '관혈·비관혈 구분이 사례에 없어 수술 점수 제외')
+        else: dz = max(dz, 2 if op else 1)
+    d = tg.get('icu', 0) or 0
+    ic = 2 if d >= 8 else (1 if d >= 4 else 0)
+    pts = min(4, dz + ic)
+    if pts < k: return []
+    amt = r['man'] * rate / 100.0
+    why = '2대질환치료포인트 %d점(치료 %d점 + 중환자실 %d점) → %d점이상 구간 · 가입금액의 %s%% · 최초 1회' % (pts, dz, ic, k, format(rate, 'g'))
+    return [(amt, why, o.get('group', '치료비'), 'once')]
+
+HANDLER = {'dx': h_dx, 'surg': h_surg, 'day': h_day, 'tx': h_tx, 'point2': h_point2}
 
 # ══ 진입점 ═════════════════════════════════════════════════════════
 def pay_lines(riders, sc):

@@ -34,7 +34,7 @@ def _work():
 def read_riders(src_pdf):
     """원본 PDF의 가입담보리스트에서 담보 목록만 뽑는다(지면 생성 없이 인식 결과만 볼 때)."""
     rows = matcher.read_proposal(src_pdf)
-    return matcher.read_proposal(src_pdf, line=BA.guess_line(rows))
+    return matcher.read_proposal(src_pdf, line=BA.guess_line(rows, src_pdf))
 
 
 def build(src_pdf, cust=None, workdir=None, keep=True):

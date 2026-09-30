@@ -166,7 +166,7 @@ def main():
     import matcher, build_all, desc_engine as DE
     src = sys.argv[1]
     rows = matcher.read_proposal(src)
-    rows = matcher.read_proposal(src, line=build_all.guess_line(rows))
+    rows = matcher.read_proposal(src, line=build_all.guess_line(rows, src))
     rows, _info = DE.attach(rows, src)          # 1년 이내 감액 여부(cut_1y)가 있어야 안내표 기준을 가린다
     res = compare(rows, src)
     if not res:

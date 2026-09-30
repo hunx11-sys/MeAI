@@ -29,7 +29,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v8.64'
+VERSION = 'v8.65'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 동시 생성 2건까지(렌더가 무거워 과부하 방지)
 GA_LOCK = threading.Lock()                   # GA 생성기는 한 건씩(모듈 안에 설계서 상태를 둔다)

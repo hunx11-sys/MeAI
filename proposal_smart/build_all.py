@@ -47,10 +47,20 @@ def insured_sex(pdf_path):
     if not mm: mm = re.search(r'계약자명\s*\S+\s*\((남|여)\s*,', full)
     return {'남': 'M', '여': 'F'}.get(mm.group(1), '') if mm else ''
 
-def guess_line(riders):
-    """담보명 고지유형 꼬리표로 특약 마스터의 상품 라인을 추정"""
+def guess_line(riders, pdf=None):
+    """특약 마스터의 상품 라인을 추정 — 설계서 첫 쪽 상품명 우선(v8.65).
+    담보명은 읽을 때 고지유형 꼬리표((통합간편가입) 등)를 이미 떼므로 이름만으로는 늘 '케어프리'가 나왔다.
+    그 결과 통합간편 설계서의 '갱신형 ○○' 담보가 같은 이름의 케어프리 레코드에 매칭되어,
+    통합간편 약관의 세부보장 목록(예 32대질병관혈수술비 [5대질병] 통55-1)을 못 찾았다."""
     names = ' '.join(r['name'] for r in riders)
     if '통합간편가입' in names: return '통합간편'
+    if pdf:
+        try:
+            import pdfplumber
+            with pdfplumber.open(pdf) as d: head = re.sub(r'\s+', '', d.pages[0].extract_text() or '')
+            if '통합간편건강보험' in head: return '통합간편'
+        except Exception:
+            pass
     return '케어프리'
 
 if __name__=='__main__':
@@ -60,7 +70,7 @@ if __name__=='__main__':
         c = auto_meta(orig)
         import matcher
         rows = matcher.read_proposal(orig)
-        c['riders'] = matcher.read_proposal(orig, line=guess_line(rows))
+        c['riders'] = matcher.read_proposal(orig, line=guess_line(rows, orig))
         try:
             import desc_engine
             c['riders'], c['desc_info'] = desc_engine.attach(c['riders'], orig)

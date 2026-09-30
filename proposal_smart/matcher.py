@@ -37,6 +37,16 @@ def _trail_groups(n):
         out.append((rest[:i], rest[i + 1:-1])); rest = rest[:i]
     return out
 
+def _last_bracket(s):
+    """끝의 균형 잡힌 [○○] 안쪽 — 마스터 이름이 '…[…[…]]' 처럼 겹 대괄호로 끝나도 된다(v8.65 · 전에는 여기서 멈췄다)"""
+    depth = 0
+    for i in range(len(s) - 1, -1, -1):
+        if s[i] == ']': depth += 1
+        elif s[i] == '[':
+            depth -= 1
+            if depth == 0: return s[i + 1:-1]
+    return s
+
 def _sub_pick(n, line):
     """설계서가 세부급부를 (○○) 괄호로 적은 담보 → 마스터의 그 세부보장 레코드(부모[○○] 또는 '○○진단비' 같은 자식)(v8.61).
        전에는 부모 레코드로 매칭되어 부모의 KCD·제외코드를 받았다 — 「다빈치로봇 암수술비(특정암)」이 모든 암 코드를,
@@ -54,7 +64,7 @@ def _sub_pick(n, line):
         key = _norm(lab)
         def label(k):
             bk = base(k['n'])
-            return _norm(re.search(r'\[([^\[\]]+)\]$', bk).group(1)) if bk.endswith(']') else _norm(bk)
+            return _norm(_last_bracket(bk)) if bk.endswith(']') else _norm(bk)
         for test in (lambda l: l == key, lambda l: l.startswith(key)):
             hit = [k for k in kids if test(label(k))]
             if hit: return hit, lab
@@ -67,6 +77,17 @@ def _find(n, line):
     c = pick(n)
     if not c and '[' in n:
         b = re.search(r'\[([^\[\]]+)\]', n).group(1); c = pick(re.sub(r'\[[^\[\]]+\]', '', n))
+        # 설계서가 세부보장을 줄여 적은 경우([5대질병] ↔ 마스터 [5대질병관혈수술비]) — 부모 대신 그 세부 레코드(v8.65).
+        # 부모는 세부 전체 코드의 합집합이라, 부모로 매칭하면 [5대질병]·[9대질병]·[4대질병]이 14대질병(담석증) 수술에도 지급됐다.
+        if c:
+            key = _norm(b); kids = [k for r in c for k in CHILD.get(r['id'], [])]
+            if not kids:                    # 고른 부모에 세부 레코드가 없으면(케102·케109) 같은 이름 특약의 다른 상품 세부(통55-n · 같은 약관 분류표)
+                pn = re.sub(r'\[[^\[\]]+\]', '', n); pn2 = re.sub(PRE_REN, '', pn) if re.match(PRE_REN, pn) else '갱신형' + pn
+                ps = INDEX.get(pn, []) + INDEX.get(pn2, [])
+                kids = [k for r in ps if r.get('p') == line for k in CHILD.get(r['id'], [])] or [k for r in ps for k in CHILD.get(r['id'], [])]
+            lab = lambda k: _norm((re.search(r'\[([^\[\]]+)\]$', base(k['n'])) or [None, ''])[1])
+            hit = [k for k in kids if lab(k) == key] or [k for k in kids if lab(k).startswith(key)]
+            if len(hit) == 1: c = hit
     if not c:                           # (세부) 괄호 표기 → 세부보장 레코드(v8.61)
         hit, lab = _sub_pick(n, line)
         if hit: return hit, lab, None
@@ -84,11 +105,22 @@ def _find(n, line):
     return c, b, s
 
 def match(name, line=None):
+    """담보명 → (마스터 레코드, 대괄호 세부, 끝괄호 꼬리). 어떤 이름이 와도 멈추지 않는다 — 실패하면 미매칭 + 로그(v8.65)"""
+    try:
+        return _match(name, line)
+    except Exception as ex:
+        S.log('검토필요', name, '특약 마스터 매칭 중 오류(%s: %s) — 미매칭으로 두고 계속' % (type(ex).__name__, ex))
+        return None, None, None
+
+def _match(name, line=None):
     n = base(name)
     c, b, s = _find(n, line)
+    alt = re.sub(PRE_REN, '', n) if re.match(PRE_REN, n) else '갱신형' + n
     if not c:                           # 정확히 일치하는 이름이 없을 때만 갱신형 표기를 떼거나 붙여 다시 찾는다
-        alt = re.sub(PRE_REN, '', n) if re.match(PRE_REN, n) else '갱신형' + n
         c, b, s = _find(alt, line)
+    elif line and c[0].get('p') != line:  # 다른 상품 레코드만 걸렸으면 갱신형 표기를 바꿔 설계 상품의 레코드를 한 번 더 찾는다(v8.65)
+        c2, b2, s2 = _find(alt, line)       # 통합간편 설계서 '갱신형 32대질병관혈수술비' → 케109(케어프리) 대신 통55(통합간편)
+        if c2 and c2[0].get('p') == line: c, b, s = c2, b2, s2
     return (c[0] if c else None), b, s
 
 # ── 부모 담보 행(금액 칸이 '세부보장참조')과 그 아래 ┗ 세부 행 연결 (v8.61) ──────────────────
@@ -117,6 +149,7 @@ def read_proposal(pdf_path, line=None, max_pages=None):
        담보명 기준으로 중복을 없앤다(부모 담보의 '세부보장 참조' 행은 금액이 없어 제외)."""
     import pdfplumber
     rows, seen, no_seq = [], set(), 0
+    guide = []                                      # 금액이 '안내참조'인 행 (번호, 담보명)(v8.65)
     parent = None                                   # 가장 최근의 '세부보장참조' 부모 행(v8.61) — 세부 행이 다음 쪽으로 넘어가도 유지
     with pdfplumber.open(pdf_path) as pdf:
         pages = pdf.pages[:max_pages] if max_pages else pdf.pages
@@ -132,6 +165,9 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                     if not name or len(name) > 110 or '보험기간' in name: continue
                     am = re.match(_A, amt)
                     if not am:
+                        if GUIDE.search(amt):                                               # 금액 칸이 '안내참조' — 설계서 뒤쪽 「가입금액 및 지급금액」 표에서 찾는다(v8.65)
+                            if (no, S.nname(name)) not in {(g[0], S.nname(g[1])) for g in guide}: guide.append((no, name))
+                            continue
                         if SUBREF.search(amt):                                                # 부모 행(금액 없음) — 아래 ┗ 세부 행의 약관 근거로 쓴다(v8.61)
                             parent = {'name': re.sub(GOJI, '', name).strip(), 'm': parent_master(name, line)}
                         elif '원' in amt and len(name) >= 3 and '보험료' not in name:      # 번호·담보명은 있는데 금액을 못 읽은 행 → 로그(v8.3)
@@ -156,6 +192,7 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                         am0 = re.search(_A, lines[k][len(mm.group(0).rstrip()):] or lines[k].replace(name, '', 1))
                         if am0: amt = am0.group(0)
                         while j < len(lines) and j <= k + 4:
+                            if re.match(r'^\d{1,3}\s', lines[j]): break                      # 다음 번호 행의 금액을 가져오지 않는다(v8.65) — 부모 행('세부보장 참조'가 윗줄·아랫줄로 갈린 경우)이 ┗ 첫 행 금액으로 잡히던 것
                             am = re.search(_A, lines[j])
                             if am and not amt: amt = am.group(0)                           # 금액 줄(행 라벨이 앞에 붙기도 함)
                             elif not am and (name.count('[') > name.count(']') or name.count('(') > name.count(')')):
@@ -170,4 +207,33 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                                          'codes': (mt or {}).get('k') or [], 'excl': (mt or {}).get('x') or [], 'benefit': b, 'sub': s2, 'matched': bool(mt),
                                          'itc': S.itc_id(name), 'sub_rec': bool(mt and '[' in (mt.get('n') or ''))})
                     k += 1
+    if guide: rows += _guide_rows(pdf_path, guide, seen, line)
     return rows
+
+GUIDE = re.compile(r'안내\s*참조')
+def _guide_rows(pdf_path, guide, seen, line=None):
+    """'안내참조' 담보의 가입금액을 설계서 안의 「○○ 가입금액 및 지급금액」 표(담보명 뒤에 'N원')에서 읽는다(v8.65).
+       예) 최대두배받는2대질환치료비(1점이상)(포인트적립형) 50,000,000 원 12,500,000 원(가입금액의 25%).
+       표에서 못 찾으면 추정하지 않고 로그만 남긴다."""
+    try:
+        import pymupdf
+        with pymupdf.open(pdf_path) as d: full = ''.join(p.get_text() for p in d)
+    except Exception:
+        import pdfplumber
+        with pdfplumber.open(pdf_path) as d: full = ''.join((p.extract_text() or '') for p in d.pages)
+    flat = re.sub(r'\s+', '', full); out = []
+    for no, name in guide:
+        nm = re.sub(GOJI, '', name).replace('[기본계약]', '').strip(); key = re.sub(r'\s+', '', nm)
+        mm = re.search(re.escape(key) + r'([\d,]{5,})원', flat)
+        if not mm:
+            S.log('검토필요', nm, '가입금액이 "안내참조"인데 설계서 안의 가입금액 표에서 금액을 찾지 못해 담보 리스트에서 제외'); continue
+        won = int(mm.group(1).replace(',', ''))
+        if won % 10000:
+            S.log('검토필요', nm, '안내 표 가입금액 %s원이 만원 단위가 아니어서 제외' % mm.group(1)); continue
+        k2 = (no, S.nname(name))
+        if k2 in seen: continue
+        seen.add(k2); m, b, s2 = match(name, line)
+        out.append({'no': no, 'name': nm, 'man': won // 10000, 'amount_text': '안내참조(가입금액 %s원)' % mm.group(1), 'cat': (m or {}).get('c'),
+                    'codes': (m or {}).get('k') or [], 'excl': (m or {}).get('x') or [], 'hc': (m or {}).get('hc') or [], 'benefit': b, 'sub': s2, 'matched': bool(m),
+                    'itc': S.itc_id(name), 'sub_rec': bool(m and '[' in (m.get('n') or ''))})
+    return out

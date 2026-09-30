@@ -167,11 +167,23 @@ def p1():
     def care2(*k):
         a = rider_man(*k, exclude=('181일',)); b = rider_man(*k, '181일')
         if a is None and b is None: return '<span class="na">미가입</span>'
-        return '%s <small>1~180일</small> %s <small>181일~</small>' % (M(a or 0), M(b or 0)) if b is not None else M(a or 0)
+        return '%s <small>1~180일</small><br>%s <small>181일~</small>' % (M(a or 0), M(b or 0)) if b is not None else M(a or 0)   # 두 줄 — 한 줄이면 칸을 넘는다
     # 간병인지원 일당을 가입했으면 간병인 지원 · 요양병원 모두 '지원가능'(문구 통일)
     joined = any('간병인지원' in r['name'] and r['man'] > 0 for r in RID)
     ok = '<span class="txt">지원가능</span>'; na = '<span class="na">미가입</span>'
-    joined_use = any('간병인사용' in r['name'] and r['man'] > 0 for r in RID)
+    # 간병인사용(실손·정액형) 일당 — 질병입원일당만. 이름 속 '(요양병원제외)'를 요양병원 일당으로 오인하지 않게 괄호 표기로 가른다.
+    #   간병인 : 간병인사용 질병입원일당(요양병원 전용 제외) · 요양병원 : 간병인사용 …(요양병원) · 간호간병 : 간호·간병통합서비스 사용 질병입원일당(단독 특약)
+    def use_rs(kind):
+        rs = [r for r in RID if '질병입원일당' in r['name'] and '요양성' not in r['name']]
+        if kind == 'gen': return [r for r in rs if '간병인사용' in r['name'] and '(요양병원)' not in r['name'] and '간호·간병' not in r['name']]
+        if kind == 'nh': return [r for r in rs if '간병인사용' in r['name'] and '(요양병원)' in r['name']]
+        return [r for r in rs if '간호·간병통합서비스' in r['name'] and '간병인지원' not in r['name']]
+    def care_use(kind):
+        rs = use_rs(kind)
+        if not rs: return '<span class="na">미가입</span>'
+        a = [r['man'] for r in rs if '181일' not in r['name']]; b = [r['man'] for r in rs if '181일' in r['name']]
+        if b: return '%s <small>1~180일</small><br>%s <small>181일~</small>' % (M(sum(a)), M(sum(b)))
+        return M(sum(a))
     care = ('<table class="care"><tr><th colspan="2">간병인지원</th></tr>'
             '<tr><td>간병인 지원</td><td>%s</td></tr>'
             '<tr><td>간병인 미사용</td><td>%s</td></tr><tr><td>요양병원</td><td>%s</td></tr><tr><td>간호간병</td><td>%s</td></tr>'
@@ -179,7 +191,7 @@ def p1():
             '<tr><td>간병인</td><td>%s</td></tr><tr><td>요양병원</td><td>%s</td></tr><tr><td>간호간병</td><td>%s</td></tr></table>'
             % (ok if joined else na, cv('간병인지원', '질병입원일당(Ⅵ)', exclude=('181일',)), ok if joined else na,
                care2('간병인지원', '질병입원일당(간호·간병'),
-               cv('간병인사용', '질병입원일당', exclude=('181일', '요양')), ok if joined_use else na, care2('간병인사용', '질병입원일당(간호·간병')))
+               care_use('gen'), care_use('nh'), care_use('nurse')))
     body = ('<img class="char p1" src="%s"><h1>고객님의 메리츠 보장 한눈에!</h1>' % CH['p1']
             + hl('암보장') + cancer + hl('뇌·심보장') + bh
             + '<div class="two"><div class="l">' + hl('국내주요수술') + dz + '</div><div class="r">' + hl('간병인입원보장') + care + '</div></div>')
@@ -254,11 +266,11 @@ def amt_cell(L, keys, exclude=(), kcd=None):
     return M(v)
 def p4():
     R = C['robot']
-    a = det([('질병수술비', amt_cell(R, ['질병수술비'], exclude=('131대', '130대', '척추질병'))), ('1-5종수술비', amt_cell(R, ['1-5종'])), ('암수술비', amt_cell(R, ['암수술비'], exclude=('다빈치',))),
+    a = det([('질병수술비', amt_cell(R, ['질병수술비'], exclude=('131대', '130대', '척추질병'))), ('1-5종수술비', amt_cell(R, ['1-5종'], exclude=('상해',))), ('암수술비', amt_cell(R, ['암수술비'], exclude=('다빈치',))),
              ('암통합치료비', amt_cell(R, ['암 통합치료비(기본형)', '암 통합치료비(실속형)'])), ('비급여암통합치료비', amt_cell(R, ['통합치료비Ⅱ(비급여', '통합치료비(주요치료)(비급여'])), ('다빈치로봇암수술비', amt_cell(R, ['다빈치']))],
             [('최초 :', M(F(R), True)), ('매 회 :', M(E(R), True))], '*암수술비(체증형) 5회이상 수술시 최대 2배보장')
     O = C['open']
-    b = det([('질병수술비', amt_cell(O, ['질병수술비'], exclude=('131대', '130대', '척추질병'))), ('1-5종수술비', amt_cell(O, ['1-5종'])), ('1-7종수술비', amt_cell(O, ['┗ 수술비', '수술비(1-7종'])), ('암수술비', amt_cell(O, ['암수술비'], exclude=('다빈치',))),
+    b = det([('질병수술비', amt_cell(O, ['질병수술비'], exclude=('131대', '130대', '척추질병'))), ('1-5종수술비', amt_cell(O, ['1-5종'], exclude=('상해',))), ('1-7종수술비', amt_cell(O, ['┗ 수술비', '수술비(1-7종'], exclude=('상해',))), ('암수술비', amt_cell(O, ['암수술비'], exclude=('다빈치',))),
              ('암통합치료비', amt_cell(O, ['암 통합치료비(기본형)', '암 통합치료비(실속형)'])), ('비급여암통합치료비', amt_cell(O, ['통합치료비Ⅱ(비급여', '통합치료비(주요치료)(비급여']))],
             [('최초 :', M(F(O), True)), ('매 회 :', M(E(O), True))], '*암수술비(체증형) 5회이상 수술시 최대 2배보장')
     tg = lambda d: s('C16', [['항암', '표적(비급여)', '', ['chemo', 'target'], {'nc': 1}]], chemo=1, target=1, drug=d)
@@ -278,7 +290,7 @@ def p4():
 BH_ROWS = {
  'thromb': ('혈전용해치료비', r'혈전용해치료비'),
  'mech':   ('혈전제거·특정혈전치료비', r'기계적혈전제거|특정혈전치료비'),
- 'two':    ('2대질환 주요치료비', r'2대질환.*주요치료비'),
+ 'two':    ('2대질환 치료비<small>(주요치료비·최대두배)</small>', r'2대질환.*주요치료비|최대두배받는2대질환치료비'),
  'bhsurg': ('뇌·심장 수술비<small>(뇌혈관·허혈성심장·131대·5대질환 등)</small>', r'뇌혈관질환수술비|허혈성심장질환수술비|심장질환수술비|뇌출혈수술비|뇌졸중수술비|뇌동맥류|5대질환|32대질병|13[01]대질병수술비'),
  'dzsurg': ('질병수술비', r'^(\(\d+년갱신\))?(갱신형)?(상급종합병원|종합병원)?질병수술비'),
  'g15':    ('1-5종수술비', r'1-5종'),
@@ -309,7 +321,7 @@ def bh_group(l):
 def bh_joined(k):
     if k == 'etc': return True
     if k == 'itc': return any(r.get('itc') and r['man'] > 0 for r in RID)
-    return any(re.search(BH_ROWS[k][1], _ns(r['name'])) and r['man'] > 0 for r in RID)
+    return any(re.search(BH_ROWS[k][1], _ns(r['name'])) and r['man'] > 0 and not (k in ('g15', 'g17') and '상해' in r['name']) for r in RID)   # 질병 사례 칸 — 상해 전용 종수술비만 있으면 미가입(v8.65)
 def det2(cols, rows, tots, note=''):
     """cols : (뇌 열 이름, 심장 열 이름) · rows : (담보, 뇌 값, 심장 값) · tots : (라벨, 뇌 값, 심장 값)"""
     tb = ''.join('<tr><td>%s</td><td class="amt">%s</td><td class="amt">%s</td></tr>' % r for r in rows)
@@ -353,8 +365,8 @@ def p5():
                    ('치질', ['질병수술비', '1-5종수술비', '1-7종수술비', '131대수술비']),
                    ('담석증', ['질병수술비', '질병수술비(특정5대제외)', '1-5종수술비', '1-7종수술비', '131대수술비'])):
         kcd = GA_DZ[n][1]; La, Lt = dzL(n, '병원'), dzL(n, '상급종합')
-        KEY = {'질병수술비': (['질병수술비'], ('특정5대질병 제외', '131대', '130대', '척추질병')), '질병수술비(특정5대제외)': (['특정5대질병 제외'], ()), '1-5종수술비': (['1-5종'], ()),
-               '1-7종수술비': (['┗ 수술비', '수술비(1-7종'], ()), '131대수술비': (['131대', '130대'], ())}   # 통합간편은 130대질병수술비(v8.63)
+        KEY = {'질병수술비': (['질병수술비'], ('특정5대질병 제외', '131대', '130대', '척추질병')), '질병수술비(특정5대제외)': (['특정5대질병 제외'], ()), '1-5종수술비': (['1-5종'], ('상해',)),
+               '1-7종수술비': (['┗ 수술비', '수술비(1-7종'], ('상해',)), '131대수술비': (['131대', '130대'], ())}   # 통합간편은 130대질병수술비(v8.63)
         rows = [(t, amt_cell(Lt, KEY[t][0], KEY[t][1], kcd)) for t in tpl]
         out += hl(n) + det(rows, [('모든병원 :', M(F(La), True)), ('상급병원 :', M(F(Lt), True))])
     body = '<img class="char p5" src="%s"><h1>주요 수술비 세부내역</h1>' % CH['p5'] + out
@@ -389,7 +401,7 @@ small{font-size:8pt;color:#555} .na{color:#999;font-size:9pt}
 .det.bh .tot{width:35%;padding:9pt 8pt} .det.bh th{font-size:9pt;line-height:1.15} .det.bh th small{display:block;font-size:7pt;font-weight:600;color:#666}
 .det.bh th:nth-child(2),.det.bh th:nth-child(3){width:21%} .det.bh td{padding:2.6pt 6pt;font-size:9.2pt} .det.bh td:first-child{text-align:left} .det.bh td small{font-size:6.6pt;color:#777;margin-left:2pt}
 .tt{width:100%;border-collapse:collapse;table-layout:fixed} .tt th,.tt td{border:0;height:auto;padding:2pt 0;font-size:8.6pt;background:none;white-space:nowrap}
-.tt th{color:#666;font-weight:700;text-align:right} .tt td{text-align:right} .tt td:first-child,.tt th:first-child{text-align:left;width:24%;font-weight:900;font-size:9pt;color:#222} .tt td{overflow:visible}
+.tt th{color:#666;font-weight:700;text-align:right} .tt td{text-align:right} .tt td:first-child,.tt th:first-child{text-align:left;width:17%;font-weight:900;font-size:9pt;color:#222} .tt td{overflow:visible;padding-left:4pt}
 .tt b.v{font-size:9.6pt;letter-spacing:-.3pt} .tt b.v i{font-size:6.4pt}
 '''
 
