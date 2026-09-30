@@ -302,8 +302,9 @@ BH_SEC = {
  1: ('혈전용해치료', ('뇌경색<small>혈전용해</small>', '급성심근경색<small>혈전용해</small>'), ['thromb', 'two', 'itc'],
      lambda: [s('I63', [['시술', '혈전용해', '', ['thromb']]], series='brain'),
               s('I21', [['시술', '혈전용해', '', ['thromb']]], series='heart')]),
- 2: ('수술(비관혈) · 혈관 안 시술', ('뇌경색<small>기계적 혈전제거술</small>', '급성심근경색<small>관상동맥 스텐트</small>'), ['bhsurg', 'dzsurg', 'g15', 'g17', 'thromb', 'two', 'itc'],
-     lambda: [s('I63', [['시술', '혈전용해', '', ['thromb']], ['시술', '혈전제거술', '', ['surg']]], surg='88-1', surg7='B027', grp=BG + ['뇌졸중', '특정31대질병'], acts=['thrombectomy']),
+ # 시술만의 사례(v8.65) — 전에는 뇌 쪽만 혈전용해+혈전제거술이라 위 「혈전용해치료」 칸과 겹치고, 심장(스텐트만)과 혈전용해치료비가 1,000 / 0 으로 어긋났다
+ 2: ('수술(비관혈) · 혈관 안 시술', ('뇌경색<small>기계적 혈전제거술</small>', '급성심근경색<small>관상동맥 스텐트</small>'), ['bhsurg', 'dzsurg', 'g15', 'g17', 'two', 'itc'],
+     lambda: [s('I63', [['시술', '혈전제거술', '', ['surg']]], surg='88-1', surg7='B027', grp=BG + ['뇌졸중', '특정31대질병'], acts=['thrombectomy']),
               s('I21', [['시술', '스텐트 삽입', '', ['surg']]], surg='88-1', surg7='F133', grp=HG + ['허혈성심장질환', '특정31대질병'])]),
  3: ('수술(관혈) · 개두·개흉', ('뇌출혈<small>개두술</small>', '협심증<small>관상동맥 우회술</small>'), ['bhsurg', 'dzsurg', 'g15', 'g17', 'two', 'itc'],
      lambda: [s('I61', [['수술', '혈종제거 개두술', '', ['surg']]], surg='59', surg7='B031', grp=BG + ['뇌졸중', '뇌출혈', '특정31대질병'], anes=1),
@@ -342,7 +343,16 @@ def bh_section(no):
     else:
         tots = [('최초', M(F(Lb)), M(F(Lh))), ('매 회', M(E(Lb)), M(E(Lh)))]
         note = '*매 회 = 수술 1회당 담보만(연간·최초 1회 담보 제외)'
+    # 표에 줄이 없는 지급(통합생활지원비·전신마취·기계적혈전제거술 등)도 총 보장에는 들어간다 — 무엇이 더해졌는지 적어 둔다(v8.65)
+    out = []
+    for l in Lb + Lh:
+        if bh_group(l) in keys or l['amt'] <= 0: continue
+        n = _ns(l['name'])
+        lab = next((v for p, v in _BH_OUT if re.search(p, n)), re.sub(r'^갱신형', '', re.sub(r'\(.*$', '', n)))
+        if lab not in out: out.append(lab)
+    if out: note += '<br>*총 보장에 표 밖 담보 포함 : ' + ' · '.join(out)
     return hl(title) + det2(cols, rows, tots, note)
+_BH_OUT = [(r'통합생활지원비', '통합생활지원비'), (r'전신마취', '전신마취치료비'), (r'기계적혈전제거', '기계적혈전제거술치료비'), (r'특정혈전치료비', '특정혈전치료비')]
 def p_bh():
     sev_rows = []
     for lab, k in BH_SEV:
