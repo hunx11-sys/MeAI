@@ -281,7 +281,8 @@ BH_ROWS = {
  'two':    ('2대질환 주요치료비', r'2대질환.*주요치료비'),
  'bhsurg': ('뇌·심장 수술비<small>(뇌혈관·허혈성심장·131대·5대질환 등)</small>', r'뇌혈관질환수술비|허혈성심장질환수술비|심장질환수술비|뇌출혈수술비|뇌졸중수술비|뇌동맥류|5대질환|32대질병|13[01]대질병수술비'),
  'dzsurg': ('질병수술비', r'^(\(\d+년갱신\))?(갱신형)?(상급종합병원|종합병원)?질병수술비'),
- 'grade':  ('1-5종·1-7종 수술비', r'1-5종|1-7종|┗수술비'),
+ 'g15':    ('1-5종수술비', r'1-5종'),
+ 'g17':    ('1-7종수술비', r'1-7종|┗수술비'),
  'itc':    ('특정순환계질환 통합치료비', None),          # 통합치료비(순환계·질병) — 지급 줄 group 으로 판정
  'etc':    ('산정특례·생활지원비·전신마취 등', None),     # 위 줄에 안 드는 모든 지급 줄
 }
@@ -289,10 +290,10 @@ BH_SEC = {
  1: ('혈전용해치료', ('뇌경색<small>혈전용해</small>', '급성심근경색<small>혈전용해</small>'), ['thromb', 'two', 'itc'],
      lambda: [s('I63', [['시술', '혈전용해', '', ['thromb']]], series='brain'),
               s('I21', [['시술', '혈전용해', '', ['thromb']]], series='heart')]),
- 2: ('수술(비관혈) · 혈관 안 시술', ('뇌경색<small>기계적 혈전제거술</small>', '급성심근경색<small>관상동맥 스텐트</small>'), ['bhsurg', 'dzsurg', 'grade', 'thromb', 'two', 'itc'],
+ 2: ('수술(비관혈) · 혈관 안 시술', ('뇌경색<small>기계적 혈전제거술</small>', '급성심근경색<small>관상동맥 스텐트</small>'), ['bhsurg', 'dzsurg', 'g15', 'g17', 'thromb', 'two', 'itc'],
      lambda: [s('I63', [['시술', '혈전용해', '', ['thromb']], ['시술', '혈전제거술', '', ['surg']]], surg='88-1', surg7='B027', grp=BG + ['뇌졸중', '특정31대질병'], acts=['thrombectomy']),
               s('I21', [['시술', '스텐트 삽입', '', ['surg']]], surg='88-1', surg7='F133', grp=HG + ['허혈성심장질환', '특정31대질병'])]),
- 3: ('수술(관혈) · 개두·개흉', ('뇌출혈<small>개두술</small>', '협심증<small>관상동맥 우회술</small>'), ['bhsurg', 'dzsurg', 'grade', 'two', 'itc'],
+ 3: ('수술(관혈) · 개두·개흉', ('뇌출혈<small>개두술</small>', '협심증<small>관상동맥 우회술</small>'), ['bhsurg', 'dzsurg', 'g15', 'g17', 'two', 'itc'],
      lambda: [s('I61', [['수술', '혈종제거 개두술', '', ['surg']]], surg='59', surg7='B031', grp=BG + ['뇌졸중', '뇌출혈', '특정31대질병'], anes=1),
               s('I20', [['수술', '관상동맥 우회술', '', ['surg']]], surg='24', surg7='F042', grp=HG + ['허혈성심장질환', '특정31대질병'], anes=1, anes_h=6)]),
 }
@@ -301,7 +302,7 @@ def bh_sev_case(kcd, grp, keys):
     return s(kcd, [['치료', k, '', [k]] for k in keys], grp=grp, icu=(1 if 'icu' in keys else 0))
 def bh_group(l):
     n = _ns(l['name'])
-    for k in ('thromb', 'mech', 'two', 'bhsurg', 'dzsurg', 'grade'):
+    for k in ('thromb', 'mech', 'two', 'bhsurg', 'dzsurg', 'g15', 'g17'):
         if re.search(BH_ROWS[k][1], n) and not (k == 'thromb' and re.search(BH_ROWS['mech'][1], n)): return k
     if l.get('group') == '통합치료비': return 'itc'
     return 'etc'
