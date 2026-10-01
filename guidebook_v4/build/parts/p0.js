@@ -17,7 +17,9 @@ module.exports = (S, ctx) => {
       ['4','묻는 법이 궁금하다면','PART 8','질문은 클릭으로 고르기,\n누구에게 + 무엇을 묻는 법,\n고객에게 할 말 초안까지'],
     ];
     const cy = 1.85, ch = 2.0;
+    const cardKeys = ['01','03','06','08']; // PDF 에서 카드를 누르면 가는 파트 첫 쪽(모양은 그대로)
     items.forEach((it,i)=>{ const x = M + i*3.08, y = cy, w = 2.9, h = ch;
+      L.link(no,{x,y,w,h},ctx.parts[cardKeys[i]]);
       L.R(s,{x,y,w,h,fill:C.white,line:C.g200,radius:0.14,shadow:true});
       L.badge(s,{x:x+0.25,y:y+0.18,n:it[0],d:0.4,color: i===1? C.blue : C.navy});
       L.T(s,it[2],{x:x+0.76,y:y+0.2,w:w-1,h:0.36,fontSize:11,bold:true,color:C.blue,valign:'middle'});
@@ -37,7 +39,9 @@ module.exports = (S, ctx) => {
       ['4 연락하기','고객에게 연락','PART 6 · 7','카드의 첫 말로 연락하고\n리포트까지 발송하기'],
     ];
     const sy = 4.38, sh = 1.34, gap = 0.22, sw = (W-2*M-gap*3)/4;
+    const stepKeys = ['02','03','06','07'];
     steps.forEach((st,i)=>{ const x = M + i*(sw+gap); const on = i===2;
+      L.link(no,{x,y:sy,w:sw,h:sh},ctx.parts[stepKeys[i]]);
       L.R(s,{x,y:sy,w:sw,h:sh,fill: on? C.blue : C.white, line: on? null : C.g200, radius:0.14, shadow:!on});
       L.T(s,st[0],{x:x+0.22,y:sy+0.12,w:sw-1.2,h:0.34,fontSize:15,bold:true,color: on?'FFFFFF':C.navy,valign:'middle'});
       L.T(s,st[2],{x:x+sw-1.12,y:sy+0.12,w:0.9,h:0.34,fontSize:10,color: on?'FFFFFF':C.g500,transparency: on?25:0,align:'right',valign:'middle'});
@@ -71,13 +75,53 @@ module.exports = (S, ctx) => {
     ];
     // 파트 시작 쪽은 deck.js 가 각 파트 구분 장의 part 키('01'~'09')로 ctx.parts 에 채운다
     const hotKeys = ['02','03','04','08'];
-    parts.forEach((p,i)=>{ const col = i<5?0:1; const row = i<5? i : i-5; const x = M + col*6.2, y = 1.85 + row*0.9, w = 5.95, h = 0.76;
+    // 줄 간격 0.74 · 높이 0.62 (아래 '이럴 땐 여기' 자리를 만들려고 줄였음, 글자 크기는 그대로). PDF 에서 줄을 누르면 그 파트로
+    const rowY = (row)=> 1.85 + row*0.74, rh = 0.62, rw = 5.95;
+    parts.forEach((p,i)=>{ const col = i<5?0:1; const row = i<5? i : i-5; const x = M + col*6.2, y = rowY(row), w = rw, h = rh;
       const hot = hotKeys.includes(p[0]);
       L.R(s,{x,y,w,h,fill: hot? C.blue50 : C.white, line: hot? null : C.g200, radius:0.12, shadow:!hot});
       L.T(s,p[0],{x:x+0.25,y,w:0.7,h,fontSize:20,bold:true,color: hot? C.blue : C.g400,valign:'middle'});
       L.T(s,p[1],{x:x+1.0,y,w:w-1.95,h,fontSize:13.5,bold:true,color:C.navy,valign:'middle'});
       L.T(s,'p.'+(ctx.parts[p[0]]||'-'),{x:x+w-0.95,y,w:0.75,h,fontSize:11,color:C.g500,align:'right',valign:'middle'});
+      L.link(no,{x,y,w,h},ctx.parts[p[0]]);
     });
-    L.T(s,'파란 칸(PART 2·3·4·8)부터 보면 MeAI 홈 바로 사용 가능.',{x:M+6.2,y:1.85+4*0.9,w:5.95,h:0.76,fontSize:12,color:C.g600,valign:'middle'});
+    // 오른쪽 다섯째 칸: '한 장 요약' 쪽(p9 의 part:'sum') 바로가기. ctx.parts.sum 은 전체 빌드에만 있음 —
+    // ONLY=p0 빌드에선 'p.-'(링크 없음). 전체 빌드인데 요약 쪽이 없으면 칸을 비워 둠(없는 쪽을 가리키지 않게.
+    // 예전 회색 안내 '파란 칸(PART 2·3·4·8)부터…' 는 아래 '이럴 땐 여기' 오른쪽 줄로 옮겨 갔으니 되살리지 않음)
+    const sumPg = ctx.parts.sum, sx = M+6.2, sy = rowY(4);
+    if (sumPg || !ctx.parts['09']){
+      L.R(s,{x:sx,y:sy,w:rw,h:rh,fill:C.navy,line:null,radius:0.12});
+      L.T(s,'바쁘면 한 장 요약부터',{x:sx+0.25,y:sy,w:rw-1.4,h:rh,fontSize:13.5,bold:true,color:'FFFFFF',valign:'middle'});
+      L.T(s,'p.'+(sumPg||'-'),{x:sx+rw-0.95,y:sy,w:0.75,h:rh,fontSize:11,color:'FFFFFF',transparency:30,align:'right',valign:'middle'});
+      L.link(no,{x:sx,y:sy,w:rw,h:rh},sumPg);
+    }
+    // 이럴 땐 여기 — 상황별 바로가기 8칸. 쪽 번호는 파트 첫 쪽 + 상대 위치(p4 의 tagPg 와 같은 방식)라 쪽이 밀려도 따라감
+    const rel = (k,d)=> ctx.parts[k] ? ctx.parts[k]+d : null;
+    const hy = 5.55;
+    L.T(s,'이럴 땐 여기',{x:M,y:hy,w:3,h:0.3,fontSize:12,bold:true,color:C.navy,valign:'middle'});
+    const faqPg = rel('09',2), termPg = rel('09',3);
+    const faqS = `FAQ p.${faqPg||'-'}`, termS = `용어 p.${termPg||'-'}`;
+    L.T(s,`파란 칸(PART 2·3·4·8) = MeAI 홈 화면과 묻는 법 · ${faqS} · ${termS}`,{x:W-M-8,y:hy,w:8,h:0.3,fontSize:10.5,color:C.g600,align:'right',valign:'middle'});
+    // 오른쪽 끝 'FAQ p.N · 용어 p.N' 도 누르면 이동. 오른쪽 정렬이라 끝에서 거꾸로 잼(textW 는 실제 폭보다 약 10% 넓게 나와 0.9 를 곱함)
+    const kW = 0.9, cut = W-M - L.textW(termS,10.5)*kW - L.textW(' · ',10.5)*kW/2;
+    L.link(no,{x:cut,y:hy,w:W-M+0.05-cut,h:0.3},termPg);
+    L.link(no,{x:cut-L.textW(faqS,10.5)*kW-0.12,y:hy,w:L.textW(faqS,10.5)*kW+0.12,h:0.3},faqPg);
+    const idx = [
+      ['"사전조회동의 필요"가 뜸', rel('05',3)],
+      ['숫자 4개의 뜻', rel('02',6)],
+      ['카드 한 장 읽기', rel('02',8)],
+      ['검색 팝업에 없음 · 회색', rel('03',3)],
+      ['그룹별 한 줄 화법', rel('04',4)],
+      ['직접 묻는 공식', rel('08',2)],
+      ['고객에게 첫 말 모음', rel('08',5)],
+      ['모바일에서 쓰기', rel('06',13)],
+    ];
+    const cg = 0.15, cw = (W-2*M-0.45)/4, chh = 0.4;
+    idx.forEach(([t,pg],i)=>{ const x = M + (i%4)*(cw+cg), y = i<4? 5.95 : 6.43;
+      L.R(s,{x,y,w:cw,h:chh,fill:C.g50,line:C.g200,radius:0.1});
+      L.T(s,t,{x:x+0.18,y,w:cw-0.75,h:chh,fontSize:11,color:C.g800,valign:'middle'});
+      L.T(s,'p.'+(pg||'-'),{x:x+cw-0.78,y,w:0.6,h:chh,fontSize:11,bold:true,color:C.blue,align:'right',valign:'middle'});
+      L.link(no,{x,y,w:cw,h:chh},pg);
+    });
   }});
 };

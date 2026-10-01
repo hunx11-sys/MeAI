@@ -7,6 +7,8 @@ module.exports = (S, ctx) => {
     const g = L.img(s,HERO('find_full'),{x:M,y:1.85,w:8.5,h:5.05,valign:'top',align:'left'});
     const clip={x:0,y:0};
     L.pin(s,g,150,100,1,{clip}); L.pin(s,g,275,226,2,{clip}); L.pin(s,g,522,105,3,{clip}); L.pin(s,g,955,220,4,{clip}); L.pin(s,g,309,632,5,{clip}); L.pin(s,g,1211,146,6,{clip}); L.pin(s,g,1424,444,7,{clip}); L.pin(s,g,395,31,8,{clip}); L.pin(s,g,1150,75,9,{clip});
+    // 캡처 속 '최근 업데이트 2026-08-06 06:00' — 10월 책이라 날짜·시각만 흰 상자로 가림(라벨은 남김, 2쪽과 같은 원칙)
+    s.addShape('rect',{x:7.70, y:1.965, w:0.73, h:0.12, fill:{color:'FFFFFF'}, line:{color:'FFFFFF',width:0}});
     L.numList(s,{x:9.15,y:1.8,w:3.58,gap:0,titleSize:12,descSize:10,items:[
       {n:1,title:'고객 그룹',desc:'연락할 이유별로 묶인 그룹'},
       {n:2,title:'탭 전환',desc:'보장 기준 10개 · 영업 기회 3개'},
@@ -132,7 +134,7 @@ module.exports = (S, ctx) => {
     const a = L.img(s,HERO('gb5_search_attr_m'),{x:M,y:1.85,w:5.95,h:1.5,valign:'top',align:'left'}); L.caption(s,{x:M,y:a.y+a.h+0.04,w:5.95,text:'빈 검색창 → 추천 속성(암진단비 · 실손 · 상령일 · 자동차)',size:10});
     const b = L.img(s,HERO('search_suggest_crop'),{x:M+6.2,y:1.85,w:5.93,h:2.4,valign:'top',align:'left'}); L.caption(s,{x:M+6.2,y:b.y+b.h+0.04,w:5.93,text:'"암진단비" 입력 → 연관검색어',size:10});
     L.img(s,HERO('fix_c_filter_dropdown'),{x:M,y:3.9,w:2.3,h:2.3,valign:'top',align:'left'});
-    [{n:1,title:'[전체] 드롭다운',desc:'사전조회동의 · 상품소개동의 고객만 골라 보기'},{n:2,title:'검색 결과 N명',desc:'그룹 제목이 "검색 결과 8명"으로 바뀜'},{n:3,title:'페이지',desc:'목록 아래 ‹ 1 2 ›로 넘기기'}].forEach((it,i)=> L.numList(s,{x:M+2.55,y:3.95+i*0.8,w:3.45,titleSize:13,descSize:11,items:[it]}));
+    [{n:1,title:'[전체] 드롭다운',desc:'사전조회동의 · 상품소개동의 고객만 골라 보기'},{n:2,title:'검색 결과 N명',desc:'그룹 제목이 "검색 결과 N명"으로 바뀜\n없으면 0명'},{n:3,title:'페이지',desc:'목록 아래 ‹ 1 2 ›로 넘기기'}].forEach((it,i)=> L.numList(s,{x:M+2.55,y:[3.95,4.75,5.78][i],w:3.45,titleSize:13,descSize:11,items:[it]})); // 2번 설명은 한 줄이면 3.45 폭을 넘어 '0/명'으로 끊김 → 두 줄로 나누고 3번을 0.23 내림
     const c = L.img(s,AG('find010','53_search_no_result'),{x:M+6.2,y:4.72,w:5.93,h:1.85,valign:'top',align:'left'}); L.caption(s,{x:M+6.2,y:c.y+c.h+0.04,w:5.93,text:'결과가 없을 때',size:10});
   }});
   // 4-9 시나리오

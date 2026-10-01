@@ -54,3 +54,14 @@ im=Image.open(G+'gb5_gate_reco3_r.png').convert('RGB'); im.save(G+'gb5_gate_reco
 for i,b in enumerate([_J['kim'],_J['jae'],_J['seo']]):
     x0=round((b['x']-150-6)*2); y0=round((b['y']-580-6)*2); im.crop((x0,y0,x0+round((b['w']+12)*2),y0+round((b['h']+12)*2))).save(G+f'gb5_reco3_card{i+1}.png')
 print('reco3 (정재민 채움)', im.size)
+# 11) (2026.10 · 가이드북 5부 43·44쪽) 게시판 목록·글 상세 다시 찍은 화면에서 자르기 — 화면 속 '대문'·'8월 12일'·'9개 진입점'·'2차 오픈' 글자 없앰.
+#     원본: final/v2new/cap_gb5_home_board.mjs (목업 v2 글자만 바꿔 찍음) → final/gb5/gb5_board_list_home.png · gb5_board_detail_home.png
+#     목록은 derive_v2.py 의 board_list_crop 과 같은 상자(540,170,2340,1710) · 상세는 9)와 같은 상자(540,190,2340,1560, 1800x1370 유지 → p5.js 상자 계산 그대로).
+#     옛 파일 사본: gb5/wow_p5/orig_board_list_crop.png · orig_gb5_board_detail_1370.png
+#     이 단계만 따로 돌릴 때: python3 -c "exec(open('bc2/crops_gb5.py').read().split('#'+' >>> step11')[1])"  (scratchpad 에서)
+# >>> step11
+from PIL import Image as _I
+_SP='/tmp/claude-0/-home-user-MeAI/f5d765e8-a442-5f2c-87c4-ad64e47ba212/scratchpad'
+_G5=_SP+'/final/gb5/'; _HC=_SP+'/gb5/captures/hero/'
+_I.open(_G5+'gb5_board_list_home.png').convert('RGB').crop((540,170,2340,1710)).save(_HC+'board_list_crop.png'); print('board_list_crop (홈 문구)', _I.open(_HC+'board_list_crop.png').size)
+_I.open(_G5+'gb5_board_detail_home.png').convert('RGB').crop((540,190,2340,1560)).save(_HC+'gb5_board_detail_1370.png'); print('gb5_board_detail_1370 (홈 문구)', _I.open(_HC+'gb5_board_detail_1370.png').size)

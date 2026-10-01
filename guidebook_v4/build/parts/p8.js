@@ -48,12 +48,12 @@ module.exports = (S, ctx) => {
     // 아래 띠: 질문을 이어 쓸수록
     const by = 5.55, bh = 0.8;
     L.R(s,{x:M,y:by,w:W-2*M,h:bh,fill:C.purple50,line:null,radius:0.14});
-    L.T(s,'많이 질문할수록\n늘어나는 영업기회',{x:M+0.3,y:by,w:2.2,h:bh,fontSize:13,bold:true,color:C.purple,valign:'middle',lineSpacingMultiple:1.1});
-    const vals=[11.99,17.02,27.79], labs=['1개 · 11.99건','2개 · 17.02건','3개 이상 · 27.79건'];
-    vals.forEach((v,i)=>{ const bx = M+2.6+i*1.95, hh = 0.56*v/27.79;
-      L.R(s,{x:bx,y:by+bh-0.12-hh,w:0.3,h:hh,fill:i===2?C.purple:'B9A8F5',line:null,radius:0.03});
-      L.T(s,labs[i],{x:bx+0.4,y:by+0.1,w:1.75,h:bh-0.22,fontSize:12,bold:i===2,color:C.navy,valign:'bottom'}); });
-    L.T(s,'2.3배',{x:M+8.75,y:by,w:1.3,h:bh,fontSize:30,bold:true,color:C.purple,valign:'middle'});
+    L.T(s,'많이 질문할수록\n늘어나는 영업기회',{x:M+0.3,y:by,w:1.9,h:bh,fontSize:13,bold:true,color:C.purple,valign:'middle',lineSpacingMultiple:1.1});
+    // 질문 수별 평균 가계약 — 원본 가로막대(강조형: 3개 이상만 보라, 나머지 회색 · 값 라벨 필수)
+    L.bars(s,{x:4.05,y:5.61,w:4.6,h:0.68,dir:'bar',plot:{x:0,y:0,w:0.8,h:1},
+      labels:['질문 1개','질문 2개','질문 3개 이상'],values:[11.99,17.02,27.79],colors:['B0B8C1','B0B8C1',C.purple],
+      max:30,gap:45,fmt:v=>v.toFixed(2)+'건',valueSize:11,catW:1.07,catSize:11,catColor:C.g700,catBoldIdx:2});
+    L.T(s,'2.3배',{x:M+8.75,y:by,w:1.3,h:bh,fontSize:30,bold:true,color:C.navy,valign:'middle'});
     L.T(s,'질문 1건 대비 3건 이상\n평균 가계약 수',{x:M+10.05,y:by,w:W-2*M-10.1,h:bh,fontSize:11.5,color:C.g700,valign:'middle',lineSpacingMultiple:1.1});
     L.caption(s,{x:M,y:6.45,w:8.6,text:SRC_DATA,align:'left',size:10});
     L.caption(s,{x:W-M-3.4,y:6.45,w:3.4,text:'※ 화면의 이름 · 질문 문장은 예시',align:'right',size:10});
@@ -159,9 +159,9 @@ module.exports = (S, ctx) => {
     });
     // 입력창 아래 안내문
     const dy = 4.98;
-    L.badge(s,{x:M,y:dy+0.02,n:3,d:0.22}); L.T(s,'입력창 아래 안내문 (화면 그대로)',{x:M+0.3,y:dy,w:6,h:0.26,fontSize:10.5,bold:true,color:C.g600,valign:'middle'});
+    L.T(s,'입력창 아래 안내문 (화면 그대로)',{x:M,y:dy,w:6,h:0.26,fontSize:10.5,bold:true,color:C.g600,valign:'middle'});
     const gd = L.img(s,HERO('bc2_disclaimer'),{x:M,y:dy+0.3,w:W-2*M-0.5,h:0.62,valign:'top',align:'left',round:false,shadow:false});
-    ul(s,gd,585,1082,102,C.red,1.75); L.pin(s,gd,1122,81,3,P1);
+    ul(s,gd,585,1082,102,C.red,1.75);
     // 함께 지킬 약속
     const by = 6.08, bh = 0.48;
     L.R(s,{x:M,y:by,w:W-2*M,h:bh,fill:C.g100,line:null,radius:0.12});

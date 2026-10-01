@@ -42,9 +42,27 @@ module.exports = (S, ctx) => {
   // 7-5 주간·월간 루틴
   S.push({ fn:(pres,no)=>{
     const s = L.base(pres,{kicker:'PART 7 · 주간 · 월간 루틴',title:'하루는 카드로, 한 주는 그룹으로',sub:'MeAI 홈 카드는 매일, 고객찾기 그룹은 주기별로 확인',pageNo:no});
-    const rows=[['주기','어디서','무엇을','이렇게 해 보기'],['매일 아침','MeAI 홈 · 오늘의 추천 고객','카드 3~9장 읽고 1명 맞춤대화','추천 고객 1명에게 연락'],['매주 월요일','고객찾기 · 상령일 임박 · 생일 임박','이번 주 연락할 고객 정리','상령일 가까운 고객부터 연락'],['월초','고객찾기 · 당월 영업 타겟','이달 타겟 고객 확인 · 연락 순서 정하기','추천 이유를 첫 말로 연락'],['매달','고객찾기 · 사전동의 만료','D-n 짧은 순으로 재동의','"사전조회 동의 필요" 줄이기'],['수시','고객찾기 · 신규 등록 고객','등록 → 동의 → 첫 맞춤대화','등록한 날 동의 요청']];
+    const rows=[['주기','어디서','무엇을','이렇게 해 보기','한 달 리듬(도식)'],['매일 아침','MeAI 홈 · 오늘의 추천 고객','카드 3~9장 읽고 1명 맞춤대화','추천 고객 1명에게 연락',''],['매주 월요일','고객찾기 · 상령일 임박 · 생일 임박','이번 주 연락할 고객 정리','상령일 가까운 고객부터 연락',''],['월초','고객찾기 · 당월 영업 타겟','이달 타겟 고객 확인 · 연락 순서 정하기','추천 이유를 첫 말로 연락',''],['매달','고객찾기 · 사전동의 만료','D-n 짧은 순으로 재동의','"사전조회 동의 필요" 줄이기',''],['수시','고객찾기 · 신규 등록 고객','등록 → 동의 → 첫 맞춤대화','등록한 날 동의 요청','']];
     const data = rows.map((r,ri)=> r.map((c,ci)=>({text:c, options:{fontFace:L.FONT,fontSize: 12, bold: ri===0||ci===0, color: ri===0? C.g600 : (ci===0? C.blue : C.g800), fill:{color: ri===0? C.g100 : C.white}, valign:'middle', margin:[4,8,4,8]}})));
-    s.addTable(data,{x:M,y:1.85,w:W-2*M,colW:[1.75,3.95,3.6,2.83],rowH:0.5,border:{type:'solid',color:C.g200,pt:0.75}});
+    s.addTable(data,{x:M,y:1.85,w:W-2*M,colW:[1.55,3.3,3.0,2.45,1.83],rowH:0.5,border:{type:'solid',color:C.g200,pt:0.75}});
+    // 한 달 리듬(도식): 칸마다 한 달 = 4주 띠. 날짜·횟수가 아니라 주기의 모양만 보여 줌(원문에 요일·날짜 지정 없음).
+    // 점·띠 채움은 테두리 없음(type 'none') — 같은 색 1pt 테두리를 두르면 지름·높이가 0.014in 커짐.
+    // 색은 태그 체계를 따름 — 보라 = 당월 타겟, 주황 = 날짜 임박. 겹침 순서: 바탕선 → 띠 채움 → 주 눈금 → 선·점·띠 테두리
+    { const x0=11.02, sw=1.6, wk=0.4, cyOf=r=> 1.85+0.5*r+0.25;
+      const ln=(x,y,w,h,color,width,dash)=> s.addShape('line',{x,y,w,h,line:Object.assign({color,width},dash?{dashType:dash}:{})});
+      const dot=(cx,cy,d,color)=> s.addShape('ellipse',{x:cx-d/2,y:cy-d/2,w:d,h:d,fill:{color},line:{type:'none'}});
+      for (let r=1;r<=5;r++){
+        const cy=cyOf(r);
+        ln(x0,cy,sw,0,C.g200,1);
+        if (r===3) s.addShape('rect',{x:x0,y:cy-0.06,w:wk,h:0.12,fill:{color:C.purple50},line:{type:'none'}});   // 월초: 1주차 띠
+        if (r===4) s.addShape('rect',{x:x0,y:cy-0.06,w:sw,h:0.12,fill:{color:C.orange50},line:{type:'none'}});  // 매달: 한 달 전체 띠
+        [1,2,3].forEach(k=> ln(x0+k*wk,cy-0.06,0,0.12,C.g300,0.75));
+        if (r===1) ln(x0,cy,sw,0,C.blue,2.5);                                     // 매일 아침: 4주 내내
+        if (r===2) [0,1,2,3].forEach(k=> dot(x0+k*wk,cy,0.1,C.orange));          // 매주 월요일: 주 시작마다
+        if (r===3) dot(x0,cy,0.12,C.purple);                                      // 월초: 1주차 시작
+        if (r===4) s.addShape('rect',{x:x0,y:cy-0.06,w:sw,h:0.12,line:{color:C.orange,width:0.75}}); // 매달: 특정일 없음 → 한 달 전체 테두리
+        if (r===5) ln(x0,cy,sw,0,C.g400,1,'dash');                                // 수시: 정해진 때 없음
+      } }
     const by=5.07, bh=1.7;
     L.R(s,{x:M,y:by,w:2.6,h:bh,fill:C.white,line:C.g200,radius:0.14,shadow:true}); L.T(s,'영업 기회 탭',{x:M+0.22,y:by+0.14,w:2.2,h:0.32,fontSize:12,bold:true,color:C.navy}); [['상령일 임박','11'],['생일 임박','7'],['사전동의 만료','35']].forEach((g,i)=>{ L.chip(s,{x:M+0.22,y:by+0.52+i*0.37,text:g[0],fill:C.orange50,color:C.orange,size:10.5,h:0.32}); L.T(s,g[1]+'명',{x:M+1.85,y:by+0.52+i*0.37,w:0.6,h:0.32,fontSize:12,bold:true,color:C.g700,valign:'middle'}); });
     L.note(s,{x:M+2.8,y:by,w:4.75,h:bh,label:'10/2~ 영업포탈 CRM',text:'생일·상령일 목록에서\n[MeAI 맞춤대화]를 눌러서 시작.\n그 고객 대화가 바로 열림.',tone:'blue',size:12});

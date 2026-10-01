@@ -21,8 +21,67 @@ module.exports = (S, ctx) => {
     const data = rows.map((r,ri)=> r.map((c,ci)=>({text:c, options:{fontFace:L.FONT,fontSize: ri===0?11:11, bold: ri===0||ci===0, color: ri===0? C.g600 : (ci===0? C.navy : C.g800), fill:{color: ri===0? C.g100 : C.white}, valign:'middle', margin:[3,8,3,8]}})));
     s.addTable(data,{x:M,y:1.85,w:W-2*M,colW:[2.9,5.4,3.83],rowH:0.3,border:{type:'solid',color:C.g200,pt:0.75}});
   }});
+  // 한 장 요약 — 뽑아서 책상 옆에 두는 쪽. part 키 'sum' 은 deck.js 가 ctx.parts.sum 으로 적고(목차 '바쁘면 한 장 요약부터' 칸),
+  // nav.py 가 1단 책갈피 '한 장 요약' 으로 넣는다. 목차는 '01'~'09' 만 읽으니 다른 쪽 번호는 그대로.
+  // 버튼 이름·문구·숫자는 모두 책 본문에 이미 있는 것만 씀(PART 2·3·4·5·6·8·9 본문). 인쇄용이라 글자는 모두 10pt 이상.
+  S.push({ part:'sum', fn:(pres,no)=>{
+    const s = L.base(pres,{kicker:'한 장 요약',title:'MeAI 홈, 이 한 장이면 시작',sub:'매일 아침 네 걸음 · 동의 칩 읽는 법 · 기억할 숫자 · 지킬 것 — 뽑아서 책상 옆에',pageNo:no});
+    // 쪽 번호는 파트 첫 쪽 + 상대 위치(p0 목차와 같은 방식)라 쪽이 밀려도 따라감. ONLY=p9 빌드처럼 그 파트가 없으면 'p.-'(링크 없음)
+    const rel = (k,d=0)=> ctx.parts[k] ? ctx.parts[k]+d : null;
+    const pg = (n)=> 'p.'+(n||'-')+' →';
+    // ① 매일 아침 네 걸음 — 번호 원 사이를 잇는 선. 걸음 이름 뒤엔 흰 바탕을 깔아 선이 글자를 지나가지 않게 함
+    s.addShape('line',{x:0.82,y:2.07,w:10.2-0.82,h:0,line:{color:C.blue100,width:3}});
+    const steps = [
+      ['찾기','MeAI 홈 · 오늘의 추천 고객','[MeAI 고객찾기에서 열기]','카드 문장 = 고객에게 첫 말', rel('02')],
+      ['고르기','고객찾기 · 한눈에 보기 6칸','[이 고객으로 맞춤대화 시작]','"사전조회동의 필요"면\n[사전조회동의 요청하기]', rel('04')],
+      ['묻기','맞춤대화 · 추천 질문','"보장분석 해줘"','답 아래 꼬리질문 버튼으로 이어 묻기', rel('06')],
+      ['연락하기','요약 리포트 · 카카오톡','[요약 리포트]','숫자·약관 근거 확인 뒤 내 말로 발송', rel('06',12)],
+    ];
+    steps.forEach(([name,screen,chip,tip,ref],i)=>{ const x = 0.6+i*3.08, w = 2.9;
+      const nw = L.textW(name,16)*0.95+0.12;
+      s.addShape('rect',{x:x+0.42,y:1.9,w:nw+0.13,h:0.34,fill:{color:C.white},line:{color:C.white,width:0}});
+      L.circle(s,{x,y:1.85,d:0.44,fill:C.blue});
+      L.T(s,String(i+1),{x,y:1.85,w:0.44,h:0.44,fontSize:13,bold:true,color:C.white,align:'center',valign:'middle'});
+      L.T(s,name,{x:x+0.55,y:1.85,w:w-0.55,h:0.44,fontSize:16,bold:true,color:C.navy,valign:'middle'}); // 글자 상자는 넉넉히(파워포인트 줄바꿈 방지), 흰 바탕만 글자 폭
+      L.T(s,screen,{x,y:2.45,w,h:0.28,fontSize:11,bold:true,color:C.blue,valign:'middle'});
+      L.chip(s,{x,y:2.8,text:chip,fill:C.g100,color:C.navy,size:10.5,h:0.3});
+      L.T(s,tip,{x,y:3.2,w,h:0.5,fontSize:11.5,color:C.g700,lineSpacingMultiple:1.15});
+      L.T(s,pg(ref),{x,y:3.7,w:1.2,h:0.25,fontSize:10,color:C.g500,valign:'middle'});
+      L.link(no,{x:x-0.05,y:3.68,w:0.9,h:0.29},ref);
+    });
+    // ② 동의 칩 → 다음 행동 (왼쪽 아래) — 칩 모양은 화면의 동의 칩을 흉내 냄. 유효 D-n 은 파랑(PART 4 동의 상태 세 패널과 같은 색)
+    const consentPg = rel('05',3);
+    L.T(s,'동의 칩 → 다음 행동',{x:0.6,y:4.15,w:4,h:0.3,fontSize:12.5,bold:true,color:C.navy,valign:'middle'});
+    L.T(s,pg(consentPg),{x:6.55-1.2,y:4.15,w:1.2,h:0.3,fontSize:10,color:C.g500,align:'right',valign:'middle'});
+    L.link(no,{x:6.55-0.85,y:4.13,w:0.9,h:0.34},consentPg);
+    [['사전조회동의 D-n',C.blue,C.g300,'바로 [이 고객으로 맞춤대화 시작]'],
+     ['사전조회동의 필요',C.red,C.red,'[사전조회동의 요청하기] → 15분 안팎 반영'],
+     ['사전조회동의 철회',C.g400,C.g300,'회색 · 정보를 볼 수 없음 · 새 동의부터']].forEach(([c,tc,lc,t],i)=>{ const y = 4.52+i*0.6, rw = 6.55-0.6;
+      L.R(s,{x:0.6,y,w:rw,h:0.5,fill:C.g50,line:null,radius:0.1});
+      L.R(s,{x:0.72,y:y+0.09,w:1.75,h:0.32,fill:C.white,line:lc,radius:0.06});
+      L.T(s,c,{x:0.72,y:y+0.09,w:1.75,h:0.32,fontSize:10.5,bold:true,color:tc,align:'center',valign:'middle'});
+      L.T(s,'→',{x:2.55,y,w:0.3,h:0.5,fontSize:11.5,color:C.g400,align:'center',valign:'middle'});
+      L.T(s,t,{x:2.92,y,w:6.55-2.92-0.1,h:0.5,fontSize:11.5,color:C.g800,valign:'middle'});
+    });
+    // ③ 기억할 숫자 (오른쪽 아래) — 운영 기준 네 개. 2×2 타일. 왼쪽 끝을 위 3·4번 걸음 칸(6.76 · 9.84)에 맞춤 — 6.8로 두면 0.04인치 어긋나 보임
+    const gx3 = 0.6+2*3.08, gx4 = 0.6+3*3.08;
+    L.T(s,'기억할 숫자',{x:gx3,y:4.15,w:4,h:0.3,fontSize:12.5,bold:true,color:C.navy,valign:'middle'});
+    [['90일','맞춤대화 가능 · 동의일부터'],['1년 이내','MeAI 홈 노출 · 동의일부터'],['15분 안팎','동의 반영'],['9명','오늘의 추천 고객 · 3명 × 3세트']].forEach(([v,l],i)=>{
+      const tw = W-M-gx4, x = i%2 ? gx4 : gx3, y = 4.52+Math.floor(i/2)*0.9;
+      L.R(s,{x,y,w:tw,h:0.8,fill:C.white,line:C.g200,radius:0.1});
+      L.T(s,v,{x:x+0.2,y:y+0.06,w:tw-0.3,h:0.42,fontSize:22,bold:true,color:C.navy,valign:'middle'});
+      L.T(s,l,{x:x+0.2,y:y+0.48,w:tw-0.3,h:0.24,fontSize:10.5,color:C.g600,valign:'middle'});
+    });
+    // 띠 — 지킬 것(PART 9 다섯 가지 약속 줄임). 오른쪽 쪽 번호를 누르면 약속 쪽으로
+    const promisePg = rel('09',1);
+    L.R(s,{x:M,y:6.35,w:W-2*M,h:0.5,fill:C.navy,line:null,radius:0.1});
+    L.T(s,[{text:'지킬 것',options:{bold:true}},{text:'     개인정보 넣지 않기 · 답변은 검증 후 사용 · 동의 없으면 보지 않기 · 자료 외부 반출 금지'}],{x:M+0.25,y:6.35,w:W-2*M-1.6,h:0.5,fontSize:12,color:C.white,valign:'middle'});
+    L.T(s,pg(promisePg),{x:W-M-1.3,y:6.35,w:1.1,h:0.5,fontSize:10,color:C.white,transparency:30,align:'right',valign:'middle'});
+    L.link(no,{x:W-M-0.95,y:6.35,w:0.95,h:0.5},promisePg);
+  }});
   // 마무리 — 소유자 방송교안 23장: 나만의 영업비서, "MeAI 홈" OPEN / 찾는 영업에서 찾아가는 영업으로, MeAI가 함께합니다
   S.push({ fn:(pres,no)=>{
+    L.NAV.push({ pageNo:no, title:'마무리' }); // PDF 책갈피 1단 '마무리'(nav.py)
     const s = pres.addSlide(); s.background={color:C.blue};
     L.T(s,'MeAI',{x:W-6.5,y:1.2,w:5.9,h:2.4,fontSize:120,bold:true,color:'FFFFFF',transparency:82,align:'right'});
     // 위에 '마무리' + 네 걸음 칩(어느 것도 켜지 않음)

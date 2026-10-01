@@ -233,14 +233,14 @@ module.exports = (S, ctx) => {
     const by = 5.05, bh = 1.9;
     L.R(s,{x:rx,y:by,w:rw,h:bh,fill:C.navy,line:null,radius:0.14});
     L.T(s,'많이 질문할수록 늘어나는 영업기회',{x:rx+0.3,y:by+0.14,w:rw-0.6,h:0.28,fontSize:12,bold:true,color:C.blue100,valign:'middle'});
-    L.T(s,'2.3배',{x:rx+0.3,y:by+0.44,w:1.45,h:0.6,fontSize:34,bold:true,color:'FFFFFF',valign:'middle'});
-    L.T(s,'질문 1건 대비 3건 이상\n평균 가계약 수',{x:rx+1.8,y:by+0.44,w:rw-2.0,h:0.6,fontSize:11.5,color:'FFFFFF',valign:'middle',lineSpacingMultiple:1.2});
-    // 질문 개수별 평균 가계약 수 · 셋째 칸 강조
-    const bars=['1개 · 11.99건','2개 · 17.02건','3개 이상 · 27.79건'], bg=0.1, bw3=(rw-0.6-2*bg)/3;
-    bars.forEach((t,i)=>{ const bx=rx+0.3+i*(bw3+bg), hi=i===2;
-      L.R(s,{x:bx,y:by+1.13,w:bw3,h:0.34,fill:hi?C.purple:'2B3340',line:null,radius:0.08});
-      L.T(s,t,{x:bx,y:by+1.13,w:bw3,h:0.34,fontSize:10.5,bold:hi,color:'FFFFFF',align:'center',valign:'middle'}); });
-    L.T(s,'출처: 2026년 8월 TA채널 MeAI 사용 데이터 분석',{x:rx+0.3,y:by+1.55,w:rw-0.6,h:0.24,fontSize:9.5,color:C.g400,valign:'middle'});
+    L.T(s,'2.3배',{x:8.5,y:5.5,w:1.7,h:0.62,fontSize:34,bold:true,color:'FFFFFF',valign:'middle'});
+    L.T(s,'질문 1건 대비\n3건 이상 평균 가계약 수',{x:8.5,y:6.12,w:1.85,h:0.45,fontSize:10.5,color:C.g300,valign:'top'});
+    // 질문 개수별 평균 가계약 수 · 길이가 값에 비례하는 막대(9·68쪽과 같은 꼴) · 셋째 막대만 강조
+    // 비강조 막대는 남색 바탕 위라 밝은 회색 대신 한 단계 어두운 g700
+    L.bars(s,{x:10.35,y:5.45,w:2.1,h:0.95,dir:'col',plot:{x:0,y:0.2,w:1,h:0.8},
+      labels:['1개','2개','3개 이상'],values:[11.99,17.02,27.79],colors:['4E5968','4E5968',C.purple],
+      max:30,gap:45,fmt:v=>v.toFixed(2)+'건',valueSize:10,valueColor:'FFFFFF',catSize:9.5,catColor:C.g400,baseline:'4E5968'});
+    L.T(s,'출처: 2026년 8월 TA채널 MeAI 사용 데이터 분석',{x:rx+0.3,y:6.7,w:rw-0.6,h:0.2,fontSize:9,color:C.g500,valign:'middle'});
   }});
   // 6-9 요약 리포트
   S.push({ fn:(pres,no)=>{

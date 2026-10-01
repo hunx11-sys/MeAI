@@ -18,6 +18,14 @@ const FOOTER_TEXT = 'MeAI 활용 가이드북 v4 · MeAI 홈 편 · 2026.10';
 const IMG_CACHE = path.join(__dirname, 'img');
 fs.mkdirSync(IMG_CACHE, {recursive:true});
 
+// PDF 책갈피·링크 기록. deck.js 가 <출력>.nav.json 으로 내보내고, nav.py 가 PDF 에 책갈피와 누르면 이동하는 링크로 심는다.
+// 슬라이드 모양은 바뀌지 않는다(링크는 PDF 에만 들어감).
+const NAV = [];   // 쪽마다 {pageNo, title, kicker?, kickerW?, part?}
+const LINKS = []; // {pageNo, x, y, w, h, target} (인치, target = 이동할 쪽 번호)
+function plainText(t){ return Array.isArray(t) ? t.map(r=> (r && r.text) || '').join('') : String(t||''); }
+// 이 쪽(pageNo)의 {x,y,w,h} 영역을 누르면 target 쪽으로 이동. target 이 비어 있으면(파트가 빠진 ONLY 빌드 등) 넣지 않음
+function link(pageNo, {x,y,w,h}, target){ if (target) LINKS.push({pageNo, x, y, w, h, target}); }
+
 function newPres(){ const p = new pptxgen(); p.layout = 'LAYOUT_WIDE'; p.lang = 'ko-KR'; p.author = '세일즈혁신TF'; p.title = 'MeAI 활용 가이드북 v4 · MeAI 홈 편'; return p; }
 
 // 텍스트 폭 추정(인치). 한글 1em, 영문/숫자 0.56em, 공백 0.3em
@@ -42,6 +50,7 @@ function footer(slide, pageNo, dark){
 // 기본 콘텐츠 슬라이드: kicker(파랑) / 제목 / 부제
 function base(pres, {kicker, title, sub, pageNo, bg=C.white, tag}){
   const s = pres.addSlide(); s.background = {color:bg};
+  NAV.push({ pageNo, kicker: plainText(kicker), title: plainText(title), kickerW: textW(plainText(kicker), 10.5)+0.1 });
   if (kicker) T(s, kicker, { x:M, y:0.42, w:9, h:0.28, fontSize:10.5, bold:true, color:C.blue });
   if (title) T(s, title, { x:M, y:0.68, w:W-2*M, h:0.6, fontSize:24, bold:true, color:C.navy, valign:'middle' });
   if (sub) T(s, sub, { x:M, y:1.3, w:W-2*M, h:0.42, fontSize:12.5, color:C.g600, valign:'middle' });
@@ -49,17 +58,39 @@ function base(pres, {kicker, title, sub, pageNo, bg=C.white, tag}){
   footer(s, pageNo, false);
   return s;
 }
+// 구분 장 오른쪽 아래 '영업 사이클 네 걸음' 트랙: 이 PART 가 어느 걸음에 해당하는지 표시.
+// 2쪽 네 걸음 ↔ PART 대응표와 같게 맞춤 — 찾기 PART 2 · 고르기 3·4 · 묻기 6·8 · 연락하기 6·7. [켜는 걸음, 윗줄 문구]
+const CYCLE = ['1 찾기','2 고르기','3 묻기','4 연락하기'];
+const DIVIDER_TRACK = {
+  '01':[[], '영업 사이클 네 걸음 · 미리보기'], '02':[[0]], '03':[[1]], '04':[[1]],
+  '05':[[], '고르기와 묻기 사이 · 동의 먼저'], '06':[[2,3]], '07':[[3]], '08':[[2]], '09':[[], '네 걸음 모두에 해당'],
+};
+function dividerTrack(s, num){
+  const tr = DIVIDER_TRACK[num]; if (!tr) return; // 대응표에 없는 번호는 그리지 않음
+  const on = tr[0], lbl = tr[1] || '영업 사이클에서 이 파트';
+  const x0 = 7.75, y0 = 5.35, ph = 0.46, gap = 0.25, pw = (4.98-3*gap)/4;
+  T(s, lbl, { x:x0, y:4.95, w:5, h:0.3, fontSize:10.5, bold:true, color:'FFFFFF', transparency:25 });
+  CYCLE.forEach((t,i)=>{
+    const px = x0 + i*(pw+gap), act = on.includes(i);
+    if (i<CYCLE.length-1) s.addShape('line', { x:px+pw, y:y0+ph/2, w:gap, h:0, line:{ color:'FFFFFF', width:1.5, transparency:50 } });
+    R(s, { x:px, y:y0, w:pw, h:ph, fill: act?'FFFFFF':C.blue700, line:null, radius:0.23 });
+    T(s, t, { x:px, y:y0, w:pw, h:ph, fontSize:11, bold:true, color: act?C.blue:'FFFFFF', transparency: act?0:35, align:'center', valign:'middle' });
+  });
+}
 // 파트 구분 슬라이드
 function divider(pres, {num, title, sub, learn=[], pageNo, color=C.blue}){
   const s = pres.addSlide(); s.background = {color};
+  NAV.push({ pageNo, part:num, title:plainText(title).split('\n')[0] });
   T(s, num, { x:W-6.2, y:0.9, w:5.6, h:3.2, fontSize:170, bold:true, color:'FFFFFF', transparency:82, align:'right', valign:'top' });
   T(s, `PART ${num}`, { x:M+0.2, y:1.5, w:6, h:0.35, fontSize:12, bold:true, color:'FFFFFF', transparency:25 });
   T(s, title, { x:M+0.2, y:1.9, w:8.5, h:1.6, fontSize:34, bold:true, color:'FFFFFF', valign:'top', lineSpacingMultiple:1.15 });
   if (sub) T(s, sub, { x:M+0.2, y:3.55, w:8.5, h:0.5, fontSize:14, color:'FFFFFF', transparency:15 });
   if (learn.length){
     T(s, '이 파트에서 배우는 것', { x:M+0.2, y:4.45, w:6, h:0.3, fontSize:11, bold:true, color:'FFFFFF', transparency:25 });
-    learn.forEach((t,i)=>{ circle(s,{x:M+0.2,y:4.9+i*0.42+0.08,d:0.16,fill:'FFFFFF'}); T(s, t, { x:M+0.5, y:4.9+i*0.42, w:9, h:0.32, fontSize:12.5, color:'FFFFFF', valign:'middle' }); });
+    // 글 상자 폭 6.4: 오른쪽 아래 네 걸음 트랙(x 7.75~)과 상자가 겹치지 않게. 항목은 모두 30자 미만이라 한 줄로 들어감
+    learn.forEach((t,i)=>{ circle(s,{x:M+0.2,y:4.9+i*0.42+0.08,d:0.16,fill:'FFFFFF'}); T(s, t, { x:M+0.5, y:4.9+i*0.42, w:6.4, h:0.32, fontSize:12.5, color:'FFFFFF', valign:'middle' }); });
   }
+  dividerTrack(s, num);
   footer(s, pageNo, true);
   return s;
 }
@@ -182,6 +213,7 @@ function phone(slide,file,{x,y,w,h,align='center',valign='top'}){ return img(sli
 // 표지
 function cover(pres,{title,sub,line3,meta,file,pageNo}){
   const s = pres.addSlide(); s.background={color:C.navy};
+  NAV.push({ pageNo, title:'표지' });
   T(s,'메리츠화재 · 세일즈혁신TF',{x:M+0.2,y:0.8,w:6,h:0.3,fontSize:11,bold:true,color:'FFFFFF',transparency:35});
   T(s,title,{x:M+0.2,y:1.4,w:6.6,h:1.9,fontSize:44,bold:true,color:'FFFFFF',valign:'top',lineSpacingMultiple:1.12});
   T(s,sub,{x:M+0.2,y:3.45,w:6.6,h:0.9,fontSize:20,bold:true,color:C.blue100,valign:'top',lineSpacingMultiple:1.2});
@@ -191,4 +223,53 @@ function cover(pres,{title,sub,line3,meta,file,pageNo}){
   footer(s,pageNo,true);
   return s;
 }
+// 한 계열 막대 차트(원본 차트) + 값·항목 이름은 글 상자로 따로 얹음. dir 'col' 세로막대 / 'bar' 가로막대
+// 값·항목 이름을 차트 안 데이터 레이블로 쓰지 않는 이유:
+//  ① 폭이 약 2.5인치보다 좁은 차트에서 LibreOffice 가 데이터 레이블을 줄바꿈해 버림('27.7\n9', '11.\n99\n건').
+//  ② render.sh 의 글자 간격 보정(autospace 끄기)이 차트 안 글자에는 닿지 않아 '1개'가 '1 개'로 찍힘.
+//  그래서 plot 영역을 layout 으로 고정하고, 막대 위치를 직접 계산해 글 상자를 그 자리에 놓는다.
+// ③ dir 'bar' 는 LibreOffice(와 PowerPoint)가 첫 항목을 맨 아래에 그리므로, 차트에 넘길 때만 순서를 뒤집는다.
+//    글 상자 좌표는 i=0 이 맨 위가 되도록 원래 순서로 계산.
+// ④ lineSize: 0 을 절대 넘기지 않는다. 막대별 색(c:dPt)이 '선 없음'으로 바뀌어 막대 색이 빠져 버림.
+// 반환: {px,py,pw,ph, items:[{cx,top,slot}] 또는 [{cy,end,slot}]} — 주석·화살표를 붙일 때 씀
+function bars(slide, o){
+  const { x, y, w, h, labels, values, dir='col', gap=60, fmt=(v,i)=>String(v),
+    valueSize=12, valueColor=C.navy, valueBold=true, cats=true, catSize=11, catColor=C.g600, catBoldIdx=-1, catW=1.0, baseline=C.g300 } = o;
+  const plot = Object.assign({x:0, y:0.1, w:1, h:0.9}, o.plot||{});
+  const n = values.length;
+  const max = o.max!=null ? o.max : Math.max(...values);
+  const colors = (o.colors && o.colors.length) ? o.colors : values.map(()=>C.blue);
+  const rev = dir==='bar';
+  const cl = rev ? labels.slice().reverse() : labels, cv = rev ? values.slice().reverse() : values, cc = rev ? colors.slice().reverse() : colors;
+  slide.addChart('bar', [{ name:'s', labels:cl, values:cv }], {
+    x, y, w, h, barDir:dir, chartColors:cc, barGapWidthPct:gap, layout:plot,
+    showValue:false, showLegend:false, showTitle:false,
+    valAxisHidden:true, valAxisMinVal:0, valAxisMaxVal:max, valGridLine:{style:'none'}, valAxisLineShow:false,
+    catAxisHidden:true, catGridLine:{style:'none'},
+  });
+  const px = x + w*plot.x, py = y + h*plot.y, pw = w*plot.w, ph = h*plot.h;
+  const items = [];
+  if (dir==='bar'){
+    const slot = ph/n;
+    values.forEach((v,i)=>{
+      const cy = py + slot*(i+0.5), end = px + pw*v/max;
+      // 막대 끝에서 0.04: 글자 왼쪽 여백(약 0.01)과 합쳐 보이는 틈이 세로막대 값 라벨(0.04~0.06)과 같아짐. 0.08 이면 0.09 로 떨어져 보임
+      T(slide, fmt(v,i), { x:end+0.04, y:cy-slot/2, w:1.1, h:slot, fontSize:valueSize, bold:valueBold, color:valueColor, valign:'middle' });
+      if (cats) T(slide, labels[i], { x:px-catW-0.08, y:cy-slot/2, w:catW, h:slot, fontSize:catSize, bold:i===catBoldIdx, color:catColor, align:'right', valign:'middle' });
+      items.push({ cy, end, slot });
+    });
+    if (baseline) slide.addShape('line', { x:px, y:py, w:0, h:ph, line:{ color:baseline, width:0.75 } });
+  } else {
+    const slot = pw/n;
+    values.forEach((v,i)=>{
+      const cx = px + slot*(i+0.5), top = py + ph*(1-v/max);
+      T(slide, fmt(v,i), { x:cx-slot/2, y:top-0.32, w:slot, h:0.3, fontSize:valueSize, bold:valueBold, color:valueColor, align:'center', valign:'bottom' });
+      if (cats) T(slide, labels[i], { x:cx-slot/2, y:py+ph+0.04, w:slot, h:0.26, fontSize:catSize, bold:i===catBoldIdx, color:catColor, align:'center', valign:'top' });
+      items.push({ cx, top, slot });
+    });
+    if (baseline) slide.addShape('line', { x:px, y:py+ph, w:pw, h:0, line:{ color:baseline, width:0.75 } });
+  }
+  return { px, py, pw, ph, items };
+}
+module.exports.bars = bars; module.exports.NAV = NAV; module.exports.LINKS = LINKS; module.exports.link = link;
 module.exports.pinStrip = pinStrip; module.exports.card = card; module.exports.caption = caption; module.exports.label = label; module.exports.arrow = arrow; module.exports.phone = phone; module.exports.cover = cover;

@@ -120,10 +120,19 @@ module.exports = (S, ctx) => {
   // 2-6b 이유 유형
   S.push({ fn:(pres,no)=>{
     const s = L.base(pres,{kicker:'PART 2 · 추천 이유의 종류',title:'MeAI가 고객을 추천하는 이유 세 갈래',sub:'카드 9장의 이유를 세 갈래로 나눔. 카드 태그와는 다른 분류.',pageNo:no});
-    const rows=[['이유 유형','카드의 이유 문장 (예시)','무엇을 보고 골랐나'],['일정형 · 이벤트','"자동차보험 만기가 9일 뒤이고 운전자보험은 없습니다"','동의 만료 · 만기 · 상령일'],['보장 공백형','"실손이 없어 의료비 본인부담이 큽니다"','실손 · 수술비 · 진단비, 비어 있는 담보'],['관계형','"보상 완료 후 후속 상담이 없었습니다"','CRM 상담 이력 · 접촉 공백']];
-    const data = rows.map((r,ri)=> r.map((c,ci)=>({text:c, options:{fontFace:L.FONT,fontSize: ri===0?11:12.5, bold: ri===0||ci===0, color: ri===0? C.g600 : C.g800, fill:{color: ri===0? C.g100 : C.white}, valign:'middle', margin:[4,10,4,10]}})));
-    s.addTable(data,{x:M,y:1.85,w:W-2*M,colW:[2.3,5.6,4.23],rowH:0.88,border:{type:'solid',color:C.g200,pt:0.75}});
-    L.note(s,{x:M,y:5.6,w:W-2*M,h:1.0,label:'읽는 법',text:'일정형은 오늘 연락 · 공백형은 제안이 정해진 카드 · 관계형은 만남의 명분',tone:'blue',size:12.5});
+    // 세 갈래를 실제 추천 카드 한 장씩으로 보여 줌. 갈래 칩은 회색(태그 색과 헷갈리지 않게). 카드 캡처가 열 폭보다 좁아 글도 열 가운데 정렬
+    const cw=3.9;
+    [[0.6,'일정형 · 이벤트','오늘 연락','gb5_card_park_z','동의 만료 · 만기 · 상령일'],
+     [4.715,'보장 공백형','제안이 정해진 카드','gb5_reco3_card2','실손 · 수술비 · 진단비, 비어 있는 담보'],
+     [8.83,'관계형','만남의 명분','gb5_card_seo_z','CRM 상담 이력 · 접촉 공백']].forEach(([x,type,read,cap,basis])=>{
+      const tw=L.textW(type,11)+0.3;
+      L.chip(s,{x:x+(cw-tw)/2,y:1.85,text:type,fill:C.g100,color:C.navy,size:11});
+      L.T(s,read,{x,y:2.22,w:cw,h:0.34,fontSize:14,bold:true,color:C.navy,align:'center',valign:'middle'});
+      L.img(s,HERO(cap),{x,y:2.62,w:cw,h:2.85,valign:'top',align:'center'});
+      L.T(s,'무엇을 보고 골랐나',{x,y:5.6,w:cw,h:0.24,fontSize:10,color:C.g500,align:'center',valign:'middle'});
+      L.T(s,basis,{x,y:5.84,w:cw,h:0.3,fontSize:11.5,color:C.g800,align:'center',valign:'middle'});
+    });
+    L.caption(s,{x:M,y:6.4,w:W-2*M,text:'※ 이름과 문구는 예시 · 정재민 카드 태그는 #당월 타겟, 이유는 보장 공백 → 태그와 이유 갈래는 다른 분류',align:'left',size:10});
   }});
   // 2-7 범례
   S.push({ fn:(pres,no)=>{

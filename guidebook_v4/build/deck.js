@@ -11,4 +11,7 @@ S.forEach((s,i)=>{ if (s.part) ctx.parts[s.part] = i+1; });
 const pres = L.newPres();
 S.forEach((s,i)=> s.fn(pres, i+1));
 const out = process.argv[2] || 'MeAI_guidebook_v4.pptx';
-pres.writeFile({ fileName: out }).then(()=>{ console.log('written', out, S.length, 'slides'); if (L.MISSING.length) console.log('MISSING:', L.MISSING); else console.log('no missing images'); });
+pres.writeFile({ fileName: out }).then(()=>{ console.log('written', out, S.length, 'slides');
+  // PDF 책갈피·링크 자료: finalize.sh 가 nav.py 로 PDF 에 심은 뒤 지움
+  require('fs').writeFileSync(out+'.nav.json', JSON.stringify({ pages:S.length, parts:ctx.parts, nav:L.NAV, links:L.LINKS }, null, 1));
+  if (L.MISSING.length) console.log('MISSING:', L.MISSING); else console.log('no missing images'); });
