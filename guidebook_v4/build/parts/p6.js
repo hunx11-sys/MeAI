@@ -62,8 +62,8 @@ module.exports = (S, ctx) => {
       L.T(s,'들어가는 곳',{x:x+0.4,y:5.08,w:5.2,h:0.28,fontSize:11,bold:true,color:C.g500});
       L.T(s,entry,{x:x+0.4,y:5.38,w:5.2,h:0.6,fontSize:11.5,color:C.g700,valign:'top',lineSpacingMultiple:1.25});
     };
-    col(M,'일반대화','무엇이든 물어보는 창',['상품·특약 개념 질문','자사·타사 보장 비교','고객 설득 화법 만들기','약관 지식 확인'],'MeAI 홈 [일반대화] 카드 · 모바일 [MeAI 일반대화]\n영업포탈 CRM 리스트 [MeAI 일반대화] (10/2부터)',C.blue,C.blue50);
-    col(M+6.18,'맞춤대화','고객 1명에 맞춘 보장분석부터 설계까지',['고객 선택 → 보장분석','부족 보장 · 제안 우선순위','상세설계 · 가계약 요청','요약 리포트 → 카카오톡'],'MeAI 홈 [맞춤대화] 카드 · 고객찾기 · 모바일 [MeAI]\n영업포탈 CRM 리스트 [MeAI 맞춤대화] (10/2부터)',C.red,C.red50);
+    col(M,'일반대화','무엇이든 물어보는 창',['상품·특약 개념 질문','자사·타사 보장 비교','고객 설득 화법 만들기','약관 지식 확인'],'MeAI 홈 [일반대화] 카드 · 모바일 [MeAI 일반대화]\n영업포탈 CRM 리스트 [MeAI 일반대화]',C.blue,C.blue50);
+    col(M+6.18,'맞춤대화','고객 1명에 맞춘 보장분석부터 설계까지',['고객 선택 → 보장분석','부족 보장 · 제안 우선순위','상세설계 · 가계약 요청','요약 리포트 → 카카오톡'],'MeAI 홈 [맞춤대화] 카드 · 고객찾기 · 모바일 [MeAI]\n영업포탈 CRM 리스트 [MeAI 맞춤대화]',C.red,C.red50);
     L.note(s,{x:M,y:6.3,w:W-2*M,h:0.6,label:'',text:'고객을 만나기 전에는 꼭 맞춤대화로 준비',tone:'dark',size:12.5});
   }});
   // 6-1b 일반대화 화면 (방송판 13장)
@@ -97,7 +97,7 @@ module.exports = (S, ctx) => {
     const g = L.img(s,HERO('term_pc_full'),{x:M,y:1.85,w:8.75,h:5.1,valign:'top',align:'left'});
     const clip={x:0,y:0};
     L.pin(s,g,272,155,1,{clip}); L.pin(s,g,272,305,2,{clip}); L.pin(s,g,272,480,3,{clip}); L.pin(s,g,150,788,4,{clip}); L.pin(s,g,1012,27,5,{clip}); L.pin(s,g,456,215,6,{clip}); L.pin(s,g,456,500,7,{clip}); L.pin(s,g,1270,726,8,{clip}); L.pin(s,g,456,800,9,{clip});
-    L.caption(s,{x:W-M-6,y:1.37,w:6,text:'※ 이름·숫자는 예시 · 개발 중 화면이라 왼쪽 위 [MeAI 홈] 자리에 로고가 보임',align:'right',size:10});
+    L.caption(s,{x:W-M-6,y:1.37,w:6,text:'※ 이름·숫자는 예시',align:'right',size:10});
     // 번호 간격을 일정하게(설명 없는 ④·⑨도 한 칸을 차지), ①만 설명이 두 줄
     const evenList=(x,y,w,pitch,items)=>{ let cy=y; items.forEach(it=>{ L.badge(s,{x,y:cy+0.02,n:it.n,d:0.3}); L.T(s,it.title,{x:x+0.42,y:cy,w:w-0.42,h:0.32,fontSize:13,bold:true,color:C.navy,valign:'middle'}); const nl=it.desc?it.desc.split('\n').length:1; if(it.desc) L.T(s,it.desc,{x:x+0.42,y:cy+0.33,w:w-0.42,h:nl*0.21+0.04,fontSize:11,color:C.g600,lineSpacingMultiple:1.1}); cy += pitch + (nl-1)*0.21; }); };
     evenList(g.x+g.w+0.45,1.85,W-M-(g.x+g.w+0.45),0.56,[
@@ -177,7 +177,7 @@ module.exports = (S, ctx) => {
   }});
   // 6-4 용어 설명 PC
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 6 · NEW 용어 설명 (PC)',title:'[용어] 버튼 하나로 바로 뜻풀이',pageNo:no,tag:{text:'개발 진행 중 · 오픈 시 세부 변경 가능'}});
+    const s = L.base(pres,{kicker:'PART 6 · NEW 용어 설명 (PC)',title:'[용어] 버튼 하나로 바로 뜻풀이',pageNo:no});
     const a = L.img(s,HERO('term_pc_input_z'),{x:M,y:1.5,w:5.9,h:1.55,valign:'top',align:'left'}); capUnder(s,a,'입력창 오른쪽 위 [용어] 버튼');
     const b = L.img(s,HERO('fix_term_on'),{x:M,y:3.45,w:5.9,h:3.2,valign:'top',align:'left'}); capUnder(s,b,'켜면 어려운 말에 표시');
     const c = L.img(s,AG('term','14_pc_glossary6_open'),{x:6.75,y:1.5,w:5.98,h:3.6,valign:'top',align:'center'}); capUnder(s,c,'답변 끝 [용어 설명 6] · 뜻을 한 번에');
@@ -186,7 +186,7 @@ module.exports = (S, ctx) => {
   }});
   // 6-5 용어 설명 모바일
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 6 · NEW 용어 설명 (모바일)',title:'모바일은 오른쪽 아래 [용어]',pageNo:no,tag:{text:'개발 진행 중 · 오픈 시 세부 변경 가능'}});
+    const s = L.base(pres,{kicker:'PART 6 · NEW 용어 설명 (모바일)',title:'모바일은 오른쪽 아래 [용어]',pageNo:no});
     [[HERO('term_mo_phone'),'답변 화면 · 오른쪽 아래 [용어]'],[HERO('term_mo_phone_2'),'[용어]를 켜면 용어에 표시'],[AG('term','70_mo_glossary6_open'),'답변 끝 [용어 설명 6] 목록']].forEach(([f,t],i)=>{ const x=M+i*2.95; const g=L.phone(s,f,{x,y:1.5,w:2.75,h:5.1}); if(i===2) mask(s,g,[[140,350,1010,410]],'FFFFFF'); L.caption(s,{x,y:6.64,w:2.75,text:t,size:10}); });
     L.numList(s,{x:9.5,y:1.75,w:3.23,gap:0.24,titleSize:14,descSize:12,items:[
       {n:1,title:'위치만 다름',desc:'PC는 입력창 오른쪽 위,\n모바일은 오른쪽 아래'},
@@ -196,7 +196,7 @@ module.exports = (S, ctx) => {
   }});
   // 6-6 모드 변경 PC
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 6 · NEW 모드 변경 (PC)',title:'질문마다 간편·상세 선택',sub:'고객 앞에서는 간편, 약관을 따질 때는 상세',pageNo:no,tag:{text:'개발 진행 중 · 오픈 시 세부 변경 가능'}});
+    const s = L.base(pres,{kicker:'PART 6 · NEW 모드 변경 (PC)',title:'질문마다 간편·상세 선택',sub:'고객 앞에서는 간편, 약관을 따질 때는 상세',pageNo:no});
     const g = L.img(s,HERO('mode_pc_dropdown_z'),{x:M,y:1.85,w:7.5,h:4.5,valign:'top',align:'left'}); mask(s,g,[[140,312,1116,362],[140,441,1298,468],[979,441,1298,494]]); capUnder(s,g,'[간편 분석]을 누르면 두 가지가 펼쳐짐 · ※ 답 아래 질문 버튼 일부는 가림');
     const rx = 8.35, rw = 12.73-rx;
     L.card(s,{x:rx,y:1.85,w:rw,h:1.6,kicker:'고객 상담 · 직관적 검토용',title:'간편 분석',desc:'기본 모드. 고객과 함께 보는 화면, 첫 상담용',titleSize:16,descSize:12});
@@ -206,7 +206,7 @@ module.exports = (S, ctx) => {
   }});
   // 6-7 모드 변경 모바일
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 6 · NEW 모드 변경 (모바일)',title:'모바일도 입력창 아래 [간편 분석]',pageNo:no,tag:{text:'개발 진행 중 · 오픈 시 세부 변경 가능'}});
+    const s = L.base(pres,{kicker:'PART 6 · NEW 모드 변경 (모바일)',title:'모바일도 입력창 아래 [간편 분석]',pageNo:no});
     [[HERO('mode_mo_phone'),'입력창 아래 [간편 분석] · [상품 선택]'],[HERO('mode_mo_phone_2'),'"분석 모드" 선택창 · 간편 / 상세'],[AG('mode','47_mo_mode_detailed'),'고른 뒤 · 버튼과 안내줄이 바뀜']].forEach(([f,t],i)=>{ const x=M+i*2.95; const g=L.phone(s,f,{x,y:1.5,w:2.75,h:5.1}); if(i===0) mask(s,g,[[204,1352,1022,1460],[204,1538,1022,1649]]); if(i===1) mask(s,g,[[204,1352,1022,1386]],'8B8C8D'); if(i===2) mask(s,g,[[201,1196,1019,1304],[201,1382,1019,1493]]); L.caption(s,{x,y:6.64,w:2.75,text:t,size:10}); });
     L.numList(s,{x:9.5,y:1.9,w:3.23,gap:0.3,titleSize:14,descSize:12,items:[
       {n:1,title:'버튼을 누르면',desc:'아래에서 "분석 모드" 선택창이 올라옴'},
@@ -248,11 +248,11 @@ module.exports = (S, ctx) => {
     const st=[['요약 생성','대화 화면 상단 [요약 생성]'],['선택 → 편집하기','넣을 답변만 체크, 내부용은 빼기'],['리포트 생성하기','카카오톡으로 링크 전송'],['알림톡 도착','[요약레포트 확인하기] · 받은 날부터 7일']];
     st.forEach((t,i)=>{ const x=M+i*3.08,w=2.9; const f = i===0 ? HERO('bc2_report_step1') : i<3 ? LEG('report_step'+(i+1)) : HERO('report_kakao_crop'); const gp = L.phone(s,f,{x,y:1.85,w,h:3.9,valign:i<3?'top':'middle'}); if(i===0){ mask(s,gp,[[24,328,382,378]],'FFFFFF'); outline(s,gp,240,114,307,144,{dsf:1,color:C.red,width:1.5,radius:0.03}); } L.badge(s,{x,y:5.86,n:i+1,d:0.3}); L.T(s,t[0],{x:x+0.4,y:5.84,w:w-0.4,h:0.34,fontSize:13.5,bold:true,color:C.navy,valign:'middle'}); L.T(s,t[1],{x,y:6.19,w,h:0.3,fontSize:11.5,color:C.g600}); if(i<3) L.arrow(s,{x:x+w-0.08,y:3.55,w:0.35}); });
     L.note(s,{x:M,y:6.54,w:7.4,h:0.4,label:'보내기 전',text:'숫자·약관 근거·개인정보 확인. "AI로 생성된 보조자료" 표시가 붙음',tone:'yellow',size:11});
-    L.caption(s,{x:8.2,y:6.6,w:12.73-8.2,text:'2026.06 실제 화면 · 이름과 일부 글자는 가림',align:'right',size:10});
+    L.caption(s,{x:8.2,y:6.6,w:12.73-8.2,text:'이름과 일부 글자는 가림',align:'right',size:10});
   }});
   // 6-10 모바일 진입
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 6 · 모바일',title:'앱 홈 → 보장분석 → MeAI',sub:'모바일 MeAI 홈·고객찾기·게시판은 PC 오픈 뒤 순차 적용 예정',pageNo:no});
+    const s = L.base(pres,{kicker:'PART 6 · 모바일',title:'앱 홈 → 보장분석 → MeAI',sub:'휴대폰은 앱 홈 → 보장분석 → MeAI 순서로',pageNo:no});
     L.phone(s,LEG('mobile_app_home'),{x:M,y:1.85,w:2.4,h:4.75}); L.caption(s,{x:M,y:6.64,w:2.4,text:'① 앱 홈 · [보장분석]',size:10});
     // 인사 줄 끝의 제한 횟수 괄호는 책에서 쓰지 않는 숫자라 머리 띠 색으로 덮는다
     const gm = L.phone(s,HERO('fix_mobile_customer_list'),{x:M+2.55,y:1.85,w:2.4,h:4.75}); mask(s,gm,[[344,185,568,217]],'37383C'); L.caption(s,{x:M+2.55,y:6.64,w:2.4,text:'② 상단 버튼 · ③ 카드 [MeAI]',size:10});

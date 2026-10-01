@@ -65,7 +65,7 @@ module.exports = (S, ctx) => {
       } }
     const by=5.07, bh=1.7;
     L.R(s,{x:M,y:by,w:2.6,h:bh,fill:C.white,line:C.g200,radius:0.14,shadow:true}); L.T(s,'영업 기회 탭',{x:M+0.22,y:by+0.14,w:2.2,h:0.32,fontSize:12,bold:true,color:C.navy}); [['상령일 임박','11'],['생일 임박','7'],['사전동의 만료','35']].forEach((g,i)=>{ L.chip(s,{x:M+0.22,y:by+0.52+i*0.37,text:g[0],fill:C.orange50,color:C.orange,size:10.5,h:0.32}); L.T(s,g[1]+'명',{x:M+1.85,y:by+0.52+i*0.37,w:0.6,h:0.32,fontSize:12,bold:true,color:C.g700,valign:'middle'}); });
-    L.note(s,{x:M+2.8,y:by,w:4.75,h:bh,label:'10/2~ 영업포탈 CRM',text:'생일·상령일 목록에서\n[MeAI 맞춤대화]를 눌러서 시작.\n그 고객 대화가 바로 열림.',tone:'blue',size:12});
+    L.note(s,{x:M+2.8,y:by,w:4.75,h:bh,label:'영업포탈 CRM',text:'생일·상령일 목록에서\n[MeAI 맞춤대화]를 눌러서 시작.\n그 고객 대화가 바로 열림.',tone:'blue',size:12});
     L.note(s,{x:M+7.75,y:by,w:W-2*M-7.75,h:bh,label:'숫자는 예시',text:'그룹 인원은 화면 예시.\n실제로는 내 고객 기준으로\n매일 새로 계산됨.',tone:'grey',size:12});
   }});
   // 7-6 첫 주 미션

@@ -3,7 +3,7 @@ module.exports = (S, ctx) => {
   S.push({ part:'02', fn:(pres,no)=> L.divider(pres,{num:'02',title:'MeAI 홈\n하루가 시작되는 곳',sub:'오늘 연락할 내 고객과 첫 마디가 미리 준비된 곳 · 누르기만 하면 시작',learn:['영업포탈에서 MeAI 홈으로 가는 진입로 6곳','MeAI 홈 다섯 구역 · 스위치와 버튼','숫자 4개와 추천 카드 읽는 법','태그 · 동의 · 유형 범례'],pageNo:no}) });
   // 2-0a 영업포탈 진입점 6군데 (10/2)
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 2 · 영업포탈에서 들어가기',title:'영업포탈에서 MeAI 홈으로 가는 진입로',sub:'중앙 배너와 CRM 통해 들어가는 MeAI는 누구나 사용 가능 · 10월 2일부터 새 문 ③④⑤',pageNo:no,tag:{text:'10/2 반영',fill:C.blue50,color:C.blue}});
+    const s = L.base(pres,{kicker:'PART 2 · 영업포탈에서 들어가기',title:'영업포탈에서 MeAI 홈으로 가는 진입로',sub:'중앙 배너와 CRM 통해 들어가는 MeAI는 누구나 사용 가능',pageNo:no});
     L.img(s,HERO('bc2_portal_masked'),{x:M,y:1.85,w:8.3,h:5.1,valign:'top',align:'left'});
     L.numList(s,{x:9.15,y:1.85,w:3.58,gap:0.06,titleSize:13.5,descSize:11.5,items:[
       {n:1,title:'왼쪽 위 [MeAI 홈]',desc:'기존 · 사용권한이 있어야 사용 가능'},
@@ -16,7 +16,7 @@ module.exports = (S, ctx) => {
   }});
   // 2-0b 새 문 3개 확대
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 2 · 새로 생긴 문 3개',title:'새로 생긴 문 ③④⑤ 한눈에 보기',sub:'고객 목록에서 바로 대화를 시작하는 ④가 핵심',pageNo:no,tag:{text:'10/2 반영',fill:C.blue50,color:C.blue}});
+    const s = L.base(pres,{kicker:'PART 2 · 새로 생긴 문 3개',title:'새로 생긴 문 ③④⑤ 한눈에 보기',sub:'고객 목록에서 바로 대화를 시작하는 ④가 핵심',pageNo:no});
     L.label(s,{x:M,y:1.85,w:4.6,text:'③ 롤링배너 → [MeAI 홈 바로가기]',color:C.blue,size:11.5});
     L.img(s,HERO('portal_entry_banner'),{x:M,y:2.2,w:4.6,h:1.3,valign:'top',align:'left'});
     L.img(s,HERO('fix_banner_left_z'),{x:M,y:3.68,w:4.6,h:3.22,valign:'top',align:'left'});

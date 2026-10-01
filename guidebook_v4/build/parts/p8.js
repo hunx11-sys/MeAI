@@ -100,7 +100,6 @@ module.exports = (S, ctx) => {
     s.addText([r('안 맞으면 “더 쉽게” · “표로 다시” 한 마디',{breakLine:true}),
       r('휴대폰이라 타이핑이 어렵다면? '),r('①',{color:C.red}),r(' 마이크를 눌러 말하고 '),r('②',{color:C.red}),r(' 전송(↑)')],
       {x:tx,y:by,w:tw,h:bh,isTextBox:true,margin:0,valign:'middle',lineSpacingMultiple:1.45});
-    L.caption(s,{x:M,y:6.58,w:W-2*M,text:'예시 문장 출처: 이전 판 「MeAI 활용 가이드북 · 영업가족 편」(2026.09)',align:'left',size:10});
   }});
 
   // ---- 8-3 고객에게 할 말 초안 (방송판 19장) ----
@@ -126,7 +125,6 @@ module.exports = (S, ctx) => {
     // 오른쪽 아래: 고객 앞에서는 두 버튼
     const rx = M+lw+0.35, rw = W-M-rx, hw = (rw-0.2)/2;
     L.T(s,'고객 앞에서는 두 버튼',{x:rx,y:by,w:3,h:0.34,fontSize:14,bold:true,color:C.navy,valign:'middle'});
-    const ct = '개발 중 · 바뀔 수 있음'; L.chip(s,{x:W-M-(L.textW(ct,10)+0.3),y:by+0.03,text:ct,fill:C.red50,color:C.red,size:10,h:0.28});
     const gA = L.img(s,HERO('bc2_mode_simple'),{x:rx,y:by+0.45,w:hw,h:0.82,valign:'middle',align:'center',shadow:false});
     const gB = L.img(s,HERO('fix_term_tooltip'),{x:rx+hw+0.2,y:by+0.42,w:hw,h:0.8,valign:'middle',align:'center',shadow:false});
     L.T(s,'화면 속 숫자는 예시',{x:gB.x-0.3,y:gB.y+gB.h+0.01,w:gB.w+0.6,h:0.2,fontSize:9,color:C.g500,align:'center',valign:'middle'});
@@ -136,7 +134,7 @@ module.exports = (S, ctx) => {
     // 노란 띠
     L.R(s,{x:M,y:6.2,w:W-2*M,h:0.44,fill:C.yellow50,line:null,radius:0.12});
     s.addText([{text:'답은 초안   ',options:{bold:true,color:'B7791F',fontSize:12.5,fontFace:L.FONT}},{text:'숫자와 약관 근거를 확인하고, 내 말투로 다듬어 발송',options:{bold:true,color:C.navy,fontSize:12.5,fontFace:L.FONT}}],{x:M+0.25,y:6.2,w:W-2*M-0.5,h:0.44,isTextBox:true,margin:0,valign:'middle'});
-    L.caption(s,{x:M,y:6.7,w:W-2*M,text:'출처: MeAI 확정 화면 · 이전 판 「MeAI 활용 가이드북 · 영업가족 편」(2026.09) · [간편 분석]·[용어] 자세히는 PART 6',align:'left',size:9.5});
+    L.caption(s,{x:M,y:6.7,w:W-2*M,text:'[간편 분석]·[용어] 자세히는 PART 6',align:'left',size:9.5});
   }});
 
   // ---- 8-4 이렇게는 묻지 않기 (방송판 20장) ----
@@ -167,7 +165,7 @@ module.exports = (S, ctx) => {
     L.R(s,{x:M,y:by,w:W-2*M,h:bh,fill:C.g100,line:null,radius:0.12});
     const cwid = L.chip(s,{x:M+0.15,y:by+0.1,text:'함께 지킬 약속',fill:C.navy,color:'FFFFFF',size:10.5,h:0.28});
     L.T(s,'동의 없으면 보지 않기 · 자료 외부 반출 금지 · 미검증 책임은 사용자에게',{x:M+0.35+cwid,y:by,w:W-2*M-cwid-0.5,h:bh,fontSize:12,bold:true,color:C.navy,valign:'middle'});
-    L.caption(s,{x:M,y:6.64,w:W-2*M,text:'출처: 이전 판 「MeAI 활용 가이드북 · 영업가족 편」(2026.09) · MeAI 화면 안내문 · 다섯 가지 약속은 PART 9',align:'left',size:10});
+    L.caption(s,{x:M,y:6.64,w:W-2*M,text:'다섯 가지 약속은 PART 9',align:'left',size:10});
   }});
 
   // ---- 8-5 첫 말 · 첫 질문 짝 (방송판 22장) ----
@@ -200,6 +198,6 @@ module.exports = (S, ctx) => {
       L.T(s,r.q,{x:xs[2]+0.26,y:qy,w:cw[2]-0.45,h:qh,fontSize:12,bold:true,color:C.navy,valign:'middle',lineSpacingMultiple:1.1}); });
     L.R(s,{x:M,y:5.94,w:W-2*M,h:0.52,fill:C.navy,line:null,radius:0.14});
     s.addText([{text:'기억할 것   ',options:{bold:true,color:C.blue100,fontSize:13,fontFace:L.FONT}},{text:'카드 문장은 고객에게 첫 말, 추천 질문은 MeAI에게 첫 질문.',options:{bold:true,color:'FFFFFF',fontSize:14.5,fontFace:L.FONT}}],{x:M+0.3,y:5.94,w:W-2*M-0.6,h:0.52,isTextBox:true,margin:0,valign:'middle'});
-    L.caption(s,{x:M,y:6.54,w:W-2*M,text:'※ 1번 김민수 · 2번 윤태기 고객 카드(이름·숫자는 예시) · 2번 빨간 네모 = 사전조회동의 D-90(이달 말 만료되는 가입설계동의와 별개) · 출처: MeAI 확정 화면 · 자세한 흐름: 1번 PART 7 시나리오 3, 2번 시나리오 2',align:'left',size:10});
+    L.caption(s,{x:M,y:6.54,w:W-2*M,text:'※ 1번 김민수 · 2번 윤태기 고객 카드(이름·숫자는 예시) · 2번 빨간 네모 = 사전조회동의 D-90(이달 말 만료되는 가입설계동의와 별개) · 자세한 흐름: 1번 PART 7 시나리오 3, 2번 시나리오 2',align:'left',size:10});
   }});
 };

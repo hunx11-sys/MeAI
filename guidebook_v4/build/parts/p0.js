@@ -6,7 +6,7 @@ module.exports = (S, ctx) => {
       {text:'나만의 영업비서, “MeAI 홈” OPEN', options:{bold:true,fontSize:15,breakLine:true}},
       {text:'영업가족 편', options:{fontSize:12.5}},
     ],
-    meta:['v4 · MeAI 홈 편','2026.10 오픈 화면','2026.09.29 확정'], file:HERO('gb5_gate_full_m'), pageNo:no }) });
+    meta:['세일즈혁신TF'], file:HERO('gb5_gate_full_m'), pageNo:no }) });
   // 읽는 법
   S.push({ fn:(pres,no)=>{
     const s = L.base(pres,{kicker:'HOW TO USE',title:'이 가이드북 읽는 법',sub:'영업가족이 직접 보는 책. 내 상황에 맞는 곳부터 펼쳐 보기.',pageNo:no});
@@ -52,9 +52,6 @@ module.exports = (S, ctx) => {
     // 화면 기준 · 예시 데이터 (회색 안내 한 줄)
     L.R(s,{x:M,y:6.38,w:W-2*M,h:0.42,fill:C.g100,line:null,radius:0.12});
     s.addText([
-      {text:'화면 기준  ', options:{bold:true,color:C.g700}},
-      {text:'2026.09.29 확정 화면. PART 6의 새 기능(용어 설명·모드 변경)은 개발 중이라 바뀔 수 있음', options:{color:C.g800}},
-      {text:'      ', options:{color:C.g800}},
       {text:'예시 데이터  ', options:{bold:true,color:C.g700}},
       {text:'화면 속 고객 이름·나이·숫자는 모두 예시', options:{color:C.g800}},
     ],{x:M+0.25,y:6.38,w:W-2*M-0.5,h:0.42,fontFace:L.FONT,fontSize:10.5,isTextBox:true,margin:0,valign:'middle'});

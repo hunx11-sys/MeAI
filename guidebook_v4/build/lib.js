@@ -14,8 +14,10 @@ const C = {
 };
 const FONT = '맑은 고딕';
 const W = 13.333, H = 7.5, M = 0.6;
-const FOOTER_TEXT = 'MeAI 활용 가이드북 v4 · MeAI 홈 편 · 2026.10';
+const FOOTER_TEXT = 'MeAI 활용 가이드북 · MeAI 홈 편';
 const IMG_CACHE = path.join(__dirname, 'img');
+// 은은한 그라데이션 배경(bg.py 로 만든 그림). 표지·파트 나눔·마무리는 진하게, 본문은 아주 옅게
+const BG = { cover:path.join(__dirname,'bg','cover.jpg'), divider:path.join(__dirname,'bg','divider.jpg'), closing:path.join(__dirname,'bg','closing.jpg'), page:path.join(__dirname,'bg','page.jpg') };
 fs.mkdirSync(IMG_CACHE, {recursive:true});
 
 // PDF 책갈피·링크 기록. deck.js 가 <출력>.nav.json 으로 내보내고, nav.py 가 PDF 에 책갈피와 누르면 이동하는 링크로 심는다.
@@ -26,7 +28,7 @@ function plainText(t){ return Array.isArray(t) ? t.map(r=> (r && r.text) || '').
 // 이 쪽(pageNo)의 {x,y,w,h} 영역을 누르면 target 쪽으로 이동. target 이 비어 있으면(파트가 빠진 ONLY 빌드 등) 넣지 않음
 function link(pageNo, {x,y,w,h}, target){ if (target) LINKS.push({pageNo, x, y, w, h, target}); }
 
-function newPres(){ const p = new pptxgen(); p.layout = 'LAYOUT_WIDE'; p.lang = 'ko-KR'; p.author = '세일즈혁신TF'; p.title = 'MeAI 활용 가이드북 v4 · MeAI 홈 편'; return p; }
+function newPres(){ const p = new pptxgen(); p.layout = 'LAYOUT_WIDE'; p.lang = 'ko-KR'; p.author = '세일즈혁신TF'; p.title = 'MeAI 활용 가이드북 · MeAI 홈 편'; return p; }
 
 // 텍스트 폭 추정(인치). 한글 1em, 영문/숫자 0.56em, 공백 0.3em
 function textW(s, pt){ let w=0; for (const ch of s){ if (/[가-힣]/.test(ch)) w+=1.0; else if (ch===' ') w+=0.3; else if (/[A-Z0-9]/.test(ch)) w+=0.62; else if (/[·•]/.test(ch)) w+=0.4; else w+=0.52; } return w*pt/72; }
@@ -49,7 +51,7 @@ function footer(slide, pageNo, dark){
 }
 // 기본 콘텐츠 슬라이드: kicker(파랑) / 제목 / 부제
 function base(pres, {kicker, title, sub, pageNo, bg=C.white, tag}){
-  const s = pres.addSlide(); s.background = {color:bg};
+  const s = pres.addSlide(); s.background = bg===C.white ? {path:BG.page} : {color:bg};
   NAV.push({ pageNo, kicker: plainText(kicker), title: plainText(title), kickerW: textW(plainText(kicker), 10.5)+0.1 });
   if (kicker) T(s, kicker, { x:M, y:0.42, w:9, h:0.28, fontSize:10.5, bold:true, color:C.blue });
   if (title) T(s, title, { x:M, y:0.68, w:W-2*M, h:0.6, fontSize:24, bold:true, color:C.navy, valign:'middle' });
@@ -79,7 +81,7 @@ function dividerTrack(s, num){
 }
 // 파트 구분 슬라이드
 function divider(pres, {num, title, sub, learn=[], pageNo, color=C.blue}){
-  const s = pres.addSlide(); s.background = {color};
+  const s = pres.addSlide(); s.background = color===C.blue ? {path:BG.divider} : {color};
   NAV.push({ pageNo, part:num, title:plainText(title).split('\n')[0] });
   T(s, num, { x:W-6.2, y:0.9, w:5.6, h:3.2, fontSize:170, bold:true, color:'FFFFFF', transparency:82, align:'right', valign:'top' });
   T(s, `PART ${num}`, { x:M+0.2, y:1.5, w:6, h:0.35, fontSize:12, bold:true, color:'FFFFFF', transparency:25 });
@@ -188,7 +190,7 @@ function table(slide, {x,y,w,rows,colW,size=10,headFill=C.g100,rowH=0.32}){
 // 아이콘 원 (텍스트 심볼)
 function iconCircle(slide,{x,y,d=0.5,symbol,fill=C.blue50,color=C.blue,size=16}){ circle(slide,{x,y,d,fill}); T(slide,symbol,{x,y,w:d,h:d,fontSize:size,bold:true,color,align:'center',valign:'middle'}); }
 
-module.exports = { MISSING, C, FONT, W, H, M, newPres, T, R, circle, base, divider, img, pin, badge, numList, chip, stat, note, steps, bullets, table, iconCircle, textW, imgSize };
+module.exports = { BG, brandPill, MISSING, C, FONT, W, H, M, newPres, T, R, circle, base, divider, img, pin, badge, numList, chip, stat, note, steps, bullets, table, iconCircle, textW, imgSize };
 
 // ---- 추가 도우미 ----
 // 번호 설명을 가로로 나열 (이미지 아래 범례)
@@ -210,15 +212,22 @@ function label(slide,{x,y,w,text,color=C.g700,size=10.5}){ T(slide,text,{x,y,w,h
 function arrow(slide,{x,y,dir='›',size=22,color=C.g400,w=0.4,h=0.5}){ T(slide,dir,{x,y,w,h,fontSize:size,color,align:'center',valign:'middle'}); }
 // 폰 캡처(이미 검은 프레임 포함) — 라운딩·그림자 없이
 function phone(slide,file,{x,y,w,h,align='center',valign='top'}){ return img(slide,file,{x,y,w,h,round:false,shadow:false,align,valign}); }
+// 반투명 알약 하나: '세일즈혁신TF' (표지·마무리)
+function brandPill(s,{x,y,text='세일즈혁신TF',size=12.5,h=0.42}){
+  const w = textW(text,size)+0.7;
+  s.addShape('roundRect',{x,y,w,h,rectRadius:h/2,fill:{color:'FFFFFF',transparency:86},line:{color:'FFFFFF',width:1,transparency:55}});
+  T(s,text,{x,y,w,h,fontSize:size,bold:true,color:'FFFFFF',align:'center',valign:'middle'});
+  return w;
+}
 // 표지
 function cover(pres,{title,sub,line3,meta,file,pageNo}){
-  const s = pres.addSlide(); s.background={color:C.navy};
+  const s = pres.addSlide(); s.background={path:BG.cover};
   NAV.push({ pageNo, title:'표지' });
-  T(s,'메리츠화재 · 세일즈혁신TF',{x:M+0.2,y:0.8,w:6,h:0.3,fontSize:11,bold:true,color:'FFFFFF',transparency:35});
+  T(s,'메리츠화재',{x:M+0.2,y:0.8,w:6,h:0.3,fontSize:11,bold:true,color:'FFFFFF',transparency:35});
   T(s,title,{x:M+0.2,y:1.4,w:6.6,h:1.9,fontSize:44,bold:true,color:'FFFFFF',valign:'top',lineSpacingMultiple:1.12});
   T(s,sub,{x:M+0.2,y:3.45,w:6.6,h:0.9,fontSize:20,bold:true,color:C.blue100,valign:'top',lineSpacingMultiple:1.2});
   T(s,line3,{x:M+0.2,y:4.5,w:6.6,h:0.8,fontSize:12.5,color:'FFFFFF',transparency:20,valign:'top',lineSpacingMultiple:1.35});
-  meta.forEach((m,i)=>{ const tw = textW(m,10)+0.4; const cx = M+0.2 + meta.slice(0,i).reduce((a,t)=>a+textW(t,10)+0.4+0.12,0); R(s,{x:cx,y:5.65,w:tw,h:0.32,fill:'2B3340',line:null,radius:0.16}); T(s,m,{x:cx,y:5.65,w:tw,h:0.32,fontSize:10,color:'FFFFFF',align:'center',valign:'middle'}); });
+  if (meta && meta.length) brandPill(s,{x:M+0.2,y:5.6,text:meta[0]});
   if (file) img(s,file,{x:7.15,y:0.55,w:5.9,h:6.3,valign:'middle',align:'right'});
   footer(s,pageNo,true);
   return s;
