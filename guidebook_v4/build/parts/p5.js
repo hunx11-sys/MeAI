@@ -26,8 +26,8 @@ module.exports = (S, ctx) => {
   }});
   S.push({ fn:(pres,no)=>{
     const s = L.base(pres,{kicker:'PART 5 · 사전조회 동의',title:'동의는 알림톡 한 통으로',sub:'맞춤대화는 보장 내역을 읽고 답변. 그래서 사전조회 동의가 먼저.',pageNo:no});
-    // 위 : 기간을 길이로 — 맞춤대화 90일 막대와 MeAI 홈 노출 1년 막대를 같은 눈금(1년 = 10인치)에 그림. 막대 길이는 기간에 정확히 비례
-    const X0=2.55, LEN=10.0, X1=X0+LEN, k=LEN/365, X90=X0+90*k;
+    // 위 : 기간을 길이로 — 맞춤대화 90일 막대와 MeAI 홈 노출 3년 막대를 같은 눈금(3년 = 10인치)에 그림. 막대 길이는 기간에 정확히 비례
+    const X0=2.55, LEN=10.0, X1=X0+LEN, k=LEN/1095, X90=X0+90*k;
     // 시작 카드 : 요청 → 동의
     L.R(s,{x:0.6,y:1.95,w:1.62,h:1.3,fill:C.blue,line:null,radius:0.14});
     L.T(s,'요청',{x:0.8,y:2.07,w:1.3,h:0.26,fontSize:10.5,bold:true,color:'FFFFFF',transparency:20});
@@ -41,21 +41,22 @@ module.exports = (S, ctx) => {
     L.R(s,{x:wdX,y:wdY,w:wdW,h:0.32,fill:C.red50,line:null,radius:0.16});
     L.circle(s,{x:wdX+0.14,y:wdY+0.1,d:0.12,fill:C.red});
     L.T(s,wdT,{x:wdX+0.36,y:wdY,w:wdTw,h:0.32,fontSize:10.5,color:C.g800,valign:'middle'});
-    // 눈금선 : 동의일 · 90일 · 1년 — 막대·빨간 점보다 먼저 그려 그 아래에 깔림(선이 점을 가르지 않게)
-    // 1년 눈금은 줄 B 에만 걸치게 2.68부터(2.22부터 올리면 바로 위 철회 칩 밑단에 0.03인치로 붙어 칩이 '1년 시점'처럼 보임)
+    // 눈금선 : 동의일 · 90일 · 3년 — 막대·빨간 점보다 먼저 그려 그 아래에 깔림(선이 점을 가르지 않게)
+    // 3년 눈금은 줄 B 에만 걸치게 2.68부터(2.22부터 올리면 바로 위 철회 칩 밑단에 0.03인치로 붙어 칩이 '1년 시점'처럼 보임)
     [[X0,2.22],[X90,2.22],[X1,2.68]].forEach(([X,y])=> s.addShape('line',{x:X,y,w:0,h:3.0-y,line:{color:C.g400,width:0.75}}));
     // 줄 A : 맞춤대화 90일
     L.R(s,{x:X0,y:2.28,w:90*k,h:0.34,fill:C.blue,line:null,radius:0.06});
     s.addShape('ellipse',{x:X90-0.07,y:2.28+0.17-0.07,w:0.14,h:0.14,fill:{color:C.red},line:{color:'FFFFFF',width:1.5}});
     L.T(s,'만료 전 → [사전동의 만료] 그룹에서 미리 재요청',{x:X90+0.2,y:2.28,w:7.2,h:0.34,fontSize:11.5,color:C.g700,valign:'middle'});
-    // 줄 B : MeAI 홈 노출 1년
+    // 줄 B : MeAI 홈 노출 3년
     L.R(s,{x:X0,y:2.74,w:LEN,h:0.2,fill:C.blue100,line:null,radius:0.05});
-    L.T(s,'MeAI 홈 노출 · 사전조회 동의일로부터 1년 이내',{x:X1-5.6,y:2.98,w:5.6,h:0.28,fontSize:11,color:C.g700,align:'right',valign:'middle'});
-    // 눈금 글자 : 동의일 · 90일 · 1년
-    L.T(s,'동의일 · 15분 안팎 반영',{x:X0,y:3.3,w:2.3,h:0.28,fontSize:10.5,color:C.g600,valign:'middle'});
-    L.T(s,'90일 · 만료 → "사전조회동의 필요"',{x:X90,y:3.3,w:3.0,h:0.28,fontSize:10.5,bold:true,color:C.navy,valign:'middle'});
-    L.T(s,'1년',{x:X1-1.0,y:3.3,w:1.0,h:0.28,fontSize:10.5,color:C.g600,align:'right',valign:'middle'});
-    L.T(s,'막대 길이는 기간에 비례 (90일 : 1년)',{x:7.73,y:3.6,w:5.0,h:0.26,fontSize:9.5,color:C.g500,align:'right',valign:'middle'});
+    L.T(s,'MeAI 홈 노출 · 사전조회 동의일로부터 3년 이내',{x:X1-5.6,y:2.98,w:5.6,h:0.28,fontSize:11,color:C.g700,align:'right',valign:'middle'});
+    // 눈금 글자 : 동의일 · 90일 · 3년 (3년 눈금에서 90일은 짧은 구간이라 짧은 글자만 눈금 옆에 두고 설명은 아래 한 줄)
+    L.T(s,'동의일',{x:X0,y:3.3,w:0.8,h:0.28,fontSize:10.5,color:C.g600,valign:'middle'});
+    L.T(s,'90일',{x:X90+0.04,y:3.3,w:0.7,h:0.28,fontSize:10.5,bold:true,color:C.navy,valign:'middle'});
+    L.T(s,'3년',{x:X1-1.0,y:3.3,w:1.0,h:0.28,fontSize:10.5,color:C.g600,align:'right',valign:'middle'});
+    L.T(s,'동의 후 15분 안팎 반영 · 90일이 지나면 만료 → "사전조회동의 필요"',{x:X0,y:3.6,w:6.6,h:0.26,fontSize:10.5,color:C.g700,valign:'middle'});
+    L.T(s,'막대 길이는 기간에 비례 (90일 : 3년)',{x:8.2,y:3.6,w:4.53,h:0.26,fontSize:9.5,color:C.g500,align:'right',valign:'middle'});
     // 아래 줄 : 팝업만 잘라낸 그림 | 요청 버튼 크게 + [보내기] 뒤 알림 | 상품소개 동의 안내
     const a = L.img(s,HERO('fix_c_consent_modal'),{x:M,y:3.95,w:4.3,h:2.55,valign:'top',align:'left'}); L.caption(s,{x:M,y:a.y+a.h+0.05,w:a.w,text:'MeAI 홈 [고객 동의]에서도 사전조회동의 발송 가능',size:10});
     const bx=M+4.55, bw=3.75;
