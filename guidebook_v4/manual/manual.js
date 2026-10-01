@@ -17,24 +17,35 @@ for (const p of ['p0','p1','p2','p3','p4','p5','p6','p7','p8','p9']) require(pat
 S.forEach((s,i)=>{ if (s.part) ctx.parts[s.part] = i+1; });
 
 // 2) 장 구성: [장 제목, 한 줄 설명, 가이드북 쪽 번호들]
+// [장 제목, 한 줄 설명, 가이드북 쪽 번호들, 목차에 적을 '이 장에서 배우는 기능']
 const CH = [
-  ['영업포탈에서 들어가기', 'MeAI 홈으로 들어오는 길', [13,14]],
-  ['MeAI 홈', '하루가 시작되는 첫 화면', [15,16,17,18,19,20,23,24]],
-  ['고객 검색 팝업', '이름으로 고객을 골라 맞춤대화', [26,27,28]],
-  ['MeAI 고객찾기', '그룹으로 묶인 내 고객과 다음 행동', [31,32,33,35,36,38,39,40,41]],
-  ['게시판 · 사전조회 동의', '공지 확인과 동의 요청', [44,45,46]],
-  ['일반대화 · 맞춤대화', '묻고, 읽고, 보내기', [48,49,50,51,52,53,54,55,56,57,58,59,60]],
+  ['영업포탈에서 들어가기', 'MeAI 홈으로 들어오는 길', [13,14], '진입로 6곳 · 새 버튼 3개(롤링배너 · CRM 리스트 · 떠 있는 버튼)'],
+  ['MeAI 홈', '하루가 시작되는 첫 화면', [15,16,17,18,19,20,23,24], '화면 구성 · 글씨 확대 · 대화 카드 · 숫자 4개 · 추천 카드 · 범례 · 가는 곳'],
+  ['고객 검색 팝업', '이름으로 고객을 골라 맞춤대화', [26,27,28], '팝업 구성 · 이름 검색 · 동의 상태(D-n · 회색)'],
+  ['MeAI 고객찾기', '그룹으로 묶인 내 고객과 다음 행동', [31,32,33,35,36,37,38,39,40,41], '화면 구성 · 그룹 · 고객 카드 6칸 · 태그 색 · 다음 행동 · 동의별 행동 · 검색'],
+  ['게시판 · 사전조회 동의', '공지 확인과 동의 요청', [44,45,46], '게시판 목록 · 글 본문과 첨부파일 · 사전조회 동의 알림톡'],
+  ['일반대화 · 맞춤대화', '묻고, 읽고, 보내기', [48,49,60,50,51,52,53,54,55,56,57,58,59], '대화 열기 · 일반/맞춤대화 화면 · 답변 읽기 · 용어 · 간편/상세 · 꼬리질문 · 요약 리포트 · 모바일'],
 ];
 // 가이드북 PART 번호 → 매뉴얼 장 번호(본문 속 '(PART 3)' 같은 안내를 매뉴얼 장으로 바꿈). PART 8 은 매뉴얼에 없어 지움
 const PART2CH = { '2':2, '3':3, '4':4, '5':5, '6':6 };
+// 가이드북 쪽 번호 → 매뉴얼 쪽 번호(아래 plan 계산 뒤 채움). 본문 속 '태그 색은 36쪽' 같은 가이드북 쪽 안내를 매뉴얼 쪽으로
+const GP2M = {};
 const fixText = t => typeof t!=='string' ? t : t
+  .replace(/(태그 색은 |자세한 설명은 )(\d+)쪽/g, (m,a,n)=> GP2M[n] ? `${a}${GP2M[n]}쪽` : m)
+  .replace('고객찾기 그룹 태그는 PART 4', ()=>`고객찾기 그룹 태그 색은 ${GP2M[ctx.parts['04']+6]}쪽 참고`)
+  .replace('누른 뒤 화면은 PART 4', ()=>`누른 뒤 화면은 ${GP2M[ctx.parts['04']+1]}쪽 참고`)
   .replace(/\s*\(PART 8\)/g, '')
   .replace(/PART (\d)/g, (m,d)=> PART2CH[d] ? `${PART2CH[d]}장 ${CH[PART2CH[d]-1][0]}` : m);
 
 // 3) 쪽 그리기 도우미: 머리글(kicker)을 매뉴얼 장 이름으로, 본문 속 PART 안내를 매뉴얼 장으로
 let curCh = 0;
 const base0 = L.base;
-L.base = (pres, o) => base0(pres, Object.assign({}, o, { kicker: o.kicker ? `${curCh}장 · ${o.kicker.replace(/^PART \d+ · /,'')}` : o.kicker }));
+// 매뉴얼에서 뜻이 안 통하는 가이드북 머리글은 바꿔 씀. 오른쪽 위에 NEW 표가 따로 있으면 머리글의 NEW 는 뺌
+const KICK = { '길 1':'팝업 화면 구성', '모바일':'모바일에서 들어가기', '검색 · 필터 · 페이지':'검색·필터·페이지' };
+const fx = v => Array.isArray(v) ? v.map(r=>Object.assign({}, r, { text: fixText(r.text) })) : fixText(v);
+L.base = (pres, o) => { let k = o.kicker ? o.kicker.replace(/^PART \d+ · /,'') : o.kicker;
+  if (k && o.tag && o.tag.text==='NEW') k = k.replace(/^NEW\s+/,'');
+  return base0(pres, Object.assign({}, o, { kicker: k ? `${curCh}장 · ${KICK[k]||k}` : o.kicker, title: fx(o.title) })); };
 const pres = L.newPres(); pres.title = 'MeAI 홈 사용 매뉴얼';
 const add0 = pres.addSlide.bind(pres);
 pres.addSlide = (...a) => { const s = add0(...a); const at = s.addText.bind(s);
@@ -42,7 +53,8 @@ pres.addSlide = (...a) => { const s = add0(...a); const at = s.addText.bind(s);
   return s; };
 
 // 4) 쪽 번호 미리 계산: 표지 1 · 목차 2 · 장마다 [나눔 1 + 화면들] · 마지막 1
-let no = 3; const plan = CH.map(([t,d,pages],i)=>{ const start = no; no += 1 + pages.length; return { i:i+1, t, d, pages, start }; });
+let no = 3; const plan = CH.map(([t,d,pages,f],i)=>{ const start = no; no += 1 + pages.length; return { i:i+1, t, d, pages, f, start }; });
+plan.forEach(c=>c.pages.forEach((gp,k)=>{ GP2M[gp] = c.start+1+k; }));
 const LAST = no;
 // 가이드북 쪽 제목(목차·나눔용): PDF 책갈피와 같은 글자. 그리기 전에 알아야 하므로 한 번 그려서 얻는다
 const TITLES = {};
@@ -54,24 +66,24 @@ const TITLES = {};
 L.cover(pres, { title:'MeAI 홈\n사용 매뉴얼', sub:'화면별 기능 안내', line3:'영업포탈에서 들어가기부터\n대화 · 요약 리포트 발송까지 · 영업가족 편', meta:['세일즈혁신TF'], file:HERO('gb5_gate_full_m'), pageNo:1 });
 
 // 목차
-{ const s = base0(pres, { kicker:'CONTENTS', title:'목차', sub:'화면 그림의 번호와 오른쪽 설명의 번호가 짝 · 화면 속 이름·숫자는 모두 예시', pageNo:2 });
+{ const s = base0(pres, { kicker:'CONTENTS', title:'목차', sub:'화면 그림의 번호와 옆·아래 설명의 번호가 짝 · 화면 속 이름·숫자는 모두 예시', pageNo:2 });
   const cw = (W-2*M-0.3)/2, rh = 1.42;
   plan.forEach((c,k)=>{ const x = M + (k%2)*(cw+0.3), y = 1.95 + Math.floor(k/2)*(rh+0.14);
     L.R(s,{x,y,w:cw,h:rh,fill:C.white,line:C.g200,radius:0.16,shadow:true});
     L.T(s,String(c.i).padStart(2,'0'),{x:x+0.3,y:y+0.22,w:0.8,h:0.5,fontSize:24,bold:true,color:C.blue,valign:'middle'});
     L.T(s,c.t,{x:x+1.1,y:y+0.2,w:cw-2.2,h:0.36,fontSize:16,bold:true,color:C.navy,valign:'middle'});
     L.T(s,`p.${c.start}`,{x:x+cw-1.2,y:y+0.2,w:0.9,h:0.36,fontSize:12,color:C.g500,align:'right',valign:'middle'});
-    const names = c.pages.map(gp=>TITLES[gp]||'').filter(Boolean);
     L.T(s,c.d,{x:x+1.1,y:y+0.58,w:cw-1.4,h:0.28,fontSize:11.5,color:C.blue,valign:'middle'});
-    L.T(s,`화면 ${c.pages.length}쪽 · `+names.slice(0,3).map(t=>t.replace(/[“”"]/g,'')).join(' · ')+(names.length>3?' …':''),{x:x+1.1,y:y+0.9,w:cw-1.4,h:0.36,fontSize:10.5,color:C.g600,valign:'top'});
+    L.T(s,`화면 ${c.pages.length}쪽 · ${c.f}`,{x:x+1.1,y:y+0.9,w:cw-1.4,h:0.36,fontSize:10.5,color:C.g600,valign:'top'});
     L.link(2,{x,y,w:cw,h:rh},c.start); });
 }
 
 // 장 나눔 + 화면 쪽
 function chapterPage(c){
   const s = pres.addSlide(); s.background = { path:L.BG.divider };
+  L.NAV.push({ pageNo:c.start, part:String(c.i).padStart(2,'0'), title:c.t }); // PDF 책갈피 1단
   L.T(s, String(c.i).padStart(2,'0'), { x:W-6.2, y:0.9, w:5.6, h:3.2, fontSize:170, bold:true, color:'FFFFFF', transparency:82, align:'right', valign:'top' });
-  L.T(s, `CHAPTER ${c.i}`, { x:M+0.2, y:1.5, w:6, h:0.35, fontSize:12, bold:true, color:'FFFFFF', transparency:25 });
+  L.T(s, `${c.i}장`, { x:M+0.2, y:1.5, w:6, h:0.35, fontSize:12, bold:true, color:'FFFFFF', transparency:25 });
   L.T(s, c.t, { x:M+0.2, y:1.9, w:8.5, h:0.9, fontSize:36, bold:true, color:'FFFFFF', valign:'top' });
   L.T(s, c.d, { x:M+0.2, y:2.85, w:8.5, h:0.5, fontSize:15, color:'FFFFFF', transparency:10 });
   L.T(s, '이 장의 화면', { x:M+0.2, y:3.75, w:6, h:0.3, fontSize:11, bold:true, color:'FFFFFF', transparency:25 });
@@ -100,5 +112,5 @@ plan.forEach(c=>{ curCh = c.i; chapterPage(c); c.pages.forEach((gp,k)=> S[gp-1].
 }
 const out = process.argv[2] || 'manual.pptx';
 pres.writeFile({ fileName: out }).then(()=>{
-  require('fs').writeFileSync(out+'.nav.json', JSON.stringify({ pages:LAST, parts:Object.fromEntries(plan.map(c=>[String(c.i).padStart(2,'0'),c.start])), nav:L.NAV, links:L.LINKS }, null, 1));
+  require('fs').writeFileSync(out+'.nav.json', JSON.stringify({ pages:LAST, part_fmt:'{n}장', toc_page:2, parts:Object.fromEntries(plan.map(c=>[String(c.i).padStart(2,'0'),c.start])), nav:L.NAV, links:L.LINKS }, null, 1));
   console.log('written', out, LAST, 'slides'); if (L.MISSING.length) console.log('MISSING', L.MISSING); });

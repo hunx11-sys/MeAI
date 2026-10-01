@@ -19,7 +19,7 @@ crop(F+'find010/65_custom_question_result.png',(840,0,2880,1800),H+'custom_q_cro
 crop(F+'gate010/25_find_from_card_choi.png',(2000,140,2880,1120),H+'find_right_choi.png')
 # 검색 관련
 crop(F+'find010/44_search_recommended_attributes.png',(0,0,1200,300),H+'search_attr_crop.png')
-crop(F+'find010/46_search_cancer_suggest.png',(20,0,1200,470),H+'search_suggest_crop.png')
+crop(F+'find010/46_search_cancer_suggest.png',(0,0,1200,470),H+'search_suggest_crop.png')   # (2026.10) 왼쪽 테두리가 잘리지 않게 0부터
 crop(F+'gate010/15_consent_toast.png',(150,70,970,180),H+'consent_toast_crop.png')
 crop(F+'gate020/08_search_no_result.png',(0,0,1488,900),H+'search_noresult_crop.png')
 # 고객 그룹 합성
@@ -38,3 +38,8 @@ im.save(H+'report_kakao_crop.png')
 # crop('portal_entry_full',(8,140,1625,1022)); crop('portal_entry_banner',(392,240,1160,450),2); crop('portal_entry_crm',(415,650,1160,1000),2)
 # 태그 색 장 카드 확대
 im=Image.open(H+'find_card_z.png'); im.crop((0,0,1300,470)).save(H+'v2_card_tags_z.png')
+
+# (2026.10) 고객 검색 팝업 줄 확대 3장: 위아래에 걸친 옆 줄 테두리 조각을 잘라 냄
+for _n in ['31_row_normal_zoom','33_row_d1_zoom','34_row_revoked_zoom']:
+    _p='/home/user/MeAI/guidebook_v4/captures/gate020/'+_n+'.png'; _im=Image.open(_p)
+    if _im.size==(1983,234): _im.convert('RGB').crop((0,14,1983,217)).save(_p)

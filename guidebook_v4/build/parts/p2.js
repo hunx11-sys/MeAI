@@ -3,7 +3,7 @@ module.exports = (S, ctx) => {
   S.push({ part:'02', fn:(pres,no)=> L.divider(pres,{num:'02',title:'MeAI 홈\n하루가 시작되는 곳',sub:'오늘 연락할 내 고객과 첫 마디가 미리 준비된 곳 · 누르기만 하면 시작',learn:['영업포탈에서 MeAI 홈으로 가는 진입로 6곳','MeAI 홈 다섯 구역 · 스위치와 버튼','숫자 4개와 추천 카드 읽는 법','태그 · 동의 · 유형 범례'],pageNo:no}) });
   // 2-0a 영업포탈 진입점 6군데 (10/2)
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 2 · 영업포탈에서 들어가기',title:'영업포탈에서 MeAI 홈으로 가는 진입로',sub:'중앙 배너와 CRM 통해 들어가는 MeAI는 누구나 사용 가능',pageNo:no});
+    const s = L.base(pres,{kicker:'PART 2 · 영업포탈에서 들어가기',title:'영업포탈에서 MeAI 홈으로 가는 진입로',sub:'중앙 배너와 CRM을 통해 들어가는 MeAI는 누구나 사용 가능',pageNo:no});
     L.img(s,HERO('bc2_portal_masked'),{x:M,y:1.85,w:8.3,h:5.1,valign:'top',align:'left'});
     L.numList(s,{x:9.15,y:1.85,w:3.58,gap:0.06,titleSize:13.5,descSize:11.5,items:[
       {n:1,title:'왼쪽 위 [MeAI 홈]',desc:'기존 · 사용권한이 있어야 사용 가능'},
@@ -19,14 +19,15 @@ module.exports = (S, ctx) => {
     const s = L.base(pres,{kicker:'PART 2 · 새로 생긴 문 3개',title:'새로 생긴 문 ③④⑤ 한눈에 보기',sub:'고객 목록에서 바로 대화를 시작하는 ④가 핵심',pageNo:no});
     L.label(s,{x:M,y:1.85,w:4.6,text:'③ 롤링배너 → [MeAI 홈 바로가기]',color:C.blue,size:11.5});
     L.img(s,HERO('portal_entry_banner'),{x:M,y:2.2,w:4.6,h:1.3,valign:'top',align:'left'});
-    L.img(s,HERO('fix_banner_left_z'),{x:M,y:3.68,w:4.6,h:3.22,valign:'top',align:'left'});
+    // 아래 칸: 누르면 어디로 가는지(같은 배너의 흐린 확대 그림 대신)
+    L.note(s,{x:M,y:3.75,w:4.6,h:1.55,label:'누르면',text:'③ [MeAI 홈 바로가기] → MeAI 홈\n④ [MeAI 맞춤대화] → 그 고객 대화가 바로 열림\n④ [MeAI 일반대화] → 일반대화',tone:'grey',size:12});
     L.label(s,{x:5.5,y:1.85,w:7.23,text:'④ CRM 리스트 [MeAI 일반대화] [MeAI 맞춤대화] · ⑤ 떠 있는 MeAI 버튼',color:C.red,size:11.5});
     L.img(s,HERO('portal_entry_crm'),{x:5.5,y:2.2,w:7.23,h:3.5,valign:'top',align:'left'});
     L.note(s,{x:5.5,y:5.85,w:7.23,h:1.05,label:'④가 핵심인 이유',text:'내 고객 생일·상령일 목록에서 바로 [MeAI 맞춤대화]를 눌러서 시작.\n그 고객 대화가 한 번에 열림.',tone:'dark',size:12.5});
   }});
   // 2-1 전체 화면
   S.push({ fn:(pres,no)=>{
-    const s = L.base(pres,{kicker:'PART 2 · MeAI 홈 화면 구성',title:'MeAI 홈 한 화면에 담길 오늘 연락할 고객',pageNo:no});
+    const s = L.base(pres,{kicker:'PART 2 · MeAI 홈 화면 구성',title:'MeAI 홈 한 화면에 담긴 오늘 연락할 고객',pageNo:no});
     const g = L.img(s,HERO('gb5_gate_full_m'),{x:M,y:1.5,w:7.4,h:5.4,valign:'top',align:'left'});
     const clip={x:0,y:0};
     L.pin(s,g,60,110,1,{clip}); L.pin(s,g,720,166,2,{clip}); L.pin(s,g,60,442,3,{clip}); L.pin(s,g,720,603,4,{clip}); L.pin(s,g,60,1172,5,{clip}); L.pin(s,g,1338,42,6,{clip});

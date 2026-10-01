@@ -118,7 +118,7 @@ module.exports = (S, ctx) => {
     const gt = L.img(s,HERO('fix_custom_top'),{x:M,y:1.5,w:5.82,h:2.45,valign:'top',align:'left'});
     const gb = L.img(s,HERO('fix_custom_bottom'),{x:M,y:gt.y+gt.h+0.12,w:5.82,h:6.95-(gt.y+gt.h+0.12),valign:'top',align:'left'});
     const ot={clip:{x:0,y:12},dsf:2}, ob={clip:{x:424,y:688},dsf:2};
-    L.pin(s,gt,218,157,1,ot); L.pin(s,gt,470,81,2,ot); L.pin(s,gt,470,290,3,ot); L.pin(s,gt,470,470,4,ot);
+    L.pin(s,gt,218,157,1,ot); L.pin(s,gt,470,81,2,ot); L.pin(s,gt,470,290,3,ot); L.pin(s,gt,1247,470,4,ot);
     L.pin(s,gb,457,760,5,ob); L.pin(s,gb,818,758,6,ob); L.pin(s,gb,457,911,7,ob); L.pin(s,gb,457,983,8,ob);
     const lx = M+5.82+0.4, lw = 12.73-lx;
     L.caption(s,{x:lx,y:1.12,w:12.73-lx,text:'※ 이름·숫자는 예시 · 정보 칸이 열려 있으면 아래가 흐림(^로 접으면 밝아짐)',align:'right',size:10});
@@ -191,8 +191,10 @@ module.exports = (S, ctx) => {
     L.numList(s,{x:9.5,y:1.75,w:3.23,gap:0.24,titleSize:14,descSize:12,items:[
       {n:1,title:'위치만 다름',desc:'PC는 입력창 오른쪽 위,\n모바일은 오른쪽 아래'},
       {n:2,title:'켜고 끄기',desc:'한 번 누르면 표시,\n다시 누르면 원래대로'},
-      {n:3,title:'목록으로 보기',desc:'답변 끝 [용어 설명 N]에서 한 번에'},
-      {n:4,title:'고객에게 그대로',desc:'뜻풀이를 그대로 읽어 주기'}]});
+      {n:3,title:'목록으로 보기',desc:'답변 끝 [용어 설명 N]에서 한 번에'}]});
+    // 화면 속 위치 번호(오른쪽 설명과 짝)
+    L.badge(s,{x:3.06,y:5.54,n:1,d:0.3}); L.badge(s,{x:6.01,y:5.54,n:2,d:0.3}); L.badge(s,{x:6.54,y:2.48,n:3,d:0.3});
+    L.note(s,{x:9.5,y:5.3,w:3.23,h:0.8,label:'현장에서',text:'뜻풀이를 고객에게 그대로 읽어 주기',tone:'grey',size:11.5});
   }});
   // 6-6 모드 변경 PC
   S.push({ fn:(pres,no)=>{
@@ -212,6 +214,8 @@ module.exports = (S, ctx) => {
       {n:1,title:'버튼을 누르면',desc:'아래에서 "분석 모드" 선택창이 올라옴'},
       {n:2,title:'고르면 끝',desc:'선택창이 닫히고 버튼 이름이 바뀜'},
       {n:3,title:'질문마다 바꾸기 가능',desc:'고객 앞에서는 간편, 약관을 따질 땐 상세'}]});
+    // 화면 속 위치 번호(오른쪽 설명과 짝)
+    L.badge(s,{x:0.63,y:5.96,n:1,d:0.3}); L.badge(s,{x:6.54,y:5.96,n:2,d:0.3}); L.badge(s,{x:6.54,y:5.20,n:3,d:0.3});
     L.caption(s,{x:9.5,y:6.64,w:3.23,text:'※ 답 아래 질문 버튼 일부는 가림',align:'left',size:10});
   }});
   // 6-8 꼬리질문
@@ -245,7 +249,7 @@ module.exports = (S, ctx) => {
   // 6-9 요약 리포트
   S.push({ fn:(pres,no)=>{
     const s = L.base(pres,{kicker:'PART 6 · 요약 리포트',title:'요약 리포트는 네 단계로 발송',sub:'휴대폰 하나로 발송까지 완료 · PC는 오른쪽 위 [요약 리포트]',pageNo:no});
-    const st=[['요약 생성','대화 화면 상단 [요약 생성]'],['선택 → 편집하기','넣을 답변만 체크, 내부용은 빼기'],['리포트 생성하기','카카오톡으로 링크 전송'],['알림톡 도착','[요약레포트 확인하기] · 받은 날부터 7일']];
+    const st=[['요약 생성','대화 화면 상단 [요약 생성]'],['선택 → 편집하기','넣을 답변만 체크, 내부용은 빼기'],['리포트 생성하기','카카오톡으로 링크 전송'],['알림톡 도착','[요약레포트 확인하기] · 7일간 열람']];
     st.forEach((t,i)=>{ const x=M+i*3.08,w=2.9; const f = i===0 ? HERO('bc2_report_step1') : i<3 ? LEG('report_step'+(i+1)) : HERO('report_kakao_crop'); const gp = L.phone(s,f,{x,y:1.85,w,h:3.9,valign:i<3?'top':'middle'}); if(i===0){ mask(s,gp,[[24,328,382,378]],'FFFFFF'); outline(s,gp,240,114,307,144,{dsf:1,color:C.red,width:1.5,radius:0.03}); } L.badge(s,{x,y:5.86,n:i+1,d:0.3}); L.T(s,t[0],{x:x+0.4,y:5.84,w:w-0.4,h:0.34,fontSize:13.5,bold:true,color:C.navy,valign:'middle'}); L.T(s,t[1],{x,y:6.19,w,h:0.3,fontSize:11.5,color:C.g600}); if(i<3) L.arrow(s,{x:x+w-0.08,y:3.55,w:0.35}); });
     L.note(s,{x:M,y:6.54,w:7.4,h:0.4,label:'보내기 전',text:'숫자·약관 근거·개인정보 확인. "AI로 생성된 보조자료" 표시가 붙음',tone:'yellow',size:11});
     L.caption(s,{x:8.2,y:6.6,w:12.73-8.2,text:'이름과 일부 글자는 가림',align:'right',size:10});
@@ -263,6 +267,8 @@ module.exports = (S, ctx) => {
       {n:2,title:'[MeAI 일반대화]',desc:'고객 목록 위, 무엇이든 묻는 창'},
       {n:3,title:'카드의 [MeAI]',desc:'누르면 그 고객 맞춤대화가 열림'},
       {n:4,title:'≡ 메뉴',desc:'약관 검색 · 사용 가이드 · 월별 대화 목록'}]});
+    // 화면 속 위치 번호(오른쪽 설명과 짝)
+    L.badge(s,{x:0.48,y:3.44,n:1,d:0.3}); L.badge(s,{x:5.45,y:3.27,n:2,d:0.3}); L.badge(s,{x:5.45,y:4.36,n:3,d:0.3}); L.badge(s,{x:5.59,y:2.66,n:4,d:0.3});
     L.note(s,{x:rx,y:4.8,w:rw,h:0.78,label:'공통',text:'대화 이력·저장한 나의 질문은 PC와 모바일이 같음',tone:'blue',size:11.5});
     L.note(s,{x:rx,y:5.72,w:rw,h:0.84,label:'TIP',text:'고객 목록 위 "오늘 보장분석 활용"에서\n오늘 쓴 횟수 확인',tone:'grey',size:11.5});
     L.caption(s,{x:rx,y:6.64,w:rw,text:'※ 화면 속 이름은 예시 · 일부 글자는 가림',align:'right',size:10});

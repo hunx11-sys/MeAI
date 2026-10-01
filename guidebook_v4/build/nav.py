@@ -37,7 +37,8 @@ def main(pdf_path, json_path):
         title = clean(e.get('title'))
         if p in part_start or re.fullmatch(r'\d\d', str(e.get('part', ''))):
             num = part_start.get(p) or e['part']
-            toc.append([1, f'PART {num} · {title}' if title else f'PART {num}', p]); in_part = True
+            head = (d.get('part_fmt') or 'PART {num}').format(num=num, n=int(num))  # 매뉴얼은 '{n}장'
+            toc.append([1, f'{head} · {title}' if title else head, p]); in_part = True
         elif sum_page and p == sum_page:
             toc.append([1, '한 장 요약', p]); in_part = False
         elif 'kickerW' in e and in_part:          # base() 쪽: 파트 안이면 2단
@@ -78,12 +79,13 @@ def main(pdf_path, json_path):
             counts['skipped'] += 1
 
     for p, e in nav.items():
-        m = re.match(r'^PART (\d)', e.get('kicker') or '')
+        m = re.match(r'^(?:PART (\d)|(\d)장)', e.get('kicker') or '')   # 매뉴얼 머리글은 'N장 · …'
         if m and 'kickerW' in e and 1 <= p <= N:
-            goto(p, inch_rect(doc[p - 1], 0.6, 0.42, float(e['kickerW']), 0.28), parts.get('0' + m.group(1)), 'kicker')
+            goto(p, inch_rect(doc[p - 1], 0.6, 0.42, float(e['kickerW']), 0.28), parts.get('0' + (m.group(1) or m.group(2))), 'kicker')
 
-    for p in range(TOC_PAGE + 1, N + 1):
-        goto(p, inch_rect(doc[p - 1], 0.6, 7.08, 4.6, 0.25), TOC_PAGE, 'footer')
+    toc_page = int(d.get('toc_page') or TOC_PAGE)   # 매뉴얼은 2쪽
+    for p in range(toc_page + 1, N + 1):
+        goto(p, inch_rect(doc[p - 1], 0.6, 7.08, 4.6, 0.25), toc_page, 'footer')
 
     for p in range(TOC_PAGE + 1, N + 1):
         page = doc[p - 1]
