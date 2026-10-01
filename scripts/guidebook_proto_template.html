@@ -49,6 +49,8 @@ html,body{margin:0;padding:0;font-family:'Malgun Gothic','맑은 고딕','Apple 
 .kp ul{margin:.6mm 0 .6mm 4mm;padding:0}
 .kp li{margin:.35mm 0}
 .kp .src{font-size:7.1pt;color:#666;text-align:right;margin-top:1mm}
+.kp.fill{border-style:solid;border-width:1.5px;border-color:#C7A24A;background:#FFFDF5}.kp.fill h3{color:#8A6D1E}
+.pagebreak{height:0}
 .kp.none{border-color:#ccc;color:#888;text-align:center;font-size:7.8pt;display:flex;align-items:center;justify-content:center}
 .em{color:var(--red);font-weight:700}
 .t{width:100%;border-collapse:collapse;font-size:7.5pt;margin:1mm 0}
@@ -174,7 +176,7 @@ const KEYS=[...INDEX.keys()].sort((a,b)=>b.length-a.length);
 function pickLine(list,line){return (line&&list.find(r=>r.p===line))||list[0]}
 function matchMaster(name,line){
   const b=base(name); const cands=[b,b.replace(/^갱신형/,''),'갱신형'+b];
-  const br=/^(.*?)\[(.+)\]$/.exec(b); if(br){cands.push(br[1]+'['+br[2]+']');cands.push(br[2]);cands.push(br[1])}
+  const br=/^(.*?)\[(.+)\]$/.exec(b); if(br){cands.push(br[1]+'['+br[2]+']');cands.push(br[1]+'['+br[2].replace(/\d+종$/,'')+']');cands.push(br[2]);cands.push(br[1])}
   // 끝 괄호 그룹을 하나씩 떼어 본다
   let s=b; for(let i=0;i<3;i++){const m=/^(.*)\([^()]*\)$/.exec(s); if(!m)break; s=m[1]; cands.push(s)}
   for(const c of cands){ if(INDEX.has(c)) return pickLine(INDEX.get(c),line) }
@@ -185,7 +187,7 @@ function guessLine(productName,riders){
   const names=riders.map(r=>r.name).join(' ');
   if(names.includes('통합간편가입')) return '통합간편';
   const h=(productName||'').replace(/\s+/g,'');
-  if(h.includes('통합간편건강보험')) return '통합간편';
+  if(h.includes('통합간편건강보험')||/간편3?5?5|355/.test(h)||/355|간편가입/.test(names)) return '통합간편';
   if(/내Mom대로/.test(h)) return '내Mom대로';
   if(h.includes('내Mom같은어린이보험')) return '내Mom같은어린이';
   if(h.includes('또걸려도또받는')&&h.includes('간편')) return '또또암간편';
@@ -493,6 +495,7 @@ function shortProduct(p){ // '(무)메리츠 The건강한 내Mom대로 5.10.5 �
   const i=s.search(/\(\d\.\d\)|\(해약|\(납입|\(건강|\(통합|\(355|\(기본|\(일반/); if(i>0) s=s.slice(0,i);
   return s.trim();
 }
+const FILLERS=KPDOC._fillers||[];
 function render(){
   if(!STATE) return;
   const prev=$('#preview'); prev.innerHTML='';
@@ -500,80 +503,127 @@ function render(){
   const shortP=shortProduct(STATE.meta.product)||'상품';
   const title=$('#title').value.trim()||shortP;
   const riders=STATE.riders.filter(r=>optAll||r.kp);
-  // 블록 목록
+  const el=(html,grp)=>{const d=document.createElement('div'); d.innerHTML=html; const e=d.firstElementChild; if(grp) e.dataset.grp=grp; return e};
+  // 쪽 본문 높이 재기
+  const meas=$('#measure'); meas.innerHTML=''; const probe=pageShell(title,0); meas.appendChild(probe);
+  const bodyEl=probe.querySelector('.body'); const avail=probe.querySelector('.foot').getBoundingClientRect().top-bodyEl.getBoundingClientRect().top-6;
+  meas.innerHTML='';
+  const hOf=b=>{meas.appendChild(b); const h=b.getBoundingClientRect().height+(parseFloat(getComputedStyle(b).marginBottom)||0); meas.removeChild(b); return h};
+
   const blocks=[];
-  const el=(html)=>{const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild};
-  // 1) 상품 개요
-  blocks.push(el('<h2 class="sec">상품 한눈에 보기 <small>'+esc(shortP)+'</small></h2>'));
-  blocks.push(el('<table class="kv"><tr><td>상품명</td><td>'+esc(STATE.meta.product||'—')+'</td></tr><tr><td>피보험자</td><td>'+esc(STATE.meta.insured)+(STATE.meta.age?' · '+esc(STATE.meta.age)+'세':'')+(STATE.meta.sex?' · '+STATE.meta.sex+'성':'')+' (예시 설계)</td></tr><tr><td>계약사항</td><td>'+esc(STATE.meta.head||'—')+'</td></tr><tr><td>월 보험료</td><td><b>'+esc(STATE.meta.premium||'—')+'원</b></td></tr><tr><td>가입담보</td><td><b>'+STATE.riders.length+'건</b> · '+GROUPS.map(g=>g.name+' '+STATE.riders.filter(r=>r.grp===g.id).length).join(' · ')+'</td></tr><tr><td>특약 마스터</td><td>'+STATE.matched+'건 매칭 ('+esc(STATE.line)+' 약관 우선) · Key Point '+STATE.kpn+'건 · 설명문 '+STATE.riders.filter(r=>r.desc).length+'건</td></tr></table>'));
-  blocks.push(el('<div class="callout"><b>이 가이드 읽는 법</b> — 왼쪽은 설계서의 담보명·가입금액과 설계서 뒤쪽 「가입담보 및 보장내용」의 약관 요약 설명문(노란 표시는 개시일·횟수·감액 조건), 오른쪽은 그 특약의 Key Point. 분류번호는 약관 별표(특약 마스터)에서 온 것이며 추정한 코드·금액은 없습니다. 최종 안내는 해당 상품의 약관·상품설명서로 확인합니다.</div>'));
-  blocks.push(el('<div class="callout y"><b>세 층으로 설명하면 쉽습니다.</b> ① 걸리면 한 번 크게(진단비) → ② 치료할 때마다(통합치료비·수술비·항암치료비) → ③ 병원에 있는 동안(입원일당·간병인). 담보 지도에서 어느 층이 두터운지 먼저 봅니다.</div>'));
-  // 2) 담보 지도
-  blocks.push(el('<h2 class="sec">담보 지도 <small>예시 설계 '+STATE.riders.length+'건 · 단위 : 만원</small></h2>'));
+  // 1) 용어 풀이 — 표지 바로 다음 한 쪽
+  blocks.push(el('<h2 class="sec">용어 풀이 <small>고객에게 이 말로 설명합니다 · 본문에 나오는 말부터</small></h2>','any'));
+  const gk=Object.keys(GLOSS); for(let i=0;i<gk.length;i+=6) blocks.push(el('<div class="gl">'+gk.slice(i,i+6).map(k=>'<div><b>'+esc(k)+'</b><span>'+esc(GLOSS[k])+'</span></div>').join('')+'</div>','any'));
+  blocks.push(el('<div class="pagebreak"></div>'));
+  // 2) 상품 개요
+  blocks.push(el('<h2 class="sec">상품 한눈에 보기 <small>'+esc(shortP)+'</small></h2>','any'));
+  blocks.push(el('<table class="kv"><tr><td>상품명</td><td>'+esc(STATE.meta.product||'—')+'</td></tr><tr><td>피보험자</td><td>'+esc(STATE.meta.insured)+(STATE.meta.age?' · '+esc(STATE.meta.age)+'세':'')+(STATE.meta.sex?' · '+STATE.meta.sex+'성':'')+' (예시 설계)</td></tr><tr><td>계약사항</td><td>'+esc(STATE.meta.head||'—')+'</td></tr><tr><td>월 보험료</td><td><b>'+esc(STATE.meta.premium||'—')+'원</b></td></tr><tr><td>가입담보</td><td><b>'+STATE.riders.length+'건</b> · '+GROUPS.map(g=>g.name+' '+STATE.riders.filter(r=>r.grp===g.id).length).join(' · ')+'</td></tr><tr><td>특약 마스터</td><td>'+STATE.matched+'건 매칭 ('+esc(STATE.line)+' 약관 우선) · Key Point '+STATE.kpn+'건 · 설명문 '+STATE.riders.filter(r=>r.desc).length+'건</td></tr></table>','any'));
+  blocks.push(el('<div class="callout"><b>이 가이드 읽는 법</b> — 왼쪽은 설계서의 담보명·가입금액과 설계서 뒤쪽 「가입담보 및 보장내용」의 약관 요약 설명문(노란 표시는 개시일·횟수·감액 조건), 오른쪽은 그 특약의 Key Point. 분류번호는 약관 별표(특약 마스터)에서 온 것이며 추정한 코드·금액은 없습니다. 최종 안내는 해당 상품의 약관·상품설명서로 확인합니다.</div>','any'));
+  blocks.push(el('<div class="callout y"><b>세 층으로 설명하면 쉽습니다.</b> ① 걸리면 한 번 크게(진단비) → ② 치료할 때마다(통합치료비·수술비·항암치료비) → ③ 병원에 있는 동안(입원일당·간병인). 담보 지도에서 어느 층이 두터운지 먼저 봅니다.</div>','any'));
+  // 3) 담보 지도 — 한 상자가 쪽을 넘기지 않게 24줄씩 나눈다
+  blocks.push(el('<h2 class="sec">담보 지도 <small>예시 설계 '+STATE.riders.length+'건 · 단위 : 만원</small></h2>','any'));
   for(const g of GROUPS){
     const rs=STATE.riders.filter(r=>r.grp===g.id); if(!rs.length) continue;
-    blocks.push(el('<div class="mb"><h3>'+esc(g.name)+' ('+rs.length+'건)</h3><table>'+rs.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+(r.man?r.man.toLocaleString():esc(r.amount_text))+'</td></tr>').join('')+'</table></div>'));
+    for(let i=0;i<rs.length;i+=24){
+      blocks.push(el('<div class="mb"><h3>'+esc(g.name)+' ('+rs.length+'건)'+(i?' — 계속':'')+'</h3><table>'+rs.slice(i,i+24).map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+(r.man?r.man.toLocaleString():esc(r.amount_text))+'</td></tr>').join('')+'</table></div>',g.id));
+    }
   }
-  // 3) 갈래별 담보
+  // 4) 갈래별 담보
+  const riderTable=r=>{
+    let codes='';
+    if(optCodes&&r.codes&&r.codes.length){
+      const show=r.codes.slice(0,10).map(cd=>{const nm=KCDN[cd]||KCDN[cd.split('~')[0]]||''; return esc(cd)+(nm?' '+esc(nm.length>12?nm.slice(0,12)+'…':nm):'')});
+      codes='<span class="codes">약관 별표 분류번호 : '+show.join(' · ')+(r.codes.length>10?' 외 '+(r.codes.length-10)+'개':'')+(r.excl&&r.excl.length?' <b>(제외 : '+esc(r.excl.join(', '))+')</b>':'')+'</span>';
+    }
+    const d=r.der; const cond=[d.wait?'면책 '+d.wait:'',d.cut1y?'1년 미만 '+d.cut1y:'',d.cut90?'90일 미만 '+d.cut90:''].filter(Boolean).join(' · ');
+    const desc=optDesc&&r.desc?descHtml(r.desc):'<div style="color:#888">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>';
+    return '<table class="rt"><tr><td class="n">'+esc(r.name)+(r.parent?' <span style="font-weight:400;color:#777;font-size:7.4pt">('+esc(r.parent)+' 세부보장)</span>':'')+'</td><td class="a" rowspan="2">'+manText(r.man,r.amount_text)+(r.term?'<br><span style="font-size:7pt;font-weight:400;color:#666">'+esc(r.term)+'</span>':'')+'</td></tr><tr><td class="d">'+desc+(cond?'<span class="x">※ '+esc(cond)+'</span>':'')+codes+'</td></tr></table>';
+  };
   for(const g of GROUPS){
     const rs=riders.filter(r=>r.grp===g.id); if(!rs.length) continue;
-    blocks.push(el('<h2 class="sec">'+esc(g.name)+' <small>'+esc(g.sub)+' · '+rs.length+'건</small></h2>'));
-    // 같은 Key Point 를 쓰는 담보가 잇달아 나오면(131대질병수술비 11건 · 간병인지원 9건 등) 왼쪽에 담보표를 쌓고 오른쪽 Key Point 는 한 번만 싣는다
-    const clusters=[]; for(const r of rs){const c=clusters[clusters.length-1]; if(c&&r.kp&&c.kp===r.kp&&c.rs.length<6) c.rs.push(r); else clusters.push({kp:r.kp,rs:[r]})}
-    for(const c of clusters){
-      const lefts=c.rs.map(r=>{
-        let codes='';
-        if(optCodes&&r.codes&&r.codes.length){
-          const show=r.codes.slice(0,10).map(cd=>{const nm=KCDN[cd]||KCDN[cd.split('~')[0]]||''; return esc(cd)+(nm?' '+esc(nm.length>12?nm.slice(0,12)+'…':nm):'')});
-          codes='<span class="codes">약관 별표 분류번호 : '+show.join(' · ')+(r.codes.length>10?' 외 '+(r.codes.length-10)+'개':'')+(r.excl&&r.excl.length?' <b>(제외 : '+esc(r.excl.join(', '))+')</b>':'')+'</span>';
-        }
-        const d=r.der; const cond=[d.wait?'면책 '+d.wait:'',d.cut1y?'1년 미만 '+d.cut1y:'',d.cut90?'90일 미만 '+d.cut90:''].filter(Boolean).join(' · ');
-        const desc=optDesc&&r.desc?descHtml(r.desc):'<div style="color:#888">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>';
-        return '<table class="rt"><tr><td class="n">'+esc(r.name)+(r.parent?' <span style="font-weight:400;color:#777;font-size:7.4pt">('+esc(r.parent)+' 세부보장)</span>':'')+'</td><td class="a" rowspan="2">'+manText(r.man,r.amount_text)+(r.term?'<br><span style="font-size:7pt;font-weight:400;color:#666">'+esc(r.term)+'</span>':'')+'</td></tr><tr><td class="d">'+desc+(cond?'<span class="x">※ '+esc(cond)+'</span>':'')+codes+'</td></tr></table>';
-      });
-      const right=c.kp?'<div class="kp"><h3>'+c.kp.title+'</h3>'+c.kp.html+'</div>':'';
-      blocks.push(el('<div class="rider'+(c.kp?'':' nokp')+'"><div>'+lefts.join('<div style="height:2mm"></div>')+'</div>'+right+'</div>'));
+    blocks.push(el('<h2 class="sec">'+esc(g.name)+' <small>'+esc(g.sub)+' · '+rs.length+'건</small></h2>',g.id));
+    // 같은 Key Point 를 쓰는 담보가 잇달아 나오면 왼쪽에 담보표를 쌓고 오른쪽 Key Point 는 한 번만.
+    // 묶음의 높이를 재 가며 쪽 높이의 90% 를 넘기 전에 끊는다(넘치는 블록을 만들지 않는다).
+    let i=0, lastKp=null;
+    while(i<rs.length){
+      const r0=rs[i]; const kp=r0.kp; const showKp=kp&&kp!==lastKp;      // 묶음이 쪽 높이 때문에 둘로 나뉘면 Key Point 는 앞 묶음에만
+      const blk=el('<div class="rider'+(showKp?'':' nokp')+'"><div class="lcol"></div>'+(showKp?'<div class="kp"><h3>'+kp.title+'</h3>'+kp.html+'</div>':'')+'</div>',g.id);
+      const lcol=blk.querySelector('.lcol'); let n=0; lastKp=kp;
+      while(i<rs.length&&(n===0||(kp&&rs[i].kp===kp&&n<6))){
+        const t=el(riderTable(rs[i])); if(n) t.style.marginTop='2mm'; lcol.appendChild(t);
+        if(n>0&&hOf(blk)>avail*0.9){ lcol.removeChild(t); break }
+        n++; i++;
+      }
+      blocks.push(blk);
     }
   }
-  // 4) 면책·감액 표
+  // 5) 면책·감액 표
   const cond=STATE.riders.filter(r=>r.der.wait||r.der.cut1y||r.der.cut90);
-  blocks.push(el('<h2 class="sec">면책기간 / 감액기간 <small>설계서 설명문에서 읽은 담보만 · 나머지는 조항 없음</small></h2>'));
+  blocks.push(el('<h2 class="sec">면책기간 / 감액기간 <small>설계서 설명문에서 읽은 담보만 · 나머지는 조항 없음</small></h2>','any'));
   if(cond.length){
     for(let i=0;i<cond.length;i+=22){
-      blocks.push(el('<table class="t r" style="margin-bottom:3mm"><tr><th>보장명</th><th style="width:30mm">보장개시일(면책)</th><th style="width:34mm">계약일부터 1년 미만 · 90일 미만 감액</th></tr>'+cond.slice(i,i+22).map(r=>'<tr><td class="l">'+esc(r.name)+'</td><td>'+(r.der.wait||'—')+'</td><td>'+[r.der.cut1y?'1년 미만 '+r.der.cut1y:'',r.der.cut90?'90일 미만 '+r.der.cut90:''].filter(Boolean).join(' · ')+'</td></tr>').join('')+'</table>'));
+      blocks.push(el('<table class="t r" style="margin-bottom:3mm"><tr><th>보장명</th><th style="width:30mm">보장개시일(면책)</th><th style="width:34mm">계약일부터 1년 미만 · 90일 미만 감액</th></tr>'+cond.slice(i,i+22).map(r=>'<tr><td class="l">'+esc(r.name)+'</td><td>'+(r.der.wait||'—')+'</td><td>'+[r.der.cut1y?'1년 미만 '+r.der.cut1y:'',r.der.cut90?'90일 미만 '+r.der.cut90:''].filter(Boolean).join(' · ')+'</td></tr>').join('')+'</table>','any'));
     }
-  } else blocks.push(el('<div class="note">설명문에서 면책·감액 조항을 읽은 담보가 없습니다(설명문이 없는 샘플이거나, 이 설계에 해당 담보가 없습니다).</div>'));
-  blocks.push(el('<div class="callout y"><b>가입 첫 해에 짚어 줄 세 가지</b> ① 암(유사암제외) 계열은 보장개시일(90일) 뒤부터 ② 통합치료비·치료비 계열 중 「1년경과시점 전일 이전 50%」가 있는 담보는 첫 해 절반 ③ 수술비·입원일당·유사암은 처음부터 100%.</div>'));
-  // 5) 용어
-  blocks.push(el('<h2 class="sec">용어 풀이 <small>고객에게 이 말로 설명합니다</small></h2>'));
-  const gk=Object.keys(GLOSS); for(let i=0;i<gk.length;i+=8) blocks.push(el('<div class="gl">'+gk.slice(i,i+8).map(k=>'<div><b>'+esc(k)+'</b><span>'+esc(GLOSS[k])+'</span></div>').join('')+'</div>'));
+  } else blocks.push(el('<div class="note">설명문에서 면책·감액 조항을 읽은 담보가 없습니다(설명문이 없는 샘플이거나, 이 설계에 해당 담보가 없습니다).</div>','any'));
+  blocks.push(el('<div class="callout y"><b>가입 첫 해에 짚어 줄 세 가지</b> ① 암(유사암제외) 계열은 보장개시일(90일) 뒤부터 ② 통합치료비·치료비 계열 중 「1년경과시점 전일 이전 50%」가 있는 담보는 첫 해 절반 ③ 수술비·입원일당·유사암은 처음부터 100%.</div>','any'));
 
   // 표지
   const cover=document.createElement('div'); cover.className='page cover';
   cover.innerHTML='<div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div><div class="t1">메리츠<br>세일즈혁신 가이드</div><div class="t2">"'+esc(title)+'"</div><div class="t3">'+esc(META.ym)+' · '+esc(STATE.meta.product||'')+'<br><b>주요 특약을 약관 조문 기준으로 풀어 쓴 컨설팅북</b><br>예시 설계 : '+esc(STATE.meta.insured)+(STATE.meta.age?' '+esc(STATE.meta.age)+'세':'')+' · 담보 '+STATE.riders.length+'건 · 월 '+esc(STATE.meta.premium||'—')+'원</div><div class="box"><div class="lbl">교육용 · 사내 자료</div><div class="who">AI추진파트 세일즈혁신TF</div><div style="font-size:8.6pt;color:#555;margin-top:2mm;line-height:1.6">담보 설명은 상품설명서의 약관 요약 설명문과 특약 마스터(약관 별표)에서, Key Point는 특약별 글 상자 창고에서 자동으로 모았습니다. 통계는 출처가 있는 것만 실었습니다. 본 자료는 고객에게 교부·배포할 수 없습니다.<br><span style="color:#999">생성 : '+esc(new Date().toLocaleString('ko-KR'))+' · 원본 : '+esc(STATE.src||'내장 샘플')+'</span></div></div>';
   prev.appendChild(cover);
-  // 본문 쪽 채우기 (높이 재서 넘기면 다음 쪽)
-  const meas=$('#measure'); meas.innerHTML=''; const probe=pageShell(title,0); meas.appendChild(probe);
-  const bodyEl=probe.querySelector('.body'); const avail=probe.querySelector('.foot').getBoundingClientRect().top-bodyEl.getBoundingClientRect().top-6;
-  meas.innerHTML='';
-  let pno=2, cur=null, used=0;
-  const newPage=()=>{cur=pageShell(title,pno++); prev.appendChild(cur); used=0};
+
+  // 본문 쪽 채우기 — ① 재서 넘기면 다음 쪽 ② 제목은 다음 블록과 같이 움직인다 ③ 넣은 뒤 실제 높이를 다시 재서 넘치면 옮긴다
+  let pno=2, cur=null, pages=[];
+  const newPage=()=>{cur=pageShell(title,pno++); prev.appendChild(cur); pages.push(cur)};
+  const footTop=p=>p.querySelector('.foot').getBoundingClientRect().top-4;
+  const place=b=>{cur.querySelector('.body').appendChild(b); return b.getBoundingClientRect().bottom<=footTop(cur)};
+  const bodyCount=p=>p.querySelector('.body').children.length;
   newPage();
+  let pendingHead=null; const oversize=[];
   for(let i=0;i<blocks.length;i++){
-    const b=blocks[i]; meas.appendChild(b); const h=b.getBoundingClientRect().height+ (parseFloat(getComputedStyle(b).marginBottom)||0); meas.removeChild(b);
-    const isHead=b.classList.contains('sec');
-    const nextH=isHead&&blocks[i+1]?(()=>{meas.appendChild(blocks[i+1]);const hh=blocks[i+1].getBoundingClientRect().height;meas.removeChild(blocks[i+1]);return hh})():0;
-    if(used>0&&used+h+nextH>avail) newPage();
-    cur.querySelector('.body').appendChild(b); used+=h;
+    const b=blocks[i];
+    if(b.classList.contains('pagebreak')){ if(bodyCount(cur)) newPage(); continue }
+    if(b.classList.contains('sec')){ pendingHead=b; continue }
+    const group=pendingHead?[pendingHead,b]:[b]; pendingHead=null;
+    let ok=true; for(const x of group){ if(!place(x)) ok=false }
+    if(!ok){
+      for(const x of group) x.remove();
+      if(bodyCount(cur)) newPage();
+      let ok2=true; for(const x of group){ if(!place(x)) ok2=false }
+      if(!ok2){ oversize.push(b); b.style.overflow='hidden'; b.style.maxHeight=(footTop(cur)-b.getBoundingClientRect().top-2)+'px' }   // 혼자서도 한 쪽을 넘는 블록 : 자르고 알린다
+    }
+  }
+  if(pendingHead) place(pendingHead);
+  // 빈 자리 채우기 — 쪽 아래가 40mm 넘게 비면 그 쪽 갈래에 맞는 연관 정보 카드를 넣는다(한 번 쓴 카드는 다시 쓰지 않는다)
+  const used=new Set(); const mm=v=>v*96/25.4; let filled=0;
+  for(const p of pages){
+    const body=p.querySelector('.body'); if(!body.children.length) continue;
+    if(body.querySelector('.gl')) continue;                                   // 용어 풀이 쪽은 그대로 둔다
+    const last=body.lastElementChild; let free=footTop(p)-last.getBoundingClientRect().bottom-6; if(free<mm(40)) continue;
+    const grps=[...body.children].map(c=>c.dataset.grp).filter(v=>v&&v!=='any'); const main=grps.sort((x,y)=>grps.filter(v=>v===y).length-grps.filter(v=>v===x).length)[0]||'any';
+    // 그 갈래 카드 → 공통 카드 → (80mm 넘게 비면) 다른 갈래 카드 순
+    const rank=f=>f.grp.includes(main)?0:f.grp.includes('any')?1:2;
+    const txt=body.textContent;
+    const cands=FILLERS.filter(f=>!used.has(f.id)&&(rank(f)<2||free>mm(60))&&!txt.includes(f.title)).sort((x,y)=>rank(x)-rank(y));   // 같은 쪽에 이미 있는 제목의 카드는 넣지 않는다
+    window.__FILL_DEBUG=(window.__FILL_DEBUG||[]); const dbg={page:pages.indexOf(p)+2,free:Math.round(free),main,tried:[]}; window.__FILL_DEBUG.push(dbg);
+    for(let k=0;k<4;k++){
+      let put=false;
+      for(const f of cands){ if(used.has(f.id)) continue;
+        const card=el('<div class="kp fill" style="margin-top:3mm"><h3>'+f.title+'</h3>'+f.html+'</div>');
+        const h=hOf(card); dbg.tried.push(f.id+':'+Math.round(h)); if(h>free) continue;
+        body.appendChild(card); if(card.getBoundingClientRect().bottom>footTop(p)){card.remove();continue}
+        used.add(f.id); free-=h; filled++; put=true; break;
+      }
+      if(!put||free<mm(40)) break;
+    }
   }
   // 뒷표지
   const back=document.createElement('div'); back.className='page back';
   back.innerHTML='<div class="bar"></div><div class="logo"><span style="font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:40pt;color:#E4322B;letter-spacing:-2px">meritz</span> <span style="font-size:22pt;color:#555;font-weight:700">메리츠화재</span><div style="font-size:9pt;color:#777;margin-top:4mm">메리츠 세일즈혁신 가이드 · '+esc(title)+' · '+esc(META.ym)+' · 교육용</div></div>';
   prev.appendChild(back);
-  log('가이드북 '+(pno)+'쪽 생성 완료 → 「인쇄 · PDF로 저장」');
-  window.__STATE=STATE;
+  log('가이드북 '+(pno)+'쪽 생성 완료 · 빈 자리 카드 '+filled+'장'+(oversize.length?' · 한 쪽을 넘겨 잘린 블록 '+oversize.length+'개':'')+' → 「인쇄 · PDF로 저장」');
+  window.__STATE=STATE; window.__PAGES=pages.length+2;
 }
-
 // ── 샘플 ─────────────────────────────────────────────────────
 function loadSample(i){
   const s=SAMPLES[i]; setLog('내장 샘플 : '+s.src);
