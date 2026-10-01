@@ -28,7 +28,7 @@ async def main():
     async with async_playwright() as pw:
         b=await pw.chromium.launch(); pg=await b.new_page(viewport={'width':794,'height':1123})
         print('RENDERER chromium/'+b.version)   # 어느 판으로 찍었는지 감사 로그에 남긴다(v8.49)
-        await pg.goto('file://'+sys.argv[1]); await pg.evaluate('document.fonts.ready'); await pg.wait_for_timeout(300)
+        import pathlib; await pg.goto(pathlib.Path(sys.argv[1]).resolve().as_uri())   # 윈도우·한글 폴더에서도 올바른 주소; await pg.evaluate('document.fonts.ready'); await pg.wait_for_timeout(300)
         for x in await pg.evaluate(FIT): print(' ',x)
         for x in await pg.evaluate(CHECK): print(' ',x)
         await pg.pdf(path=sys.argv[2],prefer_css_page_size=True,print_background=True); await b.close()

@@ -23,6 +23,7 @@ def merge(orig, insert_pdf, out, insert_after=3, new=6):
     from reportlab.pdfgen import canvas
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
+    import assets_ready; assets_ready.fonts()          # assets/ 가 없는 PC 대비 — ga_assets 의 나눔고딕을 복사
     pdfmetrics.registerFont(TTFont('NG', os.path.join(BASE,'assets','NanumGothic-Regular.ttf')))
     pl=pdfplumber.open(orig); ro=PdfReader(orig); rs=PdfReader(insert_pdf); w=PdfWriter()
     total=len(ro.pages)+new

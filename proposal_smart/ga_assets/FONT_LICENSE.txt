@@ -1,0 +1,4 @@
+NanumGothic (나눔고딕) — Copyright (c) 2010 NAVER Corporation
+SIL Open Font License 1.1 (https://openfontlicense.org) 로 자유롭게 배포·사용할 수 있는 글꼴이다.
+원본 : https://github.com/google/fonts/tree/main/ofl/nanumgothic
+GA 제안서가 사내 PC 에서도 같은 모양으로 나오도록 함께 둔다(ga_proposal.py 가 이 폴더의 글꼴을 먼저 쓴다).

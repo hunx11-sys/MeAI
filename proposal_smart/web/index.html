@@ -75,11 +75,50 @@
     </div>
     <div class="row">
       <button id="run" disabled>지면 생성</button>
+      <button id="gaRun" disabled style="background:#C12027">GA 제안서 생성</button>
       <button id="ridersOnly" class="ghost" disabled>담보 인식만 보기</button>
       <span id="fname" style="color:var(--mute)"></span>
     </div>
     <div id="bar" class="bar"><i></i></div>
     <div id="msg" class="msg"></div>
+  </div>
+
+  <div id="gaResult" class="hide">
+    <div class="card">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <b style="font-size:17px">GA 스마트 제안서 (6쪽)</b>
+        <span id="gaInfo" style="color:var(--mute)"></span>
+      </div>
+      <div class="stat">
+        <div><div class="k">인식 담보</div><div class="v" id="g_rider">–</div></div>
+        <div><div class="k">마스터 매칭</div><div class="v" id="g_match">–</div></div>
+        <div><div class="k">생성 지면</div><div class="v" id="g_new">–</div></div>
+        <div><div class="k">계산 제외 로그</div><div class="v" id="g_log">–</div></div>
+        <div><div class="k">지면 경고</div><div class="v" id="g_warn">–</div></div>
+        <div><div class="k">처리 시간</div><div class="v" id="g_time">–</div></div>
+      </div>
+      <div class="row">
+        <button id="gaDl">GA PDF 내려받기</button>
+        <button id="gaLogDl" class="ghost">로그 내려받기(txt)</button>
+      </div>
+    </div>
+    <div class="tabs" id="gaTabs">
+      <button data-g="pv" class="on">지면 미리보기</button>
+      <button data-g="au">감사 로그</button>
+      <button data-g="rd">인식 담보</button>
+      <button data-g="js">응답 JSON</button>
+    </div>
+    <div class="card" id="g_pv"><iframe id="gaPrev" title="GA 제안서 미리보기" style="height:1100px"></iframe></div>
+    <div class="card hide" id="g_au">
+      <div class="stat" id="gaKinds"></div>
+      <table><thead><tr><th>구분</th><th>담보</th><th>사유</th></tr></thead>
+        <tbody id="gaLogs"></tbody></table>
+    </div>
+    <div class="card hide" id="g_rd">
+      <table><thead><tr><th>번호</th><th>담보</th><th>가입금액</th><th>마스터</th></tr></thead>
+        <tbody id="gaRiders"></tbody></table>
+    </div>
+    <div class="card hide" id="g_js"><pre id="gaJson"></pre></div>
   </div>
 
   <div id="result" class="hide">
@@ -178,11 +217,11 @@ function pick(f) {
   if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) return say('PDF 파일만 넣어 주세요', true);
   file = f;
   $('fname').textContent = f.name + '  (' + (f.size / 1048576).toFixed(1) + 'MB)';
-  $('run').disabled = $('ridersOnly').disabled = false;
+  $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = false;
   say('');
 }
 function say(t, err) { $('msg').textContent = t || ''; $('msg').className = 'msg' + (err ? ' err' : ''); }
-function busy(on) { $('bar').style.display = on ? 'block' : 'none'; $('run').disabled = $('ridersOnly').disabled = on; }
+function busy(on) { $('bar').style.display = on ? 'block' : 'none'; $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = on; }
 
 async function post(path) {
   let r;
@@ -210,6 +249,57 @@ $('run').onclick = async () => {
   } catch (e) { say('실패 : ' + e.message, true); }
   busy(false);
 };
+
+let gaUrl = null, gaName = 'ga_proposal.pdf', gaLogText = '';
+const KIND_NM = { dx: '진단비', surg: '수술비', day: '입원·통원', tx: '치료비', care: '간병',
+                  itc: '통합치료비', itc_unknown: '금액표없음', life: '사망·장해', nonmed: '비대상', skip: '제외' };
+$('gaRun').onclick = async () => {
+  busy(true); say('GA 제안서를 만드는 중입니다 — 20~40초 걸립니다');
+  try {
+    const d = await (await post('/v1/ga/all')).json();
+    renderGa(d);
+    say('완료 — GA 제안서 6쪽');
+  } catch (e) { say('실패 : ' + e.message, true); }
+  busy(false);
+};
+function renderGa(d) {
+  const blob = b64(d.pdf_base64);
+  if (gaUrl) URL.revokeObjectURL(gaUrl);
+  gaUrl = URL.createObjectURL(blob);
+  const stem = (file && file.name ? file.name.replace(/\.pdf$/i, '') : 'design').replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+  gaName = (/[A-Za-z]/.test(stem) ? stem : 'design') + '_GA.pdf';
+  gaLogText = d.log || '';
+  $('gaPrev').src = gaUrl;
+  $('gaInfo').textContent = (d.product || '') + (d.premium ? ' · ' + d.premium : '');
+  $('g_rider').textContent = d.rider_count;
+  $('g_match').textContent = d.matched;
+  $('g_new').textContent = d.new_pages + '쪽';
+  $('g_log').textContent = (d.audit['로그'] || []).length + '건';
+  $('g_warn').textContent = (d.warn || []).length + '건';
+  $('g_time').textContent = d.elapsed_sec + '초';
+  const k = d.audit['요약']['구조별'] || {};
+  $('gaKinds').innerHTML = Object.keys(k).map(x =>
+    '<div><div class="k">' + (KIND_NM[x] || x) + '</div><div class="v">' + k[x] + '</div></div>').join('');
+  $('gaLogs').innerHTML = (d.audit['로그'] || []).map(x =>
+    '<tr><td>' + esc(x['구분']) + '</td><td>' + esc(x['담보']) + '</td><td>' + esc(x['사유']) + '</td></tr>').join('')
+    || '<tr><td colspan="3">제외된 담보가 없습니다.</td></tr>';
+  $('gaRiders').innerHTML = (d.riders || []).map(r =>
+    '<tr><td>' + (r.no ?? '') + '</td><td>' + esc(r.name) + '</td><td>' +
+    (r.man != null ? Number(r.man).toLocaleString() + '만원' : '') + '</td><td>' +
+    (r.matched ? 'O' : '–') + '</td></tr>').join('');
+  $('gaJson').textContent = JSON.stringify(
+    Object.assign({}, d, { pdf_base64: '(생략 ' + Math.round((d.pdf_base64 || '').length / 1365) + 'KB)', log: '(로그 내려받기로 확인)' }), null, 2);
+  $('gaResult').classList.remove('hide');
+  gtab('pv');
+  $('gaResult').scrollIntoView({ behavior: 'smooth' });
+}
+function gtab(t) {
+  document.querySelectorAll('#gaTabs button').forEach(b => b.classList.toggle('on', b.dataset.g === t));
+  ['pv', 'au', 'rd', 'js'].forEach(x => $('g_' + x).classList.toggle('hide', x !== t));
+}
+document.querySelectorAll('#gaTabs button').forEach(b => b.onclick = () => gtab(b.dataset.g));
+$('gaDl').onclick = () => { if (gaUrl) { const a = document.createElement('a'); a.href = gaUrl; a.download = gaName; a.click(); } };
+$('gaLogDl').onclick = () => save(new Blob(['\ufeff' + gaLogText], { type: 'text/plain;charset=utf-8' }), gaName.replace(/\.pdf$/, '_log.txt'));
 
 $('ridersOnly').onclick = async () => {
   busy(true); say('담보를 읽고 있습니다');
@@ -278,9 +368,9 @@ function save(blob, name) {
   a.href = URL.createObjectURL(blob); a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
-document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => tab(b.dataset.t));
+document.querySelectorAll('.tabs button[data-t]').forEach(b => b.onclick = () => tab(b.dataset.t));
 function tab(t) {
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  document.querySelectorAll('.tabs button[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   ['pv', 'au', 'rd', 'js'].forEach(x => $('t_' + x).classList.toggle('hide', x !== t));
 }
 </script>

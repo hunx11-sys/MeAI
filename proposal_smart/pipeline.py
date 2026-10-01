@@ -34,7 +34,7 @@ def _work():
 def read_riders(src_pdf):
     """원본 PDF의 가입담보리스트에서 담보 목록만 뽑는다(지면 생성 없이 인식 결과만 볼 때)."""
     rows = matcher.read_proposal(src_pdf)
-    return matcher.read_proposal(src_pdf, line=BA.guess_line(rows))
+    return matcher.read_proposal(src_pdf, line=BA.guess_line(rows, src_pdf))
 
 
 def build(src_pdf, cust=None, workdir=None, keep=True):
@@ -46,6 +46,8 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
     src_pdf = os.path.abspath(src_pdf)
     if not os.path.exists(src_pdf):
         raise FileNotFoundError(src_pdf)
+    import assets_ready                    # 글꼴·로고가 없는 PC 에서도 멈추지 않게(assets/ 가 저장소에 없다)
+    assets_ready.ensure(src_pdf)
     w = workdir or _work()
     t0 = time.time()
 

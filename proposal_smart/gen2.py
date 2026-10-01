@@ -5,6 +5,9 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import scen_engine as S
 A = os.path.join(BASE, 'assets') + '/'
+# 윈도우에서는 'file://' + 'C:\\…' 가 올바른 주소가 아니고 한글 폴더명도 깨진다 — 표준 file:/// 주소로 쓴다(리눅스에서는 같은 문자열)
+import pathlib as _pl
+A_URI = _pl.Path(BASE, 'assets').as_uri() + '/'
 ICONS = json.load(open(os.path.join(BASE, 'icons.json'), encoding='utf-8'))
 K = {'ca': ('#FF6B6B', '#E03131', '#FFF0F0', '#FFE3E3'), 'cv': ('#4C6EF5', '#364FC7', '#EDF2FF', '#DBE4FF'),
      'pr': ('#12B886', '#087F5B', '#E6FCF5', '#C3FAE8'), 'ms': ('#F59F00', '#D9480F', '#FFF9DB', '#FFEC99'),
@@ -114,7 +117,7 @@ EXCL = excluded_product()
 ATTACH = (EXCL is None) and any(F[k] for k in ATTACH_KEYS)
 def header():
     return f'''<div class="h-t">[고객용]가입제안서</div><div class="h-p">{C['product']}</div>
- <img class="h-logo" src="file://{A}logo.png"><div class="h-bar">{C['head']}</div>'''
+ <img class="h-logo" src="{A_URI}logo.png"><div class="h-bar">{C['head']}</div>'''
 def footer(n):
     return f'''<div class="disc">※ 예시 금액은 이해를 돕기 위한 것으로, 실제 지급 여부와 금액은 약관 및 심사 기준(진단서·진료비세부내역서의 수가코드 등)에 따라 달라질 수 있습니다. 세부 내용은 반드시 약관을 확인하시기 바랍니다.</div>
  <div class="f-box"><div class="f-l">영업담당자</div><div class="f-v">{C['agent']}</div><div class="f-l">발행정보</div><div class="f-d">{C['issued']}</div></div>
@@ -1368,7 +1371,7 @@ for (title, cond), fn in zip(PAGE_COND, _BUILD):
     else: SKIPPED.append(title)
 NEW = len(P); TOTAL = C['base_pages'] + NEW
 
-css = open(os.path.join(BASE, 'style.css'), encoding='utf-8').read().replace('__A__', A) + open(os.path.join(BASE, 'extra2.css'), encoding='utf-8').read()
+css = open(os.path.join(BASE, 'style.css'), encoding='utf-8').read().replace('file://__A__', A_URI).replace('__A__', A) + open(os.path.join(BASE, 'extra2.css'), encoding='utf-8').read()
 html = '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>%s</style></head><body>%s</body></html>' % (
     css, ''.join(f'<section class="page">{header()}<div class="body"><div class="fit">{b}</div></div>{footer(IA+1+i)}</section>' for i, b in enumerate(P)))
 open(sys.argv[2], 'w', encoding='utf-8').write(html)

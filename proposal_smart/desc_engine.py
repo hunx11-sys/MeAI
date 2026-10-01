@@ -273,7 +273,7 @@ if __name__ == '__main__':
     import matcher, build_all, scen_engine as S
     src = sys.argv[1]
     rows = matcher.read_proposal(src)
-    rows = matcher.read_proposal(src, line=build_all.guess_line(rows))
+    rows = matcher.read_proposal(src, line=build_all.guess_line(rows, src))
     rows, info = attach(rows, src)
     print('설명문 인식 :', info)
     miss = [r for r in rows if not r.get('matched') or S.classify(r['name']) is None]
