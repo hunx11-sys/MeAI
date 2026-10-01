@@ -33,7 +33,7 @@ html,body{margin:0;padding:0;font-family:'Malgun Gothic','맑은 고딕','Apple 
 /* 블록들 */
 .sec{font-size:12.5pt;color:#222;margin:0 0 2mm;border-left:5px solid var(--red);padding-left:2.5mm;break-inside:avoid}
 .sec small{font-size:8.5pt;color:#666;font-weight:400;margin-left:2mm}
-.rider{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-bottom:3mm;break-inside:avoid;align-items:start}
+.rider{display:grid;grid-template-columns:1.12fr 1fr;gap:4mm;margin-bottom:3mm;break-inside:avoid;align-items:start}
 .rider.nokp{grid-template-columns:1fr}
 .rt{width:100%;border-collapse:collapse;table-layout:fixed}
 .rt td{vertical-align:top;padding:1.3mm 1.6mm;border-bottom:1px solid var(--line);font-size:8.1pt}
@@ -304,49 +304,49 @@ function readMeta(pages){
 const SUBREF=/세부\s*보장\s*참조/, GUIDE=/안내\s*참조/;
 function readRiders(pages){
   const rows=[], seen=new Set(); let parent=null, guide=[];
-  const push=(no,name,amtTok,T,j,nameX)=>{
-    const amt=amtTok.s.replace(/\s/g,'');
-    if(!AMT_FULL.test(amt)){
-      if(GUIDE.test(amt)){guide.push({no,name});return null}
-      if(SUBREF.test(amt)){parent={name:name.replace(GOJI,'').trim()}}
-      return null;
-    }
-    if(!name.startsWith('┗')) parent=null;
-    const key=no+'|'+nname(name); if(seen.has(key)) return null; seen.add(key);
-    let prem='', term='';
-    for(let k=j+1;k<T.length;k++){const s=T[k].s.replace(/\s/g,''); if(!prem&&/^[\d,]{3,}$/.test(s))prem=s; else if(!term&&/\d+년\/\d+(년|세)/.test(s))term=s}
-    const row={no,name:name.replace(GOJI,'').replace('[기본계약]','').replace(/┗/g,'').replace(/\s+/g,' ').trim(),man:amtToMan(amt),amount_text:amt,prem,term,parent:parent?parent.name:null};
-    rows.push(row); return {row,nameX};
-  };
+  const isAmt=t=>AMT_FULL.test(t.replace(/\s/g,''));
+  const med=a=>{const v=[...a].sort((x,y)=>x-y); return v.length?v[Math.floor(v.length/2)]:null};
   for(const p of pages){
     const flat=p.text.replace(/\s/g,'');
     if(flat.includes('가입담보및보장내용')) break;        // 담보사항 상세 구간 시작
-    let last=null, amtX=null, pending=null;              // pending : 번호·이름은 읽었는데 금액이 다음 줄(칸 안 줄바꿈)에 있는 행
-    for(const ln of p.lines){
-      const T=ln.toks; const i=T.findIndex(k=>/^\d{1,3}$/.test(k.s));
-      if(i<0||i+1>=T.length){
-        if(!T.length) continue;
-        const ai=T.findIndex(k=>AMT_FULL.test(k.s.replace(/\s/g,''))||SUBREF.test(k.s)||GUIDE.test(k.s));
-        const nameAdd=T.filter((k,idx)=>(ai<0||idx<ai)&&(amtX===null||k.x2<amtX-3)).map(k=>k.s).join('');
-        if(pending){                                       // 이름 이어붙이고, 금액이 있으면 행 확정
-          if(nameAdd&&nameAdd.length<80) pending.name=(pending.name+nameAdd);
-          if(ai>=0){ last=push(pending.no,pending.name.trim(),T[ai],T,ai,pending.nameX); if(last) amtX=T[ai].x; pending=null }
-          continue;
-        }
-        if(last&&ai<0&&nameAdd&&T[0].x>=last.nameX-6&&T[0].x<=last.nameX+40&&nameAdd.length<60&&!/보험기간|납기|가입금액|보험료|합계/.test(nameAdd)){
-          last.row.name=(last.row.name+nameAdd).replace(/\s+/g,' ');   // 바로 위 담보명이 칸 안에서 줄바꿈된 경우
-        }
+    // 모든 토큰을 모아 열 위치를 잡는다
+    const toks=[]; for(const ln of p.lines) for(const k of ln.toks) toks.push({s:k.s,x:k.x,x2:k.x2,y:ln.y});
+    const amtToks=toks.filter(k=>isAmt(k.s)||SUBREF.test(k.s)||GUIDE.test(k.s)); if(!amtToks.length) continue;
+    const amtX=med(amtToks.map(k=>k.x));
+    // 앵커 = 번호 칸 : 금액 칸 왼쪽에 있는 1~3자리 숫자 (또는 '125 담보명' 처럼 한 토큰에 번호+이름)
+    const anchors=toks.map(k=>{const m=/^(\d{1,3})(?:\s+(\S.*))?$/.exec(k.s); return m&&k.x<amtX-20?{no:parseInt(m[1],10),x:k.x,y:k.y,pre:m[2]||''}:null}).filter(Boolean);
+    if(!anchors.length) continue;
+    const noX=med(anchors.map(a=>a.x)); const A=anchors.filter(a=>Math.abs(a.x-noX)<30).sort((u,v)=>v.y-u.y);
+    if(!A.length) continue;
+    // 각 토큰을 가장 가까운 앵커 띠에 붙인다(위·아래 앵커의 중간까지)
+    const bands=A.map((a,i)=>({a,top:i?(A[i-1].y+a.y)/2:a.y+14,bot:i<A.length-1?(A[i+1].y+a.y)/2:a.y-14,name:[],amt:[],rest:[]}));
+    for(const k of toks){
+      if(A.some(a=>a.y===k.y&&a.x===k.x)) continue;              // 앵커 자신
+      const bd=bands.find(b=>k.y<=b.top&&k.y>b.bot); if(!bd) continue;
+      if(k.x<=noX+2) continue;                                      // 번호 칸보다 왼쪽
+      if(isAmt(k.s)||SUBREF.test(k.s)||GUIDE.test(k.s)){ if(k.x>=amtX-25) bd.amt.push(k); else bd.name.push(k) }
+      else if(k.x<amtX-3) bd.name.push(k);                        // 담보명 칸 : 시작 위치가 금액 칸 왼쪽이면 담보명(긴 이름이 금액 칸까지 뻗어도)
+      else bd.rest.push(k);
+    }
+    for(const bd of bands){
+      bd.name.sort((u,v)=>(v.y-u.y)>2?1:(u.y-v.y)>2?-1:u.x-v.x);
+      // 같은 줄은 띄어 쓰고, 칸 안에서 접힌 다음 줄은 붙여 쓴다(pdfplumber 가 셀의 줄바꿈을 지우는 것과 같게)
+      let name=bd.a.pre; let py=null;
+      for(const k of bd.name){ name+=(py===null||Math.abs(k.y-py)>2?'':' ')+k.s; py=k.y }
+      name=name.replace(/\s+/g,' ').trim();
+      if(!name||name.length>140||/보험기간|합계|가입담보|담보명/.test(name)) continue;
+      if(!bd.amt.length) continue;
+      bd.amt.sort((u,v)=>u.x-v.x); const amt=bd.amt[0].s.replace(/\s/g,'');
+      if(!isAmt(amt)){
+        if(GUIDE.test(amt)){guide.push({no:bd.a.no,name});continue}
+        if(SUBREF.test(amt)){parent={name:name.replace(GOJI,'').replace(/┗/g,'').trim()}}
         continue;
       }
-      pending=null;
-      const no=parseInt(T[i].s,10);
-      let j=i+1, nameToks=[], amtTok=null;
-      for(;j<T.length;j++){const s=T[j].s.replace(/\s/g,''); if(AMT_FULL.test(s)||SUBREF.test(s)||GUIDE.test(s)){amtTok=T[j];break} nameToks.push(T[j])}
-      let name=nameToks.map(k=>k.s).join('').trim();
-      if(!name||name.length>110||/보험기간|합계/.test(name)) continue;
-      const nameX=nameToks.length?nameToks[0].x:T[i].x2;
-      if(!amtTok){ pending={no,name,nameX}; continue }
-      const r=push(no,name,amtTok,T,j,nameX); if(r){last=r; amtX=amtTok.x}
+      if(!/^┗/.test(name)) parent=null;
+      const key=bd.a.no+'|'+nname(name); if(seen.has(key)) continue; seen.add(key);
+      let prem='', term='';
+      for(const k of bd.rest.sort((u,v)=>u.x-v.x)){const t=k.s.replace(/\s/g,''); if(!prem&&/^[\d,]{3,}$/.test(t))prem=t; else if(!term&&/\d+년\/\d+(년|세)/.test(t))term=t}
+      rows.push({no:bd.a.no,name:name.replace(GOJI,'').replace('[기본계약]','').replace(/┗/g,'').replace(/\s+/g,' ').trim(),man:amtToMan(amt),amount_text:amt,prem,term,parent:parent?parent.name:null});
     }
   }
   // '안내참조' 담보 : 설계서 안의 「가입금액 및 지급금액」 표에서 금액을 찾는다(없으면 추정하지 않고 제외)
@@ -365,18 +365,20 @@ function readRiders(pages){
 }
 
 // ── 담보별 설명문 (desc_engine.read_desc 이식) ─────────────────────
-const SKIPLINE=/^(\[고객용\]|계약사항|담보사항|가입담보|가입금액|보험료|납기|기본계약|선택계약|영업담당자|발행정보|고객콜센터|www\.|page\s*:|※ 인수지침|설계번호)/;
+const SKIPLINE=/^(\[고객용\]|계약사항|담보사항|가입담보|가입금액|보험료|납기|기본계약|선택계약|영업담당자|발행정보|고객콜센터|www\.|page\s*:|※ 인수지침|설계번호|\(무\)|\d{4}\.\d{2}\.\d{2}\s+\d{2}:\d{2}|[가-힣]{2,5}$|\d+\s*\/\s*\d+$)/;
 const AMTLINE=/^[\d,]+\s*(원|만원)$|^\d[\d,]*(천|백|십)?만원$|^\d+억/;
 const JUNK=/\s*\d[\d,]*\s*(?:천|백|십)?만원\s*[\d,]*\s*\d+\s*년\s*\/\s*\d+\s*세\s*|\s*[\d,]{3,}\s*\d+\s*년\s*\/\s*\d+\s*세\s*|\s*\d+\s*년\s*\/\s*\d+\s*세\s*/g;
 const MIDROW=/^(.{0,14}?)\s(\d{1,3})\s+([가-힣A-Za-z(\[][^\n]{2,90})$/;
 function tidy(t){return (t||'').replace(JUNK,' ').replace(/\s+/g,' ').trim()}
-function readDesc(pages,nos){
+function readDesc(pages,nos,product){
   const out={}; let cur=null, started=false;
+  const pkey=(product||'').replace(/\s/g,'').slice(0,14);   // 쪽 꼬리의 상품명 줄은 설명문이 아니다
   for(const p of pages){
     if(/가입담보및보장내용/.test(p.text.replace(/\s/g,''))) started=true;
     if(!started) continue;
     for(const ln of p.lines){
       const s=ln.text.trim(); if(!s||SKIPLINE.test(s)) continue;
+      if(pkey&&s.replace(/\s/g,'').includes(pkey)) continue;
       const m=/^(\d{1,3})\s+(\S.{2,90})$/.exec(s);                  // '390 2-3인실 …' 처럼 숫자로 시작하는 담보명도 받는다(번호가 설계 담보번호일 때만)
       if(m&&!AMTLINE.test(m[2].trim())&&!/^\d+\s*(년|세|일|회|%|원|만원)/.test(m[2])){
         const no=parseInt(m[1],10);
@@ -413,7 +415,33 @@ function derive(desc){
   return r;
 }
 function highlightDesc(d){
-  return esc(d).replace(/(암보장개시일|보장개시일|최초\s*1회(?:한)?|연간\s*\d*\s*회한|수술\s*1회당|1일당|가입금액의\s*\d+%|1년경과시점\s*전일\s*이전|90일|180일\s*한도|\d+일\s*한도)/g,'<span class="h">$1</span>');
+  return esc(d).replace(/(암보장개시일|보장개시일|최초\s*1회(?:한)?|연간\s*\d*\s*회한|수술\s*1회당|치료\s*1회당|1일당|가입금액의\s*\d+%|1년경과시점\s*전일\s*이전|90일|180일\s*한도|\d+일\s*한도)/g,'<span class="h">$1</span>');
+}
+// 설명문 요약 — 설계서 설명문은 지급금액표·세부규정까지 통째로 들어 있어 그대로 실으면 한 담보가 한 쪽을 넘긴다.
+// ① 「항목 : 금액 (횟수)」 꼴은 표로 ② 본문은 ※ 앞의 지급사유 문장만, 길면 자른다 ③ ※ 메모는 감액·개시일·한도·제외만 짧게
+const ITEM_RE=/([가-힣A-Za-z0-9()·,\.\-\/\s]{2,42}?)\s*[:：]\s*(\d[\d,.]*(?:\s?[\d,.]+)?\s*(?:만원|원|억원))\s*(?:\(([^()]{1,24}(?:\([^()]*\))?[^()]*)\))?/g;   // 숫자가 줄바꿈으로 '20 00만원' 처럼 갈라진 것도 받는다
+function summarizeDesc(desc){
+  if(!desc) return {core:'',notes:[],items:[]};
+  const parts=desc.split(/※/); let core=parts[0]; const notes=[];
+  for(const n of parts.slice(1)){const t=n.trim(); if(/감액|보장개시일|한도|제외|지급하지\s*않|면책/.test(t)&&t.length<=110&&notes.length<3) notes.push(t.replace(/\s+/g,' '))}
+  const items=[]; let m; const re=new RegExp(ITEM_RE.source,'g');
+  while((m=re.exec(core))){let nm=m[1].split(/\s[-–]\s/).pop().replace(/^[\s\-·\d)]+/,'').trim(); nm=nm.split(/지급\s*/).pop().trim(); /* 항목 이름은 마지막 '-' 뒤, '지급' 뒤부터 */ if(nm.length>=2&&!/가입금액|보험가입금액|지급액|합계|한도/.test(nm)) items.push({nm,amt:m[2].replace(/\s/g,''),cnt:(m[3]||'').trim()})}
+  if(items.length>=3) core=core.replace(re,' ');
+  core=core.replace(/\s*[-–]\s*(?=\s*[-–]|$)/g,' ').replace(/\s+/g,' ').replace(/\s*[-–]\s*$/,'').trim();
+  // 1) 2) 3) 절은 줄로 나누고, 전체 길이는 제한한다
+  const clauses=core.split(/\s(?=\d\)\s)/).map(c=>c.trim()).filter(Boolean);
+  let out=[], len=0; for(const c of clauses){ if(len+c.length>380){ out.push(c.slice(0,Math.max(40,380-len)).trim()+' …'); break } out.push(c); len+=c.length }
+  return {core:out.join('<br>'),notes,items};
+}
+function descHtml(desc){
+  const su=summarizeDesc(desc); let h='';
+  if(su.core) h+='<div>'+highlightDesc(su.core).replace(/&lt;br&gt;/g,'<br>')+'</div>';
+  if(su.notes.length) h+='<span class="x">'+su.notes.map(n=>'※ '+highlightDesc(n)).join('<br>')+'</span>';
+  if(su.items.length){
+    const show=su.items.slice(0,16);
+    h+='<table class="t" style="margin-top:1mm;font-size:7.1pt"><tr><th>항목</th><th style="width:16mm">지급금액</th><th style="width:18mm">지급횟수</th></tr>'+show.map(it=>'<tr><td class="l">'+esc(it.nm)+'</td><td>'+esc(it.amt)+'</td><td>'+esc(it.cnt||'—')+'</td></tr>').join('')+'</table>'+(su.items.length>16?'<span class="x">… 외 '+(su.items.length-16)+'개 항목(설계서 참조)</span>':'');
+  }
+  return h;
 }
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
@@ -430,7 +458,7 @@ async function handleFile(file){
     log('총 '+pages.length+'쪽 · 글자 추출 완료');
     const meta=readMeta(pages); const riders=readRiders(pages);
     if(!riders.length){log('가입담보 표를 찾지 못했습니다. 상품설명서(고객용) PDF 가 맞는지, 글자가 이미지가 아닌지 확인해 주세요.','warn'); return}
-    const descs=readDesc(pages,new Set(riders.map(r=>r.no)));
+    const descs=readDesc(pages,new Set(riders.map(r=>r.no)),meta.product);
     build({meta,riders,descs,src:file.name});
   }catch(e){log('오류 : '+(e&&e.message||e),'warn'); console.error(e)}
 }
@@ -500,7 +528,7 @@ function render(){
           codes='<span class="codes">약관 별표 분류번호 : '+show.join(' · ')+(r.codes.length>10?' 외 '+(r.codes.length-10)+'개':'')+(r.excl&&r.excl.length?' <b>(제외 : '+esc(r.excl.join(', '))+')</b>':'')+'</span>';
         }
         const d=r.der; const cond=[d.wait?'면책 '+d.wait:'',d.cut1y?'1년 미만 '+d.cut1y:'',d.cut90?'90일 미만 '+d.cut90:''].filter(Boolean).join(' · ');
-        const desc=optDesc&&r.desc?'<div>'+highlightDesc(r.desc)+'</div>':'<div style="color:#888">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>';
+        const desc=optDesc&&r.desc?descHtml(r.desc):'<div style="color:#888">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>';
         return '<table class="rt"><tr><td class="n">'+esc(r.name)+(r.parent?' <span style="font-weight:400;color:#777;font-size:7.4pt">('+esc(r.parent)+' 세부보장)</span>':'')+'</td><td class="a" rowspan="2">'+manText(r.man,r.amount_text)+(r.term?'<br><span style="font-size:7pt;font-weight:400;color:#666">'+esc(r.term)+'</span>':'')+'</td></tr><tr><td class="d">'+desc+(cond?'<span class="x">※ '+esc(cond)+'</span>':'')+codes+'</td></tr></table>';
       });
       const right=c.kp?'<div class="kp"><h3>'+c.kp.title+'</h3>'+c.kp.html+'</div>':'';
