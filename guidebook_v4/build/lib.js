@@ -14,7 +14,8 @@ const C = {
 };
 const FONT = '맑은 고딕';
 const W = 13.333, H = 7.5, M = 0.6;
-const FOOTER_TEXT = 'MeAI 활용 가이드북 · MeAI 홈 편';
+let FOOTER_TEXT = 'MeAI 활용 가이드북 · MeAI 홈 편';
+function setFooterText(t){ FOOTER_TEXT = t; } // 공지 안내 PPT 등 다른 자료가 꼬리말 문구를 바꿔 쓸 때
 const IMG_CACHE = path.join(__dirname, 'img');
 // 은은한 그라데이션 배경(bg.py 로 만든 그림). 표지·파트 나눔·마무리는 진하게, 본문은 아주 옅게
 const BG = { cover:path.join(__dirname,'bg','cover.jpg'), divider:path.join(__dirname,'bg','divider.jpg'), closing:path.join(__dirname,'bg','closing.jpg'), page:path.join(__dirname,'bg','page.jpg') };
@@ -190,7 +191,7 @@ function table(slide, {x,y,w,rows,colW,size=10,headFill=C.g100,rowH=0.32}){
 // 아이콘 원 (텍스트 심볼)
 function iconCircle(slide,{x,y,d=0.5,symbol,fill=C.blue50,color=C.blue,size=16}){ circle(slide,{x,y,d,fill}); T(slide,symbol,{x,y,w:d,h:d,fontSize:size,bold:true,color,align:'center',valign:'middle'}); }
 
-module.exports = { BG, brandPill, MISSING, C, FONT, W, H, M, newPres, T, R, circle, base, divider, img, pin, badge, numList, chip, stat, note, steps, bullets, table, iconCircle, textW, imgSize };
+module.exports = { BG, brandPill, setFooterText, MISSING, C, FONT, W, H, M, newPres, T, R, circle, base, divider, img, pin, badge, numList, chip, stat, note, steps, bullets, table, iconCircle, textW, imgSize };
 
 // ---- 추가 도우미 ----
 // 번호 설명을 가로로 나열 (이미지 아래 범례)
