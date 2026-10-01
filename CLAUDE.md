@@ -8,6 +8,7 @@
 |---|---|---|
 | **스마트 제안서 생성기** | `proposal_smart/` | 고객 설계서 PDF → 보장 지면(최대 9쪽)을 만들어 원본에 끼워 넣는다. 자세한 설명·변경 기록은 `proposal_smart/README.md` |
 | GA 스마트 제안서 생성기 | `proposal_smart/ga_proposal.py` · `make_ga.bat` | 설계서 PDF → GA 양식 6쪽 PDF(테스트용). 설계도(흐름·공식·판정 로직·칸별 매핑·8개 상품 특약 마스터) 최종본은 `dist/ga-blueprint-final.xlsx`(= `ga-cell-rider-mapping.xlsx`) |
+| 세일즈혁신 가이드북 생성기(프로토타입) | `docs/guidebook_proto.html` | 상품설명서 PDF 를 끌어다 놓으면 담보표·설명문·Key Point·면책감액표를 묶은 가이드북을 만들어 브라우저 인쇄로 PDF 저장. 오프라인 단일 HTML(pdf.js 내장). 글 상자 창고 `scripts/guidebook_kp.json` · 틀 `scripts/guidebook_proto_template.html` · 조립 `python scripts/build_guidebook_proto.py`(pdf.js 는 파일 안의 것을 재사용). 수작업 초판은 `docs/guide_naemom_5105_2609.pdf` |
 | 영업지원도구(특약검색·통합치료비 시뮬레이터) | `tool.html` · `통합치료비.html` · `index.html` 등 | 브라우저에서 바로 쓰는 단일 HTML |
 | 배포·보고 산출물 | `dist/` · `docs/` | 메일 발송용 묶음, 검수 보고서 |
 

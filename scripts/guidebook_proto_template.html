@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>메리츠 세일즈혁신 가이드북 생성기 (프로토타입)</title>
+<style>
+:root{--red:#E4322B;--red2:#F05A4F;--dark:#333;--line:#d9d9d9;--beige:#F7EFE3;--beige2:#EFE3CF;--yellow:#FFF3B0;--blue:#EAF4FB;--green:#EAF6EE}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo','NanumGothic','Noto Sans KR',sans-serif;color:var(--dark);font-size:8.6pt;line-height:1.42;word-break:keep-all;background:#e9e9ec}
+#app{display:flex;min-height:100vh}
+#panel{width:300px;flex:none;background:#fff;border-right:1px solid #ddd;padding:14px;font-size:12px;position:sticky;top:0;height:100vh;overflow:auto}
+#panel h1{font-size:15px;margin:0 0 4px}
+#panel .v{color:#888;font-size:11px;margin-bottom:10px}
+#drop{border:2px dashed var(--red);border-radius:10px;padding:18px 10px;text-align:center;color:#555;cursor:pointer;background:#fff6f5}
+#drop.on{background:#ffe3e0}
+#drop b{color:var(--red)}
+#panel button{display:block;width:100%;margin:6px 0;padding:8px;border:1px solid #bbb;border-radius:6px;background:#f7f7f7;cursor:pointer;font-size:12px}
+#panel button.pri{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
+#panel label{display:block;margin:5px 0}
+#panel input[type=text]{width:100%;padding:5px;border:1px solid #ccc;border-radius:4px;font-size:12px}
+#status{background:#f3f3f3;border-radius:6px;padding:8px;margin:8px 0;font-size:11px;white-space:pre-wrap;max-height:220px;overflow:auto}
+#status .warn{color:#b35b00}
+#preview{flex:1;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.page{width:210mm;height:297mm;padding:9mm 11mm 12mm;position:relative;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25);page-break-after:always;break-after:page}
+.page .tag{position:absolute;top:6mm;right:11mm;font-size:8pt;color:#444}
+.brand{display:flex;justify-content:flex-end;align-items:baseline;gap:4px;margin-top:4mm;height:9mm}
+.brand .m{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:19pt;color:var(--red);letter-spacing:-1px;line-height:1}
+.brand .k{font-size:10.5pt;color:#555;font-weight:700}
+.strip{background:var(--red2);color:#fff;font-size:8.2pt;padding:1.6mm 3mm;margin:1mm 0 2.5mm;border-radius:2px}
+.strip b{color:#FFE9A8}
+.foot{position:absolute;left:11mm;right:11mm;bottom:6mm;font-size:7.4pt;color:#444;border-top:1px solid #ddd;padding-top:1.2mm;display:flex;justify-content:space-between}
+.body{position:relative}
+/* 블록들 */
+.sec{font-size:12.5pt;color:#222;margin:0 0 2mm;border-left:5px solid var(--red);padding-left:2.5mm;break-inside:avoid}
+.sec small{font-size:8.5pt;color:#666;font-weight:400;margin-left:2mm}
+.rider{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-bottom:3mm;break-inside:avoid;align-items:start}
+.rider.nokp{grid-template-columns:1fr}
+.rt{width:100%;border-collapse:collapse;table-layout:fixed}
+.rt td{vertical-align:top;padding:1.3mm 1.6mm;border-bottom:1px solid var(--line);font-size:8.1pt}
+.rt td.n{background:var(--beige);font-weight:700;font-size:8.6pt;border-bottom:0;padding-bottom:.8mm}
+.rt td.a{text-align:center;font-weight:700;font-size:9pt;vertical-align:middle;color:#222;border-left:1px solid var(--line);width:21mm}
+.rt td.d{color:#333}
+.rt td.d .x{display:block;color:#555;font-size:7.6pt;margin-top:.6mm}
+.rt .h{background:var(--yellow)}
+.rt .codes{display:block;margin-top:.8mm;font-size:7.1pt;color:#555;line-height:1.5}
+.kp{border:2px dashed var(--red);border-radius:6px;padding:2.4mm 3mm 2.2mm;background:#fff}
+.kp h3{margin:0 0 1.4mm;text-align:center;color:var(--red);font-size:10pt;font-weight:800}
+.kp p{margin:.6mm 0}
+.kp ul{margin:.6mm 0 .6mm 4mm;padding:0}
+.kp li{margin:.35mm 0}
+.kp .src{font-size:7.1pt;color:#666;text-align:right;margin-top:1mm}
+.kp.none{border-color:#ccc;color:#888;text-align:center;font-size:7.8pt;display:flex;align-items:center;justify-content:center}
+.em{color:var(--red);font-weight:700}
+.t{width:100%;border-collapse:collapse;font-size:7.5pt;margin:1mm 0}
+.t th{background:#5C7C9E;color:#fff;padding:.9mm 1.2mm;font-weight:700;text-align:center}
+.t td{padding:.8mm 1.2mm;border-bottom:1px solid #e3e3e3;text-align:center}
+.t td.l{text-align:left}
+.t tr:nth-child(even) td{background:#F6F8FB}
+.t.r th{background:#C7443C}
+.chip{display:inline-block;background:#fff;border:1px solid #bbb;border-radius:10px;padding:0 1.8mm;font-size:7.2pt;margin:.3mm .3mm .3mm 0}
+.callout{background:var(--blue);border-left:4px solid #2F6FB0;padding:1.8mm 2.5mm;margin:1.5mm 0 3mm;font-size:8pt;break-inside:avoid}
+.callout.y{background:#FFF8DD;border-left-color:#E0A800}
+.note{font-size:7.6pt;color:#555;background:#F4F4F4;padding:1.6mm 2.2mm;border-radius:3px;margin:1.5mm 0}
+/* 지도 */
+.mb{border:1.5px solid #ddd;border-radius:6px;padding:2.4mm 3mm;background:#fff;margin-bottom:3mm;break-inside:avoid}
+.mb h3{margin:0 0 1.4mm;font-size:10pt;color:#fff;background:var(--red);display:inline-block;padding:.5mm 2.5mm;border-radius:3px}
+.mb table{width:100%;border-collapse:collapse;font-size:7.8pt}
+.mb td{padding:.55mm .8mm;border-bottom:1px dotted #ddd}
+.mb td:last-child{text-align:right;font-weight:700;white-space:nowrap;width:24mm}
+/* 표지 */
+.cover{background:#E9433C;color:#fff}
+.cover .brand .m,.cover .brand .k{color:#fff}
+.cover .t1{font-size:32pt;font-weight:800;line-height:1.1;margin-top:26mm;letter-spacing:-1px}
+.cover .t2{font-size:21pt;font-weight:800;color:#FFE55C;margin-top:6mm;line-height:1.25;word-break:keep-all}
+.cover .t3{font-size:11pt;margin-top:12mm;line-height:1.7}
+.cover .t3 b{color:#FFE55C}
+.cover .box{position:absolute;left:0;right:0;bottom:0;height:70mm;background:#fff;border-radius:14px 14px 0 0;padding:6mm 8mm;color:#333}
+.cover .box .lbl{font-size:9pt;color:#666}
+.cover .box .who{font-size:11pt;font-weight:700;margin-top:1mm}
+.back{background:#fff;padding:0}
+.back .bar{height:26mm;background:#E9433C}
+.back .logo{position:absolute;top:120mm;left:0;right:0;text-align:center}
+.gl{display:grid;grid-template-columns:1fr 1fr;gap:2.4mm 5mm;break-inside:avoid;margin-bottom:3mm}
+.gl div{border-bottom:1px dotted #ccc;padding:1.2mm 0}
+.gl b{color:var(--red)}
+.gl span{display:block;color:#555;font-size:7.7pt}
+.kv{width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:3mm}
+.kv td{padding:1.2mm 1.6mm;border-bottom:1px solid #e3e3e3;vertical-align:top}
+.kv td:first-child{width:28mm;background:#F6F8FB;font-weight:700}
+#measure{position:absolute;left:-9999px;top:0;width:188mm;visibility:hidden}
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fff}
+  #panel,#measure{display:none!important}
+  #app{display:block}
+  #preview{padding:0;display:block}
+  .page{box-shadow:none;margin:0}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <h1>세일즈혁신 가이드북 생성기</h1>
+    <div class="v">프로토타입 · 오프라인 · 8개 상품 특약 마스터 내장 · <span id="buildinfo"></span></div>
+    <div id="drop"><b>상품설명서 PDF</b>를 여기에 끌어다 놓거나 클릭<br><span style="font-size:11px;color:#888">파일은 이 PC 안에서만 읽힙니다</span>
+      <input id="file" type="file" accept="application/pdf" style="display:none"></div>
+    <button id="sampleA">샘플 ① 통합간편 (40세 남성 · 70건)</button>
+    <button id="sampleB">샘플 ② 내Mom대로 5.10.5 (40세 여성 · 66건)</button>
+    <div id="status">상품설명서를 넣으면 담보 목록과 담보별 설명문을 읽어 가이드북을 만듭니다.</div>
+    <label>가이드 제목<input id="title" type="text" placeholder="비우면 상품명으로"></label>
+    <label><input id="optAll" type="checkbox" checked> Key Point가 없는 담보도 싣기</label>
+    <label><input id="optCodes" type="checkbox" checked> 약관 별표 분류번호 표시</label>
+    <label><input id="optDesc" type="checkbox" checked> 설계서 설명문 싣기</label>
+    <button id="rebuild">다시 만들기</button>
+    <button id="print" class="pri">인쇄 · PDF로 저장</button>
+    <div style="font-size:11px;color:#777;margin-top:10px;line-height:1.5">
+      PDF 저장은 브라우저 인쇄창에서 「대상 : PDF로 저장」, 여백 「없음」, 배경 그래픽 「켬」으로 합니다.<br>
+      설명문은 설계서 뒤쪽 「가입담보 및 보장내용」에서, 분류번호는 약관 별표(특약 마스터)에서, Key Point는 내장 글 상자 창고에서 옵니다. 추정한 코드·금액은 없습니다.
+    </div>
+  </aside>
+  <main id="preview"></main>
+</div>
+<div id="measure"></div>
+
+<script type="text/plain" id="pdfjs-main">__PDFJS_MAIN__</script>
+<script type="text/plain" id="pdfjs-worker">__PDFJS_WORKER__</script>
+<script type="application/json" id="cmaps">__CMAPS__</script>
+<script type="application/json" id="master">__MASTER__</script>
+<script type="application/json" id="kcdnames">__KCDNAMES__</script>
+<script type="application/json" id="kp">__KP__</script>
+<script type="application/json" id="samples">__SAMPLES__</script>
+<script type="application/json" id="buildmeta">__BUILDMETA__</script>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const J=id=>JSON.parse(document.getElementById(id).textContent);
+const MASTER=J('master'), KCDN=J('kcdnames'), KPDOC=J('kp'), SAMPLES=J('samples'), META=J('buildmeta');
+const KP=KPDOC.kp, GLOSS=KPDOC._glossary;
+$('#buildinfo').textContent=META.built+' · 특약 '+MASTER.riders.length+'건 · Key Point '+Object.keys(KP).length+'종';
+
+// ── 정규화 (matcher.py base / scen_engine.nname 이식) ───────────────
+const GOJI=new RegExp('(?:\\((?:'+MASTER.goji_tags.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\)|\\([^()]{1,24}가입\\))','g');
+const RENEW=/\((?:\d+년)?갱신\)/g;
+const AMT_RE='(?:간병인지원|(?=\\d)(?:\\d[\\d,]*억\\s*)?(?:\\d[\\d,]*천)?(?:\\d[\\d,]*백)?(?:\\d[\\d,]*십)?(?:\\d[\\d,]*)?만원|\\d[\\d,]*억\\s*(?:\\d[\\d,]*천)?(?:\\d[\\d,]*백)?(?:\\d[\\d,]*십)?(?:\\d[\\d,]*만)?원?)';
+const AMT_FULL=new RegExp('^'+AMT_RE+'$');
+const AMT_IN=new RegExp(AMT_RE);
+function nname(n){return (n||'').replace(GOJI,'').replace('[기본계약]','').replace(/┗/g,'').replace(/\s+/g,'')}
+function base(n){return (n||'').replace(GOJI,'').replace(RENEW,'').replace('[기본계약]','').replace(/┗/g,'').replace(/\s+/g,'')}
+function amtToMan(s){
+  s=(s||'').replace(/[\s,]/g,'');
+  const m=/^(?:(\d+)억)?(?:(\d+)천)?(?:(\d+)백)?(?:(\d+)십)?(\d+)?(만)?원?$/.exec(s);
+  if(!m) return 0;
+  const [eok,cheon,baek,sip,man]=[1,2,3,4,5].map(i=>m[i]?parseInt(m[i],10):0);
+  if(!(eok||cheon||baek||sip||m[6])) return 0;
+  return eok*10000+cheon*1000+baek*100+sip*10+man;
+}
+function manText(man,raw){
+  if(raw&&/간병인지원/.test(raw)) return '간병인<br>지원';
+  if(!man) return raw||'—';
+  if(man>=10000&&man%10000===0) return (man/10000)+'억원';
+  if(man>=10000) return (man/10000).toFixed(1).replace(/\.0$/,'')+'억원';
+  if(man>=1000&&man%1000===0) return (man/1000)+'천만원';
+  if(man>=100&&man%100===0&&man<1000) return (man/100)+'백만원';
+  return man.toLocaleString()+'만원';
+}
+
+// ── 특약 마스터 색인 ───────────────────────────────────────────
+const INDEX=new Map();
+for(const r of MASTER.riders){const k=base(r.n);if(!INDEX.has(k))INDEX.set(k,[]);INDEX.get(k).push(r)}
+const KEYS=[...INDEX.keys()].sort((a,b)=>b.length-a.length);
+function pickLine(list,line){return (line&&list.find(r=>r.p===line))||list[0]}
+function matchMaster(name,line){
+  const b=base(name); const cands=[b,b.replace(/^갱신형/,''),'갱신형'+b];
+  const br=/^(.*?)\[(.+)\]$/.exec(b); if(br){cands.push(br[1]+'['+br[2]+']');cands.push(br[2]);cands.push(br[1])}
+  // 끝 괄호 그룹을 하나씩 떼어 본다
+  let s=b; for(let i=0;i<3;i++){const m=/^(.*)\([^()]*\)$/.exec(s); if(!m)break; s=m[1]; cands.push(s)}
+  for(const c of cands){ if(INDEX.has(c)) return pickLine(INDEX.get(c),line) }
+  for(const c of cands){ const k=KEYS.find(k=>k.length>=6&&c.startsWith(k)); if(k) return pickLine(INDEX.get(k),line) }
+  return null;
+}
+function guessLine(productName,riders){
+  const names=riders.map(r=>r.name).join(' ');
+  if(names.includes('통합간편가입')) return '통합간편';
+  const h=(productName||'').replace(/\s+/g,'');
+  if(h.includes('통합간편건강보험')) return '통합간편';
+  if(/내Mom대로/.test(h)) return '내Mom대로';
+  if(h.includes('내Mom같은어린이보험')) return '내Mom같은어린이';
+  if(h.includes('또걸려도또받는')&&h.includes('간편')) return '또또암간편';
+  if(h.includes('또걸려도또받는')) return '또또암';
+  if(h.includes('운전자')) return '운전자';
+  if(h.includes('치아')) return '치아';
+  return '케어프리';
+}
+
+// ── Key Point 창고 매칭 ────────────────────────────────────────
+const KPKEYS=Object.keys(KP).sort((a,b)=>b.length-a.length);
+function findKP(name){
+  const b=base(name); const cands=[b,b.replace(/^갱신형/,'')];
+  const br=/^(.*?)\[(.+)\]$/.exec(b); if(br){cands.push(br[2]);cands.push(br[1])}
+  for(const c of cands){ if(KP[c]) return KP[c] }
+  for(const c of cands){ const k=KPKEYS.find(k=>c.startsWith(k)); if(k) return KP[k] }
+  return null;
+}
+
+// ── 갈래 나누기 ────────────────────────────────────────────────
+const GROUPS=[
+  {id:'ca',  name:'암',               sub:'진단비 · 항암치료비 · 통합치료비'},
+  {id:'cv',  name:'뇌 · 심장 · 순환기', sub:'진단비 · 수술비 · 통합치료비'},
+  {id:'sg',  name:'수술비 · 치료비',     sub:'질병·상해수술비 · 종수술비 · 131대질병 · 그 밖의 치료비'},
+  {id:'ad',  name:'입원 · 간병',        sub:'입원일당 · 간병인지원 · 치매·장기요양'},
+  {id:'ac',  name:'상해 · 운전 · 배상 · 기타', sub:'사망 · 후유장해 · 골절 · 벌금·비용 · 치아'},
+];
+function groupOf(r){
+  const n=nname(r.name), c=r.cat||'';
+  if(/암|항암/.test(n)&&!/상해/.test(n)) return 'ca';
+  if(/뇌|심장|심근|순환계|협심|부정맥|혈전|대동맥|심혈관/.test(n)) return 'cv';
+  if(['cancer_dx','cancer_tx','cancer_etc'].includes(c)) return 'ca';
+  if(['brain','heart','kidney'].includes(c)) return 'cv';
+  if(/입원|간병|통원|치매|장기요양|간호/.test(n)) return 'ad';
+  if(['admission','care','dementia'].includes(c)) return 'ad';
+  if(/사망|후유장해|골절|화상|벌금|비용|배상|운전|교통|치아|치과|자동차/.test(n)) return 'ac';
+  if(['death','disability','driving','legal','property','liability','dental','fracture'].includes(c)) return 'ac';
+  if(/수술|치료비|진단비|검사|시술/.test(n)) return 'sg';
+  if(['surgery','specific','integrated','dx_tx'].includes(c)) return 'sg';
+  return 'ac';
+}
+
+// ── pdf.js 적재 (파일 안에 base64 로 들어 있다) ────────────────
+let pdfjsP=null;
+function b64bytes(b){const s=atob(b);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
+function loadPdfjs(){
+  if(pdfjsP) return pdfjsP;
+  pdfjsP=(async()=>{
+    const dec=new TextDecoder();
+    const main=dec.decode(b64bytes($('#pdfjs-main').textContent.trim()));
+    const worker=dec.decode(b64bytes($('#pdfjs-worker').textContent.trim()));
+    const mainUrl=URL.createObjectURL(new Blob([main],{type:'text/javascript'}));
+    const workerUrl=URL.createObjectURL(new Blob([worker],{type:'text/javascript'}));
+    const lib=await import(mainUrl);
+    lib.GlobalWorkerOptions.workerSrc=workerUrl;
+    return lib;
+  })();
+  return pdfjsP;
+}
+const CMAPS=J('cmaps');
+class CMapFactory{constructor(){}
+  async fetch({name}){const b=CMAPS[name]; if(!b) throw new Error('cmap 없음 '+name); return {cMapData:b64bytes(b),compressionType:1}}}
+class NoFontFactory{constructor(){} async fetch({filename}){throw new Error('표준 글꼴 없음 '+filename)}}
+
+// ── PDF → 줄 텍스트 (pdfplumber extract_text 와 비슷하게) ──────────
+async function readPdf(buf,log){
+  const lib=await loadPdfjs();
+  const doc=await lib.getDocument({data:buf,useWorkerFetch:false,isEvalSupported:false,useSystemFonts:true,
+    CMapReaderFactory:CMapFactory,StandardFontDataFactory:NoFontFactory,cMapPacked:true}).promise;
+  const pages=[];
+  for(let i=1;i<=doc.numPages;i++){
+    const pg=await doc.getPage(i); const tc=await pg.getTextContent();
+    const items=tc.items.filter(it=>it.str!==undefined&&it.str.replace(/\s/g,'')!=='').map(it=>({s:it.str,x:it.transform[4],y:it.transform[5],w:it.width,h:Math.abs(it.transform[0])||it.height||8}));
+    // y 로 줄 묶기
+    items.sort((a,b)=>b.y-a.y||a.x-b.x);
+    const lines=[]; let cur=null;
+    for(const it of items){
+      if(cur&&Math.abs(cur.y-it.y)<=Math.max(2.5,it.h*0.45)){cur.items.push(it)}
+      else{cur={y:it.y,items:[it]};lines.push(cur)}
+    }
+    for(const ln of lines){
+      ln.items.sort((a,b)=>a.x-b.x);
+      // 토큰 : 사이가 벌어진 글자 덩어리로 다시 나눈다
+      const toks=[]; let t=null;
+      for(const it of ln.items){
+        const gap=t?it.x-(t.x+t.w):99;
+        if(t&&gap<Math.max(1.2,it.h*0.3)){t.s+=it.s;t.w=(it.x+it.w)-t.x}
+        else{t={s:it.s,x:it.x,w:it.w,h:it.h};toks.push(t)}
+      }
+      ln.toks=toks.map(k=>({s:k.s.trim(),x:k.x,x2:k.x+k.w})).filter(k=>k.s);
+      ln.text=ln.toks.map(k=>k.s).join(' ');
+    }
+    pages.push({n:i,lines,text:lines.map(l=>l.text).join('\n')});
+    if(log&&i%10===0) log('읽는 중 … '+i+'/'+doc.numPages+'쪽');
+  }
+  return pages;
+}
+
+// ── 1쪽 : 피보험자 · 보험료 · 상품명 · 계약사항 (build_all.auto_meta 이식) ──
+function readMeta(pages){
+  const t1=pages[0]?pages[0].text:''; const t2=(pages[1]?pages[1].text:'')+'\n'+(pages[2]?pages[2].text:'');
+  const g=(re,t,d)=>{const m=re.exec(t);return m?m[1].trim():d};
+  const m={};
+  m.insured=g(/피보험자\s+(\S+)/,t1,'고객님');
+  m.premium=g(/보험료\s+([\d,]+)\s*원/,t1,'');
+  m.product=g(/(\(무\)[^\n]+)/,t1,'');
+  m.head=g(/(계약사항\s*:[^\n]+)/,t2,'');
+  const full=pages.map(p=>p.text).join('\n');
+  const sx=/피보험자명[^\n]{0,40}?생년월일\s*(남|여)/.exec(full)||/피보험자명\s*\S+\s*\((남|여)\s*,/.exec(full)||/계약자명\s*\S+\s*\((남|여)\s*,/.exec(full);
+  m.sex=sx?sx[1]:'';
+  const age=/피보험자[^\n]{0,30}?(\d{1,3})\s*세/.exec(t1); m.age=age?age[1]:'';
+  return m;
+}
+
+// ── 가입담보 표 읽기 (matcher.read_proposal 이식 · 셀 대신 x 좌표 토큰) ──
+const SUBREF=/세부\s*보장\s*참조/, GUIDE=/안내\s*참조/;
+function readRiders(pages){
+  const rows=[], seen=new Set(); let parent=null, guide=[];
+  const push=(no,name,amtTok,T,j,nameX)=>{
+    const amt=amtTok.s.replace(/\s/g,'');
+    if(!AMT_FULL.test(amt)){
+      if(GUIDE.test(amt)){guide.push({no,name});return null}
+      if(SUBREF.test(amt)){parent={name:name.replace(GOJI,'').trim()}}
+      return null;
+    }
+    if(!name.startsWith('┗')) parent=null;
+    const key=no+'|'+nname(name); if(seen.has(key)) return null; seen.add(key);
+    let prem='', term='';
+    for(let k=j+1;k<T.length;k++){const s=T[k].s.replace(/\s/g,''); if(!prem&&/^[\d,]{3,}$/.test(s))prem=s; else if(!term&&/\d+년\/\d+(년|세)/.test(s))term=s}
+    const row={no,name:name.replace(GOJI,'').replace('[기본계약]','').replace(/┗/g,'').replace(/\s+/g,' ').trim(),man:amtToMan(amt),amount_text:amt,prem,term,parent:parent?parent.name:null};
+    rows.push(row); return {row,nameX};
+  };
+  for(const p of pages){
+    const flat=p.text.replace(/\s/g,'');
+    if(flat.includes('가입담보및보장내용')) break;        // 담보사항 상세 구간 시작
+    let last=null, amtX=null, pending=null;              // pending : 번호·이름은 읽었는데 금액이 다음 줄(칸 안 줄바꿈)에 있는 행
+    for(const ln of p.lines){
+      const T=ln.toks; const i=T.findIndex(k=>/^\d{1,3}$/.test(k.s));
+      if(i<0||i+1>=T.length){
+        if(!T.length) continue;
+        const ai=T.findIndex(k=>AMT_FULL.test(k.s.replace(/\s/g,''))||SUBREF.test(k.s)||GUIDE.test(k.s));
+        const nameAdd=T.filter((k,idx)=>(ai<0||idx<ai)&&(amtX===null||k.x2<amtX-3)).map(k=>k.s).join('');
+        if(pending){                                       // 이름 이어붙이고, 금액이 있으면 행 확정
+          if(nameAdd&&nameAdd.length<80) pending.name=(pending.name+nameAdd);
+          if(ai>=0){ last=push(pending.no,pending.name.trim(),T[ai],T,ai,pending.nameX); if(last) amtX=T[ai].x; pending=null }
+          continue;
+        }
+        if(last&&ai<0&&nameAdd&&T[0].x>=last.nameX-6&&T[0].x<=last.nameX+40&&nameAdd.length<60&&!/보험기간|납기|가입금액|보험료|합계/.test(nameAdd)){
+          last.row.name=(last.row.name+nameAdd).replace(/\s+/g,' ');   // 바로 위 담보명이 칸 안에서 줄바꿈된 경우
+        }
+        continue;
+      }
+      pending=null;
+      const no=parseInt(T[i].s,10);
+      let j=i+1, nameToks=[], amtTok=null;
+      for(;j<T.length;j++){const s=T[j].s.replace(/\s/g,''); if(AMT_FULL.test(s)||SUBREF.test(s)||GUIDE.test(s)){amtTok=T[j];break} nameToks.push(T[j])}
+      let name=nameToks.map(k=>k.s).join('').trim();
+      if(!name||name.length>110||/보험기간|합계/.test(name)) continue;
+      const nameX=nameToks.length?nameToks[0].x:T[i].x2;
+      if(!amtTok){ pending={no,name,nameX}; continue }
+      const r=push(no,name,amtTok,T,j,nameX); if(r){last=r; amtX=amtTok.x}
+    }
+  }
+  // '안내참조' 담보 : 설계서 안의 「가입금액 및 지급금액」 표에서 금액을 찾는다(없으면 추정하지 않고 제외)
+  if(guide.length){
+    const flat=pages.map(p=>p.text).join('').replace(/\s/g,'');
+    for(const g of guide){
+      const nm=g.name.replace(GOJI,'').replace('[기본계약]','').trim(); const key=nm.replace(/\s/g,'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const m=new RegExp(key+'([\\d,]{5,})원').exec(flat); if(!m) continue;
+      const won=parseInt(m[1].replace(/,/g,''),10); if(won%10000) continue;
+      const k=g.no+'|'+nname(nm); if(seen.has(k)) continue; seen.add(k);
+      rows.push({no:g.no,name:nm,man:won/10000,amount_text:'안내참조('+m[1]+'원)',prem:'',term:'',parent:null});
+    }
+  }
+  rows.sort((a,b)=>a.no-b.no);
+  return rows;
+}
+
+// ── 담보별 설명문 (desc_engine.read_desc 이식) ─────────────────────
+const SKIPLINE=/^(\[고객용\]|계약사항|담보사항|가입담보|가입금액|보험료|납기|기본계약|선택계약|영업담당자|발행정보|고객콜센터|www\.|page\s*:|※ 인수지침|설계번호)/;
+const AMTLINE=/^[\d,]+\s*(원|만원)$|^\d[\d,]*(천|백|십)?만원$|^\d+억/;
+const JUNK=/\s*\d[\d,]*\s*(?:천|백|십)?만원\s*[\d,]*\s*\d+\s*년\s*\/\s*\d+\s*세\s*|\s*[\d,]{3,}\s*\d+\s*년\s*\/\s*\d+\s*세\s*|\s*\d+\s*년\s*\/\s*\d+\s*세\s*/g;
+const MIDROW=/^(.{0,14}?)\s(\d{1,3})\s+([가-힣A-Za-z(\[][^\n]{2,90})$/;
+function tidy(t){return (t||'').replace(JUNK,' ').replace(/\s+/g,' ').trim()}
+function readDesc(pages,nos){
+  const out={}; let cur=null, started=false;
+  for(const p of pages){
+    if(/가입담보및보장내용/.test(p.text.replace(/\s/g,''))) started=true;
+    if(!started) continue;
+    for(const ln of p.lines){
+      const s=ln.text.trim(); if(!s||SKIPLINE.test(s)) continue;
+      const m=/^(\d{1,3})\s+(\S.{2,90})$/.exec(s);                  // '390 2-3인실 …' 처럼 숫자로 시작하는 담보명도 받는다(번호가 설계 담보번호일 때만)
+      if(m&&!AMTLINE.test(m[2].trim())&&!/^\d+\s*(년|세|일|회|%|원|만원)/.test(m[2])){
+        const no=parseInt(m[1],10);
+        if((nos&&nos.has(no))||(!nos&&/^[^\d]/.test(m[2]))||(!cur&&/^[^\d]/.test(m[2]))){ let nm=m[2].trim(); const am=AMT_IN.exec(nm); if(am&&am.index>2) nm=nm.slice(0,am.index).trim();
+          cur={name:nm,desc:''}; out[no]=cur; continue }
+      }
+      if(nos&&cur){const m2=MIDROW.exec(s); if(m2&&!AMTLINE.test(m2[3].trim())){const n2=parseInt(m2[2],10); if(nos.has(n2)&&!out[n2]){const pre=m2[1].trim(); if(pre)cur.desc+=(cur.desc?' ':'')+pre; cur={name:m2[3].trim(),desc:''}; out[n2]=cur; continue}}}
+      if(!cur) continue;
+      if(AMTLINE.test(s)||/^\d+\s*년\s*\/\s*\d+\s*세$/.test(s)||/^[\d,]+$/.test(s)) continue;
+      cur.desc+=(cur.desc?' ':'')+s;
+    }
+  }
+  // ┗ 세부보장 나누기
+  for(const no of Object.keys(out)){
+    const v=out[no]; if(!v.desc.includes('┗')) continue;
+    const head=v.desc.split('┗')[0].trim(); const re=/┗\s*(\d{1,3})\s+([^┗]{2,})/g; let m;
+    while((m=re.exec(v.desc))){const n2=parseInt(m[1],10); const body=tidy(m[2]); if(!out[n2]) out[n2]={name:body.split(' 보험기간')[0].slice(0,60).trim(),desc:body}}
+    v.desc=head;
+  }
+  for(const no of Object.keys(out)) out[no].desc=tidy(out[no].desc);
+  return out;
+}
+// 설명문 → 면책·감액 (desc_engine.derive 의 cut_1y / cut_90d 이식 + 보장개시일)
+function derive(desc){
+  const r={}; if(!desc) return r;
+  const dz=desc.replace(/\s+/g,'');
+  let m=/1년경과시점전일이전[^※]{0,40}?가입금액의(\d+(?:\.\d+)?)%/.exec(dz)||/1년경과시점전일이전[^※]{0,40}?(\d+(?:\.\d+)?)%감액/.exec(dz)||/1년미만시[^※]{0,20}?가입금액의(\d+(?:\.\d+)?)%/.exec(dz);
+  if(m) r.cut1y=m[1]+'%';
+  m=/90일경과시점전일이전[^※]{0,40}?가입금액의(\d+(?:\.\d+)?)%/.exec(dz)||/90일경과시점전일이전[^※]{0,40}?(\d+(?:\.\d+)?)%감액/.exec(dz);
+  if(m) r.cut90=m[1]+'%';
+  m=/보장개시일[^※]{0,80}?(90일|1년|2년)이지난/.exec(dz)||/(90일|1년|2년)이지난날의다음날/.exec(dz);
+  if(m&&/보장개시일/.test(dz)) r.wait=m[1];
+  m=/(최초\s*1회|연간\s*\d*\s*회한|수술\s*1회당|치료\s*1회당|1일당)/.exec(desc); if(m) r.freq=m[1].replace(/\s+/g,' ');
+  return r;
+}
+function highlightDesc(d){
+  return esc(d).replace(/(암보장개시일|보장개시일|최초\s*1회(?:한)?|연간\s*\d*\s*회한|수술\s*1회당|1일당|가입금액의\s*\d+%|1년경과시점\s*전일\s*이전|90일|180일\s*한도|\d+일\s*한도)/g,'<span class="h">$1</span>');
+}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+// ── 상태 ─────────────────────────────────────────────────────
+let STATE=null;
+function log(msg,cls){const el=$('#status'); el.innerHTML+=(el.innerHTML?'\n':'')+(cls?'<span class="'+cls+'">':'')+esc(msg)+(cls?'</span>':''); el.scrollTop=el.scrollHeight}
+function setLog(msg){$('#status').innerHTML=esc(msg)}
+
+async function handleFile(file){
+  setLog('파일 읽는 중 … '+file.name);
+  try{
+    const buf=new Uint8Array(await file.arrayBuffer());
+    const pages=await readPdf(buf,log);
+    log('총 '+pages.length+'쪽 · 글자 추출 완료');
+    const meta=readMeta(pages); const riders=readRiders(pages);
+    if(!riders.length){log('가입담보 표를 찾지 못했습니다. 상품설명서(고객용) PDF 가 맞는지, 글자가 이미지가 아닌지 확인해 주세요.','warn'); return}
+    const descs=readDesc(pages,new Set(riders.map(r=>r.no)));
+    build({meta,riders,descs,src:file.name});
+  }catch(e){log('오류 : '+(e&&e.message||e),'warn'); console.error(e)}
+}
+function build(input){
+  const line=guessLine(input.meta.product,input.riders);
+  let matched=0,kpn=0;
+  const riders=input.riders.map(r=>{
+    const m=matchMaster(r.name,line); if(m) matched++;
+    const kp=findKP(r.name); if(kp) kpn++;
+    const d=input.descs?(input.descs[r.no]||null):null;
+    return Object.assign({},r,{cat:m?m.c:null,codes:m?m.k:[],excl:m?m.x:[],mline:m?m.p:null,desc:d?d.desc:'',kp,der:derive(d?d.desc:'')});
+  });
+  for(const r of riders) r.grp=groupOf(r);
+  STATE={meta:input.meta,riders,line,src:input.src,matched,kpn};
+  log('상품 : '+(input.meta.product||'(상품명 못 읽음)'));
+  log('피보험자 '+input.meta.insured+(input.meta.age?' ('+input.meta.age+'세)':'')+' · 월 보험료 '+(input.meta.premium||'?')+'원');
+  log('담보 '+riders.length+'건 · 특약 마스터 매칭 '+matched+'건('+line+' 우선) · Key Point 있음 '+kpn+'건 · 설명문 읽힘 '+riders.filter(r=>r.desc).length+'건');
+  const un=riders.filter(r=>!r.cat).map(r=>r.name); if(un.length) log('마스터에 없는 담보('+un.length+') : '+un.slice(0,8).join(' · ')+(un.length>8?' …':''),'warn');
+  render();
+}
+
+// ── 지면 만들기 ─────────────────────────────────────────────
+function pageShell(title,no){
+  const pg=document.createElement('div'); pg.className='page';
+  pg.innerHTML='<div class="tag">교육용</div><div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>'+
+    '<div class="strip">'+esc(META.ym)+' <b>'+esc(title)+'</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div><div class="body"></div>'+
+    '<div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span class="pno">'+no+'</span></div>';
+  return pg;
+}
+function shortProduct(p){ // '(무)메리츠 The건강한 내Mom대로 5.10.5 보장보험2607(3.0)(…)' → 'The건강한 내Mom대로 5.10.5 보장보험2607'
+  let s=(p||'').replace(/^\(무\)\s*메리츠\s*/,'').replace(/^\(무\)\s*/,'');
+  const i=s.search(/\(\d\.\d\)|\(해약|\(납입|\(건강|\(통합|\(355|\(기본|\(일반/); if(i>0) s=s.slice(0,i);
+  return s.trim();
+}
+function render(){
+  if(!STATE) return;
+  const prev=$('#preview'); prev.innerHTML='';
+  const optAll=$('#optAll').checked, optCodes=$('#optCodes').checked, optDesc=$('#optDesc').checked;
+  const shortP=shortProduct(STATE.meta.product)||'상품';
+  const title=$('#title').value.trim()||shortP;
+  const riders=STATE.riders.filter(r=>optAll||r.kp);
+  // 블록 목록
+  const blocks=[];
+  const el=(html)=>{const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild};
+  // 1) 상품 개요
+  blocks.push(el('<h2 class="sec">상품 한눈에 보기 <small>'+esc(shortP)+'</small></h2>'));
+  blocks.push(el('<table class="kv"><tr><td>상품명</td><td>'+esc(STATE.meta.product||'—')+'</td></tr><tr><td>피보험자</td><td>'+esc(STATE.meta.insured)+(STATE.meta.age?' · '+esc(STATE.meta.age)+'세':'')+(STATE.meta.sex?' · '+STATE.meta.sex+'성':'')+' (예시 설계)</td></tr><tr><td>계약사항</td><td>'+esc(STATE.meta.head||'—')+'</td></tr><tr><td>월 보험료</td><td><b>'+esc(STATE.meta.premium||'—')+'원</b></td></tr><tr><td>가입담보</td><td><b>'+STATE.riders.length+'건</b> · '+GROUPS.map(g=>g.name+' '+STATE.riders.filter(r=>r.grp===g.id).length).join(' · ')+'</td></tr><tr><td>특약 마스터</td><td>'+STATE.matched+'건 매칭 ('+esc(STATE.line)+' 약관 우선) · Key Point '+STATE.kpn+'건 · 설명문 '+STATE.riders.filter(r=>r.desc).length+'건</td></tr></table>'));
+  blocks.push(el('<div class="callout"><b>이 가이드 읽는 법</b> — 왼쪽은 설계서의 담보명·가입금액과 설계서 뒤쪽 「가입담보 및 보장내용」의 약관 요약 설명문(노란 표시는 개시일·횟수·감액 조건), 오른쪽은 그 특약의 Key Point. 분류번호는 약관 별표(특약 마스터)에서 온 것이며 추정한 코드·금액은 없습니다. 최종 안내는 해당 상품의 약관·상품설명서로 확인합니다.</div>'));
+  blocks.push(el('<div class="callout y"><b>세 층으로 설명하면 쉽습니다.</b> ① 걸리면 한 번 크게(진단비) → ② 치료할 때마다(통합치료비·수술비·항암치료비) → ③ 병원에 있는 동안(입원일당·간병인). 담보 지도에서 어느 층이 두터운지 먼저 봅니다.</div>'));
+  // 2) 담보 지도
+  blocks.push(el('<h2 class="sec">담보 지도 <small>예시 설계 '+STATE.riders.length+'건 · 단위 : 만원</small></h2>'));
+  for(const g of GROUPS){
+    const rs=STATE.riders.filter(r=>r.grp===g.id); if(!rs.length) continue;
+    blocks.push(el('<div class="mb"><h3>'+esc(g.name)+' ('+rs.length+'건)</h3><table>'+rs.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+(r.man?r.man.toLocaleString():esc(r.amount_text))+'</td></tr>').join('')+'</table></div>'));
+  }
+  // 3) 갈래별 담보
+  for(const g of GROUPS){
+    const rs=riders.filter(r=>r.grp===g.id); if(!rs.length) continue;
+    blocks.push(el('<h2 class="sec">'+esc(g.name)+' <small>'+esc(g.sub)+' · '+rs.length+'건</small></h2>'));
+    // 같은 Key Point 를 쓰는 담보가 잇달아 나오면(131대질병수술비 11건 · 간병인지원 9건 등) 왼쪽에 담보표를 쌓고 오른쪽 Key Point 는 한 번만 싣는다
+    const clusters=[]; for(const r of rs){const c=clusters[clusters.length-1]; if(c&&r.kp&&c.kp===r.kp&&c.rs.length<6) c.rs.push(r); else clusters.push({kp:r.kp,rs:[r]})}
+    for(const c of clusters){
+      const lefts=c.rs.map(r=>{
+        let codes='';
+        if(optCodes&&r.codes&&r.codes.length){
+          const show=r.codes.slice(0,10).map(cd=>{const nm=KCDN[cd]||KCDN[cd.split('~')[0]]||''; return esc(cd)+(nm?' '+esc(nm.length>12?nm.slice(0,12)+'…':nm):'')});
+          codes='<span class="codes">약관 별표 분류번호 : '+show.join(' · ')+(r.codes.length>10?' 외 '+(r.codes.length-10)+'개':'')+(r.excl&&r.excl.length?' <b>(제외 : '+esc(r.excl.join(', '))+')</b>':'')+'</span>';
+        }
+        const d=r.der; const cond=[d.wait?'면책 '+d.wait:'',d.cut1y?'1년 미만 '+d.cut1y:'',d.cut90?'90일 미만 '+d.cut90:''].filter(Boolean).join(' · ');
+        const desc=optDesc&&r.desc?'<div>'+highlightDesc(r.desc)+'</div>':'<div style="color:#888">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>';
+        return '<table class="rt"><tr><td class="n">'+esc(r.name)+(r.parent?' <span style="font-weight:400;color:#777;font-size:7.4pt">('+esc(r.parent)+' 세부보장)</span>':'')+'</td><td class="a" rowspan="2">'+manText(r.man,r.amount_text)+(r.term?'<br><span style="font-size:7pt;font-weight:400;color:#666">'+esc(r.term)+'</span>':'')+'</td></tr><tr><td class="d">'+desc+(cond?'<span class="x">※ '+esc(cond)+'</span>':'')+codes+'</td></tr></table>';
+      });
+      const right=c.kp?'<div class="kp"><h3>'+c.kp.title+'</h3>'+c.kp.html+'</div>':'';
+      blocks.push(el('<div class="rider'+(c.kp?'':' nokp')+'"><div>'+lefts.join('<div style="height:2mm"></div>')+'</div>'+right+'</div>'));
+    }
+  }
+  // 4) 면책·감액 표
+  const cond=STATE.riders.filter(r=>r.der.wait||r.der.cut1y||r.der.cut90);
+  blocks.push(el('<h2 class="sec">면책기간 / 감액기간 <small>설계서 설명문에서 읽은 담보만 · 나머지는 조항 없음</small></h2>'));
+  if(cond.length){
+    for(let i=0;i<cond.length;i+=22){
+      blocks.push(el('<table class="t r" style="margin-bottom:3mm"><tr><th>보장명</th><th style="width:30mm">보장개시일(면책)</th><th style="width:34mm">계약일부터 1년 미만 · 90일 미만 감액</th></tr>'+cond.slice(i,i+22).map(r=>'<tr><td class="l">'+esc(r.name)+'</td><td>'+(r.der.wait||'—')+'</td><td>'+[r.der.cut1y?'1년 미만 '+r.der.cut1y:'',r.der.cut90?'90일 미만 '+r.der.cut90:''].filter(Boolean).join(' · ')+'</td></tr>').join('')+'</table>'));
+    }
+  } else blocks.push(el('<div class="note">설명문에서 면책·감액 조항을 읽은 담보가 없습니다(설명문이 없는 샘플이거나, 이 설계에 해당 담보가 없습니다).</div>'));
+  blocks.push(el('<div class="callout y"><b>가입 첫 해에 짚어 줄 세 가지</b> ① 암(유사암제외) 계열은 보장개시일(90일) 뒤부터 ② 통합치료비·치료비 계열 중 「1년경과시점 전일 이전 50%」가 있는 담보는 첫 해 절반 ③ 수술비·입원일당·유사암은 처음부터 100%.</div>'));
+  // 5) 용어
+  blocks.push(el('<h2 class="sec">용어 풀이 <small>고객에게 이 말로 설명합니다</small></h2>'));
+  const gk=Object.keys(GLOSS); for(let i=0;i<gk.length;i+=8) blocks.push(el('<div class="gl">'+gk.slice(i,i+8).map(k=>'<div><b>'+esc(k)+'</b><span>'+esc(GLOSS[k])+'</span></div>').join('')+'</div>'));
+
+  // 표지
+  const cover=document.createElement('div'); cover.className='page cover';
+  cover.innerHTML='<div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div><div class="t1">메리츠<br>세일즈혁신 가이드</div><div class="t2">"'+esc(title)+'"</div><div class="t3">'+esc(META.ym)+' · '+esc(STATE.meta.product||'')+'<br><b>주요 특약을 약관 조문 기준으로 풀어 쓴 컨설팅북</b><br>예시 설계 : '+esc(STATE.meta.insured)+(STATE.meta.age?' '+esc(STATE.meta.age)+'세':'')+' · 담보 '+STATE.riders.length+'건 · 월 '+esc(STATE.meta.premium||'—')+'원</div><div class="box"><div class="lbl">교육용 · 사내 자료</div><div class="who">AI추진파트 세일즈혁신TF</div><div style="font-size:8.6pt;color:#555;margin-top:2mm;line-height:1.6">담보 설명은 상품설명서의 약관 요약 설명문과 특약 마스터(약관 별표)에서, Key Point는 특약별 글 상자 창고에서 자동으로 모았습니다. 통계는 출처가 있는 것만 실었습니다. 본 자료는 고객에게 교부·배포할 수 없습니다.<br><span style="color:#999">생성 : '+esc(new Date().toLocaleString('ko-KR'))+' · 원본 : '+esc(STATE.src||'내장 샘플')+'</span></div></div>';
+  prev.appendChild(cover);
+  // 본문 쪽 채우기 (높이 재서 넘기면 다음 쪽)
+  const meas=$('#measure'); meas.innerHTML=''; const probe=pageShell(title,0); meas.appendChild(probe);
+  const bodyEl=probe.querySelector('.body'); const avail=probe.querySelector('.foot').getBoundingClientRect().top-bodyEl.getBoundingClientRect().top-6;
+  meas.innerHTML='';
+  let pno=2, cur=null, used=0;
+  const newPage=()=>{cur=pageShell(title,pno++); prev.appendChild(cur); used=0};
+  newPage();
+  for(let i=0;i<blocks.length;i++){
+    const b=blocks[i]; meas.appendChild(b); const h=b.getBoundingClientRect().height+ (parseFloat(getComputedStyle(b).marginBottom)||0); meas.removeChild(b);
+    const isHead=b.classList.contains('sec');
+    const nextH=isHead&&blocks[i+1]?(()=>{meas.appendChild(blocks[i+1]);const hh=blocks[i+1].getBoundingClientRect().height;meas.removeChild(blocks[i+1]);return hh})():0;
+    if(used>0&&used+h+nextH>avail) newPage();
+    cur.querySelector('.body').appendChild(b); used+=h;
+  }
+  // 뒷표지
+  const back=document.createElement('div'); back.className='page back';
+  back.innerHTML='<div class="bar"></div><div class="logo"><span style="font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:40pt;color:#E4322B;letter-spacing:-2px">meritz</span> <span style="font-size:22pt;color:#555;font-weight:700">메리츠화재</span><div style="font-size:9pt;color:#777;margin-top:4mm">메리츠 세일즈혁신 가이드 · '+esc(title)+' · '+esc(META.ym)+' · 교육용</div></div>';
+  prev.appendChild(back);
+  log('가이드북 '+(pno)+'쪽 생성 완료 → 「인쇄 · PDF로 저장」');
+  window.__STATE=STATE;
+}
+
+// ── 샘플 ─────────────────────────────────────────────────────
+function loadSample(i){
+  const s=SAMPLES[i]; setLog('내장 샘플 : '+s.src);
+  build({meta:{insured:s.insured,premium:s.premium.replace('원',''),product:s.product,head:s.head,age:s.age||'',sex:s.sex||''},
+         riders:s.riders.map(r=>({no:r.no,name:r.name,man:r.man,amount_text:r.man?r.man+'만원':'간병인지원',prem:'',term:'',parent:null})),descs:null,src:s.src});
+}
+// ── 이벤트 ───────────────────────────────────────────────────
+const drop=$('#drop'), fin=$('#file');
+drop.addEventListener('click',()=>fin.click());
+fin.addEventListener('change',()=>{if(fin.files[0]) handleFile(fin.files[0])});
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('on')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('on')}));
+drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f) handleFile(f)});
+$('#sampleA').addEventListener('click',()=>loadSample(0));
+$('#sampleB').addEventListener('click',()=>loadSample(1));
+$('#rebuild').addEventListener('click',render);
+$('#print').addEventListener('click',()=>window.print());
+['#optAll','#optCodes','#optDesc'].forEach(s=>$(s).addEventListener('change',render));
+window.__handleFile=handleFile; window.__loadSample=loadSample;
+})();
+</script>
+</body>
+</html>
