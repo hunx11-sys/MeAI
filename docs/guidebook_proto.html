@@ -157,9 +157,12 @@ b,strong{font-weight:700}
 .mb table{width:100%;border-collapse:collapse;font-size:7.8pt;table-layout:fixed}
 .mb td{padding:.7mm .8mm;border-bottom:1px solid var(--g100);color:var(--g800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
 .mb tr:last-child td{border-bottom:0}
-.mb td.bar{width:26mm;padding:0 1.6mm}
-.mb td.bar i{display:block;height:2.2mm;border-radius:1.1mm;background:var(--gt);position:relative;overflow:hidden}
-.mb td.bar i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:var(--g);border-radius:1.1mm}
+.mb th{font-size:7.2pt;font-weight:700;color:var(--g600);text-align:left;padding:.5mm .8mm 1mm;border-bottom:1px solid var(--g300)}
+.mb th.c,.mb td.c{width:40mm;text-align:center;white-space:normal}
+.mb td.c{font-size:7.2pt;color:var(--g700);line-height:1.3}
+.mb td.c b{color:var(--red-dk);font-weight:700}
+.mb td.c .none{color:var(--g400)}
+.mb th.v{text-align:right}
 .mb td:last-child,.mb td.v{text-align:right;font-weight:800;white-space:nowrap;width:20mm;color:var(--g900);font-size:8.2pt;letter-spacing:-.02em}
 .mb td.v small{font-weight:500;color:var(--g500);font-size:6.8pt;margin-left:.4mm}
 
@@ -821,9 +824,11 @@ function render(){
   blocks.push(el('<h2 class="sec">담보 지도 <small>예시 설계 '+STATE.riders.length+'건 · 단위 : 만원</small></h2>','any'));
   for(const g of GROUPS){
     const rs=STATE.riders.filter(r=>r.grp===g.id); if(!rs.length) continue;
-    const mx=Math.max(1,...rs.map(r=>r.man||0));                 // 막대는 갈래 안 최고 가입금액 대비 비율(지급액이 아니다)
+    // 가운데 칸 : 설계서 설명문에서 읽은 면책(보장개시일)·감액 조건. 읽은 것이 없으면 빈칸(추정하지 않는다)
+    const condOf=r=>{const d=r.der||{}; const a=[]; if(d.wait) a.push('<b>면책 '+esc(d.wait)+'</b>'); if(d.cut1y) a.push('1년 미만 '+esc(d.cut1y)); if(d.cut90) a.push('90일 미만 '+esc(d.cut90)); return a.join(' · ')};
+    const anyDesc=STATE.riders.some(r=>r.desc);
     for(let i=0;i<rs.length;i+=24){
-      blocks.push(el('<div class="mb"><h3>'+esc(g.name)+(i?' — 계속':'')+'<small>'+rs.length+'건 · 단위 만원 · 막대는 갈래 안 최고 가입금액 대비</small></h3><table>'+rs.slice(i,i+24).map(r=>'<tr><td>'+esc(r.name)+'</td><td class="bar"><i style="--w:'+Math.round((r.man||0)/mx*100)+'%"></i></td><td class="v">'+(r.man?r.man.toLocaleString():esc(r.amount_text))+'</td></tr>').join('')+'</table></div>',g.id));
+      blocks.push(el('<div class="mb"><h3>'+esc(g.name)+(i?' — 계속':'')+'<small>'+rs.length+'건 · 단위 만원 · 면책·감액은 설계서 설명문에서 읽은 것만'+(anyDesc?'':' (설명문 없음)')+'</small></h3><table><tr class="hd"><th>담보</th><th class="c">면책 · 감액</th><th class="v">가입금액</th></tr>'+rs.slice(i,i+24).map(r=>'<tr><td>'+esc(r.name)+'</td><td class="c">'+(condOf(r)||'<span class="none">—</span>')+'</td><td class="v">'+(r.man?r.man.toLocaleString():esc(r.amount_text))+'</td></tr>').join('')+'</table></div>',g.id));
     }
   }
   // 4) 갈래별 담보
