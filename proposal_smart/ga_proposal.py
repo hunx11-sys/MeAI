@@ -120,16 +120,16 @@ def rider_man(*keys, exclude=()):
     rs = [r for r in RID if all(k in r['name'] for k in keys) and not any(x in r['name'] for x in exclude)]
     return sum(r['man'] for r in rs) if rs else None
 
-# GA 가안의 시술명 그대로 — 계산 조건(수술 분류표 코드)
+# GA 가안의 시술명 그대로 — 계산 조건(수술 분류표 코드). adm='out' = 통원·당일입원 수술로 가정(백내장·갑상선 고주파·맘모톰·하이푸 — 신수술비[기본] 통원 세부보장 판정용 v8.70), 나머지는 2일 이상 입원 수술
 GA_DZ = {
- '백내장': ('인공수정체 삽입', 'H25.9', dict(surg='71', surg7='C061', grp=['백내장']), [['수술', '수정체 유화술', '', ['surg'], {'j': 1}]]),
+ '백내장': ('인공수정체 삽입', 'H25.9', dict(surg='71', surg7='C061', grp=['백내장'], adm='out'), [['수술', '수정체 유화술', '', ['surg'], {'j': 1}]]),
  '디스크': ('신경성형술', 'M51', dict(surg='88-2', surg7='B182', grp=['다빈도62대질병']), [['수술', '신경성형술', '', ['surg'], {'j': 2}]]),
  '치질': ('치핵절제술', 'K64', dict(surg='44', surg7='G272', grp=['치핵']), [['수술', '치핵절제술', '', ['surg'], {'j': 1}]]),
  '담석증': ('복강경수술', 'K80.0', dict(surg='36', surg7='H107', grp=['다빈도62대질병'], anes=1), [['진단', '복부 CT', '', ['x_ct']], ['수술', '복강경 담낭 절제', '', ['surg'], {'j': 2}]]),
  '충수염': ('충수절제술', 'K35', dict(surg='41', surg7='G212', grp=[], anes=1), [['수술', '충수 절제', '', ['surg'], {'j': 2}]]),
- '갑상선 결절': ('고주파절제술', 'D34', dict(surg='88-2', surg7='K080', hc=['PZ612'], grp=['다빈도62대질병']), [['수술', '고주파절제술', '', ['surg'], {'j': 2}]]),   # 보상 확인 : 1-5종 2종(경피적 수술 88-2) · 1-7종 기타 갑상선 수술 1종
- '유방양성종양': ('맘모톰', 'D24', dict(surg='4', surg7='J071', grp=['유방의장애']), [['수술', '맘모톰', '', ['surg'], {'j': 1}]]),
- '자궁근종': ('하이푸', 'D25.9', dict(surg='53', hc=['RZ566'], grp=['다빈도62대질병']), [['수술', '고강도초음파집속술', '', ['surg'], {'j': 1}]]),   # 보상 확인 : 자궁 평활근종(D25.9) 초음파유도하 고강도초음파집속술(RZ566) — 131대(다빈도62대) · 1-5종 1종(53 경질적 자궁 수술)
+ '갑상선 결절': ('고주파절제술', 'D34', dict(surg='88-2', surg7='K080', hc=['PZ612'], grp=['다빈도62대질병'], adm='out'), [['수술', '고주파절제술', '', ['surg'], {'j': 2}]]),   # 보상 확인 : 1-5종 2종(경피적 수술 88-2) · 1-7종 기타 갑상선 수술 1종
+ '유방양성종양': ('맘모톰', 'D24', dict(surg='4', surg7='J071', grp=['유방의장애'], adm='out'), [['수술', '맘모톰', '', ['surg'], {'j': 1}]]),
+ '자궁근종': ('하이푸', 'D25.9', dict(surg='53', hc=['RZ566'], grp=['다빈도62대질병'], adm='out'), [['수술', '고강도초음파집속술', '', ['surg'], {'j': 1}]]),   # 보상 확인 : 자궁 평활근종(D25.9) 초음파유도하 고강도초음파집속술(RZ566) — 131대(다빈도62대) · 1-5종 1종(53 경질적 자궁 수술)
  '전립선절제술': ('복강경수술', 'N40', dict(surg='50', surg7='M022', grp=['관절염,생식기질환'], anes=1), [['수술', '복강경 전립선절제', '', ['surg'], {'j': 2}]]),
  '골절진단': ('골절수술', 'S52.5', dict(cause='상해', surg='13-2', surg7='I286', grp=[]), [['수술', '골절 고정술', '', ['surg'], {'j': 2}]]),
 }
@@ -182,19 +182,26 @@ def p1():
         proc = GA_DZ[n][0]; v = F(dzL(n, '병원'))
         return '<td><b>%s</b><em>%s</em>%s</td>' % (n, proc, M(v))
     dz = '<table class="dz"><tr>%s</tr><tr>%s</tr></table>' % (''.join(cell(n) for n in order[:5]), ''.join(cell(n) for n in order[5:]))
+    # 치매간병통합케어 상품의 간병인 담보('…치매주요질환입원일당')는 치매 9개 질병 한정이라 일반 질병 간병인 칸과 뜻이 다르다.
+    # 같은 칸 규칙으로 읽되 「치매한정」 글자를 붙인다(소유자 지시 2026-10-02 · 이 상품은 스마트 제안서 제공 대상이 아님).
+    CR = [dict(r, name=r['name'].replace('치매주요질환입원일당', '질병입원일당'), dementia='치매주요질환입원일당' in r['name']) for r in RID]
+    def dem(rs): return '<small class="dem">치매한정</small>' if rs and all(r.get('dementia') for r in rs) else ''
+    def pick(*k, exclude=()): return [r for r in CR if all(x in r['name'] for x in k) and not any(x in r['name'] for x in exclude)]
+    def rider_man(*keys, exclude=()):
+        rs = pick(*keys, exclude=exclude); return sum(r['man'] for r in rs) if rs else None
     def cv(*k, exclude=()):
-        v = rider_man(*k, exclude=exclude); return '<span class="na">미가입</span>' if v is None else M(v)
+        v = rider_man(*k, exclude=exclude); return '<span class="na">미가입</span>' if v is None else M(v) + dem(pick(*k, exclude=exclude))
     def care2(*k):
         a = rider_man(*k, exclude=('181일',)); b = rider_man(*k, '181일')
         if a is None and b is None: return '<span class="na">미가입</span>'
-        return '%s <small>1~180일</small><br>%s <small>181일~</small>' % (M(a or 0), M(b or 0)) if b is not None else M(a or 0)   # 두 줄 — 한 줄이면 칸을 넘는다
+        return ('%s <small>1~180일</small><br>%s <small>181일~</small>' % (M(a or 0), M(b or 0)) if b is not None else M(a or 0)) + dem(pick(*k))   # 두 줄 — 한 줄이면 칸을 넘는다
     # 간병인지원 일당을 가입했으면 간병인 지원 · 요양병원 모두 '지원가능'(문구 통일)
-    joined = any('간병인지원' in r['name'] and r['man'] > 0 for r in RID)
-    ok = '<span class="txt">지원가능</span>'; na = '<span class="na">미가입</span>'
+    jr = [r for r in CR if '간병인지원' in r['name'] and r['man'] > 0]; joined = bool(jr)
+    ok = '<span class="txt">지원가능</span>' + dem(jr); na = '<span class="na">미가입</span>'
     # 간병인사용(실손·정액형) 일당 — 질병입원일당만. 이름 속 '(요양병원제외)'를 요양병원 일당으로 오인하지 않게 괄호 표기로 가른다.
     #   간병인 : 간병인사용 질병입원일당(요양병원 전용 제외) · 요양병원 : 간병인사용 …(요양병원) · 간호간병 : 간호·간병통합서비스 사용 질병입원일당(단독 특약)
     def use_rs(kind):
-        rs = [r for r in RID if '질병입원일당' in r['name'] and '요양성' not in r['name']]
+        rs = [r for r in CR if '질병입원일당' in r['name'] and '요양성' not in r['name']]
         if kind == 'gen': return [r for r in rs if '간병인사용' in r['name'] and '(요양병원)' not in r['name'] and '간호·간병' not in r['name']]
         if kind == 'nh': return [r for r in rs if '간병인사용' in r['name'] and '(요양병원)' in r['name']]
         return [r for r in rs if '간호·간병통합서비스' in r['name'] and '간병인지원' not in r['name']]
@@ -202,8 +209,8 @@ def p1():
         rs = use_rs(kind)
         if not rs: return '<span class="na">미가입</span>'
         a = [r['man'] for r in rs if '181일' not in r['name']]; b = [r['man'] for r in rs if '181일' in r['name']]
-        if b: return '%s <small>1~180일</small><br>%s <small>181일~</small>' % (M(sum(a)), M(sum(b)))
-        return M(sum(a))
+        if b: return '%s <small>1~180일</small><br>%s <small>181일~</small>' % (M(sum(a)), M(sum(b))) + dem(rs)
+        return M(sum(a)) + dem(rs)
     care = ('<table class="care"><tr><th colspan="2">간병인지원</th></tr>'
             '<tr><td>간병인 지원</td><td>%s</td></tr>'
             '<tr><td>간병인 미사용</td><td>%s</td></tr><tr><td>요양병원</td><td>%s</td></tr><tr><td>간호간병</td><td>%s</td></tr>'
@@ -269,15 +276,16 @@ def p1calc():
         body = ''.join('<div><span class="nm">%s</span><span class="mn"></span><span class="am">%s</span></div>' % (r['name'], won(r['man'])) for r in rs)
         return (lab, sum(r['man'] for r in rs), body)
     def pick(*keys, exclude=()):
-        return [r for r in RID if all(k in r['name'] for k in keys) and not any(x in r['name'] for x in exclude)]
-    joined = [r for r in RID if '간병인지원' in r['name'] and r['man'] > 0]
+        return [r for r in CRc if all(k in r['name'] for k in keys) and not any(x in r['name'] for x in exclude)]
+    CRc = [dict(r, name=r['name'].replace('치매주요질환입원일당', '질병입원일당')) for r in RID]   # 치매 상품 간병인 담보도 같은 칸 규칙(1쪽과 동일)
+    joined = [r for r in CRc if '간병인지원' in r['name'] and r['man'] > 0]
     care = [('간병인지원 · 간병인 지원 / 요양병원 (지원가능 여부)', None,
              ('<span class="cnone">지원가능 — 아래 간병인지원 담보가 가입되어 있음</span>' + ''.join('<div><span class="nm">%s</span><span class="mn"></span><span class="am">%s</span></div>' % (r['name'], won(r['man'])) for r in joined)) if joined else '<span class="cnone">미가입</span>'),
             rs_rows('간병인지원 · 간병인 미사용 (일당)', pick('간병인지원', '질병입원일당(Ⅵ)', exclude=('181일',))),
             rs_rows('간병인지원 · 간호간병 (1~180일 / 181일~)', pick('간병인지원', '질병입원일당(간호·간병')),
-            rs_rows('간병인사용 · 간병인 (1~180일 / 181일~)', [r for r in RID if '질병입원일당' in r['name'] and '요양성' not in r['name'] and '간병인사용' in r['name'] and '(요양병원)' not in r['name'] and '간호·간병' not in r['name']]),
-            rs_rows('간병인사용 · 요양병원', [r for r in RID if '질병입원일당' in r['name'] and '간병인사용' in r['name'] and '(요양병원)' in r['name']]),
-            rs_rows('간병인사용 · 간호간병 (1~180일 / 181일~)', [r for r in RID if '질병입원일당' in r['name'] and '간호·간병통합서비스' in r['name'] and '간병인지원' not in r['name']])]
+            rs_rows('간병인사용 · 간병인 (1~180일 / 181일~)', [r for r in CRc if '질병입원일당' in r['name'] and '요양성' not in r['name'] and '간병인사용' in r['name'] and '(요양병원)' not in r['name'] and '간호·간병' not in r['name']]),
+            rs_rows('간병인사용 · 요양병원', [r for r in CRc if '질병입원일당' in r['name'] and '간병인사용' in r['name'] and '(요양병원)' in r['name']]),
+            rs_rows('간병인사용 · 간호간병 (1~180일 / 181일~)', [r for r in CRc if '질병입원일당' in r['name'] and '간호·간병통합서비스' in r['name'] and '간병인지원' not in r['name']])]
     return calc_paginate([('암보장', cancer), ('뇌·심보장', bh), ('국내주요수술', dz), ('간병인입원보장 (계산 없이 가입금액 그대로)', care)], desc)
 
 # ───────── 2쪽 ─────────
@@ -489,7 +497,7 @@ small{font-size:8pt;color:#555} .na{color:#999;font-size:9pt}
 .two{display:flex;gap:14pt;align-items:flex-start} .two .l{flex:1} .two .r{width:31%}
 .dz td{text-align:center;vertical-align:top;border:1px solid #D6D6D6;width:20%;padding:7pt 4pt;height:auto;white-space:normal} .dz td b{display:block;font-size:10.5pt;font-weight:900}
 .dz td em{display:block;font-style:normal;color:#666;font-size:8.4pt;margin:3pt 0 7pt} .dz td b.v{display:inline}
-.care th{text-align:left;background:#E4E4E4} .care td{text-align:left;height:22pt} .care td:last-child{text-align:right} .care .txt{font-weight:800} .care small{font-size:6.6pt}
+.care th{text-align:left;background:#E4E4E4} .care td{text-align:left;height:22pt} .care td:last-child{text-align:right} .care .txt{font-weight:800} .care small{font-size:6.6pt} .care small.dem{display:block;color:#C12027;font-weight:700;font-size:6.4pt;text-align:right}
 .eight th{font-size:8.4pt;line-height:1.25;white-space:normal;height:30pt} .eight td{padding:0 2pt;height:30pt} .three th,.three td{width:33.3%}
 .dxbig{display:flex;gap:12pt} .dxbig div{flex:1;background:#FBE9E9;padding:11pt 13pt;border-radius:3pt}
 .dxbig span{font-weight:900;font-size:13pt;margin-right:8pt} .dxbig em{font-style:normal;color:#555;font-size:8.6pt} .dxbig b.v{float:right} .dxbig.one div{background:#F2F2F2}
