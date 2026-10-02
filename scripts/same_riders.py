@@ -11,7 +11,7 @@
 2) 묶어도 되는지 약관으로 판정
    이름이 같아도 상품마다 약관이 다를 수 있다(간편심사 상품의 1년 감액, 케어프리의 15세 미만 규정 등).
    아래가 모두 같을 때만 같은 특약으로 묶는다.
-     · 보장 질병코드(k) · 제외코드(x) · 수가코드(hc)
+     · 보장 질병코드(k) · 제외코드(x) · 수가코드(hc) — 범위 표기(C40~C41)는 낱개 코드로 풀어서 비교
      · 약관 본문의 지급비율(보험가입금액의 ○%) 모음 — 두 약관 모두 % 로 적었을 때만 비교
      · 감액기간(○년경과시점) · 90일 대기기간(보장개시일)
    15세 미만 보장개시 규정만 다르면 묶되, 그 상품 태그 옆에 적는다(성인 기준 지급 조건은 같다).
@@ -38,10 +38,23 @@ ORDER = ['통합간편', '케어프리', '운전자', '치아', '또또암', '�
 def nk(n): return re.sub(r'\s+', '', n or '')
 
 
+def codeset(toks):
+    """질병코드 목록을 실제 코드 모음으로 — 'C40~C41' 과 'C40','C41' 을 같게 본다
+    (같은 분류표를 범위 한 줄로 적은 상품과 낱개로 적은 상품이 갈라지지 않게)"""
+    out = set()
+    for t in toks or []:
+        m = re.match(r'^([A-Z])(\d{2})~([A-Z])?(\d{2})$', t.strip())
+        if m and (m.group(3) or m.group(1)) == m.group(1):
+            out |= {'%s%02d' % (m.group(1), i) for i in range(int(m.group(2)), int(m.group(4)) + 1)}
+        else:
+            out.add(t.strip())
+    return frozenset(out)
+
+
 def feat(r):
     b = re.sub(r'\s+', '', r.get('b') or '')
     return {
-        'codes': tuple(tuple(sorted(r.get(f) or [])) for f in ('k', 'x', 'hc')),
+        'codes': (codeset(r.get('k')), codeset(r.get('x')), frozenset(r.get('hc') or [])),
         # 감액 : 「계약일부터 1년(90일) 경과시점」 전에는 일부만 지급
         'red': tuple(sorted(set(re.findall(r'(\d+(?:년|일))경과시점', b)))),
         # 대기 : 보장개시일을 계약일부터 90일 지난 날로 정함(그 전 진단은 보장 안 함)
