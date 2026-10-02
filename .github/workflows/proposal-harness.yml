@@ -1,0 +1,25 @@
+# 스마트 제안서 · GA 스마트 제안서 점검 하네스 — 새 상품·신담보·약관·규칙이 올라올 때마다 자동으로 돌린다.
+# 실패하면 GitHub 의 Actions 탭에 빨간 표시가 뜨고, 결과 파일(harness_report.json)을 내려받을 수 있다.
+# 설계서 PDF(개인정보)는 저장소에 없으므로 H6(설계서 대조)는 여기서 돌리지 않는다 — 세션에서 --designs 로 돌린다.
+name: proposal-harness
+on:
+  push:
+    branches: [main, 'claude/**']
+    paths: ['proposal_smart/**', '*.pdf', 'tool.html', 'tool_body.js', '.github/workflows/proposal-harness.yml']
+  pull_request:
+    paths: ['proposal_smart/**', '*.pdf', 'tool.html', 'tool_body.js']
+  workflow_dispatch:
+jobs:
+  harness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install pdfplumber pymupdf pypdf reportlab pillow openpyxl
+      - name: 점검 하네스(H1~H5)
+        run: python proposal_smart/harness.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: harness-report, path: proposal_smart/out/harness_report.json }

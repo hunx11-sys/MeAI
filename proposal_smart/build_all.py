@@ -61,6 +61,7 @@ def guess_line(riders, pdf=None):
             if '통합간편건강보험' in head: return '통합간편'
             if re.search(r'\(무\)내Mom대로보장보험', head): return '내Mom대로'          # 스마트 제안서 전용 보강 마스터(db_terms_extra.json)(v8.66)
             if '내Mom같은어린이보험' in head: return '내Mom같은어린이'
+            if '간편31건강보험' in head: return '간편31'                                # 스마트 제안서 전용 보강 마스터(v8.70)
         except Exception:
             pass
     return '케어프리'
