@@ -44,7 +44,8 @@ def dx(kcd, fam, grp=None):
 def vdx(kcd, fam, grp): return F(dx(kcd, fam, grp))
 def vsurgL(hosp):
     b = [(s('I63', [['시술', '혈전용해', '', ['thromb']]], series='brain', hosp=hosp)),
-         (s('I63', [['시술', '혈전용해', '', ['thromb']], ['시술', '혈전제거술', '', ['surg']]], surg='88-1', surg7='B027', grp=BG + ['뇌졸중', '특정31대질병'], hosp=hosp, acts=['thrombectomy'])),
+         (s('I63', [['시술', '혈전제거술', '', ['surg']]], surg='88-1', surg7='B027', grp=BG + ['뇌졸중', '특정31대질병'], hosp=hosp, acts=['thrombectomy'])),             # 혈전제거술만(카테터 수술) — GA 2026-10-02
+         (s('I63', [['시술', '혈전용해', '', ['thromb']], ['시술', '혈전제거술', '', ['surg']]], surg='88-1', surg7='B027', grp=BG + ['뇌졸중', '특정31대질병'], hosp=hosp, acts=['thrombectomy'])),   # 혈전용해 + 혈전제거 합산(코일색전술 칸 대체)
          (s('I67.1', [['시술', '코일 색전술', '', ['surg']]], surg='88-1', surg7='B016', grp=BG + ['특정31대질병'], hosp=hosp, anes=1)),
          (s('I61', [['수술', '혈종제거 개두술', '', ['surg']]], surg='59', surg7='B031', grp=BG + ['뇌졸중', '뇌출혈', '특정31대질병'], hosp=hosp, anes=1))]
     h = [(s('I21', [['시술', '혈전용해', '', ['thromb']]], series='heart', hosp=hosp)),
@@ -79,6 +80,8 @@ def load(design_pdf, age=''):
     # 1쪽 「보장 한눈에」 는 표적·면역 모두 약물 1종(치료 1개)만 받은 것으로 계산한다 — (2종및3종이상)·2종이상 담보는 2쪽 '갯수별 약물' 칸에서만 (GA 요청 2026-10)
     C['target1'] = s('C16', [['항암', '표적(비급여)', '', ['chemo', 'target'], {'nc': 1}]], chemo=1, target=1, drug=1)
     C['immune1'] = s('C16', [['항암', '면역(비급여)', '', ['chemo', 'immune'], {'nc': 1}]], chemo=1, target=1, drug=1)
+    # 1쪽 4번째 칸 : 표적+면역 약물 2종을 같은 해 받은 사례 — 항암약물·표적·면역·(2종및3종이상) 담보가 모두 합산된다(GA 요청 2026-10-02 · 카티 칸 대체)
+    C['two'] = s('C16', [['항암', '표적+면역(비급여) 2종', '', ['chemo', 'target', 'immune'], {'nc': 1}]], chemo=1, target=1, drug=2)
     C['cart'] = s('C16', [['항암', '카티(비급여)', '', ['chemo', 'target', 'immune'], {'nc': 1}]], chemo=1, target=1, drug=1)
     C['rad'] = s('C16', [['방사선', '항암방사선(급여)', '', ['rad']]])
     C['imrt'] = s('C16', [['방사선', '세기조절', '', ['rad', 'imrt']]])
@@ -103,6 +106,15 @@ def itc_itemL(kcd, key, hosp='상급종합', grp=None, fam=None, extra=None):
     return [l for l in Q(kcd, tg, ev) if l.get('group') == '통합치료비']
 def itc_item(kcd, key, hosp='상급종합', grp=None, fam=None, extra=None):
     return int(sum(l['amt'] for l in itc_itemL(kcd, key, hosp, grp, fam, extra)))
+# 1쪽 뇌·심 4열 : 「특정순환계질환(주요손상및질환) 통합치료비」(엔진 itc 'ms' · 대상 : 고혈압·판막·동맥경화·심정지·외상성 뇌출혈 등 61개) 항목 사례 4개 — 산정특례 칸 대체(GA 2026-10-02)
+#   이 특약 줄만 합산한다. 1-5종 종 번호(j)는 1-5종 수술분류표Ⅱ 항목(59 개두술 5종 · 26 심장내 관혈수술 5종 · 22 혈관관혈수술 3종) 기준 가정값.
+MS_CASES = [('외상성뇌출혈 수술', dict(kcd='S06.5', ev=[['수술', '혈종제거 개두술', '', ['surg'], {'j': 5}]], tg=dict(cause='상해', surg='59', surg7='B031', anes=1))),
+            ('판막질환 수술', dict(kcd='I35', ev=[['수술', '판막치환술', '', ['surg'], {'j': 5}]], tg=dict(surg='26', anes=1))),
+            ('동맥경화 수술', dict(kcd='I70', ev=[['수술', '혈관 우회술', '', ['surg'], {'j': 3}]], tg=dict(surg='22', anes=1))),
+            ('심정지 중환자실', dict(kcd='I46.9', ev=[['치료', '중환자실', '', ['icu']], ['치료', '부분에크모', '', ['ecmo']]], tg=dict()))]
+def msL(case):
+    return [l for l in s(case['kcd'], case['ev'], **case['tg']) if l.get('itc') == 'ms']
+def ms_has(): return any(r.get('itc') == 'ms' for r in RID)
 
 def rider_man(*keys, exclude=()):
     rs = [r for r in RID if all(k in r['name'] for k in keys) and not any(x in r['name'] for x in exclude)]
@@ -141,7 +153,7 @@ def hl(t): return '<h2><span>%s</span></h2>' % t
 def kv(cols):
     n = max(len(r) for _, r in cols)
     th = ''.join('<th>%s</th>' % h for h, _ in cols)
-    trs = ''.join('<tr>' + ''.join(('<td><span>%s</span>%s</td>' % (r[i][0], M(r[i][1]))) if i < len(r) else '<td></td>' for _, r in cols) + '</tr>' for i in range(n))
+    trs = ''.join('<tr>' + ''.join(('<td><span>%s</span>%s</td>' % (r[i][0], M(r[i][1]) if r[i][1] is not None else '<b class="v z"><span class="na">미가입</span></b>')) if i < len(r) else '<td></td>' for _, r in cols) + '</tr>' for i in range(n))
     return '<table class="kv"><thead><tr>%s</tr></thead><tbody>%s</tbody></table>' % (th, trs)
 def grid(head, rows):
     th = ''.join('<th>%s</th>' % h for h in head)
@@ -156,15 +168,15 @@ def foot():
 def p1():
     cancer = kv([('진단금', [(k, F(v)) for k, v in DX.items()]),
                  ('수술', [('다빈치로봇', F(C['robot'])), ('내시경', F(C['endo'])), ('복강경,흉강경', F(C['lap'])), ('개복,개흉', F(C['open']))]),
-                 ('항암약물', [('화학항암', F(C['chemo'])), ('표적항암', F(C['target1'])), ('면역항암', F(C['immune1'])), ('카티항암', F(C['cart']))]),
+                 ('항암약물', [('화학항암', F(C['chemo'])), ('표적항암', F(C['target1'])), ('면역항암', F(C['immune1'])), ('표적/면역 2종', F(C['two']))]),
                  ('항암방사선', [('항암방사선', F(C['rad'])), ('세기조절', F(C['imrt'])), ('양성자', F(C['proton'])), ('중입자', F(C['carbon']))])])
     b2, h2 = vsurg('상급종합')
     sev = [('중환자실치료', itc_item('I63', 'icu', grp=BG)), ('부분에크모', itc_item('I63', 'ecmo', grp=BG)),
            ('지속적신대체요법', itc_item('I63', 'crrt', grp=BG)), ('인공호흡기', itc_item('I63', 'vent', grp=BG)), ('저체온요법', itc_item('I63', 'hypo', grp=BG))]
     bh = kv([('진단금', [('뇌출혈', BDX[3]), ('뇌경색', BDX[0]), ('급성심근', HDX[1]), ('허혈성', HDX[0])]),
-             ('치료 및 수술', [('혈전용해', b2[0]), ('혈전제거', b2[1]), ('코일색전술', b2[2]), ('스텐트수술', h2[1])]),
+             ('치료 및 수술', [('혈전용해', b2[0]), ('혈전제거', b2[1]), ('혈전용해+혈전제거', b2[2]), ('스텐트수술', h2[1])]),
              ('중증치료', sev),
-             ('산정특례', [('뇌경색', 0), ('뇌동맥류', 0), ('협심증', 0), ('부정맥', 0)])])
+             ('주요손상·질환 통합치료비', [(n, F(msL(c)) if ms_has() else None) for n, c in MS_CASES])])
     order = ['백내장', '디스크', '치질', '담석증', '충수염', '갑상선 결절', '유방양성종양', '자궁근종', '전립선절제술', '골절진단']
     def cell(n):
         proc = GA_DZ[n][0]; v = F(dzL(n, '병원'))
@@ -238,17 +250,17 @@ def p1calc():
     tgt = calc_rows('항암약물 · 표적항암 (약물 1종)', C['target1'])
     cancer = [calc_rows('진단금 · ' + k, v) for k, v in DX.items()]
     cancer += [calc_rows('수술 · 다빈치로봇', C['robot']), calc_rows('수술 · 내시경', C['endo']), calc_rows('수술 · 복강경,흉강경', C['lap']), calc_rows('수술 · 개복,개흉', C['open'])]
-    cancer += [calc_rows('항암약물 · 화학항암', C['chemo']), tgt, calc_rows('항암약물 · 면역항암 (약물 1종)', C['immune1']), calc_rows('항암약물 · 카티항암', C['cart'])]
+    cancer += [calc_rows('항암약물 · 화학항암', C['chemo']), tgt, calc_rows('항암약물 · 면역항암 (약물 1종)', C['immune1']), calc_rows('항암약물 · 표적/면역 2종 (항암약물+표적+면역+2종 담보)', C['two'])]
     cancer += [calc_rows('항암방사선 · 항암방사선', C['rad']), calc_rows('항암방사선 · 세기조절', C['imrt']), calc_rows('항암방사선 · 양성자', C['proton']), calc_rows('항암방사선 · 중입자', C['carbon'])]
     b2, h2 = vsurgL('상급종합')
     bh = [calc_rows('진단금 · 뇌출혈', BDXL[3]), calc_rows('진단금 · 뇌경색', BDXL[0]), calc_rows('진단금 · 급성심근', HDXL[1]), calc_rows('진단금 · 허혈성', HDXL[0]),
-          calc_rows('치료 및 수술 · 혈전용해', b2[0]), calc_rows('치료 및 수술 · 혈전제거 (혈전용해 후 혈전제거술)', b2[1]), calc_rows('치료 및 수술 · 코일색전술', b2[2]), calc_rows('치료 및 수술 · 스텐트수술', h2[1])]
+          calc_rows('치료 및 수술 · 혈전용해', b2[0]), calc_rows('치료 및 수술 · 혈전제거 (혈전제거술만 · 카테터)', b2[1]), calc_rows('치료 및 수술 · 혈전용해+혈전제거 (합산)', b2[2]), calc_rows('치료 및 수술 · 스텐트수술', h2[1])]
     for lab, key in (('중환자실치료', 'icu'), ('부분에크모', 'ecmo'), ('지속적신대체요법', 'crrt'), ('인공호흡기', 'vent'), ('저체온요법', 'hypo')):
         bh.append(calc_rows('중증치료 · ' + lab + ' (통합치료비 항목만)', itc_itemL('I63', key, grp=BG)))
-    bh.append(('산정특례 · 뇌경색 · 뇌동맥류 · 협심증 · 부정맥', 0, '<span class="cnone">계산하지 않는 칸 — 항상 0 (GA 확정 필요)</span>'))
+    for n, c in MS_CASES:
+        bh.append(calc_rows('주요손상·질환 통합치료비 · %s (%s)' % (n, c['kcd']), msL(c), note='특정순환계질환(주요손상및질환) 통합치료비 미가입' if not ms_has() else ''))
     desc = '<p class="cdesc">1쪽 각 칸의 금액이 이 설계서의 어떤 특약을 더해 나온 것인지 적었습니다. 지급액은 사례 조건(질병코드 · 병원 종별 · 수술 분류 · 약물 종수)으로 계산 엔진이 낸 값이며, 가입금액은 설계서 그대로입니다. 표적·면역항암은 약물 1종(치료 1개)만 받은 것으로 계산합니다.</p>'
-    pageA = '<h1>「보장 한눈에」 합산 계산서 ① 암보장</h1>' + desc + calc_table('암보장', cancer)
-    pageA2 = '<h1>「보장 한눈에」 합산 계산서 ② 뇌·심보장</h1>' + calc_table('뇌·심보장', bh)
+
     order = ['백내장', '디스크', '치질', '담석증', '충수염', '갑상선 결절', '유방양성종양', '자궁근종', '전립선절제술', '골절진단']
     dz = [calc_rows('%s · %s (%s · 병원급)' % (n, GA_DZ[n][0], GA_DZ[n][1]), dzL(n, '병원')) for n in order]
     # 간병인입원보장 — 계산이 아니라 가입금액 그대로. 어떤 담보를 읽었는지 적는다
@@ -266,8 +278,7 @@ def p1calc():
             rs_rows('간병인사용 · 간병인 (1~180일 / 181일~)', [r for r in RID if '질병입원일당' in r['name'] and '요양성' not in r['name'] and '간병인사용' in r['name'] and '(요양병원)' not in r['name'] and '간호·간병' not in r['name']]),
             rs_rows('간병인사용 · 요양병원', [r for r in RID if '질병입원일당' in r['name'] and '간병인사용' in r['name'] and '(요양병원)' in r['name']]),
             rs_rows('간병인사용 · 간호간병 (1~180일 / 181일~)', [r for r in RID if '질병입원일당' in r['name'] and '간호·간병통합서비스' in r['name'] and '간병인지원' not in r['name']])]
-    pageB = ('<h1>「보장 한눈에」 합산 계산서 ③ 국내주요수술 · 간병인입원보장</h1>' + calc_table('국내주요수술', dz) + calc_table('간병인입원보장 (계산 없이 가입금액 그대로)', care))
-    return ['<div class="page calcpg">%s%s</div>' % (x, foot()) for x in (pageA, pageA2, pageB)]
+    return calc_paginate([('암보장', cancer), ('뇌·심보장', bh), ('국내주요수술', dz), ('간병인입원보장 (계산 없이 가입금액 그대로)', care)], desc)
 
 # ───────── 2쪽 ─────────
 def p2():
@@ -515,13 +526,39 @@ def _font_css():
         css += "@font-face{font-family:GANG;src:url('%s');font-weight:900}" % (a / 'NanumGothic-ExtraBold.ttf').as_uri()
     return css
 
-CALC_PAGES = 3      # 1쪽 뒤 합산 계산서 쪽수 — 고정 규칙(GA 확정 2026-10-02) : 「보장 한눈에」 뒤에는 반드시 이 계산서가 붙는다
+CALC_PAGES = 3      # 1쪽 뒤 합산 계산서 최소 쪽수 — 고정 규칙(GA 확정 2026-10-02) : 「보장 한눈에」 뒤에는 반드시 이 계산서가 붙는다(담보가 많으면 쪽이 늘어난다)
+CALC_BUDGET = 84    # 계산서 한 쪽에 들어가는 분량(단위 : 특약 줄 1 · 항목 머리 1 · 통합치료비 내역 0.8 · 구역 제목 3). 설계서 3건(담보 66·127·151)으로 맞춘 값 — 넘치면 render 의 '이탈' 경고로 잡힌다
+def calc_units(row):
+    lab, tot, body = row
+    return 1 + max(1, body.count('<div><span class="nm">')) + 0.8 * body.count('<small>') + body.count('cnone')
+def calc_paginate(sections, desc):
+    """구역(제목, 줄들)을 순서대로 쪽에 담는다 — 한 쪽 분량(CALC_BUDGET)을 넘으면 다음 쪽으로 넘기고 구역 제목에 (이어서)를 붙인다"""
+    pages, cur, used = [], [], 4 + 2
+    for title, rows in sections:
+        i = 0
+        while i < len(rows):
+            if used + 3 + calc_units(rows[i]) > CALC_BUDGET and cur:
+                pages.append(cur); cur, used = [], 4
+            chunk, u = [], 3
+            while i < len(rows) and used + u + calc_units(rows[i]) <= CALC_BUDGET:
+                u += calc_units(rows[i]); chunk.append(rows[i]); i += 1
+            if not chunk:                       # 줄 하나가 한 쪽을 넘는 경우 — 그대로 싣고 경고에 맡긴다
+                chunk = [rows[i]]; u += calc_units(rows[i]); i += 1
+            cur.append((title + (' (이어서)' if cur and cur[-1][0].split(' (')[0] == title.split(' (')[0] or (pages and pages[-1][-1][0].split(' (')[0] == title.split(' (')[0] and not cur) else ''), chunk)); used += u
+    if cur: pages.append(cur)
+    circ = '①②③④⑤⑥⑦⑧⑨⑩'
+    out = []
+    for n, pg in enumerate(pages):
+        body = '<h1>「보장 한눈에」 합산 계산서 %s</h1>' % (circ[n] if n < len(circ) else n + 1) + (desc if n == 0 else '')
+        body += ''.join(calc_table(t, rows) for t, rows in pg)
+        out.append('<div class="page calcpg">%s%s</div>' % (body, foot()))
+    return out
 def html(design_pdf, age=''):
     load(design_pdf, age)
     calc = p1calc()
     # 계산서는 선택이 아니다 — 못 만들면 지면 전체를 내지 않는다(1쪽 금액의 근거가 빠진 제안서가 나가지 않게)
-    if len(calc) != CALC_PAGES or any('class="page calcpg"' not in c for c in calc):
-        raise RuntimeError('「보장 한눈에」 합산 계산서 %d쪽이 만들어지지 않았습니다(%d쪽)' % (CALC_PAGES, len(calc)))
+    if len(calc) < CALC_PAGES or any('class="page calcpg"' not in c for c in calc):
+        raise RuntimeError('「보장 한눈에」 합산 계산서가 %d쪽 이상 만들어지지 않았습니다(%d쪽)' % (CALC_PAGES, len(calc)))
     pages = [p1()] + calc + [p2(), p3(), p4(), p_bh(), p5()]
     return '<!doctype html><html><head><meta charset="utf-8"><style>%s%s</style></head><body>%s</body></html>' % (_font_css(), CSS, ''.join(pages))
 
@@ -563,7 +600,7 @@ def build(design_pdf, out_pdf=None, age='', keep_html=False):
     lg = [dict(구분=it['구분'], 담보=it['담보'], 사유=it['사유'], 담보목록=it.get('담보목록', [it['담보']])) for it in S.issues_grouped()]
     lg += [dict(구분='지면넘침', 담보='-', 사유=w, 담보목록=[]) for w in warn]
     AUDIT = {'요약': {'담보수': NRID, '마스터매칭': sum(1 for r in RID if r.get('matched')), '인식': {k: v for k, v in rc.items() if not k.endswith('목록')},
-                    '계산제외목록': rc['계산제외목록'], '구조별': S.audit(RID)['구조별'], '생성쪽수': 6 + CALC_PAGES, '지면검사': warn,
+                    '계산제외목록': rc['계산제외목록'], '구조별': S.audit(RID)['구조별'], '생성쪽수': 6 + len(re.findall(r'class="page calcpg"', h)), '지면검사': warn,
                     '상품': PRODUCT, '보험료': PREMIUM, '계산엔진': VERSION, '처리시간': round(time.time() - t0, 1)},
              '로그': lg}
     log = os.path.splitext(out_pdf)[0] + '_log.txt'

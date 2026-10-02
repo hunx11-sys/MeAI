@@ -7,7 +7,7 @@
 | 갈래 | 위치 | 무엇 |
 |---|---|---|
 | **스마트 제안서 생성기** | `proposal_smart/` | 고객 설계서 PDF → 보장 지면(최대 9쪽)을 만들어 원본에 끼워 넣는다. 자세한 설명·변경 기록은 `proposal_smart/README.md` |
-| GA 스마트 제안서 생성기 | `proposal_smart/ga_proposal.py` · `make_ga.bat` | 설계서 PDF → GA 양식 9쪽 PDF(테스트용). **1쪽 「보장 한눈에」 뒤에는 합산 계산서 3쪽(칸별 설계 특약·가입금액·지급액)이 반드시 붙는다**(`CALC_PAGES`, GA 확정 2026-10-02 — 빼지 않는다. 못 만들면 생성 자체가 실패한다). 설계도(흐름·공식·판정 로직·칸별 매핑·8개 상품 특약 마스터) 최종본은 `dist/ga-blueprint-final.xlsx`(= `ga-cell-rider-mapping.xlsx`) |
+| GA 스마트 제안서 생성기 | `proposal_smart/ga_proposal.py` · `make_ga.bat` | 설계서 PDF → GA 양식 9~10쪽 PDF(테스트용). **1쪽 「보장 한눈에」 뒤에는 합산 계산서(칸별 설계 특약·가입금액·지급액 · 최소 3쪽, 담보가 많으면 자동으로 늘어남)가 반드시 붙는다**(`CALC_PAGES`, GA 확정 2026-10-02 — 빼지 않는다. 못 만들면 생성 자체가 실패한다). 설계도(흐름·공식·판정 로직·칸별 매핑·8개 상품 특약 마스터) 최종본은 `dist/ga-blueprint-final.xlsx`(= `ga-cell-rider-mapping.xlsx`) |
 | 영업지원도구(특약검색·통합치료비 시뮬레이터) | `tool.html` · `통합치료비.html` · `index.html` 등 | 브라우저에서 바로 쓰는 단일 HTML |
 | 배포·보고 산출물 | `dist/` · `docs/` | 메일 발송용 묶음, 검수 보고서 |
 

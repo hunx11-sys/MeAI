@@ -106,8 +106,9 @@ if A.designs:
             unm = [r['name'] for r in d['riders'] if not r['matched']]
             ok = bool(c.get('equal'))
             pg = re.findall(r'<div class="page( calcpg)?">', h)                         # 쪽 순서 : 1쪽 → 계산서 3쪽 → 2~6쪽
-            if pg[:1 + G.CALC_PAGES] != [''] + [' calcpg'] * G.CALC_PAGES or len(pg) != 6 + G.CALC_PAGES:
-                ok = False; bad6.append('%s 1쪽 뒤 합산 계산서 %d쪽이 없음 (쪽 구성 %s)' % (f, G.CALC_PAGES, [x.strip() or 'p' for x in pg]))
+            nc = sum(1 for x in pg if x)
+            if nc < G.CALC_PAGES or pg[:1 + nc] != [''] + [' calcpg'] * nc or len(pg) != 6 + nc:
+                ok = False; bad6.append('%s 1쪽 뒤 합산 계산서 %d쪽 이상이 없음 (쪽 구성 %s)' % (f, G.CALC_PAGES, [x.strip() or 'p' for x in pg]))
             rows.append('%s : 담보 %d · 미매칭 %d · 지면=스펙 %s (%s/%s)' % (f, d['nriders'], len(unm), '일치' if ok else '불일치', c.get('html_n'), c.get('spec_n')))
             if not ok: bad6.append('%s 칸 불일치 %s' % (f, (c.get('diffs') or [])[:3]))
             if unm: rows.append('   미매칭 : ' + ' · '.join(unm[:6]))
