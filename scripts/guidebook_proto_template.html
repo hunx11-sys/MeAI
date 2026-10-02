@@ -4,99 +4,287 @@
 <meta charset="utf-8">
 <title>메리츠 세일즈혁신 가이드북 생성기 (프로토타입)</title>
 <style>
-:root{--red:#E4322B;--red2:#F05A4F;--dark:#333;--line:#d9d9d9;--beige:#F7EFE3;--beige2:#EFE3CF;--yellow:#FFF3B0;--blue:#EAF4FB;--green:#EAF6EE}
+/* ───────────────────────────────────────────────────────────────
+   메리츠 세일즈혁신 가이드북 — M-BOOK 인포그래픽형 스타일시트 (완전본)
+   기존 클래스 전부 유지 : page tag brand(m k) strip body foot pno / sec rider(nokp) lcol
+   rt(td.n td.a td.d .x .h .codes) kp(h3 p ul li .src .fill .none) pagebreak em
+   t(th td .l .r) chip flow callout(.y) note mb kv gl cover(t1 t2 t3 box lbl who) back(bar logo)
+   #app #panel #drop #status #preview #measure
+   새 클래스 : .strip .ch/.st · .it(아이콘 타일) · .sm*(1장 요약) · .mb .bar/.v · .cover .stats/.eyebrow · .back .info
+   ─────────────────────────────────────────────────────────────── */
+@font-face{
+  font-family:"Pretendard Variable";
+  font-weight:45 920; font-style:normal; font-display:swap;
+  src:url(data:font/woff2;base64,__FONT_B64__) format("woff2-variations");
+}
+:root{
+  --red:#C8102E; --red-dk:#990011; --red-lt:#D8232A; --red-tint:#FDECEE; --red-tint2:#FBD5DA;
+  --yellow:#FFE14D; --mark:#FFEC99;
+  --beige:#F3EDE3; --beige2:#FAF6EF; --beige-line:#E4DCCF;
+  --g900:#191F28; --g800:#333D4B; --g700:#4E5968; --g600:#6B7684; --g500:#8B95A1; --g400:#B0B8C1;
+  --g300:#D1D6DB; --g200:#E5E8EB; --g100:#F2F4F6; --g50:#F9FAFB; --w:#fff;
+  --ca:#C8102E; --ca-t:#FDECEE; --cv:#2F6FB0; --cv-t:#EAF1FB; --sg:#1E8E5A; --sg-t:#E6F5EC;
+  --ad:#D9770F; --ad-t:#FFF3E0; --ac:#4B5563; --ac-t:#EEF0F3;
+  --g:var(--red); --gt:var(--red-tint);
+  --fs-sec:15pt; --fs-kp:10pt; --fs-body:8.4pt; --fs-tbl:7.5pt; --fs-small:7.4pt; --fs-foot:7pt; --lh:1.45;
+  --r-card:2.2mm; --r-box:1.6mm; --r-pill:99px;
+  --sp1:1mm; --sp2:2mm; --sp3:3mm; --sp4:4mm; --sp6:6mm;
+  --font:"Pretendard Variable","Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","NanumGothic","Noto Sans KR",sans-serif;
+  --font-brand:Arial,Helvetica,"Pretendard Variable",sans-serif;
+}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo','NanumGothic','Noto Sans KR',sans-serif;color:var(--dark);font-size:8.6pt;line-height:1.42;word-break:keep-all;background:#e9e9ec}
+html,body{margin:0;padding:0;font-family:var(--font);color:var(--g900);font-size:var(--fs-body);line-height:var(--lh);
+  word-break:keep-all;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;background:#E6E8EC;
+  -webkit-font-smoothing:antialiased}
+b,strong{font-weight:700}
+
+/* ── 갈래색 주입 : el(html,grp) 가 블록 뿌리에 data-grp 를 붙인다 ── */
+[data-grp="ca"]{--g:var(--ca);--gt:var(--ca-t)}
+[data-grp="cv"]{--g:var(--cv);--gt:var(--cv-t)}
+[data-grp="sg"]{--g:var(--sg);--gt:var(--sg-t)}
+[data-grp="ad"]{--g:var(--ad);--gt:var(--ad-t)}
+[data-grp="ac"]{--g:var(--ac);--gt:var(--ac-t)}
+[data-grp="any"]{--g:var(--red);--gt:var(--red-tint)}
+
+/* ── 작업 화면(인쇄 안 됨) ── */
 #app{display:flex;min-height:100vh}
-#panel{width:300px;flex:none;background:#fff;border-right:1px solid #ddd;padding:14px;font-size:12px;position:sticky;top:0;height:100vh;overflow:auto}
-#panel h1{font-size:15px;margin:0 0 4px}
-#panel .v{color:#888;font-size:11px;margin-bottom:10px}
-#drop{border:2px dashed var(--red);border-radius:10px;padding:18px 10px;text-align:center;color:#555;cursor:pointer;background:#fff6f5}
-#drop.on{background:#ffe3e0}
-#drop b{color:var(--red)}
-#panel button{display:block;width:100%;margin:6px 0;padding:8px;border:1px solid #bbb;border-radius:6px;background:#f7f7f7;cursor:pointer;font-size:12px}
+#panel{width:300px;flex:none;background:#fff;border-right:1px solid var(--g200);padding:16px 14px;font-size:12px;position:sticky;top:0;height:100vh;overflow:auto;color:var(--g800)}
+#panel h1{font-size:15px;margin:0 0 4px;letter-spacing:-.02em}
+#panel .v{color:var(--g500);font-size:11px;margin-bottom:10px;line-height:1.5}
+#drop{border:1.5px dashed var(--red);border-radius:12px;padding:18px 10px;text-align:center;color:var(--g700);cursor:pointer;background:var(--red-tint)}
+#drop.on{background:var(--red-tint2)}
+#drop b{color:var(--red-dk)}
+#panel button{display:block;width:100%;margin:6px 0;padding:9px;border:1px solid var(--g300);border-radius:8px;background:var(--g50);cursor:pointer;font-size:12px;color:var(--g800);font-family:inherit}
+#panel button:hover{background:var(--g100)}
 #panel button.pri{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
-#panel label{display:block;margin:5px 0}
-#panel input[type=text]{width:100%;padding:5px;border:1px solid #ccc;border-radius:4px;font-size:12px}
-#status{background:#f3f3f3;border-radius:6px;padding:8px;margin:8px 0;font-size:11px;white-space:pre-wrap;max-height:220px;overflow:auto}
-#status .warn{color:#b35b00}
-#preview{flex:1;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
-.page{width:210mm;height:297mm;padding:9mm 11mm 12mm;position:relative;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25);page-break-after:always;break-after:page}
-.page .tag{position:absolute;top:6mm;right:11mm;font-size:8pt;color:#444}
-.brand{display:flex;justify-content:flex-end;align-items:baseline;gap:4px;margin-top:4mm;height:9mm}
-.brand .m{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:19pt;color:var(--red);letter-spacing:-1px;line-height:1}
-.brand .k{font-size:10.5pt;color:#555;font-weight:700}
-.strip{background:var(--red2);color:#fff;font-size:8.2pt;padding:1.6mm 3mm;margin:1mm 0 2.5mm;border-radius:2px}
-.strip b{color:#FFE9A8}
-.foot{position:absolute;left:11mm;right:11mm;bottom:6mm;font-size:7.4pt;color:#444;border-top:1px solid #ddd;padding-top:1.2mm;display:flex;justify-content:space-between}
-.body{position:relative}
-/* 블록들 */
-.sec{font-size:12.5pt;color:#222;margin:0 0 2mm;border-left:5px solid var(--red);padding-left:2.5mm;break-inside:avoid}
-.sec small{font-size:8.5pt;color:#666;font-weight:400;margin-left:2mm}
-.rider{display:grid;grid-template-columns:1.12fr 1fr;gap:4mm;margin-bottom:3mm;break-inside:avoid;align-items:start}
-.rider.nokp{grid-template-columns:1fr}
-.rt{width:100%;border-collapse:collapse;table-layout:fixed}
-.rt td{vertical-align:top;padding:1.3mm 1.6mm;border-bottom:1px solid var(--line);font-size:8.1pt}
-.rt td.n{background:var(--beige);font-weight:700;font-size:8.6pt;border-bottom:0;padding-bottom:.8mm}
-.rt td.a{text-align:center;font-weight:700;font-size:9pt;vertical-align:middle;color:#222;border-left:1px solid var(--line);width:21mm}
-.rt td.d{color:#333}
-.rt td.d .x{display:block;color:#555;font-size:7.6pt;margin-top:.6mm}
-.rt .h{background:var(--yellow)}
-.rt .codes{display:block;margin-top:.8mm;font-size:7.1pt;color:#555;line-height:1.5}
-.kp{border:2px dashed var(--red);border-radius:6px;padding:2.4mm 3mm 2.2mm;background:#fff}
-.kp h3{margin:0 0 1.4mm;text-align:center;color:var(--red);font-size:10pt;font-weight:800}
-.kp p{margin:.6mm 0}
-.kp ul{margin:.6mm 0 .6mm 4mm;padding:0}
-.kp li{margin:.35mm 0}
-.kp .src{font-size:7.1pt;color:#666;text-align:right;margin-top:1mm}
-.kp.fill{border-style:solid;border-width:1.5px;border-color:#C7A24A;background:#FFFDF5}.kp.fill h3{color:#8A6D1E}
-.pagebreak{height:0}
-.kp.none{border-color:#ccc;color:#888;text-align:center;font-size:7.8pt;display:flex;align-items:center;justify-content:center}
-.em{color:var(--red);font-weight:700}
-.t{width:100%;border-collapse:collapse;font-size:7.5pt;margin:1mm 0}
-.t th{background:#5C7C9E;color:#fff;padding:.9mm 1.2mm;font-weight:700;text-align:center}
-.t td{padding:.8mm 1.2mm;border-bottom:1px solid #e3e3e3;text-align:center}
-.t td.l{text-align:left}
-.t tr:nth-child(even) td{background:#F6F8FB}
-.t.r th{background:#C7443C}
-.chip{display:inline-block;background:#fff;border:1px solid #bbb;border-radius:10px;padding:0 1.8mm;font-size:7.2pt;margin:.3mm .3mm .3mm 0}
-.callout{background:var(--blue);border-left:4px solid #2F6FB0;padding:1.8mm 2.5mm;margin:1.5mm 0 3mm;font-size:8pt;break-inside:avoid}
-.callout.y{background:#FFF8DD;border-left-color:#E0A800}
-.note{font-size:7.6pt;color:#555;background:#F4F4F4;padding:1.6mm 2.2mm;border-radius:3px;margin:1.5mm 0}
-/* 지도 */
-.mb{border:1.5px solid #ddd;border-radius:6px;padding:2.4mm 3mm;background:#fff;margin-bottom:3mm;break-inside:avoid}
-.mb h3{margin:0 0 1.4mm;font-size:10pt;color:#fff;background:var(--red);display:inline-block;padding:.5mm 2.5mm;border-radius:3px}
-.mb table{width:100%;border-collapse:collapse;font-size:7.8pt}
-.mb td{padding:.55mm .8mm;border-bottom:1px dotted #ddd}
-.mb td:last-child{text-align:right;font-weight:700;white-space:nowrap;width:24mm}
-/* 표지 */
-.cover{background:#E9433C;color:#fff}
-.cover .brand .m,.cover .brand .k{color:#fff}
-.cover .t1{font-size:32pt;font-weight:800;line-height:1.1;margin-top:26mm;letter-spacing:-1px}
-.cover .t2{font-size:21pt;font-weight:800;color:#FFE55C;margin-top:6mm;line-height:1.25;word-break:keep-all}
-.cover .t3{font-size:11pt;margin-top:12mm;line-height:1.7}
-.cover .t3 b{color:#FFE55C}
-.cover .box{position:absolute;left:0;right:0;bottom:0;height:70mm;background:#fff;border-radius:14px 14px 0 0;padding:6mm 8mm;color:#333}
-.cover .box .lbl{font-size:9pt;color:#666}
-.cover .box .who{font-size:11pt;font-weight:700;margin-top:1mm}
-.back{background:#fff;padding:0}
-.back .bar{height:26mm;background:#E9433C}
-.back .logo{position:absolute;top:120mm;left:0;right:0;text-align:center}
-.gl{display:grid;grid-template-columns:1fr 1fr;gap:2.4mm 5mm;break-inside:avoid;margin-bottom:3mm}
-.gl div{border-bottom:1px dotted #ccc;padding:1.2mm 0}
-.gl b{color:var(--red)}
-.gl span{display:block;color:#555;font-size:7.7pt}
-.kv{width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:3mm}
-.kv td{padding:1.2mm 1.6mm;border-bottom:1px solid #e3e3e3;vertical-align:top}
-.kv td:first-child{width:28mm;background:#F6F8FB;font-weight:700}
+#panel label{display:block;margin:6px 0}
+#panel input[type=text]{width:100%;padding:6px 8px;border:1px solid var(--g300);border-radius:6px;font-size:12px;font-family:inherit}
+#status{background:var(--g100);border-radius:8px;padding:8px;margin:8px 0;font-size:11px;white-space:pre-wrap;max-height:220px;overflow:auto;line-height:1.5}
+#status .warn{color:#B45309}
+#preview{flex:1;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px}
 #measure{position:absolute;left:-9999px;top:0;width:188mm;visibility:hidden}
+
+/* ── 지면 틀 ── (.body 일반 흐름 · .foot 바닥 고정 : 엔진이 이 둘의 top 으로 높이를 잰다) */
+.page{width:210mm;height:297mm;padding:9mm 11mm 12mm;position:relative;overflow:hidden;background:#fff;
+  box-shadow:0 2px 10px rgba(25,31,40,.18);page-break-after:always;break-after:page;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.page .tag{position:absolute;top:7.2mm;left:11mm;font-size:7.2pt;font-weight:700;color:var(--red-dk);
+  border:1px solid var(--red-tint2);background:var(--red-tint);border-radius:var(--r-pill);padding:.4mm 2.4mm;line-height:1.4}
+.brand{display:flex;justify-content:flex-end;align-items:baseline;gap:1.4mm;margin-top:3.4mm;height:7mm}
+.brand .m{font-family:var(--font-brand);font-weight:900;font-size:17pt;color:var(--red);letter-spacing:-.04em;line-height:1}
+.brand .k{font-size:9.5pt;color:var(--g700);font-weight:700;letter-spacing:-.02em}
+.strip{display:flex;align-items:center;gap:3mm;background:var(--red-dk);color:#fff;padding:1.5mm 3.2mm;margin:1.4mm 0 3.2mm;border-radius:var(--r-box);min-height:6.2mm}
+.strip .ch{font-weight:800;font-size:9pt;letter-spacing:-.02em;white-space:nowrap}
+.strip .ch:empty{display:none}
+.strip .ch:not(:empty)::after{content:"";display:inline-block;width:1px;height:3.4mm;background:rgba(255,255,255,.35);margin-left:3mm;vertical-align:-0.6mm}
+.strip .st{font-size:var(--fs-small);opacity:.92;margin-left:auto;text-align:right}
+.strip b{color:var(--yellow);font-weight:700}
+.body{position:relative}
+.foot{position:absolute;left:11mm;right:11mm;bottom:6mm;font-size:var(--fs-foot);color:var(--g600);border-top:1px solid var(--g200);padding-top:1.4mm;display:flex;justify-content:space-between;align-items:center;gap:4mm}
+.foot .fn{flex:1}
+.foot .pno{font-weight:800;font-size:8.4pt;color:var(--g900);white-space:nowrap}
+.foot .pno::before{content:"";display:inline-block;width:2mm;height:2mm;background:var(--red);border-radius:.4mm;margin-right:1.6mm;vertical-align:0}
+
+/* ── 장 제목 .sec ── (다음 블록과 같이 움직임 · margin-bottom 으로만 간격) */
+.sec{display:flex;align-items:baseline;gap:2.6mm;font-size:var(--fs-sec);font-weight:800;color:var(--g900);letter-spacing:-.025em;line-height:1.15;
+  margin:0 0 2.6mm;padding:.4mm 0 1.8mm 3.4mm;border-bottom:1px solid var(--g200);position:relative;break-inside:avoid}
+.sec::before{content:"";position:absolute;left:0;top:.4mm;bottom:1.8mm;width:1.6mm;background:var(--g);border-radius:.4mm}
+.sec small{font-size:7.6pt;color:var(--g600);font-weight:500;letter-spacing:-.01em;margin-left:auto;text-align:right;line-height:1.35}
+.pagebreak{height:0}
+
+/* ── 담보 묶음 : 왼쪽 표 + 오른쪽 Key Point ── */
+.rider{display:grid;grid-template-columns:1.12fr 1fr;gap:4mm;margin-bottom:3.2mm;break-inside:avoid;align-items:start}
+.rider.nokp{grid-template-columns:1fr}
+.lcol{min-width:0}
+.rt{width:100%;border-collapse:collapse;table-layout:fixed;border:1px solid var(--beige-line);border-radius:var(--r-box);overflow:hidden}
+.rt td{vertical-align:top;padding:1.4mm 2mm;border-bottom:1px solid var(--g200);font-size:8.2pt;line-height:1.5;color:var(--g800)}
+.rt td.n{background:var(--beige2);font-weight:800;font-size:8.8pt;color:var(--g900);border-bottom:0;padding:1.6mm 2mm .9mm 2.6mm;border-left:2.6px solid var(--g);letter-spacing:-.02em}
+.rt td.n span{font-weight:500!important;color:var(--g500)!important;font-size:var(--fs-small)!important}
+.rt td.a{text-align:right;vertical-align:middle;width:22mm;background:var(--beige);border-left:1px solid var(--beige-line);
+  font-weight:800;font-size:11pt;color:var(--g900);letter-spacing:-.03em;line-height:1.15;padding-right:2.4mm}
+.rt td.a span{font-size:6.9pt!important;font-weight:500!important;color:var(--g600)!important;letter-spacing:0;display:block;margin-top:.8mm}
+.rt td.d{color:var(--g800)}
+.rt td.d>div{margin-bottom:.3mm}
+.rt td.d .x{display:block;color:var(--g600);font-size:var(--fs-small);margin-top:1mm;line-height:1.5;padding-left:1.4mm;border-left:1.5px solid var(--g200)}
+.rt .h{background:linear-gradient(transparent 58%,var(--mark) 58%);font-weight:700;color:var(--g900);padding:0 .2mm}
+.rt .codes{display:block;margin-top:1.2mm;padding-top:1mm;border-top:1px dashed var(--g200);font-size:var(--fs-small);color:var(--g600);line-height:1.55}
+.rt .codes b{color:var(--red-dk);font-weight:700}
+.rt .t{margin-top:1.4mm;font-size:var(--fs-tbl)!important}
+
+/* ── Key Point : 빨간 점선 상자 (가이드북의 유일한 '해설' 신호) ── */
+.kp{border:1.3px dashed var(--red);border-radius:var(--r-card);padding:2.6mm 3.2mm 2.4mm;background:#fff;display:flex;flex-direction:column;min-width:0}
+.kp h3{margin:0 0 1.6mm;text-align:center;color:var(--red-dk);font-size:var(--fs-kp);font-weight:800;letter-spacing:-.02em;line-height:1.3;padding-bottom:1.4mm;border-bottom:1px solid var(--red-tint2)}
+.kp p{margin:.7mm 0;color:var(--g800)}
+.kp p b{color:var(--g900)}
+.kp ul{margin:.7mm 0 .7mm 3.6mm;padding:0}
+.kp li{margin:.4mm 0;color:var(--g800)}
+.kp li::marker{color:var(--red)}
+.kp .src{font-size:var(--fs-small);color:var(--g500);text-align:right;margin:auto 0 0;padding-top:1.2mm;line-height:1.4}
+.kp .src+.src{margin-top:0}
+.kp .t{margin:1.2mm 0}
+/* 빈 자리 참고 카드 : 회색 실선 (Key Point 와 다른 물건임을 모양으로 말한다) */
+.kp.fill{border:1px solid var(--g200);background:var(--g50);border-radius:var(--r-card)}
+.kp.fill h3{color:var(--g900);text-align:left;border-bottom:0;padding:0 0 0 2.6mm;position:relative;margin-bottom:1.4mm}
+.kp.fill h3::before{content:"";position:absolute;left:0;top:.5mm;bottom:.5mm;width:1.2mm;background:var(--g);border-radius:.3mm}
+.kp.fill .t th{background:var(--g100);color:var(--g800)}
+.kp.none{border-color:var(--g300);color:var(--g500);text-align:center;font-size:var(--fs-small);align-items:center;justify-content:center}
+.em{color:var(--red-dk);font-weight:700}
+
+/* ── 공통 표 .t (KP 창고 · 면책감액 · 지급금액표) ── 세로줄 없음 · 줄무늬 없음 */
+.t{width:100%;border-collapse:collapse;font-size:var(--fs-tbl);margin:1.2mm 0;line-height:1.4}
+.t th{background:var(--beige);color:var(--g900);padding:1.1mm 1.4mm;font-weight:700;text-align:center;border-bottom:1px solid var(--beige-line);letter-spacing:-.01em}
+.t td{padding:1mm 1.4mm;border-bottom:1px solid var(--g200);text-align:center;color:var(--g800);vertical-align:top}
+.t td.l{text-align:left}
+.t tr:last-child td{border-bottom:1px solid var(--g300)}
+.t.r th{background:var(--red-tint);color:var(--red-dk)}
+.t.r td:first-child{font-weight:600;color:var(--g900)}
+/* 알약 칩 · 단계 흐름 */
+.chip{display:inline-block;background:var(--g100);color:var(--g800);border:1px solid var(--g200);border-radius:var(--r-pill);padding:.1mm 2mm;font-size:var(--fs-small);line-height:1.6;margin:.3mm .5mm .3mm 0;white-space:nowrap}
+.flow{display:flex;gap:1.4mm;margin:1.4mm 0;align-items:stretch}
+.flow>div{flex:1;min-width:0;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-box);padding:1.2mm 1.6mm;font-size:var(--fs-small);line-height:1.4;color:var(--g800);position:relative}
+.flow>div b{display:block;color:var(--red-dk);font-size:7.8pt;margin-bottom:.4mm;letter-spacing:-.01em}
+.flow>div+div::before{content:"›";position:absolute;left:-1.5mm;top:38%;color:var(--g400);font-size:9pt;line-height:1;font-weight:700}
+/* 콜아웃 2종 + 메모 */
+.callout{background:var(--g50);border-left:3px solid var(--red);border-radius:0 var(--r-box) var(--r-box) 0;padding:2mm 3mm;margin:0 0 3mm;font-size:8.2pt;color:var(--g800);break-inside:avoid;line-height:1.5}
+.callout b{color:var(--g900)}
+.callout.y{background:#FFF8E1;border-left-color:#F2A900}
+.note{font-size:var(--fs-small);color:var(--g600);background:var(--g50);border:1px solid var(--g200);padding:1.8mm 2.4mm;border-radius:var(--r-box);margin:0 0 2mm}
+
+/* ── 담보 지도 .mb ── 이름 | 막대 | 금액 (막대는 JS 가 <i style=width> 로 넣음) */
+.mb{border:1px solid var(--g200);border-radius:var(--r-card);padding:2.4mm 3mm 2mm;background:#fff;margin-bottom:3mm;break-inside:avoid}
+.mb h3{display:flex;align-items:baseline;gap:2mm;margin:0 0 1.6mm;font-size:9.6pt;font-weight:800;color:var(--g);letter-spacing:-.02em;padding-bottom:1.2mm;border-bottom:2px solid var(--g)}
+.mb h3 small{font-size:var(--fs-small);font-weight:600;color:var(--g600);margin-left:auto}
+.mb table{width:100%;border-collapse:collapse;font-size:7.8pt;table-layout:fixed}
+.mb td{padding:.7mm .8mm;border-bottom:1px solid var(--g100);color:var(--g800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+.mb tr:last-child td{border-bottom:0}
+.mb td.bar{width:26mm;padding:0 1.6mm}
+.mb td.bar i{display:block;height:2.2mm;border-radius:1.1mm;background:var(--gt);position:relative;overflow:hidden}
+.mb td.bar i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:var(--g);border-radius:1.1mm}
+.mb td:last-child,.mb td.v{text-align:right;font-weight:800;white-space:nowrap;width:20mm;color:var(--g900);font-size:8.2pt;letter-spacing:-.02em}
+.mb td.v small{font-weight:500;color:var(--g500);font-size:6.8pt;margin-left:.4mm}
+
+/* ── 용어 풀이 .gl ── 3단 */
+.gl{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6mm 5mm;break-inside:avoid;margin-bottom:2.6mm}
+.gl div{border-bottom:1px solid var(--g200);padding:1.4mm 0 1.6mm}
+.gl b{display:block;color:var(--g900);font-size:8.8pt;font-weight:800;letter-spacing:-.02em;padding-left:2.6mm;position:relative;margin-bottom:.4mm}
+.gl b::before{content:"";position:absolute;left:0;top:1.2mm;width:1.4mm;height:1.4mm;background:var(--red);border-radius:.3mm}
+.gl span{display:block;color:var(--g700);font-size:7.7pt;line-height:1.5}
+
+/* ── 상품 한눈에 .kv ── */
+.kv{width:100%;border-collapse:collapse;font-size:8.2pt;margin-bottom:3mm;border:1px solid var(--beige-line);border-radius:var(--r-box);overflow:hidden}
+.kv td{padding:1.4mm 2.2mm;border-bottom:1px solid var(--g200);vertical-align:top;color:var(--g800);line-height:1.5}
+.kv tr:last-child td{border-bottom:0}
+.kv td:first-child{width:26mm;background:var(--beige2);font-weight:700;color:var(--g900);border-right:1px solid var(--beige-line)}
+.kv b{color:var(--g900);font-weight:800;font-size:9.2pt}
+
+/* ── 아이콘 타일 .it ── (반지름 = 크기/3 · Healthicons 'CC' 치환) */
+.it{display:inline-grid;place-items:center;width:8mm;height:8mm;border-radius:33%;flex:none;vertical-align:middle}
+.it>span{display:block;width:66%;height:66%}
+.it svg{width:100%;height:100%;display:block}
+
+/* ── 1장 요약 .sm ── */
+.sm{margin-bottom:3mm;break-inside:avoid;min-width:0}
+.sm-hero{display:grid;grid-template-columns:1fr auto;gap:5mm;align-items:center;background:var(--beige2);border:1px solid var(--beige-line);border-radius:var(--r-card);padding:4mm 5mm}
+.sm-hero .eyebrow{font-size:var(--fs-small);font-weight:700;color:var(--red-dk);letter-spacing:.02em;margin-bottom:1mm}
+.sm-hero .ttl{font-size:14.5pt;font-weight:800;color:var(--g900);letter-spacing:-.03em;line-height:1.2}
+.sm-hero .who{font-size:8.4pt;color:var(--g700);margin-top:1.4mm}
+.sm-hero .who b{color:var(--g900)}
+.sm-stats{display:flex;gap:2.4mm}
+.sm-stat{background:#fff;border:1px solid var(--beige-line);border-radius:var(--r-box);padding:2.4mm 3.4mm;min-width:24mm;text-align:right}
+.sm-stat b{display:block;font-size:17pt;font-weight:800;color:var(--red);letter-spacing:-.04em;line-height:1}
+.sm-stat b small{font-size:8pt;color:var(--g600);font-weight:600;margin-left:.6mm;letter-spacing:0}
+.sm-stat span{display:block;font-size:var(--fs-small);color:var(--g600);margin-top:1mm}
+.sm-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:2.6mm}
+.sm-tile{border:1px solid var(--g200);border-top:2.4px solid var(--g);border-radius:var(--r-card);padding:2.6mm 2.8mm 2.2mm;min-width:0;background:#fff}
+.sm-tile .hd{display:flex;align-items:center;gap:2mm;margin-bottom:1.6mm}
+.sm-tile .hd b{font-size:9pt;font-weight:800;color:var(--g);letter-spacing:-.02em;line-height:1.2}
+.sm-tile .hd span{display:block;font-size:6.9pt;color:var(--g500);line-height:1.3;margin-top:.3mm}
+.sm-tile .big{display:flex;align-items:baseline;gap:1.4mm;margin-bottom:.6mm}
+.sm-tile .big b{font-size:19pt;font-weight:800;color:var(--g900);letter-spacing:-.04em;line-height:1}
+.sm-tile .big span{font-size:var(--fs-small);color:var(--g600)}
+.sm-tile .max{font-size:var(--fs-small);color:var(--g700);margin-bottom:1.6mm;padding-bottom:1.4mm;border-bottom:1px dashed var(--g200)}
+.sm-tile .max b{color:var(--g900);font-weight:800;font-size:8.6pt;letter-spacing:-.02em}
+.sm-li{display:flex;align-items:baseline;gap:1.6mm;font-size:7.3pt;line-height:1.35;padding:.6mm 0;border-bottom:1px solid var(--g100);color:var(--g800);min-width:0}
+.sm-li:last-child{border-bottom:0}
+.sm-li i{font-style:normal;flex:none;width:3.4mm;height:3.4mm;border-radius:50%;background:var(--gt);color:var(--g);font-size:6pt;font-weight:800;display:grid;place-items:center;line-height:1}
+.sm-li em{font-style:normal;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm-li b{flex:none;font-weight:800;color:var(--g900);font-size:7.8pt;letter-spacing:-.02em}
+.sm-2{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.sm-card{border:1px solid var(--g200);border-radius:var(--r-card);padding:2.8mm 3.2mm 2.4mm;background:#fff;min-width:0}
+.sm-card h4{margin:0 0 2mm;font-size:9.4pt;font-weight:800;color:var(--g900);letter-spacing:-.02em;display:flex;align-items:center;gap:2mm}
+.sm-card h4 small{margin-left:auto;font-size:6.9pt;color:var(--g500);font-weight:500}
+.sm-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;margin-bottom:2mm}
+.sm-num{background:var(--g50);border-radius:var(--r-box);padding:2mm 2.2mm;text-align:center}
+.sm-num b{display:block;font-size:16pt;font-weight:800;color:var(--red);letter-spacing:-.04em;line-height:1}
+.sm-num b small{font-size:7.4pt;color:var(--g600);font-weight:600;margin-left:.4mm;letter-spacing:0}
+.sm-num span{display:block;font-size:6.9pt;color:var(--g700);margin-top:1mm;line-height:1.3}
+.sm-card .nt{font-size:var(--fs-small);color:var(--g600);line-height:1.5;margin:0}
+.sm-card .nt b{color:var(--g800)}
+.sm-layer{display:grid;grid-template-columns:7mm 1fr auto;gap:2.2mm;align-items:center;padding:1.4mm 0;border-bottom:1px solid var(--g100)}
+.sm-layer:last-of-type{border-bottom:0}
+.sm-layer .no{width:7mm;height:7mm;border-radius:33%;background:var(--red-tint);color:var(--red-dk);font-weight:800;font-size:9pt;display:grid;place-items:center;letter-spacing:-.03em}
+.sm-layer .lb b{display:block;font-size:8.4pt;font-weight:800;color:var(--g900);letter-spacing:-.02em}
+.sm-layer .lb span{display:block;font-size:6.9pt;color:var(--g600);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm-layer .ct{text-align:right}
+.sm-layer .ct b{display:block;font-size:14pt;font-weight:800;color:var(--g900);letter-spacing:-.04em;line-height:1}
+.sm-layer .ct small{font-size:6.6pt;color:var(--g600)}
+.sm-kps{display:flex;flex-wrap:wrap;gap:1.6mm}
+.sm-kp{display:inline-flex;align-items:center;gap:1.6mm;border:1.2px dashed var(--red);border-radius:var(--r-pill);padding:.8mm 2.8mm .8mm 2mm;font-size:7.6pt;font-weight:700;color:var(--g900);line-height:1.3;max-width:100%}
+.sm-kp i{width:2.2mm;height:2.2mm;border-radius:50%;background:var(--g);flex:none}
+.sm-kp em{font-style:normal;font-weight:500;color:var(--g500);font-size:6.8pt;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── 표지 ── (엔진 안 씀 → 절대배치 허용) */
+.page.cover{padding:0;background:var(--red);color:#fff;overflow:hidden}
+.cover .cv-top{height:16mm;background:#fff;padding:0 11mm;display:flex;align-items:center;justify-content:flex-end}
+.cover .cv-top .brand{margin:0;height:auto}
+.cover .cv-top .brand .m{color:var(--red)} .cover .cv-top .brand .k{color:var(--g700)}
+.cover .cv-main{padding:22mm 14mm 0 14mm;position:relative}
+.cover .eyebrow{display:inline-block;font-size:9.5pt;font-weight:700;letter-spacing:.04em;border:1.2px solid rgba(255,255,255,.7);border-radius:var(--r-pill);padding:.8mm 3.4mm;margin-bottom:9mm}
+.cover .t1{font-size:38pt;font-weight:800;line-height:1.08;letter-spacing:-.04em;margin:0;color:#fff;word-break:keep-all}
+.cover .t1.long{font-size:30pt}
+.cover .t2{font-size:14pt;font-weight:800;color:var(--yellow);margin-top:7mm;line-height:1.3;letter-spacing:-.02em}
+.cover .t3{font-size:9.8pt;margin-top:11mm;line-height:1.75;color:rgba(255,255,255,.92)}
+.cover .t3 b{color:#fff;font-weight:800}
+.cover .t3 .dim{color:rgba(255,255,255,.72)}
+.cover .deco{position:absolute;right:-18mm;top:118mm;width:92mm;height:92mm;border-radius:50%;background:var(--red-lt);opacity:.55}
+.cover .deco2{position:absolute;right:28mm;top:150mm;width:40mm;height:40mm;border-radius:50%;background:var(--red-dk);opacity:.45}
+.cover .box{position:absolute;left:0;right:0;bottom:0;height:78mm;background:#fff;border-radius:7mm 7mm 0 0;padding:7mm 14mm 8mm;color:var(--g800)}
+.cover .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-bottom:5mm}
+.cover .stats div{border-left:2.6px solid var(--red);padding-left:3.4mm}
+.cover .stats b{display:block;font-size:22pt;font-weight:800;color:var(--g900);letter-spacing:-.04em;line-height:1}
+.cover .stats b small{font-size:9pt;color:var(--g600);font-weight:600;margin-left:.8mm;letter-spacing:0}
+.cover .stats span{display:block;font-size:7.8pt;color:var(--g600);margin-top:1.4mm}
+.cover .box .lbl{font-size:7.6pt;font-weight:700;color:var(--red-dk);letter-spacing:.02em}
+.cover .box .who{font-size:11pt;font-weight:800;color:var(--g900);margin-top:.6mm;letter-spacing:-.02em}
+.cover .box .desc{font-size:7.8pt;color:var(--g600);margin-top:2mm;line-height:1.6;max-width:128mm}
+.cover .box .desc .dim{color:var(--g500)}
+.cover .chars{position:absolute;right:10mm;bottom:8mm;width:52mm;height:auto}
+
+/* ── 뒷표지 ── */
+.page.back{padding:0;background:#fff}
+.back .bar{height:18mm;background:var(--red)}
+.back .bar::after{content:"";display:block;height:2mm;background:var(--red-dk)}
+.back .logo{position:absolute;top:96mm;left:0;right:0;text-align:center}
+.back .logo .m{font-family:var(--font-brand);font-weight:900;font-size:40pt;color:var(--red);letter-spacing:-.05em}
+.back .logo .k{font-size:20pt;color:var(--g700);font-weight:800;letter-spacing:-.03em;margin-left:2mm}
+.back .logo .line{font-size:9pt;color:var(--g600);margin-top:4mm}
+.back .info{position:absolute;left:18mm;right:18mm;bottom:22mm;display:grid;grid-template-columns:1fr 1fr;gap:8mm;font-size:8pt;color:var(--g700);line-height:1.65;border-top:1px solid var(--g200);padding-top:5mm}
+.back .info h4{margin:0 0 1.4mm;font-size:8.6pt;font-weight:800;color:var(--g900);letter-spacing:-.02em}
+.back .info p{margin:0}
+.back .info .dim{color:var(--g500);font-size:7.2pt}
+.back .notice{position:absolute;left:18mm;right:18mm;bottom:10mm;font-size:7.2pt;color:var(--g500);line-height:1.5}
+.back .chars{position:absolute;left:0;right:0;bottom:66mm;text-align:center}
+.back .chars img{width:84mm;height:auto}
+
+/* ── 인쇄 ── */
 @page{size:A4;margin:0}
 @media print{
   html,body{background:#fff}
   #panel,#measure{display:none!important}
   #app{display:block}
-  #preview{padding:0;display:block}
+  #preview{padding:0;display:block;gap:0}
   .page{box-shadow:none;margin:0}
+  .page,.rt td.n,.rt td.a,.t th,.strip,.callout,.kp.fill,.sm-stat,.sm-num,.mb td.bar i,.it,.cover,.back .bar{print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
 </style>
 </head>
@@ -117,7 +305,7 @@ html,body{margin:0;padding:0;font-family:'Malgun Gothic','맑은 고딕','Apple 
     <button id="rebuild">다시 만들기</button>
     <button id="print" class="pri">인쇄 · PDF로 저장</button>
     <div style="font-size:11px;color:#777;margin-top:10px;line-height:1.5">
-      PDF 저장은 브라우저 인쇄창에서 「대상 : PDF로 저장」, 여백 「없음」, 배경 그래픽 「켬」으로 합니다.<br>
+      PDF 저장은 브라우저 인쇄창에서 「대상 : PDF로 저장」, 여백 「없음」, 배경 그래픽 「켬」으로 합니다. 상품명이 길어 표지가 답답하면 「가이드 제목」에 짧은 이름을 적습니다.<br>
       설명문은 설계서 뒤쪽 「가입담보 및 보장내용」에서, 분류번호는 약관 별표(특약 마스터)에서, Key Point는 내장 글 상자 창고에서 옵니다. 추정한 코드·금액은 없습니다.
     </div>
   </aside>
@@ -133,6 +321,8 @@ html,body{margin:0;padding:0;font-family:'Malgun Gothic','맑은 고딕','Apple 
 <script type="application/json" id="kp">__KP__</script>
 <script type="application/json" id="samples">__SAMPLES__</script>
 <script type="application/json" id="buildmeta">__BUILDMETA__</script>
+<script type="application/json" id="icons">__ICONS__</script>
+<script>const CHARS_B64='__CHARS_B64__';</script>
 
 <script>
 (function(){
@@ -140,6 +330,8 @@ html,body{margin:0;padding:0;font-family:'Malgun Gothic','맑은 고딕','Apple 
 const $=s=>document.querySelector(s);
 const J=id=>JSON.parse(document.getElementById(id).textContent);
 const MASTER=J('master'), KCDN=J('kcdnames'), KPDOC=J('kp'), SAMPLES=J('samples'), META=J('buildmeta');
+let ICONS={}; try{ICONS=J('icons')}catch(e){}
+const ICON=(k,c)=>(ICONS[k]||'').replace(/CC/g,c);     // Healthicons SVG 의 색 자리(CC)를 바꿔 준다 — proposal_smart/gen2.py svg() 와 같은 방식
 const KP=KPDOC.kp, GLOSS=KPDOC._glossary;
 $('#buildinfo').textContent=META.built+' · 특약 '+MASTER.riders.length+'건 · Key Point '+Object.keys(KP).length+'종';
 
@@ -441,7 +633,7 @@ function descHtml(desc){
   if(su.notes.length) h+='<span class="x">'+su.notes.map(n=>'※ '+highlightDesc(n)).join('<br>')+'</span>';
   if(su.items.length){
     const show=su.items.slice(0,16);
-    h+='<table class="t" style="margin-top:1mm;font-size:7.1pt"><tr><th>항목</th><th style="width:16mm">지급금액</th><th style="width:18mm">지급횟수</th></tr>'+show.map(it=>'<tr><td class="l">'+esc(it.nm)+'</td><td>'+esc(it.amt)+'</td><td>'+esc(it.cnt||'—')+'</td></tr>').join('')+'</table>'+(su.items.length>16?'<span class="x">… 외 '+(su.items.length-16)+'개 항목(설계서 참조)</span>':'');
+    h+='<table class="t"><tr><th>항목</th><th style="width:16mm">지급금액</th><th style="width:18mm">지급횟수</th></tr>'+show.map(it=>'<tr><td class="l">'+esc(it.nm)+'</td><td>'+esc(it.amt)+'</td><td>'+esc(it.cnt||'—')+'</td></tr>').join('')+'</table>'+(su.items.length>16?'<span class="x">… 외 '+(su.items.length-16)+'개 항목(설계서 참조)</span>':'');
   }
   return h;
 }
@@ -483,12 +675,115 @@ function build(input){
 }
 
 // ── 지면 만들기 ─────────────────────────────────────────────
+function coverHtml(title){
+  // 표지 — 시각(초 단위) 삭제, 상품명은 한 번만, 큰 숫자 3개로 시각 앵커를 만든다. 캐릭터는 빌드가 __CHARS_B64__ 를 넣었을 때만 보인다.
+  const M=STATE.meta, who=[M.insured||'고객님',M.age?M.age+'세':'',M.sex?M.sex+'성':''].filter(Boolean).join(' · ');
+  const kpn=new Set(STATE.riders.filter(r=>r.kp).map(r=>r.kp)).size;
+  const chars=(typeof CHARS_B64==='string'&&CHARS_B64&&CHARS_B64.indexOf('__')!==0)?'<img class="chars" src="data:image/png;base64,'+CHARS_B64+'" alt="">':'';
+  return '<div class="cv-top"><div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div></div>'+
+    '<div class="deco"></div><div class="deco2"></div>'+
+    '<div class="cv-main"><div class="eyebrow">메리츠 세일즈혁신 가이드 · '+esc(META.ym)+'</div>'+
+    '<h1 class="t1'+(title.length>18?' long':'')+'">'+esc(title)+'</h1>'+
+    '<div class="t2">주요 특약을 약관 조문 기준으로 풀어 쓴 컨설팅북</div>'+
+    '<div class="t3"><span class="dim">상품 정식명</span> '+esc(M.product||'—')+'<br><span class="dim">예시 설계</span> <b>'+esc(who)+'</b>'+(M.head?' · '+esc(M.head.replace(/^계약사항\s*:\s*/,'')):'')+'</div></div>'+
+    '<div class="box"><div class="stats"><div><b>'+STATE.riders.length+'<small>건</small></b><span>가입 담보</span></div>'+
+    '<div><b>'+(M.premium?esc(M.premium)+'<small>원</small>':'—')+'</b><span>월 보험료 (예시 설계)</span></div>'+
+    '<div><b>'+kpn+'<small>종</small></b><span>Key Point</span></div></div>'+
+    '<div class="lbl">교육용 · 사내 자료</div><div class="who">AI추진파트 세일즈혁신TF</div>'+
+    '<p class="desc">담보 설명은 상품설명서의 약관 요약 설명문과 특약 마스터(약관 별표)에서, Key Point 는 특약별 글 상자 창고에서 자동으로 모았습니다. 통계는 출처가 있는 것만 실었습니다. 본 자료는 고객에게 교부·배포할 수 없습니다.<br><span class="dim">'+esc(META.ym)+' 기준 · 원본 : '+esc(STATE.src||'내장 샘플')+'</span></p>'+chars+'</div>';
+}
+function backHtml(title){
+  // 뒷표지 — 로고 + 「어떻게 만들었나 / 문의」 2단 + 고지. 쪽수는 render() 끝에서 .back .pages 에 채운다.
+  const chars=(typeof CHARS_B64==='string'&&CHARS_B64&&CHARS_B64.indexOf('__')!==0)?'<div class="chars"><img src="data:image/png;base64,'+CHARS_B64+'" alt=""></div>':'';
+  return '<div class="bar"></div>'+
+    '<div class="logo"><span class="m">meritz</span><span class="k">메리츠화재</span><div class="line">메리츠 세일즈혁신 가이드 · '+esc(title)+' · '+esc(META.ym)+' · 교육용</div></div>'+chars+
+    '<div class="info"><div><h4>이 가이드는 이렇게 만들어졌습니다</h4><p>담보명·가입금액은 상품설명서 「가입담보」 표, 설명문은 뒤쪽 「가입담보 및 보장내용」, 분류번호는 약관 별표(특약 마스터 '+esc(String(META.riders||''))+'건), Key Point 는 글 상자 창고 '+esc(String(META.kp||''))+'종에서 자동으로 모았습니다. 추정한 코드·금액은 없습니다.</p><p class="dim">생성기 빌드 '+esc(META.built)+' · 원본 : '+esc(STATE.src||'내장 샘플')+' · 전체 <span class="pages">—</span>쪽</p></div>'+
+    '<div><h4>문의 · 수정 요청</h4><p>AI추진파트 세일즈혁신TF<br>담보 설명이 약관과 다르거나 Key Point 를 보태고 싶을 때는 담보명과 함께 알려 주세요.</p><p class="dim">글꼴 Pretendard (SIL Open Font License) · 아이콘 Healthicons (MIT)</p></div></div>'+
+    '<div class="notice">본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다. 최종 안내는 해당 상품의 약관·상품설명서로 확인합니다.</div>';
+}
 function pageShell(title,no){
+  // 머리 : 왼쪽 「교육용 · 사내 자료」 알약 · 오른쪽 로고 · 진빨강 띠(왼쪽 = 장 이름(.ch, 나중에 채움) · 오른쪽 = 기준 문장)
+  // 꼬리 : 왼쪽 고지문 · 오른쪽 쪽번호(.pno, 나중에 「n / N」 으로 바꿈)
+  // .body 는 일반 흐름, .foot 은 바닥 고정 — 엔진이 둘의 top 으로 본문 높이를 잰다(바꾸지 않는다).
   const pg=document.createElement('div'); pg.className='page';
-  pg.innerHTML='<div class="tag">교육용</div><div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>'+
-    '<div class="strip">'+esc(META.ym)+' <b>'+esc(title)+'</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div><div class="body"></div>'+
-    '<div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span class="pno">'+no+'</span></div>';
+  pg.innerHTML='<div class="tag">교육용 · 사내 자료</div>'+
+    '<div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>'+
+    '<div class="strip"><span class="ch"></span><span class="st">'+esc(META.ym)+' <b>'+esc(title)+'</b> 기준 주요담보 해설 &amp; Key Point</span></div>'+
+    '<div class="body"></div>'+
+    '<div class="foot"><span class="fn">본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span class="pno" data-no="'+no+'">'+no+'</span></div>';
   return pg;
+}
+function buildSummary(STATE,GROUPS,el,esc,manText,ICON){
+  // 1장 요약 — STATE 필드만 쓴다. 가입금액·건수·조건을 보여 줄 뿐 지급액을 계산하거나 더하지 않는다.
+  const R=STATE.riders||[], M=STATE.meta||{};
+  const GC={ca:['#C8102E','#FDECEE','cancerous_cell_nuclei'],cv:['#2F6FB0','#EAF1FB','heart_cardiogram'],
+            sg:['#1E8E5A','#E6F5EC','surgical_sterilization'],ad:['#D9770F','#FFF3E0','nurse'],ac:['#4B5563','#EEF0F3','ambulance']};
+  const ic=(k,c,bg,mm)=>'<span class="it" style="background:'+bg+(mm?';width:'+mm+'mm;height:'+mm+'mm':'')+'"><span>'+(ICON(k,c)||'')+'</span></span>';
+  const amt=r=>manText(r.man,r.amount_text).replace(/<br\s*\/?>/g,' ');
+  const nm=(s,len)=>{s=(s||'').replace(/\((?:[^()]|\([^()]*\))*\)/g,'').replace(/\s+/g,' ').trim(); return s.length>len?s.slice(0,len)+'…':s};
+  const tops=rs=>rs.filter(r=>!r.parent).slice().sort((a,b)=>(b.man||0)-(a.man||0));
+  const kpTitle=k=>esc(String(k.title||'').replace(/<[^>]+>/g,''));
+  let shortP=(M.product||'').replace(/^\(무\)\s*메리츠\s*/,'').replace(/^\(무\)\s*/,'');
+  { const i=shortP.search(/\(\d\.\d\)|\(해약|\(납입|\(건강|\(통합|\(355|\(기본|\(일반/); if(i>0) shortP=shortP.slice(0,i).trim(); }
+  const who=[M.insured||'고객님',M.age?M.age+'세':'',M.sex?M.sex+'성':''].filter(Boolean).join(' · ');
+  const kpSet=[]; for(const r of R){ if(r.kp&&!kpSet.includes(r.kp)) kpSet.push(r.kp) }
+  const nDesc=R.filter(r=>r.desc).length;
+  const blocks=[];
+
+  // ① 장 제목
+  blocks.push(el('<h2 class="sec">1장 요약 <small>'+esc(who)+' 예시 설계 · 가입금액·건수·조건만 적었습니다 (지급액 계산 없음)</small></h2>','any'));
+
+  // ② 머리띠 : 상품 · 피보험자 · 큰 숫자 3개
+  const stats=[['<b>'+R.length+'<small>건</small></b><span>가입 담보</span>'],
+               ['<b>'+(M.premium?esc(M.premium)+'<small>원</small>':'—')+'</b><span>월 보험료</span>'],
+               ['<b>'+kpSet.length+'<small>종</small></b><span>Key Point</span>']];
+  blocks.push(el('<div class="sm sm-hero"><div><div class="eyebrow">상품 한 장 요약</div><div class="ttl">'+esc(shortP||'상품')+'</div>'+
+    '<div class="who">피보험자 <b>'+esc(who)+'</b>'+(M.head?' · '+esc(M.head.replace(/^계약사항\s*:\s*/,''))+'':'')+'</div></div>'+
+    '<div class="sm-stats">'+stats.map(s=>'<div class="sm-stat">'+s[0]+'</div>').join('')+'</div></div>','any'));
+
+  // ③ 갈래 타일 : 건수 · 최고 가입금액 · 대표 담보 3개 (가입금액 큰 순, 세부보장 제외)
+  const tiles=[];
+  for(const g of GROUPS){
+    const rs=R.filter(r=>r.grp===g.id); if(!rs.length) continue;
+    const [c,bg,key]=GC[g.id]||GC.ac; const tp=tops(rs); const mx=tp[0];
+    tiles.push('<div class="sm-tile" style="--g:'+c+';--gt:'+bg+'"><div class="hd">'+ic(key,c,bg,8)+'<div><b>'+esc(g.name)+'</b><span>'+esc(g.sub)+'</span></div></div>'+
+      '<div class="big"><b>'+rs.length+'</b><span>건</span></div>'+
+      '<div class="max">최고 가입금액 <b>'+(mx&&mx.man?esc(amt(mx)):(mx?esc(amt(mx)):'—'))+'</b></div>'+
+      tp.slice(0,4).map((r,i)=>'<div class="sm-li"><i>'+(i+1)+'</i><em title="'+esc(r.name)+'">'+esc(nm(r.name,26))+'</em><b>'+esc(amt(r))+'</b></div>').join('')+'</div>');
+  }
+  if(tiles.length) blocks.push(el('<div class="sm sm-tiles">'+tiles.join('')+'</div>','any'));
+
+  // ④ 두 칸 : 첫 해 조건 (설명문에서 읽은 것만) | 상담 3층 구조
+  const hasDer=r=>r.der&&(r.der.wait||r.der.cut1y||r.der.cut90);
+  const nWait=R.filter(r=>r.der&&r.der.wait).length, nCut1=R.filter(r=>r.der&&r.der.cut1y).length, nCut90=R.filter(r=>r.der&&r.der.cut90).length;
+  const waitEx=R.filter(r=>r.der&&r.der.wait).slice(0,3).map(r=>nm(r.name,14)+'('+r.der.wait+')');
+  const cutEx=R.filter(r=>r.der&&r.der.cut1y).slice(0,3).map(r=>nm(r.name,14)+'('+r.der.cut1y+')');
+  let firstNote;
+  if(!nDesc) firstNote='설계서 설명문이 없는 자료(내장 샘플)라 면책·감액 조항을 읽지 못했습니다. 상품설명서 PDF 를 넣으면 담보별로 채워집니다.';
+  else if(!nWait&&!nCut1&&!nCut90) firstNote='설명문 '+nDesc+'건에서 면책·감액 조항을 읽은 담보가 없습니다. 최종 확인은 약관으로 합니다.';
+  else firstNote='설명문 '+nDesc+'건에서 읽은 것만 셌습니다. '+(waitEx.length?'<b>면책</b> : '+esc(waitEx.join(' · '))+(nWait>3?' 외':'')+'. ':'')+(cutEx.length?'<b>1년 미만 감액</b> : '+esc(cutEx.join(' · '))+(nCut1>3?' 외':'')+'.':'');
+  const left='<div class="sm-card"><h4>'+ic('calendar','#990011','#FDECEE',6)+'가입 첫 해 조건<small>설명문에서 읽은 담보 수</small></h4>'+
+    '<div class="sm-nums"><div class="sm-num"><b>'+nWait+'<small>건</small></b><span>보장개시일(면책) 있음</span></div>'+
+    '<div class="sm-num"><b>'+nCut1+'<small>건</small></b><span>1년 미만 감액</span></div>'+
+    '<div class="sm-num"><b>'+nCut90+'<small>건</small></b><span>90일 미만 감액</span></div></div><p class="nt">'+firstNote+'</p></div>';
+  const isL1=r=>/진단비|진단급여/.test(r.name), isL2=r=>!isL1(r)&&/수술|치료비|항암|약물|방사선|시술|검사/.test(r.name), isL3=r=>!isL1(r)&&!isL2(r)&&/입원|간병|간호|요양|통원/.test(r.name);
+  const base=R.filter(r=>!r.parent);
+  const layers=[['1','걸리면 한 번 크게','진단비',base.filter(isL1)],['2','치료할 때마다','수술비 · 치료비 · 항암',base.filter(isL2)],['3','병원에 있는 동안','입원일당 · 간병 · 통원',base.filter(isL3)]];
+  const etc=base.length-layers.reduce((s,l)=>s+l[3].length,0);
+  const right='<div class="sm-card"><h4>'+ic('i_training_class','#990011','#FDECEE',6)+'상담 3층 구조<small>세부보장 제외 '+base.length+'건 기준</small></h4>'+
+    layers.map(l=>{const t=tops(l[3])[0]; return '<div class="sm-layer"><div class="no">'+l[0]+'</div><div class="lb"><b>'+l[1]+' <span style="display:inline;font-weight:500;color:#6B7684">'+l[2]+'</span></b>'+
+      '<span>'+(t?'대표 : '+esc(nm(t.name,20))+' '+esc(amt(t)):'이 설계에는 없음')+'</span></div><div class="ct"><b>'+l[3].length+'</b><small>건</small></div></div>'}).join('')+
+    (etc>0?'<p class="nt" style="margin-top:1.4mm">그 밖(상해·사망·비용·배상 등) '+etc+'건은 5장에서 다룹니다.</p>':'')+'</div>';
+  blocks.push(el('<div class="sm sm-2">'+left+right+'</div>','any'));
+
+  // ⑤ Key Point 제목 (갈래 순서대로 최대 6개)
+  if(kpSet.length){
+    const chips=[]; const seen=new Set();
+    for(const g of GROUPS){ for(const r of R){ if(r.grp!==g.id||!r.kp||seen.has(r.kp)) continue; seen.add(r.kp); const c=(GC[g.id]||GC.ac)[0];
+      chips.push('<span class="sm-kp" style="--g:'+c+'"><i></i>'+kpTitle(r.kp)+'<em>'+esc(nm(r.name,12))+'</em></span>'); if(chips.length>=8) break } if(chips.length>=8) break }
+    blocks.push(el('<div class="sm sm-card" style="border-style:dashed;border-color:#C8102E"><h4>이 가이드의 Key Point<small>전체 '+kpSet.length+'종 중 '+chips.length+'개 · 본문 오른쪽 점선 상자</small></h4><div class="sm-kps">'+chips.join('')+'</div></div>','any'));
+  }
+  return blocks;
 }
 function shortProduct(p){ // '(무)메리츠 The건강한 내Mom대로 5.10.5 보장보험2607(3.0)(…)' → 'The건강한 내Mom대로 5.10.5 보장보험2607'
   let s=(p||'').replace(/^\(무\)\s*메리츠\s*/,'').replace(/^\(무\)\s*/,'');
@@ -511,10 +806,12 @@ function render(){
   const hOf=b=>{meas.appendChild(b); const h=b.getBoundingClientRect().height+(parseFloat(getComputedStyle(b).marginBottom)||0); meas.removeChild(b); return h};
 
   const blocks=[];
-  // 1) 용어 풀이 — 표지 바로 다음 한 쪽
+  // 0) 1장 요약 — 표지 바로 다음 한 쪽 (가입금액·건수·조건만 · 지급액 계산 없음)
+  for(const b of buildSummary(STATE,GROUPS,el,esc,manText,ICON)) blocks.push(b);
+  blocks.push(el('<div class="pagebreak"></div>'));
+  // 1) 용어 풀이 — 3단, 이어서 상품 한눈에
   blocks.push(el('<h2 class="sec">용어 풀이 <small>고객에게 이 말로 설명합니다 · 본문에 나오는 말부터</small></h2>','any'));
   const gk=Object.keys(GLOSS); for(let i=0;i<gk.length;i+=6) blocks.push(el('<div class="gl">'+gk.slice(i,i+6).map(k=>'<div><b>'+esc(k)+'</b><span>'+esc(GLOSS[k])+'</span></div>').join('')+'</div>','any'));
-  blocks.push(el('<div class="pagebreak"></div>'));
   // 2) 상품 개요
   blocks.push(el('<h2 class="sec">상품 한눈에 보기 <small>'+esc(shortP)+'</small></h2>','any'));
   blocks.push(el('<table class="kv"><tr><td>상품명</td><td>'+esc(STATE.meta.product||'—')+'</td></tr><tr><td>피보험자</td><td>'+esc(STATE.meta.insured)+(STATE.meta.age?' · '+esc(STATE.meta.age)+'세':'')+(STATE.meta.sex?' · '+STATE.meta.sex+'성':'')+' (예시 설계)</td></tr><tr><td>계약사항</td><td>'+esc(STATE.meta.head||'—')+'</td></tr><tr><td>월 보험료</td><td><b>'+esc(STATE.meta.premium||'—')+'원</b></td></tr><tr><td>가입담보</td><td><b>'+STATE.riders.length+'건</b> · '+GROUPS.map(g=>g.name+' '+STATE.riders.filter(r=>r.grp===g.id).length).join(' · ')+'</td></tr><tr><td>특약 마스터</td><td>'+STATE.matched+'건 매칭 ('+esc(STATE.line)+' 약관 우선) · Key Point '+STATE.kpn+'건 · 설명문 '+STATE.riders.filter(r=>r.desc).length+'건</td></tr></table>','any'));
@@ -524,19 +821,22 @@ function render(){
   blocks.push(el('<h2 class="sec">담보 지도 <small>예시 설계 '+STATE.riders.length+'건 · 단위 : 만원</small></h2>','any'));
   for(const g of GROUPS){
     const rs=STATE.riders.filter(r=>r.grp===g.id); if(!rs.length) continue;
+    const mx=Math.max(1,...rs.map(r=>r.man||0));                 // 막대는 갈래 안 최고 가입금액 대비 비율(지급액이 아니다)
     for(let i=0;i<rs.length;i+=24){
-      blocks.push(el('<div class="mb"><h3>'+esc(g.name)+' ('+rs.length+'건)'+(i?' — 계속':'')+'</h3><table>'+rs.slice(i,i+24).map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+(r.man?r.man.toLocaleString():esc(r.amount_text))+'</td></tr>').join('')+'</table></div>',g.id));
+      blocks.push(el('<div class="mb"><h3>'+esc(g.name)+(i?' — 계속':'')+'<small>'+rs.length+'건 · 단위 만원 · 막대는 갈래 안 최고 가입금액 대비</small></h3><table>'+rs.slice(i,i+24).map(r=>'<tr><td>'+esc(r.name)+'</td><td class="bar"><i style="--w:'+Math.round((r.man||0)/mx*100)+'%"></i></td><td class="v">'+(r.man?r.man.toLocaleString():esc(r.amount_text))+'</td></tr>').join('')+'</table></div>',g.id));
     }
   }
   // 4) 갈래별 담보
-  const riderTable=r=>{
+  const riderTable=(r,prev)=>{
     let codes='';
+    const same=prev&&prev.kp===r.kp&&prev.desc&&prev.desc===r.desc;     // 같은 묶음에서 설명문·분류번호가 같으면 접는다(131대질병수술비 세부보장 등)
     if(optCodes&&r.codes&&r.codes.length){
       const show=r.codes.slice(0,10).map(cd=>{const nm=KCDN[cd]||KCDN[cd.split('~')[0]]||''; return esc(cd)+(nm?' '+esc(nm.length>12?nm.slice(0,12)+'…':nm):'')});
       codes='<span class="codes">약관 별표 분류번호 : '+show.join(' · ')+(r.codes.length>10?' 외 '+(r.codes.length-10)+'개':'')+(r.excl&&r.excl.length?' <b>(제외 : '+esc(r.excl.join(', '))+')</b>':'')+'</span>';
     }
     const d=r.der; const cond=[d.wait?'면책 '+d.wait:'',d.cut1y?'1년 미만 '+d.cut1y:'',d.cut90?'90일 미만 '+d.cut90:''].filter(Boolean).join(' · ');
-    const desc=optDesc&&r.desc?descHtml(r.desc):'<div style="color:#888">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>';
+    if(same) codes='';
+    const desc=same?'<div style="color:#6B7684">지급사유·분류번호는 위 담보와 같습니다'+(r.parent?' (세부보장 : '+esc(r.parent)+')':'')+'</div>':(optDesc&&r.desc?descHtml(r.desc):'<div style="color:#8B95A1">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>');
     return '<table class="rt"><tr><td class="n">'+esc(r.name)+(r.parent?' <span style="font-weight:400;color:#777;font-size:7.4pt">('+esc(r.parent)+' 세부보장)</span>':'')+'</td><td class="a" rowspan="2">'+manText(r.man,r.amount_text)+(r.term?'<br><span style="font-size:7pt;font-weight:400;color:#666">'+esc(r.term)+'</span>':'')+'</td></tr><tr><td class="d">'+desc+(cond?'<span class="x">※ '+esc(cond)+'</span>':'')+codes+'</td></tr></table>';
   };
   for(const g of GROUPS){
@@ -550,7 +850,7 @@ function render(){
       const blk=el('<div class="rider'+(showKp?'':' nokp')+'"><div class="lcol"></div>'+(showKp?'<div class="kp"><h3>'+kp.title+'</h3>'+kp.html+'</div>':'')+'</div>',g.id);
       const lcol=blk.querySelector('.lcol'); let n=0; lastKp=kp;
       while(i<rs.length&&(n===0||(kp&&rs[i].kp===kp&&n<6))){
-        const t=el(riderTable(rs[i])); if(n) t.style.marginTop='2mm'; lcol.appendChild(t);
+        const t=el(riderTable(rs[i], n?rs[i-1]:null)); if(n) t.style.marginTop='2mm'; lcol.appendChild(t);
         if(n>0&&hOf(blk)>avail*0.9){ lcol.removeChild(t); break }
         n++; i++;
       }
@@ -569,7 +869,7 @@ function render(){
 
   // 표지
   const cover=document.createElement('div'); cover.className='page cover';
-  cover.innerHTML='<div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div><div class="t1">메리츠<br>세일즈혁신 가이드</div><div class="t2">"'+esc(title)+'"</div><div class="t3">'+esc(META.ym)+' · '+esc(STATE.meta.product||'')+'<br><b>주요 특약을 약관 조문 기준으로 풀어 쓴 컨설팅북</b><br>예시 설계 : '+esc(STATE.meta.insured)+(STATE.meta.age?' '+esc(STATE.meta.age)+'세':'')+' · 담보 '+STATE.riders.length+'건 · 월 '+esc(STATE.meta.premium||'—')+'원</div><div class="box"><div class="lbl">교육용 · 사내 자료</div><div class="who">AI추진파트 세일즈혁신TF</div><div style="font-size:8.6pt;color:#555;margin-top:2mm;line-height:1.6">담보 설명은 상품설명서의 약관 요약 설명문과 특약 마스터(약관 별표)에서, Key Point는 특약별 글 상자 창고에서 자동으로 모았습니다. 통계는 출처가 있는 것만 실었습니다. 본 자료는 고객에게 교부·배포할 수 없습니다.<br><span style="color:#999">생성 : '+esc(new Date().toLocaleString('ko-KR'))+' · 원본 : '+esc(STATE.src||'내장 샘플')+'</span></div></div>';
+  cover.innerHTML=coverHtml(title);
   prev.appendChild(cover);
 
   // 본문 쪽 채우기 — ① 재서 넘기면 다음 쪽 ② 제목은 다음 블록과 같이 움직인다 ③ 넣은 뒤 실제 높이를 다시 재서 넘치면 옮긴다
@@ -598,15 +898,16 @@ function render(){
   const used=new Set(); const mm=v=>v*96/25.4; let filled=0;
   for(const p of pages){
     const body=p.querySelector('.body'); if(!body.children.length) continue;
-    if(body.querySelector('.gl')) continue;                                   // 용어 풀이 쪽은 그대로 둔다
+    if(body.querySelector('.gl,.sm')) continue;                               // 용어 풀이·1장 요약 쪽은 그대로 둔다
     const last=body.lastElementChild; let free=footTop(p)-last.getBoundingClientRect().bottom-6; if(free<mm(40)) continue;
     const grps=[...body.children].map(c=>c.dataset.grp).filter(v=>v&&v!=='any'); const main=grps.sort((x,y)=>grps.filter(v=>v===y).length-grps.filter(v=>v===x).length)[0]||'any';
     // 그 갈래 카드 → 공통 카드 → (80mm 넘게 비면) 다른 갈래 카드 순
     const rank=f=>f.grp.includes(main)?0:f.grp.includes('any')?1:2;
     const txt=body.textContent;
-    const cands=FILLERS.filter(f=>!used.has(f.id)&&(rank(f)<2||free>mm(60))&&!txt.includes(f.title)).sort((x,y)=>rank(x)-rank(y));   // 같은 쪽에 이미 있는 제목의 카드는 넣지 않는다
+    const cands=FILLERS.filter(f=>!used.has(f.id)&&(rank(f)<2||free>mm(80))&&!txt.includes(f.title)).sort((x,y)=>rank(x)-rank(y));   // 같은 쪽에 이미 있는 제목의 카드는 넣지 않는다
     window.__FILL_DEBUG=(window.__FILL_DEBUG||[]); const dbg={page:pages.indexOf(p)+2,free:Math.round(free),main,tried:[]}; window.__FILL_DEBUG.push(dbg);
-    for(let k=0;k<4;k++){
+    const cap=body.querySelector('.t.r')?1:2;
+    for(let k=0;k<cap;k++){
       let put=false;
       for(const f of cands){ if(used.has(f.id)) continue;
         const card=el('<div class="kp fill" style="margin-top:3mm"><h3>'+f.title+'</h3>'+f.html+'</div>');
@@ -619,8 +920,22 @@ function render(){
   }
   // 뒷표지
   const back=document.createElement('div'); back.className='page back';
-  back.innerHTML='<div class="bar"></div><div class="logo"><span style="font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:40pt;color:#E4322B;letter-spacing:-2px">meritz</span> <span style="font-size:22pt;color:#555;font-weight:700">메리츠화재</span><div style="font-size:9pt;color:#777;margin-top:4mm">메리츠 세일즈혁신 가이드 · '+esc(title)+' · '+esc(META.ym)+' · 교육용</div></div>';
+  back.innerHTML=backHtml(title);
   prev.appendChild(back);
+  // 머리띠에 장 이름 · 쪽번호 n / N
+  const GN={ca:'1장 암',cv:'2장 뇌 · 심장 · 순환기',sg:'3장 수술비 · 치료비',ad:'4장 입원 · 간병',ac:'5장 상해 · 운전 · 배상 · 기타'};
+  const N=pages.length+2; let lastCh='';
+  for(const p of pages){
+    const body=p.querySelector('.body'); let ch='';
+    if(body.querySelector('.sm')) ch='1장 요약';
+    else if(body.querySelector('.gl')) ch='용어 풀이 · 상품 한눈에';
+    else if(body.querySelector('.kv,.mb')&&!body.querySelector('.rider')) ch='상품 한눈에 · 담보 지도';
+    else if(body.querySelector('.t.r')&&!body.querySelector('.rider')&&!body.querySelector('.kp:not(.fill)')) ch='면책기간 · 감액기간';
+    else {const g=[...body.children].map(c=>c.dataset.grp).find(v=>v&&v!=='any'); ch=GN[g]||lastCh}
+    lastCh=ch; const e=p.querySelector('.strip .ch'); if(e) e.textContent=ch;
+    const pn=p.querySelector('.pno'); if(pn) pn.textContent=pn.dataset.no+' / '+N;
+  }
+  const bp=back.querySelector('.pages'); if(bp) bp.textContent=N;
   log('가이드북 '+(pno)+'쪽 생성 완료 · 빈 자리 카드 '+filled+'장'+(oversize.length?' · 한 쪽을 넘겨 잘린 블록 '+oversize.length+'개':'')+' → 「인쇄 · PDF로 저장」');
   window.__STATE=STATE; window.__PAGES=pages.length+2;
 }
