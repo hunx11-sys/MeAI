@@ -52,6 +52,16 @@
 4. `api.py` 의 `VERSION` 을 올리고 **`README.md` 맨 위에 변경 기록을 추가한다.** 무엇이 왜 틀렸는지, 금액이 얼마에서 얼마로 바뀌는지 숫자로 적는다. 정상으로 확인한 것도 남겨 다시 건드리지 않게 한다.
 5. 규칙표를 고쳤으면 검수표를 다시 뽑는다 — `python export_rules_xlsx.py ../dist/규칙표_KCD검수결과.xlsx` (다른 세션이 붙인 시트는 그대로 남는다)
 
+## 새 상품·신담보·새 약관을 넣을 때 (루프 — 전부 통과할 때까지 돈다)
+
+1. 약관 PDF 를 저장소 루트에 올린다. 스마트 제안서 전용이면 `python extract_terms_extra.py "../약관.pdf" 상품명 접두어`, 영업지원도구에도 들어가는 상품이면 `tool.html` 을 고치고 `python extract_db.py ../tool.html`.
+2. 첫 쪽 상품명으로 상품라인을 못 읽으면 `build_all.guess_line` 에 한 줄 추가한다(화이트리스트가 아니라 읽기 규칙).
+3. `cd proposal_smart && python harness.py --designs <설계서PDF폴더>` — H1~H6.
+4. 실패 항목만 고친다 : H1 → 약관 별표·마스터 / H2 → `rules.json` 에 규칙 추가(약관 근거) / H3 → `scen_engine.GOJI`·`matcher` / H4·H5 → 핸들러·규칙 / H6 → `ga_proposal.py`·`ga_spec.py`.
+5. 3번으로 돌아간다. **전부 통과**가 나와야 다음으로 간다.
+6. 계산을 고쳤으면 위 「계산을 고칠 때」 2~5(regress · VERSION · README · 검수표)를 한다.
+7. 올리면 GitHub Actions `proposal-harness` 가 H1~H5 를 다시 돌린다(설계서 PDF 는 저장소에 없으므로 H6 은 세션에서만).
+
 ## 어디를 고치나
 
 | 하려는 일 | 파일 |
@@ -64,5 +74,6 @@
 | 지면·문구·사례 | `gen2.py` |
 | 약관 → 데이터 재추출 | `extract_*.py` (명령은 README 실행 요구사항 표) |
 | 3차 안전장치(설계서 뒤쪽 표와 대조) | `verify3.py` |
+| 점검 하네스(H1~H6) · GA 칸 스펙 | `harness.py` · `ga_spec.py` · `.github/workflows/proposal-harness.yml` |
 
 `out/` 과 `assets/` 는 저장소에 올리지 않는다. 임시 파일은 저장소가 아니라 세션 작업폴더에 둔다.
