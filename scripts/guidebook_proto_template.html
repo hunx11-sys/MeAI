@@ -202,7 +202,7 @@ b,strong{font-weight:700}
 .sm-tile .hd{display:flex;align-items:center;gap:2mm;margin-bottom:1.6mm}
 .sm-tile .hd b{font-size:9pt;font-weight:800;color:var(--g);letter-spacing:-.02em;line-height:1.2}
 .sm-tile .hd span{display:block;font-size:6.9pt;color:var(--g500);line-height:1.3;margin-top:.3mm}
-.sm-tile .big{display:flex;align-items:baseline;gap:1.4mm;margin-bottom:.6mm}
+.sm-tile .big{display:flex;align-items:baseline;gap:1.4mm;margin-bottom:1.6mm;padding-bottom:1.2mm;border-bottom:1px dashed var(--g200)}
 .sm-tile .big b{font-size:19pt;font-weight:800;color:var(--g900);letter-spacing:-.04em;line-height:1}
 .sm-tile .big span{font-size:var(--fs-small);color:var(--g600)}
 .sm-tile .max{font-size:var(--fs-small);color:var(--g700);margin-bottom:1.6mm;padding-bottom:1.4mm;border-bottom:1px dashed var(--g200)}
@@ -701,7 +701,7 @@ function backHtml(title){
   return '<div class="bar"></div>'+
     '<div class="logo"><span class="m">meritz</span><span class="k">메리츠화재</span><div class="line">메리츠 세일즈혁신 가이드 · '+esc(title)+' · '+esc(META.ym)+' · 교육용</div></div>'+chars+
     '<div class="info"><div><h4>이 가이드는 이렇게 만들어졌습니다</h4><p>담보명·가입금액은 상품설명서 「가입담보」 표, 설명문은 뒤쪽 「가입담보 및 보장내용」, 분류번호는 약관 별표(특약 마스터 '+esc(String(META.riders||''))+'건), Key Point 는 글 상자 창고 '+esc(String(META.kp||''))+'종에서 자동으로 모았습니다. 추정한 코드·금액은 없습니다.</p><p class="dim">생성기 빌드 '+esc(META.built)+' · 원본 : '+esc(STATE.src||'내장 샘플')+' · 전체 <span class="pages">—</span>쪽</p></div>'+
-    '<div><h4>문의 · 수정 요청</h4><p>AI추진파트 세일즈혁신TF<br>담보 설명이 약관과 다르거나 Key Point 를 보태고 싶을 때는 담보명과 함께 알려 주세요.</p><p class="dim">글꼴 Pretendard (SIL Open Font License) · 아이콘 Healthicons (MIT)</p></div></div>'+
+    '<div><h4>문의 · 수정 요청</h4><p><b>세일즈혁신TF 이헌수</b> (AI추진파트)<br>담보 설명이 약관과 다르거나 Key Point 를 보태고 싶을 때는 담보명과 함께 알려 주세요.</p><p class="dim">글꼴 Pretendard (SIL Open Font License) · 아이콘 Healthicons (MIT)</p></div></div>'+
     '<div class="notice">본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다. 최종 안내는 해당 상품의 약관·상품설명서로 확인합니다.</div>';
 }
 function pageShell(title,no){
@@ -744,14 +744,13 @@ function buildSummary(STATE,GROUPS,el,esc,manText,ICON){
     '<div class="who">피보험자 <b>'+esc(who)+'</b>'+(M.head?' · '+esc(M.head.replace(/^계약사항\s*:\s*/,''))+'':'')+'</div></div>'+
     '<div class="sm-stats">'+stats.map(s=>'<div class="sm-stat">'+s[0]+'</div>').join('')+'</div></div>','any'));
 
-  // ③ 갈래 타일 : 건수 · 최고 가입금액 · 대표 담보 3개 (가입금액 큰 순, 세부보장 제외)
+  // ③ 갈래 타일 : 건수 · 대표 담보 4개 (가입금액 큰 순, 세부보장 제외)
   const tiles=[];
   for(const g of GROUPS){
     const rs=R.filter(r=>r.grp===g.id); if(!rs.length) continue;
     const [c,bg,key]=GC[g.id]||GC.ac; const tp=tops(rs); const mx=tp[0];
     tiles.push('<div class="sm-tile" style="--g:'+c+';--gt:'+bg+'"><div class="hd">'+ic(key,c,bg,8)+'<div><b>'+esc(g.name)+'</b><span>'+esc(g.sub)+'</span></div></div>'+
       '<div class="big"><b>'+rs.length+'</b><span>건</span></div>'+
-      '<div class="max">최고 가입금액 <b>'+(mx&&mx.man?esc(amt(mx)):(mx?esc(amt(mx)):'—'))+'</b></div>'+
       tp.slice(0,4).map((r,i)=>'<div class="sm-li"><i>'+(i+1)+'</i><em title="'+esc(r.name)+'">'+esc(nm(r.name,26))+'</em><b>'+esc(amt(r))+'</b></div>').join('')+'</div>');
   }
   if(tiles.length) blocks.push(el('<div class="sm sm-tiles">'+tiles.join('')+'</div>','any'));
