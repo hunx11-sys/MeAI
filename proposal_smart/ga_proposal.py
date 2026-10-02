@@ -515,9 +515,14 @@ def _font_css():
         css += "@font-face{font-family:GANG;src:url('%s');font-weight:900}" % (a / 'NanumGothic-ExtraBold.ttf').as_uri()
     return css
 
+CALC_PAGES = 3      # 1쪽 뒤 합산 계산서 쪽수 — 고정 규칙(GA 확정 2026-10-02) : 「보장 한눈에」 뒤에는 반드시 이 계산서가 붙는다
 def html(design_pdf, age=''):
     load(design_pdf, age)
-    pages = [p1()] + p1calc() + [p2(), p3(), p4(), p_bh(), p5()]
+    calc = p1calc()
+    # 계산서는 선택이 아니다 — 못 만들면 지면 전체를 내지 않는다(1쪽 금액의 근거가 빠진 제안서가 나가지 않게)
+    if len(calc) != CALC_PAGES or any('class="page calcpg"' not in c for c in calc):
+        raise RuntimeError('「보장 한눈에」 합산 계산서 %d쪽이 만들어지지 않았습니다(%d쪽)' % (CALC_PAGES, len(calc)))
+    pages = [p1()] + calc + [p2(), p3(), p4(), p_bh(), p5()]
     return '<!doctype html><html><head><meta charset="utf-8"><style>%s%s</style></head><body>%s</body></html>' % (_font_css(), CSS, ''.join(pages))
 
 CHECK = """()=>{const o=[];document.querySelectorAll('.page').forEach((p,i)=>{const B=p.getBoundingClientRect();
@@ -558,7 +563,7 @@ def build(design_pdf, out_pdf=None, age='', keep_html=False):
     lg = [dict(구분=it['구분'], 담보=it['담보'], 사유=it['사유'], 담보목록=it.get('담보목록', [it['담보']])) for it in S.issues_grouped()]
     lg += [dict(구분='지면넘침', 담보='-', 사유=w, 담보목록=[]) for w in warn]
     AUDIT = {'요약': {'담보수': NRID, '마스터매칭': sum(1 for r in RID if r.get('matched')), '인식': {k: v for k, v in rc.items() if not k.endswith('목록')},
-                    '계산제외목록': rc['계산제외목록'], '구조별': S.audit(RID)['구조별'], '생성쪽수': 9, '지면검사': warn,
+                    '계산제외목록': rc['계산제외목록'], '구조별': S.audit(RID)['구조별'], '생성쪽수': 6 + CALC_PAGES, '지면검사': warn,
                     '상품': PRODUCT, '보험료': PREMIUM, '계산엔진': VERSION, '처리시간': round(time.time() - t0, 1)},
              '로그': lg}
     log = os.path.splitext(out_pdf)[0] + '_log.txt'

@@ -11,7 +11,7 @@
   H3 담보명 꼬리표        같은 특약에 상품 꼬리표((…가입))·갱신형을 붙여도 마스터·질병코드·규칙 판정이 같은지
   H4 GA 칸 전수 계산      마스터 전 특약(실제 가입금액 구간)을 GA 칸 사례 전부에 넣어 계산 — 오류 0 · 근거 없는 지급 0
   H5 금액 상식           지급 줄 금액이 가입금액(통합치료비·생활지원비는 연·월 한도)을 넘지 않는지 · 음수·NaN 없음
-  H6 설계서 대조(선택)     설계서마다 GA 지면 생성 오류 0 · 칸 넘침 0 · 지면 표시값 = 칸 스펙 계산값(전 칸)
+  H6 설계서 대조(선택)     설계서마다 GA 지면 생성 오류 0 · 칸 넘침 0 · 지면 표시값 = 칸 스펙 계산값(전 칸) · 1쪽 뒤 합산 계산서 3쪽 존재
 결과 : out/harness_report.json (+ 화면 요약)."""
 import sys, os, re, json, math, time, collections, argparse, traceback
 BASE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, BASE)
@@ -105,6 +105,9 @@ if A.designs:
             d = GS.run_design(p, hp); c = d['cmp'] or {}
             unm = [r['name'] for r in d['riders'] if not r['matched']]
             ok = bool(c.get('equal'))
+            pg = re.findall(r'<div class="page( calcpg)?">', h)                         # 쪽 순서 : 1쪽 → 계산서 3쪽 → 2~6쪽
+            if pg[:1 + G.CALC_PAGES] != [''] + [' calcpg'] * G.CALC_PAGES or len(pg) != 6 + G.CALC_PAGES:
+                ok = False; bad6.append('%s 1쪽 뒤 합산 계산서 %d쪽이 없음 (쪽 구성 %s)' % (f, G.CALC_PAGES, [x.strip() or 'p' for x in pg]))
             rows.append('%s : 담보 %d · 미매칭 %d · 지면=스펙 %s (%s/%s)' % (f, d['nriders'], len(unm), '일치' if ok else '불일치', c.get('html_n'), c.get('spec_n')))
             if not ok: bad6.append('%s 칸 불일치 %s' % (f, (c.get('diffs') or [])[:3]))
             if unm: rows.append('   미매칭 : ' + ' · '.join(unm[:6]))
