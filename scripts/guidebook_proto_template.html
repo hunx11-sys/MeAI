@@ -372,6 +372,7 @@ function pickLine(list,line){return (line&&list.find(r=>r.p===line))||list[0]}
 function matchMaster(name,line){
   const b=base(name); const cands=[b,b.replace(/^갱신형/,''),'갱신형'+b];
   const br=/^(.*?)\[(.+)\]$/.exec(b); if(br){cands.push(br[1]+'['+br[2]+']');cands.push(br[1]+'['+br[2].replace(/\d+종$/,'')+']');cands.push(br[2]);cands.push(br[1])}
+  const g17=br&&/^(상해|질병)\d종$/.exec(br[2]); if(g17){ cands.push(br[1]+'(1-7종,연간3회한)['+g17[1]+']'); cands.push('갱신형'+br[1]+'(1-7종,연간3회한)['+g17[1]+']') }   // ┗ 수술비[상해3종] 세부 행 → 부모 특약 「수술비(1-7종, 연간3회한)[상해]」
   // 끝 괄호 그룹을 하나씩 떼어 본다
   let s=b; for(let i=0;i<3;i++){const m=/^(.*)\([^()]*\)$/.exec(s); if(!m)break; s=m[1]; cands.push(s)}
   for(const c of cands){ if(INDEX.has(c)) return pickLine(INDEX.get(c),line) }
@@ -383,6 +384,11 @@ function guessLine(productName,riders){
   if(names.includes('통합간편가입')) return '통합간편';
   const h=(productName||'').replace(/\s+/g,'');
   if(h.includes('통합간편건강보험')||/간편3?5?5|355/.test(h)||/355|간편가입/.test(names)) return '통합간편';
+  if(h.includes('The건강한내Mom대로5.10.5')) return 'The건강한내Mom대로5.10.5';
+  if(h.includes('The건강한5.10.5')) return 'The건강한5.10.5';
+  if(h.includes('The좋은내Mom대로')) return 'The좋은내Mom대로';
+  if(h.includes('The가벼운간편355')) return 'The가벼운간편355';
+  if(h.includes('간편31건강보험')) return '간편31';
   if(/내Mom대로/.test(h)) return '내Mom대로';
   if(h.includes('내Mom같은어린이보험')) return '내Mom같은어린이';
   if(h.includes('또걸려도또받는')&&h.includes('간편')) return '또또암간편';
@@ -617,7 +623,8 @@ function highlightDesc(d){
 // 설명문 요약 — 설계서 설명문은 지급금액표·세부규정까지 통째로 들어 있어 그대로 실으면 한 담보가 한 쪽을 넘긴다.
 // ① 「항목 : 금액 (횟수)」 꼴은 표로 ② 본문은 ※ 앞의 지급사유 문장만, 길면 자른다 ③ ※ 메모는 감액·개시일·한도·제외만 짧게
 const ITEM_RE=/([가-힣A-Za-z0-9()·,\.\-\/\s]{2,42}?)\s*[:：]\s*(\d[\d,.]*(?:\s?[\d,.]+)?\s*(?:만원|원|억원))\s*(?:\(([^()]{1,24}(?:\([^()]*\))?[^()]*)\))?/g;   // 숫자가 줄바꿈으로 '20 00만원' 처럼 갈라진 것도 받는다
-function summarizeDesc(desc){
+function summarizeDesc(desc,lim){
+  lim=lim||380;                                                   // 본문 글자 상한 — 혼자서 한 쪽을 넘기는 담보는 더 줄여 다시 그린다(compact)
   if(!desc) return {core:'',notes:[],items:[]};
   const parts=desc.split(/※/); let core=parts[0]; const notes=[];
   for(const n of parts.slice(1)){const t=n.trim(); if(/감액|보장개시일|한도|제외|지급하지\s*않|면책/.test(t)&&t.length<=110&&notes.length<3) notes.push(t.replace(/\s+/g,' '))}
@@ -627,16 +634,16 @@ function summarizeDesc(desc){
   core=core.replace(/\s*[-–]\s*(?=\s*[-–]|$)/g,' ').replace(/\s+/g,' ').replace(/\s*[-–]\s*$/,'').trim();
   // 1) 2) 3) 절은 줄로 나누고, 전체 길이는 제한한다
   const clauses=core.split(/\s(?=\d\)\s)/).map(c=>c.trim()).filter(Boolean);
-  let out=[], len=0; for(const c of clauses){ if(len+c.length>380){ out.push(c.slice(0,Math.max(40,380-len)).trim()+' …'); break } out.push(c); len+=c.length }
+  let out=[], len=0; for(const c of clauses){ if(len+c.length>lim){ out.push(c.slice(0,Math.max(40,lim-len)).trim()+' …'); break } out.push(c); len+=c.length }
   return {core:out.join('<br>'),notes,items};
 }
-function descHtml(desc){
-  const su=summarizeDesc(desc); let h='';
+function descHtml(desc,compact){
+  const su=summarizeDesc(desc,compact?200:380); const rows=compact?8:16; let h='';
   if(su.core) h+='<div>'+highlightDesc(su.core).replace(/&lt;br&gt;/g,'<br>')+'</div>';
   if(su.notes.length) h+='<span class="x">'+su.notes.map(n=>'※ '+highlightDesc(n)).join('<br>')+'</span>';
   if(su.items.length){
-    const show=su.items.slice(0,16);
-    h+='<table class="t"><tr><th>항목</th><th style="width:16mm">지급금액</th><th style="width:18mm">지급횟수</th></tr>'+show.map(it=>'<tr><td class="l">'+esc(it.nm)+'</td><td>'+esc(it.amt)+'</td><td>'+esc(it.cnt||'—')+'</td></tr>').join('')+'</table>'+(su.items.length>16?'<span class="x">… 외 '+(su.items.length-16)+'개 항목(설계서 참조)</span>':'');
+    const show=su.items.slice(0,rows);
+    h+='<table class="t"><tr><th>항목</th><th style="width:16mm">지급금액</th><th style="width:18mm">지급횟수</th></tr>'+show.map(it=>'<tr><td class="l">'+esc(it.nm)+'</td><td>'+esc(it.amt)+'</td><td>'+esc(it.cnt||'—')+'</td></tr>').join('')+'</table>'+(su.items.length>rows?'<span class="x">… 외 '+(su.items.length-rows)+'개 항목(설계서 참조)</span>':'');
   }
   return h;
 }
@@ -831,7 +838,7 @@ function render(){
     }
   }
   // 4) 갈래별 담보
-  const riderTable=(r,prev)=>{
+  const riderTable=(r,prev,compact)=>{
     let codes='';
     const same=prev&&prev.kp===r.kp&&prev.desc&&prev.desc===r.desc;     // 같은 묶음에서 설명문·분류번호가 같으면 접는다(131대질병수술비 세부보장 등)
     if(optCodes&&r.codes&&r.codes.length){
@@ -839,8 +846,8 @@ function render(){
       codes='<span class="codes">약관 별표 분류번호 : '+show.join(' · ')+(r.codes.length>10?' 외 '+(r.codes.length-10)+'개':'')+(r.excl&&r.excl.length?' <b>(제외 : '+esc(r.excl.join(', '))+')</b>':'')+'</span>';
     }
     const d=r.der; const cond=[d.wait?'면책 '+d.wait:'',d.cut1y?'1년 미만 '+d.cut1y:'',d.cut90?'90일 미만 '+d.cut90:''].filter(Boolean).join(' · ');
-    if(same) codes='';
-    const desc=same?'<div style="color:#6B7684">지급사유·분류번호는 위 담보와 같습니다'+(r.parent?' (세부보장 : '+esc(r.parent)+')':'')+'</div>':(optDesc&&r.desc?descHtml(r.desc):'<div style="color:#8B95A1">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>');
+    if(same||compact) codes='';                                        // 줄인 판에서는 분류번호 줄도 뺀다(담보 지도·마스터에 그대로 있다)
+    const desc=same?'<div style="color:#6B7684">지급사유·분류번호는 위 담보와 같습니다'+(r.parent?' (세부보장 : '+esc(r.parent)+')':'')+'</div>':(optDesc&&r.desc?descHtml(r.desc,compact):'<div style="color:#8B95A1">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>');
     return '<table class="rt"><tr><td class="n">'+esc(r.name)+(r.parent?' <span style="font-weight:400;color:#777;font-size:7.4pt">('+esc(r.parent)+' 세부보장)</span>':'')+'</td><td class="a" rowspan="2">'+manText(r.man,r.amount_text)+(r.term?'<br><span style="font-size:7pt;font-weight:400;color:#666">'+esc(r.term)+'</span>':'')+'</td></tr><tr><td class="d">'+desc+(cond?'<span class="x">※ '+esc(cond)+'</span>':'')+codes+'</td></tr></table>';
   };
   for(const g of GROUPS){
@@ -854,8 +861,11 @@ function render(){
       const blk=el('<div class="rider'+(showKp?'':' nokp')+'"><div class="lcol"></div>'+(showKp?'<div class="kp"><h3>'+kp.title+'</h3>'+kp.html+'</div>':'')+'</div>',g.id);
       const lcol=blk.querySelector('.lcol'); let n=0; lastKp=kp;
       while(i<rs.length&&(n===0||(kp&&rs[i].kp===kp&&n<6))){
-        const t=el(riderTable(rs[i], n?rs[i-1]:null)); if(n) t.style.marginTop='2mm'; lcol.appendChild(t);
+        let t=el(riderTable(rs[i], n?rs[i-1]:null)); if(n) t.style.marginTop='2mm'; lcol.appendChild(t);
         if(n>0&&hOf(blk)>avail*0.9){ lcol.removeChild(t); break }
+        if(n===0&&hOf(blk)>avail*0.95){                                   // 담보 하나가 혼자 한 쪽을 넘긴다(지급금액표가 긴 통합치료비) → 설명문을 줄인 판으로
+          lcol.removeChild(t); t=el(riderTable(rs[i], null, true)); lcol.appendChild(t);
+        }
         n++; i++;
       }
       blocks.push(blk);

@@ -16,6 +16,18 @@
 본문을 옆 파일로 뗀 것은 인터넷판 속도 때문이다(2026.09). 파이썬에서 DATA 를 고칠 때는 `scripts/tooldata.py` 의 `inflate`/`deflate` 를 쓰면 두 파일이 함께 읽히고 쓰인다. 메일·올인원 배포판은 본문을 압축해 파일 안에 다시 넣는다.
 특약을 더하거나 고친 뒤에는 `python3 scripts/same_riders.py --write` 를 다시 돌린다 — 상품만 다른 같은 이름 특약을 한 카드로 묶는 표시(`sg`)·간편심사 감액 메모(`sv`)·띄어쓰기 통일을 다시 만든다. **이름이 같으면 약관 별표도 같다(소유자 확인).** 그래서 같은 이름인데 질병코드·수가코드가 다르면 그건 데이터 오류다 — 스크립트가 '확인 필요'로 출력하면 약관 별표로 바로잡는다(예 : `scripts/fix_same_terms.py`). 상품 간 실제 차이는 간편심사 감액(약관 지급표) 정도이며, 보장개시 문구 차이는 메모하지 않는다.
 
+## 세 산출물은 함께 간다 (원천 = 약관 파싱)
+
+세일즈북 생성기 · 스마트 제안서 · 영업지원도구 배포판은 **같은 특약 마스터**(`proposal_smart/db.json` ← `tool.html` 감수본, `proposal_smart/db_terms_extra.json` ← 약관 PDF 파싱)를 쓴다.
+어느 하나의 데이터만 고치고 끝내지 않는다. 약관·tool.html·추출기 중 무엇을 바꿨든 저장소 루트에서
+
+```
+python3 scripts/sync_all.py                      # tool.html→db.json · 약관→db_terms_extra.json · 하네스 · 세일즈북 재조립 · 배포판 5종
+python3 scripts/sync_all.py --designs <설계서폴더>  # + 설계서 지면 점검(H6) · 회귀 스냅샷 비교
+```
+
+를 돌려 세 산출물을 한 번에 맞춘다(약관 재추출을 뺄 때는 `--skip-terms`). 끝나면 바뀐 건수 요약이 나온다 — 질병코드가 바뀐 특약은 약관 원문으로 한 번 더 확인하고, README 변경 기록에 적는다.
+
 ## 여러 세션이 같은 저장소를 만진다
 
 - **`main` 이 기준**이다. 소유자가 사내 노트북에서 받아 쓰는 것도 `main` 이다.
@@ -77,6 +89,7 @@
 | 계산 엔진 | `scen_engine.py`(규칙 판정·핸들러) · `engine.py`(통합치료비 금액표) |
 | 지면·문구·사례 | `gen2.py` |
 | 약관 → 데이터 재추출 | `extract_*.py` (명령은 README 실행 요구사항 표) |
+| 데이터 바꾼 뒤 세 산출물 한꺼번에 갱신 | `scripts/sync_all.py` (위 「세 산출물은 함께 간다」) |
 | 신수술비[기본]·[주요수술] 분류표(수술코드 ADRG) | `surg_new.json` — `python extract_surg_new.py "../약관.pdf"` 로 다시 뽑는다 |
 | 3차 안전장치(설계서 뒤쪽 표와 대조) | `verify3.py` |
 | 점검 하네스(H1~H6) · GA 칸 스펙 | `harness.py` · `ga_spec.py` · `.github/workflows/proposal-harness.yml` |

@@ -27,16 +27,26 @@ REF = re.compile(r'【\s*별\s*표\s*-?\s*([가-힣]*)\s*(\d+)\s*(?:[(（]((?:[^
 CODE = re.compile(r'(?<![A-Za-z0-9])([A-Z]\d{2}(?:\.\d{1,2})?)(?:\s*[~∼～]\s*([A-Z]?\d{2}(?:\.\d{1,2})?))?(?![0-9])')
 HC = re.compile(r'\b([A-Z]{1,2}\d{3,4})\b(?:\s*[~∼]\s*([A-Z]{1,2}\d{3,4}))?')
 GOJI = re.compile(r'\([^()]{1,24}가입\)')                    # 담보명 꼬리표 — scen_engine.GOJI 와 같은 형태
+def tidy_goji(s):
+    """PDF 줄바꿈으로 꼬리표 안에 공백이 생긴 '(편한가 입)'·'(31간편가 입)' 을 '(편한가입)' 으로 — 그래야 GOJI 가 떼고 감수 마스터와 이름이 맞는다(v8.71).
+       가벼109-6 '… 갑상선암 주요치료비(…)(편한가 입)' 이 또160-6 과 안 맞아 파싱 코드(표 전체 77개)가 들어갔다."""
+    return re.sub(r'\(([^()]{1,30})\)', lambda m: '(' + re.sub(r'\s+', '', m.group(1)) + ')' if re.sub(r'\s+', '', m.group(1)).endswith('가입') else m.group(0), s or '')
 CIRC = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳'
 
 def nz(s): return re.sub(r'[\s ]', '', s or '')
 JUNKSUB = re.compile(r'청구서|증명서|제출|회사양식|위생관리|성형수술|^\d+\.|[一-龥]|등의\s*조치|[「【“]|한다|이하|말한다|정한다')
 
+EXAMPLE = re.compile(r'【[^】]*예\s*시[^】]*】.*?(?=\n\s*\d+\.\s|\n\s*【|\n\s*제\s*\d+\s*조|\Z)', re.S)
+def strip_examples(t):
+    """【○○ 예시】 블록(원발부위 기준 예시 · 보험금 지급예시 그림)의 코드는 설명용 — 다음 번호 항목·다음 【·다음 조문까지 뺀다.
+       지급예시 그림의 '결장암(C18) … 보험금 미지급' 같은 줄은 지급 규칙이 아니다(v8.71 : 내Mom대로 갱신형 통합암진단비 세부보장 5건의
+       제외코드에 C18·C50·C25·C34·C73 등 예시 코드가 들어가 14대특정암 폐암(C34) 사례가 0원이 되던 것)."""
+    return EXAMPLE.sub(' ', t)
+
 def kcds(txt):
     """표·본문 텍스트 → (코드목록, 제외코드목록). '(… 제외)' 괄호 안 코드는 제외코드로."""
     t = re.sub(r'([A-Z]\d{2}\.)\s*\n\s*(\d)', r'\1\2', txt)          # 'C78.' + 줄바꿈 + '4'
-    # 【○○ 예시】 블록(원발부위 기준 예시 등)의 코드는 설명용 — 다음 번호 항목·다음 【 까지 뺀다
-    t = re.sub(r'【[^】]*예\s*시[^】]*】.*?(?=\n\s*\d+\.\s|\n\s*【|\Z)', ' ', t, flags=re.S)
+    t = strip_examples(t)
     ex = []
     for m in re.finditer(r'[(（]([^()（）]{0,120}?)제외\s*[)）]', t):
         for a, b in CODE.findall(m.group(1)): ex.append(a + ('~' + (b if b[0].isalpha() else a[0] + b) if b else ''))
@@ -121,8 +131,12 @@ def cover(pairs):
         s0 = REF.sub(' ', sent)
         sc = [a + ('~' + (b if b[0].isalpha() else a[0] + b) if b else '') for a, b in CODE.findall(s0)]
         tk, tx = kcds(e['text'])
-        neg = NEG.search(sent)
-        m = REF.search(sent); tail = sent[m.end():m.end() + 30] if m else ''
+        # 담보·분류표 이름 속 '(유사암제외)'·'(특정암제외)' 는 제외 문장이 아니다(v8.71) — 「【별표13(통합암(전이포함)(유사암제외) 분류표)】에서
+        # 정한「통합암(전이포함)(유사암제외)」으로 진단확정」 문장에서 표 전체 101코드가 제외코드로 들어가 통합암진단비 세부보장(건맘242·건강146·가벼117)·
+        # 926종 항암방사선및약물치료비(건맘168·건강209)가 모든 암에 0원이 되던 것. 표 안의 '(… 제외)' 괄호 코드(C44·C73)는 kcds 가 따로 뽑는다.
+        sn = re.sub(r'[(（][^()（）]{0,30}제외\s*[)）]', '', sent)
+        neg = NEG.search(sn)
+        m = REF.search(sn); tail = sn[m.end():m.end() + 30] if m else ''
         if neg and not sc and NEG.search(tail) and '중' not in tail[:8]:
             add(x, tk)                                   # '【별표…】에 해당하는 질병은 제외'
         elif sc and not neg:
@@ -136,7 +150,7 @@ def cover(pairs):
 def body_x(txt):
     """특약 본문의 '제외' 문장 괄호 코드 — 예) '… 질병(N08.3 제외)' · '기타피부암(C44) 및 갑상선암(C73)은 제외'"""
     ex = []
-    flat = re.sub(r'\s*\n\s*', ' ', txt)
+    flat = re.sub(r'\s*\n\s*', ' ', strip_examples(txt))          # 지급예시 그림의 코드는 제외코드가 아니다(v8.71)
     for sent in re.split(r'(?<=다)\.\s', flat):
         if '제외' not in sent: continue
         for m in re.finditer(r'[(（]\s*([A-Z]\d{2}(?:\.\d{1,2})?(?:\s*[~∼～,]\s*[A-Z]?\d{2}(?:\.\d{1,2})?)*)\s*(?:제외)?\s*[)）]', sent):
@@ -181,7 +195,7 @@ def parse(path, product, prefix):
         if not nxt: continue
         tabs, app_a = nxt[0][2], nxt[0][0]                                  # 이 특약 뒤에 오는 부록(같은 구역)
         title = IT.title_norm(b['title'])
-        title = GOJI.sub('', title); title = re.sub(r'보장$', '', title).strip()
+        title = GOJI.sub('', tidy_goji(title)); title = re.sub(r'보장$', '', title).strip()
         if not title or len(title) > 70 or IT.JUNK.search(title) or re.search(r'다\.|^부터', title): continue
         end = min(blocks[bi + 1]['bstart'] if bi + 1 < len(blocks) else len(lines), app_a)
         body_lines = [l for _, l in lines[b['bstart']:end]]
@@ -209,7 +223,7 @@ def parse(path, product, prefix):
             log.append(('세부 개수 불일치 %d/%d' % (len(labels), n_sub), rid, title, labels[:6])); labels = labels[:n_sub]
         ch = sub_chunks(body_lines, labels) if how == 'enum' else None
         for i, lab in enumerate(labels, 1):
-            lab = GOJI.sub('', lab).strip()
+            lab = GOJI.sub('', tidy_goji(lab)).strip()
             if JUNKSUB.search(lab): continue                          # 보험금 청구서류 목록 등이 세부보장으로 잡힌 것
             lab = re.split(r'\s*:\s*|\s*보장\s*:', lab)[0].strip()      # '화상진단비보장 : 화상으로 진단확정시 …' → '화상진단비'
             lab = re.sub(r'보장$', '', lab).strip()
@@ -227,20 +241,27 @@ def parse(path, product, prefix):
                            'k': sk, 'x': sx, 't': st, 'hc': shc, 'src': ssrc, 'parent': rid})
     return riders, alltabs, log
 
+# 보강 상품의 추출(감수) 순서 — 같은 이름 특약의 코드를 빌릴 때 이 순서에서 앞선 상품 것만 쓴다
+ORDER = ['내Mom대로', '내Mom같은어린이', '간편31', 'The건강한내Mom대로5.10.5', 'The건강한5.10.5', 'The좋은내Mom대로', 'The가벼운간편355']
+
 def settle(riders):
     """감수(監修)된 특약 마스터(db.json)에 같은 이름 특약이 있으면 그 코드(k·x·hc)를 쓴다 — 메리츠 특약은 상품이 달라도
        같은 이름이면 같은 약관 조문·별표를 쓴다(원문 대조 : 같은 이름 668건 중 469건이 파싱 결과와 완전 일치, 나머지는
        파서의 한계 — 암종 구분 열이 있는 표·'분류표 중 C44' 같은 정의 조문). 마스터에 없는 특약만 파싱 코드를 쓰고 근거(별표)를 남긴다."""
     sys.path.insert(0, BASE)
     GJ = re.compile(r'\([^()]{1,24}가입\)')
-    key = lambda n: re.sub(r'^갱신형', '', re.sub(r'\s', '', GJ.sub('', n or '')))
+    key = lambda n: re.sub(r'^갱신형', '', GJ.sub('', re.sub(r'\s', '', n or '')))      # 공백을 먼저 없애야 '(편한가 입)' 꼬리표도 떨어진다(v8.71)
     db = json.load(open(os.path.join(BASE, 'db.json'), encoding='utf-8'))['riders']
     idx = collections.defaultdict(list)
     for r in db: idx[key(r['n'])].append(r)
     ex_idx = collections.defaultdict(list)                           # 먼저 추출한 다른 보강 상품(같은 약관 문구)의 파싱 결과 — KCD 를 못 뽑은 특약의 보조 근거
+    # 빌려오는 상품은 ORDER 에서 이 상품보다 앞선 것만, ORDER 순서대로 — 어떤 순서로 다시 뽑아도 결과가 같다(v8.71).
+    # 전에는 db_terms_extra.json 에 들어 있는 순서(마지막에 뽑은 상품이 맨 뒤)를 따라서, 한 상품만 다시 뽑으면 다른 상품 코드를 빌리던 특약이 바뀌었다.
+    me = riders[0]['p'] if riders else ''
+    rank = lambda p: ORDER.index(p) if p in ORDER else len(ORDER)
     if os.path.exists(OUT):
-        for r in json.load(open(OUT, encoding='utf-8'))['riders']:
-            if r.get('k') and r['p'] != (riders[0]['p'] if riders else ''): ex_idx[key(r['n'])].append(r)
+        for r in sorted(json.load(open(OUT, encoding='utf-8'))['riders'], key=lambda r: rank(r['p'])):
+            if r.get('k') and r['p'] != me and rank(r['p']) < rank(me): ex_idx[key(r['n'])].append(r)
     n_m = 0
     for r in riders:
         if not r['k'] and ex_idx.get(key(r['n'])):
