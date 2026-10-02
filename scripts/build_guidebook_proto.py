@@ -56,7 +56,11 @@ def main():
     meta = {'built': today.isoformat(), 'ym': '%d년 %d월' % (today.year, today.month),
             'products': master['products'], 'riders': len(riders), 'kp': len(kp['kp'])}
 
+    icons = json.load(open(os.path.join(PS, 'icons.json'), encoding='utf-8'))          # Healthicons SVG 71개 — 아이콘 타일
+    font_b64 = b64(os.path.join(ROOT, 'assets', 'pretendard-subset.woff2'))                 # Pretendard 부분집합(한글 2,351자) — 없는 글자는 맑은 고딕으로
     html = open(TPL, encoding='utf-8').read()
+    for k, v in (('__ICONS__', jsonsafe(icons)), ('__FONT_B64__', font_b64)):              # 틀에 자리가 있을 때만 넣는다
+        html = html.replace(k, v)
     for k, v in (('__PDFJS_MAIN__', main_b64), ('__PDFJS_WORKER__', worker_b64), ('__CMAPS__', jsonsafe(cmaps)),
                  ('__MASTER__', jsonsafe(master)), ('__KCDNAMES__', jsonsafe(kcd)), ('__KP__', jsonsafe(kp)),
                  ('__SAMPLES__', jsonsafe(samples)), ('__BUILDMETA__', jsonsafe(meta))):
