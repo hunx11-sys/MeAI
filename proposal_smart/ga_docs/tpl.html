@@ -1,0 +1,223 @@
+<title>GA 칸별 특약 지도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* 레이아웃 : 한 열 · 위에 고정 머리(설계서·검색) → 쪽 칩 → 지면 캡처(접기) → 구역별 칸 목록(눌러서 펼침). 보험 청구서류처럼 단정한 표 + 금액은 고정폭 숫자 */
+:root{
+  --bg:#F6F7F9; --paper:#FFFFFF; --ink:#18212F; --sub:#5A6577; --line:#DDE2EA; --soft:#EDF0F5;
+  --accent:#B4232A; --accent-soft:#FBEDEE; --teal:#0F6E6A; --teal-soft:#E4F2F1; --warn:#8A5A00; --warn-soft:#FFF4DE;
+  --f-body:'IBM Plex Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-num:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10151D; --paper:#171E29; --ink:#E7ECF3; --sub:#9AA6B8; --line:#2A3443; --soft:#1E2734;
+  --accent:#F0767B; --accent-soft:#3A1E22; --teal:#5BC2BB; --teal-soft:#143331; --warn:#F2C064; --warn-soft:#3A2F17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10151D; --paper:#171E29; --ink:#E7ECF3; --sub:#9AA6B8; --line:#2A3443; --soft:#1E2734;
+  --accent:#F0767B; --accent-soft:#3A1E22; --teal:#5BC2BB; --teal-soft:#143331; --warn:#F2C064; --warn-soft:#3A2F17; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+header{padding-block:14px 4px}
+h1{font-size:19px;font-weight:700;margin:0;letter-spacing:-.2px;text-wrap:balance}
+.meta{font-size:12px;color:var(--sub);margin:2px 0 10px}
+.ctl{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:560px){.ctl{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--sub);letter-spacing:.3px;min-width:0}
+select,input[type=search]{font:inherit;font-size:15px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;min-width:0}
+select:focus,input:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin-inline:-16px;padding-inline:16px;border-bottom:1px solid var(--line)}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;font:inherit;font-size:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip b{font-family:var(--f-num);font-weight:600;margin-right:4px}
+.cap{margin-top:10px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+.cap summary{cursor:pointer;padding:10px 12px;font-size:13px;color:var(--sub);list-style:none;display:flex;justify-content:space-between;gap:8px}
+.cap summary::-webkit-details-marker{display:none}
+.cap summary:after{content:'펼치기';color:var(--teal);font-weight:600}
+.cap[open] summary:after{content:'접기'}
+.cap img{display:block;width:100%;border-top:1px solid var(--line);border-radius:0 0 10px 10px;background:#fff}
+h2{font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.4px;margin:22px 0 8px}
+.list{display:flex;flex-direction:column;gap:6px}
+.cell{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cell>button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:center;width:100%;padding:10px 12px;cursor:pointer}
+.cell>button:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
+.no{font-family:var(--f-num);font-size:12px;font-weight:600;background:var(--teal-soft);color:var(--teal);border-radius:6px;padding:2px 6px;min-width:30px;text-align:center}
+.lab{font-weight:600;font-size:14.5px;min-width:0}
+.lab small{display:block;font-weight:400;font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.val{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-weight:600;font-size:14.5px;text-align:right;white-space:nowrap}
+.val i{font-style:normal;font-family:var(--f-body);font-size:11px;color:var(--sub);margin-left:1px;font-weight:400}
+.val.na{color:var(--sub);font-family:var(--f-body);font-weight:500;font-size:13px}
+.cell.open{border-color:var(--teal)}
+.det{border-top:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:14px;background:var(--paper)}
+.blk h3{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.4px;margin:0 0 6px;text-transform:none}
+.sc{background:var(--soft);border-radius:8px;padding:10px;font-size:13.5px}
+.sc .kcd{font-family:var(--f-num);font-weight:600;color:var(--accent)}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tag{font-size:11.5px;background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--sub)}
+.how{font-size:13.5px}
+.how .filt{display:block;color:var(--sub);font-size:12.5px;margin-top:2px}
+table.pay{width:100%;border-collapse:collapse;font-size:13.5px}
+table.pay td{border-top:1px solid var(--line);padding:7px 0;vertical-align:top}
+table.pay td.a{text-align:right;font-family:var(--f-num);font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;padding-left:10px}
+table.pay .why{display:block;color:var(--sub);font-size:12px;margin-top:2px}
+table.pay tr.sum td{border-top:2px solid var(--ink);font-weight:700}
+.k{display:inline-block;font-size:11px;border-radius:4px;padding:0 5px;margin-right:4px;background:var(--teal-soft);color:var(--teal);font-weight:600;vertical-align:1px}
+.k.f{background:var(--soft);color:var(--sub)}
+.empty{color:var(--sub);font-size:13px}
+.iss{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:8px 10px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
+.uni{display:flex;flex-direction:column;gap:2px;font-size:13px}
+.uni div{display:flex;justify-content:space-between;gap:10px;border-top:1px dashed var(--line);padding:5px 0}
+.uni span{min-width:0}
+.uni em{font-style:normal;font-size:11px;color:var(--sub);text-align:right;flex:0 0 auto;max-width:45%}
+.more{font:inherit;font-size:13px;color:var(--teal);background:none;border:0;padding:6px 0;cursor:pointer;font-weight:600}
+.note{font-size:12.5px;color:var(--sub)}
+.res{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.hit{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.hit b{display:block;font-size:14px}
+.hit .go{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.hit .go button{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:6px;padding:3px 7px;cursor:pointer}
+.legend{margin-top:28px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px}
+.legend dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;margin:0;font-size:13px}
+.legend dt{font-weight:700}
+.legend dd{margin:0;color:var(--sub)}
+.foot{font-size:12px;color:var(--sub);margin-top:16px}
+@media (prefers-reduced-motion:no-preference){.det{animation:in .14s ease-out}@keyframes in{from{opacity:.4}to{opacity:1}}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>GA 칸별 특약 지도</h1>
+  <p class="meta" id="meta"></p>
+  <div class="ctl">
+    <label class="f" for="dsel">설계서(칸 값·계산된 특약 기준)<select id="dsel"></select></label>
+    <label class="f" for="q">특약 이름으로 찾기<input id="q" type="search" placeholder="예 : 1-5종, 암 통합치료비, 간병인사용" autocomplete="off"></label>
+  </div>
+</header>
+
+<nav class="chips" id="pages" aria-label="쪽"></nav>
+<section id="search" hidden><div class="res" id="res"></div></section>
+<main id="page"></main>
+
+<section class="legend" aria-label="보상 유형 공식">
+  <h2 style="margin-top:0">보상 유형별 금액 공식</h2>
+  <dl>
+    <dt>진단비</dt><dd>가입금액 × 100% · 질병코드가 약관 별표 목록에 들 때 · 보통 최초 1회</dd>
+    <dt>수술비</dt><dd>가입금액 × 수술 1회 · 1-5종/1-7종은 담보명의 종 = 수술분류표 종일 때만 · 병원 종별·원인(질병/상해) 조건</dd>
+    <dt>치료비</dt><dd>가입금액 × 1회 · 정해진 치료(항암약물·방사선·표적·혈전용해·검사 등)를 받은 단계에서 · 급여/비급여·약물 종수 조건</dd>
+    <dt>통합치료비</dt><dd>약관 지급금액표의 항목 금액 합 · 항목마다 연 1회 또는 1회당 · 연간 총액은 가입금액까지</dd>
+    <dt>통합생활지원비</dt><dd>약관 월 항목표 합(산정특례·주요치료) · 한 달 합계는 가입금액까지</dd>
+    <dt>최대두배 2대질환</dt><dd>치료포인트(혈전용해·비관혈 1점, 관혈 2점, 중환자실 4일 1점·8일 2점) 구간마다 가입금액의 25·35·40·100%</dd>
+    <dt>계산 제외</dt><dd>약관 조건을 질병코드만으로 정할 수 없거나 근거 목록이 없으면 금액을 만들지 않고 사유만 남김</dd>
+  </dl>
+</section>
+<p class="foot" id="foot"></p>
+</div>
+
+<script id="DATA" type="application/json">__DATA__</script>
+<script>
+(function(){
+const D=JSON.parse(document.getElementById('DATA').textContent);
+const $=s=>document.querySelector(s);
+const st={d:0,p:1,open:null};
+try{const s=JSON.parse(localStorage.getItem('gamap')||'{}'); if(Number.isInteger(s.d)&&s.d<D.designs.length) st.d=s.d; if(s.p>=1&&s.p<=6) st.p=s.p;}catch(e){}
+const h=location.hash.match(/^#p([1-6])$/); if(h) st.p=+h[1];
+function save(){try{localStorage.setItem('gamap',JSON.stringify({d:st.d,p:st.p}))}catch(e){}}
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const won=v=>{v=Math.round(v*10)/10; const e=Math.floor(v/10000), m=Math.round((v-e*10000)*10)/10; const f=x=>x.toLocaleString('ko-KR'); return e? (m? e+'억 '+f(m): e+'억') : f(v);};
+function valHtml(t){
+  if(!t) return '<span class="val na">-</span>';
+  if(/미가입|면책|지원가능/.test(t) && !/\d/.test(t)) return '<span class="val na">'+esc(t)+'</span>';
+  return '<span class="val">'+t.split(' / ').map(x=>/^[\d,억 ]+$/.test(x)?esc(x)+'<i>만원</i>':esc(x)).join(' · ')+'</span>';
+}
+$('#meta').textContent='엔진 '+D.meta.ver+' · 칸 '+D.meta.cells+'개 · 8개 상품 특약 '+D.meta.master.toLocaleString('ko-KR')+'건 기준';
+$('#foot').textContent='금액은 계약 1년 경과 후 첫 지급 기준의 예시값이며 실제 지급은 약관과 심사 기준에 따릅니다. 질병코드·금액은 약관 별표와 지급금액표에서만 가져옵니다.';
+const sel=$('#dsel');
+D.designs.forEach((d,i)=>{const o=document.createElement('option'); o.value=i; o.textContent=d.l; sel.appendChild(o);});
+sel.value=st.d; sel.onchange=()=>{st.d=+sel.value; save(); renderPage();};
+const nav=$('#pages');
+Object.entries(D.pages).forEach(([k,v])=>{const b=document.createElement('button'); b.className='chip'; b.type='button'; b.innerHTML='<b>'+k+'</b>'+esc(v); b.onclick=()=>{st.p=+k; st.open=null; save(); history.replaceState(null,'','#p'+k); $('#q').value=''; showSearch(false); renderPage(); window.scrollTo({top:0})}; b.dataset.p=k; nav.appendChild(b);});
+
+function renderPage(){
+  nav.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed', +b.dataset.p===st.p));
+  const cells=D.cells.filter(c=>c.p===st.p);
+  let html='<details class="cap"><summary>지면 캡처 · 숫자가 칸 번호 (The건강한 5.10.5 여44 설계서)</summary><img src="p'+st.p+'.jpg" alt="'+st.p+'쪽 지면 캡처" loading="lazy"></details>';
+  let sec=null;
+  cells.forEach(c=>{
+    if(c.sec!==sec){ if(sec!==null) html+='</div>'; sec=c.sec; html+='<h2>'+esc(sec)+'</h2><div class="list">'; }
+    const lab=[c.row,c.col].filter(Boolean).join(' › ');
+    html+='<div class="cell" id="c-'+c.id+'"><button type="button" aria-expanded="false" data-id="'+c.id+'"><span class="no">'+c.n+'</span><span class="lab">'+esc(lab||c.sec)+'<small>'+esc(c.sc||c.note||'')+'</small></span>'+valHtml(c.v[st.d])+'</button></div>';
+  });
+  if(sec!==null) html+='</div>';
+  $('#page').innerHTML=html;
+  $('#page').querySelectorAll('.cell>button').forEach(b=>b.onclick=()=>toggle(b.dataset.id));
+  if(st.open) toggle(st.open,true);
+}
+function cellById(id){return D.cells.find(c=>c.id===id)}
+function toggle(id,force){
+  const box=document.getElementById('c-'+id); if(!box) return;
+  const btn=box.querySelector('button'); const ex=box.querySelector('.det');
+  if(ex && !force){ex.remove(); box.classList.remove('open'); btn.setAttribute('aria-expanded','false'); st.open=null; return;}
+  if(ex) ex.remove();
+  document.querySelectorAll('.cell.open').forEach(o=>{if(o!==box){o.classList.remove('open'); const d=o.querySelector('.det'); if(d) d.remove(); o.querySelector('button').setAttribute('aria-expanded','false');}});
+  st.open=id; box.classList.add('open'); btn.setAttribute('aria-expanded','true');
+  box.insertAdjacentHTML('beforeend', detail(cellById(id)));
+  const mb=box.querySelector('.more'); if(mb) mb.onclick=()=>{box.querySelector('.uni').innerHTML=uniHtml(cellById(id),true); mb.remove();};
+}
+function scHtml(c){
+  if(c.kind!=='engine') return '<div class="sc">'+esc(c.note||'계산 없이 설계서 가입금액 또는 고정값을 그대로 표시하는 칸')+'</div>';
+  const s=c.scd||{};
+  let h='<div class="sc"><div><span class="kcd">'+esc(s.kcd||'')+'</span> '+esc(c.sc)+'</div>';
+  if(s.steps&&s.steps.length) h+='<div style="margin-top:4px">'+s.steps.map(esc).join(' → ')+'</div>';
+  const t=(s.tags||[]).concat((s.grp||[]).length?['질병군 '+s.grp.join(', ')]:[]);
+  if(t.length) h+='<div class="tags">'+t.map(x=>'<span class="tag">'+esc(x)+'</span>').join('')+'</div>';
+  return h+'</div>';
+}
+function payHtml(c){
+  const L=c.dl[st.d]||[];
+  if(!L.length) return '<p class="empty">이 설계서에서는 이 칸에 계산된 특약이 없습니다'+(c.v[st.d]?' ('+esc(c.v[st.d])+')':'')+'.</p>';
+  let sum=0;
+  let h='<table class="pay"><tbody>'+L.map(l=>{sum+=l[1]; const r=D.rules[l[3]]||['',''];
+    return '<tr><td><span class="k">'+esc(r[0]||'기타')+'</span>'+(l[4]?'<span class="k f">'+esc(l[4])+'</span>':'')+esc(D.names[l[0]])+'<span class="why">'+esc(l[2])+'</span></td><td class="a">'+won(l[1])+'</td></tr>';}).join('');
+  if(L.length>1) h+='<tr class="sum"><td>지급 줄 합계</td><td class="a">'+won(sum)+'</td></tr>';
+  return h+'</tbody></table>';
+}
+function uniHtml(c,all){
+  const U=c.u||[]; const show=all?U:U.slice(0,25);
+  return show.map(u=>'<div><span>'+esc(D.names[u[0]])+'</span><em>'+esc(u[1].map(i=>D.prods[i]).join(' · '))+'</em></div>').join('');
+}
+function detail(c){
+  const iss=(c.iss[st.d]||[]);
+  let h='<div class="det">';
+  h+='<div class="blk"><h3>넣는 사례</h3>'+scHtml(c)+'</div>';
+  h+='<div class="blk"><h3>합산 방식</h3><div class="how">'+esc(c.mode)+(c.filt?'<span class="filt">'+esc(c.filt)+'</span>':'')+'</div></div>';
+  h+='<div class="blk"><h3>'+esc(D.designs[st.d].l)+' — 계산된 특약</h3>'+payHtml(c)+'</div>';
+  if(iss.length) h+='<div class="blk"><h3>0원·제외 사유</h3><div class="iss">'+iss.map(x=>'<span>'+esc(x)+'</span>').join('')+'</div></div>';
+  if(c.kind==='engine'){
+    const n=(c.u||[]).length;
+    h+='<div class="blk"><h3>이 칸에 들어올 수 있는 특약 (8개 상품 전체 '+n+'개)</h3>'+(n?'<div class="uni">'+uniHtml(c,false)+'</div>'+(n>25?'<button class="more" type="button">'+(n-25)+'개 더 보기</button>':''):'<p class="empty">어떤 상품의 특약도 이 사례에서 지급되지 않습니다.</p>')+'</div>';
+  }
+  if(c.note && c.kind==='engine') h+='<p class="note">'+esc(c.note)+'</p>';
+  return h+'</div>';
+}
+function showSearch(on){$('#search').hidden=!on; $('#page').hidden=on;}
+let tm=null;
+$('#q').addEventListener('input',()=>{clearTimeout(tm); tm=setTimeout(search,150);});
+function norm(s){return s.replace(/\s/g,'').toLowerCase();}
+function search(){
+  const q=norm($('#q').value);
+  if(q.length<2){showSearch(false); return;}
+  showSearch(true);
+  const hits=new Map();
+  D.names.forEach((n,i)=>{ if(norm(n).includes(q)) hits.set(i,[]); });
+  D.cells.forEach(c=>{ (c.u||[]).forEach(u=>{ if(hits.has(u[0])) hits.get(u[0]).push(c); }); });
+  const arr=[...hits.entries()].filter(([i,cs])=>cs.length).slice(0,60);
+  const res=$('#res');
+  if(!arr.length){res.innerHTML='<p class="empty">"'+esc($('#q').value)+'" 이(가) 들어간 특약이 어느 칸에도 없습니다.</p>'; return;}
+  res.innerHTML='<p class="empty">특약 '+arr.length+'개 · 칸 번호를 누르면 그 칸으로 갑니다</p>'+arr.map(([i,cs])=>'<div class="hit"><b>'+esc(D.names[i])+'</b><div class="go">'+cs.map(c=>'<button type="button" data-id="'+c.id+'" data-p="'+c.p+'">'+c.p+'쪽 '+c.n+' '+esc([c.row,c.col].filter(Boolean).join('›'))+'</button>').join('')+'</div></div>').join('');
+  res.querySelectorAll('.go button').forEach(b=>b.onclick=()=>{st.p=+b.dataset.p; st.open=b.dataset.id; save(); $('#q').value=''; showSearch(false); renderPage(); const el=document.getElementById('c-'+b.dataset.id); if(el) el.scrollIntoView({block:'start'});});
+}
+renderPage();
+})();
+</script>
