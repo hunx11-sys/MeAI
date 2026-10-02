@@ -8,19 +8,18 @@
    글자가 띄어쓰기 말고는 똑같을 때만, 띄어쓰기가 있는 표기(여러 상품에서 가장 많이 쓴 것)로 맞춘다.
    스마트 제안서는 담보명을 띄어쓰기 없이 맞추므로(matcher.base · scen_engine.nname) 영향이 없다.
 
-2) 묶어도 되는지 약관으로 판정
-   이름이 같아도 상품마다 약관이 다를 수 있다(간편심사 상품의 1년 감액, 케어프리의 15세 미만 규정 등).
-   아래가 모두 같을 때만 같은 특약으로 묶는다.
-     · 보장 질병코드(k) · 제외코드(x) · 수가코드(hc) — 범위 표기(C40~C41)는 낱개 코드로 풀어서 비교
-     · 약관 본문의 지급비율(보험가입금액의 ○%) 모음 — 두 약관 모두 % 로 적었을 때만 비교
-     · 감액기간(○년경과시점) · 90일 대기기간(보장개시일)
-   15세 미만 보장개시 규정만 다르면 묶되, 그 상품 태그 옆에 적는다(성인 기준 지급 조건은 같다).
-   하나라도 다르면 묶지 않고, 카드에 무엇이 다른지 적는다.
+2) 이름이 같으면 같은 특약 (소유자 확인 2026.10)
+   상품만 다른 같은 이름 특약은 약관 별표가 같다(별표 번호·쪽만 다름). 그래서 한 카드로 묶는다.
+   세부보장은 부모 이름이 같고 세부 이름이 같을 때 같은 특약(또또암의 '부모[세부]' 표기도 [ ] 안으로 비교).
+   · 질병코드가 다르면 그건 데이터 오류다 — 묶음마다 보장·제외 질병코드와 수가코드를 실제로 덮는 범위로
+     대조해(C40~C41 = C40·C41) 다르면 '확인 필요'로 출력한다. 출력이 나오면 약관 별표로 데이터를 바로잡는다
+     (scripts/fix_same_terms.py 가 그렇게 고친 기록).
+   · 간편심사 상품의 감액(예 : 통합간편 「계약일부터 1년 경과시점 전일 이전 50%」)은 약관 지급표에 실제로
+     적힌 차이라, 카드는 묶되 그 상품 태그 옆에 적는다(sv). 보장개시 문구 정도의 차이는 적지 않는다.
 
 데이터에 다는 표시 (tool.html DATA 의 특약마다)
    sg : 묶음 번호 — 같은 sg 끼리 한 카드
-   sv : 이 상품만의 메모(묶음 안에서 다른 점)
-   sd : 같은 이름인데 약관이 달라 따로 둔 특약 [[id, 다른 점], …]
+   sv : 이 상품만의 지급 메모(예 : 가입 1년 내 50%)
 
 실행 : python3 scripts/same_riders.py            (결과만 보기)
        python3 scripts/same_riders.py --write    (tool.html 에 반영)
@@ -38,57 +37,55 @@ ORDER = ['통합간편', '케어프리', '운전자', '치아', '또또암', '�
 def nk(n): return re.sub(r'\s+', '', n or '')
 
 
-def codeset(toks):
-    """질병코드 목록을 실제 코드 모음으로 — 'C40~C41' 과 'C40','C41' 을 같게 본다
-    (같은 분류표를 범위 한 줄로 적은 상품과 낱개로 적은 상품이 갈라지지 않게)"""
-    out = set()
-    for t in toks or []:
-        m = re.match(r'^([A-Z])(\d{2})~([A-Z])?(\d{2})$', t.strip())
-        if m and (m.group(3) or m.group(1)) == m.group(1):
-            out |= {'%s%02d' % (m.group(1), i) for i in range(int(m.group(2)), int(m.group(4)) + 1)}
-        else:
-            out.add(t.strip())
-    return frozenset(out)
+# ── 질병코드 목록이 실제로 덮는 범위 비교 (표기 차이 무시) ──
+def _expand(t):
+    """한 표기 → 비교용 코드들(범위는 풀어서). 'C40~C41' → C40,C41 · 'Q26.0~Q26.4' → Q26.0..Q26.4"""
+    t = t.strip().replace('∼', '~')
+    if '~' not in t: return [t]
+    a, b = t.split('~')
+    if not b[0].isalpha(): b = a[0] + b
+    if '.' not in a and '.' not in b:
+        if a[0] != b[0]: return [a, b]
+        return ['%s%02d' % (a[0], i) for i in range(int(a[1:3]), int(b[1:3]) + 1)]
+    a3, b3 = a.split('.')[0], b.split('.')[0]
+    if a3 == b3 and '.' in a and '.' in b:
+        x, y = a.split('.')[1], b.split('.')[1]
+        w = max(len(x), len(y))
+        return ['%s.%0*d' % (a3, len(x) if len(x) == len(y) else 1, i) for i in range(int(x), int(y) + 1)] if len(x) == len(y) else [a, b]
+    return [a, b]
 
 
-def feat(r):
+def covers(toks, code):
+    c3 = code.split('.')[0]
+    for t in toks:
+        for e in _expand(t):
+            if e == code or ('.' not in e and e == c3) or ('.' in e and code.startswith(e)): return True
+    return False
+
+
+def same_codes(a, b):
+    """두 코드 목록이 덮는 범위가 같은가 — 두 목록에 나온 코드를 하나씩 서로 대조"""
+    probe = {e for t in list(a) + list(b) for e in _expand(t)}
+    return all(covers(a, c) == covers(b, c) for c in probe)
+
+
+def red_note(r):
+    """간편심사 등 감액 — 약관 지급표의 '계약일부터 ○ 경과시점 전일 이전 … ○%' (구간이 여럿이면 모두)"""
     b = re.sub(r'\s+', '', r.get('b') or '')
-    return {
-        'codes': (codeset(r.get('k')), codeset(r.get('x')), frozenset(r.get('hc') or [])),
-        # 감액 : 「계약일부터 1년(90일) 경과시점」 전에는 일부만 지급
-        'red': tuple(sorted(set(re.findall(r'(\d+(?:년|일))경과시점', b)))),
-        # 대기 : 보장개시일을 계약일부터 90일 지난 날로 정함(그 전 진단은 보장 안 함)
-        'wait': bool(re.search(r'보장개시일[^.]{0,80}90일|90일[^.]{0,60}보장개시', b)),
-        'pct': tuple(sorted(set(re.findall(r'보험가입금액의(\d+)%', b)), key=int)),
-        'age15': '15세미만' in b,
-    }
-
-
-HARD = ('codes', 'red', 'wait', 'pct')     # 다르면 묶지 않는다
-
-
-def same(fa, fb):
-    """지급비율은 두 약관 모두 '보험가입금액의 ○%' 로 적었을 때만 비교한다
-    (금액표를 % 없이 적은 약관이 있어, 적는 방식 차이로 갈라지지 않게)"""
-    for h in HARD:
-        if h == 'pct' and not (fa['pct'] and fb['pct']): continue
-        if fa[h] != fb[h]: return False
-    return True
-
-
-def diff_text(a, fa, b, fb):
-    """a 카드에 적을 문구 — b(다른 상품)와 무엇이 다른지"""
-    out = []
-    if fa['codes'] != fb['codes']: out.append('보장 질병코드 범위가 다름')
-    if fa['red'] != fb['red']:
-        if fa['red'] and not fb['red']: out.append('이 상품은 가입 %s 내 감액' % '·'.join(fa['red']))
-        elif fb['red'] and not fa['red']: out.append('%s는 가입 %s 내 감액' % (b['p'], '·'.join(fb['red'])))
-        else: out.append('감액기간이 다름')
-    if fa['wait'] != fb['wait']:
-        out.append('이 상품은 90일 보장개시(대기) 규정' if fa['wait'] else '%s는 90일 보장개시(대기) 규정' % b['p'])
-    if fa['pct'] and fb['pct'] and fa['pct'] != fb['pct'] and fa['red'] == fb['red']: out.append('지급비율이 다름')
-    if fa['age15'] != fb['age15']: out.append('15세 미만 규정이 다름')
-    return ' · '.join(out) or '약관 조건이 다름'
+    i = b.find('제1조'); j = b.find('제2조(', i + 3)
+    s = b[i:j] if i >= 0 and j > i else b[:4000]
+    periods = []
+    for p in re.findall(r'계약일부터(\d+(?:년|일))경과시점전일이전', s):
+        if p not in periods: periods.append(p)
+    if not periods: return ''
+    k = s.find('계약일부터%s경과시점전일이전' % periods[0])
+    pct = [int(v) for v in re.findall(r'보험가입금액의(\d+)%', s[k:k + 3000])]
+    n = len(periods)
+    for i in range(len(pct) - n):          # 감액이 실제로 있는 첫 줄 : ○% … → 100%
+        w = pct[i:i + n + 1]
+        if w[-1] == 100 and all(v < 100 for v in w[:-1]) and w[:-1] == sorted(w[:-1]):
+            return '가입 ' + ' · '.join('%s 내 %d%%' % (p, v) for p, v in zip(periods, w)) + ' 지급'
+    return '가입 %s 내 감액' % ' · '.join(periods)
 
 
 def main():
@@ -111,8 +108,7 @@ def main():
         for r in v:
             if r['n'] != best:
                 renamed.append((r['id'], r['n'], best)); r['n'] = best
-
-    # 1-2) 또또암 두 상품은 세부보장 이름을 '부모[세부]' 로 적는다 — 앞의 부모 부분도 같은 띄어쓰기로
+    # 1-2) 또또암 두 상품의 세부보장 '부모[세부]' — 앞의 부모 부분도 같은 띄어쓰기로
     #      (이름 모양 자체는 그대로 둔다 : 스마트 제안서가 설계서의 '부모[세부]' 표기를 이 이름으로 찾는다)
     for r in R:
         par = RM.get(r.get('parent'))
@@ -120,14 +116,14 @@ def main():
         pk, n = nk(par['n']), r['n']
         if not nk(n).startswith(pk + '[') or n.startswith(par['n'] + '['): continue
         i = c = 0
-        while c < len(pk):                       # 띄어쓰기를 빼고 부모 이름만큼 글자를 센 자리
+        while c < len(pk):
             if not n[i].isspace(): c += 1
             i += 1
         new = par['n'] + n[i:].lstrip()
         if nk(new) == nk(n) and new != n:
             renamed.append((r['id'], n, new)); r['n'] = new
 
-    # 2) 묶음 판정 — 세부보장은 부모 이름이 같고, 세부 이름(부모[세부] 꼴이면 [ ] 안)이 같아야 같은 특약
+    # 2) 같은 이름 = 같은 특약
     def key(r):
         par = RM.get(r.get('parent'))
         if not par: return nk(r['n'])
@@ -136,40 +132,33 @@ def main():
         return pk + '›' + n
     groups = collections.defaultdict(list)
     for r in R: groups[key(r)].append(r)
-    F = {r['id']: feat(r) for r in R}
-    sg_n = merged = split = 0
+    sg_n = merged = 0; check = []
     for k, v in groups.items():
         if len({r['p'] for r in v}) < 2: continue
         v = sorted(v, key=lambda r: ORDER.index(r['p']) if r['p'] in ORDER else 99)
-        clusters = []
+        # 한 상품에 같은 이름이 둘 이상이면(부모가 다른 세부 등) 상품마다 첫 것만 묶는다
+        seen, c = set(), []
         for r in v:
-            for c in clusters:
-                f0 = F[c[0]['id']]
-                if r['p'] not in {x['p'] for x in c} and same(F[r['id']], f0):
-                    c.append(r); break
-            else:
-                clusters.append([r])
-        for c in clusters:
-            if len(c) > 1:
-                sg_n += 1; merged += len(c)
-                for r in c: r['sg'] = 's%d' % sg_n
-                ages = {F[r['id']]['age15'] for r in c}
-                if len(ages) > 1:
-                    for r in c:
-                        if F[r['id']]['age15']: r['sv'] = '15세 미만 보장개시 별도 규정'
-        if len(clusters) > 1:
-            for c in clusters:
-                for r in c:
-                    others = [o for c2 in clusters if c2 is not c for o in c2 if o['p'] != r['p']]
-                    if others:
-                        r['sd'] = [[o['id'], diff_text(r, F[r['id']], o, F[o['id']])] for o in others]
-                        split += 1
+            if r['p'] not in seen: seen.add(r['p']); c.append(r)
+        sg_n += 1; merged += len(c)
+        for r in c: r['sg'] = 's%d' % sg_n
+        notes = {r['id']: red_note(r) for r in c}
+        if len(set(notes.values())) > 1:
+            for r in c:
+                if notes[r['id']]: r['sv'] = notes[r['id']]
+        base = c[0]
+        for r in c[1:]:
+            for f in ('k', 'x'):
+                if not same_codes(base.get(f) or [], r.get(f) or []):
+                    check.append((k, f, base['id'], r['id']))
+            if set(base.get('hc') or []) != set(r.get('hc') or []):
+                check.append((k, 'hc', base['id'], r['id']))
 
     print('띄어쓰기 바로잡은 특약명 %d건' % len(renamed))
-    for x in renamed[:12]: print('   %s  %s  →  %s' % x)
-    print('여러 상품에 같은 이름 : 묶음 %d개(특약 %d건) · 약관이 달라 따로 둔 특약 %d건' % (sg_n, merged, split))
-    ex = [r for r in R if r.get('sd')][:10]
-    for r in ex: print('   따로 :', r['id'], r['p'], r['n'][:30], '|', r['sd'][0][1])
+    for x in renamed[:8]: print('   %s  %s  →  %s' % x)
+    print('여러 상품에 같은 이름 : 묶음 %d개(특약 %d건) · 감액 메모 %d건' % (sg_n, merged, sum(1 for r in R if r.get('sv'))))
+    print('질병코드·수가코드가 어긋난 같은 특약(확인 필요) %d건' % len(check))
+    for x in check[:30]: print('   확인 필요 :', x)
     if '--write' in sys.argv:
         body = json.dumps(deflate(D), ensure_ascii=False, separators=(',', ':'))
         io.open(TOOL, 'w', encoding='utf-8').write(html[:m.start(2)] + body + html[m.end(2):])
