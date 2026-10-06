@@ -68,23 +68,21 @@ const ph=(img,x,y,w,h,cls='',extra='')=>`<div class="ph ${cls}" style="left:${x}
 const V=document.getElementById('v');
 
 /* 장면 1 — 질문 (0 ~ 6.6) */
+const RED=o=>`<div class="L" style="background:radial-gradient(120% 90% at 50% 45%,#7a0016,#1a0005);mix-blend-mode:lighten;opacity:${o}"></div>`;
 function s1(t){
-  const z=1+t*.012;
+  const z=1+t*.015, gl=t>3.9;
   return `<div class="pn" style="left:30px;top:30px;width:1020px;height:1080px">
      <div class="L tone-l" style="opacity:.35"></div>
-     ${focus(900,560,70,420,2,'rgba(10,10,10,.85)')}
-     <img src="g_merry_face.png" style="position:absolute;height:1200px;right:-330px;top:-80px;transform:scale(${z}) rotate(-8deg);transform-origin:left center">
-     <div style="position:absolute;right:-330px;top:-80px;height:1200px;width:1354px;transform:scale(${z}) rotate(-8deg);transform-origin:left center">${intense(1354,1200,t>4.5?1:0,1)}</div>
-     <img src="g_eco.png" style="position:absolute;height:330px;left:70px;top:740px;opacity:${cl((t-.2)*3)}">
-     ${sfx('고\n고\n고\n고',560,620,96,6,cl((t-1.0)*2))}
-     ${bubble(300,830,200,140,type('아…',t,4.3,6),46,{tail:[.15,.5,-.12,.55],op:cl((t-4.3)*5)})}
-     ${bubble(40,60,640,360,type('이 영업지원도구 6종의\n어디에…',t,.3,13),60,{tail:[.9,.7,1.08,.95],op:cl(t*6)})}
-     ${bubble(40,420,520,320,type('우리가 약관을 찾으며\n일했던 것보다\n편리하다고 생각하나?',t,2.2,14),48,{tail:[.95,.45,1.12,.5],op:cl((t-2.1)*6)})}
+     ${focus(800,520,80,380,2,'rgba(10,10,10,.9)')}
+     <img src="${gl?'A_glare':'A_stern'}.png" style="position:absolute;width:900px;left:300px;top:-30px;transform:scale(${z}) rotate(-4deg);transform-origin:60% 40%">
+     ${sfx('고\n고\n고\n고',880,700,100,6,cl((t-1.0)*2))}
+     ${bubble(30,50,560,330,type('이 영업지원도구 6종의\n어디에…',t,.3,13),52,{tail:[.92,.62,1.1,.8],op:cl(t*6)})}
+     ${bubble(30,500,500,330,type('우리가 약관을 찾으며\n일했던 것보다\n편리하다고 생각하나?',t,2.2,14),44,{tail:[.95,.4,1.14,.36],op:cl((t-2.1)*6)})}
    </div>
    <div class="pn" style="left:30px;top:1140px;width:1020px;height:750px">
      <div class="L tone" style="opacity:.12"></div>
-     <img src="g_eco.png" style="position:absolute;height:640px;left:560px;top:140px;transform:translateX(${(1-ex((t-3.9)/.5))*200}px)">
-     ${bubble(40,110,560,380,type('뭐…\n그냥 업무 좀\n편하게 해주는 거\n아닌가요?',t,4.4,14),52,{tail:[.95,.6,1.12,.75],op:cl((t-4.3)*6)})}
+     <img src="B_calm.png" style="position:absolute;width:600px;left:440px;top:70px;transform:translateX(${(1-ex((t-3.9)/.5))*300}px)">
+     ${bubble(30,90,520,400,type('뭐…\n그냥 업무 좀\n편하게 해주는 거\n아닌가요?',t,4.4,14),48,{tail:[.95,.6,1.12,.7],op:cl((t-4.3)*6)})}
    </div>`;
 }
 /* 장면 2 — 6종 등장 (6.6 ~ 11.6) */
@@ -104,15 +102,14 @@ function s2(t){
 /* 장면 3 — 극화 클로즈업 (11.6 ~ 16.6) */
 function s3(t){
   const lt=t-11.6;
-  if(lt<2.5){const sk=lt<.25?14*(1-lt/.25):0; const z=1.0+lt*.04;
+  if(lt<2.5){const sk=lt<.25?16*(1-lt/.25):0; const z=1.0+lt*.05;
     return `<div class="pn" style="left:30px;top:30px;width:1020px;height:1860px;transform:${shk(lt,sk)};background:#fff">
-      ${focus(560,980,150,560,3)}${ink(160,1650,1.6,2)}${ink(930,560,1.1,5)}
-      <div style="position:absolute;left:-170px;top:240px;width:1360px;height:1205px;transform:scale(${z}) rotate(6deg)">
-        <img src="g_merry_face.png" style="width:100%;height:100%">
-        <div style="position:absolute;inset:0">${intense(1360,1205,1,1)}</div></div>
-      ${sfx('두\n둥',830,1300,150,8,cl((lt-.3)*4))}
-      ${bubble(120,70,820,420,type('편리함도\n겨우 14~15배.',lt,.15,12),92,{tail:[.55,.95,.62,1.25],sc:back(lt/.25)})}
-      <div class="note">※ 패러디 연출 · 수치는 가정값</div></div>`}
+      ${focus(510,900,170,640,3)}${ink(140,1700,1.7,2)}${ink(940,520,1.2,5)}
+      <div style="position:absolute;left:-290px;top:120px;width:1600px;transform:scale(${z}) rotate(3deg);transform-origin:50% 40%"><img src="A_glare.png" style="width:100%"></div>
+      ${RED(cl((lt-.25)*3)*.95)}
+      ${sfx('두\n둥',840,1250,160,8,cl((lt-.3)*4))}
+      ${bubble(110,60,800,400,type('편리함도\n겨우 14~15배.',lt,.15,12),92,{tail:[.55,.95,.6,1.22],sc:back(lt/.25)})}
+      <div class="note" style="color:#eee">※ 패러디 연출 · 수치는 가정값</div></div>`}
   const k=lt-2.5;
   return `<div class="pn" style="left:30px;top:30px;width:1020px;height:880px;transform:translateX(${(1-ex(k/.35))*1100}px)">
       <div class="L tone-l" style="opacity:.5"></div>
@@ -120,14 +117,15 @@ function s3(t){
       ${bubble(560,80,420,260,'약관 근거도\n버튼 하나.',42,{tail:[.2,.95,.05,1.2],op:cl((k-.2)*6)})}
     </div>
     <div class="pn" style="left:30px;top:940px;width:640px;height:950px;transform:translateY(${(1-ex((k-.15)/.35))*1100}px)">
-      ${focus(320,650,70,260,5)}
-      <div style="position:absolute;left:-240px;top:340px;width:1120px;height:993px;transform:rotate(-4deg)"><img src="g_merry_face.png" style="width:100%;height:100%"><div style="position:absolute;inset:0">${intense(1120,993,1,1)}</div></div>${sfx('고고고',380,820,80,-6,cl((k-.6)*3))}
-      ${bubble(30,40,580,330,type('빠르다고 해봐야\n겨우 11~12배.',k,.45,12),56,{tail:[.55,.95,.6,1.22]})}
+      ${focus(320,700,80,300,5)}
+      <div style="position:absolute;left:-580px;top:-560px;width:1800px;transform:rotate(-3deg)"><img src="A_grin.png" style="width:100%"></div>
+      ${sfx('고고고',360,840,80,-6,cl((k-.6)*3))}
+      ${bubble(30,30,580,320,type('빠르다고 해봐야\n겨우 11~12배.',k,.45,12),56,{tail:[.55,.95,.6,1.22]})}
     </div>
     <div class="pn" style="left:700px;top:940px;width:350px;height:950px;transform:translateY(${(1-ex((k-.3)/.35))*1100}px)">
-      <img src="g_eco.png" style="position:absolute;height:560px;left:-110px;top:360px">
-      ${intense(350,0)}
-      ${bubble(20,60,310,200,type('…미스터…',k,1.5,8),40,{tail:[.4,.95,.3,1.2],op:cl((k-1.45)*6)})}
+      <div class="L tone-l" style="opacity:.4"></div>
+      <img src="B_shock.png" style="position:absolute;width:760px;left:-205px;top:260px">
+      ${bubble(20,50,310,200,type('…선배님…',k,1.5,8),40,{tail:[.4,.95,.3,1.2],op:cl((k-1.45)*6)})}
       <div class="note" style="right:16px;font-size:20px">※ 패러디 연출 · 가정값</div>
     </div>`;
 }
@@ -144,8 +142,8 @@ function s4(t){
         <div class="L tone-l" style="opacity:.45"></div>
         <div style="position:absolute;left:0;right:0;top:60px;text-align:center;font-size:42px;font-weight:800">약관 찾아가며</div>
         <div style="position:absolute;left:0;right:0;top:118px;text-align:center;font-size:30px;color:#444">연구하듯 영업</div>
+        <img src="B_shock.png" style="position:absolute;width:520px;left:-10px;top:${360+(flip?6:0)}px">
         ${papers}
-        <img src="g_rara.png" style="position:absolute;height:520px;left:150px;top:${520+(flip?6:0)}px">
         <div style="position:absolute;left:50px;right:50px;top:1560px;height:34px;border:5px solid #111;background:#fff"><div style="width:${leftBar}%;height:100%;background:#111"></div></div>
         <div style="position:absolute;left:0;right:0;top:1640px;text-align:center;font-size:110px;font-weight:800">${L_>=1?1:0}<span style="font-size:48px"> 건</span></div>
       </div>
@@ -154,7 +152,7 @@ function s4(t){
         <div style="position:absolute;left:0;right:0;top:60px;text-align:center;font-size:42px;font-weight:800;color:#E4002B">영업지원도구 6종으로</div>
         <div style="position:absolute;left:0;right:0;top:118px;text-align:center;font-size:30px;color:#444">쉽고 빠르게 영업</div>
         ${ph(TOOLS[Math.floor(run*20)%6][1],120,820,260,560,'','box-shadow:0 0 0 6px #111')}
-        <img src="g_indi.png" style="position:absolute;height:520px;left:140px;top:${300+Math.sin(lt*30)*10}px;filter:none">
+        <img src="A_grin.png" style="position:absolute;width:520px;left:-10px;top:${190+Math.sin(lt*30)*6}px">
         <div style="position:absolute;left:50px;right:50px;top:1560px;height:34px;border:5px solid #111;background:#fff"><div style="width:${rightBar}%;height:100%;background:#E4002B"></div></div>
         <div style="position:absolute;left:0;right:0;top:1640px;text-align:center;font-size:110px;font-weight:800;color:#E4002B">${freeze?10:Rn}<span style="font-size:48px"> 건</span></div>
       </div>
@@ -162,7 +160,7 @@ function s4(t){
       <div class="L" style="background:#000;opacity:${freeze?.25:0}"></div>`;
   }
   const k=lt-4.3, sk=k<.3?18*(1-k/.3):0;
-  return `<div class="L" style="background:#111"></div>${focus(540,760,120,330,9,'#2a2a2a')}
+  return `<div class="L" style="background:radial-gradient(90% 60% at 50% 40%,#5c0012,#0a0003)"></div>${focus(540,760,140,330,9,'rgba(0,0,0,.75)')}
     <div style="position:absolute;left:0;right:0;top:560px;text-align:center;transform:${shk(k,sk)} scale(${back(k/.22)})">
       <div style="display:inline-block;background:#E4002B;color:#fff;font-size:120px;font-weight:800;letter-spacing:-.05em;padding:20px 50px;border:9px solid #fff;transform:rotate(-3deg)">영업지원도구 6종!</div></div>
     <div style="position:absolute;left:0;right:0;top:1040px;text-align:center;color:#fff;font-size:76px;font-weight:300;line-height:1.4;opacity:${cl((k-.7)*3)}">영업은 시간이 아니라<br><b style="font-weight:800">기회를 만드는 일입니다.</b></div>`;
