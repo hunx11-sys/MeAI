@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:P;font-weight:300;src:url(Pretendard-Light.woff2)}
+@font-face{font-family:P;font-weight:400;src:url(Pretendard-Regular.woff2)}
+@font-face{font-family:P;font-weight:600;src:url(Pretendard-SemiBold.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(Pretendard-Bold.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(Pretendard-ExtraBold.woff2)}
+html,body{margin:0;background:#000}
+#v{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;background:#F6F4EE;color:#111}
+.L{position:absolute;inset:0}
+.pn{position:absolute;border:9px solid #111;background:#fff;overflow:hidden;box-sizing:border-box}
+.tone{background-image:radial-gradient(#111 30%,transparent 33%);background-size:12px 12px}
+.tone-l{background-image:radial-gradient(rgba(17,17,17,.55) 26%,transparent 30%);background-size:10px 10px}
+.bb{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center}
+.bb svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.bb .tx{position:relative;font-weight:700;letter-spacing:-.04em;line-height:1.38;white-space:pre-line;color:#111}
+.ph{position:absolute;border-radius:34px;background:#111;padding:10px;box-sizing:border-box}
+.ph .sc{width:100%;height:100%;border-radius:26px;overflow:hidden;background:#fff}
+.ph .sc img{width:100%;display:block}
+.bw{filter:grayscale(1) contrast(1.25)}
+.note{position:absolute;right:40px;bottom:26px;font-size:24px;font-weight:400;color:#555}
+</style></head><body>
+<div id="v"></div>
+<script>
+const TOOLS=[['특약검색기','s1b.png'],['보상시뮬레이터','s2.png'],['통합치료비 시뮬레이터','s3c.png'],['상품 라인업','s4.png'],['프롬프트 라이브러리','s5.png'],['명패 제작기','s6.png']];
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ex=x=>{x=cl(x);return x===1?1:1-Math.pow(2,-10*x)};
+const io=x=>{x=cl(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const back=x=>{x=cl(x);const c=1.9;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const shk=(t,a)=>a?`translate(${(Math.sin(t*97)*a).toFixed(1)}px,${(Math.cos(t*83)*a).toFixed(1)}px)`:'';
+// 글자를 한 자씩(타자) — 줄바꿈 유지
+function type(s,t,t0,cps=16){const n=Math.floor(cl((t-t0)*cps,0,s.length));return s.slice(0,n)+(n<s.length?'<span style="opacity:0">'+s.slice(n)+'</span>':'')}
+// 말풍선 (타원 + 꼬리)
+function bubble(x,y,w,h,txt,fs,o={}){
+  const tail=o.tail||[.25,1.0,.18,1.28], sh=o.shake||'', sc=o.sc??1, op=o.op??1, jag=o.jag;
+  const [tx,ty,ex_,ey]=tail;
+  let shape;
+  if(jag){let p=[];const n=26;for(let i=0;i<n*2;i++){const a=Math.PI*i/n,r=i%2?.86:1;p.push((50+49*r*Math.cos(a)).toFixed(1)+','+(50+48*r*Math.sin(a)).toFixed(1))}
+    shape=`<polygon points="${p.join(' ')}" fill="#fff" stroke="#111" stroke-width="1.1" vector-effect="non-scaling-stroke" style="stroke-width:7px"/>`}
+  else shape=`<ellipse cx="50" cy="50" rx="49" ry="48" fill="#fff" stroke="#111" style="stroke-width:6px" vector-effect="non-scaling-stroke"/>`;
+  const tailp=`<path d="M${tx*100-6},${ty*100-6} L${ex_*100},${ey*100} L${tx*100+6},${ty*100-8}" fill="#fff" stroke="#111" style="stroke-width:6px" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`;
+  return `<div class="bb" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;opacity:${op};transform:${sh} scale(${sc})"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${o.notail?'':tailp}${shape}<path d="M${tx*100-5.4},${ty*100-6.6} L${tx*100+5.4},${ty*100-8.6}" stroke="#fff" style="stroke-width:8px" vector-effect="non-scaling-stroke"/></svg><div class="tx" style="font-size:${fs}px">${txt}</div></div>`;
+}
+// 집중선(가운데로 모이는 선)
+function focus(cx,cy,n=90,inner=380,seed=1,col='#111'){let s='';for(let i=0;i<n;i++){const a=(i+((i*seed*7919)%13)/13)/n*Math.PI*2, w=.006+((i*31+seed)%7)/700, r0=inner+((i*53)%9)*26;
+  const x1=cx+Math.cos(a-w)*1800,y1=cy+Math.sin(a-w)*1800,x2=cx+Math.cos(a+w)*1800,y2=cy+Math.sin(a+w)*1800,x0=cx+Math.cos(a)*r0,y0=cy+Math.sin(a)*r0;
+  s+=`<polygon points="${x0},${y0} ${x1},${y1} ${x2},${y2}" fill="${col}"/>`}return `<svg class="L" viewBox="0 0 1080 1920" style="width:100%;height:100%">${s}</svg>`}
+// 가로 속도선
+function speed(w,h,t,n=40,col='#111'){let s='';for(let i=0;i<n;i++){const y=(i*97)%h, len=120+((i*61)%5)*90, x=((i*173)+t*2600)%(w+len)-len; s+=`<rect x="${x}" y="${y}" width="${len}" height="${2+(i%3)}" fill="${col}"/>`}return `<svg class="L" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%;height:100%">${s}</svg>`}
+// 극화 표정 덧그림 : 찌푸린 눈썹 · 땀
+function intense(w,h,sweat=0,vein=1){return `<svg class="L" viewBox="0 0 100 100" preserveAspectRatio="none" style="width:${w}px;height:${h}px">
+  <path d="M28,51 Q37,49 48,55.5 L47,57.5 Q37,53 29,54 Z" fill="#0a0a0a"/><path d="M76,51 Q67,49 56,55.5 L57,57.5 Q67,53 75,54 Z" fill="#0a0a0a"/>
+  <path d="M33,46 Q41,47.5 47,51 M71,46 Q63,47.5 57,51" stroke="#0a0a0a" stroke-width=".7" fill="none"/>
+  <path d="M33,67 Q40,69.5 47,67 M71,67 Q64,69.5 57,67" stroke="#0a0a0a" stroke-width=".9" fill="none"/>
+  <ellipse cx="52" cy="78.5" rx="9.5" ry="5.2" fill="#f2f2f2"/>
+  <path d="M43,77 Q52,74.5 61,77 L60.5,81 Q52,83.5 43.5,81 Z" fill="#fff" stroke="#0a0a0a" stroke-width="1.1"/>
+  <path d="M43.5,79 L60.5,79 M47,75.8 L47,82 M50,75.2 L50,82.6 M53,75.1 L53,82.7 M56,75.4 L56,82.4 M59,76.2 L59,81.6" stroke="#0a0a0a" stroke-width=".55"/>
+  <path d="M39,74 Q41,79 39.5,84 M65,74 Q63,79 64.5,84" stroke="#0a0a0a" stroke-width=".8" fill="none"/>
+  ${vein?`<path d="M49,36 l2.2,4 l-2.6,3.2 l2.2,4 M51.2,40 l3.2,-1.6" stroke="#0a0a0a" stroke-width="1.2" fill="none" stroke-linecap="round"/>`:''}
+  ${sweat?`<path d="M86,48 q3.4,7 0,10 q-3.4,-3 0,-10z" fill="#fff" stroke="#0a0a0a" stroke-width=".9"/><path d="M17,56 q2.6,5.5 0,8 q-2.6,-2.5 0,-8z" fill="#fff" stroke="#0a0a0a" stroke-width=".9"/><path d="M84,64 q2,4 0,6 q-2,-2 0,-6z" fill="#fff" stroke="#0a0a0a" stroke-width=".8"/>`:''}</svg>`}
+// 극화 효과음 글자 (고고고고 · 두둥)
+function sfx(txt,x,y,size,rot=0,o=1,col='#fff'){return `<div style="position:absolute;left:${x}px;top:${y}px;font-size:${size}px;font-weight:800;font-style:italic;color:${col};letter-spacing:-.08em;line-height:.9;transform:rotate(${rot}deg) skewX(-12deg);opacity:${o};-webkit-text-stroke:${Math.round(size/9)}px #0a0a0a;paint-order:stroke fill;text-shadow:${Math.round(size/14)}px ${Math.round(size/14)}px 0 #0a0a0a;white-space:pre">${txt}</div>`}
+// 먹물 튀김
+function ink(x,y,s=1,seed=1){let p='';for(let i=0;i<14;i++){const a=i*2.4+seed,r=(30+((i*37+seed*11)%60))*s,cx=x+Math.cos(a)*r,cy=y+Math.sin(a)*r,rr=(3+((i*13+seed)%9))*s;p+=`<circle cx="${cx}" cy="${cy}" r="${rr}" fill="#0a0a0a"/>`}
+  return `<svg class="L" viewBox="0 0 1080 1920" style="width:100%;height:100%"><circle cx="${x}" cy="${y}" r="${26*s}" fill="#0a0a0a"/>${p}</svg>`}
+const ph=(img,x,y,w,h,cls='',extra='')=>`<div class="ph ${cls}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${extra}"><div class="sc"><img src="${img}"></div></div>`;
+const V=document.getElementById('v');
+
+/* 장면 1 — 질문 (0 ~ 6.6) */
+function s1(t){
+  const z=1+t*.012;
+  return `<div class="pn" style="left:30px;top:30px;width:1020px;height:1080px">
+     <div class="L tone-l" style="opacity:.35"></div>
+     ${focus(900,560,70,420,2,'rgba(10,10,10,.85)')}
+     <img src="g_merry_face.png" style="position:absolute;height:1200px;right:-330px;top:-80px;transform:scale(${z}) rotate(-8deg);transform-origin:left center">
+     <div style="position:absolute;right:-330px;top:-80px;height:1200px;width:1354px;transform:scale(${z}) rotate(-8deg);transform-origin:left center">${intense(1354,1200,t>4.5?1:0,1)}</div>
+     <img src="g_eco.png" style="position:absolute;height:330px;left:70px;top:740px;opacity:${cl((t-.2)*3)}">
+     ${sfx('고\n고\n고\n고',560,620,96,6,cl((t-1.0)*2))}
+     ${bubble(300,830,200,140,type('아…',t,4.3,6),46,{tail:[.15,.5,-.12,.55],op:cl((t-4.3)*5)})}
+     ${bubble(40,60,640,360,type('이 영업지원도구 6종의\n어디에…',t,.3,13),60,{tail:[.9,.7,1.08,.95],op:cl(t*6)})}
+     ${bubble(40,420,520,320,type('우리가 약관을 찾으며\n일했던 것보다\n편리하다고 생각하나?',t,2.2,14),48,{tail:[.95,.45,1.12,.5],op:cl((t-2.1)*6)})}
+   </div>
+   <div class="pn" style="left:30px;top:1140px;width:1020px;height:750px">
+     <div class="L tone" style="opacity:.12"></div>
+     <img src="g_eco.png" style="position:absolute;height:640px;left:560px;top:140px;transform:translateX(${(1-ex((t-3.9)/.5))*200}px)">
+     ${bubble(40,110,560,380,type('뭐…\n그냥 업무 좀\n편하게 해주는 거\n아닌가요?',t,4.4,14),52,{tail:[.95,.6,1.12,.75],op:cl((t-4.3)*6)})}
+   </div>`;
+}
+/* 장면 2 — 6종 등장 (6.6 ~ 11.6) */
+function s2(t){
+  const lt=t-6.6; let h='';
+  const rows=[{y:60,s:.42,n:7},{y:290,s:.52,n:6},{y:560,s:.64,n:5},{y:900,s:.8,n:4},{y:1300,s:1,n:3}];
+  rows.forEach((r,ri)=>{const w=300*r.s, hh=600*r.s, gap=(1080-r.n*w)/(r.n+1);
+    for(let k=0;k<r.n;k++){const idx=(k+ri*2)%6; const x=gap+k*(w+gap); const app=back((lt-ri*.07-k*.03)/.35);
+      h+=ph(TOOLS[idx][1],x,r.y+(1-app)*80,w,hh,'bw',`opacity:${cl(app*1.5)}`)}});
+  const i=Math.floor((lt-.25)/.45); let hero='';
+  if(i>=0&&i<6){const k=(lt-.25-i*.45)/.45; const s=back(k/.4);
+    hero=`<div class="L" style="background:rgba(246,244,238,.55)"></div>${ph(TOOLS[i][1],290,520,500,1080,'',`transform:scale(${s});box-shadow:0 0 0 9px #111,24px 24px 0 #111`)}
+      <div style="position:absolute;left:0;right:0;top:1640px;text-align:center"><span style="background:#111;color:#fff;font-size:58px;font-weight:800;padding:10px 34px;letter-spacing:-.03em">${TOOLS[i][0]}</span></div>`}
+  const big=lt>2.95? bubble(110,640,860,520,'영업지원도구\n6종.',112,{notail:true,sc:back((lt-2.95)/.3)})+sfx('쿠웅…',620,1180,110,-8,cl((lt-3.2)*3)) : '';
+  return `<div class="pn" style="left:30px;top:30px;width:1020px;height:1860px">${h}${hero}${big}</div>`;
+}
+/* 장면 3 — 극화 클로즈업 (11.6 ~ 16.6) */
+function s3(t){
+  const lt=t-11.6;
+  if(lt<2.5){const sk=lt<.25?14*(1-lt/.25):0; const z=1.0+lt*.04;
+    return `<div class="pn" style="left:30px;top:30px;width:1020px;height:1860px;transform:${shk(lt,sk)};background:#fff">
+      ${focus(560,980,150,560,3)}${ink(160,1650,1.6,2)}${ink(930,560,1.1,5)}
+      <div style="position:absolute;left:-170px;top:240px;width:1360px;height:1205px;transform:scale(${z}) rotate(6deg)">
+        <img src="g_merry_face.png" style="width:100%;height:100%">
+        <div style="position:absolute;inset:0">${intense(1360,1205,1,1)}</div></div>
+      ${sfx('두\n둥',830,1300,150,8,cl((lt-.3)*4))}
+      ${bubble(120,70,820,420,type('편리함도\n겨우 14~15배.',lt,.15,12),92,{tail:[.55,.95,.62,1.25],sc:back(lt/.25)})}
+      <div class="note">※ 패러디 연출 · 수치는 가정값</div></div>`}
+  const k=lt-2.5;
+  return `<div class="pn" style="left:30px;top:30px;width:1020px;height:880px;transform:translateX(${(1-ex(k/.35))*1100}px)">
+      <div class="L tone-l" style="opacity:.5"></div>
+      ${ph('s1b.png',300,60,420,900,'bw','transform:rotate(-12deg)')}
+      ${bubble(560,80,420,260,'약관 근거도\n버튼 하나.',42,{tail:[.2,.95,.05,1.2],op:cl((k-.2)*6)})}
+    </div>
+    <div class="pn" style="left:30px;top:940px;width:640px;height:950px;transform:translateY(${(1-ex((k-.15)/.35))*1100}px)">
+      ${focus(320,650,70,260,5)}
+      <div style="position:absolute;left:-240px;top:340px;width:1120px;height:993px;transform:rotate(-4deg)"><img src="g_merry_face.png" style="width:100%;height:100%"><div style="position:absolute;inset:0">${intense(1120,993,1,1)}</div></div>${sfx('고고고',380,820,80,-6,cl((k-.6)*3))}
+      ${bubble(30,40,580,330,type('빠르다고 해봐야\n겨우 11~12배.',k,.45,12),56,{tail:[.55,.95,.6,1.22]})}
+    </div>
+    <div class="pn" style="left:700px;top:940px;width:350px;height:950px;transform:translateY(${(1-ex((k-.3)/.35))*1100}px)">
+      <img src="g_eco.png" style="position:absolute;height:560px;left:-110px;top:360px">
+      ${intense(350,0)}
+      ${bubble(20,60,310,200,type('…미스터…',k,1.5,8),40,{tail:[.4,.95,.3,1.2],op:cl((k-1.45)*6)})}
+      <div class="note" style="right:16px;font-size:20px">※ 패러디 연출 · 가정값</div>
+    </div>`;
+}
+/* 장면 4 — 1번 vs 10번 (16.6 ~ 23.6) */
+function s4(t){
+  const lt=t-16.6;
+  if(lt<4.3){
+    const run=cl(lt/3.6); const L_=Math.min(1,run); const Rn=Math.min(10,Math.floor(run*10+ (run>=1?0:0)));
+    const Rf=(run*10)%1; const freeze=lt>3.6;
+    const leftBar=L_*100, rightBar=freeze?100:Rf*100;
+    let papers=''; for(let i=0;i<9;i++) papers+=`<div style="position:absolute;left:${70+i*6}px;top:${1060-i*14}px;width:300px;height:380px;background:#fff;border:5px solid #111;transform:rotate(${(i%3-1)*3}deg)"><div style="margin:30px 24px;height:6px;background:#999"></div><div style="margin:0 24px 18px;height:6px;background:#bbb"></div><div style="margin:0 24px;height:6px;background:#bbb"></div><div style="margin:18px 24px;font-size:34px;font-weight:800">약관</div></div>`;
+    const flip=Math.floor(lt*1.2)%2;
+    return `<div class="pn" style="left:30px;top:30px;width:500px;height:1860px">
+        <div class="L tone-l" style="opacity:.45"></div>
+        <div style="position:absolute;left:0;right:0;top:60px;text-align:center;font-size:42px;font-weight:800">약관 찾아가며</div>
+        <div style="position:absolute;left:0;right:0;top:118px;text-align:center;font-size:30px;color:#444">연구하듯 영업</div>
+        ${papers}
+        <img src="g_rara.png" style="position:absolute;height:520px;left:150px;top:${520+(flip?6:0)}px">
+        <div style="position:absolute;left:50px;right:50px;top:1560px;height:34px;border:5px solid #111;background:#fff"><div style="width:${leftBar}%;height:100%;background:#111"></div></div>
+        <div style="position:absolute;left:0;right:0;top:1640px;text-align:center;font-size:110px;font-weight:800">${L_>=1?1:0}<span style="font-size:48px"> 건</span></div>
+      </div>
+      <div class="pn" style="left:550px;top:30px;width:500px;height:1860px;background:#FFF6E0">
+        ${freeze?'':speed(500,1860,lt,46,'rgba(228,0,43,.35)')}
+        <div style="position:absolute;left:0;right:0;top:60px;text-align:center;font-size:42px;font-weight:800;color:#E4002B">영업지원도구 6종으로</div>
+        <div style="position:absolute;left:0;right:0;top:118px;text-align:center;font-size:30px;color:#444">쉽고 빠르게 영업</div>
+        ${ph(TOOLS[Math.floor(run*20)%6][1],120,820,260,560,'','box-shadow:0 0 0 6px #111')}
+        <img src="g_indi.png" style="position:absolute;height:520px;left:140px;top:${300+Math.sin(lt*30)*10}px;filter:none">
+        <div style="position:absolute;left:50px;right:50px;top:1560px;height:34px;border:5px solid #111;background:#fff"><div style="width:${rightBar}%;height:100%;background:#E4002B"></div></div>
+        <div style="position:absolute;left:0;right:0;top:1640px;text-align:center;font-size:110px;font-weight:800;color:#E4002B">${freeze?10:Rn}<span style="font-size:48px"> 건</span></div>
+      </div>
+      <div class="note" style="left:40px;right:auto">※ 패러디 연출 · 가정값</div>
+      <div class="L" style="background:#000;opacity:${freeze?.25:0}"></div>`;
+  }
+  const k=lt-4.3, sk=k<.3?18*(1-k/.3):0;
+  return `<div class="L" style="background:#111"></div>${focus(540,760,120,330,9,'#2a2a2a')}
+    <div style="position:absolute;left:0;right:0;top:560px;text-align:center;transform:${shk(k,sk)} scale(${back(k/.22)})">
+      <div style="display:inline-block;background:#E4002B;color:#fff;font-size:120px;font-weight:800;letter-spacing:-.05em;padding:20px 50px;border:9px solid #fff;transform:rotate(-3deg)">영업지원도구 6종!</div></div>
+    <div style="position:absolute;left:0;right:0;top:1040px;text-align:center;color:#fff;font-size:76px;font-weight:300;line-height:1.4;opacity:${cl((k-.7)*3)}">영업은 시간이 아니라<br><b style="font-weight:800">기회를 만드는 일입니다.</b></div>`;
+}
+/* 장면 5 — 엔딩 (23.6 ~ 30) */
+function s5(t){
+  const lt=t-23.6; let cards='';
+  TOOLS.forEach((o,i)=>{const fx=[-400,1300,-300,1350,-350,1400][i], fy=[200,300,900,1000,1600,1700][i];
+    const tx=150+(i%3)*270, ty=230+Math.floor(i/3)*560; const k=io((lt-.05*i)/.8);
+    const x=fx+(tx-fx)*k, y=fy+(ty-fy)*k;
+    cards+=ph(o[1],x,y,240,520,'',`box-shadow:0 20px 40px rgba(0,0,0,.25)`)});
+  const steps=['고객 발견','고객 분석','상품 확인','비교','전략 수립','상담'];
+  let chain='';
+  steps.forEach((s,i)=>{const a=ex((lt-1.2-i*.25)/.4);
+    chain+=`<span style="display:inline-block;opacity:${a};transform:translateY(${(1-a)*20}px);font-size:40px;font-weight:700;color:#111;background:#fff;border:4px solid #111;border-radius:999px;padding:8px 22px;margin:8px 4px">${s}</span>${i<5?`<span style="opacity:${a};font-size:38px;color:#E4002B;font-weight:800;margin:0 4px">→</span>`:''}`});
+  const g=cl((lt-.9)*2);
+  return `<div class="L" style="background:#F6F4EE"></div>
+    <div style="position:absolute;left:110px;top:200px;width:860px;height:1150px;border-radius:44px;background:#fff;border:9px solid #111;opacity:${g};box-shadow:20px 20px 0 #111"></div>
+    ${cards}
+    <div style="position:absolute;left:40px;right:40px;top:1390px;text-align:center;line-height:1.1">${chain}</div>
+    <div style="position:absolute;left:0;right:0;top:40px;text-align:center;font-size:44px;font-weight:700;opacity:${cl((lt-.4)*3)}">여섯 가지 도구, <span style="color:#E4002B">하나의 상담 흐름</span></div>
+    <div class="L" style="background:#111;opacity:${cl((lt-3.3)*3)}"></div>
+    <div style="position:absolute;left:0;right:0;top:620px;text-align:center;color:#fff;opacity:${cl((lt-3.5)*3)}">
+      <div style="font-size:130px;font-weight:800;letter-spacing:-.05em;transform:scale(${back((lt-3.5)/.3)})">영업지원도구 6종.</div>
+      <div style="margin-top:50px;font-size:62px;font-weight:300;opacity:${cl((lt-4.1)*3)}">당신의 시간에 가치를 <b style="color:#FFC83D;font-weight:800">쥬시하게</b></div>
+      <div style="margin-top:150px;font-size:56px;font-weight:600;opacity:${cl((lt-4.8)*3)}">이제, 직접 경험해 보십시오.</div>
+      <div style="margin-top:28px;font-size:36px;color:#bbb;opacity:${cl((lt-5.1)*3)}">hunx11-sys.github.io/MeAI</div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:60px;text-align:center;color:#999;font-size:28px;opacity:${cl((lt-5.2)*3)}">문의 : 세일즈혁신TF 이헌수</div>
+    <div class="L" style="background:#000;opacity:${cl((t-29.55)/.45)}"></div>`;
+}
+window.render=function(t){
+  V.innerHTML = t<6.6?s1(t): t<11.6?s2(t): t<16.6?s3(t): t<23.6?s4(t): s5(t);
+  return document.fonts.ready.then(()=>Promise.all([...V.querySelectorAll('img')].map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r}))));
+};
+render(0);
+</script></body></html>
