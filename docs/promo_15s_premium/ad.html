@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:P;font-weight:100;src:url(Pretendard-Thin.woff2)}
+@font-face{font-family:P;font-weight:300;src:url(Pretendard-Light.woff2)}
+@font-face{font-family:P;font-weight:400;src:url(Pretendard-Regular.woff2)}
+@font-face{font-family:P;font-weight:600;src:url(Pretendard-SemiBold.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(Pretendard-Bold.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(Pretendard-ExtraBold.woff2)}
+html,body{margin:0;background:#000}
+#v{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;color:#F4F1EC;background:#0B0B0D}
+.L{position:absolute;inset:0}
+.vig{background:radial-gradient(120% 80% at 50% 38%,rgba(255,255,255,.05),transparent 60%),radial-gradient(140% 100% at 50% 110%,rgba(228,0,43,.10),transparent 55%)}
+.ln{position:absolute;overflow:hidden;left:96px;right:96px}
+.ln>span{display:block;will-change:transform}
+.idx{position:absolute;left:96px;top:150px;font-weight:300;font-size:40px;letter-spacing:.12em;color:#8C9099}
+.idx b{color:#E4002B;font-weight:600}
+.rule{position:absolute;height:3px;background:#E4002B}
+.phone{position:absolute;width:470px;height:1018px;border-radius:66px;background:#18181B;padding:16px;box-sizing:border-box;
+  box-shadow:0 0 0 2px rgba(255,255,255,.08) inset,0 60px 120px rgba(0,0,0,.65),0 0 160px rgba(228,0,43,.10)}
+.phone .sc{width:100%;height:100%;border-radius:52px;overflow:hidden;background:#fff}
+.phone .sc img{width:100%;display:block}
+.phone:after{content:"";position:absolute;left:50%;top:30px;width:120px;height:34px;margin-left:-60px;border-radius:20px;background:#0B0B0D}
+.cap{position:absolute;left:96px;right:96px;font-weight:300;color:#B9BCC3;letter-spacing:-.01em}
+</style></head><body>
+<div id="v"></div>
+<script>
+const BEAT=.5;   // 120 BPM
+const TOOLS=[
+ {n:'특약검색기',d:'특약 1,155종,<br>약관 근거까지 한 번에.',img:'s1b.png',y:0},
+ {n:'보상시뮬레이터',d:'병명 하나로 진단부터 입원까지<br>보상 흐름을 한눈에.',img:'s2.png',y:0},
+ {n:'통합치료비 시뮬레이터',d:'"얼마 받나요?"<br>숫자로 답합니다.',img:'s3c.png',y:0},
+ {n:'상품 라인업',d:'고객 조건에 맞는 상품과<br>알릴의무를 바로.',img:'s4.png',y:0},
+ {n:'프롬프트 라이브러리',d:'MeAI에 바로 쓰는<br>검증된 질문 272개.',img:'s5.png',y:0},
+ {n:'명패 제작기',d:'엑셀 한 장으로<br>행사 명패까지.',img:'s6.png',y:0},
+];
+const A0=0, A1=5*BEAT, B1=7*BEAT, C1=B1+18*BEAT, END=15;   // 2.5s · 3.5s · 12.5s
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ex=x=>{x=cl(x);return x===1?1:1-Math.pow(2,-10*x)};            // ease-out-expo
+const io=x=>{x=cl(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};     // ease-in-out-cubic
+const rv=(t,t0,d=.7)=>ex((t-t0)/d);
+// 한 줄씩 아래에서 떠오르는 글자(마스크)
+function line(txt,top,size,w,t,t0,col='#F4F1EC',extra=''){const k=rv(t,t0,.8);
+  return `<div class="ln" style="top:${top}px;height:${Math.round(size*1.3)}px"><span style="font-size:${size}px;font-weight:${w};letter-spacing:-.03em;line-height:1.3;color:${col};transform:translateY(${(1-k)*110}%);opacity:${cl(k*1.4)};${extra}">${txt}</span></div>`}
+function out(t,t1,d=.35){return 1-io((t-t1)/d)}
+const V=document.getElementById('v');
+
+function sA(t){ // 질문
+  const o=out(t,A1-.35);
+  const rw=io((t-.1)/1.0)*180;
+  return `<div style="opacity:${o}">
+   <div class="rule" style="left:96px;top:700px;width:${rw}px"></div>
+   ${line('고객의 질문 앞에서,',760,72,300,t,.35,'#B9BCC3')}
+   ${line('멈칫한 적',860,118,700,t,.8)}
+   ${line('있으셨나요?',1010,118,700,t,1.05)}
+  </div>`;
+}
+function sB(t){ // 전환
+  const lt=t-A1, o=out(t,B1-.3,.3);
+  return `<div style="opacity:${o}">
+   ${line('이제, 답은',780,118,300,lt,.0,'#F4F1EC')}
+   ${line('화면 안에 있습니다<span style="color:#E4002B">.</span>',930,118,700,lt,.18)}
+  </div>`;
+}
+function sC(t){ // 도구 6종
+  const per=3*BEAT, i=Math.min(5,Math.floor((t-B1)/per)), lt=t-B1-i*per, o=TOOLS[i];
+  const fadeOut = i<5 ? out(lt,per-.22,.22) : out(t,C1-.3,.3);
+  const ph=ex(lt/.9), drift=lt*14;
+  const rw=io(lt/.6)*120;
+  return `<div style="opacity:${fadeOut}">
+   <div class="idx" style="opacity:${cl(lt*4)}"><b>0${i+1}</b> &nbsp;/&nbsp; 06</div>
+   <div class="rule" style="left:96px;top:236px;width:${rw}px"></div>
+   ${line(o.n,268,o.n.length>8?86:96,700,lt,.05)}
+   <div class="cap" style="top:${o.n.length>8?400:412}px;font-size:46px;line-height:1.45;opacity:${rv(lt,.25,.6)};transform:translateY(${(1-rv(lt,.25,.6))*24}px)">${o.d}</div>
+   <div class="phone" style="left:305px;top:${700+(1-ph)*140-drift}px;opacity:${cl(ph*1.3)};transform:rotate(${(1-ph)*-3}deg)">
+     <div class="sc"><img src="${o.img}" style="transform:translateY(${-lt*18}px)"></div></div>
+  </div>`;
+}
+function sD(t){ // 엔딩
+  const lt=t-C1;
+  const n=Math.round(20000*io(lt/1.3)).toLocaleString('ko-KR');
+  const rw=io(lt/.7)*140;
+  return `<div class="rule" style="left:${540-rw/2}px;top:640px;width:${rw}px"></div>
+   <div style="position:absolute;left:0;right:0;top:690px;text-align:center">
+     <div style="overflow:hidden;height:150px"><div style="font-size:120px;font-weight:800;letter-spacing:-.04em;transform:translateY(${(1-rv(lt,.1,.8))*110}%)">영업지원도구 6종</div></div>
+     <div style="margin-top:22px;font-size:50px;font-weight:300;color:#B9BCC3;opacity:${rv(lt,.4,.7)}">상담의 순간을 바꾸는 여섯 가지 도구</div>
+     <div style="margin-top:120px;font-size:34px;font-weight:400;letter-spacing:.16em;color:#8C9099;opacity:${rv(lt,.6,.6)}">누적 사용자</div>
+     <div style="font-size:112px;font-weight:200;font-weight:300;letter-spacing:-.02em;opacity:${rv(lt,.6,.6)}">${n}<span style="color:#E4002B;font-weight:600">+</span></div>
+   </div>
+   <div style="position:absolute;left:0;right:0;top:1560px;text-align:center;opacity:${rv(lt,1.1,.6)}">
+     <div style="font-size:40px;font-weight:600;letter-spacing:.02em">hunx11-sys.github.io/MeAI</div>
+     <div style="margin-top:18px;font-size:30px;font-weight:300;color:#8C9099;letter-spacing:.08em">메리츠화재 · 세일즈혁신TF</div>
+   </div>
+   <div class="L" style="background:#000;opacity:${cl((t-14.55)/.45)}"></div>`;
+}
+window.render=function(t){
+  let h='<div class="L vig"></div>';
+  h+= t<A1?sA(t): t<B1?sB(t): t<C1?sC(t): sD(t);
+  V.innerHTML=h;
+  return document.fonts.ready.then(()=>Promise.all([...V.querySelectorAll('img')].map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r}))));
+};
+render(0);
+</script></body></html>
