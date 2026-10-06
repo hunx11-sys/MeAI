@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:P;font-weight:900;src:url(Pretendard-Black.woff2) format('woff2')}
+@font-face{font-family:P;font-weight:800;src:url(Pretendard-ExtraBold.woff2) format('woff2')}
+:root{--Y:#FFE500;--R:#FF2D4B;--C:#00C8FF;--M:#FF3EA5;--B:#2F5BFF;--K:#111;--W:#fff;--G:#22E07A}
+html,body{margin:0;background:#000}
+#v{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;background:var(--Y)}
+.L{position:absolute;inset:0}
+.dots{background-image:radial-gradient(rgba(0,0,0,.16) 22%,transparent 24%);background-size:34px 34px}
+.dots-w{background-image:radial-gradient(rgba(255,255,255,.22) 22%,transparent 24%);background-size:34px 34px}
+.rays{background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.28) 0 7deg,transparent 7deg 18deg)}
+.t{position:absolute;left:0;right:0;text-align:center;font-weight:900;letter-spacing:-.04em;line-height:1.02;
+   -webkit-text-stroke:10px var(--K);paint-order:stroke fill;text-shadow:14px 14px 0 var(--K)}
+.burst{position:absolute;display:flex;align-items:center;justify-content:center}
+.burst svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.burst span{position:relative;font-weight:900;color:var(--K);font-style:italic;letter-spacing:-.03em;
+   -webkit-text-stroke:6px var(--W);paint-order:stroke fill}
+.bubble{position:absolute;background:#fff;border:12px solid var(--K);border-radius:60px;box-shadow:18px 18px 0 var(--K);
+   font-weight:900;color:var(--K);text-align:center;letter-spacing:-.04em}
+.bubble:after{content:"";position:absolute;left:120px;bottom:-92px;border:46px solid transparent;border-top:70px solid var(--K);border-left:20px solid transparent}
+.sticker{position:absolute;filter:drop-shadow(16px 16px 0 rgba(0,0,0,.9))}
+.panel{position:absolute;border:12px solid var(--K);box-shadow:16px 16px 0 var(--K)}
+.chip{display:inline-block;background:var(--K);color:#fff;font-weight:900;border-radius:999px;padding:14px 34px}
+.flash{position:absolute;inset:0;background:#fff;pointer-events:none}
+</style></head><body>
+<div id="v"></div>
+<script>
+const W=1080,H=1920,BEAT=60/160;
+const TOOLS=[
+ {n:'특약검색기',s:'특약 1,155종<br>한 칸 검색',sub:'약관 근거까지 바로',img:'pop_merry-a.png',bg:'#FF2D4B',ac:'#FFE500',fx:'ZAP!',fxc:'#00C8FF'},
+ {n:'보상시뮬레이터',s:'병명 하나로<br>보상 전부',sub:'진단 → 수술 → 입원 순서대로',img:'pop_eco-a.png',bg:'#22C55E',ac:'#FFE500',fx:'POW!',fxc:'#FF3EA5'},
+ {n:'통합치료비<br>시뮬레이터',s:'"얼마 받아요?"<br>즉답',sub:'치료 과정별 금액 계산',img:'pop_zjump.png',bg:'#FF3EA5',ac:'#FFE500',fx:'KA-CHING!',fxc:'#FFE500'},
+ {n:'상품 라인업',s:'유병자도<br>가입 판정',sub:'간편보험 5개 유형 한 번에',img:'pop_rara-a.png',bg:'#FF8A00',ac:'#fff',fx:'BOOM!',fxc:'#00C8FF'},
+ {n:'프롬프트<br>라이브러리',s:'MeAI 질문<br>272개',sub:'복사 한 번이면 끝',img:'pop_indi-a.png',bg:'#8B5CF6',ac:'#FFE500',fx:'WOW!',fxc:'#22E07A'},
+ {n:'명패 제작기',s:'엑셀 한 장<br>→ 명패 완성',sub:'행사 준비, 클릭 몇 번',img:'pop_tata-a.png',bg:'#2F5BFF',ac:'#FFE500',fx:'SNAP!',fxc:'#FF2D4B'},
+];
+// 장면 경계 (박자에 맞춤) : 훅 4박 · 반전 2박 · 도구 6×4박 · 격자 5박 · 엔딩 5박 = 40박 = 15초
+const T0=4*BEAT, T1=T0+2*BEAT, T2=T1+24*BEAT, T3=T2+5*BEAT, END=15;
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const eo=x=>1-Math.pow(1-cl(x),3);                       // ease-out
+const back=x=>{x=cl(x);const c=2.2;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};   // 튀어나오기
+const pop=(t,t0,d=.22)=>back((t-t0)/d);
+function burst(n=14,inner=.62,fill='#FFE500'){let p=[];for(let i=0;i<n*2;i++){const r=i%2?inner:1,a=Math.PI*i/n;p.push((50+50*r*Math.cos(a)).toFixed(1)+','+(50+50*r*Math.sin(a)).toFixed(1))}
+  return `<svg viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="${p.join(' ')}" fill="${fill}" stroke="#111" stroke-width="2.2" stroke-linejoin="round"/></svg>`}
+function shake(t,amp){return amp?`translate(${(Math.sin(t*93)*amp).toFixed(1)}px,${(Math.cos(t*71)*amp).toFixed(1)}px)`:''}
+const V=document.getElementById('v');
+
+function hook(t){ // 0 ~ T0 : "이거 보장돼요?!"
+  const k=cl(t/T0); const z=1+.04*Math.sin(t*12);
+  const b=pop(t,.05,.28), q=pop(t,.55,.25), w=pop(t,1.05,.2);
+  return `<div class="L" style="background:#FFE500"></div><div class="L dots"></div>
+  <div class="L rays" style="transform:rotate(${t*30}deg) scale(2.2);opacity:.7"></div>
+  <div class="t" style="top:250px;font-size:96px;color:#fff;transform:scale(${b})">고객이 물었다</div>
+  <div class="bubble" style="left:110px;right:110px;top:520px;padding:70px 40px;font-size:150px;transform:${shake(t,t>.55&&t<1.1?7:0)} scale(${q}) rotate(-3deg)">이거<br><span style="color:#FF2D4B">보장돼요?!</span></div>
+  <div class="burst" style="left:560px;top:1250px;width:460px;height:400px;transform:scale(${w}) rotate(${-12+t*8}deg)">${burst(16,.6,'#FF3EA5')}<span style="font-size:132px;color:#fff;-webkit-text-stroke:8px #111">헉!</span></div>
+  <div class="t" style="top:1400px;left:60px;right:auto;text-align:left;font-size:84px;color:#111;-webkit-text-stroke:0;text-shadow:none;opacity:${cl((t-1.1)*6)}">약관…<br>어디 있더라?</div>`;
+}
+function turn(t){ // T0 ~ T1 : "검색 한 번이면 끝!"
+  const lt=t-T0; const f=cl(1-lt/.12);
+  const a=pop(lt,.0,.18), b=pop(lt,.25,.2);
+  return `<div class="L" style="background:#111"></div><div class="L dots-w"></div>
+  <div class="L rays" style="transform:rotate(${-lt*90}deg) scale(2.4);opacity:.25"></div>
+  <div class="t" style="top:470px;font-size:120px;color:#FFE500;transform:scale(${a})">검색 한 번이면</div>
+  <div class="burst" style="left:90px;right:90px;top:720px;height:760px;transform:scale(${b}) rotate(${-6+lt*10}deg)">${burst(18,.66,'#FF2D4B')}<span style="font-size:330px;color:#FFE500;-webkit-text-stroke:14px #111;font-style:normal">끝!</span></div>
+  <div class="t" style="top:1560px;font-size:110px;color:#fff;font-style:italic;opacity:${cl((lt-.35)*8)}">BAM!</div>
+  <div class="flash" style="opacity:${f}"></div>`;
+}
+function tool(t){ // T1 ~ T2 : 도구 6종
+  const i=Math.min(5,Math.floor((t-T1)/(4*BEAT))); const lt=t-T1-i*4*BEAT; const o=TOOLS[i];
+  const f=cl(1-lt/.1);
+  const num=pop(lt,0,.18), nm=pop(lt,.06,.22), st=pop(lt,.12,.28), tg=pop(lt,.38,.22), fx=pop(lt,.55,.18), sb=cl((lt-.75)*6);
+  const slide=(1-eo(lt/.3))*700;
+  const wob=Math.sin(lt*9)*3;
+  return `<div class="L" style="background:${o.bg}"></div><div class="L dots"></div>
+  <div class="L" style="background:${o.ac};clip-path:polygon(0 72%,100% 58%,100% 100%,0 100%)"></div>
+  <div class="L dots" style="clip-path:polygon(0 72%,100% 58%,100% 100%,0 100%)"></div>
+  <div class="t" style="top:110px;left:70px;right:auto;text-align:left;font-size:180px;color:${o.ac};transform:scale(${num});transform-origin:left top">0${i+1}</div>
+  <div class="chip" style="position:absolute;right:70px;top:150px;font-size:44px;transform:scale(${num})">영업지원도구 ${i+1}/6</div>
+  <div class="t" style="top:340px;font-size:${o.n.includes('<br>')?118:132}px;color:#fff;transform:scale(${nm})">${o.n}</div>
+  <img class="sticker" src="${o.img}" style="height:640px;left:${o.img.includes('zjump')?560:600}px;top:${o.n.includes('<br>')?690:640}px;transform:translateX(${slide}px) rotate(${wob}deg)">
+  <div class="panel" style="left:60px;top:${o.n.includes('<br>')?760:720}px;width:560px;padding:44px 36px;background:#fff;transform:scale(${st}) rotate(-2deg);transform-origin:left center">
+     <div style="font-size:92px;font-weight:900;color:#111;letter-spacing:-.05em;line-height:1.08">${o.s}</div></div>
+  <div class="burst" style="left:${i%2?560:80}px;top:1360px;width:470px;height:300px;transform:scale(${fx}) rotate(${i%2?8:-8}deg)">${burst(14,.62,o.fxc)}<span style="font-size:${o.fx.length>6?82:110}px">${o.fx}</span></div>
+  <div class="t" style="top:1720px;font-size:66px;color:#111;-webkit-text-stroke:0;text-shadow:none;opacity:${sb};transform:scale(${tg})">${o.sub}</div>
+  <div class="flash" style="opacity:${f*.9}"></div>`;
+}
+function grid(t){ // T2 ~ T3 : 6칸 격자 + 2만 명
+  const lt=t-T2; let h='';
+  const cols=[['#FF2D4B'],['#22C55E'],['#FF3EA5'],['#FF8A00'],['#8B5CF6'],['#2F5BFF']];
+  TOOLS.forEach((o,i)=>{const x=(i%2)*540,y=Math.floor(i/2)*560+60; const s=pop(lt,i*.07,.2); const blink=(Math.floor(lt/BEAT*2)%6)===i;
+    h+=`<div style="position:absolute;left:${x}px;top:${y}px;width:540px;height:560px;background:${blink?'#FFE500':o.bg};border:8px solid #111;box-sizing:border-box;transform:scale(${s})">
+      <div class="L dots"></div><img src="${o.img}" style="position:absolute;height:330px;left:50%;top:40px;transform:translateX(-50%)">
+      <div class="t" style="top:390px;font-size:${o.n.includes('<br>')?54:66}px;color:#fff;-webkit-text-stroke:7px #111;text-shadow:7px 7px 0 #111">${o.n.replace('<br>',' ')}</div></div>`});
+  const st=pop(lt,.45,.25);
+  return `<div class="L" style="background:#111"></div>${h}
+  <div class="burst" style="left:100px;right:100px;top:1720px;height:190px;transform:scale(${st}) rotate(-3deg)">${burst(22,.82,'#FFE500')}<span style="font-size:76px;font-style:normal;-webkit-text-stroke:0">누적 사용자 <b style="color:#FF2D4B">2만 명+</b></span></div>`;
+}
+function end(t){ // T3 ~ 15 : 엔딩
+  const lt=t-T3; const f=cl(1-lt/.1);
+  const a=pop(lt,0,.22), b=pop(lt,.25,.25), c=pop(lt,.55,.22), d=cl((lt-.9)*4);
+  let row=''; TOOLS.forEach((o,i)=>{const s=pop(lt,.7+i*.06,.2); row+=`<img src="${o.img}" style="height:190px;margin:0 2px;transform:scale(${s}) translateY(${Math.sin(lt*8+i)*8}px)">`});
+  return `<div class="L" style="background:#FF2D4B"></div><div class="L dots"></div>
+  <div class="L rays" style="transform:rotate(${lt*20}deg) scale(2.4);opacity:.5"></div>
+  <div class="t" style="top:300px;font-size:100px;color:#fff;transform:scale(${a})">영업가족 필수템</div>
+  <div class="t" style="top:470px;font-size:200px;color:#FFE500;transform:scale(${b}) rotate(-3deg)">영업지원<br>도구 6종</div>
+  <div style="position:absolute;left:0;right:0;top:1000px;text-align:center">${row}</div>
+  <div class="bubble" style="left:120px;right:120px;top:1300px;padding:44px 20px;font-size:80px;transform:scale(${c})">지금 <span style="color:#FF2D4B">MeAI 대문</span>에서!</div>
+  <div class="t" style="top:1640px;font-size:58px;color:#fff;-webkit-text-stroke:6px #111;text-shadow:6px 6px 0 #111;opacity:${d}">hunx11-sys.github.io/MeAI</div>
+  <div class="t" style="top:1760px;font-size:40px;color:#111;-webkit-text-stroke:0;text-shadow:none;opacity:${d}">메리츠화재 · 세일즈혁신TF</div>
+  <div class="flash" style="opacity:${f*.9}"></div>`;
+}
+window.render=function(t){
+  V.innerHTML = t<T0?hook(t): t<T1?turn(t): t<T2?tool(t): t<T3?grid(t): end(t);
+  return document.fonts.ready.then(()=>Promise.all([...V.querySelectorAll('img')].map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r}))));
+};
+window.SCENES={T0,T1,T2,T3,BEAT};
+render(0);
+</script></body></html>
