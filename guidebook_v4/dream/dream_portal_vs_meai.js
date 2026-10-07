@@ -1,6 +1,6 @@
 // 메리츠드림 MeAI 장 덧붙임 — '기존 영업포탈 12단계 vs MeAI 두 화면'(WOW 비교 장)
 // 왼쪽: 영업포탈 실제 화면 5장을 어둡게 겹쳐 쌓고, 그 위를 12개 단계가 이리저리 오감(메뉴 5곳 · 정보 다시 입력)
-// 오른쪽: MeAI 홈(①고객 등록 = [고객 동의] 휴대폰번호 · ②고객 조회 = 내 고객 찾기) → 맞춤대화(③보장분석 ④설계 ⑤리포트) — 금빛
+// 오른쪽: MeAI 홈(①고객 등록 = [고객 동의] 휴대폰번호 · ②고객 조회 = [맞춤대화] → 고객 검색 창) → 맞춤대화(③보장분석 ④설계 ⑤리포트) — 금빛
 // 기존 단계 근거: 세일즈혁신TF 영업포탈 현황 진단(2026.7) — 고객 등록 3(고객등록·직업코드 조회·질문톡 직업 확인) ·
 //   보장 확인 4(고객정보조회·장기계약조회·자동차 계약조회·사고진행관리) · 설계 5(가입설계 진입·상품/플랜 선택·실손정액 조회 팝업·상품 시뮬레이션·담보 패키지 선택)
 // node dream_portal_vs_meai.js out.pptx <재료폴더>   (재료 = assets_portal.py + glow_wide.png)
@@ -11,9 +11,9 @@ const T = (s, text, o) => s.addText(text, Object.assign({ fontFace:FONT, lang:'k
 const pres = new pptxgen(); pres.layout = 'LAYOUT_16x9'; pres.title = '메리츠드림 · MeAI';
 const s = pres.addSlide(); s.background = { color:'000000' };
 s.addNotes('기존 영업포탈에서는 고객 한 분을 등록하고, 보장을 확인하고, 설계하기까지 메뉴 다섯 곳을 오가며 열두 단계를 거쳐야 했습니다. 화면을 옮길 때마다 고객 정보도 다시 넣었습니다. '
-  + 'MeAI는 두 화면입니다. MeAI 홈의 [고객 동의]에 휴대폰 번호를 넣으면 사전조회동의 알림톡이 가고, 고객이 동의하면 신규 등록 고객으로 들어옵니다. 고객은 내 고객 찾기에서 바로 조회합니다. '
-  + '맞춤대화로 넘어가면 "보장분석 해줘"로 보장분석, "월 5만 원 안에서 설계안 만들어줘"로 설계, 그리고 [요약 리포트]로 고객에게 보낼 리포트까지 만듭니다. 고객 등록부터 리포트까지, 두 화면이면 됩니다. '
-  + '(참고 — 기존 12단계: 고객 등록 3 · 보장 확인 4 · 설계 5, 세일즈혁신TF 영업포탈 현황 진단 기준. 신규 등록 고객의 상세 정보는 다음 날 반영. MeAI 설계안은 초안이며 청약은 영업포탈에서 이어집니다.)');
+  + 'MeAI는 두 화면입니다. MeAI 홈의 [고객 동의]에 휴대폰 번호를 넣으면 사전조회동의 알림톡이 가고, 고객이 동의하면 신규 등록 고객으로 들어옵니다. [맞춤대화]를 누르면 뜨는 고객 검색 창에서 이름으로 고객을 찾아 고릅니다. '
+  + '맞춤대화가 열리면 "이 고객 보험 어디가 부족한지 알려줘" 한마디(또는 [보장 분석] 버튼)로 보장분석, "암 치료비 중심으로, 월 보험료 5만 원 안에서 설계안 만들어줘"로 설계, 그리고 [요약 리포트]로 고객에게 보낼 리포트까지 만듭니다. 고객 등록부터 리포트까지, 두 화면이면 됩니다. '
+  + '(참고 — 기존 12단계: 고객 등록 3 · 보장 확인 4 · 설계 5, 세일즈혁신TF 영업포탈 현황 진단 기준. 신규 등록 고객의 상세 정보는 다음 날 반영. 설계는 맞춤대화에 요청하는 장면이며 설계안 답 화면은 목업에 없어 넣지 않음.)');
 // 제목(행사 PPT 에 끼울 때 원래 제목 자리로 바뀜)
 T(s, '고객 등록부터 리포트까지, MeAI 두 화면으로', { x:0.27, y:0.12, w:9.45, h:0.55, fontSize:28, objectName:'TITLE_PREVIEW' });
 
@@ -37,23 +37,27 @@ nodes.forEach(([x,y],i)=>{ const d=0.3;
 T(s, '메뉴 5곳을 오가며 · 고객정보 다시 입력', { x:LX, y:4.62, w:LR-LX, h:0.36, fontSize:14, color:MUTE });
 
 // ── 가운데 화살표 ───────────────────────────────────
-{ const d=0.42, cx=4.72, cy=3.62; s.addShape(pres.shapes.OVAL, { x:cx-d/2, y:cy-d/2, w:d, h:d, fill:{ color:GOLD }, line:{ color:'000000', width:2 } });
+{ const d=0.38, cx=4.8, cy=3.40; s.addShape(pres.shapes.OVAL, { x:cx-d/2, y:cy-d/2, w:d, h:d, fill:{ color:GOLD }, line:{ color:'000000', width:2 } });
   T(s, '›', { x:cx-d/2, y:cy-d/2-0.03, w:d, h:d, fontSize:22, color:'000000', align:'center' }); }
 
 // ── 오른쪽: MeAI 두 화면(홈 → 맞춤대화) ─────────────
 const AX = 5.05, AY = 1.33, AW = 3.15, AH = AW*1450/2340;          // MeAI 홈(위쪽) — meai_home_top.png 2340x1450
 const BX = 6.55, BY = 2.55, BW = 3.15, BH = BW*1800/2880;          // 맞춤대화 — meai_one_screen.png 2880x1800
-const MX = 8.33, MY = 1.40, MW = 1.37, MH = MW*484/960;            // '고객 동의' 창
+const MX = 8.33, MY = 1.36, MW = 1.32, MH = MW*484/960;            // '고객 동의' 창
+const SX = MX, SW = MW, SH = SW*360/1440, SY = 2.11;               // [맞춤대화] → '고객 검색' 창
 const a2s = (px,py)=>[AX+px/2340*AW, AY+py/1450*AH], b2s = (px,py)=>[BX+px/2880*BW, BY+py/1800*BH];
 s.addImage({ path:P('glow_wide.png'), x:AX-1.0, y:AY-0.9, w:9.75-AX+2.0, h:BY+BH-AY+1.8, altText:'배경 빛' });
 s.addText([{ text:'MeAI', options:{ fontFace:LATIN, bold:true, color:GOLD, fontSize:16 } }], { x:AX, y:0.84, w:2.0, h:0.42, isTextBox:true, margin:0, valign:'middle' });
 T(s, '두 화면', { x:9.7-2.6, y:0.8, w:2.6, h:0.5, fontSize:28, color:GOLD, align:'right' });
 s.addImage({ path:P('meai_home_top.png'), x:AX, y:AY, w:AW, h:AH, altText:'MeAI 홈 화면' });
 s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:AX, y:AY, w:AW, h:AH, rectRadius:0.06, fill:{ type:'none' }, line:{ color:GOLD, width:1, transparency:30 } });
-// 홈의 [맞춤대화] 카드 → 맞춤대화 화면
+// 홈의 [맞춤대화] 카드 → 고객 검색 창 → 맞춤대화 화면
 { const [x1,y1]=a2s(1185,399), [x2,y2]=a2s(2289,660);
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:x1-0.03, y:y1-0.03, w:x2-x1+0.06, h:y2-y1+0.06, rectRadius:0.04, fill:{ type:'none' }, line:{ color:GOLD, width:2 } });
-  const ax=(x1+x2)/2+0.25; s.addShape(pres.shapes.LINE, { x:ax, y:y2+0.04, w:0.001, h:BY-(y2+0.04)-0.02, line:{ color:GOLD, width:2.5, endArrowType:'triangle' } }); }
+  s.addShape(pres.shapes.LINE, { x:x2+0.03, y:(y1+y2)/2, w:SX-(x2+0.03), h:SY+SH/2-(y1+y2)/2, line:{ color:GOLD, width:1.5 } }); }
+s.addImage({ path:P('meai_search_popup.png'), x:SX, y:SY, w:SW, h:SH, altText:'고객 검색 창(이름으로 찾기)' });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:SX, y:SY, w:SW, h:SH, rectRadius:0.05, fill:{ type:'none' }, line:{ color:GOLD, width:1.25 } });
+{ const ax=SX+SW/2; s.addShape(pres.shapes.LINE, { x:ax, y:SY+SH+0.01, w:0.001, h:BY-(SY+SH+0.01)-0.01, line:{ color:GOLD, width:2.5, endArrowType:'triangle' } }); }
 s.addImage({ path:P('meai_one_screen.png'), x:BX, y:BY, w:BW, h:BH, altText:'MeAI 맞춤대화 화면' });
 s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:BX, y:BY, w:BW, h:BH, rectRadius:0.06, fill:{ type:'none' }, line:{ color:GOLD, width:1.5 } });
 // [고객 동의] 버튼 → 휴대폰번호 창
@@ -61,13 +65,13 @@ s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:BX, y:BY, w:BW, h:BH, rectRadius:0
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:x1-0.02, y:y1-0.02, w:x2-x1+0.04, h:y2-y1+0.04, rectRadius:0.03, fill:{ type:'none' }, line:{ color:GOLD, width:1.75 } });
   s.addShape(pres.shapes.LINE, { x:x2+0.02, y:(y1+y2)/2, w:MX-(x2+0.02), h:MY+0.25-(y1+y2)/2, line:{ color:GOLD, width:1.5 } }); }
 s.addImage({ path:P('meai_consent_modal.png'), x:MX, y:MY, w:MW, h:MH, altText:'고객 동의 창(휴대폰번호 입력)' });
-s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:MX, y:MY, w:MW, h:MH, rectRadius:0.06, fill:{ type:'none' }, line:{ color:GOLD, width:1.5 } });
+s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:MX, y:MY, w:MW, h:MH, rectRadius:0.06, fill:{ type:'none' }, line:{ color:GOLD, width:1.25 } });
 // 번호 표시(화면 위) + 목록(왼쪽 아래 빈 곳)
 const badge = (n, cx, cy) => { const d=0.3;
   s.addShape(pres.shapes.OVAL, { x:cx-d/2, y:cy-d/2, w:d, h:d, fill:{ color:GOLD }, line:{ color:'000000', width:1.5 } });
   T(s, n, { x:cx-d/2, y:cy-d/2, w:d, h:d, fontSize:12, color:'000000', align:'center' }); };
 badge('1', MX-0.09, MY+0.07);
-{ const [x,y]=a2s(306,787); badge('2', x+0.2, y); }
+badge('2', SX-0.09, SY+0.06);
 { const [x,y]=b2s(981,640); badge('3', x-0.17, y); }
 { const [x,y]=b2s(981,1597); badge('4', x-0.17, y); }
 { const [x,y]=b2s(2732,84); badge('5', x, y+0.17); }

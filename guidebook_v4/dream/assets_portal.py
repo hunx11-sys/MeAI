@@ -14,9 +14,13 @@ for n in ['L1_customer','L8_contract','L9_claim','L4_product','L6_design_cover']
     d=ImageDraw.Draw(im); d.rectangle((0,0,im.width-1,im.height-1),outline=(90,90,90),width=3)
     im.save(os.path.join(OUT,n+'_dim.png'))
 m=Image.open(os.path.join(CAP,'hero','term_pc_full.png')).convert('RGB')   # 2880x1800 맞춤대화(보장분석 답)
+d=Image.open(os.path.join(CAP,'hero','dream_design_full.png')).convert('RGB')  # ④ 같은 맞춤대화 입력창에 설계 요청을 넣은 실제 캡처(cap_design.mjs, 답은 만들지 않음)
+m.paste(d.crop((975,1531,2505,1666)),(975,1533))                                  # 입력창 줄만 옮겨 붙임
 rounded(m,40).save(os.path.join(OUT,'meai_one_screen.png'))
 h=Image.open(os.path.join(CAP,'hero','gb5_gate_full_m.png')).convert('RGB')     # 2880x2580 MeAI 홈(위: 고객 동의 · 맞춤대화 · 내 고객 찾기)
 rounded(h.crop((270,0,2610,1450)),40).save(os.path.join(OUT,'meai_home_top.png'))
 c=Image.open(os.path.join(CAP,'hero','fix_c_consent_modal.png')).convert('RGB')  # 960x484 '고객 동의' 창(휴대폰번호 → 보내기)
 rounded(c,36).save(os.path.join(OUT,'meai_consent_modal.png'))
+p=Image.open(os.path.join(CAP,'hero','bc3_popup_modal.png')).convert('RGB')     # 1440x982 [맞춤대화] → '고객 검색' 창(이름으로 찾기)
+rounded(p.crop((0,50,1440,410)),30).save(os.path.join(OUT,'meai_search_popup.png'))
 print('ok',OUT)
