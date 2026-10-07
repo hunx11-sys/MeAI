@@ -13,7 +13,7 @@ module.exports = (S, ctx) => {
       const nl=dl.length+(it.warn?1:0); if(nl) s.addText(runs,{x:x+0.42,y:cy+0.32,w:w-0.42,h:nl*lh+0.04,isTextBox:true,margin:0,valign:'top',lineSpacingMultiple:1.15});
       cy += 0.32 + nl*lh + gap; });
     return cy; };
-  S.push({ part:'06', fn:(pres,no)=> L.divider(pres,{num:'06',title:'대화 이어가기\n일반대화 · 맞춤대화와 새 기능',sub:'MeAI 홈에서 들어온 대화 화면과 새 기능 익히기',learn:['MeAI 홈에서 누르기만 하면 열리는 대화','일반대화 · 맞춤대화 화면 구성','NEW 용어 설명 · 모드 변경','꼬리질문 · 요약 리포트','모바일에서 들어가기'],pageNo:no}) });
+  S.push({ part:'06', fn:(pres,no)=> L.divider(pres,{num:'06',title:'대화 이어가기\n일반대화 · 맞춤대화와 새 기능',sub:'MeAI 홈에서 들어온 대화 화면과 새 기능 익히기',learn:['MeAI 홈에서 누르기만 하면 열리는 대화','일반대화 · 맞춤대화 화면 구성','NEW 용어 설명 · 모드 변경','꼬리질문 · 요약 리포트 · 모바일','NEW 실제 MeAI 화면으로 따라 하기(10쪽)'],pageNo:no}) });
   // 6-0 MeAI 홈에서 대화 열기 — 클릭 세 길 (방송판 12장)
   S.push({ fn:(pres,no)=>{
     const s = L.base(pres,{kicker:'PART 6 · 대화 열기',title:'MeAI 홈에서 누르기만 하면 MeAI 시작',sub:'MeAI 즉시 대화 = 흰 카드, 검은 카드, 추천 카드',pageNo:no});
@@ -116,12 +116,12 @@ module.exports = (S, ctx) => {
     const s = L.base(pres,{kicker:'PART 6 · 맞춤대화 시작 화면',title:'맞춤대화는 “보장분석 해줘” 한 마디로 시작',pageNo:no});
     // 위 = 담당 고객 + 고객 정보 입력 카드(CSS y12~532), 아래 = 총 보험료~첫 상품 줄(CSS x424~, y688~1109)을 크게
     const gt = L.img(s,HERO('fix_custom_top'),{x:M,y:1.5,w:5.82,h:2.45,valign:'top',align:'left'});
-    const gb = L.img(s,HERO('fix_custom_bottom'),{x:M,y:gt.y+gt.h+0.12,w:5.82,h:6.95-(gt.y+gt.h+0.12),valign:'top',align:'left'});
+    const gb = L.img(s,HERO('fix_custom_bottom_lit'),{x:M,y:gt.y+gt.h+0.12,w:5.82,h:6.95-(gt.y+gt.h+0.12),valign:'top',align:'left'});
     const ot={clip:{x:0,y:12},dsf:2}, ob={clip:{x:424,y:688},dsf:2};
     L.pin(s,gt,218,157,1,ot); L.pin(s,gt,470,81,2,ot); L.pin(s,gt,470,290,3,ot); L.pin(s,gt,1247,470,4,ot);
     L.pin(s,gb,457,760,5,ob); L.pin(s,gb,818,758,6,ob); L.pin(s,gb,457,911,7,ob); L.pin(s,gb,457,983,8,ob);
     const lx = M+5.82+0.4, lw = 12.73-lx;
-    L.caption(s,{x:lx,y:1.12,w:12.73-lx,text:'※ 이름·숫자는 예시 · 정보 칸이 열려 있으면 아래가 흐림(^로 접으면 밝아짐)',align:'right',size:10});
+    L.caption(s,{x:lx,y:1.12,w:12.73-lx,text:'※ 이름·숫자는 예시 · 넷째 칸 실제 이름은 「신규 제안 월 보험료」(66쪽)',align:'right',size:10});
     // 제목 왼쪽 · 설명 오른쪽 한 줄씩(방송교안 15장 배치). desc 의 '\n' 은 두 줄
     const tw = 2.4, dx = lx+0.42+tw+0.1, dw = 12.73-dx;
     const row=(y,n,title,desc)=>{ const nl=desc.split('\n').length, h=nl>1?0.52:0.36;
@@ -141,7 +141,7 @@ module.exports = (S, ctx) => {
     ry = row(ry,5,'선택 계약 총 보험료','"지금 매달 이만큼 내고 계세요"로 시작');
     ry = row(ry,6,'약관DB 준비 상태','구성 안 된 상품은 답이 부정확할 수 있음');
     ry = row(ry,7,'담보별로 거르기','암 · 뇌/심장 · 치료비 등 버튼으로 고르기');
-    ry = row(ry,8,'상품 전체 선택','관계없는 계약은 체크를 풀면 분석에서 빠짐');
+    ry = row(ry,8,'상품 전체 선택','관계없는 계약은 체크를 풀어 빼기');
     // 다 정한 뒤 첫 질문
     const by = Math.max(ry+0.02, 6.3), bh = 6.95-by;
     L.R(s,{x:lx,y:by,w:lw,h:bh,fill:C.navy,line:null,radius:0.12});
