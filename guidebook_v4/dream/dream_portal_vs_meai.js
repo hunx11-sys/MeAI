@@ -27,7 +27,7 @@ const wins = [ // [그림, x, y, 너비, 기울기]
 const AR = { 'L1_customer_dim.png':982/1247, 'L8_contract_dim.png':982/1247, 'L9_claim_dim.png':982/1247, 'L4_product_dim.png':1043/1448, 'L6_design_cover_dim.png':1043/1448 };
 wins.forEach(([f,x,y,w,r]) => s.addImage({ path:P(f), x, y, w, h:w*AR[f], rotate:r, altText:'기존 영업포탈 화면' }));
 // 12단계가 화면 사이를 오가는 길
-const nodes = [[0.62,1.80],[1.12,2.10],[0.72,2.42], [1.86,1.70],[2.38,2.00],[3.08,1.78],[3.86,2.08], [1.05,3.00],[1.62,3.36],[2.52,3.00],[3.22,3.40],[3.96,3.08]];
+const nodes = [[0.62,1.80],[0.72,2.42],[1.12,2.10], [1.86,1.70],[2.38,2.00],[3.08,1.78],[3.86,2.08], [1.05,3.00],[1.62,3.36],[2.52,3.00],[3.22,3.40],[3.96,3.08]];
 for (let i=0;i<nodes.length-1;i++){ const [x1,y1]=nodes[i], [x2,y2]=nodes[i+1];
   s.addShape(pres.shapes.LINE, { x:Math.min(x1,x2), y:Math.min(y1,y2), w:Math.abs(x2-x1)||0.001, h:Math.abs(y2-y1)||0.001,
     flipV:(x2<x1)!==(y2<y1), line:{ color:'D9D9D9', width:2.25 } }); }
@@ -45,7 +45,7 @@ const AX = 5.05, AY = 1.33, AW = 3.15, AH = AW*1450/2340;          // MeAI 홈(�
 const BX = 6.55, BY = 2.55, BW = 3.15, BH = BW*1800/2880;          // 맞춤대화 — meai_one_screen.png 2880x1800
 const MX = 8.33, MY = 1.40, MW = 1.37, MH = MW*484/960;            // '고객 동의' 창
 const a2s = (px,py)=>[AX+px/2340*AW, AY+py/1450*AH], b2s = (px,py)=>[BX+px/2880*BW, BY+py/1800*BH];
-s.addImage({ path:P('glow_wide.png'), x:AX-0.45, y:AY-0.45, w:9.75-AX+0.9, h:BY+BH-AY+0.9, altText:'배경 빛' });
+s.addImage({ path:P('glow_wide.png'), x:AX-1.0, y:AY-0.9, w:9.75-AX+2.0, h:BY+BH-AY+1.8, altText:'배경 빛' });
 s.addText([{ text:'MeAI', options:{ fontFace:LATIN, bold:true, color:GOLD, fontSize:16 } }], { x:AX, y:0.84, w:2.0, h:0.42, isTextBox:true, margin:0, valign:'middle' });
 T(s, '두 화면', { x:9.7-2.6, y:0.8, w:2.6, h:0.5, fontSize:28, color:GOLD, align:'right' });
 s.addImage({ path:P('meai_home_top.png'), x:AX, y:AY, w:AW, h:AH, altText:'MeAI 홈 화면' });
