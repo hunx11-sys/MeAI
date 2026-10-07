@@ -12,28 +12,39 @@ def fit(im, W, H, bg=(255,255,255), valign='bottom'):
     s=min(W/im.width, H/im.height); im=im.resize((round(im.width*s),round(im.height*s)),Image.LANCZOS)
     c=Image.new('RGB',(W,H),bg); y=(H-im.height) if valign=='bottom' else (H-im.height)//2; c.paste(im.convert('RGB'),((W-im.width)//2,y)); return c
 home=Image.open(CAP+'hero/gb5_gate_full_m.png').convert('RGB')        # 2880x2580 (css 1440x1290, dsf2)
-# 1) 표지급 큰 그림: MeAI 홈(인사 ~ 추천 카드)
-hero=home.crop((280,150,2600,2090)); rounded(hero,36).save(OUT+'hero_home.png')
-TW,TH=1500,1154   # 1.3:1 — 큰 화면에서 그림을 크게
+# 1) 표지급 큰 그림: MeAI 홈(인사 ~ 추천 카드 · 넘김 점까지)
+hero=home.crop((280,150,2600,2150)); rounded(hero,36).save(OUT+'hero_home.png')
+# 2) 다섯 장면 조각 — 세로형(1.70 x 2.15 in). 장면마다 '멀리서도 알아보는 것' 하나만 크게(글자는 장표의 살아 있는 글로)
+TW,TH=1200,1518; APP=(247,248,250)
 tiles={}
-# 2) 다섯 장면 조각(3:2)
-tiles['t1_reco']=fit(home.crop((300,1150,1820,2165)),TW,TH,valign='center')
-gh=Image.open(CAP+'hero/bc3_general_home.png').convert('RGB')         # 2880x1800 일반대화 첫 화면(인사 · 질문 예시)
-tiles['t2_chat']=gh.crop((900,250,2580,1543)).resize((TW,TH),Image.LANCZOS)
-ab=Image.open(CAP+'hero/bc2_answer_bottom.png').convert('RGB')        # 1720x1078 보장분석 답(표)
-tiles['t3_analysis']=fit(ab.crop((110,0,1690,1053)),TW,TH,valign='center')
-ds=Image.open(CAP+'hero/dream_design_full.png').convert('RGB')        # 2880x1800 설계 요청(cap_design.mjs)
-tiles['t4_design']=fit(ds.crop((940,1010,2540,1800)),TW,TH,valign='center')
-# 리포트: 어두운 바탕 위 휴대폰(리포트 생성) + 카톡 도착
-bg=Image.new('RGB',(TW,TH),(24,24,24)); g=np.zeros((TH,TW,3)); yy,xx=np.mgrid[0:TH,0:TW]
-d=np.sqrt(((xx-TW*0.5)/TW)**2+((yy-TH*0.45)/TH)**2); a=np.clip(1-d/0.75,0,1)**2*0.55
-bgarr=np.array(bg,dtype=float); gold=np.array([255,192,0]); bgarr=bgarr*(1-a[...,None])+gold*a[...,None]*0.35+bgarr*a[...,None]*0
-bg=Image.fromarray(np.clip(bgarr,0,255).astype('uint8'))
-ph=Image.open(CAP+'legacy/report_step3.png').convert('RGBA'); s=1060/ph.height; ph=ph.resize((round(ph.width*s),920),Image.LANCZOS)
-kk=Image.open(CAP+'hero/report_kakao_crop.png').convert('RGB'); s=600/kk.width; kk=rounded(kk.resize((600,round(kk.height*s)),Image.LANCZOS),26)
-bg.paste(ph,(150,(TH-ph.height)//2),ph); bg.paste(kk,(760,(TH-kk.height)//2),kk)
-dr=ImageDraw.Draw(bg); cx=150+ph.width+(760-150-ph.width)//2; dr.polygon([(cx-30,TH//2-42),(cx+34,TH//2),(cx-30,TH//2+42)],fill=(255,192,0))
-tiles['t5_report']=bg
+def canvas(bg=APP): return Image.new('RGB',(TW,TH),bg)
+def put(c,im,w,y=None):  # 가로 w 로 맞춰 가운데에(y 없으면 세로도 가운데)
+    s=w/im.width; im=im.resize((w,round(im.height*s)),Image.LANCZOS)
+    if y is None: y=(TH-im.height)//2
+    c.paste(im,((TW-w)//2,y)); return y+im.height
+# 01 추천 고객 카드 한 장(빨간 'AI 추천 고객' 띠 · 이유 한 문장)
+kim=Image.open(CAP+'hero/gb5_card_kim_z.png').convert('RGB')
+c=canvas(); put(c,kim,1080); tiles['t1_reco']=c
+# 02 홈의 두 입구: 인사 + 일반대화(흰) / 맞춤대화(검정) 카드
+hc=Image.open(CAP+'hero/bc3_home_cards.png').convert('RGB')             # 2280x510
+c=canvas(); y=put(c,hc.crop((566,18,1123,92)),900,330)                   # '무엇을 도와드릴까요?'
+y=put(c,hc.crop((20,230,1123,493)),1080,y+110); put(c,hc.crop((1155,230,2258,493)),1080,y+50); tiles['t2_chat']=c
+# 03 보장분석 표: '이 돈이 나와요 | 지금 상태' 두 칸, 미가입 칸을 빨갛게
+ab=Image.open(CAP+'hero/bc2_answer_bottom.png').convert('RGB')         # 1720x1078
+tb=ab.crop((647,17,1660,410)).copy(); px=tb.load()
+for (y0,y1) in [(158,232),(236,310)]:                                  # 미가입 두 줄(지금 상태 칸)
+    for yy in range(y0,y1):
+        for xx in range(506,1008):
+            r,g,b_=px[xx,yy]
+            if r<140 and g<140 and b_<140: px[xx,yy]=(222,30,38)       # 글자는 빨강
+            elif r>235 and g>235 and b_>235: px[xx,yy]=(253,234,234)   # 바탕은 연한 빨강
+c=canvas((255,255,255)); put(c,tb,1140,300); tiles['t3_analysis']=c   # 아래 빈 곳에 '미가입 2건'(장표 글)
+# 04 맞춤대화 속 담당 고객(김도윤님 · 동의 79일 남음) — 설계 요청 말풍선은 장표의 글로 얹음
+ds=Image.open(CAP+'hero/dream_design_full.png').convert('RGB')         # 2880x1800 (cap_design.mjs)
+c=canvas((255,255,255)); put(c,ds.crop((60,222,585,430)),740,170); tiles['t4_design']=c   # 아래에 설계 요청 말풍선(장표 글)
+# 05 카카오톡 알림톡 도착(가린 칸 그대로)
+kk=Image.open(CAP+'hero/gb5_kakao_clean.png').convert('RGB')           # 374x334
+kb=kk.getpixel((4,kk.height//2)); c=canvas(kb); put(c,kk,1160); tiles['t5_report']=c
 for k,v in tiles.items(): rounded(v,40).save(OUT+k+'.png')
 # 3) 금빛 번짐(투명 PNG) — 큰 그림·큰 숫자 뒤에 깔기
 def glow(W,H,cx,cy,r,alpha,name,color=(255,192,0)):
