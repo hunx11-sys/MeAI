@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:P;font-weight:300;src:url(Pretendard-Light.woff2)}
+@font-face{font-family:P;font-weight:400;src:url(Pretendard-Regular.woff2)}
+@font-face{font-family:P;font-weight:600;src:url(Pretendard-SemiBold.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(Pretendard-Bold.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(Pretendard-ExtraBold.woff2)}
+html,body{margin:0;background:#000}
+#v{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;background:#050506;color:#fff}
+#w{position:absolute;inset:0}
+.L{position:absolute;inset:0}
+.pn{position:absolute;overflow:hidden;background:#000;box-shadow:inset 0 0 0 4px #e9e4d8}
+.pn>img{position:absolute;max-width:none}
+.cap{position:absolute;font-weight:800;font-style:italic;letter-spacing:-.04em;line-height:1.08;white-space:nowrap;paint-order:stroke fill;transform-origin:left center}
+.ph{position:absolute;border-radius:34px;background:#111;padding:10px;box-sizing:border-box;box-shadow:0 0 0 3px #333}
+.ph .sc{width:100%;height:100%;border-radius:26px;overflow:hidden;background:#fff}
+.ph .sc img{width:100%;display:block}
+.note{position:absolute;right:34px;bottom:24px;font-size:24px;font-weight:400;color:rgba(255,255,255,.75);text-shadow:0 1px 3px #000}
+</style></head><body>
+<div id="v"><div id="w"></div><div class="L" id="fx" style="pointer-events:none"></div></div>
+<script>
+const TOOLS=[['특약검색기','s1b.png'],['보상시뮬레이터','s2.png'],['통합치료비 시뮬레이터','s3c.png'],['상품 라인업','s4.png'],['프롬프트 라이브러리','s5.png'],['명패 제작기','s6.png']];
+const IM={red_stern:[930,966],red_eyes:[630,480],slick:[864,966],long_grin:[1215,615],profile:[660,582],long_muscle:[1200,588],red_point_face:[1470,642],fist:[942,534],suit:[912,966],group:[1026,978]};
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ex=x=>{x=cl(x);return x===1?1:1-Math.pow(2,-10*x)};
+const io=x=>{x=cl(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const back=x=>{x=cl(x);const c=1.9;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+// 그림을 칸에 꽉 차게 — 초점(fx,fy)·확대(z)
+function pic(n,W,H,fx=.5,fy=.5,z=1,extra=''){const [iw,ih]=IM[n];const s=Math.max(W/iw,H/ih)*z,w=iw*s,h=ih*s;
+  const x=cl(W/2-fx*w,W-w,0),y=cl(H/2-fy*h,H-h,0);
+  return `<img src="${n}.jpg" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px;${extra}">`}
+const pn=(x,y,w,h,inner,extra='')=>`<div class="pn" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${extra}">${inner}</div>`;
+// 쾅 박히는 자막 : [글, 시작, 크기, 색]
+function cap(lines,x,y,t,rot=-4,gap=1.12){let h='',yy=y;
+  for(const [s,t0,sz,col] of lines){const k=(t-t0)/.16; if(k<0){yy+=sz*gap;continue}
+    const sc=1.9-.9*ex(k), o=cl(k*2.5), sh=k<1.6?(Math.sin(t*90)*7*(1-k/1.6)):0;
+    h+=`<div class="cap" style="left:${x+sh}px;top:${yy}px;font-size:${sz}px;color:${col||'#fff'};-webkit-text-stroke:${Math.round(sz/6.5)}px #000;text-shadow:0 ${Math.round(sz/12)}px 0 #000,0 0 40px rgba(0,0,0,.9);opacity:${o};transform:rotate(${rot}deg) skewX(-8deg) scale(${sc})">${s}</div>`;
+    yy+=sz*gap}
+  return h}
+// 집중선
+function focus(cx,cy,n=90,inner=380,seed=1,col='#000',W=1080,H=1920){let s='';for(let i=0;i<n;i++){const a=(i+((i*seed*7919)%13)/13)/n*Math.PI*2, w=.006+((i*31+seed)%7)/700, r0=inner+((i*53)%9)*26;
+  const x1=cx+Math.cos(a-w)*2400,y1=cy+Math.sin(a-w)*2400,x2=cx+Math.cos(a+w)*2400,y2=cy+Math.sin(a+w)*2400,x0=cx+Math.cos(a)*r0,y0=cy+Math.sin(a)*r0;
+  s+=`<polygon points="${x0},${y0} ${x1},${y1} ${x2},${y2}" fill="${col}"/>`}return `<svg class="L" viewBox="0 0 ${W} ${H}" style="width:100%;height:100%">${s}</svg>`}
+function speed(w,h,t,n=40,col='#fff'){let s='';for(let i=0;i<n;i++){const y=(i*97)%h, len=160+((i*61)%5)*110, x=((i*173)+t*3200)%(w+len)-len; s+=`<rect x="${x}" y="${y}" width="${len}" height="${2+(i%3)}" fill="${col}"/>`}return `<svg class="L" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%;height:100%">${s}</svg>`}
+function sfx(txt,x,y,size,rot=0,o=1,col='#fff'){return `<div style="position:absolute;left:${x}px;top:${y}px;font-size:${size}px;font-weight:800;font-style:italic;color:${col};letter-spacing:-.08em;line-height:.9;transform:rotate(${rot}deg) skewX(-12deg);opacity:${o};-webkit-text-stroke:${Math.round(size/8)}px #000;paint-order:stroke fill;text-shadow:${Math.round(size/14)}px ${Math.round(size/14)}px 0 #000;white-space:pre">${txt}</div>`}
+const ph=(img,x,y,w,h,extra='')=>`<div class="ph" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${extra}"><div class="sc"><img src="${img}"></div></div>`;
+const RED=o=>`<div class="L" style="background:radial-gradient(110% 80% at 50% 40%,rgba(200,0,30,.55),rgba(40,0,6,.85));mix-blend-mode:multiply;opacity:${o}"></div>`;
+const DARK=(a=.0,b=.85,from=55)=>`<div class="L" style="background:linear-gradient(180deg,rgba(0,0,0,${a}) ${from}%,rgba(0,0,0,${b}))"></div>`;
+const NOTE='<div class="note">※ 패러디 연출 · 수치는 가정값</div>';
+
+// 타격 시점 : 화면 흔들림 · 반전 임팩트 컷 · 흰 섬광
+const HITS=[[.05,14],[1.0,10],[3.0,10],[3.9,18],[9.55,26],[11.6,30],[12.3,16],[14.1,16],[20.9,40],[21.05,22],[22.5,14],[27.1,18]];
+const INV=[3.9,9.55,11.6,20.9];
+const FLASH=[9.55,11.6,20.9,27.1];
+
+/* 장면 1 — 질문 (0 ~ 6.6) */
+function s1(t){
+  if(t<3.9){const z=1.0+t*.03;
+    return pn(0,0,1080,1920,pic('red_stern',1080,1920,.5,.32,z)+focus(540,620,80,520,2,'rgba(0,0,0,.55)')+DARK(0,.9,45)
+      +sfx('고\n고\n고\n고',900,330,110,6,cl((t-.6)*2)*(.75+.25*Math.sin(t*14)))
+      +(t<2.2?cap([['이 영업지원도구 6종의',.35,74],['어디에…',1.0,150,'#FFD23F']],70,1300,t)
+             :cap([['우리가 약관을 찾으며',2.2,70],['일했던 것보다',2.55,70],['편리하다고 생각하나?',3.0,92,'#FFD23F']],60,1330,t)),'box-shadow:none')}
+  const k=t-3.9;
+  return pn(0,0,1080,880,pic('red_stern',1080,880,.5,.3,1.12)+DARK(0,.6,40),`transform:translateY(${-(1-ex(k/.3))*200}px)`)
+   +pn(0,900,1080,1020,pic('slick',1080,1020,.45,.38,1.0+k*.03)+DARK(0,.85,40)
+      +cap([['뭐…',4.3,90],['그냥 업무 좀 편하게',4.7,70],['해주는 거 아닌가요?',5.2,70]],70,1440,t,-3),`transform:translateX(${(1-ex(k/.28))*1100}px)`);
+}
+/* 장면 2 — 6종 등장 (6.6 ~ 11.6) */
+function s2(t){
+  const lt=t-6.6; let h='';
+  if(lt<2.95){
+    const rows=[{y:60,s:.42,n:7},{y:290,s:.52,n:6},{y:560,s:.64,n:5},{y:900,s:.8,n:4},{y:1300,s:1,n:3}];
+    rows.forEach((r,ri)=>{const w=300*r.s, hh=600*r.s, gap=(1080-r.n*w)/(r.n+1);
+      for(let k=0;k<r.n;k++){const idx=(k+ri*2)%6; const x=gap+k*(w+gap); const app=back((lt-ri*.07-k*.03)/.35);
+        h+=ph(TOOLS[idx][1],x,r.y+(1-app)*80,w,hh,`opacity:${cl(app*1.5)*.55};filter:grayscale(1) brightness(.7)`)}});
+    h+=focus(540,960,70,700,4,'rgba(120,0,15,.35)');
+    const i=Math.floor((lt-.25)/.45);
+    if(i>=0&&i<6){const k=(lt-.25-i*.45)/.45, s=back(k/.35);
+      h+=`<div class="L" style="background:rgba(0,0,0,.55)"></div>${ph(TOOLS[i][1],290,470,500,1080,`transform:scale(${s}) rotate(${(i%2?3:-3)*(1-ex(k/.4))}deg);box-shadow:0 0 0 6px #fff,0 0 80px rgba(228,0,43,.7)`)}`
+        +cap([[TOOLS[i][0],.25+i*.45,70]],120,1640,lt,-3)}
+    return `<div class="L" style="background:#0b0b0e"></div>${h}`}
+  const k=lt-2.95;
+  return pn(0,0,1080,1920,pic('red_eyes',1080,1920,.5,.42,1.05+k*.05)+RED(.75)+focus(540,900,110,560,6,'rgba(0,0,0,.7)')
+     +`<div style="position:absolute;left:0;right:0;top:720px;text-align:center;transform:scale(${back(k/.25)})">${cap([['영업지원도구',2.95,150],['6종.',2.95,260,'#FFD23F']],110,0,lt,-5,1.0)}</div>`
+     +sfx('쿠웅…',600,1500,120,-8,cl((k-.3)*3)),'box-shadow:none');
+}
+/* 장면 3 — 극화 클로즈업 (11.6 ~ 16.6) */
+function s3(t){
+  const lt=t-11.6;
+  if(lt<2.5){const z=1.12+lt*.06;
+    return pn(0,0,1080,1920,pic('red_eyes',1080,1920,.5,.36,z)+RED(.45)+focus(540,800,150,600,3,'rgba(0,0,0,.8)')+DARK(0,.85,55)
+      +sfx('두\n둥',860,220,170,8,cl((lt-.1)*5))
+      +cap([['편리함도',.2,110],['겨우 14~15배.',.7,150,'#FFD23F']],60,1420,lt)+NOTE,'box-shadow:none')}
+  const k=lt-2.5;
+  return pn(0,0,1080,760,`<div class="L" style="background:radial-gradient(80% 90% at 30% 50%,#3a0710,#000)"></div>`+speed(1080,760,lt,30,'rgba(255,255,255,.12)')
+       +ph('s1b.png',120,60,400,860,'transform:rotate(-10deg);box-shadow:0 0 0 5px #fff,0 0 60px rgba(228,0,43,.6)')
+       +cap([['약관 근거도',k+0.2>0?2.7:9,80],['버튼 하나.',3.0,110,'#FFD23F']],560,250,lt,-4),`transform:translateX(${(1-ex(k/.3))*1100}px)`)
+    +pn(0,776,660,1144,pic('red_point_face',660,1144,.36,.42,1.0+k*.04)+DARK(0,.8,50)+sfx('고고고',420,560,80,-6,cl((k-.5)*3))
+       +cap([['빠르다고 해봐야',2.95,62],['겨우 11~12배.',3.35,88,'#FFD23F']],40,890,lt,-4),`transform:translateY(${(1-ex((k-.12)/.3))*1200}px)`)
+    +pn(676,776,404,1144,pic('profile',404,1144,.55,.45,1.0+k*.03)+DARK(0,.7,50)
+       +cap([['…선배님…',3.9,62]],30,960,lt,-3)+'<div class="note" style="font-size:20px;right:16px">※ 가정값</div>',`transform:translateY(${(1-ex((k-.25)/.3))*1200}px)`);
+}
+/* 장면 4 — 1건 vs 10건 (16.6 ~ 23.6) */
+function s4(t){
+  const lt=t-16.6;
+  if(lt<4.3){
+    const run=cl(lt/3.6), freeze=lt>3.6, Rn=freeze?10:Math.min(10,Math.floor(run*10)), Rf=freeze?1:(run*10)%1;
+    let papers='';for(let i=0;i<7;i++)papers+=`<div style="position:absolute;left:${40+i*7}px;top:${1180-i*16}px;width:260px;height:330px;background:#f4f1ea;border:4px solid #111;transform:rotate(${(i%3-1)*4}deg);box-shadow:0 6px 18px rgba(0,0,0,.6)"><div style="margin:26px 22px;font-size:34px;font-weight:800;color:#111">약관</div><div style="margin:0 22px 14px;height:6px;background:#999"></div><div style="margin:0 22px 14px;height:6px;background:#bbb"></div><div style="margin:0 22px;height:6px;background:#bbb"></div></div>`;
+    const g=freeze?'filter:grayscale(1) brightness(.6);':'';
+    return pn(0,0,532,1920,`<div style="position:absolute;left:0;top:260px;width:532px;height:800px;overflow:hidden">${pic('suit',532,800,.45,.35,1.0,'filter:grayscale(.85) brightness(.75)')}</div>`+DARK(.0,.6,50)+papers
+        +`<div style="position:absolute;left:0;right:0;top:70px;text-align:center;font-size:46px;font-weight:800;text-shadow:0 3px 8px #000">약관 찾아가며</div><div style="position:absolute;left:0;right:0;top:130px;text-align:center;font-size:32px;color:#ccc;text-shadow:0 3px 8px #000">연구하듯 영업</div>
+        <div style="position:absolute;left:46px;right:46px;top:1600px;height:30px;border:4px solid #fff"><div style="width:${run*100}%;height:100%;background:#aaa"></div></div>
+        <div style="position:absolute;left:0;right:0;top:1660px;text-align:center;font-size:120px;font-weight:800">${run>=1?1:0}<span style="font-size:50px"> 건</span></div>`,g)
+      +pn(548,0,532,1920,`<div style="position:absolute;left:0;top:260px;width:532px;height:800px;overflow:hidden">${pic('long_grin',532,800,.42,.38,1.0+lt*.04)}</div>`+DARK(.0,.6,50)+(freeze?'':speed(532,1920,lt,50,'rgba(255,60,60,.5)'))
+        +ph(TOOLS[Math.floor(run*20)%6][1],136,860,260,560,'box-shadow:0 0 0 5px #fff,0 0 50px rgba(228,0,43,.8)')
+        +`<div style="position:absolute;left:0;right:0;top:70px;text-align:center;font-size:46px;font-weight:800;color:#FF3B4E;text-shadow:0 3px 8px #000">영업지원도구 6종으로</div><div style="position:absolute;left:0;right:0;top:130px;text-align:center;font-size:32px;color:#eee;text-shadow:0 3px 8px #000">쉽고 빠르게 영업</div>
+        <div style="position:absolute;left:46px;right:46px;top:1600px;height:30px;border:4px solid #fff"><div style="width:${Rf*100}%;height:100%;background:#E4002B"></div></div>
+        <div style="position:absolute;left:0;right:0;top:1660px;text-align:center;font-size:120px;font-weight:800;color:#FF3B4E">${Rn}<span style="font-size:50px"> 건</span></div>`,g)
+      +'<div class="note" style="left:30px;right:auto">※ 패러디 연출 · 가정값</div>'}
+  const k=lt-4.3;
+  if(k<1.2){
+    return `<div class="L" style="background:radial-gradient(90% 60% at 50% 45%,#6a0014,#050001)"></div>${focus(540,900,160,300,9,'rgba(0,0,0,.8)')}
+      ${pn(0,480,1080,900,pic('red_point_face',1080,900,.4,.5,1.0+0.9*(1-ex(k/.16))),'box-shadow:inset 0 0 0 6px #fff')}
+      <div style="position:absolute;left:0;right:0;top:1290px;text-align:center;transform:scale(${back((k-.15)/.2)}) rotate(-4deg)"><span style="display:inline-block;background:#E4002B;color:#fff;font-size:124px;font-weight:800;letter-spacing:-.05em;padding:18px 46px;border:9px solid #fff;box-shadow:0 0 0 9px #000,0 20px 60px rgba(0,0,0,.8)">영업지원도구 6종!</span></div>
+      ${sfx('쾅!!',80,260,170,-12,cl((k-.05)*6))}`}
+  const m=k-1.2;
+  return pn(0,0,1080,1920,pic('long_muscle',1080,1920,.42,.4,1.05+m*.05)+RED(.55)+DARK(0,.9,40)
+    +cap([['영업은 시간이 아니라',1.4,84],['기회를 만드는',1.9,120,'#FFD23F'],['일입니다.',2.2,120]],60,1240,k,-4),'box-shadow:none');
+}
+/* 장면 5 — 엔딩 (23.6 ~ 30) */
+function s5(t){
+  const lt=t-23.6;
+  if(lt<3.5){let cards='';
+    TOOLS.forEach((o,i)=>{const fx=[-400,1300,-300,1350,-350,1400][i], fy=[200,300,900,1000,1600,1700][i];
+      const tx=150+(i%3)*270, ty=250+Math.floor(i/3)*560, k=io((lt-.05*i)/.7);
+      cards+=ph(o[1],fx+(tx-fx)*k,fy+(ty-fy)*k,240,520,'box-shadow:0 0 0 3px #fff,0 0 40px rgba(228,0,43,.55)')});
+    const steps=['고객 발견','고객 분석','상품 확인','비교','전략 수립','상담']; let chain='';
+    steps.forEach((s,i)=>{const a=ex((lt-1.1-i*.25)/.3);
+      chain+=`<span style="display:inline-block;opacity:${a};transform:scale(${.6+.4*a});font-size:40px;font-weight:800;color:#fff;background:#111;border:4px solid #E4002B;border-radius:999px;padding:8px 22px;margin:8px 4px">${s}</span>${i<5?`<span style="opacity:${a};font-size:40px;color:#E4002B;font-weight:800"> ▶ </span>`:''}`});
+    return `<div class="L" style="background:radial-gradient(100% 70% at 50% 40%,#2a0509,#050506)"></div>${speed(1080,1920,lt,30,'rgba(255,255,255,.06)')}
+      <div style="position:absolute;left:110px;top:210px;width:860px;height:1150px;border-radius:40px;border:4px solid rgba(255,255,255,.5);opacity:${cl((lt-.8)*2)};box-shadow:0 0 80px rgba(228,0,43,.35) inset"></div>
+      ${cards}<div style="position:absolute;left:30px;right:30px;top:1410px;text-align:center;line-height:1.1">${chain}</div>
+      <div style="position:absolute;left:0;right:0;top:70px;text-align:center;font-size:52px;font-weight:800;opacity:${cl((lt-.3)*3)}">여섯 가지 도구, <span style="color:#FF3B4E">하나의 상담 흐름</span></div>`}
+  const k=lt-3.5;
+  return pn(0,0,1080,1920,pic('group',1080,1920,.42,.5,1.12-k*.03)+DARK(.25,.95,20)
+    +`<div style="position:absolute;left:0;right:0;top:${900}px;text-align:center">
+        <div style="font-size:140px;font-weight:800;letter-spacing:-.05em;text-shadow:0 8px 0 #000,0 0 50px rgba(0,0,0,.9);transform:scale(${back(k/.3)})">영업지원도구 6종.</div>
+        <div style="margin-top:40px;font-size:64px;font-weight:600;opacity:${cl((k-.6)*3)};text-shadow:0 3px 10px #000">당신의 시간에 가치를 <b style="color:#FFD23F;font-weight:800">쥬시하게</b></div>
+        <div style="margin-top:120px;font-size:58px;font-weight:700;opacity:${cl((k-1.3)*3)};text-shadow:0 3px 10px #000">이제, 직접 경험해 보십시오.</div>
+        <div style="margin-top:26px;font-size:36px;color:#ddd;opacity:${cl((k-1.6)*3)}">hunx11-sys.github.io/MeAI</div></div>
+      <div style="position:absolute;left:0;right:0;bottom:60px;text-align:center;color:#bbb;font-size:30px;opacity:${cl((k-1.7)*3)}">문의 : 세일즈혁신TF 이헌수</div>
+      <div class="L" style="background:#000;opacity:${cl((t-29.55)/.45)}"></div>`,'box-shadow:none');
+}
+const W=document.getElementById('w'), FX=document.getElementById('fx');
+window.render=function(t){
+  W.innerHTML = t<6.6?s1(t): t<11.6?s2(t): t<16.6?s3(t): t<23.6?s4(t): s5(t);
+  let a=0; for(const [h,A] of HITS) if(t>=h) a+=A*Math.exp(-(t-h)*11);
+  W.style.transform=a>.3?`translate(${(Math.sin(t*97)*a).toFixed(1)}px,${(Math.cos(t*83)*a).toFixed(1)}px) scale(${1+a/900})`:'';
+  const inv=INV.some(h=>t>=h&&t<h+.1);
+  W.style.filter=inv?'invert(1) grayscale(1) contrast(2.4)':'';
+  let f=0; for(const h of FLASH) if(t>=h) f=Math.max(f,Math.exp(-(t-h)*9)*(inv?0:1));
+  const fr=Math.floor(t*30);
+  FX.innerHTML=`<div class="L" style="background:#fff;opacity:${(f*.85).toFixed(3)}"></div>
+    <div class="L" style="background:url(grain.png);background-position:${(fr*137)%512}px ${(fr*251)%512}px;opacity:.10;mix-blend-mode:overlay"></div>
+    <div class="L" style="background:radial-gradient(120% 85% at 50% 45%,transparent 55%,rgba(0,0,0,.55))"></div>`;
+  return document.fonts.ready.then(()=>Promise.all([...document.querySelectorAll('img')].map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r}))));
+};
+render(0);
+</script></body></html>
