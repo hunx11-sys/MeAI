@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>메리츠 세일즈혁신 가이드북 생성기 (프로토타입)</title>
+<style>
+/* ───────────────────────────────────────────────────────────────
+   메리츠 세일즈혁신 가이드북 — M-BOOK 인포그래픽형 스타일시트 (완전본)
+   기존 클래스 전부 유지 : page tag brand(m k) strip body foot pno / sec rider(nokp) lcol
+   rt(td.n td.a td.d .x .h .codes) kp(h3 p ul li .src .fill .none) pagebreak em
+   t(th td .l .r) chip flow callout(.y) note mb kv gl cover(t1 t2 t3 box lbl who) back(bar logo)
+   #app #panel #drop #status #preview #measure
+   새 클래스 : .strip .ch/.st · .it(아이콘 타일) · .sm*(1장 요약) · .mb .bar/.v · .cover .stats/.eyebrow · .back .info
+   ─────────────────────────────────────────────────────────────── */
+@font-face{
+  font-family:"Pretendard Variable";
+  font-weight:45 920; font-style:normal; font-display:swap;
+  src:url(data:font/woff2;base64,__FONT_B64__) format("woff2-variations");
+}
+:root{
+  --red:#C8102E; --red-dk:#990011; --red-lt:#D8232A; --red-tint:#FDECEE; --red-tint2:#FBD5DA;
+  --yellow:#FFE14D; --mark:#FFEC99;
+  --beige:#F3EDE3; --beige2:#FAF6EF; --beige-line:#E4DCCF;
+  --g900:#191F28; --g800:#333D4B; --g700:#4E5968; --g600:#6B7684; --g500:#8B95A1; --g400:#B0B8C1;
+  --g300:#D1D6DB; --g200:#E5E8EB; --g100:#F2F4F6; --g50:#F9FAFB; --w:#fff;
+  --ca:#C8102E; --ca-t:#FDECEE; --cv:#2F6FB0; --cv-t:#EAF1FB; --sg:#1E8E5A; --sg-t:#E6F5EC;
+  --ad:#D9770F; --ad-t:#FFF3E0; --ac:#4B5563; --ac-t:#EEF0F3;
+  --g:var(--red); --gt:var(--red-tint);
+  --fs-sec:15pt; --fs-kp:10pt; --fs-body:8.4pt; --fs-tbl:7.5pt; --fs-small:7.4pt; --fs-foot:7pt; --lh:1.45;
+  --r-card:2.2mm; --r-box:1.6mm; --r-pill:99px;
+  --sp1:1mm; --sp2:2mm; --sp3:3mm; --sp4:4mm; --sp6:6mm;
+  --font:"Pretendard Variable","Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","NanumGothic","Noto Sans KR",sans-serif;
+  --font-brand:Arial,Helvetica,"Pretendard Variable",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:var(--font);color:var(--g900);font-size:var(--fs-body);line-height:var(--lh);
+  word-break:keep-all;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;background:#E6E8EC;
+  -webkit-font-smoothing:antialiased}
+b,strong{font-weight:700}
+
+/* ── 갈래색 주입 : el(html,grp) 가 블록 뿌리에 data-grp 를 붙인다 ── */
+[data-grp="ca"]{--g:var(--ca);--gt:var(--ca-t)}
+[data-grp="cv"]{--g:var(--cv);--gt:var(--cv-t)}
+[data-grp="sg"]{--g:var(--sg);--gt:var(--sg-t)}
+[data-grp="ad"]{--g:var(--ad);--gt:var(--ad-t)}
+[data-grp="ac"]{--g:var(--ac);--gt:var(--ac-t)}
+[data-grp="any"]{--g:var(--red);--gt:var(--red-tint)}
+
+/* ── 작업 화면(인쇄 안 됨) ── */
+#app{display:flex;min-height:100vh}
+#panel{width:300px;flex:none;background:#fff;border-right:1px solid var(--g200);padding:16px 14px;font-size:12px;position:sticky;top:0;height:100vh;overflow:auto;color:var(--g800)}
+#panel h1{font-size:15px;margin:0 0 4px;letter-spacing:-.02em}
+#panel .v{color:var(--g500);font-size:11px;margin-bottom:10px;line-height:1.5}
+#drop{border:1.5px dashed var(--red);border-radius:12px;padding:18px 10px;text-align:center;color:var(--g700);cursor:pointer;background:var(--red-tint)}
+#drop.on{background:var(--red-tint2)}
+#drop b{color:var(--red-dk)}
+#panel button{display:block;width:100%;margin:6px 0;padding:9px;border:1px solid var(--g300);border-radius:8px;background:var(--g50);cursor:pointer;font-size:12px;color:var(--g800);font-family:inherit}
+#panel button:hover{background:var(--g100)}
+#panel button.pri{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
+#panel label{display:block;margin:6px 0}
+#panel input[type=text]{width:100%;padding:6px 8px;border:1px solid var(--g300);border-radius:6px;font-size:12px;font-family:inherit}
+#status{background:var(--g100);border-radius:8px;padding:8px;margin:8px 0;font-size:11px;white-space:pre-wrap;max-height:220px;overflow:auto;line-height:1.5}
+#status .warn{color:#B45309}
+#preview{flex:1;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px}
+#measure{position:absolute;left:-9999px;top:0;width:188mm;visibility:hidden}
+
+/* ── 지면 틀 ── (.body 일반 흐름 · .foot 바닥 고정 : 엔진이 이 둘의 top 으로 높이를 잰다) */
+.page{width:210mm;height:297mm;padding:9mm 11mm 12mm;position:relative;overflow:hidden;background:#fff;
+  box-shadow:0 2px 10px rgba(25,31,40,.18);page-break-after:always;break-after:page;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.page .tag{position:absolute;top:7.2mm;left:11mm;font-size:7.2pt;font-weight:700;color:var(--red-dk);
+  border:1px solid var(--red-tint2);background:var(--red-tint);border-radius:var(--r-pill);padding:.4mm 2.4mm;line-height:1.4}
+.brand{display:flex;justify-content:flex-end;align-items:baseline;gap:1.4mm;margin-top:3.4mm;height:7mm}
+.brand .m{font-family:var(--font-brand);font-weight:900;font-size:17pt;color:var(--red);letter-spacing:-.04em;line-height:1}
+.brand .k{font-size:9.5pt;color:var(--g700);font-weight:700;letter-spacing:-.02em}
+.strip{display:flex;align-items:center;gap:3mm;background:var(--red-dk);color:#fff;padding:1.5mm 3.2mm;margin:1.4mm 0 3.2mm;border-radius:var(--r-box);min-height:6.2mm}
+.strip .ch{font-weight:800;font-size:9pt;letter-spacing:-.02em;white-space:nowrap}
+.strip .ch:empty{display:none}
+.strip .ch:not(:empty)::after{content:"";display:inline-block;width:1px;height:3.4mm;background:rgba(255,255,255,.35);margin-left:3mm;vertical-align:-0.6mm}
+.strip .st{font-size:var(--fs-small);opacity:.92;margin-left:auto;text-align:right}
+.strip b{color:var(--yellow);font-weight:700}
+.body{position:relative}
+.foot{position:absolute;left:11mm;right:11mm;bottom:6mm;font-size:var(--fs-foot);color:var(--g600);border-top:1px solid var(--g200);padding-top:1.4mm;display:flex;justify-content:space-between;align-items:center;gap:4mm}
+.foot .fn{flex:1}
+.foot .pno{font-weight:800;font-size:8.4pt;color:var(--g900);white-space:nowrap}
+.foot .pno::before{content:"";display:inline-block;width:2mm;height:2mm;background:var(--red);border-radius:.4mm;margin-right:1.6mm;vertical-align:0}
+
+/* ── 장 제목 .sec ── (다음 블록과 같이 움직임 · margin-bottom 으로만 간격) */
+.sec{display:flex;align-items:baseline;gap:2.6mm;font-size:var(--fs-sec);font-weight:800;color:var(--g900);letter-spacing:-.025em;line-height:1.15;
+  margin:0 0 2.6mm;padding:.4mm 0 1.8mm 3.4mm;border-bottom:1px solid var(--g200);position:relative;break-inside:avoid}
+.sec::before{content:"";position:absolute;left:0;top:.4mm;bottom:1.8mm;width:1.6mm;background:var(--g);border-radius:.4mm}
+.sec small{font-size:7.6pt;color:var(--g600);font-weight:500;letter-spacing:-.01em;margin-left:auto;text-align:right;line-height:1.35}
+.pagebreak{height:0}
+
+/* ── 담보 묶음 : 왼쪽 표 + 오른쪽 Key Point ── */
+.rider{display:grid;grid-template-columns:1.12fr 1fr;gap:4mm;margin-bottom:3.2mm;break-inside:avoid;align-items:start}
+.rider.nokp{grid-template-columns:1fr}
+.lcol{min-width:0}
+.rt{width:100%;border-collapse:collapse;table-layout:fixed;border:1px solid var(--beige-line);border-radius:var(--r-box);overflow:hidden}
+.rt td{vertical-align:top;padding:1.4mm 2mm;border-bottom:1px solid var(--g200);font-size:8.2pt;line-height:1.5;color:var(--g800)}
+.rt td.n{background:var(--beige2);font-weight:800;font-size:8.8pt;color:var(--g900);border-bottom:0;padding:1.6mm 2mm .9mm 2.6mm;border-left:2.6px solid var(--g);letter-spacing:-.02em}
+.rt td.n span{font-weight:500!important;color:var(--g500)!important;font-size:var(--fs-small)!important}
+.rt td.a{text-align:right;vertical-align:middle;width:22mm;background:var(--beige);border-left:1px solid var(--beige-line);
+  font-weight:800;font-size:11pt;color:var(--g900);letter-spacing:-.03em;line-height:1.15;padding-right:2.4mm}
+.rt td.a span{font-size:6.9pt!important;font-weight:500!important;color:var(--g600)!important;letter-spacing:0;display:block;margin-top:.8mm}
+.rt td.d{color:var(--g800)}
+.rt td.d>div{margin-bottom:.3mm}
+.rt td.d .x{display:block;color:var(--g600);font-size:var(--fs-small);margin-top:1mm;line-height:1.5;padding-left:1.4mm;border-left:1.5px solid var(--g200)}
+.rt .h{background:linear-gradient(transparent 58%,var(--mark) 58%);font-weight:700;color:var(--g900);padding:0 .2mm}
+.rt .codes{display:block;margin-top:1.2mm;padding-top:1mm;border-top:1px dashed var(--g200);font-size:var(--fs-small);color:var(--g600);line-height:1.55}
+.rt .codes b{color:var(--red-dk);font-weight:700}
+.rt .t{margin-top:1.4mm;font-size:var(--fs-tbl)!important}
+
+/* ── Key Point : 빨간 점선 상자 (가이드북의 유일한 '해설' 신호) ── */
+.kp{border:1.3px dashed var(--red);border-radius:var(--r-card);padding:2.6mm 3.2mm 2.4mm;background:#fff;display:flex;flex-direction:column;min-width:0}
+.kp h3{margin:0 0 1.6mm;text-align:center;color:var(--red-dk);font-size:var(--fs-kp);font-weight:800;letter-spacing:-.02em;line-height:1.3;padding-bottom:1.4mm;border-bottom:1px solid var(--red-tint2)}
+.kp p{margin:.7mm 0;color:var(--g800)}
+.kp p b{color:var(--g900)}
+.kp ul{margin:.7mm 0 .7mm 3.6mm;padding:0}
+.kp li{margin:.4mm 0;color:var(--g800)}
+.kp li::marker{color:var(--red)}
+.kp .src{font-size:var(--fs-small);color:var(--g500);text-align:right;margin:auto 0 0;padding-top:1.2mm;line-height:1.4}
+.kp .src+.src{margin-top:0}
+.kp .t{margin:1.2mm 0}
+/* 빈 자리 참고 카드 : 회색 실선 (Key Point 와 다른 물건임을 모양으로 말한다) */
+.kp.fill{border:1px solid var(--g200);background:var(--g50);border-radius:var(--r-card)}
+.kp.fill h3{color:var(--g900);text-align:left;border-bottom:0;padding:0 0 0 2.6mm;position:relative;margin-bottom:1.4mm}
+.kp.fill h3::before{content:"";position:absolute;left:0;top:.5mm;bottom:.5mm;width:1.2mm;background:var(--g);border-radius:.3mm}
+.kp.fill .t th{background:var(--g100);color:var(--g800)}
+.kp.none{border-color:var(--g300);color:var(--g500);text-align:center;font-size:var(--fs-small);align-items:center;justify-content:center}
+.em{color:var(--red-dk);font-weight:700}
+
+/* ── 공통 표 .t (KP 창고 · 면책감액 · 지급금액표) ── 세로줄 없음 · 줄무늬 없음 */
+.t{width:100%;border-collapse:collapse;font-size:var(--fs-tbl);margin:1.2mm 0;line-height:1.4}
+.t th{background:var(--beige);color:var(--g900);padding:1.1mm 1.4mm;font-weight:700;text-align:center;border-bottom:1px solid var(--beige-line);letter-spacing:-.01em}
+.t td{padding:1mm 1.4mm;border-bottom:1px solid var(--g200);text-align:center;color:var(--g800);vertical-align:top}
+.t td.l{text-align:left}
+.t tr:last-child td{border-bottom:1px solid var(--g300)}
+.t.r th{background:var(--red-tint);color:var(--red-dk)}
+.t.r td:first-child{font-weight:600;color:var(--g900)}
+/* 알약 칩 · 단계 흐름 */
+.chip{display:inline-block;background:var(--g100);color:var(--g800);border:1px solid var(--g200);border-radius:var(--r-pill);padding:.1mm 2mm;font-size:var(--fs-small);line-height:1.6;margin:.3mm .5mm .3mm 0;white-space:nowrap}
+.flow{display:flex;gap:1.4mm;margin:1.4mm 0;align-items:stretch}
+.flow>div{flex:1;min-width:0;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-box);padding:1.2mm 1.6mm;font-size:var(--fs-small);line-height:1.4;color:var(--g800);position:relative}
+.flow>div b{display:block;color:var(--red-dk);font-size:7.8pt;margin-bottom:.4mm;letter-spacing:-.01em}
+.flow>div+div::before{content:"›";position:absolute;left:-1.5mm;top:38%;color:var(--g400);font-size:9pt;line-height:1;font-weight:700}
+/* 콜아웃 2종 + 메모 */
+.callout{background:var(--g50);border-left:3px solid var(--red);border-radius:0 var(--r-box) var(--r-box) 0;padding:2mm 3mm;margin:0 0 3mm;font-size:8.2pt;color:var(--g800);break-inside:avoid;line-height:1.5}
+.callout b{color:var(--g900)}
+.callout.y{background:#FFF8E1;border-left-color:#F2A900}
+.note{font-size:var(--fs-small);color:var(--g600);background:var(--g50);border:1px solid var(--g200);padding:1.8mm 2.4mm;border-radius:var(--r-box);margin:0 0 2mm}
+
+/* ── 담보 지도 .mb ── 이름 | 막대 | 금액 (막대는 JS 가 <i style=width> 로 넣음) */
+.mb{border:1px solid var(--g200);border-radius:var(--r-card);padding:2.4mm 3mm 2mm;background:#fff;margin-bottom:3mm;break-inside:avoid}
+.mb h3{display:flex;align-items:baseline;gap:2mm;margin:0 0 1.6mm;font-size:9.6pt;font-weight:800;color:var(--g);letter-spacing:-.02em;padding-bottom:1.2mm;border-bottom:2px solid var(--g)}
+.mb h3 small{font-size:var(--fs-small);font-weight:600;color:var(--g600);margin-left:auto}
+.mb table{width:100%;border-collapse:collapse;font-size:7.8pt;table-layout:fixed}
+.mb td{padding:.7mm .8mm;border-bottom:1px solid var(--g100);color:var(--g800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+.mb tr:last-child td{border-bottom:0}
+.mb th{font-size:7.2pt;font-weight:700;color:var(--g600);text-align:left;padding:.5mm .8mm 1mm;border-bottom:1px solid var(--g300)}
+.mb th.c,.mb td.c{width:40mm;text-align:center;white-space:normal}
+.mb td.c{font-size:7.2pt;color:var(--g700);line-height:1.3}
+.mb td.c b{color:var(--red-dk);font-weight:700}
+.mb td.c .none{color:var(--g400)}
+.mb th.v{text-align:right}
+.mb td:last-child,.mb td.v{text-align:right;font-weight:800;white-space:nowrap;width:20mm;color:var(--g900);font-size:8.2pt;letter-spacing:-.02em}
+.mb td.v small{font-weight:500;color:var(--g500);font-size:6.8pt;margin-left:.4mm}
+
+/* ── 용어 풀이 .gl ── 3단 */
+.gl{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6mm 5mm;break-inside:avoid;margin-bottom:2.6mm}
+.gl div{border-bottom:1px solid var(--g200);padding:1.4mm 0 1.6mm}
+.gl b{display:block;color:var(--g900);font-size:8.8pt;font-weight:800;letter-spacing:-.02em;padding-left:2.6mm;position:relative;margin-bottom:.4mm}
+.gl b::before{content:"";position:absolute;left:0;top:1.2mm;width:1.4mm;height:1.4mm;background:var(--red);border-radius:.3mm}
+.gl span{display:block;color:var(--g700);font-size:7.7pt;line-height:1.5}
+
+/* ── 상품 한눈에 .kv ── */
+.kv{width:100%;border-collapse:collapse;font-size:8.2pt;margin-bottom:3mm;border:1px solid var(--beige-line);border-radius:var(--r-box);overflow:hidden}
+.kv td{padding:1.4mm 2.2mm;border-bottom:1px solid var(--g200);vertical-align:top;color:var(--g800);line-height:1.5}
+.kv tr:last-child td{border-bottom:0}
+.kv td:first-child{width:26mm;background:var(--beige2);font-weight:700;color:var(--g900);border-right:1px solid var(--beige-line)}
+.kv b{color:var(--g900);font-weight:800;font-size:9.2pt}
+
+/* ── 아이콘 타일 .it ── (반지름 = 크기/3 · Healthicons 'CC' 치환) */
+.it{display:inline-grid;place-items:center;width:8mm;height:8mm;border-radius:33%;flex:none;vertical-align:middle}
+.it>span{display:block;width:66%;height:66%}
+.it svg{width:100%;height:100%;display:block}
+
+/* ── 1장 요약 .sm ── */
+.sm{margin-bottom:3mm;break-inside:avoid;min-width:0}
+.sm-hero{display:grid;grid-template-columns:1fr auto;gap:5mm;align-items:center;background:var(--beige2);border:1px solid var(--beige-line);border-radius:var(--r-card);padding:4mm 5mm}
+.sm-hero .eyebrow{font-size:var(--fs-small);font-weight:700;color:var(--red-dk);letter-spacing:.02em;margin-bottom:1mm}
+.sm-hero .ttl{font-size:14.5pt;font-weight:800;color:var(--g900);letter-spacing:-.03em;line-height:1.2}
+.sm-hero .who{font-size:8.4pt;color:var(--g700);margin-top:1.4mm}
+.sm-hero .who b{color:var(--g900)}
+.sm-stats{display:flex;gap:2.4mm}
+.sm-stat{background:#fff;border:1px solid var(--beige-line);border-radius:var(--r-box);padding:2.4mm 3.4mm;min-width:24mm;text-align:right}
+.sm-stat b{display:block;font-size:17pt;font-weight:800;color:var(--red);letter-spacing:-.04em;line-height:1}
+.sm-stat b small{font-size:8pt;color:var(--g600);font-weight:600;margin-left:.6mm;letter-spacing:0}
+.sm-stat span{display:block;font-size:var(--fs-small);color:var(--g600);margin-top:1mm}
+.sm-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:2.6mm}
+.sm-tile{border:1px solid var(--g200);border-top:2.4px solid var(--g);border-radius:var(--r-card);padding:2.6mm 2.8mm 2.2mm;min-width:0;background:#fff}
+.sm-tile .hd{display:flex;align-items:center;gap:2mm;margin-bottom:1.6mm}
+.sm-tile .hd b{font-size:9pt;font-weight:800;color:var(--g);letter-spacing:-.02em;line-height:1.2}
+.sm-tile .hd span{display:block;font-size:6.9pt;color:var(--g500);line-height:1.3;margin-top:.3mm}
+.sm-tile .big{display:flex;align-items:baseline;gap:1.4mm;margin-bottom:1.6mm;padding-bottom:1.2mm;border-bottom:1px dashed var(--g200)}
+.sm-tile .big b{font-size:19pt;font-weight:800;color:var(--g900);letter-spacing:-.04em;line-height:1}
+.sm-tile .big span{font-size:var(--fs-small);color:var(--g600)}
+.sm-tile .max{font-size:var(--fs-small);color:var(--g700);margin-bottom:1.6mm;padding-bottom:1.4mm;border-bottom:1px dashed var(--g200)}
+.sm-tile .max b{color:var(--g900);font-weight:800;font-size:8.6pt;letter-spacing:-.02em}
+.sm-li{display:flex;align-items:baseline;gap:1.6mm;font-size:7.3pt;line-height:1.35;padding:.6mm 0;border-bottom:1px solid var(--g100);color:var(--g800);min-width:0}
+.sm-li:last-child{border-bottom:0}
+.sm-li i{font-style:normal;flex:none;width:3.4mm;height:3.4mm;border-radius:50%;background:var(--gt);color:var(--g);font-size:6pt;font-weight:800;display:grid;place-items:center;line-height:1}
+.sm-li em{font-style:normal;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm-li b{flex:none;font-weight:800;color:var(--g900);font-size:7.8pt;letter-spacing:-.02em}
+.sm-2{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.sm-card{border:1px solid var(--g200);border-radius:var(--r-card);padding:2.8mm 3.2mm 2.4mm;background:#fff;min-width:0}
+.sm-card h4{margin:0 0 2mm;font-size:9.4pt;font-weight:800;color:var(--g900);letter-spacing:-.02em;display:flex;align-items:center;gap:2mm}
+.sm-card h4 small{margin-left:auto;font-size:6.9pt;color:var(--g500);font-weight:500}
+.sm-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;margin-bottom:2mm}
+.sm-num{background:var(--g50);border-radius:var(--r-box);padding:2mm 2.2mm;text-align:center}
+.sm-num b{display:block;font-size:16pt;font-weight:800;color:var(--red);letter-spacing:-.04em;line-height:1}
+.sm-num b small{font-size:7.4pt;color:var(--g600);font-weight:600;margin-left:.4mm;letter-spacing:0}
+.sm-num span{display:block;font-size:6.9pt;color:var(--g700);margin-top:1mm;line-height:1.3}
+.sm-card .nt{font-size:var(--fs-small);color:var(--g600);line-height:1.5;margin:0}
+.sm-card .nt b{color:var(--g800)}
+.sm-layer{display:grid;grid-template-columns:7mm 1fr auto;gap:2.2mm;align-items:center;padding:1.4mm 0;border-bottom:1px solid var(--g100)}
+.sm-layer:last-of-type{border-bottom:0}
+.sm-layer .no{width:7mm;height:7mm;border-radius:33%;background:var(--red-tint);color:var(--red-dk);font-weight:800;font-size:9pt;display:grid;place-items:center;letter-spacing:-.03em}
+.sm-layer .lb b{display:block;font-size:8.4pt;font-weight:800;color:var(--g900);letter-spacing:-.02em}
+.sm-layer .lb span{display:block;font-size:6.9pt;color:var(--g600);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm-layer .ct{text-align:right}
+.sm-layer .ct b{display:block;font-size:14pt;font-weight:800;color:var(--g900);letter-spacing:-.04em;line-height:1}
+.sm-layer .ct small{font-size:6.6pt;color:var(--g600)}
+.sm-kps{display:flex;flex-wrap:wrap;gap:1.6mm}
+.sm-kp{display:inline-flex;align-items:center;gap:1.6mm;border:1.2px dashed var(--red);border-radius:var(--r-pill);padding:.8mm 2.8mm .8mm 2mm;font-size:7.6pt;font-weight:700;color:var(--g900);line-height:1.3;max-width:100%}
+.sm-kp i{width:2.2mm;height:2.2mm;border-radius:50%;background:var(--g);flex:none}
+.sm-kp em{font-style:normal;font-weight:500;color:var(--g500);font-size:6.8pt;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── 표지 ── (엔진 안 씀 → 절대배치 허용) */
+.page.cover{padding:0;background:var(--red);color:#fff;overflow:hidden}
+.cover .cv-top{height:16mm;background:#fff;padding:0 11mm;display:flex;align-items:center;justify-content:flex-end}
+.cover .cv-top .brand{margin:0;height:auto}
+.cover .cv-top .brand .m{color:var(--red)} .cover .cv-top .brand .k{color:var(--g700)}
+.cover .cv-main{padding:22mm 14mm 0 14mm;position:relative}
+.cover .eyebrow{display:inline-block;font-size:9.5pt;font-weight:700;letter-spacing:.04em;border:1.2px solid rgba(255,255,255,.7);border-radius:var(--r-pill);padding:.8mm 3.4mm;margin-bottom:9mm}
+.cover .t1{font-size:38pt;font-weight:800;line-height:1.08;letter-spacing:-.04em;margin:0;color:#fff;word-break:keep-all}
+.cover .t1.long{font-size:30pt}
+.cover .t2{font-size:14pt;font-weight:800;color:var(--yellow);margin-top:7mm;line-height:1.3;letter-spacing:-.02em}
+.cover .t3{font-size:9.8pt;margin-top:11mm;line-height:1.75;color:rgba(255,255,255,.92)}
+.cover .t3 b{color:#fff;font-weight:800}
+.cover .t3 .dim{color:rgba(255,255,255,.72)}
+.cover .deco{position:absolute;right:-18mm;top:118mm;width:92mm;height:92mm;border-radius:50%;background:var(--red-lt);opacity:.55}
+.cover .deco2{position:absolute;right:28mm;top:150mm;width:40mm;height:40mm;border-radius:50%;background:var(--red-dk);opacity:.45}
+.cover .box{position:absolute;left:0;right:0;bottom:0;height:78mm;background:#fff;border-radius:7mm 7mm 0 0;padding:7mm 14mm 8mm;color:var(--g800)}
+.cover .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-bottom:5mm}
+.cover .stats div{border-left:2.6px solid var(--red);padding-left:3.4mm}
+.cover .stats b{display:block;font-size:22pt;font-weight:800;color:var(--g900);letter-spacing:-.04em;line-height:1}
+.cover .stats b small{font-size:9pt;color:var(--g600);font-weight:600;margin-left:.8mm;letter-spacing:0}
+.cover .stats span{display:block;font-size:7.8pt;color:var(--g600);margin-top:1.4mm}
+.cover .box .lbl{font-size:7.6pt;font-weight:700;color:var(--red-dk);letter-spacing:.02em}
+.cover .box .who{font-size:11pt;font-weight:800;color:var(--g900);margin-top:.6mm;letter-spacing:-.02em}
+.cover .box .desc{font-size:7.8pt;color:var(--g600);margin-top:2mm;line-height:1.6;max-width:128mm}
+.cover .box .desc .dim{color:var(--g500)}
+.cover .chars{position:absolute;right:10mm;bottom:8mm;width:52mm;height:auto}
+
+/* ── 뒷표지 ── */
+.page.back{padding:0;background:#fff}
+.back .bar{height:18mm;background:var(--red)}
+.back .bar::after{content:"";display:block;height:2mm;background:var(--red-dk)}
+.back .logo{position:absolute;top:96mm;left:0;right:0;text-align:center}
+.back .logo .m{font-family:var(--font-brand);font-weight:900;font-size:40pt;color:var(--red);letter-spacing:-.05em}
+.back .logo .k{font-size:20pt;color:var(--g700);font-weight:800;letter-spacing:-.03em;margin-left:2mm}
+.back .logo .line{font-size:9pt;color:var(--g600);margin-top:4mm}
+.back .info{position:absolute;left:18mm;right:18mm;bottom:22mm;display:grid;grid-template-columns:1fr 1fr;gap:8mm;font-size:8pt;color:var(--g700);line-height:1.65;border-top:1px solid var(--g200);padding-top:5mm}
+.back .info h4{margin:0 0 1.4mm;font-size:8.6pt;font-weight:800;color:var(--g900);letter-spacing:-.02em}
+.back .info p{margin:0}
+.back .info .dim{color:var(--g500);font-size:7.2pt}
+.back .notice{position:absolute;left:18mm;right:18mm;bottom:10mm;font-size:7.2pt;color:var(--g500);line-height:1.5}
+.back .chars{position:absolute;left:0;right:0;bottom:66mm;text-align:center}
+.back .chars img{width:84mm;height:auto}
+
+/* ── 인쇄 ── */
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fff}
+  #panel,#measure{display:none!important}
+  #app{display:block}
+  #preview{padding:0;display:block;gap:0}
+  .page{box-shadow:none;margin:0}
+  .page,.rt td.n,.rt td.a,.t th,.strip,.callout,.kp.fill,.sm-stat,.sm-num,.mb td.bar i,.it,.cover,.back .bar{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <h1>세일즈혁신 가이드북 생성기</h1>
+    <div class="v">프로토타입 · 오프라인 · 8개 상품 특약 마스터 내장 · <span id="buildinfo"></span></div>
+    <div id="drop"><b>상품설명서 PDF</b>를 여기에 끌어다 놓거나 클릭<br><span style="font-size:11px;color:#888">파일은 이 PC 안에서만 읽힙니다</span>
+      <input id="file" type="file" accept="application/pdf" style="display:none"></div>
+    <button id="sampleA">샘플 ① 통합간편 (40세 남성 · 70건)</button>
+    <button id="sampleB">샘플 ② 내Mom대로 5.10.5 (40세 여성 · 66건)</button>
+    <div id="status">상품설명서를 넣으면 담보 목록과 담보별 설명문을 읽어 가이드북을 만듭니다.</div>
+    <label>가이드 제목<input id="title" type="text" placeholder="비우면 상품명으로"></label>
+    <label><input id="optAll" type="checkbox" checked> Key Point가 없는 담보도 싣기</label>
+    <label><input id="optCodes" type="checkbox" checked> 약관 별표 분류번호 표시</label>
+    <label><input id="optDesc" type="checkbox" checked> 설계서 설명문 싣기</label>
+    <button id="rebuild">다시 만들기</button>
+    <button id="print" class="pri">인쇄 · PDF로 저장</button>
+    <div style="font-size:11px;color:#777;margin-top:10px;line-height:1.5">
+      PDF 저장은 브라우저 인쇄창에서 「대상 : PDF로 저장」, 여백 「없음」, 배경 그래픽 「켬」으로 합니다. 상품명이 길어 표지가 답답하면 「가이드 제목」에 짧은 이름을 적습니다.<br>
+      설명문은 설계서 뒤쪽 「가입담보 및 보장내용」에서, 분류번호는 약관 별표(특약 마스터)에서, Key Point는 내장 글 상자 창고에서 옵니다. 추정한 코드·금액은 없습니다.
+    </div>
+  </aside>
+  <main id="preview"></main>
+</div>
+<div id="measure"></div>
+
+<script type="text/plain" id="pdfjs-main">__PDFJS_MAIN__</script>
+<script type="text/plain" id="pdfjs-worker">__PDFJS_WORKER__</script>
+<script type="application/json" id="cmaps">__CMAPS__</script>
+<script type="application/json" id="master">__MASTER__</script>
+<script type="application/json" id="kcdnames">__KCDNAMES__</script>
+<script type="application/json" id="kp">__KP__</script>
+<script type="application/json" id="samples">__SAMPLES__</script>
+<script type="application/json" id="buildmeta">__BUILDMETA__</script>
+<script type="application/json" id="icons">__ICONS__</script>
+<script>const CHARS_B64='__CHARS_B64__';</script>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const J=id=>JSON.parse(document.getElementById(id).textContent);
+const MASTER=J('master'), KCDN=J('kcdnames'), KPDOC=J('kp'), SAMPLES=J('samples'), META=J('buildmeta');
+let ICONS={}; try{ICONS=J('icons')}catch(e){}
+const ICON=(k,c)=>(ICONS[k]||'').replace(/CC/g,c);     // Healthicons SVG 의 색 자리(CC)를 바꿔 준다 — proposal_smart/gen2.py svg() 와 같은 방식
+const KP=KPDOC.kp, GLOSS=KPDOC._glossary;
+$('#buildinfo').textContent=META.built+' · 특약 '+MASTER.riders.length+'건 · Key Point '+Object.keys(KP).length+'종';
+
+// ── 정규화 (matcher.py base / scen_engine.nname 이식) ───────────────
+const GOJI=new RegExp('(?:\\((?:'+MASTER.goji_tags.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\)|\\([^()]{1,24}가입\\))','g');
+const RENEW=/\((?:\d+년)?갱신\)/g;
+const AMT_RE='(?:간병인지원|(?=\\d)(?:\\d[\\d,]*억\\s*)?(?:\\d[\\d,]*천)?(?:\\d[\\d,]*백)?(?:\\d[\\d,]*십)?(?:\\d[\\d,]*)?만원|\\d[\\d,]*억\\s*(?:\\d[\\d,]*천)?(?:\\d[\\d,]*백)?(?:\\d[\\d,]*십)?(?:\\d[\\d,]*만)?원?)';
+const AMT_FULL=new RegExp('^'+AMT_RE+'$');
+const AMT_IN=new RegExp(AMT_RE);
+function nname(n){return (n||'').replace(GOJI,'').replace('[기본계약]','').replace(/┗/g,'').replace(/\s+/g,'')}
+function base(n){return (n||'').replace(GOJI,'').replace(RENEW,'').replace('[기본계약]','').replace(/┗/g,'').replace(/\s+/g,'')}
+function amtToMan(s){
+  s=(s||'').replace(/[\s,]/g,'');
+  const m=/^(?:(\d+)억)?(?:(\d+)천)?(?:(\d+)백)?(?:(\d+)십)?(\d+)?(만)?원?$/.exec(s);
+  if(!m) return 0;
+  const [eok,cheon,baek,sip,man]=[1,2,3,4,5].map(i=>m[i]?parseInt(m[i],10):0);
+  if(!(eok||cheon||baek||sip||m[6])) return 0;
+  return eok*10000+cheon*1000+baek*100+sip*10+man;
+}
+function manText(man,raw){
+  if(raw&&/간병인지원/.test(raw)) return '간병인<br>지원';
+  if(!man) return raw||'—';
+  if(man>=10000&&man%10000===0) return (man/10000)+'억원';
+  if(man>=10000) return (man/10000).toFixed(1).replace(/\.0$/,'')+'억원';
+  if(man>=1000&&man%1000===0) return (man/1000)+'천만원';
+  if(man>=100&&man%100===0&&man<1000) return (man/100)+'백만원';
+  return man.toLocaleString()+'만원';
+}
+
+// ── 특약 마스터 색인 ───────────────────────────────────────────
+const INDEX=new Map();
+for(const r of MASTER.riders){const k=base(r.n);if(!INDEX.has(k))INDEX.set(k,[]);INDEX.get(k).push(r)}
+const KEYS=[...INDEX.keys()].sort((a,b)=>b.length-a.length);
+function pickLine(list,line){return (line&&list.find(r=>r.p===line))||list[0]}
+function matchMaster(name,line){
+  const b=base(name); const cands=[b,b.replace(/^갱신형/,''),'갱신형'+b];
+  const br=/^(.*?)\[(.+)\]$/.exec(b); if(br){cands.push(br[1]+'['+br[2]+']');cands.push(br[1]+'['+br[2].replace(/\d+종$/,'')+']');cands.push(br[2]);cands.push(br[1])}
+  const g17=br&&/^(상해|질병)\d종$/.exec(br[2]); if(g17){ cands.push(br[1]+'(1-7종,연간3회한)['+g17[1]+']'); cands.push('갱신형'+br[1]+'(1-7종,연간3회한)['+g17[1]+']') }   // ┗ 수술비[상해3종] 세부 행 → 부모 특약 「수술비(1-7종, 연간3회한)[상해]」
+  // 끝 괄호 그룹을 하나씩 떼어 본다
+  let s=b; for(let i=0;i<3;i++){const m=/^(.*)\([^()]*\)$/.exec(s); if(!m)break; s=m[1]; cands.push(s)}
+  for(const c of cands){ if(INDEX.has(c)) return pickLine(INDEX.get(c),line) }
+  for(const c of cands){ const k=KEYS.find(k=>k.length>=6&&c.startsWith(k)); if(k) return pickLine(INDEX.get(k),line) }
+  return null;
+}
+function guessLine(productName,riders){
+  const names=riders.map(r=>r.name).join(' ');
+  if(names.includes('통합간편가입')) return '통합간편';
+  const h=(productName||'').replace(/\s+/g,'');
+  if(h.includes('통합간편건강보험')||/간편3?5?5|355/.test(h)||/355|간편가입/.test(names)) return '통합간편';
+  if(h.includes('The건강한내Mom대로5.10.5')) return 'The건강한내Mom대로5.10.5';
+  if(h.includes('The건강한5.10.5')) return 'The건강한5.10.5';
+  if(h.includes('The좋은내Mom대로')) return 'The좋은내Mom대로';
+  if(h.includes('The가벼운간편355')) return 'The가벼운간편355';
+  if(h.includes('간편31건강보험')) return '간편31';
+  if(/내Mom대로/.test(h)) return '내Mom대로';
+  if(h.includes('내Mom같은어린이보험')) return '내Mom같은어린이';
+  if(h.includes('또걸려도또받는')&&h.includes('간편')) return '또또암간편';
+  if(h.includes('또걸려도또받는')) return '또또암';
+  if(h.includes('운전자')) return '운전자';
+  if(h.includes('치아')) return '치아';
+  return '케어프리';
+}
+
+// ── Key Point 창고 매칭 ────────────────────────────────────────
+const KPKEYS=Object.keys(KP).sort((a,b)=>b.length-a.length);
+function findKP(name){
+  const b=base(name); const cands=[b,b.replace(/^갱신형/,'')];
+  const br=/^(.*?)\[(.+)\]$/.exec(b); if(br){cands.push(br[2]);cands.push(br[1])}
+  for(const c of cands){ if(KP[c]) return KP[c] }
+  for(const c of cands){ const k=KPKEYS.find(k=>c.startsWith(k)); if(k) return KP[k] }
+  return null;
+}
+
+// ── 갈래 나누기 ────────────────────────────────────────────────
+const GROUPS=[
+  {id:'ca',  name:'암',               sub:'진단비 · 항암치료비 · 통합치료비'},
+  {id:'cv',  name:'뇌 · 심장 · 순환기', sub:'진단비 · 수술비 · 통합치료비'},
+  {id:'sg',  name:'수술비 · 치료비',     sub:'질병·상해수술비 · 종수술비 · 131대질병 · 그 밖의 치료비'},
+  {id:'ad',  name:'입원 · 간병',        sub:'입원일당 · 간병인지원 · 치매·장기요양'},
+  {id:'ac',  name:'상해 · 운전 · 배상 · 기타', sub:'사망 · 후유장해 · 골절 · 벌금·비용 · 치아'},
+];
+function groupOf(r){
+  const n=nname(r.name), c=r.cat||'';
+  if(/암|항암/.test(n)&&!/상해/.test(n)) return 'ca';
+  if(/뇌|심장|심근|순환계|협심|부정맥|혈전|대동맥|심혈관/.test(n)) return 'cv';
+  if(['cancer_dx','cancer_tx','cancer_etc'].includes(c)) return 'ca';
+  if(['brain','heart','kidney'].includes(c)) return 'cv';
+  if(/입원|간병|통원|치매|장기요양|간호/.test(n)) return 'ad';
+  if(['admission','care','dementia'].includes(c)) return 'ad';
+  if(/사망|후유장해|골절|화상|벌금|비용|배상|운전|교통|치아|치과|자동차/.test(n)) return 'ac';
+  if(['death','disability','driving','legal','property','liability','dental','fracture'].includes(c)) return 'ac';
+  if(/수술|치료비|진단비|검사|시술/.test(n)) return 'sg';
+  if(['surgery','specific','integrated','dx_tx'].includes(c)) return 'sg';
+  return 'ac';
+}
+
+// ── pdf.js 적재 (파일 안에 base64 로 들어 있다) ────────────────
+let pdfjsP=null;
+function b64bytes(b){const s=atob(b);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
+function loadPdfjs(){
+  if(pdfjsP) return pdfjsP;
+  pdfjsP=(async()=>{
+    const dec=new TextDecoder();
+    const main=dec.decode(b64bytes($('#pdfjs-main').textContent.trim()));
+    const worker=dec.decode(b64bytes($('#pdfjs-worker').textContent.trim()));
+    const mainUrl=URL.createObjectURL(new Blob([main],{type:'text/javascript'}));
+    const workerUrl=URL.createObjectURL(new Blob([worker],{type:'text/javascript'}));
+    const lib=await import(mainUrl);
+    lib.GlobalWorkerOptions.workerSrc=workerUrl;
+    return lib;
+  })();
+  return pdfjsP;
+}
+const CMAPS=J('cmaps');
+class CMapFactory{constructor(){}
+  async fetch({name}){const b=CMAPS[name]; if(!b) throw new Error('cmap 없음 '+name); return {cMapData:b64bytes(b),compressionType:1}}}
+class NoFontFactory{constructor(){} async fetch({filename}){throw new Error('표준 글꼴 없음 '+filename)}}
+
+// ── PDF → 줄 텍스트 (pdfplumber extract_text 와 비슷하게) ──────────
+async function readPdf(buf,log){
+  const lib=await loadPdfjs();
+  const doc=await lib.getDocument({data:buf,useWorkerFetch:false,isEvalSupported:false,useSystemFonts:true,
+    CMapReaderFactory:CMapFactory,StandardFontDataFactory:NoFontFactory,cMapPacked:true}).promise;
+  const pages=[];
+  for(let i=1;i<=doc.numPages;i++){
+    const pg=await doc.getPage(i); const tc=await pg.getTextContent();
+    const items=tc.items.filter(it=>it.str!==undefined&&it.str.replace(/\s/g,'')!=='').map(it=>({s:it.str,x:it.transform[4],y:it.transform[5],w:it.width,h:Math.abs(it.transform[0])||it.height||8}));
+    // y 로 줄 묶기
+    items.sort((a,b)=>b.y-a.y||a.x-b.x);
+    const lines=[]; let cur=null;
+    for(const it of items){
+      if(cur&&Math.abs(cur.y-it.y)<=Math.max(2.5,it.h*0.45)){cur.items.push(it)}
+      else{cur={y:it.y,items:[it]};lines.push(cur)}
+    }
+    for(const ln of lines){
+      ln.items.sort((a,b)=>a.x-b.x);
+      // 토큰 : 사이가 벌어진 글자 덩어리로 다시 나눈다
+      const toks=[]; let t=null;
+      for(const it of ln.items){
+        const gap=t?it.x-(t.x+t.w):99;
+        if(t&&gap<Math.max(1.2,it.h*0.3)){t.s+=it.s;t.w=(it.x+it.w)-t.x}
+        else{t={s:it.s,x:it.x,w:it.w,h:it.h};toks.push(t)}
+      }
+      ln.toks=toks.map(k=>({s:k.s.trim(),x:k.x,x2:k.x+k.w})).filter(k=>k.s);
+      ln.text=ln.toks.map(k=>k.s).join(' ');
+    }
+    pages.push({n:i,lines,text:lines.map(l=>l.text).join('\n')});
+    if(log&&i%10===0) log('읽는 중 … '+i+'/'+doc.numPages+'쪽');
+  }
+  return pages;
+}
+
+// ── 1쪽 : 피보험자 · 보험료 · 상품명 · 계약사항 (build_all.auto_meta 이식) ──
+function readMeta(pages){
+  const t1=pages[0]?pages[0].text:''; const t2=(pages[1]?pages[1].text:'')+'\n'+(pages[2]?pages[2].text:'');
+  const g=(re,t,d)=>{const m=re.exec(t);return m?m[1].trim():d};
+  const m={};
+  m.insured=g(/피보험자\s+(\S+)/,t1,'고객님');
+  m.premium=g(/보험료\s+([\d,]+)\s*원/,t1,'');
+  m.product=g(/(\(무\)[^\n]+)/,t1,'');
+  m.head=g(/(계약사항\s*:[^\n]+)/,t2,'');
+  const full=pages.map(p=>p.text).join('\n');
+  const sx=/피보험자명[^\n]{0,40}?생년월일\s*(남|여)/.exec(full)||/피보험자명\s*\S+\s*\((남|여)\s*,/.exec(full)||/계약자명\s*\S+\s*\((남|여)\s*,/.exec(full);
+  m.sex=sx?sx[1]:'';
+  const age=/피보험자[^\n]{0,30}?(\d{1,3})\s*세/.exec(t1); m.age=age?age[1]:'';
+  return m;
+}
+
+// ── 가입담보 표 읽기 (matcher.read_proposal 이식 · 셀 대신 x 좌표 토큰) ──
+const SUBREF=/세부\s*보장\s*참조/, GUIDE=/안내\s*참조/;
+function readRiders(pages){
+  const rows=[], seen=new Set(); let parent=null, guide=[];
+  const isAmt=t=>AMT_FULL.test(t.replace(/\s/g,''));
+  const med=a=>{const v=[...a].sort((x,y)=>x-y); return v.length?v[Math.floor(v.length/2)]:null};
+  for(const p of pages){
+    const flat=p.text.replace(/\s/g,'');
+    if(flat.includes('가입담보및보장내용')) break;        // 담보사항 상세 구간 시작
+    // 모든 토큰을 모아 열 위치를 잡는다
+    const toks=[]; for(const ln of p.lines) for(const k of ln.toks) toks.push({s:k.s,x:k.x,x2:k.x2,y:ln.y});
+    const amtToks=toks.filter(k=>isAmt(k.s)||SUBREF.test(k.s)||GUIDE.test(k.s)); if(!amtToks.length) continue;
+    const amtX=med(amtToks.map(k=>k.x));
+    // 앵커 = 번호 칸 : 금액 칸 왼쪽에 있는 1~3자리 숫자 (또는 '125 담보명' 처럼 한 토큰에 번호+이름)
+    const anchors=toks.map(k=>{const m=/^(\d{1,3})(?:\s+(\S.*))?$/.exec(k.s); return m&&k.x<amtX-20?{no:parseInt(m[1],10),x:k.x,y:k.y,pre:m[2]||''}:null}).filter(Boolean);
+    if(!anchors.length) continue;
+    const noX=med(anchors.map(a=>a.x)); const A=anchors.filter(a=>Math.abs(a.x-noX)<30).sort((u,v)=>v.y-u.y);
+    if(!A.length) continue;
+    // 각 토큰을 가장 가까운 앵커 띠에 붙인다(위·아래 앵커의 중간까지)
+    const bands=A.map((a,i)=>({a,top:i?(A[i-1].y+a.y)/2:a.y+14,bot:i<A.length-1?(A[i+1].y+a.y)/2:a.y-14,name:[],amt:[],rest:[]}));
+    for(const k of toks){
+      if(A.some(a=>a.y===k.y&&a.x===k.x)) continue;              // 앵커 자신
+      const bd=bands.find(b=>k.y<=b.top&&k.y>b.bot); if(!bd) continue;
+      if(k.x<=noX+2) continue;                                      // 번호 칸보다 왼쪽
+      if(isAmt(k.s)||SUBREF.test(k.s)||GUIDE.test(k.s)){ if(k.x>=amtX-25) bd.amt.push(k); else bd.name.push(k) }
+      else if(k.x<amtX-3) bd.name.push(k);                        // 담보명 칸 : 시작 위치가 금액 칸 왼쪽이면 담보명(긴 이름이 금액 칸까지 뻗어도)
+      else bd.rest.push(k);
+    }
+    for(const bd of bands){
+      bd.name.sort((u,v)=>(v.y-u.y)>2?1:(u.y-v.y)>2?-1:u.x-v.x);
+      // 같은 줄은 띄어 쓰고, 칸 안에서 접힌 다음 줄은 붙여 쓴다(pdfplumber 가 셀의 줄바꿈을 지우는 것과 같게)
+      let name=bd.a.pre; let py=null;
+      for(const k of bd.name){ name+=(py===null||Math.abs(k.y-py)>2?'':' ')+k.s; py=k.y }
+      name=name.replace(/\s+/g,' ').trim();
+      if(!name||name.length>140||/보험기간|합계|가입담보|담보명/.test(name)) continue;
+      if(!bd.amt.length) continue;
+      bd.amt.sort((u,v)=>u.x-v.x); const amt=bd.amt[0].s.replace(/\s/g,'');
+      if(!isAmt(amt)){
+        if(GUIDE.test(amt)){guide.push({no:bd.a.no,name});continue}
+        if(SUBREF.test(amt)){parent={name:name.replace(GOJI,'').replace(/┗/g,'').trim()}}
+        continue;
+      }
+      if(!/^┗/.test(name)) parent=null;
+      const key=bd.a.no+'|'+nname(name); if(seen.has(key)) continue; seen.add(key);
+      let prem='', term='';
+      for(const k of bd.rest.sort((u,v)=>u.x-v.x)){const t=k.s.replace(/\s/g,''); if(!prem&&/^[\d,]{3,}$/.test(t))prem=t; else if(!term&&/\d+년\/\d+(년|세)/.test(t))term=t}
+      rows.push({no:bd.a.no,name:name.replace(GOJI,'').replace('[기본계약]','').replace(/┗/g,'').replace(/\s+/g,' ').trim(),man:amtToMan(amt),amount_text:amt,prem,term,parent:parent?parent.name:null});
+    }
+  }
+  // '안내참조' 담보 : 설계서 안의 「가입금액 및 지급금액」 표에서 금액을 찾는다(없으면 추정하지 않고 제외)
+  if(guide.length){
+    const flat=pages.map(p=>p.text).join('').replace(/\s/g,'');
+    for(const g of guide){
+      const nm=g.name.replace(GOJI,'').replace('[기본계약]','').trim(); const key=nm.replace(/\s/g,'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const m=new RegExp(key+'([\\d,]{5,})원').exec(flat); if(!m) continue;
+      const won=parseInt(m[1].replace(/,/g,''),10); if(won%10000) continue;
+      const k=g.no+'|'+nname(nm); if(seen.has(k)) continue; seen.add(k);
+      rows.push({no:g.no,name:nm,man:won/10000,amount_text:'안내참조('+m[1]+'원)',prem:'',term:'',parent:null});
+    }
+  }
+  rows.sort((a,b)=>a.no-b.no);
+  return rows;
+}
+
+// ── 담보별 설명문 (desc_engine.read_desc 이식) ─────────────────────
+const SKIPLINE=/^(\[고객용\]|계약사항|담보사항|가입담보|가입금액|보험료|납기|기본계약|선택계약|영업담당자|발행정보|고객콜센터|www\.|page\s*:|※ 인수지침|설계번호|\(무\)|\d{4}\.\d{2}\.\d{2}\s+\d{2}:\d{2}|[가-힣]{2,5}$|\d+\s*\/\s*\d+$)/;
+const AMTLINE=/^[\d,]+\s*(원|만원)$|^\d[\d,]*(천|백|십)?만원$|^\d+억/;
+const JUNK=/\s*\d[\d,]*\s*(?:천|백|십)?만원\s*[\d,]*\s*\d+\s*년\s*\/\s*\d+\s*세\s*|\s*[\d,]{3,}\s*\d+\s*년\s*\/\s*\d+\s*세\s*|\s*\d+\s*년\s*\/\s*\d+\s*세\s*/g;
+const MIDROW=/^(.{0,14}?)\s(\d{1,3})\s+([가-힣A-Za-z(\[][^\n]{2,90})$/;
+function tidy(t){return (t||'').replace(JUNK,' ').replace(/\s+/g,' ').trim()}
+function readDesc(pages,nos,product){
+  const out={}; let cur=null, started=false;
+  const pkey=(product||'').replace(/\s/g,'').slice(0,14);   // 쪽 꼬리의 상품명 줄은 설명문이 아니다
+  for(const p of pages){
+    if(/가입담보및보장내용/.test(p.text.replace(/\s/g,''))) started=true;
+    if(!started) continue;
+    for(const ln of p.lines){
+      const s=ln.text.trim(); if(!s||SKIPLINE.test(s)) continue;
+      if(pkey&&s.replace(/\s/g,'').includes(pkey)) continue;
+      const m=/^(\d{1,3})\s+(\S.{2,90})$/.exec(s);                  // '390 2-3인실 …' 처럼 숫자로 시작하는 담보명도 받는다(번호가 설계 담보번호일 때만)
+      if(m&&!AMTLINE.test(m[2].trim())&&!/^\d+\s*(년|세|일|회|%|원|만원)/.test(m[2])){
+        const no=parseInt(m[1],10);
+        if((nos&&nos.has(no))||(!nos&&/^[^\d]/.test(m[2]))||(!cur&&/^[^\d]/.test(m[2]))){ let nm=m[2].trim(); const am=AMT_IN.exec(nm); if(am&&am.index>2) nm=nm.slice(0,am.index).trim();
+          cur={name:nm,desc:''}; out[no]=cur; continue }
+      }
+      if(nos&&cur){const m2=MIDROW.exec(s); if(m2&&!AMTLINE.test(m2[3].trim())){const n2=parseInt(m2[2],10); if(nos.has(n2)&&!out[n2]){const pre=m2[1].trim(); if(pre)cur.desc+=(cur.desc?' ':'')+pre; cur={name:m2[3].trim(),desc:''}; out[n2]=cur; continue}}}
+      if(!cur) continue;
+      if(AMTLINE.test(s)||/^\d+\s*년\s*\/\s*\d+\s*세$/.test(s)||/^[\d,]+$/.test(s)) continue;
+      cur.desc+=(cur.desc?' ':'')+s;
+    }
+  }
+  // ┗ 세부보장 나누기
+  for(const no of Object.keys(out)){
+    const v=out[no]; if(!v.desc.includes('┗')) continue;
+    const head=v.desc.split('┗')[0].trim(); const re=/┗\s*(\d{1,3})\s+([^┗]{2,})/g; let m;
+    while((m=re.exec(v.desc))){const n2=parseInt(m[1],10); const body=tidy(m[2]); if(!out[n2]) out[n2]={name:body.split(' 보험기간')[0].slice(0,60).trim(),desc:body}}
+    v.desc=head;
+  }
+  for(const no of Object.keys(out)) out[no].desc=tidy(out[no].desc);
+  return out;
+}
+// 설명문 → 면책·감액 (desc_engine.derive 의 cut_1y / cut_90d 이식 + 보장개시일)
+function derive(desc){
+  const r={}; if(!desc) return r;
+  const dz=desc.replace(/\s+/g,'');
+  let m=/1년경과시점전일이전[^※]{0,40}?가입금액의(\d+(?:\.\d+)?)%/.exec(dz)||/1년경과시점전일이전[^※]{0,40}?(\d+(?:\.\d+)?)%감액/.exec(dz)||/1년미만시[^※]{0,20}?가입금액의(\d+(?:\.\d+)?)%/.exec(dz);
+  if(m) r.cut1y=m[1]+'%';
+  m=/90일경과시점전일이전[^※]{0,40}?가입금액의(\d+(?:\.\d+)?)%/.exec(dz)||/90일경과시점전일이전[^※]{0,40}?(\d+(?:\.\d+)?)%감액/.exec(dz);
+  if(m) r.cut90=m[1]+'%';
+  m=/보장개시일[^※]{0,80}?(90일|1년|2년)이지난/.exec(dz)||/(90일|1년|2년)이지난날의다음날/.exec(dz);
+  if(m&&/보장개시일/.test(dz)) r.wait=m[1];
+  m=/(최초\s*1회|연간\s*\d*\s*회한|수술\s*1회당|치료\s*1회당|1일당)/.exec(desc); if(m) r.freq=m[1].replace(/\s+/g,' ');
+  return r;
+}
+function highlightDesc(d){
+  return esc(d).replace(/(암보장개시일|보장개시일|최초\s*1회(?:한)?|연간\s*\d*\s*회한|수술\s*1회당|치료\s*1회당|1일당|가입금액의\s*\d+%|1년경과시점\s*전일\s*이전|90일|180일\s*한도|\d+일\s*한도)/g,'<span class="h">$1</span>');
+}
+// 설명문 요약 — 설계서 설명문은 지급금액표·세부규정까지 통째로 들어 있어 그대로 실으면 한 담보가 한 쪽을 넘긴다.
+// ① 「항목 : 금액 (횟수)」 꼴은 표로 ② 본문은 ※ 앞의 지급사유 문장만, 길면 자른다 ③ ※ 메모는 감액·개시일·한도·제외만 짧게
+const ITEM_RE=/([가-힣A-Za-z0-9()·,\.\-\/\s]{2,42}?)\s*[:：]\s*(\d[\d,.]*(?:\s?[\d,.]+)?\s*(?:만원|원|억원))\s*(?:\(([^()]{1,24}(?:\([^()]*\))?[^()]*)\))?/g;   // 숫자가 줄바꿈으로 '20 00만원' 처럼 갈라진 것도 받는다
+function summarizeDesc(desc,lim){
+  lim=lim||380;                                                   // 본문 글자 상한 — 혼자서 한 쪽을 넘기는 담보는 더 줄여 다시 그린다(compact)
+  if(!desc) return {core:'',notes:[],items:[]};
+  const parts=desc.split(/※/); let core=parts[0]; const notes=[];
+  for(const n of parts.slice(1)){const t=n.trim(); if(/감액|보장개시일|한도|제외|지급하지\s*않|면책/.test(t)&&t.length<=110&&notes.length<3) notes.push(t.replace(/\s+/g,' '))}
+  const items=[]; let m; const re=new RegExp(ITEM_RE.source,'g');
+  while((m=re.exec(core))){let nm=m[1].split(/\s[-–]\s/).pop().replace(/^[\s\-·\d)]+/,'').trim(); nm=nm.split(/지급\s*/).pop().trim(); /* 항목 이름은 마지막 '-' 뒤, '지급' 뒤부터 */ if(nm.length>=2&&!/가입금액|보험가입금액|지급액|합계|한도/.test(nm)) items.push({nm,amt:m[2].replace(/\s/g,''),cnt:(m[3]||'').trim()})}
+  if(items.length>=3) core=core.replace(re,' ');
+  core=core.replace(/\s*[-–]\s*(?=\s*[-–]|$)/g,' ').replace(/\s+/g,' ').replace(/\s*[-–]\s*$/,'').trim();
+  // 1) 2) 3) 절은 줄로 나누고, 전체 길이는 제한한다
+  const clauses=core.split(/\s(?=\d\)\s)/).map(c=>c.trim()).filter(Boolean);
+  let out=[], len=0; for(const c of clauses){ if(len+c.length>lim){ out.push(c.slice(0,Math.max(40,lim-len)).trim()+' …'); break } out.push(c); len+=c.length }
+  return {core:out.join('<br>'),notes,items};
+}
+function descHtml(desc,compact){
+  const su=summarizeDesc(desc,compact?200:380); const rows=compact?8:16; let h='';
+  if(su.core) h+='<div>'+highlightDesc(su.core).replace(/&lt;br&gt;/g,'<br>')+'</div>';
+  if(su.notes.length) h+='<span class="x">'+su.notes.map(n=>'※ '+highlightDesc(n)).join('<br>')+'</span>';
+  if(su.items.length){
+    const show=su.items.slice(0,rows);
+    h+='<table class="t"><tr><th>항목</th><th style="width:16mm">지급금액</th><th style="width:18mm">지급횟수</th></tr>'+show.map(it=>'<tr><td class="l">'+esc(it.nm)+'</td><td>'+esc(it.amt)+'</td><td>'+esc(it.cnt||'—')+'</td></tr>').join('')+'</table>'+(su.items.length>rows?'<span class="x">… 외 '+(su.items.length-rows)+'개 항목(설계서 참조)</span>':'');
+  }
+  return h;
+}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+// ── 상태 ─────────────────────────────────────────────────────
+let STATE=null;
+function log(msg,cls){const el=$('#status'); el.innerHTML+=(el.innerHTML?'\n':'')+(cls?'<span class="'+cls+'">':'')+esc(msg)+(cls?'</span>':''); el.scrollTop=el.scrollHeight}
+function setLog(msg){$('#status').innerHTML=esc(msg)}
+
+async function handleFile(file){
+  setLog('파일 읽는 중 … '+file.name);
+  try{
+    const buf=new Uint8Array(await file.arrayBuffer());
+    const pages=await readPdf(buf,log);
+    log('총 '+pages.length+'쪽 · 글자 추출 완료');
+    const meta=readMeta(pages); const riders=readRiders(pages);
+    if(!riders.length){log('가입담보 표를 찾지 못했습니다. 상품설명서(고객용) PDF 가 맞는지, 글자가 이미지가 아닌지 확인해 주세요.','warn'); return}
+    const descs=readDesc(pages,new Set(riders.map(r=>r.no)),meta.product);
+    build({meta,riders,descs,src:file.name});
+  }catch(e){log('오류 : '+(e&&e.message||e),'warn'); console.error(e)}
+}
+function build(input){
+  const line=guessLine(input.meta.product,input.riders);
+  let matched=0,kpn=0;
+  const riders=input.riders.map(r=>{
+    const m=matchMaster(r.name,line); if(m) matched++;
+    const kp=findKP(r.name); if(kp) kpn++;
+    const d=input.descs?(input.descs[r.no]||null):null;
+    return Object.assign({},r,{cat:m?m.c:null,codes:m?m.k:[],excl:m?m.x:[],mline:m?m.p:null,desc:d?d.desc:'',kp,der:derive(d?d.desc:'')});
+  });
+  for(const r of riders) r.grp=groupOf(r);
+  STATE={meta:input.meta,riders,line,src:input.src,matched,kpn};
+  log('상품 : '+(input.meta.product||'(상품명 못 읽음)'));
+  log('피보험자 '+input.meta.insured+(input.meta.age?' ('+input.meta.age+'세)':'')+' · 월 보험료 '+(input.meta.premium||'?')+'원');
+  log('담보 '+riders.length+'건 · 특약 마스터 매칭 '+matched+'건('+line+' 우선) · Key Point 있음 '+kpn+'건 · 설명문 읽힘 '+riders.filter(r=>r.desc).length+'건');
+  const un=riders.filter(r=>!r.cat).map(r=>r.name); if(un.length) log('마스터에 없는 담보('+un.length+') : '+un.slice(0,8).join(' · ')+(un.length>8?' …':''),'warn');
+  render();
+}
+
+// ── 지면 만들기 ─────────────────────────────────────────────
+function coverHtml(title){
+  // 표지 — 시각(초 단위) 삭제, 상품명은 한 번만, 큰 숫자 3개로 시각 앵커를 만든다. 캐릭터는 빌드가 __CHARS_B64__ 를 넣었을 때만 보인다.
+  const M=STATE.meta, who=[M.insured||'고객님',M.age?M.age+'세':'',M.sex?M.sex+'성':''].filter(Boolean).join(' · ');
+  const kpn=new Set(STATE.riders.filter(r=>r.kp).map(r=>r.kp)).size;
+  const chars=(typeof CHARS_B64==='string'&&CHARS_B64&&CHARS_B64.indexOf('__')!==0)?'<img class="chars" src="data:image/png;base64,'+CHARS_B64+'" alt="">':'';
+  return '<div class="cv-top"><div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div></div>'+
+    '<div class="deco"></div><div class="deco2"></div>'+
+    '<div class="cv-main"><div class="eyebrow">메리츠 세일즈혁신 가이드 · '+esc(META.ym)+'</div>'+
+    '<h1 class="t1'+(title.length>18?' long':'')+'">'+esc(title)+'</h1>'+
+    '<div class="t2">주요 특약을 약관 조문 기준으로 풀어 쓴 컨설팅북</div>'+
+    '<div class="t3"><span class="dim">상품 정식명</span> '+esc(M.product||'—')+'<br><span class="dim">예시 설계</span> <b>'+esc(who)+'</b>'+(M.head?' · '+esc(M.head.replace(/^계약사항\s*:\s*/,'')):'')+'</div></div>'+
+    '<div class="box"><div class="stats"><div><b>'+STATE.riders.length+'<small>건</small></b><span>가입 담보</span></div>'+
+    '<div><b>'+(M.premium?esc(M.premium)+'<small>원</small>':'—')+'</b><span>월 보험료 (예시 설계)</span></div>'+
+    '<div><b>'+kpn+'<small>종</small></b><span>Key Point</span></div></div>'+
+    '<div class="lbl">교육용 · 사내 자료</div><div class="who">AI추진파트 세일즈혁신TF</div>'+
+    '<p class="desc">담보 설명은 상품설명서의 약관 요약 설명문과 특약 마스터(약관 별표)에서, Key Point 는 특약별 글 상자 창고에서 자동으로 모았습니다. 통계는 출처가 있는 것만 실었습니다. 본 자료는 고객에게 교부·배포할 수 없습니다.<br><span class="dim">'+esc(META.ym)+' 기준 · 원본 : '+esc(STATE.src||'내장 샘플')+'</span></p>'+chars+'</div>';
+}
+function backHtml(title){
+  // 뒷표지 — 로고 + 「어떻게 만들었나 / 문의」 2단 + 고지. 쪽수는 render() 끝에서 .back .pages 에 채운다.
+  const chars=(typeof CHARS_B64==='string'&&CHARS_B64&&CHARS_B64.indexOf('__')!==0)?'<div class="chars"><img src="data:image/png;base64,'+CHARS_B64+'" alt=""></div>':'';
+  return '<div class="bar"></div>'+
+    '<div class="logo"><span class="m">meritz</span><span class="k">메리츠화재</span><div class="line">메리츠 세일즈혁신 가이드 · '+esc(title)+' · '+esc(META.ym)+' · 교육용</div></div>'+chars+
+    '<div class="info"><div><h4>이 가이드는 이렇게 만들어졌습니다</h4><p>담보명·가입금액은 상품설명서 「가입담보」 표, 설명문은 뒤쪽 「가입담보 및 보장내용」, 분류번호는 약관 별표(특약 마스터 '+esc(String(META.riders||''))+'건), Key Point 는 글 상자 창고 '+esc(String(META.kp||''))+'종에서 자동으로 모았습니다. 추정한 코드·금액은 없습니다.</p><p class="dim">생성기 빌드 '+esc(META.built)+' · 원본 : '+esc(STATE.src||'내장 샘플')+' · 전체 <span class="pages">—</span>쪽</p></div>'+
+    '<div><h4>문의 · 수정 요청</h4><p><b>세일즈혁신TF 이헌수</b> (AI추진파트)<br>담보 설명이 약관과 다르거나 Key Point 를 보태고 싶을 때는 담보명과 함께 알려 주세요.</p><p class="dim">글꼴 Pretendard (SIL Open Font License) · 아이콘 Healthicons (MIT)</p></div></div>'+
+    '<div class="notice">본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다. 최종 안내는 해당 상품의 약관·상품설명서로 확인합니다.</div>';
+}
+function pageShell(title,no){
+  // 머리 : 왼쪽 「교육용 · 사내 자료」 알약 · 오른쪽 로고 · 진빨강 띠(왼쪽 = 장 이름(.ch, 나중에 채움) · 오른쪽 = 기준 문장)
+  // 꼬리 : 왼쪽 고지문 · 오른쪽 쪽번호(.pno, 나중에 「n / N」 으로 바꿈)
+  // .body 는 일반 흐름, .foot 은 바닥 고정 — 엔진이 둘의 top 으로 본문 높이를 잰다(바꾸지 않는다).
+  const pg=document.createElement('div'); pg.className='page';
+  pg.innerHTML='<div class="tag">교육용 · 사내 자료</div>'+
+    '<div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>'+
+    '<div class="strip"><span class="ch"></span><span class="st">'+esc(META.ym)+' <b>'+esc(title)+'</b> 기준 주요담보 해설 &amp; Key Point</span></div>'+
+    '<div class="body"></div>'+
+    '<div class="foot"><span class="fn">본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span class="pno" data-no="'+no+'">'+no+'</span></div>';
+  return pg;
+}
+function buildSummary(STATE,GROUPS,el,esc,manText,ICON){
+  // 1장 요약 — STATE 필드만 쓴다. 가입금액·건수·조건을 보여 줄 뿐 지급액을 계산하거나 더하지 않는다.
+  const R=STATE.riders||[], M=STATE.meta||{};
+  const GC={ca:['#C8102E','#FDECEE','cancerous_cell_nuclei'],cv:['#2F6FB0','#EAF1FB','heart_cardiogram'],
+            sg:['#1E8E5A','#E6F5EC','surgical_sterilization'],ad:['#D9770F','#FFF3E0','nurse'],ac:['#4B5563','#EEF0F3','ambulance']};
+  const ic=(k,c,bg,mm)=>'<span class="it" style="background:'+bg+(mm?';width:'+mm+'mm;height:'+mm+'mm':'')+'"><span>'+(ICON(k,c)||'')+'</span></span>';
+  const amt=r=>manText(r.man,r.amount_text).replace(/<br\s*\/?>/g,' ');
+  const nm=(s,len)=>{s=(s||'').replace(/\((?:[^()]|\([^()]*\))*\)/g,'').replace(/\s+/g,' ').trim(); return s.length>len?s.slice(0,len)+'…':s};
+  const tops=rs=>rs.filter(r=>!r.parent).slice().sort((a,b)=>(b.man||0)-(a.man||0));
+  const kpTitle=k=>esc(String(k.title||'').replace(/<[^>]+>/g,''));
+  let shortP=(M.product||'').replace(/^\(무\)\s*메리츠\s*/,'').replace(/^\(무\)\s*/,'');
+  { const i=shortP.search(/\(\d\.\d\)|\(해약|\(납입|\(건강|\(통합|\(355|\(기본|\(일반/); if(i>0) shortP=shortP.slice(0,i).trim(); }
+  const who=[M.insured||'고객님',M.age?M.age+'세':'',M.sex?M.sex+'성':''].filter(Boolean).join(' · ');
+  const kpSet=[]; for(const r of R){ if(r.kp&&!kpSet.includes(r.kp)) kpSet.push(r.kp) }
+  const nDesc=R.filter(r=>r.desc).length;
+  const blocks=[];
+
+  // ① 장 제목
+  blocks.push(el('<h2 class="sec">1장 요약 <small>'+esc(who)+' 예시 설계 · 가입금액·건수·조건만 적었습니다 (지급액 계산 없음)</small></h2>','any'));
+
+  // ② 머리띠 : 상품 · 피보험자 · 큰 숫자 3개
+  const stats=[['<b>'+R.length+'<small>건</small></b><span>가입 담보</span>'],
+               ['<b>'+(M.premium?esc(M.premium)+'<small>원</small>':'—')+'</b><span>월 보험료</span>'],
+               ['<b>'+kpSet.length+'<small>종</small></b><span>Key Point</span>']];
+  blocks.push(el('<div class="sm sm-hero"><div><div class="eyebrow">상품 한 장 요약</div><div class="ttl">'+esc(shortP||'상품')+'</div>'+
+    '<div class="who">피보험자 <b>'+esc(who)+'</b>'+(M.head?' · '+esc(M.head.replace(/^계약사항\s*:\s*/,''))+'':'')+'</div></div>'+
+    '<div class="sm-stats">'+stats.map(s=>'<div class="sm-stat">'+s[0]+'</div>').join('')+'</div></div>','any'));
+
+  // ③ 갈래 타일 : 건수 · 대표 담보 4개 (가입금액 큰 순, 세부보장 제외)
+  const tiles=[];
+  for(const g of GROUPS){
+    const rs=R.filter(r=>r.grp===g.id); if(!rs.length) continue;
+    const [c,bg,key]=GC[g.id]||GC.ac; const tp=tops(rs); const mx=tp[0];
+    tiles.push('<div class="sm-tile" style="--g:'+c+';--gt:'+bg+'"><div class="hd">'+ic(key,c,bg,8)+'<div><b>'+esc(g.name)+'</b><span>'+esc(g.sub)+'</span></div></div>'+
+      '<div class="big"><b>'+rs.length+'</b><span>건</span></div>'+
+      tp.slice(0,4).map((r,i)=>'<div class="sm-li"><i>'+(i+1)+'</i><em title="'+esc(r.name)+'">'+esc(nm(r.name,26))+'</em><b>'+esc(amt(r))+'</b></div>').join('')+'</div>');
+  }
+  if(tiles.length) blocks.push(el('<div class="sm sm-tiles">'+tiles.join('')+'</div>','any'));
+
+  // ④ 두 칸 : 첫 해 조건 (설명문에서 읽은 것만) | 상담 3층 구조
+  const hasDer=r=>r.der&&(r.der.wait||r.der.cut1y||r.der.cut90);
+  const nWait=R.filter(r=>r.der&&r.der.wait).length, nCut1=R.filter(r=>r.der&&r.der.cut1y).length, nCut90=R.filter(r=>r.der&&r.der.cut90).length;
+  const waitEx=R.filter(r=>r.der&&r.der.wait).slice(0,3).map(r=>nm(r.name,14)+'('+r.der.wait+')');
+  const cutEx=R.filter(r=>r.der&&r.der.cut1y).slice(0,3).map(r=>nm(r.name,14)+'('+r.der.cut1y+')');
+  let firstNote;
+  if(!nDesc) firstNote='설계서 설명문이 없는 자료(내장 샘플)라 면책·감액 조항을 읽지 못했습니다. 상품설명서 PDF 를 넣으면 담보별로 채워집니다.';
+  else if(!nWait&&!nCut1&&!nCut90) firstNote='설명문 '+nDesc+'건에서 면책·감액 조항을 읽은 담보가 없습니다. 최종 확인은 약관으로 합니다.';
+  else firstNote='설명문 '+nDesc+'건에서 읽은 것만 셌습니다. '+(waitEx.length?'<b>면책</b> : '+esc(waitEx.join(' · '))+(nWait>3?' 외':'')+'. ':'')+(cutEx.length?'<b>1년 미만 감액</b> : '+esc(cutEx.join(' · '))+(nCut1>3?' 외':'')+'.':'');
+  const left='<div class="sm-card"><h4>'+ic('calendar','#990011','#FDECEE',6)+'가입 첫 해 조건<small>설명문에서 읽은 담보 수</small></h4>'+
+    '<div class="sm-nums"><div class="sm-num"><b>'+nWait+'<small>건</small></b><span>보장개시일(면책) 있음</span></div>'+
+    '<div class="sm-num"><b>'+nCut1+'<small>건</small></b><span>1년 미만 감액</span></div>'+
+    '<div class="sm-num"><b>'+nCut90+'<small>건</small></b><span>90일 미만 감액</span></div></div><p class="nt">'+firstNote+'</p></div>';
+  const isL1=r=>/진단비|진단급여/.test(r.name), isL2=r=>!isL1(r)&&/수술|치료비|항암|약물|방사선|시술|검사/.test(r.name), isL3=r=>!isL1(r)&&!isL2(r)&&/입원|간병|간호|요양|통원/.test(r.name);
+  const base=R.filter(r=>!r.parent);
+  const layers=[['1','걸리면 한 번 크게','진단비',base.filter(isL1)],['2','치료할 때마다','수술비 · 치료비 · 항암',base.filter(isL2)],['3','병원에 있는 동안','입원일당 · 간병 · 통원',base.filter(isL3)]];
+  const etc=base.length-layers.reduce((s,l)=>s+l[3].length,0);
+  const right='<div class="sm-card"><h4>'+ic('i_training_class','#990011','#FDECEE',6)+'상담 3층 구조<small>세부보장 제외 '+base.length+'건 기준</small></h4>'+
+    layers.map(l=>{const t=tops(l[3])[0]; return '<div class="sm-layer"><div class="no">'+l[0]+'</div><div class="lb"><b>'+l[1]+' <span style="display:inline;font-weight:500;color:#6B7684">'+l[2]+'</span></b>'+
+      '<span>'+(t?'대표 : '+esc(nm(t.name,20))+' '+esc(amt(t)):'이 설계에는 없음')+'</span></div><div class="ct"><b>'+l[3].length+'</b><small>건</small></div></div>'}).join('')+
+    (etc>0?'<p class="nt" style="margin-top:1.4mm">그 밖(상해·사망·비용·배상 등) '+etc+'건은 5장에서 다룹니다.</p>':'')+'</div>';
+  blocks.push(el('<div class="sm sm-2">'+left+right+'</div>','any'));
+
+  // ⑤ Key Point 제목 (갈래 순서대로 최대 6개)
+  if(kpSet.length){
+    const chips=[]; const seen=new Set();
+    for(const g of GROUPS){ for(const r of R){ if(r.grp!==g.id||!r.kp||seen.has(r.kp)) continue; seen.add(r.kp); const c=(GC[g.id]||GC.ac)[0];
+      chips.push('<span class="sm-kp" style="--g:'+c+'"><i></i>'+kpTitle(r.kp)+'<em>'+esc(nm(r.name,12))+'</em></span>'); if(chips.length>=8) break } if(chips.length>=8) break }
+    blocks.push(el('<div class="sm sm-card" style="border-style:dashed;border-color:#C8102E"><h4>이 가이드의 Key Point<small>전체 '+kpSet.length+'종 중 '+chips.length+'개 · 본문 오른쪽 점선 상자</small></h4><div class="sm-kps">'+chips.join('')+'</div></div>','any'));
+  }
+  return blocks;
+}
+function shortProduct(p){ // '(무)메리츠 The건강한 내Mom대로 5.10.5 보장보험2607(3.0)(…)' → 'The건강한 내Mom대로 5.10.5 보장보험2607'
+  let s=(p||'').replace(/^\(무\)\s*메리츠\s*/,'').replace(/^\(무\)\s*/,'');
+  const i=s.search(/\(\d\.\d\)|\(해약|\(납입|\(건강|\(통합|\(355|\(기본|\(일반/); if(i>0) s=s.slice(0,i);
+  return s.trim();
+}
+const FILLERS=KPDOC._fillers||[];
+function render(){
+  if(!STATE) return;
+  const prev=$('#preview'); prev.innerHTML='';
+  const optAll=$('#optAll').checked, optCodes=$('#optCodes').checked, optDesc=$('#optDesc').checked;
+  const shortP=shortProduct(STATE.meta.product)||'상품';
+  const title=$('#title').value.trim()||shortP;
+  const riders=STATE.riders.filter(r=>optAll||r.kp);
+  const el=(html,grp)=>{const d=document.createElement('div'); d.innerHTML=html; const e=d.firstElementChild; if(grp) e.dataset.grp=grp; return e};
+  // 쪽 본문 높이 재기
+  const meas=$('#measure'); meas.innerHTML=''; const probe=pageShell(title,0); meas.appendChild(probe);
+  const bodyEl=probe.querySelector('.body'); const avail=probe.querySelector('.foot').getBoundingClientRect().top-bodyEl.getBoundingClientRect().top-6;
+  meas.innerHTML='';
+  const hOf=b=>{meas.appendChild(b); const h=b.getBoundingClientRect().height+(parseFloat(getComputedStyle(b).marginBottom)||0); meas.removeChild(b); return h};
+
+  const blocks=[];
+  // 0) 1장 요약 — 표지 바로 다음 한 쪽 (가입금액·건수·조건만 · 지급액 계산 없음)
+  for(const b of buildSummary(STATE,GROUPS,el,esc,manText,ICON)) blocks.push(b);
+  blocks.push(el('<div class="pagebreak"></div>'));
+  // 1) 용어 풀이 — 3단, 이어서 상품 한눈에
+  blocks.push(el('<h2 class="sec">용어 풀이 <small>고객에게 이 말로 설명합니다 · 본문에 나오는 말부터</small></h2>','any'));
+  const gk=Object.keys(GLOSS); for(let i=0;i<gk.length;i+=6) blocks.push(el('<div class="gl">'+gk.slice(i,i+6).map(k=>'<div><b>'+esc(k)+'</b><span>'+esc(GLOSS[k])+'</span></div>').join('')+'</div>','any'));
+  // 2) 상품 개요
+  blocks.push(el('<h2 class="sec">상품 한눈에 보기 <small>'+esc(shortP)+'</small></h2>','any'));
+  blocks.push(el('<table class="kv"><tr><td>상품명</td><td>'+esc(STATE.meta.product||'—')+'</td></tr><tr><td>피보험자</td><td>'+esc(STATE.meta.insured)+(STATE.meta.age?' · '+esc(STATE.meta.age)+'세':'')+(STATE.meta.sex?' · '+STATE.meta.sex+'성':'')+' (예시 설계)</td></tr><tr><td>계약사항</td><td>'+esc(STATE.meta.head||'—')+'</td></tr><tr><td>월 보험료</td><td><b>'+esc(STATE.meta.premium||'—')+'원</b></td></tr><tr><td>가입담보</td><td><b>'+STATE.riders.length+'건</b> · '+GROUPS.map(g=>g.name+' '+STATE.riders.filter(r=>r.grp===g.id).length).join(' · ')+'</td></tr><tr><td>특약 마스터</td><td>'+STATE.matched+'건 매칭 ('+esc(STATE.line)+' 약관 우선) · Key Point '+STATE.kpn+'건 · 설명문 '+STATE.riders.filter(r=>r.desc).length+'건</td></tr></table>','any'));
+  blocks.push(el('<div class="callout"><b>이 가이드 읽는 법</b> — 왼쪽은 설계서의 담보명·가입금액과 설계서 뒤쪽 「가입담보 및 보장내용」의 약관 요약 설명문(노란 표시는 개시일·횟수·감액 조건), 오른쪽은 그 특약의 Key Point. 분류번호는 약관 별표(특약 마스터)에서 온 것이며 추정한 코드·금액은 없습니다. 최종 안내는 해당 상품의 약관·상품설명서로 확인합니다.</div>','any'));
+  blocks.push(el('<div class="callout y"><b>세 층으로 설명하면 쉽습니다.</b> ① 걸리면 한 번 크게(진단비) → ② 치료할 때마다(통합치료비·수술비·항암치료비) → ③ 병원에 있는 동안(입원일당·간병인). 담보 지도에서 어느 층이 두터운지 먼저 봅니다.</div>','any'));
+  // 3) 담보 지도 — 한 상자가 쪽을 넘기지 않게 24줄씩 나눈다
+  blocks.push(el('<h2 class="sec">담보 지도 <small>예시 설계 '+STATE.riders.length+'건 · 단위 : 만원</small></h2>','any'));
+  for(const g of GROUPS){
+    const rs=STATE.riders.filter(r=>r.grp===g.id); if(!rs.length) continue;
+    // 가운데 칸 : 설계서 설명문에서 읽은 면책(보장개시일)·감액 조건. 읽은 것이 없으면 빈칸(추정하지 않는다)
+    const condOf=r=>{const d=r.der||{}; const a=[]; if(d.wait) a.push('<b>면책 '+esc(d.wait)+'</b>'); if(d.cut1y) a.push('1년 미만 '+esc(d.cut1y)); if(d.cut90) a.push('90일 미만 '+esc(d.cut90)); return a.join(' · ')};
+    const anyDesc=STATE.riders.some(r=>r.desc);
+    for(let i=0;i<rs.length;i+=24){
+      blocks.push(el('<div class="mb"><h3>'+esc(g.name)+(i?' — 계속':'')+'<small>'+rs.length+'건 · 단위 만원 · 면책·감액은 설계서 설명문에서 읽은 것만'+(anyDesc?'':' (설명문 없음)')+'</small></h3><table><tr class="hd"><th>담보</th><th class="c">면책 · 감액</th><th class="v">가입금액</th></tr>'+rs.slice(i,i+24).map(r=>'<tr><td>'+esc(r.name)+'</td><td class="c">'+(condOf(r)||'<span class="none">—</span>')+'</td><td class="v">'+(r.man?r.man.toLocaleString():esc(r.amount_text))+'</td></tr>').join('')+'</table></div>',g.id));
+    }
+  }
+  // 4) 갈래별 담보
+  const riderTable=(r,prev,compact)=>{
+    let codes='';
+    const same=prev&&prev.kp===r.kp&&prev.desc&&prev.desc===r.desc;     // 같은 묶음에서 설명문·분류번호가 같으면 접는다(131대질병수술비 세부보장 등)
+    if(optCodes&&r.codes&&r.codes.length){
+      const show=r.codes.slice(0,10).map(cd=>{const nm=KCDN[cd]||KCDN[cd.split('~')[0]]||''; return esc(cd)+(nm?' '+esc(nm.length>12?nm.slice(0,12)+'…':nm):'')});
+      codes='<span class="codes">약관 별표 분류번호 : '+show.join(' · ')+(r.codes.length>10?' 외 '+(r.codes.length-10)+'개':'')+(r.excl&&r.excl.length?' <b>(제외 : '+esc(r.excl.join(', '))+')</b>':'')+'</span>';
+    }
+    const d=r.der; const cond=[d.wait?'면책 '+d.wait:'',d.cut1y?'1년 미만 '+d.cut1y:'',d.cut90?'90일 미만 '+d.cut90:''].filter(Boolean).join(' · ');
+    if(same||compact) codes='';                                        // 줄인 판에서는 분류번호 줄도 뺀다(담보 지도·마스터에 그대로 있다)
+    const desc=same?'<div style="color:#6B7684">지급사유·분류번호는 위 담보와 같습니다'+(r.parent?' (세부보장 : '+esc(r.parent)+')':'')+'</div>':(optDesc&&r.desc?descHtml(r.desc,compact):'<div style="color:#8B95A1">설계서 설명문 없음 — 약관 제1조(보험금의 지급사유)를 확인합니다.</div>');
+    return '<table class="rt"><tr><td class="n">'+esc(r.name)+(r.parent?' <span style="font-weight:400;color:#777;font-size:7.4pt">('+esc(r.parent)+' 세부보장)</span>':'')+'</td><td class="a" rowspan="2">'+manText(r.man,r.amount_text)+(r.term?'<br><span style="font-size:7pt;font-weight:400;color:#666">'+esc(r.term)+'</span>':'')+'</td></tr><tr><td class="d">'+desc+(cond?'<span class="x">※ '+esc(cond)+'</span>':'')+codes+'</td></tr></table>';
+  };
+  for(const g of GROUPS){
+    const rs=riders.filter(r=>r.grp===g.id); if(!rs.length) continue;
+    blocks.push(el('<h2 class="sec">'+esc(g.name)+' <small>'+esc(g.sub)+' · '+rs.length+'건</small></h2>',g.id));
+    // 같은 Key Point 를 쓰는 담보가 잇달아 나오면 왼쪽에 담보표를 쌓고 오른쪽 Key Point 는 한 번만.
+    // 묶음의 높이를 재 가며 쪽 높이의 90% 를 넘기 전에 끊는다(넘치는 블록을 만들지 않는다).
+    let i=0, lastKp=null;
+    while(i<rs.length){
+      const r0=rs[i]; const kp=r0.kp; const showKp=kp&&kp!==lastKp;      // 묶음이 쪽 높이 때문에 둘로 나뉘면 Key Point 는 앞 묶음에만
+      const blk=el('<div class="rider'+(showKp?'':' nokp')+'"><div class="lcol"></div>'+(showKp?'<div class="kp"><h3>'+kp.title+'</h3>'+kp.html+'</div>':'')+'</div>',g.id);
+      const lcol=blk.querySelector('.lcol'); let n=0; lastKp=kp;
+      while(i<rs.length&&(n===0||(kp&&rs[i].kp===kp&&n<6))){
+        let t=el(riderTable(rs[i], n?rs[i-1]:null)); if(n) t.style.marginTop='2mm'; lcol.appendChild(t);
+        if(n>0&&hOf(blk)>avail*0.9){ lcol.removeChild(t); break }
+        if(n===0&&hOf(blk)>avail*0.95){                                   // 담보 하나가 혼자 한 쪽을 넘긴다(지급금액표가 긴 통합치료비) → 설명문을 줄인 판으로
+          lcol.removeChild(t); t=el(riderTable(rs[i], null, true)); lcol.appendChild(t);
+        }
+        n++; i++;
+      }
+      blocks.push(blk);
+    }
+  }
+  // 5) 면책·감액 표
+  const cond=STATE.riders.filter(r=>r.der.wait||r.der.cut1y||r.der.cut90);
+  blocks.push(el('<h2 class="sec">면책기간 / 감액기간 <small>설계서 설명문에서 읽은 담보만 · 나머지는 조항 없음</small></h2>','any'));
+  if(cond.length){
+    for(let i=0;i<cond.length;i+=22){
+      blocks.push(el('<table class="t r" style="margin-bottom:3mm"><tr><th>보장명</th><th style="width:30mm">보장개시일(면책)</th><th style="width:34mm">계약일부터 1년 미만 · 90일 미만 감액</th></tr>'+cond.slice(i,i+22).map(r=>'<tr><td class="l">'+esc(r.name)+'</td><td>'+(r.der.wait||'—')+'</td><td>'+[r.der.cut1y?'1년 미만 '+r.der.cut1y:'',r.der.cut90?'90일 미만 '+r.der.cut90:''].filter(Boolean).join(' · ')+'</td></tr>').join('')+'</table>','any'));
+    }
+  } else blocks.push(el('<div class="note">설명문에서 면책·감액 조항을 읽은 담보가 없습니다(설명문이 없는 샘플이거나, 이 설계에 해당 담보가 없습니다).</div>','any'));
+  blocks.push(el('<div class="callout y"><b>가입 첫 해에 짚어 줄 세 가지</b> ① 암(유사암제외) 계열은 보장개시일(90일) 뒤부터 ② 통합치료비·치료비 계열 중 「1년경과시점 전일 이전 50%」가 있는 담보는 첫 해 절반 ③ 수술비·입원일당·유사암은 처음부터 100%.</div>','any'));
+
+  // 표지
+  const cover=document.createElement('div'); cover.className='page cover';
+  cover.innerHTML=coverHtml(title);
+  prev.appendChild(cover);
+
+  // 본문 쪽 채우기 — ① 재서 넘기면 다음 쪽 ② 제목은 다음 블록과 같이 움직인다 ③ 넣은 뒤 실제 높이를 다시 재서 넘치면 옮긴다
+  let pno=2, cur=null, pages=[];
+  const newPage=()=>{cur=pageShell(title,pno++); prev.appendChild(cur); pages.push(cur)};
+  const footTop=p=>p.querySelector('.foot').getBoundingClientRect().top-4;
+  const place=b=>{cur.querySelector('.body').appendChild(b); return b.getBoundingClientRect().bottom<=footTop(cur)};
+  const bodyCount=p=>p.querySelector('.body').children.length;
+  newPage();
+  let pendingHead=null; const oversize=[];
+  for(let i=0;i<blocks.length;i++){
+    const b=blocks[i];
+    if(b.classList.contains('pagebreak')){ if(bodyCount(cur)) newPage(); continue }
+    if(b.classList.contains('sec')){ pendingHead=b; continue }
+    const group=pendingHead?[pendingHead,b]:[b]; pendingHead=null;
+    let ok=true; for(const x of group){ if(!place(x)) ok=false }
+    if(!ok){
+      for(const x of group) x.remove();
+      if(bodyCount(cur)) newPage();
+      let ok2=true; for(const x of group){ if(!place(x)) ok2=false }
+      if(!ok2){ oversize.push(b); b.style.overflow='hidden'; b.style.maxHeight=(footTop(cur)-b.getBoundingClientRect().top-2)+'px' }   // 혼자서도 한 쪽을 넘는 블록 : 자르고 알린다
+    }
+  }
+  if(pendingHead) place(pendingHead);
+  // 빈 자리 채우기 — 쪽 아래가 40mm 넘게 비면 그 쪽 갈래에 맞는 연관 정보 카드를 넣는다(한 번 쓴 카드는 다시 쓰지 않는다)
+  const used=new Set(); const mm=v=>v*96/25.4; let filled=0;
+  for(const p of pages){
+    const body=p.querySelector('.body'); if(!body.children.length) continue;
+    if(body.querySelector('.gl,.sm')) continue;                               // 용어 풀이·1장 요약 쪽은 그대로 둔다
+    const last=body.lastElementChild; let free=footTop(p)-last.getBoundingClientRect().bottom-6; if(free<mm(40)) continue;
+    const grps=[...body.children].map(c=>c.dataset.grp).filter(v=>v&&v!=='any'); const main=grps.sort((x,y)=>grps.filter(v=>v===y).length-grps.filter(v=>v===x).length)[0]||'any';
+    // 그 갈래 카드 → 공통 카드 → (80mm 넘게 비면) 다른 갈래 카드 순
+    const rank=f=>f.grp.includes(main)?0:f.grp.includes('any')?1:2;
+    const txt=body.textContent;
+    const cands=FILLERS.filter(f=>!used.has(f.id)&&(rank(f)<2||free>mm(80))&&!txt.includes(f.title)).sort((x,y)=>rank(x)-rank(y));   // 같은 쪽에 이미 있는 제목의 카드는 넣지 않는다
+    window.__FILL_DEBUG=(window.__FILL_DEBUG||[]); const dbg={page:pages.indexOf(p)+2,free:Math.round(free),main,tried:[]}; window.__FILL_DEBUG.push(dbg);
+    const cap=body.querySelector('.t.r')?1:2;
+    for(let k=0;k<cap;k++){
+      let put=false;
+      for(const f of cands){ if(used.has(f.id)) continue;
+        const card=el('<div class="kp fill" style="margin-top:3mm"><h3>'+f.title+'</h3>'+f.html+'</div>');
+        const h=hOf(card); dbg.tried.push(f.id+':'+Math.round(h)); if(h>free) continue;
+        body.appendChild(card); if(card.getBoundingClientRect().bottom>footTop(p)){card.remove();continue}
+        used.add(f.id); free-=h; filled++; put=true; break;
+      }
+      if(!put||free<mm(40)) break;
+    }
+  }
+  // 뒷표지
+  const back=document.createElement('div'); back.className='page back';
+  back.innerHTML=backHtml(title);
+  prev.appendChild(back);
+  // 머리띠에 장 이름 · 쪽번호 n / N
+  const GN={ca:'1장 암',cv:'2장 뇌 · 심장 · 순환기',sg:'3장 수술비 · 치료비',ad:'4장 입원 · 간병',ac:'5장 상해 · 운전 · 배상 · 기타'};
+  const N=pages.length+2; let lastCh='';
+  for(const p of pages){
+    const body=p.querySelector('.body'); let ch='';
+    if(body.querySelector('.sm')) ch='1장 요약';
+    else if(body.querySelector('.gl')) ch='용어 풀이 · 상품 한눈에';
+    else if(body.querySelector('.kv,.mb')&&!body.querySelector('.rider')) ch='상품 한눈에 · 담보 지도';
+    else if(body.querySelector('.t.r')&&!body.querySelector('.rider')&&!body.querySelector('.kp:not(.fill)')) ch='면책기간 · 감액기간';
+    else {const g=[...body.children].map(c=>c.dataset.grp).find(v=>v&&v!=='any'); ch=GN[g]||lastCh}
+    lastCh=ch; const e=p.querySelector('.strip .ch'); if(e) e.textContent=ch;
+    const pn=p.querySelector('.pno'); if(pn) pn.textContent=pn.dataset.no+' / '+N;
+  }
+  const bp=back.querySelector('.pages'); if(bp) bp.textContent=N;
+  log('가이드북 '+(pno)+'쪽 생성 완료 · 빈 자리 카드 '+filled+'장'+(oversize.length?' · 한 쪽을 넘겨 잘린 블록 '+oversize.length+'개':'')+' → 「인쇄 · PDF로 저장」');
+  window.__STATE=STATE; window.__PAGES=pages.length+2;
+}
+// ── 샘플 ─────────────────────────────────────────────────────
+function loadSample(i){
+  const s=SAMPLES[i]; setLog('내장 샘플 : '+s.src);
+  build({meta:{insured:s.insured,premium:s.premium.replace('원',''),product:s.product,head:s.head,age:s.age||'',sex:s.sex||''},
+         riders:s.riders.map(r=>({no:r.no,name:r.name,man:r.man,amount_text:r.man?r.man+'만원':'간병인지원',prem:'',term:'',parent:null})),descs:null,src:s.src});
+}
+// ── 이벤트 ───────────────────────────────────────────────────
+const drop=$('#drop'), fin=$('#file');
+drop.addEventListener('click',()=>fin.click());
+fin.addEventListener('change',()=>{if(fin.files[0]) handleFile(fin.files[0])});
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('on')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('on')}));
+drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f) handleFile(f)});
+$('#sampleA').addEventListener('click',()=>loadSample(0));
+$('#sampleB').addEventListener('click',()=>loadSample(1));
+$('#rebuild').addEventListener('click',render);
+$('#print').addEventListener('click',()=>window.print());
+['#optAll','#optCodes','#optDesc'].forEach(s=>$(s).addEventListener('change',render));
+window.__handleFile=handleFile; window.__loadSample=loadSample;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>메리츠 세일즈혁신 가이드 — The건강한 내Mom대로 5.10.5</title>
+<style>
+@font-face{font-family:NG;font-weight:400;src:url('../proposal_smart/ga_assets/NanumGothic-Regular.ttf')}
+@font-face{font-family:NG;font-weight:700;src:url('../proposal_smart/ga_assets/NanumGothic-Bold.ttf')}
+@font-face{font-family:NG;font-weight:800;src:url('../proposal_smart/ga_assets/NanumGothic-ExtraBold.ttf')}
+@page{size:A4;margin:0}
+:root{--red:#E4322B;--red2:#F05A4F;--dark:#333;--grey:#666;--line:#d9d9d9;--beige:#F7EFE3;--beige2:#EFE3CF;--yellow:#FFF3B0;--blue:#EAF4FB;--green:#EAF6EE}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:NG,'Malgun Gothic',sans-serif;color:var(--dark);font-size:8.6pt;line-height:1.42;word-break:keep-all}
+.page{width:210mm;height:297mm;padding:9mm 11mm 12mm;position:relative;page-break-after:always;overflow:hidden;background:#fff}
+.page:last-child{page-break-after:auto}
+.tag{position:absolute;top:6mm;right:11mm;font-size:8pt;color:#444}
+.brand{display:flex;justify-content:flex-end;align-items:baseline;gap:4px;margin-top:4mm;height:9mm}
+.brand .m{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:19pt;color:var(--red);letter-spacing:-1px;line-height:1}
+.brand .k{font-size:10.5pt;color:#555;font-weight:700}
+.strip{background:var(--red2);color:#fff;font-size:8.2pt;padding:1.6mm 3mm;margin:1mm 0 2.5mm;border-radius:2px}
+.strip b{color:#FFE9A8}
+.sub{color:var(--red);font-weight:700;font-size:9.2pt;margin:0 0 1.5mm}
+.foot{position:absolute;left:11mm;right:11mm;bottom:6mm;font-size:7.4pt;color:#444;border-top:1px solid #ddd;padding-top:1.2mm;display:flex;justify-content:space-between}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;align-items:start}
+/* 담보표 */
+.rt{width:100%;border-collapse:collapse;table-layout:fixed}
+.rt th{background:var(--beige2);font-size:8.2pt;padding:1.4mm 1.5mm;border-bottom:1px solid #c9b99b;text-align:center}
+.rt td{vertical-align:top;padding:1.3mm 1.6mm;border-bottom:1px solid var(--line);font-size:8.1pt}
+.rt td.n{background:var(--beige);font-weight:700;font-size:8.6pt;border-bottom:0;padding-bottom:0.8mm}
+.rt td.a{text-align:center;font-weight:700;font-size:9.4pt;vertical-align:middle;color:#222;border-left:1px solid var(--line)}
+.rt td.d{color:#333}
+.rt td.d .x{display:block;color:#555;font-size:7.7pt;margin-top:0.6mm}
+.rt td.d .h{background:var(--yellow)}
+.rt .w{width:19mm}
+/* Key point 상자 */
+.kp{border:2px dashed var(--red);border-radius:6px;padding:2.6mm 3mm 2.4mm;margin-bottom:3.2mm;background:#fff}
+.kp h3{margin:0 0 1.6mm;text-align:center;color:var(--red);font-size:11pt;font-weight:800;letter-spacing:-.3px}
+.kp h4{margin:1.6mm 0 .8mm;font-size:8.8pt;color:#222;background:var(--yellow);display:inline-block;padding:.4mm 1.6mm;border-radius:2px}
+.kp p{margin:.6mm 0}
+.kp ul{margin:.6mm 0 .6mm 4mm;padding:0}
+.kp li{margin:.35mm 0}
+.kp .src{font-size:7.2pt;color:#666;text-align:right;margin-top:1mm}
+.kp.g{border-color:#3A9D5D}.kp.g h3{color:#2E7D46}
+.kp.b{border-color:#2F6FB0}.kp.b h3{color:#2F6FB0}
+.em{color:var(--red);font-weight:700}
+.blue{color:#1F5FA0;font-weight:700}
+.t{width:100%;border-collapse:collapse;font-size:7.6pt;margin:1mm 0}
+.t th{background:#5C7C9E;color:#fff;padding:1mm 1.2mm;font-weight:700;text-align:center}
+.t td{padding:.9mm 1.2mm;border-bottom:1px solid #e3e3e3;text-align:center}
+.t td.l{text-align:left}
+.t tr:nth-child(even) td{background:#F6F8FB}
+.t.o th{background:#C57A3A}
+.t.r th{background:#C7443C}
+.t.gg th{background:#3A9D5D}
+.t.cmp td{padding:.45mm 1mm;font-size:7.1pt}.t.cmp th{padding:.7mm 1mm}
+.note{font-size:7.6pt;color:#555;background:#F4F4F4;padding:1.6mm 2.2mm;border-radius:3px;margin:1.5mm 0}
+.callout{background:var(--blue);border-left:4px solid #2F6FB0;padding:1.8mm 2.5mm;margin:1.5mm 0;font-size:8pt}
+.callout.y{background:#FFF8DD;border-left-color:#E0A800}
+.callout.g{background:var(--green);border-left-color:#3A9D5D}
+.chip{display:inline-block;background:#fff;border:1px solid #bbb;border-radius:10px;padding:0 1.8mm;font-size:7.4pt;margin:.3mm .3mm .3mm 0}
+.chip.r{border-color:var(--red);color:var(--red)}
+.big{font-size:12pt;font-weight:800;color:var(--red)}
+h2.sec{font-size:13pt;color:#222;margin:0 0 2mm;border-left:5px solid var(--red);padding-left:2.5mm}
+h2.sec small{font-size:8.5pt;color:#666;font-weight:400;margin-left:2mm}
+/* 표지 */
+.cover{background:#E9433C;color:#fff;padding:0}
+.cover .inner{position:absolute;inset:11mm 11mm 0 11mm}
+.cover .m{color:#fff}.cover .k{color:#fff}
+.cover .t1{font-size:34pt;font-weight:800;line-height:1.1;margin-top:26mm;letter-spacing:-1px}
+.cover .t2{font-size:23pt;font-weight:800;color:#FFE55C;margin-top:6mm;line-height:1.2}
+.cover .t3{font-size:11pt;margin-top:12mm;line-height:1.7}
+.cover .t3 b{color:#FFE55C}
+.cover .box{position:absolute;left:0;right:0;bottom:0;height:78mm;background:#fff;border-radius:14px 14px 0 0;padding:6mm 8mm;color:#333}
+.cover .box img{position:absolute;right:6mm;bottom:4mm;width:96mm}
+.cover .box .lbl{font-size:9pt;color:#666}
+.cover .box .who{font-size:11pt;font-weight:700;margin-top:1mm}
+.back{background:#fff;padding:0}
+.back .bar{height:26mm;background:#E9433C}
+.back .logo{position:absolute;top:120mm;left:0;right:0;text-align:center}
+.back img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:150mm}
+/* 지도 */
+.map{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm}
+.mb{border:1.5px solid #ddd;border-radius:6px;padding:2.4mm 3mm;background:#fff}
+.mb h3{margin:0 0 1.4mm;font-size:10pt;color:#fff;background:var(--red);display:inline-block;padding:.5mm 2.5mm;border-radius:3px}
+.mb h3.c2{background:#2F6FB0}.mb h3.c3{background:#C57A3A}.mb h3.c4{background:#3A9D5D}.mb h3.c5{background:#7A5AB5}
+.mb table{width:100%;border-collapse:collapse;font-size:7.8pt}
+.mb td{padding:.55mm .8mm;border-bottom:1px dotted #ddd}
+.mb td:last-child{text-align:right;font-weight:700;white-space:nowrap;width:22mm}
+.mb .pg{font-size:7.2pt;color:#777;margin-left:2mm}
+/* 읽는 법 */
+.how{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.how .hb{border:1.5px solid #ccc;border-radius:6px;padding:2.5mm 3mm;background:#FAFAFA}
+.how .hb h4{margin:0 0 1.2mm;font-size:9.5pt;color:#222}
+.memo{border:2px solid #E2D6B8;border-radius:10px;background:#FFFBEF;height:92mm;padding:6mm;font-size:16pt;color:#333}
+.gl{display:grid;grid-template-columns:1fr 1fr;gap:2.4mm 5mm}
+.gl div{border-bottom:1px dotted #ccc;padding:1.2mm 0}
+.gl b{color:var(--red)}
+.gl span{display:block;color:#555;font-size:7.7pt}
+.flow{display:flex;gap:1.5mm;align-items:stretch;margin:1.2mm 0}
+.flow div{flex:1;background:#F3F6FA;border:1px solid #cfd8e3;border-radius:4px;padding:1.2mm 1.4mm;font-size:7.4pt;text-align:center}
+.flow div b{display:block;color:#1F5FA0;font-size:8pt}
+</style>
+</head>
+<body>
+
+<!-- ===================== 1. 표지 ===================== -->
+<div class="page cover">
+  <div class="inner">
+    <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+    <div class="t1">메리츠<br>세일즈혁신 가이드</div>
+    <div class="t2">"The건강한 내Mom대로 5.10.5"</div>
+    <div class="t3">
+      2026년 9월 · (무)메리츠 The건강한 내Mom대로 5.10.5 보장보험2607<br>
+      <b>주요 특약을 약관 조문 기준으로 풀어 쓴 컨설팅북</b><br>
+      표준 알릴의무 + 건강고지로 저렴하게 설계하는 표준체 종합보험
+    </div>
+    <div class="box">
+      <div class="lbl">교육용 · 사내 자료</div>
+      <div class="who">AI추진파트 세일즈혁신TF</div>
+      <div style="font-size:8.6pt;color:#555;margin-top:2mm;width:95mm;line-height:1.6">
+        담보 설명은 「무배당 내Mom대로 보장보험2607 약관」 조문에서 옮겼고, 가입금액은 예시 설계(40세 여성) 기준입니다.
+        통계는 출처를 붙였습니다. 본 자료는 고객에게 교부·배포할 수 없습니다.
+      </div>
+      <img src="guide_naemom_5105_assets/chars.png" alt="">
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 2. 상품 한눈에 보기 ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+
+  <h2 class="sec">상품 한눈에 보기 <small>표준체 + 건강고지 종합보험</small></h2>
+  <div class="cols">
+    <div>
+      <table class="t" style="font-size:8pt">
+        <tr><th style="width:26mm">구분</th><th>내용</th></tr>
+        <tr><td>가입연령</td><td class="l">10세 ~ 40세</td></tr>
+        <tr><td>보험기간</td><td class="l">세만기 (무해지 가능)</td></tr>
+        <tr><td>납입면제</td><td class="l">보험료 납입면제형 / 납입면제 미적용형 · 해약환급금미지급형(납입후50%) 선택</td></tr>
+        <tr><td>알릴의무</td><td class="l">표준 알릴의무 + <b>6년~10년 건강고지</b>(입원·수술 여부, 예외질환 운영) → 인수될 경우 건강고지 추가 가능</td></tr>
+        <tr><td>납입면제 7대</td><td class="l">암(유사암제외) · 뇌혈관질환 · 허혈성심장질환 · 상해/질병 50%이상 후유장해 · 양성뇌종양 · 중대한재생불량성빈혈</td></tr>
+        <tr><td>플랜</td><td class="l"><b>무감액면책플랜</b> : 암·뇌·심 즉시보장이 가능한 표준체 종합보험</td></tr>
+        <tr><td>할인</td><td class="l">표준고지 ~ 9년고지로 가입 후 1년간 입원·수술 사고가 없으면 <b>무사고전환 할인</b></td></tr>
+      </table>
+      <div class="note">출처 : 사내 상품 요약(MeAI 상품안내). 가입조건·할인의 최종 기준은 <b>상품설명서와 사업방법서</b>로 확인합니다.</div>
+
+      <div class="kp">
+        <h3>이 가이드가 다루는 예시 설계</h3>
+        <table class="t" style="font-size:7.8pt">
+          <tr><td class="l" style="width:24mm">상품명</td><td class="l">(무)메리츠 The건강한 내Mom대로 5.10.5 보장보험2607(3.0)(해약환급금지급형)(납입면제 1형)(건강고지형(10년))(기본납입형)</td></tr>
+          <tr><td class="l">피보험자</td><td class="l">40세 여성 (예시)</td></tr>
+          <tr><td class="l">계약사항</td><td class="l">20년납 100세만기 · 월납 · 자동이체</td></tr>
+          <tr><td class="l">월 보험료</td><td class="l"><b>215,560원</b></td></tr>
+          <tr><td class="l">가입담보</td><td class="l"><b>66건</b> (암 9 · 뇌심장 4 · 수술비 34 · 입원간병 17 · 상해 2)</td></tr>
+        </table>
+        <p style="font-size:7.6pt;color:#555">담보표의 「가입금액」 칸은 모두 이 예시 설계의 금액입니다. 고객 설계에 맞게 바꿔 읽습니다.</p>
+      </div>
+    </div>
+    <div>
+      <div class="kp b">
+        <h3>이 가이드 읽는 법</h3>
+        <div class="how">
+          <div class="hb"><h4>왼쪽 : 가입담보 및 보장내용</h4>
+            담보명 · 약관 제1조(보험금의 지급사유)를 쉬운 말로 옮긴 요약 · 예시 설계 가입금액.<br>
+            <span style="background:var(--yellow)">노란 표시</span>는 설계사가 꼭 짚어야 할 조건(개시일·감액·횟수 한도)입니다.</div>
+          <div class="hb"><h4>오른쪽 : Key Point</h4>
+            그 담보가 어떤 병·치료에 쓰이는지, 항목별 지급금액, 질병 분류표, 공공 통계와 학회 지침. 통계는 기관·연도를 함께 적었습니다.</div>
+        </div>
+        <h4>약관 근거</h4>
+        <p>담보 설명은 <b>「무배당 내Mom대로 보장보험2607 약관」</b>(1,562쪽)의 특별약관 조문에서 옮겼습니다. 메리츠 특약은 상품이 달라도 이름이 같으면 같은 조문·별표를 쓰므로, 5.10.5 상품에서도 같은 내용으로 읽힙니다. 다만 최종 안내는 <b>5.10.5 전용 약관·상품설명서</b>로 다시 확인합니다.</p>
+        <h4>질병코드·금액 원칙</h4>
+        <ul>
+          <li>질병코드(KCD)는 <b>약관 별표에 있는 것만</b> 적었습니다. 추정한 코드는 없습니다.</li>
+          <li>항목별 지급금액은 약관 지급금액표의 예시 설계 가입금액 구간을 그대로 옮겼습니다.</li>
+          <li>통계·수치는 출처를 붙였고, 출처가 없는 값은 넣지 않았습니다.</li>
+        </ul>
+      </div>
+      <div class="kp g">
+        <h3>가이드 구성</h3>
+        <table class="t gg" style="font-size:7.8pt">
+          <tr><th style="width:12mm">쪽</th><th>내용</th></tr>
+          <tr><td>3</td><td class="l">담보 지도 — 66건을 다섯 갈래로</td></tr>
+          <tr><td>4~5</td><td class="l">암 진단비·항암치료비 (암진단비 · 유사암 · 항암약물 · 표적항암)</td></tr>
+          <tr><td>6~7</td><td class="l">암 통합치료비 (기본형 · Ⅱ 비급여 · 통합치료 생활비 · 암전후 특정질환)</td></tr>
+          <tr><td>8~9</td><td class="l">뇌·심장 — 특정순환계질환 통합치료비 · 131대질병수술비(심장·뇌혈관)</td></tr>
+          <tr><td>10~11</td><td class="l">수술비 — 질병·상해수술비 · 1-5종 · 131대질병수술비</td></tr>
+          <tr><td>12</td><td class="l">입원일당 · 간병인지원</td></tr>
+          <tr><td>13</td><td class="l">상해 · 면책기간/감액기간 표</td></tr>
+          <tr><td>14</td><td class="l">용어 풀이 · MEMO</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>2</span></div>
+</div>
+
+<!-- ===================== 3. 담보 지도 ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <h2 class="sec">담보 지도 <small>예시 설계 66건 · 단위 : 만원</small></h2>
+  <div class="map">
+    <div class="mb"><h3>① 암 (9건)</h3><span class="pg">4~7쪽</span>
+      <table>
+        <tr><td>암진단및치료비Ⅱ [암진단비(유사암제외)]</td><td>3,000</td></tr>
+        <tr><td>유사암진단비</td><td>600</td></tr>
+        <tr><td>암진단및치료비Ⅱ [항암약물치료비]</td><td>100</td></tr>
+        <tr><td>암진단및치료비Ⅱ [표적항암약물허가치료비(비급여)(연간1회한)(2종및3종이상)]</td><td>5,000</td></tr>
+        <tr><td>암 통합치료비(기본형)</td><td>10,000</td></tr>
+        <tr><td>암 통합치료비Ⅱ(비급여(전액본인부담 포함), 암중점치료기관(상급종합병원 포함))</td><td>7,000</td></tr>
+        <tr><td>암(유사암제외) 통합치료 생활비(연간 통합치료 2회이상)</td><td>1,000</td></tr>
+        <tr><td>유사암 통합치료 생활비(연간 통합치료 2회이상)</td><td>200</td></tr>
+        <tr><td>암전후관련 특정질환 및 양성신생물 통합치료비</td><td>4,000</td></tr>
+      </table>
+    </div>
+    <div class="mb"><h3 class="c2">② 뇌·심장 (4건)</h3><span class="pg">8~9쪽</span>
+      <table>
+        <tr><td>특정순환계질환 통합치료비</td><td>10,000</td></tr>
+        <tr><td>특정순환계질환(주요손상및질환) 통합치료비</td><td>3,000</td></tr>
+        <tr><td>131대질병수술비(심장질환)</td><td>1,000</td></tr>
+        <tr><td>131대질병수술비(뇌혈관질환)</td><td>1,000</td></tr>
+      </table>
+      <div class="callout" style="margin-top:2.5mm">이 설계에는 암·뇌·심 <b>진단비</b> 가운데 암진단비만 있고, 뇌·심장은 <b>치료할 때마다 나오는 통합치료비</b>와 <b>수술비</b>로 보장합니다. 진단비를 더 넣을지는 고객 설계에서 정합니다.</div>
+    </div>
+    <div class="mb"><h3 class="c3">③ 수술비 (34건)</h3><span class="pg">10~11쪽</span>
+      <table>
+        <tr><td>질병수술비 / 질병수술비(특정5대질병 제외)</td><td>20 / 20</td></tr>
+        <tr><td>상급종합병원 질병수술비</td><td>100</td></tr>
+        <tr><td>상해수술비 / 상급종합병원 상해수술비</td><td>100 / 100</td></tr>
+        <tr><td>131대질병수술비 — 특정31대질병</td><td>1,000</td></tr>
+        <tr><td>131대질병수술비 — 다빈도62대질병 · 특정다빈도29대질병</td><td>200 · 20</td></tr>
+        <tr><td>131대질병수술비 — 후각특정질환 · 유방의장애 · 편도염</td><td>각 100</td></tr>
+        <tr><td>131대질병수술비 — 백내장 · 관절염,생식기질환 · 치핵</td><td>각 30</td></tr>
+        <tr><td>수술비Ⅱ(1-5종) 질병 1·2·3·4·5종</td><td>20·30·100·1,000·1,000</td></tr>
+        <tr><td>수술비Ⅱ(1-5종) 상해 1·2·3·4·5종</td><td>20·30·100·500·1,000</td></tr>
+        <tr><td>질병 / 상해 1-5종수술비(plus)(연간2회이상) 1~5종</td><td>10·30·50·200·300</td></tr>
+      </table>
+    </div>
+    <div class="mb"><h3 class="c4">④ 입원 · 간병 (17건)</h3><span class="pg">12쪽</span>
+      <table>
+        <tr><td>상급병실(1인실) 상급종합병원 상해/질병 입원일당 (1회 입원 10일한도)</td><td>1일 11</td></tr>
+        <tr><td>상급병실(1인실) 종합병원 상해/질병 입원일당 (30일한도)</td><td>1일 10</td></tr>
+        <tr><td>2-3인실 상급종합병원 상해/질병 입원일당 (30일한도)</td><td>1일 5</td></tr>
+        <tr><td>2-3인실 종합병원 상해/질병 입원일당 (30일한도)</td><td>1일 5</td></tr>
+        <tr><td>(20년갱신) 간병인지원 상해/질병 입원일당(Ⅵ) 180일한도 · 181일이상 · 요양성특정질병(요양병원)</td><td>간병인 지원</td></tr>
+        <tr><td>(20년갱신) 간병인지원 상해/질병 입원일당(간호·간병통합서비스 사용추가보장) 180일한도 · 181일이상</td><td>1일 7</td></tr>
+      </table>
+    </div>
+    <div class="mb" style="grid-column:1/3"><h3 class="c5">⑤ 상해 (2건)</h3><span class="pg">13쪽</span>
+      <table>
+        <tr><td>일반상해사망</td><td>5,000</td></tr>
+        <tr><td>일반상해80%이상후유장해</td><td>100</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="callout y" style="margin-top:3mm"><b>세 층으로 설명하면 쉽습니다.</b> ① 걸리면 한 번 크게(진단비) → ② 치료할 때마다(통합치료비·수술비·항암치료비) → ③ 병원에 있는 동안(입원일당·간병인). 이 설계는 ②·③이 두텁고, 암 계열이 가장 촘촘합니다.</div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>3</span></div>
+</div>
+
+<!-- ===================== 4. 암 진단·항암치료 (1) ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ① 암 — 진단비 · 항암치료비</div>
+  <div class="cols">
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">암진단및치료비Ⅱ [ 암진단비(유사암제외) ]</td><td class="a" rowspan="2">3천만원</td></tr>
+        <tr><td class="d">보험기간 중 <span class="h">암보장개시일 이후</span>에 「암(유사암제외)」으로 진단확정 시 최초 1회 가입금액 지급<br>
+          <span class="x">※ 암보장개시일 : 보험나이 15세 이상은 계약일부터 그날을 포함하여 90일이 지난 날의 다음날, 15세 미만은 계약일<br>
+          ※ 계약일부터 암보장개시일 전일 이전에 암 진단확정 시 보장 무효(보험료 반환)<br>
+          ※ 지급 후 이 보장은 소멸 (해약환급금 없음)</span></td></tr>
+        <tr><td class="n">유사암진단비</td><td class="a" rowspan="2">6백만원</td></tr>
+        <tr><td class="d">보험기간 중 「제자리암」「기타피부암」「경계성종양」「갑상선암」으로 진단확정 시 <span class="h">각각 최초 1회</span> 가입금액 지급<br>
+          <span class="x">※ 유사암은 4가지를 각각 따로 세므로 최대 4회 · 하나의 질병으로 여러 유사암 진단 시 1회<br>
+          ※ 면책기간 없음(계약일부터 보장) · 진단확정은 병리 또는 진단검사의학 전문의의 조직·세포·혈액검사 소견 기준</span></td></tr>
+        <tr><td class="n">암진단및치료비Ⅱ [ 항암약물치료비 ]</td><td class="a" rowspan="2">1백만원</td></tr>
+        <tr><td class="d">암보장개시일 이후 「암(유사암제외)」으로 진단확정되고 그 치료를 직접 목적으로 항암약물치료를 받은 때 최초 1회 가입금액의 100% 지급<br>
+          「기타피부암」「갑상선암」은 각각 최초 1회 <span class="h">가입금액의 20%</span><br>
+          <span class="x">※ 항암약물치료 : 전문의가 항암화학요법 또는 항암면역요법으로 항암약물을 투여하는 것. 암세포가 없는 상태의 면역증강제(압노바·헬릭소·셀리나제 등)는 제외</span></td></tr>
+        <tr><td class="n">암진단및치료비Ⅱ [ 표적항암약물허가치료비(비급여(전액본인부담 포함))(연간1회한)(2종및3종이상) ]</td><td class="a" rowspan="2">5천만원</td></tr>
+        <tr><td class="d">암보장개시일 이후 암(유사암제외)·기타피부암·갑상선암으로 진단확정되고 비급여 표적항암약물허가치료를 받아 <span class="h">연간 약물종류 개수가 2종 이상, 3종 이상</span>에 해당하면 각각 연간 1회 지급<br>
+          <span class="x">※ 계약일부터 1년경과시점 전일 이전 : 가입금액의 50% · 이후 : 100%<br>
+          ※ 「연간」= 계약일부터 매 1년 계약해당일 전일까지 · 식약처 허가 효능효과 범위 안의 사용에 한함</span></td></tr>
+      </table>
+      <div class="note">면책·감액 : 암진단비·항암약물·표적항암은 <b>암보장개시일(90일)</b>이 있고, 표적항암만 1년 미만 50% 감액. 유사암진단비는 면책·감액이 없습니다. (13쪽 표)</div>
+    </div>
+    <div>
+      <div class="kp">
+        <h3>암보장개시일 90일</h3>
+        <div class="flow">
+          <div><b>계약일</b>2023.4.10</div><div style="flex:.5;background:#fff;border:0">→ 90일 →</div><div><b>암보장개시일</b>2023.7.9</div>
+        </div>
+        <p>약관 예시 그대로입니다. 90일이 지난 날의 <b>다음날</b>부터 암(유사암제외) 보장이 시작되고, 그 전에 진단되면 보장은 무효가 되어 보험료를 돌려드립니다. <span class="em">보험나이 15세 미만</span>은 기다림 없이 계약일부터 시작합니다.</p>
+      </div>
+      <div class="kp">
+        <h3>유사암 4종 · 무엇이 다른가</h3>
+        <table class="t r">
+          <tr><th>구분</th><th>약관 정의</th><th>분류번호(약관 별표)</th></tr>
+          <tr><td>제자리암</td><td class="l">제자리신생물 분류표</td><td>D00 ~ D09</td></tr>
+          <tr><td>기타피부암</td><td class="l">기타 피부의 악성신생물</td><td>C44</td></tr>
+          <tr><td>경계성종양</td><td class="l">행동양식 불명 또는 미상의 신생물 분류표</td><td>D37 ~ D48 중 별표 항목</td></tr>
+          <tr><td>갑상선암</td><td class="l">갑상선의 악성신생물</td><td>C73</td></tr>
+        </table>
+        <p>암진단비(유사암제외)는 <b>C44·C73을 뺀 악성신생물(C00~C97, D45~D47 일부)</b>이 대상입니다. 갑상선암은 발생 건수가 많지만 <span class="em">유사암진단비(600만원)</span>로 나옵니다. 상담 때 가장 많이 오해하는 지점입니다.</p>
+        <p style="font-size:7.6pt;color:#555">원발부위 기준 : 갑상선암(C73)이 림프절로 전이돼 C77로 진단돼도 C73으로 봅니다(약관 유사암진단비 제3조).</p>
+      </div>
+      <div class="kp">
+        <h3>표적항암약물 — 「연간 약물종류 개수」</h3>
+        <p>약관 예시의 약물 종류 : <span class="chip">A 소분자 항암치료제</span><span class="chip">B 단일클론 항체</span><span class="chip">C 면역관문억제제</span><span class="chip">D 항체약물중합체</span><span class="chip">E 카티 항암치료제</span></p>
+        <p>한 보험연도 안에 서로 다른 종류가 <b>2종</b>이 되면 1회, <b>3종</b>이 되면 또 1회 지급됩니다(각각 연간 1회한). 같은 약을 여러 번 써도 1종입니다. 비급여 표적항암은 고가 치료가 많아 이 담보의 가입금액(5천만원)이 실질적인 의미를 갖습니다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>4</span></div>
+</div>
+
+<!-- ===================== 5. 암 진단·항암치료 (2) 통계 ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">Key Point : 암 — 왜 진단비와 치료비를 같이 봐야 하나</div>
+  <div class="cols">
+    <div>
+      <div class="kp">
+        <h3>우리나라 암 발생 순위</h3>
+        <table class="t r">
+          <tr><th>순위</th><th>암종</th><th>이 설계에서 나오는 담보</th></tr>
+          <tr><td>1위</td><td class="l">갑상선암 (C73)</td><td class="l">유사암진단비 600 · 항암약물 20% · 통합치료비 유사암 항목</td></tr>
+          <tr><td>2위</td><td class="l">폐암 (C34)</td><td class="l">암진단비 3,000 · 항암약물 100 · 표적항암 · 통합치료비 전 항목</td></tr>
+          <tr><td>3위</td><td class="l">대장암 (C18)</td><td class="l">암진단비 3,000 · 수술 1회당 1,000(통합치료비 기본형) …</td></tr>
+          <tr><td>4위</td><td class="l">유방암 (C50) · 여성 1위</td><td class="l">암진단비 · 항암방사선 · 항호르몬(생활비 산정 제외)</td></tr>
+          <tr><td>5위</td><td class="l">위암 (C16)</td><td class="l">암진단비 · 수술 · 항암약물</td></tr>
+          <tr><td>남성 1위</td><td class="l">전립선암 (C61)</td><td class="l">암진단비 · 다빈치로봇수술(통합치료비 비급여 항목)</td></tr>
+        </table>
+        <p class="src">출처 : 2023년 국가암등록통계(보건복지부·중앙암등록본부, 2026.1.20 발표)</p>
+      </div>
+      <div class="kp">
+        <h3>암 사망률 1위는 폐암</h3>
+        <p>2024년 사망원인통계에서 암 종류별 사망률 1위는 <b>폐암, 인구 10만 명당 38.0명</b>입니다. 발생 2위·사망 1위인 폐암은 진단비 → 수술 → 표적·면역 항암 → 입원까지 이 설계의 암 담보가 <span class="em">모두 작동하는 병</span>이라 상담 사례로 쓰기 좋습니다.</p>
+        <p class="src">출처 : 2024년 사망원인통계(국가데이터처, 2025.9.25 발표)</p>
+      </div>
+      <div class="kp g">
+        <h3>폐암 치료 흐름과 담보 연결</h3>
+        <div class="flow">
+          <div><b>검사</b>흉부 CT · PET · 조직검사</div>
+          <div><b>수술</b>흉강경 폐엽절제술</div>
+          <div><b>항암</b>표적항암 → 면역항암</div>
+          <div><b>입원</b>상급종합 1인실</div>
+        </div>
+        <table class="t gg">
+          <tr><th>단계</th><th>담보</th><th>예시 설계 금액</th></tr>
+          <tr><td>진단확정</td><td class="l">암진단비(유사암제외)</td><td>3,000만원</td></tr>
+          <tr><td>검사</td><td class="l">암 통합치료비(기본형) 검사 항목 — CT 10 · PET 5 · 조직검사 20 · NGS 100</td><td>항목별</td></tr>
+          <tr><td>수술</td><td class="l">암 통합치료비(기본형) 암 수술 1회당 / Ⅱ(비급여·암중점) 수술</td><td>1,000 / 750</td></tr>
+          <tr><td>항암</td><td class="l">항암약물치료비 100 · 표적항암(2종·3종) 5,000×2 · 통합치료비 표적 3,000 / 면역 3,000</td><td>—</td></tr>
+          <tr><td>입원</td><td class="l">상급병실(1인실) 상급종합병원 질병입원일당 11만원×10일</td><td>110</td></tr>
+        </table>
+        <p class="src">치료 흐름 근거 : 국가암정보센터(국립암센터) 「폐암 — 진단·치료」. 금액은 약관 지급금액표·예시 설계 가입금액. 실제 지급은 심사 결과에 따릅니다.</p>
+      </div>
+    </div>
+    <div>
+      <div class="kp">
+        <h3>상담 포인트 — 자주 나오는 질문</h3>
+        <h4>Q. 갑상선암도 3천만원 나오나요?</h4>
+        <p>아니요. 갑상선암(C73)·기타피부암(C44)·제자리암·경계성종양은 <b>유사암</b>이라 유사암진단비 600만원이 각각 최초 1회 나옵니다. 항암약물치료비도 20%(20만원)입니다.</p>
+        <h4>Q. 가입하고 바로 암이 발견되면?</h4>
+        <p>암(유사암제외)은 <b>90일 면책</b>입니다. 그 안에 진단되면 보장이 무효가 되고 낸 보험료를 돌려드립니다. 유사암은 면책이 없습니다.</p>
+        <h4>Q. 항암약물치료비는 몇 번 나오나요?</h4>
+        <p>암(유사암제외) 항암약물치료는 <b>최초 1회</b>입니다. 반복 치료는 <b>암 통합치료비</b>(연간 1회한, 6쪽)와 <b>통합치료 생활비</b>(연간 2회 이상 치료 시, 7쪽)로 이어서 설명합니다.</p>
+        <h4>Q. 표적항암 5천만원은 언제?</h4>
+        <p>한 해에 비급여 표적항암약물을 <b>2종</b> 쓰면 5천만원, <b>3종</b>이 되면 다시 5천만원(1년 미만은 각 50%). 약물 종류를 세는 담보이지 횟수를 세는 담보가 아닙니다.</p>
+      </div>
+      <div class="kp b">
+        <h3>「암」의 진단확정 기준 (약관 공통)</h3>
+        <ul>
+          <li>병리 또는 진단검사의학 전문의가 <b>조직검사·미세바늘흡인검사·혈액검사</b>의 현미경 소견으로 진단. 진단확정 시점은 검사 결과보고 시점.</li>
+          <li>검사가 불가능할 때(급속 악화로 사망, 조직 채취가 생명에 위험)는 진단·치료 중임을 증명하는 문서 기록으로 대신.</li>
+          <li>이차성·상세불명 부위 암(C77~C80)은 원발부위(처음 생긴 부위) 기준으로 분류.</li>
+          <li>보험기간 중 사망 후 암으로 사망한 사실이 확인되면 사망일을 진단확정일로 봅니다.</li>
+        </ul>
+      </div>
+      <div class="callout y">「소액암」 표현에 주의 : 이 상품의 암진단비(유사암제외)는 소액암 감액 구간이 <b>없습니다</b>(유사암만 제외). 다른 상품의 「암진단비(유사암및소액암제외)」와 혼동하지 않도록 담보명을 그대로 읽어 줍니다.</div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>5</span></div>
+</div>
+
+<!-- ===================== 6. 암 통합치료비 (1) ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ① 암 — 통합치료비 (치료할 때마다)</div>
+  <div class="cols">
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">암 통합치료비(기본형)</td><td class="a" rowspan="2">1억원</td></tr>
+        <tr><td class="d">암 통합치료보장개시일 이후 ① 대상질병의 진단·치료를 위한 필요 소견으로 <b>검사</b>를 받거나 ② 진단확정 후 <b>주요치료</b>(수술·항암방사선·항암약물) ③ <b>비급여치료</b>(다빈치로봇·표적·면역·양성자) ④ <b>통증완화치료</b> ⑤ <b>재활치료</b>를 받으면 통합치료항목별 지급금액 지급<br>
+          <span class="x">※ 항목별 「연간 1회한」·「수술 1회당」 등 지급횟수 · <span class="h">연간 총 지급액은 가입금액(1억원) 한도</span><br>
+          ※ 개시일 : 15세 이상 계약일부터 90일 지난 날의 다음날 · 15세 미만 계약일 · 감액 없음</span></td></tr>
+        <tr><td class="n">암 통합치료비Ⅱ(비급여(전액본인부담 포함), 암중점치료기관(상급종합병원 포함))</td><td class="a" rowspan="2">7천만원</td></tr>
+        <tr><td class="d">암 통합치료보장개시일 이후 대상질병으로 진단확정되고 <span class="h">암중점치료기관(상급종합병원 포함)에서 비급여 주요치료·특정치료</span>를 받으면 항목별 지급금액 지급<br>
+          <span class="x">※ 계약일부터 1년경과시점 전일 이전은 표의 50% · 기본형과 별도로 나옴(비급여 항목만)</span></td></tr>
+        <tr><td class="n">암(유사암제외) 통합치료 생활비(연간 통합치료 2회이상)</td><td class="a" rowspan="2">1천만원</td></tr>
+        <tr><td class="d">암보장개시일 이후 암(유사암제외)으로 진단확정되고 그 치료를 위한 「암 통합치료」(수술·항암방사선·항암약물)의 <span class="h">연간 횟수가 2회 이상</span>이면 연간 1회 가입금액 지급<br>
+          <span class="x">※ 횟수 산정 : 수술은 1회당, 항암방사선·항암약물은 각각 연간 1회로 셈 · 호르몬 관련 치료제는 제외</span></td></tr>
+        <tr><td class="n">유사암 통합치료 생활비(연간 통합치료 2회이상)</td><td class="a" rowspan="2">2백만원</td></tr>
+        <tr><td class="d">유사암으로 진단확정되고 유사암 통합치료의 연간 횟수가 2회 이상이면 연간 1회 가입금액 지급 (산정 방식은 위와 같음)</td></tr>
+      </table>
+      <div class="kp" style="margin-top:2.5mm">
+        <h3>통합치료 생활비 — 횟수 세는 법</h3>
+        <table class="t">
+          <tr><th>연간 치료 내용</th><th>횟수</th><th>지급</th></tr>
+          <tr><td class="l">수술 1회 + 항암방사선 1회 + 항암약물 1회</td><td>3회</td><td>1,000만원</td></tr>
+          <tr><td class="l">수술 2회 + 항암약물 2회</td><td>3회 (2+0+1)</td><td>1,000만원</td></tr>
+          <tr><td class="l">항암방사선 2회 + 항암약물 3회</td><td>2회 (0+1+1)</td><td>1,000만원</td></tr>
+          <tr><td class="l">수술 1회만</td><td>1회</td><td>없음</td></tr>
+        </table>
+        <p style="font-size:7.6pt;color:#555">약관 【연간 통합치료횟수 예시】를 옮김. 횟수는 계약해당일 기준으로 매년 다시 셉니다. 진단 첫 해에 수술과 항암을 함께 받는 흔한 경우 1천만원이 생활비로 더해집니다.</p>
+      </div>
+    </div>
+    <div>
+      <div class="kp">
+        <h3>암 통합치료비(기본형) 1억원 — 항목별 지급금액</h3>
+        <table class="t r" style="font-size:7.3pt">
+          <tr><th style="width:14mm">구분</th><th>통합치료항목</th><th style="width:16mm">지급횟수</th><th style="width:15mm">지급금액</th></tr>
+          <tr><td rowspan="8">검사</td><td class="l">암 내시경검사(급여)</td><td>연간 1회한</td><td>5만원</td></tr>
+          <tr><td class="l">암 MRI촬영검사(급여)</td><td>연간 1회한</td><td>5만원</td></tr>
+          <tr><td class="l">암 양전자단층촬영(PET)검사(급여)</td><td>연간 1회한</td><td>5만원</td></tr>
+          <tr><td class="l">암 특정단일유전자검사(급여)</td><td>연간 1회한</td><td>5만원</td></tr>
+          <tr><td class="l">암 초음파검사(급여)</td><td>연간 1회한</td><td>10만원</td></tr>
+          <tr><td class="l">암 CT촬영검사(급여)</td><td>연간 1회한</td><td>10만원</td></tr>
+          <tr><td class="l">암 특정생검조직병리검사(급여)</td><td>연간 1회한</td><td>20만원</td></tr>
+          <tr><td class="l">암 특정NGS유전자패널검사(급여)</td><td>연간 1회한</td><td>100만원</td></tr>
+          <tr><td rowspan="7">주요치료</td><td class="l"><b>암(유사암제외) 수술</b></td><td>수술 1회당</td><td><b>1,000만원</b></td></tr>
+          <tr><td class="l">유사암 수술</td><td>수술 1회당</td><td>200만원</td></tr>
+          <tr><td class="l">암(유사암제외) 항암방사선치료</td><td>연간 1회한</td><td>1,000만원</td></tr>
+          <tr><td class="l">기타피부암 및 갑상선암 항암방사선치료</td><td>연간 1회한</td><td>200만원</td></tr>
+          <tr><td class="l">암(유사암제외) 항암약물치료</td><td>연간 1회한</td><td>1,000만원</td></tr>
+          <tr><td class="l">기타피부암 및 갑상선암 항암약물치료</td><td>연간 1회한</td><td>200만원</td></tr>
+          <tr><td class="l">항암세기조절방사선치료</td><td>연간 1회한</td><td>1,000만원</td></tr>
+          <tr><td rowspan="5">비급여<br>(전액본인<br>부담 포함)</td><td class="l">암(특정암제외) 다빈치로봇수술</td><td>연간 1회한</td><td>1,000만원</td></tr>
+          <tr><td class="l">특정암 다빈치로봇수술</td><td>연간 1회한</td><td>200만원</td></tr>
+          <tr><td class="l"><b>표적항암약물허가치료</b></td><td>연간 1회한</td><td><b>3,000만원</b></td></tr>
+          <tr><td class="l"><b>특정면역항암약물허가치료</b></td><td>연간 1회한</td><td><b>3,000만원</b></td></tr>
+          <tr><td class="l">항암양성자방사선치료</td><td>연간 1회한</td><td>3,000만원</td></tr>
+          <tr><td>통증완화</td><td class="l">암(유사암제외) 특정통증완화치료(급여)</td><td>연간 1회한</td><td>50만원</td></tr>
+          <tr><td>재활치료</td><td class="l">입원·외래 암 재활치료(급여)</td><td>연간 20회한<br>(1일 1회)</td><td>2만원</td></tr>
+        </table>
+        <p style="font-size:7.5pt;color:#555;margin-top:1mm">약관 지급금액표 <b>&lt;보험가입금액 1억원&gt;</b> 구간. 연간 총 지급액은 1억원 한도. 검사 항목은 「진단·치료를 위한 필요 소견」만 있으면 진단확정 전이라도 지급됩니다.</p>
+      </div>
+      <div class="callout">「특정암」 다빈치로봇수술(200만원)과 「암(특정암제외)」(1,000만원)의 구분, 「기타피부암 및 갑상선암」 항목이 따로 있는 점을 짚어 줍니다. 유사암 가운데 <b>제자리암·경계성종양</b>은 항암방사선·약물 항목의 대상이 아닙니다.</div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>6</span></div>
+</div>
+
+<!-- ===================== 7. 암 통합치료비 (2) ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ① 암 — 비급여 통합치료비Ⅱ · 암전후관련 특정질환 및 양성신생물</div>
+  <div class="cols">
+    <div>
+      <div class="kp">
+        <h3>암 통합치료비Ⅱ 7천만원 — 비급여 · 암중점치료기관</h3>
+        <table class="t r cmp">
+          <tr><th style="width:13mm">구분</th><th>통합치료항목 (모두 비급여·전액본인부담 포함)</th><th style="width:13mm">지급횟수</th><th style="width:13mm">1년 미만</th><th style="width:13mm">1년 이후</th></tr>
+          <tr><td rowspan="6">주요치료</td><td class="l">암(유사암제외) 수술</td><td>수술 1회당</td><td>375</td><td><b>750</b></td></tr>
+          <tr><td class="l">유사암 수술</td><td>수술 1회당</td><td>75</td><td>150</td></tr>
+          <tr><td class="l">암(유사암제외) 항암방사선치료</td><td>연간 1회한</td><td>375</td><td>750</td></tr>
+          <tr><td class="l">기타피부암 및 갑상선암 항암방사선치료</td><td>연간 1회한</td><td>75</td><td>150</td></tr>
+          <tr><td class="l">암(유사암제외) 항암약물치료</td><td>연간 1회한</td><td>375</td><td>750</td></tr>
+          <tr><td class="l">기타피부암 및 갑상선암 항암약물치료</td><td>연간 1회한</td><td>75</td><td>150</td></tr>
+          <tr><td rowspan="5">특정치료</td><td class="l">암(특정암제외) 다빈치로봇수술</td><td>연간 1회한</td><td>375</td><td>750</td></tr>
+          <tr><td class="l">특정암 다빈치로봇수술</td><td>연간 1회한</td><td>75</td><td>150</td></tr>
+          <tr><td class="l"><b>표적항암약물허가치료</b></td><td>연간 1회한</td><td>1,000</td><td><b>2,000</b></td></tr>
+          <tr><td class="l"><b>특정면역항암약물허가치료</b></td><td>연간 1회한</td><td>1,000</td><td><b>2,000</b></td></tr>
+          <tr><td class="l">항암양성자방사선치료</td><td>연간 1회한</td><td>1,000</td><td>2,000</td></tr>
+        </table>
+        <p style="font-size:7.5pt;color:#555">단위 만원. 약관 <b>&lt;보험가입금액 7,000만원&gt;</b> 구간. 기본형(급여 포함)과 Ⅱ(비급여)는 <b>따로 나오므로</b> 상급종합병원에서 비급여 표적항암을 받으면 기본형 3,000 + Ⅱ 2,000 + 진단·치료비Ⅱ 표적항암(2종 이상) 5,000이 각각 조건대로 검토됩니다.</p>
+      </div>
+      <div class="kp b">
+        <h3>왜 「비급여 · 암중점치료기관」인가</h3>
+        <ul>
+          <li><b>비급여</b> : 건강보험이 적용되지 않아 환자가 전부 내는 치료. 병원마다 가격이 다르고 최신 치료 상당수가 여기 속합니다.</li>
+          <li><b>전액본인부담</b> : 건강보험 항목이지만 환자가 100% 내는 경우. 급여도 비급여도 아닌 중간 지대라 담보명에 따로 씁니다.</li>
+          <li><b>암중점치료기관(상급종합병원 포함)</b> : 암 진료를 집중적으로 하는 병원. 이 담보는 그 병원에서 받은 비급여 치료에 조건이 붙습니다.</li>
+        </ul>
+        <p class="src">용어 풀이 : MeAI 보험용어 사전</p>
+      </div>
+      <div class="kp g">
+        <h3>「암전후관련 특정질환 및 양성신생물」이란</h3>
+        <p>암이 되기 전 단계의 병, 암 치료 뒤에 따라오는 병, 그리고 <b>양성종양</b>을 한데 묶은 담보입니다. 약관 별표 대상질병 124개 가운데 상담에 자주 나오는 것 :</p>
+        <p><span class="chip">대장 용종 D12</span><span class="chip">위 양성신생물 D13.1</span><span class="chip">자궁근종 D25</span><span class="chip">유방 양성신생물 D24</span><span class="chip">갑상선 양성신생물 D34</span><span class="chip">난소 양성신생물 D27</span><span class="chip">뇌·수막 양성신생물 D32·D33</span><span class="chip">자궁경부이형성증 N87.1·N87.2</span><span class="chip">크론병 K50</span><span class="chip">궤양성 대장염 K51</span><span class="chip">담석증·담낭염 K80·K81</span><span class="chip">만성 B·C형간염 B18</span><span class="chip">간경변 K74</span><span class="chip">만성폐쇄성폐질환 J44</span><span class="chip">방사선 피부염·직장염 L58·K62.7</span></p>
+        <p style="font-size:7.5pt;color:#555">예 : 대장내시경에서 용종을 떼면(1종 수술) 특정내시경 30 + 1종 수술 5 = 35만원, 자궁근종 복강경 수술(2종)이면 MRI 5 + 2종 30 + 전신마취(6시간 이상이면) 500 이 각각 검토됩니다. 수술의 종은 약관 별표 1-5종 수술분류표Ⅱ 기준.</p>
+      </div>
+    </div>
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">암전후관련 특정질환 및 양성신생물 통합치료비</td><td class="a" rowspan="2">4천만원</td></tr>
+        <tr><td class="d">보험기간 중 「암전후관련 특정질환 및 양성신생물」의 ① 진단·치료를 위한 <b>검사</b> ② 진단확정 후 <b>주요치료</b> ③ <b>수술(1-5종)</b> ④ <b>재활치료</b>를 받으면 항목별 지급금액 지급<br>
+          <span class="x">※ 면책기간 없음 · <span class="h">계약일부터 1년경과시점 전일 이전은 50%</span> · 연간 총 지급액 한도 : 1년 미만 가입금액의 50%, 이후 100%<br>
+          ※ 같은 검사(MRI·CT·PET·생검·내시경·천자)는 연간 1회만</span></td></tr>
+      </table>
+      <div class="kp" style="margin-top:2.5mm">
+        <h3>암전후관련 통합치료비 4천만원 — 항목별 지급금액</h3>
+        <table class="t o cmp">
+          <tr><th style="width:13mm">구분</th><th>통합치료항목</th><th style="width:14mm">지급횟수</th><th style="width:12mm">1년 미만</th><th style="width:12mm">1년 이후</th></tr>
+          <tr><td rowspan="7">검사</td><td class="l">MRI촬영(급여)</td><td>연간 1회한</td><td>2.5</td><td>5</td></tr>
+          <tr><td class="l">CT촬영(급여)</td><td>연간 1회한</td><td>5</td><td>10</td></tr>
+          <tr><td class="l">양전자단층촬영(PET)(급여)</td><td>연간 1회한</td><td>2.5</td><td>5</td></tr>
+          <tr><td class="l">특정생검 · 특정내시경 · 특정천자(급여)</td><td>각 연간 1회한</td><td>15</td><td>30</td></tr>
+          <tr><td class="l">골수검사(급여)</td><td>연간 1회한</td><td>25</td><td>50</td></tr>
+          <tr><td rowspan="6">주요치료</td><td class="l">종합병원 중환자실치료</td><td>연간 1회한</td><td>50</td><td>100</td></tr>
+          <tr><td class="l">종합병원 전신마취치료(6시간이상)(급여)</td><td>연간 1회한</td><td>250</td><td>500</td></tr>
+          <tr><td class="l">지속적신대체요법(CRRT)(급여)</td><td>연간 1회한</td><td>250</td><td>500</td></tr>
+          <tr><td class="l">인공호흡기치료(12시간초과)(급여)</td><td>연간 1회한</td><td>100</td><td>200</td></tr>
+          <tr><td class="l">저체온요법치료(급여)</td><td>연간 1회한</td><td>50</td><td>100</td></tr>
+          <tr><td class="l">부분체외순환치료(급여)</td><td>연간 1회한</td><td>1,000</td><td>2,000</td></tr>
+          <tr><td rowspan="5">수술<br>(1-5종)</td><td class="l">1종 수술</td><td>수술 1회당</td><td>2.5</td><td>5</td></tr>
+          <tr><td class="l">2종 수술</td><td>수술 1회당</td><td>15</td><td>30</td></tr>
+          <tr><td class="l">3종 수술</td><td>수술 1회당</td><td>75</td><td>150</td></tr>
+          <tr><td class="l">4종 수술</td><td>수술 1회당</td><td>250</td><td>500</td></tr>
+          <tr><td class="l">5종 수술</td><td>수술 1회당</td><td>500</td><td>1,000</td></tr>
+          <tr><td>재활</td><td class="l">입원·외래 재활치료(급여)</td><td>연간 15회한</td><td>1</td><td>2</td></tr>
+        </table>
+        <p style="font-size:7.5pt;color:#555">단위 만원. 약관 &lt;보험가입금액 4,000만원&gt; 구간(특정생검·내시경·천자는 같은 금액이라 한 줄).</p>
+      </div>
+          </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>7</span></div>
+</div>
+
+<!-- ===================== 8. 뇌·심장 (1) ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ② 뇌·심장 — 특정순환계질환 통합치료비</div>
+  <div class="cols">
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">특정순환계질환 통합치료비</td><td class="a" rowspan="2">1억원</td></tr>
+        <tr><td class="d">보험기간 중 「특정순환계질환」의 ① 진단·치료를 위한 필요 소견으로 <b>검사</b>(MRI·PET·CT) ② 진단확정 후 <b>주요치료</b>(혈전용해·CRRT·인공호흡기·저체온요법·부분체외순환·종합병원 중환자실·수술) ③ <b>재활치료</b>를 받으면 항목별 지급금액 지급<br>
+          <span class="x">※ 면책기간 없음 · <span class="h">계약일부터 1년경과시점 전일 이전은 50%</span> · 연간 총 지급액은 가입금액 한도(1년 미만 50%)<br>
+          ※ 「특정순환계질환」 = 약관 별표의 심장질환·뇌혈관질환·대동맥류 등 52개 분류(오른쪽 표)</span></td></tr>
+        <tr><td class="n">특정순환계질환(주요손상및질환) 통합치료비</td><td class="a" rowspan="2">3천만원</td></tr>
+        <tr><td class="d">보험기간 중 「특정순환계질환(주요손상및질환)」의 <b>검사 · 주요치료 · 수술(1-5종) · 재활치료</b>를 받으면 항목별 지급금액 지급<br>
+          <span class="x">※ 대상 : 고혈압(I10~I15)·판막장애·전도장애·죽상경화증(I70)·정맥염·하지정맥류(I83) 등 순환계 질환 37개 + <b>주요손상 3개(두개내손상 S06 · 흉부 혈관 손상 S25 · 심장의 손상 S26)</b><br>
+          ※ 질환은 1년 미만 50% · <span class="h">주요손상(사고)은 감액 없이 처음부터 100%</span></span></td></tr>
+      </table>
+      <div class="kp" style="margin-top:2.5mm">
+        <h3>특정순환계질환 통합치료비 1억원 — 항목별 지급금액</h3>
+        <table class="t" style="font-size:7.4pt">
+          <tr><th style="width:13mm">구분</th><th>통합치료항목</th><th style="width:15mm">지급횟수</th><th style="width:13mm">1년 미만</th><th style="width:13mm">1년 이후</th></tr>
+          <tr><td rowspan="3">검사</td><td class="l">MRI촬영(급여)</td><td>연간 1회한</td><td>2.5</td><td>5</td></tr>
+          <tr><td class="l">양전자단층촬영(PET)(급여)</td><td>연간 1회한</td><td>2.5</td><td>5</td></tr>
+          <tr><td class="l">CT촬영(급여)</td><td>연간 1회한</td><td>5</td><td>10</td></tr>
+          <tr><td rowspan="7">주요치료</td><td class="l"><b>혈전용해치료</b></td><td>연간 1회한</td><td>1,250</td><td><b>2,500</b></td></tr>
+          <tr><td class="l">지속적신대체요법(CRRT)(급여)</td><td>연간 1회한</td><td>250</td><td>500</td></tr>
+          <tr><td class="l">인공호흡기치료(12시간초과)(급여)</td><td>연간 1회한</td><td>100</td><td>200</td></tr>
+          <tr><td class="l">저체온요법치료(급여)</td><td>연간 1회한</td><td>50</td><td>100</td></tr>
+          <tr><td class="l">부분체외순환치료(급여)</td><td>연간 1회한</td><td>1,000</td><td>2,000</td></tr>
+          <tr><td class="l"><b>종합병원 중환자실치료</b></td><td>연간 1회한</td><td>1,000</td><td><b>2,000</b></td></tr>
+          <tr><td class="l"><b>수술</b></td><td>수술 1회당</td><td>1,000</td><td><b>2,000</b></td></tr>
+          <tr><td>재활</td><td class="l">입원·외래 특정순환계질환 재활치료(급여)</td><td>연간 15회한</td><td>1</td><td>2</td></tr>
+        </table>
+        <p style="font-size:7.5pt;color:#555">단위 만원. 약관 &lt;보험가입금액 1억원&gt; 구간(스마트 제안서 계산 엔진의 약관 추출표와 대조). 연간 총 지급액 1억원 한도.</p>
+      </div>
+    </div>
+    <div>
+      <div class="kp b">
+        <h3>「특정순환계질환」 52개 분류 (약관 별표)</h3>
+        <table class="t" style="font-size:7.2pt">
+          <tr><th style="width:24mm">갈래</th><th>분류번호 · 대상질병</th></tr>
+          <tr><td>류마티스 심장</td><td class="l">I00~I02 류마티스열 · I05~I09 류마티스성 판막질환</td></tr>
+          <tr><td><b>허혈성 심장</b></td><td class="l"><b>I20 협심증 · I21 급성 심근경색증</b> · I22 후속심근경색 · I23 합병증 · I24 기타 급성 허혈심장질환 · I25 만성 허혈심장병</td></tr>
+          <tr><td>폐성 심장</td><td class="l">I26 폐색전증 · I27 · I28</td></tr>
+          <tr><td>심장막·심내막·심근</td><td class="l">I30~I33 · I38 · I40~I43 심근염·심근병증</td></tr>
+          <tr><td><b>부정맥·심부전</b></td><td class="l">I44.1~I44.3 방실차단 · I46.0 소생한 심장정지 · I47 발작성 빈맥 · <b>I48 심방세동</b> · I49 · <b>I50 심부전</b></td></tr>
+          <tr><td><b>뇌혈관질환</b></td><td class="l"><b>I60 거미막하출혈 · I61 뇌내출혈 · I62 · I63 뇌경색증 · I64</b> · I65~I66 뇌전동맥·대뇌동맥 폐쇄 · <b>I67 기타 뇌혈관질환(뇌동맥류 등)</b> · I68 · I69 후유증</td></tr>
+          <tr><td>동맥·정맥</td><td class="l">I71 대동맥동맥류 및 박리 · I72 · I74 동맥색전증 · I77 · I81 문맥혈전증 · I85 식도정맥류 · I98.2·I98.3</td></tr>
+        </table>
+        <p style="font-size:7.5pt;color:#555">뇌졸중진단비(I60~I64)나 허혈성심장질환진단비(I20~I25)보다 범위가 넓어, 부정맥·심부전·뇌동맥류처럼 진단비가 없는 병도 <b>치료를 받으면</b> 나오는 것이 이 담보의 장점입니다.</p>
+      </div>
+      <div class="kp">
+        <h3>사망원인 2위 심장질환 · 4위 뇌혈관질환</h3>
+        <p>2024년 사망원인통계에서 사망원인 <b>2위는 심장질환, 4위는 뇌혈관질환</b>입니다. 두 병은 「걸렸다」보다 「어떤 치료를 받았다」로 비용이 갈리기 때문에, 진단비 한 번보다 <b>치료 단계마다 나오는 통합치료비</b>가 상담에서 설득력이 있습니다.</p>
+        <p class="src">출처 : 2024년 사망원인통계(국가데이터처, 2025.9.25 발표)</p>
+      </div>
+      <div class="kp g">
+        <h3>주요손상및질환 3천만원 — 항목별 지급금액</h3>
+        <table class="t gg" style="font-size:7.2pt">
+          <tr><th>항목</th><th>횟수</th><th>1년 미만</th><th>1년 이후</th></tr>
+          <tr><td class="l">MRI 2.5/5 · PET 2.5/5 · CT 5/10</td><td>연간 1회한</td><td colspan="2">검사</td></tr>
+          <tr><td class="l">CRRT / 인공호흡기 / 저체온요법 / 부분체외순환</td><td>연간 1회한</td><td>250/100/50/1,000</td><td>500/200/100/2,000</td></tr>
+          <tr><td class="l">종합병원 중환자실치료</td><td>연간 1회한</td><td>150</td><td>300</td></tr>
+          <tr><td class="l">수술 1종 / 2종 / 3종 / 4종 / 5종</td><td>수술 1회당</td><td>10/15/75/250/500</td><td>20/30/150/500/1,000</td></tr>
+          <tr><td class="l">입원·외래 재활치료(급여)</td><td>연간 15회한</td><td>1</td><td>2</td></tr>
+        </table>
+        <p style="font-size:7.4pt;color:#555">단위 만원 · 약관 &lt;3,000만원&gt; 구간. 두개내손상(S06) 같은 <b>주요손상</b>은 1년 미만이라도 「1년 이후」 금액으로 지급됩니다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>8</span></div>
+</div>
+
+<!-- ===================== 9. 뇌·심장 (2) ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ② 뇌·심장 — 131대질병수술비(심장·뇌혈관) · 치료 흐름 사례</div>
+  <div class="cols">
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">131대질병수술비(심장질환)</td><td class="a" rowspan="2">1천만원</td></tr>
+        <tr><td class="d">보험기간 중 「심장질환」으로 진단확정되고 그 치료를 직접 목적으로 약관 제5조의 수술을 받으면 <span class="h">수술 1회당</span> 가입금액 지급<br>
+          <span class="x">※ 심장질환 = 【별표-질병65】 I00~I02 · I05~I09 · I20~I25 · I26~I28 · I30~I52 · A39.5 · B37.6<br>
+          ※ 같은 질병으로 같은 날 받은 수술은 1회 · 면책·감액 없음</span></td></tr>
+        <tr><td class="n">131대질병수술비(뇌혈관질환)</td><td class="a" rowspan="2">1천만원</td></tr>
+        <tr><td class="d">보험기간 중 「뇌혈관질환」으로 진단확정되고 그 치료를 직접 목적으로 수술을 받으면 수술 1회당 가입금액 지급<br>
+          <span class="x">※ 뇌혈관질환 = 【별표-질병20】 I60 ~ I69<br>
+          ※ 두 가지 이상 질병으로 같은 날 수술 시 1회. 다만 신체부위가 다르고 치료목적이 다른 독립 수술은 각각 지급</span></td></tr>
+      </table>
+      <div class="callout" style="margin-top:2.5mm"><b>131대질병수술비는 「종수술비」와 중복으로 받습니다.</b> 심장 스텐트 시술이면 131대(심장질환) 1,000 + 수술비Ⅱ(1-5종) 해당 종 + 특정순환계질환 통합치료비 「수술 1회당」 2,000이 각각 조건대로 검토됩니다.</div>
+      <div class="kp g">
+        <h3>사례 ① 급성 심근경색 (I21)</h3>
+        <div class="flow">
+          <div><b>진단</b>응급 CT · 심전도</div><div><b>시술</b>관상동맥 스텐트(PCI)</div><div><b>입원</b>중환자실 2일 + 일반 7일</div><div><b>재활</b>외래 심장재활 10회</div>
+        </div>
+        <table class="t gg" style="font-size:7.4pt">
+          <tr><th>단계</th><th>담보</th><th>금액(만원)</th></tr>
+          <tr><td>검사</td><td class="l">특정순환계 통합치료비 CT 10</td><td>10</td></tr>
+          <tr><td>시술</td><td class="l">특정순환계 통합치료비 수술 1회당 2,000 + 131대(심장질환) 1,000 + 수술비Ⅱ(1-5종) 질병 3종(뇌·심장 88-1) 100</td><td>3,100</td></tr>
+          <tr><td>중환자실</td><td class="l">종합병원 중환자실치료 2,000</td><td>2,000</td></tr>
+          <tr><td>입원</td><td class="l">2-3인실 상급종합병원 질병입원일당 5×9일 (2-3인실 사용 시)</td><td>45</td></tr>
+          <tr><td>재활</td><td class="l">외래 재활치료 2×10회</td><td>20</td></tr>
+          <tr><td colspan="2" class="l"><b>합계(가정 사례)</b></td><td><b>5,175</b></td></tr>
+        </table>
+        <p class="src">치료 흐름 : 대한심장학회 「급성 심근경색증 중재시술 치료 전문가 합의문」(2021) — 일차적 관상동맥중재술·약물방출 스텐트 우선. 심장재활 급여기준(2017.2 급여화, 외래 최대 36회). 입원일수는 <b>가정값</b>. 수술 종은 【별표】1-5종 수술분류표Ⅱ 88-1(뇌·심장 관혈수술 3종) 기준이며 실제 시술 코드에 따라 달라질 수 있습니다.</p>
+      </div>
+    </div>
+    <div>
+      <div class="kp g">
+        <h3>사례 ② 뇌경색 (I63)</h3>
+        <div class="flow">
+          <div><b>검사</b>뇌 CT + MRI</div><div><b>시술</b>혈전용해제(tPA)</div><div><b>수술</b>기계적 혈전제거술</div><div><b>입원·재활</b>중환자실 3일 + 일반 14일</div>
+        </div>
+        <table class="t gg" style="font-size:7.4pt">
+          <tr><th>단계</th><th>담보</th><th>금액(만원)</th></tr>
+          <tr><td>검사</td><td class="l">특정순환계 통합치료비 CT 10 + MRI 5</td><td>15</td></tr>
+          <tr><td>혈전용해</td><td class="l">특정순환계 통합치료비 혈전용해치료 2,500</td><td>2,500</td></tr>
+          <tr><td>혈전제거</td><td class="l">통합치료비 수술 1회당 2,000 + 131대(뇌혈관질환) 1,000 + 수술비Ⅱ 질병 3종 100</td><td>3,100</td></tr>
+          <tr><td>중환자실</td><td class="l">종합병원 중환자실치료 2,000</td><td>2,000</td></tr>
+          <tr><td>입원</td><td class="l">2-3인실 상급종합병원 질병입원일당 5×17일</td><td>85</td></tr>
+          <tr><td>재활</td><td class="l">입원 재활치료 2×10일</td><td>20</td></tr>
+          <tr><td colspan="2" class="l"><b>합계(가정 사례)</b></td><td><b>7,720</b></td></tr>
+        </table>
+        <p class="src">치료 흐름 : 대한뇌졸중학회 「급성 허혈성 뇌졸중 진료지침」 — 정맥내 혈전용해 4.5시간, 혈관내 재개통치료 지침. 입원·재활 일수는 <b>가정값</b>. 연간 총 지급액은 가입금액(1억원) 한도 안에서 지급됩니다.</p>
+      </div>
+      <div class="kp">
+        <h3>진단비가 없는 병도 나온다 — 심방세동 · 뇌동맥류</h3>
+        <ul>
+          <li><b>심방세동(I48)</b> : 허혈성심장질환진단비(I20~I25) 대상이 아닙니다. 이 설계에서는 전극도자절제술을 받으면 특정순환계 통합치료비 「수술」 2,000 + 131대(심장질환) 1,000 + 수술비Ⅱ 해당 종이 검토됩니다.</li>
+          <li><b>미파열 뇌동맥류(I67.1)</b> : 뇌졸중진단비(I60~I64) 대상이 아니지만 I67은 특정순환계질환·뇌혈관질환에 들어 있어 코일 색전술 시 「수술」 항목과 131대(뇌혈관질환)이 검토됩니다.</li>
+        </ul>
+        <p class="src">치료 근거 : 대한부정맥학회 「심방세동 진료지침」 · 대한신경중재치료의학회·대한뇌혈관외과학회 미파열 뇌동맥류 치료 권고</p>
+      </div>
+      <div class="callout y">진단비를 더하고 싶은 고객에게는 뇌혈관질환진단비·허혈성심장질환진단비(약관에 있는 특약)를 설계에 추가하는 방법을 안내합니다. 이 가이드는 예시 설계에 든 담보만 다룹니다.</div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>9</span></div>
+</div>
+
+<!-- ===================== 10. 수술비 (1) ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ③ 수술비 — 질병·상해수술비 · 1-5종 수술비</div>
+  <div class="cols">
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">질병수술비</td><td class="a" rowspan="2">20만원</td></tr>
+        <tr><td class="d">보험기간 중 진단확정된 질병의 치료를 직접 목적으로 수술을 받으면 가입금액 지급<br>
+          <span class="x">※ 같은 질병으로 두 종류 이상·2회 이상 수술은 하나만. 다만 <span class="h">수술 후 365일이 지나</span> 같은 질병으로 새 수술을 받으면 다른 질병으로 보고 다시 지급<br>
+          ※ 보상하지 않는 질병 : 정신·행동장애(F04~F99) · 임신·출산(O00~O99) · 선천기형(Q00~Q99) · 비만(E66) · 요실금 · 직장·항문질환(K60~K62, K64) · 치과질환(K00~K08) 등</span></td></tr>
+        <tr><td class="n">질병수술비(특정5대질병 제외)</td><td class="a" rowspan="2">20만원</td></tr>
+        <tr><td class="d">위와 같되 <span class="h">특정5대질병</span>의 수술은 보상하지 않음<br>
+          <span class="x">※ 특정5대질병 : ① 대장의 용종·양성신생물 내시경적 절제술 ② 백내장(H25~H27) ③ 후각특정질환(비염·비인두염·인두염 J30·J31, 비용종 J33, 코·부비동 기타장애 J34) ④ 특정피부질환(L72 모낭낭·L84 티눈) ⑤ 혈관종 및 림프관종(D18)</span></td></tr>
+        <tr><td class="n">상급종합병원 질병수술비</td><td class="a" rowspan="2">1백만원</td></tr>
+        <tr><td class="d">진단확정된 질병의 치료를 직접 목적으로 <span class="h">상급종합병원</span>에서 수술을 받으면 가입금액 지급 (같은 질병 365일 규정 동일)</td></tr>
+        <tr><td class="n">상해수술비 / 상급종합병원 상해수술비</td><td class="a" rowspan="2">각 1백만원</td></tr>
+        <tr><td class="d">상해의 직접 결과로 수술을 받으면 가입금액 지급 · 상급종합병원에서 받으면 추가로 지급<br>
+          <span class="x">※ 같은 상해로 두 종류 이상·2회 이상 수술은 하나만</span></td></tr>
+        <tr><td class="n">수술비Ⅱ(1-5종) [질병 1~5종 · 상해 1~5종]</td><td class="a" rowspan="2" style="font-size:7.4pt;line-height:1.35">질병 1~5종<br>20 · 30 · 100<br>1,000 · 1,000<br><span style="display:block;border-top:1px dotted #bbb;margin:1mm 0"></span>상해 1~5종<br>20 · 30 · 100<br>500 · 1,000</td></tr>
+        <tr><td class="d">【별표-상해질병2(1-5종 수술분류표Ⅱ)】에서 정한 수술을 받으면 <span class="h">수술 1회당</span> 해당 종의 가입금액 지급<br>
+          <span class="x">※ 동시에 두 가지 이상 수술은 가장 높은 종 하나만. 다만 신체부위가 다르고 치료목적이 다른 독립 수술은 각각<br>
+          ※ 흡인·천자·신경차단·미용성형·피임·검사목적(생검·복강경검사) 수술은 제외</span></td></tr>
+        <tr><td class="n">질병 / 상해 1-5종수술비(plus)(연간2회이상)</td><td class="a" rowspan="2" style="font-size:7.4pt;line-height:1.35">1~5종<br>10 · 30 · 50<br>200 · 300</td></tr>
+        <tr><td class="d">1-5종 수술을 받고 <span class="h">연간 수술횟수가 2회 이상</span>이면 가장 높은 종을 기준으로 연간 1회 지급<br>
+          <span class="x">※ 같은 해에 더 높은 종 수술을 받으면 차액 지급 · 횟수는 계약해당일마다 다시 셈</span></td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="kp">
+        <h3>약관이 말하는 「수술」</h3>
+        <p>의사가 치료가 필요하다고 인정하고, 의사의 관리 아래 <b>기구를 사용해 생체에 절단·절제 등의 조작</b>을 가하는 것. 신의료기술평가위원회가 인정한 최신 수술기법도 포함됩니다.</p>
+        <table class="t">
+          <tr><th>수술로 보지 않는 것 (약관 제외 항목)</th></tr>
+          <tr><td class="l">흡인(주사기로 빨아들임) · 천자(바늘로 체액·조직을 뽑거나 약물 주입) · 신경차단 · 미용성형 · 피임·가임 목적 수술 · 검사·진단 목적(생검, 복강경검사) · 그 밖에 수술 정의에 맞지 않는 시술</td></tr>
+        </table>
+        <p style="font-size:7.6pt;color:#555">단, 1-5종 수술비는 <b>별표 분류표에 있는 행위</b>만 수술로 보므로, 같은 「수술」이라도 담보마다 판정이 다를 수 있습니다.</p>
+      </div>
+      <div class="kp">
+        <h3>1-5종 수술분류표Ⅱ — 어떤 수술이 몇 종인가</h3>
+        <table class="t r" style="font-size:7.3pt">
+          <tr><th style="width:10mm">종</th><th>대표 수술 (약관 별표 항목 번호)</th><th style="width:17mm">질병 / 상해</th></tr>
+          <tr><td><b>1종</b></td><td class="l">백내장·수정체 관혈수술(71) · 편도·아데노이드 절제(17) · 치핵·치루 근본수술(44) · 탈장 근본수술(39) · 손발가락 골·관절 관혈수술(13-1) · 하지정맥류 근본수술(23) · 제왕절개(54) · 중이 튜브유치술(82)</td><td>20 / 20</td></tr>
+          <tr><td><b>2종</b></td><td class="l">충수절제술(41) · 자궁·난소·난관 관혈수술(52) · 사지골·관절 관혈수술(13-2) · 망막박리 수술(72) · 체외충격파쇄석술(87) · 골 이식(5) · 신경 관혈수술(60)</td><td>30 / 30</td></tr>
+          <tr><td><b>3종</b></td><td class="l">척추골·골반골·추간판 관혈수술(9) · 갑상선 관혈수술(57) · 유방절단수술(3) · 담낭·담도 관혈수술(36) · 뇌·심장 수술(88-1) · 내시경·카테터에 의한 악성신생물 수술(C2) · 녹내장 관혈수술(70)</td><td>100 / 100</td></tr>
+          <tr><td><b>4종</b></td><td class="l">위 절제수술(33) · 소장·결장·직장 관혈수술(43) · 폐·기관지·흉막 관혈수술(18) · 간장·췌장 관혈수술(35) · 신장·방광 관혈수술(45)</td><td>1,000 / 500</td></tr>
+          <tr><td><b>5종</b></td><td class="l">개두술을 수반하는 두개내 관혈수술(59) · 심장내 관혈수술(26) · 대동맥·관동맥 수술(24) · 관혈적 악성신생물 근치수술(C1) · 장기 이식(19·27·37·38·48)</td><td>1,000 / 1,000</td></tr>
+        </table>
+        <p style="font-size:7.4pt;color:#555">출처 : 약관 【별표76】1-5종 수술분류표Ⅱ(스마트 제안서 surg5 추출본). 항목마다 「개복술을 수반하는 것」 같은 조건이 붙어 있으니 실제 수술기록으로 판정합니다.</p>
+      </div>
+      <div class="callout"><b>plus(연간2회이상)는 「두 번째 수술부터 켜지는 보너스」</b>로 설명합니다. 한 해에 수술이 두 번 이상이면 그 해 가장 높은 종의 plus 금액(1~5종 10·30·50·200·300)이 한 번 더 나옵니다.</div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>10</span></div>
+</div>
+
+<!-- ===================== 11. 수술비 (2) 131대 ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ③ 수술비 — 131대질병수술비 (11개 세부보장)</div>
+  <div class="cols">
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">131대질병수술비 (특정31대질병)</td><td class="a" rowspan="2">1천만원</td></tr>
+        <tr><td class="d">보험기간 중 「131대질병」으로 진단확정되고 그 치료를 직접 목적으로 수술을 받으면 <span class="h">수술 1회당</span> 해당 세부보장 가입금액 지급<br>
+          <span class="x">※ 특정31대질병 : 간질환(B15~B19·K70~K77) · 고혈압질환 · 당뇨병질환(E10~E14 등) · 만성 하부호흡기질환(천식 J45 등) · 위·십이지장궤양(K25~K27) · 결핵 · 패혈증 · 파킨슨병 · 다발경화증 · 뇌전증 · 녹내장 · 동맥경화증 · 대동맥류 · 폐렴 · 급성 췌장염 · 신부전 등 31개 갈래</span></td></tr>
+        <tr><td class="n">131대질병수술비 (다빈도62대질병)</td><td class="a" rowspan="2">2백만원</td></tr>
+        <tr><td class="d"><span class="x">※ 12대 양성종양(소화계통·여성생식기·갑상선 등) · 갑상선질환 · 축농증 · 편도염 · 중이질환 · 황반변성 · 방광결석 · 담석증 · 사타구니 탈장 · 식도질환 · 척추변형 · <b>추간판장애(디스크)</b> · 골다공증 · 안면신경장애 등 62개</span></td></tr>
+        <tr><td class="n">131대질병수술비 (특정다빈도29대질병)</td><td class="a" rowspan="2">20만원</td></tr>
+        <tr><td class="d"><span class="x">※ 유방의 양성신생물 · 다낭성 난소증후군 · 수면무호흡 · 정맥염 · 급성 기관지염 · 치열 및 치루 · 골수염 · 골괴사증 · 다한증 등 29개</span></td></tr>
+        <tr><td class="n">131대질병수술비 (후각특정질환 · 유방의장애 · 편도염)</td><td class="a" rowspan="2">각 1백만원</td></tr>
+        <tr><td class="d"><span class="x">※ 후각특정질환 : 비염·비인두염·인두염 · 비용종 · 코 및 부비동의 기타장애 / 유방의 장애 / 편도염</span></td></tr>
+        <tr><td class="n">131대질병수술비 (백내장 · 관절염,생식기질환 · 치핵)</td><td class="a" rowspan="2">각 30만원</td></tr>
+        <tr><td class="d"><span class="x">※ 백내장(H25~H27) / 관절염 · 생식기질환 / 치핵 및 항문주위 정맥 혈전증(K64)<br>
+          ※ 녹내장·당뇨병성 망막병증 등 눈질환 레이저 수술은 수술개시일부터 60일 이내 2회 이상을 1회로 봄</span></td></tr>
+        <tr><td class="n">131대질병수술비 (심장질환 · 뇌혈관질환)</td><td class="a" rowspan="2">각 1천만원</td></tr>
+        <tr><td class="d">9쪽 참조</td></tr>
+      </table>
+      <div class="note">지급 규칙 : 같은 질병으로 같은 날 받은 수술은 1회. 두 질병이 겹치면(예 : 거미막하출혈 I60 + 대동맥류 I71) 실제 치료 목적인 질병의 세부보장으로 지급(약관 지급예시). 면책·감액 없음.</div>
+    </div>
+    <div>
+      <div class="kp">
+        <h3>다빈도 수술 3건 — 수술비가 어떻게 쌓이나</h3>
+        <table class="t o" style="font-size:7.4pt">
+          <tr><th>병 · 수술</th><th>수술비Ⅱ<br>(1-5종)</th><th>질병<br>수술비</th><th>특정5대<br>제외</th><th>131대</th><th>합계</th></tr>
+          <tr><td class="l"><b>백내장</b> (H25) · 수정체 관혈수술 → 1종</td><td>20</td><td>20</td><td>0<br><small>(백내장 제외)</small></td><td>30<br><small>백내장</small></td><td><b>70</b></td></tr>
+          <tr><td class="l"><b>급성 충수염</b> (K35) · 충수절제술 → 2종</td><td>30</td><td>20</td><td>20</td><td>0<br><small>(목록 밖)</small></td><td><b>70</b></td></tr>
+          <tr><td class="l"><b>허리 디스크</b> (M51) · 추간판 관혈수술 → 3종</td><td>100</td><td>20</td><td>20</td><td>200<br><small>다빈도62대</small></td><td><b>340</b></td></tr>
+        </table>
+        <p style="font-size:7.5pt;color:#555">단위 만원. 상급종합병원에서 받으면 <b>+100</b>(상급종합병원 질병수술비), 같은 해 두 번째 수술이면 plus(연간2회이상) 해당 종 금액이 더해집니다. 수술 종은 약관 별표 기준이며 실제 지급은 심사에 따릅니다.</p>
+        <p class="src">다빈도 병 선정 근거 : 2023년 주요수술 통계연보(국민건강보험공단) — 백내장 수술 63만 8천 건(1위) · 일반 척추수술 20만 7천 건 · 치핵수술 15만 2천 건 · 충수절제술은 주요수술 33항목 중 하나</p>
+      </div>
+      <div class="kp b">
+        <h3>131대질병 — 11개 세부보장 한눈에</h3>
+        <table class="t" style="font-size:7.3pt">
+          <tr><th>세부보장</th><th>가입금액</th><th>대표 질병</th></tr>
+          <tr><td class="l">심장질환</td><td>1,000</td><td class="l">협심증 · 심근경색 · 부정맥 · 심부전</td></tr>
+          <tr><td class="l">뇌혈관질환</td><td>1,000</td><td class="l">뇌출혈 · 뇌경색 · 뇌동맥류</td></tr>
+          <tr><td class="l">특정31대질병</td><td>1,000</td><td class="l">간질환 · 당뇨 · 천식 · 위궤양 · 폐렴 · 녹내장 · 신부전</td></tr>
+          <tr><td class="l">다빈도62대질병</td><td>200</td><td class="l">양성종양 · 갑상선질환 · 축농증 · 담석증 · 탈장 · 디스크</td></tr>
+          <tr><td class="l">특정다빈도29대질병</td><td>20</td><td class="l">유방 양성신생물 · 수면무호흡 · 치열·치루</td></tr>
+          <tr><td class="l">후각특정질환</td><td>100</td><td class="l">비염 · 비용종 · 부비동 장애</td></tr>
+          <tr><td class="l">유방의장애</td><td>100</td><td class="l">유방의 장애(양성신생물 제외)</td></tr>
+          <tr><td class="l">편도염</td><td>100</td><td class="l">편도염(J35 등)</td></tr>
+          <tr><td class="l">관절염,생식기질환</td><td>30</td><td class="l">관절염 · 생식기질환</td></tr>
+          <tr><td class="l">치핵</td><td>30</td><td class="l">치핵 및 항문주위 정맥 혈전증</td></tr>
+          <tr><td class="l">백내장</td><td>30</td><td class="l">노년백내장 · 기타 백내장</td></tr>
+        </table>
+        <p style="font-size:7.4pt;color:#555">갈래별 질병 목록은 약관 【별표-질병65·20·66·67…】. 이 가이드의 대표 질병은 스마트 제안서 131대질병 분류 데이터(g131)에서 옮겼습니다.</p>
+      </div>
+      <div class="callout y">「질병수술비(특정5대질병 제외)」를 왜 따로 넣는지 묻는 고객에게 : 자주 하는 작은 수술(용종 절제·백내장·비염·티눈·혈관종)을 빼는 대신 보험료가 싸고, 그 다섯 가지는 <b>131대질병수술비(백내장·후각특정질환)</b>와 <b>암전후관련 통합치료비(용종)</b>가 따로 받쳐 준다고 설명합니다.</div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>11</span></div>
+</div>
+
+<!-- ===================== 12. 입원 · 간병 ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ④ 입원일당 · 간병인지원</div>
+  <div class="cols">
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">상급병실(1인실) 상급종합병원 일반상해 / 질병입원일당 (1일이상 10일한도)</td><td class="a" rowspan="2">1일 11만원</td></tr>
+        <tr><td class="d">상해 또는 질병으로 생활기능·업무능력에 지장이 생겨 <span class="h">상급종합병원 1인실</span>에 입원하면 최초입원일부터 입원 1일당 가입금액 지급<br>
+          <span class="x">※ 1회 입원당 10일 한도 · 같은 원인으로 2회 이상 입원하면 1회 입원으로 보아 일수를 더함 · 1인실 외 병실에서 옮겨 오면 옮긴 날부터, 옮겨 나가면 옮긴 날까지</span></td></tr>
+        <tr><td class="n">상급병실(1인실) 종합병원 일반상해 / 질병입원일당 (1일이상 30일한도)</td><td class="a" rowspan="2">1일 10만원</td></tr>
+        <tr><td class="d">종합병원 1인실 입원 시 입원 1일당 가입금액 · 1회 입원당 30일 한도 (규칙은 위와 같음)</td></tr>
+        <tr><td class="n">2-3인실 상급종합병원 / 종합병원 일반상해 · 질병입원일당 (1일이상 30일한도)</td><td class="a" rowspan="2">1일 5만원</td></tr>
+        <tr><td class="d">2-3인실 입원 시 입원 1일당 가입금액 · 1회 입원당 30일 한도<br>
+          <span class="x">※ 2-3인실 특약은 내Mom대로 2607 약관에 없는 담보입니다. 지급 조건은 5.10.5 상품설명서·약관으로 확인하세요.</span></td></tr>
+        <tr><td class="n">(20년갱신) 갱신형 간병인지원 일반상해 / 질병입원일당(Ⅵ) (1일이상 180일한도)</td><td class="a" rowspan="2">간병인<br>지원</td></tr>
+        <tr><td class="d">입원 치료 중 간병인 지원을 원하면 <span class="h">입원 1일당 회사가 간병인을 지원</span>. 회사가 지원하지 못하거나 고객이 원하지 않으면 실제 사용한 간병인 비용을 회사가 정한 한도로 지급<br>
+          <span class="x">※ 원하는 날 <b>48시간 전</b>에 회사에 신청 · 임의로 쓴 간병인 비용은 미지급 · 1회 입원당 180일 · 24시간 = 1일 · <b>간호·간병통합서비스 사용 중에는 지원하지 않음</b></span></td></tr>
+        <tr><td class="n">(20년갱신) 간병인지원 입원일당(Ⅵ) (181일이상)(요양·정신·한방병원 제외) / 요양성특정질병입원일당(Ⅵ) (181일이상)(요양병원)</td><td class="a" rowspan="2">간병인<br>지원</td></tr>
+        <tr><td class="d">180일을 넘는 입원에 대해 이어서 간병인 지원 · 요양병원은 <span class="h">요양성특정질병</span>(치매 F00~F03 · 파킨슨병 G20 · 다발경화증 G35 · 뇌혈관질환 I60~I69 등 22개)으로 입원한 경우</td></tr>
+        <tr><td class="n">(20년갱신) 간병인지원 일반상해 / 질병입원일당(간호·간병통합서비스 사용추가보장) (180일한도 · 181일이상)</td><td class="a" rowspan="2">1일 7만원</td></tr>
+        <tr><td class="d">병원(요양병원 제외)에 입원해 <span class="h">간호·간병통합서비스</span>를 사용한 날마다 가입금액 지급 · 1회 입원당 180일 · 사용 시작일부터 실제 사용 일수만</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="kp">
+        <h3>병실 종류별로 1일 얼마가 되나 (예시 설계)</h3>
+        <table class="t r">
+          <tr><th>입원한 곳</th><th>1인실</th><th>2-3인실</th><th>한도</th></tr>
+          <tr><td class="l"><b>상급종합병원</b></td><td>11만원 (10일)</td><td>5만원 (30일)</td><td>1회 입원당</td></tr>
+          <tr><td class="l"><b>종합병원</b></td><td>10만원 (30일)</td><td>5만원 (30일)</td><td>1회 입원당</td></tr>
+          <tr><td class="l">병원·의원</td><td colspan="2">— (이 설계에는 일반 입원일당 없음)</td><td></td></tr>
+        </table>
+        <p style="font-size:7.6pt;color:#555">상해와 질병이 각각 따로 가입돼 있으니 원인에 맞는 담보 하나가 나옵니다. 병실을 옮기면 옮긴 날을 기준으로 담보가 바뀝니다.</p>
+      </div>
+      <div class="kp b">
+        <h3>상급종합병원 · 종합병원이란</h3>
+        <ul>
+          <li><b>상급종합병원</b> : 의료법 제3조의4에 따라 보건복지부장관이 지정. 20개 이상 진료과목과 전속 전문의, 전공의 수련기관, 중증 질환군 비율 기준을 갖춘 종합병원. <b>3년마다 재평가</b>해 재지정하거나 취소.</li>
+          <li><b>종합병원</b> : 의료법 제3조 병원급 의료기관 중 여러 진료과와 일정 규모 이상 병상을 갖춘 병원.</li>
+          <li>입원 중 병원이 상급종합병원으로 지정되면 지정 적용일부터, 지정이 취소돼도 퇴원 전까지 계속 지급(약관 예시).</li>
+        </ul>
+      </div>
+      <div class="kp g">
+        <h3>간병 두 갈래 — 어느 쪽이 나오나</h3>
+        <table class="t gg">
+          <tr><th>상황</th><th>나오는 담보</th></tr>
+          <tr><td class="l">보호자 대신 <b>간병인</b>을 붙이고 싶다</td><td class="l">간병인지원 입원일당(Ⅵ) — 회사가 간병인 지원(48시간 전 신청)</td></tr>
+          <tr><td class="l">병원의 <b>간호·간병통합서비스 병동</b>을 쓴다</td><td class="l">간호·간병통합서비스 사용추가보장 — 1일 7만원</td></tr>
+          <tr><td class="l">둘 다 같은 날</td><td class="l">통합서비스 사용 중에는 간병인지원이 나오지 않음 → 7만원만</td></tr>
+        </table>
+        <p style="font-size:7.6pt;color:#555">간병인 : 병원 소속 또는 사업자 등록(간병·직업소개업)된 업체를 통해 유상으로 간병하는 사람. 주요 업무 예시(약관) : 체위변경, 휠체어 이동, 기저귀 교환, 식사 보조 등. 간호·간병통합서비스 : 보호자가 상주하지 않고 간호사·간호조무사·간병지원인력이 포괄적으로 제공하는 입원서비스(의료법 제4조의2).</p>
+      </div>
+      <div class="callout y">간병인 사용비용을 직접 청구할 때는 <b>사업자등록번호가 있는 영수증</b>(카드전표·현금영수증)과 사업자등록증 확인 서류가 필요합니다. 간이영수증만으로는 부족하다고 미리 안내합니다.</div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>12</span></div>
+</div>
+
+<!-- ===================== 13. 상해 · 면책/감액 ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <div class="sub">담보사항 : ⑤ 상해 · 면책기간 / 감액기간</div>
+  <div class="cols">
+    <div>
+      <table class="rt">
+        <tr><th>가입담보 및 보장내용</th><th class="w">가입금액</th></tr>
+        <tr><td class="n">일반상해사망 [ 보통약관 ]</td><td class="a" rowspan="2">5천만원</td></tr>
+        <tr><td class="d">보험기간 중 상해의 직접 결과로 사망한 경우(질병 사망 제외) 가입금액 전액 지급<br>
+          <span class="x">※ 실종선고, 관공서의 재난 사망 통보도 사망으로 봄 · 연명의료중단 결정은 지급에 영향 없음<br>
+          ※ 지급하지 않는 사유 : 고의 자해, 계약자·수익자의 고의, 임신·출산·산후기(예외 있음), 전쟁·폭동 등</span></td></tr>
+        <tr><td class="n">일반상해80%이상후유장해</td><td class="a" rowspan="2">1백만원</td></tr>
+        <tr><td class="d">상해로 【별표-공통2(장해분류표)】의 장해지급률이 <span class="h">80% 이상</span>인 장해상태가 되면 최초 1회 가입금액 전액 지급<br>
+          <span class="x">※ 상해 발생일부터 180일 안에 확정되지 않으면 180일째 의사 진단으로 결정 · 같은 상해로 둘 이상의 장해는 지급률 합산 · 지급 후 특약 소멸</span></td></tr>
+      </table>
+      <div class="kp" style="margin-top:2.5mm">
+        <h3>「후유장해」란</h3>
+        <p>치료가 끝난 뒤에도 몸에 남은 기능 손상입니다. 다 나은 뒤 남은 상태를 기준으로 장해분류표의 지급률(%)로 판정합니다. 80% 이상은 스스로 생활이 어려운 매우 무거운 장해로, 이 담보는 <b>납입면제 7대</b> 가운데 「상해 50%이상 후유장해」와 함께 봐야 합니다.</p>
+      </div>
+      <div class="callout"><b>상해 계열의 짝</b> : 상해수술비 100 · 상급종합병원 상해수술비 100 · 상해 1-5종 수술비 · 상해 입원일당 · 간병인지원 상해입원일당이 함께 있어, 사고 → 수술 → 입원 → 간병까지 이어집니다(10·12쪽).</div>
+    </div>
+    <div>
+      <div class="kp">
+        <h3>면책기간 / 감액기간 — 주요 담보</h3>
+        <table class="t r" style="font-size:7.4pt">
+          <tr><th>보장명</th><th style="width:22mm">최초계약·부활계약의 면책기간</th><th style="width:26mm">계약일부터 1년 미만 감액지급</th></tr>
+          <tr><td class="l">암진단비(유사암제외)</td><td>90일 (15세 미만 없음)</td><td>—</td></tr>
+          <tr><td class="l">유사암진단비</td><td>—</td><td>—</td></tr>
+          <tr><td class="l">항암약물치료비</td><td>90일</td><td>—</td></tr>
+          <tr><td class="l">표적항암약물허가치료비(비급여)(2종및3종이상)</td><td>90일</td><td>가입금액의 50%</td></tr>
+          <tr><td class="l">암 통합치료비(기본형)</td><td>90일</td><td>—</td></tr>
+          <tr><td class="l">암 통합치료비Ⅱ(비급여, 암중점치료기관)</td><td>90일</td><td>표 금액의 50%</td></tr>
+          <tr><td class="l">암 / 유사암 통합치료 생활비</td><td>90일 (유사암 —)</td><td>—</td></tr>
+          <tr><td class="l">암전후관련 특정질환 및 양성신생물 통합치료비</td><td>—</td><td>표 금액의 50% (연간 한도도 50%)</td></tr>
+          <tr><td class="l">특정순환계질환 통합치료비</td><td>—</td><td>표 금액의 50%</td></tr>
+          <tr><td class="l">특정순환계질환(주요손상및질환) 통합치료비</td><td>—</td><td>질환 50% · 주요손상 감액 없음</td></tr>
+          <tr><td class="l">131대질병수술비 (11개 세부보장)</td><td>—</td><td>—</td></tr>
+          <tr><td class="l">질병수술비 · 특정5대질병 제외 · 상급종합병원 질병수술비</td><td>—</td><td>—</td></tr>
+          <tr><td class="l">수술비Ⅱ(1-5종) · 1-5종수술비(plus)</td><td>—</td><td>—</td></tr>
+          <tr><td class="l">상해수술비 · 상급종합병원 상해수술비</td><td>—</td><td>—</td></tr>
+          <tr><td class="l">입원일당(1인실·2-3인실) · 간병인지원 입원일당</td><td>—</td><td>—</td></tr>
+          <tr><td class="l">일반상해사망 · 일반상해80%이상후유장해</td><td>—</td><td>—</td></tr>
+        </table>
+        <p style="font-size:7.4pt;color:#555">「—」는 약관 제1조에 해당 조항이 없다는 뜻입니다. 「암보장개시일」·「암 통합치료보장개시일」은 계약일부터 그날을 포함하여 90일이 지난 날의 다음날(보험나이 15세 이상). 2-3인실 입원일당은 약관 원문을 확인하지 못해 상품설명서로 확인합니다. 5.10.5 <b>무감액면책플랜</b>을 선택한 설계는 별도 조건이 적용되므로 상품설명서를 따릅니다.</p>
+      </div>
+      <div class="callout y"><b>가입 첫 해에 짚어 줄 세 가지</b> ① 암(유사암제외) 계열은 90일 뒤부터 ② 통합치료비 계열(표적항암·암Ⅱ·암전후·특정순환계)은 1년 미만 절반 ③ 수술비·입원일당·유사암은 처음부터 100%.</div>
+    </div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>13</span></div>
+</div>
+
+<!-- ===================== 14. 용어 · MEMO ===================== -->
+<div class="page">
+  <div class="tag">교육용</div>
+  <div class="brand"><span class="m">meritz</span><span class="k">메리츠화재</span></div>
+  <div class="strip">2026년 9월 <b>The건강한 내Mom대로 5.10.5 보장보험2607</b> 기준 주요담보와 담보에 해당하는 해설 &amp; Key Point 를 첨부하였습니다</div>
+  <h2 class="sec">용어 풀이 <small>MeAI 보험용어 사전에서 옮김 · 고객에게 이 말로 설명합니다</small></h2>
+  <div class="gl">
+    <div><b>유사암</b><span>다른 암보다 위험이 낮아 보험금을 적게 주는 암. 갑상선암, 기타피부암, 제자리암, 경계성종양.</span></div>
+    <div><b>암보장개시일</b><span>암 보장이 시작되는 날. 계약일부터 90일이 지난 다음 날. 15세 미만은 계약일.</span></div>
+    <div><b>통합치료비</b><span>실제로 치료를 받을 때마다 주는 보험금. 진단비가 한 번이라면 치료비는 치료할 때마다 반복해서 나올 수 있다.</span></div>
+    <div><b>비급여</b><span>건강보험이 적용되지 않아 환자가 전부 내는 치료. 병원마다 가격이 다르고 최신 치료 상당수가 여기 속한다.</span></div>
+    <div><b>전액본인부담</b><span>건강보험 항목이지만 환자가 100% 내는 경우. 급여도 비급여도 아닌 중간 지대라 담보에서 따로 다룬다.</span></div>
+    <div><b>표적항암약물</b><span>암세포의 약점을 찾아 그 부분만 골라 공격하는 맞춤형 암 치료약. 비급여 고가 약이 많다.</span></div>
+    <div><b>산정특례</b><span>암·희귀질환처럼 돈이 많이 드는 병의 본인부담을 크게 낮춰 주는 제도. 암은 보통 본인부담 5%. 등록해야 적용.</span></div>
+    <div><b>상급종합병원</b><span>중증 질환의 마지막 치료를 맡는 큰 병원. 보건복지부가 지정하며 여러 담보의 보장 조건이 된다.</span></div>
+    <div><b>종합병원</b><span>여러 진료과와 일정 규모 이상의 병상을 갖춘 병원. 의료법에 기준이 있다.</span></div>
+    <div><b>암중점치료기관</b><span>암 진료를 집중적으로 하는 병원. 일부 담보는 이 병원에서 치료받을 때 조건이 붙는다.</span></div>
+    <div><b>131대질병수술비</b><span>정해진 질병 목록의 수술에만 주는 담보. 종수술비와 중복으로 받을 수 있다.</span></div>
+    <div><b>1-5종 수술비</b><span>약관 별표 수술분류표에서 수술을 다섯 등급으로 나눠 등급별 정액을 주는 담보. 표에 없는 행위는 수술로 보지 않는다.</span></div>
+    <div><b>후유장해</b><span>치료가 끝난 뒤에도 몸에 남은 기능 손상. 다 나은 뒤 남은 상태로 판정한다.</span></div>
+    <div><b>간병인지원</b><span>보험회사가 간병인을 직접 붙여 주거나 그 비용을 대 주는 방식. 직접 구해 쓰고 영수증을 내는 형태도 있다.</span></div>
+    <div><b>재활치료</b><span>치료 후 떨어진 몸의 기능을 되찾는 훈련. 뇌질환은 재활이 몇 년씩 이어지기도 한다.</span></div>
+    <div><b>연간</b><span>계약일부터 매 1년 단위로 돌아오는 계약해당일 전일까지. 「연간 1회한」은 이 기간 안에 한 번.</span></div>
+  </div>
+  <div style="margin-top:5mm">
+    <div class="memo">MEMO</div>
+  </div>
+  <div class="foot"><span>본 자료는 사내 교육용 자료로 고객에게 교부 및 배포할 수 없으며, 온라인 게시 목적으로 사용할 수 없습니다.</span><span>14</span></div>
+</div>
+
+<!-- ===================== 15. 뒷표지 ===================== -->
+<div class="page back">
+  <div class="bar"></div>
+  <div class="logo"><span class="m" style="font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:40pt;color:#E4322B;letter-spacing:-2px">meritz</span> <span style="font-size:22pt;color:#555;font-weight:700">메리츠화재</span>
+    <div style="font-size:9pt;color:#777;margin-top:4mm">메리츠 세일즈혁신 가이드 · The건강한 내Mom대로 5.10.5 · 2026.09 · 교육용</div></div>
+  <img src="guide_naemom_5105_assets/chars.png" alt="">
+</div>
+
+</body>
+</html>

@@ -58,6 +58,12 @@ _g131_from_master()
 SURG7 = {}
 _p7 = os.path.join(BASE, 'surg7.json')
 if os.path.exists(_p7): SURG7 = {r['code']: r for r in json.load(open(_p7, encoding='utf-8'))['rows']}
+# ══ 신수술분류표 (The건강한 내Mom대로 5.10.5 약관 별표, extract_surg_new.py 로 생성) — 신수술비[기본]·[주요수술] 판정 (v8.70) ══
+NEWSURG = {'basic': [], 'major': {}}
+_pn = os.path.join(BASE, 'surg_new.json')
+if os.path.exists(_pn): NEWSURG = json.load(open(_pn, encoding='utf-8'))
+_NEWSURG_BASIC = set(NEWSURG.get('basic') or [])
+NEWSURG_TYPE_KEY = [('장기이식', '장기이식'), ('개두', '개두및두부'), ('개흉', '개흉'), ('개복', '개복'), ('각막', '각막조직피부이식및조직재건'), ('경피적', '경피적')]
 def surg7_grade(x):
     """사례의 1-7종 표기 : 정수(종) 그대로, 수술코드('F121' 등)는 분류표에서 종을 찾는다. 모르면 None."""
     if x is None or isinstance(x, int): return x
@@ -668,6 +674,28 @@ def h_surg(r, o, sc, nm, t):
                 else '1-7종 수술분류표 종 구분이 사례에 없어 계산 제외')
             return []
         if t['gj'] and t['gj'] != g7: return []
+    elif o.get('new'):                                # 신수술비[기본]·[주요수술] — 사례 수술코드(ADRG)로만 판정 (v8.70)
+        code = str(tg.get('surg7') or '').upper()
+        lab0 = re.sub(GOJI, '', r['name']).split(']')[-1].replace(' ', '')          # 세부보장 글자 : 대괄호 뒤 괄호 '(입원, 수술코드당 연간3회한)' · '(개복, …)'
+        if not re.search(r'입원|통원|장기이식|개두|개흉|개복|각막|경피적', lab0):
+            log('검토필요', r['name'], '신수술비 부모 행 — 세부보장(입원/통원 · 수술종류) 행만 계산'); return []
+        if not code:
+            log('검토필요', r['name'], '신수술분류표 판정에 쓸 수술코드(ADRG)가 사례에 없어 계산 제외'); return []
+        if o['new'] == 'basic':
+            if code not in _NEWSURG_BASIC:
+                log('검토필요', r['name'], '신수술분류표[기본]에 없는 수술코드 %s — 계산 제외' % code); return []
+            adm = 'out' if tg.get('adm') == 'out' else 'in'        # 사례 가정 : 적지 않으면 2일 이상 입원 수술
+            if ('입원' in lab0) != (adm == 'in'): return []
+            _type = '입원' if adm == 'in' else '통원'
+        else:
+            typ = (NEWSURG.get('major') or {}).get(cause or '질병', {}).get(code)
+            if not typ:
+                log('검토필요', r['name'], '%s 신수술분류표[주요수술]에 없는 수술코드 %s — 계산 제외' % (cause or '질병', code)); return []
+            want = next((v for k, v in NEWSURG_TYPE_KEY if k in lab0), None)
+            if want != typ: return []
+            _type = typ
+        why = o.get('why', '수술 1회').replace('{code}', code).replace('{type}', _type)
+        return [(r['man'], why, o.get('group', '수술비'), o.get('freq', 'each'))]
     elif not j: return []
     if 'cancer' in (o.get('ex') or []) and is_cancer(sc['kcd']): return []
     for g in t['ex']:                                   # 특정N대질병 제외 담보 — N 에 맞는 제외 목록으로(v8.50)
