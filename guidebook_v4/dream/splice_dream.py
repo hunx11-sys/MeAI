@@ -15,6 +15,13 @@ def order():
     pres=rd('ppt/presentation.xml'); prel=rd('ppt/_rels/presentation.xml.rels'); rmap={}
     for a in re.findall(r'<Relationship [^>]*>',prel): rmap[re.search(r'Id="([^"]+)"',a).group(1)]=re.search(r'Target="([^"]+)"',a).group(1)
     return [os.path.basename(rmap[r]) for r in re.findall(r'<p:sldId id="\d+" r:id="(rId\d+)"/>',pres)]
+def one_ppr(xml):
+    # pptxgenjs 는 한 문단 안 글 조각마다 <a:pPr> 를 다시 써서(규격상 문단 맨 앞 하나만 허용) 첫 조각 뒤의 것은 지운다
+    def fix(m):
+        p=m.group(0); i=p.find('<a:r>')
+        if i<0: return p
+        return p[:i]+re.sub(r'<a:pPr\b[^>]*/>|<a:pPr\b[^>]*>.*?</a:pPr>','',p[i:],flags=re.S)
+    return re.sub(r'<a:p>.*?</a:p>',fix,xml,flags=re.S)
 def title_of(sf):
     t=re.search(r'<p:sp>(?:(?!</p:sp>).)*?<p:ph type="title"/>.*?</p:sp>',rd('ppt/slides/'+sf),re.S); return text(t.group(0)) if t else ''
 before=order(); assert len(before)==41,len(before)
@@ -50,7 +57,7 @@ for k,ns in enumerate(nslides,1):
     t=text(tprev.group(0)) if tprev else ''
     if tprev: rest=rest.replace(tprev.group(0),'',1)
     titles.append(t or 'PowerPoint 프레젠테이션')
-    body=(title_sp(t) if t else '')+rest
+    body=(title_sp(t) if t else '')+one_ppr(rest)
     n=[1]
     def renum(m): n[0]+=1; return '<p:cNvPr id="%d"'%n[0]
     body=re.sub(r'<p:cNvPr id="\d+"',renum,body)

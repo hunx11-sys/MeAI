@@ -9,7 +9,7 @@
 const pptxgen = require('pptxgenjs'); const path = require('path');
 const A = process.argv[3] || path.join(__dirname, 'assets');
 const P = n => path.join(A, n);
-const FONT = '맑은 고딕', LATIN = 'Arial', GOLD = 'FFC000', GRAY = 'B5B5B5', LIGHT = 'D9D9D9', DIM = '8C8C8C', CARD = '141414', RED = 'E5252A';
+const FONT = '맑은 고딕', LATIN = 'Arial', GOLD = 'FFC000', GRAY = 'B5B5B5', LIGHT = 'D9D9D9', CARD = '141414', RED = 'E5252A';
 const W = 10;
 const pres = new pptxgen(); pres.layout = 'LAYOUT_16x9'; pres.title = '메리츠드림 · MeAI';
 const T = (s, text, o) => s.addText(text, Object.assign({ fontFace:FONT, isTextBox:true, margin:0, color:'FFFFFF', valign:'top' }, o));
@@ -23,7 +23,7 @@ function slide(title, notes){ const s = pres.addSlide(); s.background = { color:
 
 // 0) 여는 장 — 영업가족이 꿈꿔 온 것 → YOUR TURN
 { const s = slide(null,
-  'YOUR TURN. 영업하며 한 번쯤, 이런 꿈 꿔 보셨을 겁니다. 고객을 매일 아침 누가 추천해 준다면. 약관을 공시실에 들어갈 필요 없이 바로 볼 수 있다면. 보장분석, 설계, 리포트까지 자동으로 만들어 준다면. 이제, MeAI로 그 꿈이 현실이 될 차례입니다.');
+  '영업하며 한 번쯤, 이런 꿈 꿔 보셨을 겁니다. 고객을 매일 아침 누가 추천해 준다면. 약관을 공시실에 들어갈 필요 없이 바로 볼 수 있다면. 보장분석, 설계, 리포트까지 자동으로 만들어 준다면. YOUR TURN. 이제, MeAI로 그 꿈이 현실이 될 차례입니다.');
   glow(s, 'glow_wide.png', { x:1.0, y:3.0, w:8.0, h:2.5, transparency:30 });
   T(s, '영업하며 한 번쯤, 이런 꿈 꿔 보셨죠?', { x:0.3, y:0.5, w:W-0.6, h:0.5, fontSize:24, bold:true, align:'center', valign:'middle' });
   [ [run('고객을 '), run('매일 아침', { color:GOLD }), run(' 추천해준다면?')],
@@ -38,7 +38,7 @@ function slide(title, notes){ const s = pres.addSlide(); s.background = { color:
 
 // 1) MeAI 홈 — 아침마다 MeAI가 먼저 고객을 찾아온다
 { const s = slide('AI 시대, MeAI는 타사에 없는 강력한 무기',
-  'MeAI 홈 화면입니다. 아침에 MeAI를 열면, 오늘 연락할 추천 고객 아홉 분이 이유와 함께 먼저 와 있습니다. 예를 들어 이 고객은 상령일이 2주 남았고 암진단비가 1천만원뿐이라는 이유가 한 문장으로 적혀 있습니다. 누구에게, 왜 지금 연락할지 고민하던 시간을 MeAI가 대신합니다. 그리고 홈에서 바로 대화로 이어집니다.');
+  'MeAI 홈 화면입니다. 아침에 MeAI를 열면, 오늘 연락할 추천 고객 아홉 분이 이유와 함께 먼저 와 있습니다. 예를 들어 이 고객은 상령일이 2주 남았고 암진단비가 1천만원뿐이라는 이유가 한 문장으로 적혀 있습니다. 누구에게, 왜 지금 연락할지 고민하던 시간을 MeAI가 대신합니다. 그리고 홈에서 바로 대화로 이어지고, 약관도 대화로 바로 확인합니다.');
   const hx = 4.75, hy = 0.98, hw = 4.75, hs = hw/2320, hh = 2000*hs;        // hero_home.png 2320x2000
   glow(s, 'glow_wide.png', { x:3.7, y:0.5, w:6.9, h:5.0 });
   s.addImage({ path:P('hero_home.png'), x:hx, y:hy, w:hw, h:hh, altText:'MeAI 홈 화면(오늘의 추천 고객)' });
@@ -56,26 +56,26 @@ function slide(title, notes){ const s = pres.addSlide(); s.background = { color:
     { x:qx+0.22, y:qy+0.46, w:qw-0.36, h:0.66, isTextBox:true, margin:0, valign:'middle', lineSpacingMultiple:1.1 });
   const lx1 = qx+qw, ly1 = qy+qh/2, lx2 = kx, ly2 = ky+0.42;              // 인용 카드 → 추천 카드 이유 줄
   s.addShape(pres.shapes.LINE, { x:lx1, y:Math.min(ly1,ly2), w:lx2-lx1, h:Math.abs(ly2-ly1)||0.001, flipV: ly2<ly1, line:{ color:GOLD, width:1.5 } });
-  T(s, EXAMPLE, { x:0.4, y:5.05, w:3.95, h:0.25, fontSize:9, color:DIM, valign:'middle' });
+  T(s, EXAMPLE, { x:0.4, y:5.0, w:3.95, h:0.28, fontSize:12, color:GRAY, valign:'middle' });
 }
 
 // 2) 영업의 처음부터 끝까지 — MeAI 홈 → 대화 → AI 보장분석 → AI 설계 → AI 리포트
-{ const s = slide('MeAI 홈에서 리포트까지, 영업의 모든 과정이 하나로',
-  'MeAI 홈이 오늘 연락할 고객을 추천하고, 홈에서 바로 일반대화와 맞춤대화로 이어집니다. 맞춤대화에서 AI가 고객의 부족한 보장을 분석하고, 예산을 말하면 설계안을 잡아 줍니다. 고객에게 보여 줄 답변을 골라 확인하면, 리포트가 카카오톡으로 고객에게 갑니다. 찾고, 묻고, 분석하고, 설계하고, 보내는 일. 이 모든 과정이 MeAI 하나로 됩니다.');
+{ const s = slide('MeAI 홈에서 리포트까지, 모든 영업 과정이 하나로',
+  'MeAI 홈이 오늘 연락할 고객을 추천하고, 홈에서 바로 일반대화와 맞춤대화로 이어집니다. 일반대화에서는 공시실에 들어가지 않아도 약관을 바로 확인합니다. 맞춤대화에서 AI가 고객의 부족한 보장을 분석하고, 예산을 말하면 설계안을 잡아 줍니다. 고객에게 보여 줄 답변을 골라 확인하면, 리포트가 카카오톡으로 고객에게 갑니다. 찾고, 묻고, 분석하고, 설계하고, 보내는 일. 이 모든 과정이 MeAI 하나로 됩니다.');
   const steps = [
     ['01', [run('MeAI 홈')], '오늘 연락할 고객 추천', 't1_reco.png'],
-    ['02', [run('일반 · 맞춤대화')], '홈에서 바로 시작', 't2_chat.png'],
+    ['02', [run('일반 · 맞춤대화')], '공시실 없이 약관 확인', 't2_chat.png'],
     ['03', [run('AI ', { color:GOLD }), run('보장분석')], '부족한 보장을 한눈에', 't3_analysis.png'],
-    ['04', [run('AI ', { color:GOLD }), run('설계')], '예산만 말하면 설계안', 't4_design.png'],
-    ['05', [run('AI ', { color:GOLD }), run('리포트')], '카카오톡으로 고객에게', 't5_report.png'],
+    ['04', [run('AI ', { color:GOLD }), run('설계')], '예산을 말하면 설계안', 't4_design.png'],
+    ['05', [run('AI ', { color:GOLD }), run('리포트')], '카카오톡으로 발송', 't5_report.png'],
   ];
   const x0 = 0.27, gap = 0.24, tw = (9.46 - gap*4)/5, th = 2.15, ty = 1.18;
-  steps.forEach(([n, name, sub, img], i)=>{ const x = x0 + i*(tw+gap);
+  steps.forEach(([n, name, sub, img], i)=>{ const x = x0 + i*(tw+gap), cw = i<4 ? tw+gap-0.02 : tw;   // 아래 글은 옆 칸 사이까지 넓게(맑은 고딕 폭 여유)
     T(s, n, { x, y:0.78, w:tw, h:0.34, fontSize:20, bold:true, color:GOLD, valign:'middle' });
     s.addImage({ path:P(img), x, y:ty, w:tw, h:th, altText:sub });
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y:ty, w:tw, h:th, rectRadius:0.06, fill:{ type:'none' }, line:{ color:GOLD, width:0.75, transparency:35 } });
-    s.addText(name.map(r=>({ text:r.text, options:Object.assign({}, r.options, { fontSize:17, bold:true }) })), { x, y:ty+th+0.1, w:tw, h:0.36, isTextBox:true, margin:0, valign:'middle' });
-    T(s, sub, { x, y:ty+th+0.47, w:tw, h:0.3, fontSize:13, color:LIGHT, valign:'middle' });
+    s.addText(name.map(r=>({ text:r.text, options:Object.assign({}, r.options, { fontSize:17, bold:true }) })), { x, y:ty+th+0.1, w:cw, h:0.36, isTextBox:true, margin:0, valign:'middle' });
+    T(s, sub, { x, y:ty+th+0.47, w:cw, h:0.3, fontSize:13, color:LIGHT, valign:'middle' });
     if (i<4){ const cx = x+tw+gap/2, cy = ty+th/2, d = 0.3;
       s.addShape(pres.shapes.OVAL, { x:cx-d/2, y:cy-d/2, w:d, h:d, fill:{ color:GOLD }, line:{ color:'000000', width:1.5 } });
       T(s, '›', { x:cx-d/2, y:cy-d/2-0.02, w:d, h:d, fontSize:16, bold:true, color:'000000', align:'center', valign:'middle' }); }
@@ -83,13 +83,13 @@ function slide(title, notes){ const s = pres.addSlide(); s.background = { color:
       s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:x+0.2, y:ty+1.32, w:tw-0.4, h:0.4, rectRadius:0.2, fill:{ color:RED }, line:{ color:RED, width:0 } });
       T(s, '미가입 2건', { x:x+0.2, y:ty+1.32, w:tw-0.4, h:0.4, fontSize:15, bold:true, align:'center', valign:'middle' }); }
     if (i===3){ // 설계: 맞춤대화 입력 말풍선(예시 요청 · 답은 만들지 않음)
-      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:x+0.11, y:ty+0.88, w:tw-0.22, h:0.86, rectRadius:0.12, fill:{ color:'FFFFFF' }, line:{ color:GOLD, width:2 } });
-      s.addText([ run('월 5만 원 안에서', { fontSize:12, bold:true, color:'111111', breakLine:true }), run('설계안 만들어줘', { fontSize:12, bold:true, color:'111111' }) ],
-        { x:x+0.11, y:ty+0.88, w:tw-0.22, h:0.86, isTextBox:true, margin:0, align:'center', valign:'middle', lineSpacingMultiple:1.15 }); }
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:x+0.06, y:ty+0.86, w:tw-0.12, h:0.9, rectRadius:0.12, fill:{ color:'FFFFFF' }, line:{ color:GOLD, width:2 } });
+      s.addText([ run('월 5만 원 안에서', { fontSize:14, bold:true, color:'111111', breakLine:true }), run('설계안 만들어줘', { fontSize:14, bold:true, color:'111111' }) ],
+        { x:x+0.06, y:ty+0.86, w:tw-0.12, h:0.9, isTextBox:true, margin:0, align:'center', valign:'middle', lineSpacingMultiple:1.15 }); }
   });
   s.addText([ run('이 모든 과정이, ', { fontSize:28, bold:true }), run('MeAI 하나로', { fontSize:28, bold:true, color:GOLD }) ],
     { x:0.27, y:4.32, w:9.46, h:0.6, isTextBox:true, margin:0, align:'center', valign:'middle' });
-  T(s, EXAMPLE, { x:0.27, y:5.12, w:4, h:0.25, fontSize:9, color:DIM, valign:'middle' });
+  T(s, EXAMPLE, { x:0.27, y:5.05, w:4, h:0.28, fontSize:12, color:GRAY, valign:'middle' });
 }
 
 // 3) 숫자로 — 체결률 2.8배 (소유자 원안의 질문 장치: 효과가 있어? / 원래 잘하는 사람 아니야? / 질문이 의미가 있어?)
@@ -100,8 +100,8 @@ function slide(title, notes){ const s = pres.addSlide(); s.background = { color:
   s.addText([ run('2.8', { fontSize:118, bold:true, color:GOLD }), run('배', { fontSize:44, bold:true, color:GOLD }) ], { x:0.45, y:1.72, w:4.9, h:1.85, isTextBox:true, margin:0, valign:'middle' });
   s.addText([ run('미활용 12.7%', { fontSize:18, color:GRAY }), run('   →   ', { fontSize:18, color:GOLD, bold:true }), run('활용 35.4%', { fontSize:18, bold:true }) ], { x:0.55, y:3.67, w:4.8, h:0.4, isTextBox:true, margin:0, valign:'middle' });
   const cx = 5.55, cw = 9.73-cx, ch = 1.38;
-  [[ '4.0', '원래 잘하는 사람 아니야?', '같은 FP 고객끼리 비교해도', '미활용 9.0%  →  활용 36.0%' ],
-   [ '2.3', '질문이 의미가 있어?', '질문 1개 → 3개 이상', '평균 가계약 12건  →  28건' ]].forEach(([v,q,a,b],i)=>{ const y = 1.1 + i*1.6;
+  [[ '4.0', '원래 잘하는 사람 아니야?', '같은 FP 고객끼리도', '미활용 9.0% → 활용 36.0%' ],
+   [ '2.3', '질문이 의미가 있어?', '질문 1개 → 3개 이상', '평균 가계약 12건 → 28건' ]].forEach(([v,q,a,b],i)=>{ const y = 1.1 + i*1.6;
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x:cx, y, w:cw, h:ch, rectRadius:0.08, fill:{ color:CARD }, line:{ color:GOLD, width:0.75, transparency:40 } });
     s.addText([ run(v, { fontSize:46, bold:true, color:GOLD }), run('배', { fontSize:20, bold:true, color:GOLD }) ], { x:cx+0.25, y, w:1.5, h:ch, isTextBox:true, margin:0, valign:'middle' });
     T(s, q, { x:cx+1.8, y:y+0.2, w:cw-1.9, h:0.3, fontSize:13, bold:true, color:GOLD, valign:'middle' });
