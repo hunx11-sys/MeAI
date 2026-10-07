@@ -1,4 +1,4 @@
-# 메리츠드림 행사 PPT(41장)의 MeAI 장(14~19장, 6장)을 dream_meai.js 로 만든 4장으로 바꿔 끼운다.
+# 메리츠드림 행사 PPT(41장)의 MeAI 장(14~19장, 6장)을 dream_meai.js 로 만든 장들로 바꿔 끼운다(장 수는 dream_meai.pptx 를 따름).
 # python -I splice_dream.py <행사.pptx> <dream_meai.pptx> <out.pptx>     (PPTX_SCRIPTS = pptx 스킬 scripts 폴더)
 # - 새 장은 행사 PPT 의 slideLayout3(Main Message Only)로 만들고, 제목은 원래 14장 제목 자리(placeholder)를 그대로 쓴다.
 # - 그림·도형·노트(발표 대본)는 dream_meai.pptx 에서 가져온다. 나머지 35장은 손대지 않는다.
@@ -30,7 +30,7 @@ def title_sp(t):
     return re.sub(r'(<a:lstStyle/>).*(</p:txBody>)',lambda m:m.group(1)+body+m.group(2),tsp,flags=re.S)
 nz=zipfile.ZipFile(NEW)
 nslides=sorted([n for n in nz.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml',n)],key=lambda n:int(re.search(r'\d+',os.path.basename(n)).group(0)))
-assert len(nslides)==4,nslides
+N=len(nslides); assert 1<=N<=10,nslides; TOTAL=41-(LAST-FIRST+1)+N
 used=set(os.listdir(os.path.join(W,'ppt/notesSlides')))
 def free_notes():
     i=1
@@ -87,14 +87,14 @@ for sf in before[FIRST-1:LAST]:
     pres,c=re.subn(r'<p:sldId id="\d+" r:id="%s"/>'%rid,'',pres); assert c==1
 wr('ppt/presentation.xml',pres)
 r=subprocess.run([sys.executable,os.path.join(SK,'clean.py'),W],capture_output=True,text=True,cwd=SK); print(r.stdout.strip()[-600:],r.stderr.strip())
-after=order(); assert len(after)==39 and after[FIRST-1:FIRST+3]==made,(len(after),after[FIRST-1:FIRST+3],made)
-assert after[:FIRST-1]==before[:FIRST-1] and after[FIRST+3:]==before[LAST:]
+after=order(); assert len(after)==TOTAL and after[FIRST-1:FIRST-1+N]==made,(len(after),after[FIRST-1:FIRST-1+N],made)
+assert after[:FIRST-1]==before[:FIRST-1] and after[FIRST-1+N:]==before[LAST:]
 # 문서 속성(장 수 · 제목 목록)
 a=rd('docProps/app.xml'); nn=len(re.findall(r'notesSlide\d+\.xml',' '.join(os.listdir(os.path.join(W,'ppt/notesSlides')))))
-a=re.sub(r'<Slides>\d+</Slides>','<Slides>39</Slides>',a); a=re.sub(r'<Notes>\d+</Notes>','<Notes>%d</Notes>'%nn,a)
+a=re.sub(r'<Slides>\d+</Slides>','<Slides>%d</Slides>'%TOTAL,a); a=re.sub(r'<Notes>\d+</Notes>','<Notes>%d</Notes>'%nn,a)
 m=re.search(r'(<vt:lpstr>슬라이드 제목</vt:lpstr></vt:variant><vt:variant><vt:i4>)(\d+)(</vt:i4>)',a)
 if m and int(m.group(2))==41:
-    a=a[:m.start()]+m.group(1)+'39'+m.group(3)+a[m.end():]
+    a=a[:m.start()]+m.group(1)+str(TOTAL)+m.group(3)+a[m.end():]
     v=re.search(r'<vt:vector size="(\d+)" baseType="lpstr">(.*?)</vt:vector></TitlesOfParts>',a,re.S)
     items=re.findall(r'<vt:lpstr>.*?</vt:lpstr>',v.group(2),re.S); base=len(items)-41
     items=items[:base+FIRST-1]+['<vt:lpstr>%s</vt:lpstr>'%html.escape(t,quote=False) for t in titles]+items[base+LAST:]
