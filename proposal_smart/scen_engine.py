@@ -793,6 +793,14 @@ def h_tx(r, o, sc, nm, t):
     allneed = set(o.get('acts_all') or [])          # 둘 다 받아야 지급되는 담보(예: 혈전용해 + 기계적혈전제거술)
     if allneed and not allneed <= _acts(sc, True): return []
     if o.get('need_cnt') and tg.get('tx_cnt', 0) < o['need_cnt']: return []
+    if o.get('circ_cnt'):                           # 특정순환계질환 통합치료 생활비 — 약관 제2조③ 「연간 특정순환계질환 통합치료횟수」(v8.75)
+        m = re.search(r'(\d)회이상', re.sub(r'\s', '', nm + (r.get('benefit') or '') + (r.get('sub') or '')))
+        if not m: log('검토필요', r['name'], '담보명에 「N회이상」이 없어 연간 통합치료횟수 기준을 알 수 없음 — 계산 제외'); return []
+        ev = sc.get('itc_events') or []
+        n = (1 if 'thromb' in _acts(sc, True) else 0)                                                       # 혈전용해치료 연간 1회한
+        n += sum(1 for e in ev if len(e) > 3 and 'surg' in e[3]) or (1 if tg.get('surg') else 0)             # 수술 1회당
+        n += 1 if (tg.get('icu') or 0) >= 4 and hosp_ok('종합', tg.get('hosp')) else 0                       # 종합병원 중환자실 4일이상 연간 1회한
+        if n < int(m.group(1)): return []
     nd = o.get('need_drug')
     m2 = re.search(r'[\[(](\d)종(?:및\d종)?이상', nm)                       # [1종이상]·(2종및3종이상) 담보명 표기 우선
     if m2: nd = int(m2.group(1))

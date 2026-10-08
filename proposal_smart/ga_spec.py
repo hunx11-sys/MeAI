@@ -35,7 +35,7 @@ def sc_itc(kcd, key, hosp='상급종합', grp=None, fam=None, extra=None):
 GA_DZ = collections.OrderedDict([
  ('백내장',      ('인공수정체 삽입',   'H25.9', dict(surg='71',   surg7='C061', grp=['백내장'], adm='out'),                       [['수술', '수정체 유화술', '', ['surg'], {'j': 1}]])),
  ('디스크',      ('디스크절제술',      'M51',   dict(surg='9',    surg7='B174', grp=['다빈도62대질병'], anes=1),                 [['수술', '추간판 절제술', '', ['surg'], {'j': 3}]])),     # 1-5종 9 척추골·추간판 관혈수술 3종 · 1-7종 B174 척추후궁절제술 및 추간판제거술
- ('무릎관절질환', ('인공관절치환술',    'M17',   dict(surg='13-2', surg7='I032', grp=['관절염,생식기질환'], anes=1),              [['수술', '슬관절 전치환술', '', ['surg'], {'j': 2}]])),   # 1-5종 13-2 사지관절 관혈수술 2종 · 1-7종 I032 슬관절 전치환술
+ ('무릎관절질환', ('인공관절치환술',    'M17',   dict(surg='13-2', surg7='I032', grp=['관절염,생식기질환'], anes=1),              [['수술', '슬관절 전치환술', '', ['surg', 'arthroplasty'], {'j': 2}]])),   # 1-5종 13-2 사지관절 관혈수술 2종 · 1-7종 I032 슬관절 전치환술
  ('담석증',      ('담낭절제술',        'K80.0', dict(surg='36',   surg7='H107', grp=['다빈도62대질병'], anes=1),                 [['수술', '복강경 담낭 절제', '', ['surg'], {'j': 2}]])),   # 1-5종 36 담낭 관혈수술(담석증 K80 은 2종) · 1-7종 H107 복강경 담낭절제술
  ('맹장염',      ('충수절제술',        'K35',   dict(surg='41',   surg7='G212', grp=[], anes=1),                               [['수술', '충수 절제', '', ['surg'], {'j': 2}]])),
  ('갑상선결절',   ('고주파절제술',      'D34',   dict(surg='88-2', surg7='K080', hc=['PZ612'], grp=['다빈도62대질병'], adm='out'), [['수술', '고주파절제술', '', ['surg'], {'j': 2}]])),
@@ -93,17 +93,17 @@ EX_BH = [('MRI 촬영', 'x_mri'), ('PET', 'x_pet'), ('CT 촬영', 'x_ct')]
 
 # ═══════════════ 칸 목록 (렌더 순서) ═══════════════
 CELLS = []; KEY = {}
-def add(key, page, section, row, col, kind, sc_=None, mode='first', need=None, direct=None, note='', sc_name=''):
+def add(key, page, section, row, col, kind, sc_=None, mode='first', need=None, direct=None, note='', sc_name='', na_if_empty=False):
     """key : ga_proposal 이 칸 값을 꺼내는 이름 · need : 담보명(띄어쓰기 무시)에 이 말이 모두 들어간 가입담보가 없으면 「미가입」"""
     c = dict(id='P%d-%03d' % (page, len([x for x in CELLS if x['page'] == page]) + 1), key=key, page=page, section=section, row=row, col=col,
-             label=('%s · %s' % (row, col) if row else col), kind=kind, sc=sc_, sc_name=sc_name, mode=mode, need=need, direct=direct, note=note)
+             label=('%s · %s' % (row, col) if row else col), kind=kind, sc=sc_, sc_name=sc_name, mode=mode, need=need, direct=direct, note=note, na_if_empty=na_if_empty)
     assert key not in KEY, key
     CELLS.append(c); KEY[key] = c
 
 # ── 1쪽 보장요약 ──
 _ca1 = [('진단금', [('일반암', 'dx.일반암', DXS['일반암'], 'first', None, '일반암 진단(C16 위암)'),
                   ('유사암', 'dx.유사암', DXS['유사암'], 'first', None, '유사암 진단(C73 갑상선암)'),
-                  ('전이암', 'dx.전이암', DXS['전이암'], 'meta_only', ['전이암'], '전이암 진단(C78.7 간 전이) — 담보명에 「전이암」이 든 진단비 줄만 · 일반암 진단비는 원발암에서 이미 받은 것으로 보고 제외')]),
+                  ('전이암', 'dx.전이암', DXS['전이암'], 'meta_only', ['전이암', '진단'], '전이암 진단(C78.7 간 전이) — 담보명에 「전이암」이 든 진단비 줄만 · 일반암 진단비는 원발암에서 이미 받은 것으로 보고 제외')]),
         ('수술', [('다빈치로봇', 'sg.robot', CS['robot'], 'first', None, '위암 다빈치로봇수술(비급여)'), ('내시경', 'sg.endo', CS['endo'], 'first', None, '위암 내시경 절제'),
                  ('복강경/흉강경', 'sg.lap', CS['lap'], 'first', None, '위암 복강경수술'), ('개복/개흉', 'sg.open', CS['open'], 'first', None, '위암 개복수술')]),
         ('항암약물', [('화학항암', 'cm.chemo', CS['chemo'], 'first', None, '위암 항암약물(급여)'), ('표적항암', 'cm.target1', CS['target1'], 'first', None, '위암 표적항암(비급여, 약물 1종)'),
@@ -115,7 +115,7 @@ for i in range(4):
     for h, items in _ca1:
         if i >= len(items): continue
         n, k, s_, md, need, nm = items[i]
-        add('p1.ca.' + k, 1, '암보장', h, n, 'engine', s_, md, need=need, sc_name=nm)
+        add('p1.ca.' + k, 1, '암보장', h, n, 'engine', s_, md, need=need, sc_name=nm, na_if_empty=(h == '진단금'))
 _bh1 = [('진단금', [('뇌졸중', 'dx.뇌졸중', BDX['뇌졸중'], 'first', None, '뇌졸중 진단(I63 뇌경색)'), ('뇌혈관', 'dx.뇌혈관', BDX['뇌혈관'], 'first', None, '뇌혈관질환 진단(I67.1 비파열 뇌동맥류 · 뇌졸중이 아닌 뇌혈관질환)'),
                   ('급성심근경색', 'dx.급성심근경색', HDX['급성심근경색'], 'first', None, '급성심근경색 진단(I21)'), ('허혈성심장', 'dx.허혈성심장', HDX['허혈성심장'], 'first', None, '허혈성심장질환 진단(I20 협심증)')]),
         ('뇌 치료 및 수술', [(n, 'txb.' + n, s_, 'first', None, '뇌 · ' + n + ' · 상급종합병원') for n, s_ in P1_TX_B]),
@@ -125,11 +125,11 @@ for i in range(5):
     for h, items in _bh1:
         if i >= len(items): continue
         n, k, s_, md, need, nm = items[i]
-        add('p1.bh.' + k, 1, '뇌·심보장', h, n, 'engine', s_, md, need=need, sc_name=nm)
+        add('p1.bh.' + k, 1, '뇌·심보장', h, n, 'engine', s_, md, need=need, sc_name=nm, na_if_empty=(h == '진단금'))
 for n in DZ_ORDER:
     add('p1.dz.' + n, 1, '주요수술보장', n, GA_DZ[n][0], 'engine', sc_dz(n, '병원'), 'first', sc_name='%s %s (%s) · 병원급' % (n, GA_DZ[n][0], GA_DZ[n][1]))
-add('p1.care.hosp',   1, '간병인보장', '간병인지원(현물지원)', '병·의원(요양병원제외)', 'care', direct='hosp',   note='「간병인지원 질병입원일당」 가입 → 보내줌(1일이상 담보 우선, 없으면 181일이상 담보) · 없으면 미가입')
-add('p1.care.nh',     1, '간병인보장', '간병인지원(현물지원)', '요양병원',            'care', direct='nh',     note='「간병인지원 요양성특정질병입원일당(…)(요양병원)」 가입 → 보내줌 · 없으면 미가입')
+add('p1.care.hosp',   1, '간병인보장', '간병인지원(현물지원)', '병·의원(요양병원제외)', 'care', direct='hosp',   note='「간병인지원 질병입원일당(1일이상 180일한도)」 가입 → 보내줌 · 없으면 미가입(181일이상만 가입해도 미가입 · GA 결정 2026-10-08)')
+add('p1.care.nh',     1, '간병인보장', '간병인지원(현물지원)', '요양병원',            'care', direct='nh',     note='「간병인지원 요양성특정질병입원일당(…)(요양병원)」 또는 「간병인지원 질병입원일당(1일이상 180일한도)」 가입 → 보내줌 · 둘 다 없으면 미가입(소유자 2026-10-08)')
 add('p1.care.nurse',  1, '간병인보장', '간병인지원(현물지원)', '간호간병통합서비스 1일', 'care', direct='nurse', note='「간병인지원 질병입원일당(간호·간병통합서비스 사용추가보장)」 가입금액 + 간병인 미사용 시 입원일당(Ⅰ 가입금액 · Ⅶ 5천원 · Ⅵ 0)')
 add('p1.care.unused', 1, '간병인보장', '간병인지원(현물지원)', '미사용시 1일',        'care', direct='unused', note='간병인지원 질병입원일당 담보의 설계서 금액(Ⅰ 가입금액 · Ⅶ 「또는 5천원」 · Ⅵ 금액 없음 → 0)')
 add('p1.care.use_gen',   1, '간병인보장', '간병인사용(금액지원)', '간병인 1일',          'care', direct='use_gen',   note='「간병인사용 질병입원일당」(요양병원 전용·간호간병 제외) 1일이상 담보 가입금액 합')
@@ -139,9 +139,9 @@ add('p1.care.use_nurse', 1, '간병인보장', '간병인사용(금액지원)', 
 # ── 2쪽 암보장 ──
 for n, k in EX_CA:
     add('p2.ex.' + k, 2, '암검사(8종)', '', n, 'engine', sc_itc('C16', k, fam='cancer'), 'itc_only', sc_name='위암(C16) %s · 상급종합병원 · 통합치료비 항목만' % n)
-add('p2.dx.일반암', 2, '암진단', '', '일반암', 'engine', DXS['일반암'], 'first', sc_name='일반암 진단(C16)')
-add('p2.dx.유사암', 2, '암진단', '', '유사암', 'engine', DXS['유사암'], 'first', sc_name='유사암 진단(C73)')
-add('p2.dx.전이암', 2, '암진단', '', '전이암', 'engine', DXS['전이암'], 'meta_only', need=['전이암'], sc_name='전이암 진단(C78.7) · 전이암 담보 줄만')
+add('p2.dx.일반암', 2, '암진단', '', '일반암', 'engine', DXS['일반암'], 'first', sc_name='일반암 진단(C16)', na_if_empty=True)
+add('p2.dx.유사암', 2, '암진단', '', '유사암', 'engine', DXS['유사암'], 'first', sc_name='유사암 진단(C73)', na_if_empty=True)
+add('p2.dx.전이암', 2, '암진단', '', '전이암', 'engine', DXS['전이암'], 'meta_only', need=['전이암', '진단'], sc_name='전이암 진단(C78.7) · 전이암 담보 줄만')
 SG = [('내시경수술', 'endo'), ('개복·개흉수술', 'open'), ('복강경,흉강경', 'lap'), ('다빈치로봇암수술', 'robot')]
 ROWS3 = (('최초 지급시', 'first'), ('반복(연 1회)', 'year'), ('수술할 때마다', 'each'))
 for rl, md in ROWS3:
@@ -162,7 +162,7 @@ add('p2.dis', 2, '암후유장해', '', '3-100% 암후유장해', 'direct', dire
 for n, k in EX_BH:
     add('p3.ex.' + k, 3, '뇌·심검사(3종)', '', n, 'engine', sc_itc('I63', k, grp=BG), 'itc_only', sc_name='뇌경색(I63) %s · 상급종합 · 통합치료비 항목만' % n)
 for n, s_, nm in (('뇌혈관', BDX['뇌혈관'], '뇌혈관질환 진단(I67.1)'), ('뇌졸중', BDX['뇌졸중'], '뇌졸중 진단(I63)'), ('허혈성심장', HDX['허혈성심장'], '허혈성심장질환 진단(I20)'), ('급성심근경색', HDX['급성심근경색'], '급성심근경색 진단(I21)')):
-    add('p3.dx.' + n, 3, '뇌·심진단', '', n, 'engine', s_, 'first', sc_name=nm)
+    add('p3.dx.' + n, 3, '뇌·심진단', '', n, 'engine', s_, 'first', sc_name=nm, na_if_empty=True)
 for rl, md in ROWS3:
     for i, (n, s_) in enumerate(brain_steps('상급종합')): add('p3.b%d.%s' % (i, md), 3, '뇌질환 치료 및 수술', rl, n, 'engine', s_, md, sc_name='%s · 뇌 · 상급종합' % n)
 for rl, md in ROWS3:
@@ -192,9 +192,37 @@ def counts(l, mode):
     if mode == 'each': return l.get('each', l['amt'] if l.get('freq') == 'each' else 0)
     if mode == 'itc_only': return l['amt'] if l.get('group') == '통합치료비' else 0
     if mode == 'ms_only': return l['amt'] if l.get('itc') == 'ms' else 0
-    if mode == 'meta_only': return l['amt'] if '전이암' in _ns(l['name']) else 0            # 전이암 진단비 줄만
+    if mode == 'meta_only': return l['amt'] if '전이암' in _ns(l['name']) and '진단' in _ns(l['name']) else 0   # 전이암 진단비 줄만(전이암 치료비 제외)
     if mode == 'reg_only': return l['amt'] if l.get('rule') == 'dx_special_case' else 0     # 산정특례대상 진단비 줄만
     return 0
+
+# 상해 통합치료비(실속형) — 엔진(pay_lines)은 이 특약을 계산하지 않고 스마트 제안서(gen2.inj_itc_pay)가 inj_itc.json 금액표로 따로 계산한다.
+# GA 칸도 같은 금액표로 더한다(v8.75 · 전에는 골절 칸에서 빠져 0). 금액표에 없는 가입금액이면 계산하지 않고 로그만 남긴다(CLAUDE.md 2).
+INJ_ITC = json.load(open(os.path.join(PS, 'inj_itc.json'), encoding='utf-8'))
+INJ_ACT = {'MRI': 'x_mri', 'CT': 'x_ct', '골밀도': 'x_bmd', '흡인': 'aspir', '신경차단': 'block', '화상처치': 'burn', '도수정복': 'reduction',
+           '창상봉합술치료(안면부,': 'suture_face', '창상봉합술치료(안면부이외': 'suture', '깁스': 'cast', '부목': 'splint', 'CRRT': 'crrt',
+           '인공호흡기': 'vent', '저체온': 'hypo', '체외순환': 'ecmo', '전신마취': 'anes6', '중환자실': 'icu'}   # gen2.INJ_ACT 와 같다(재활은 GA 상해 사례에 없음)
+def inj_lines(riders, s_):
+    if (s_.get('tags') or {}).get('cause') != '상해': return [], []
+    ev = s_.get('itc_events') or []
+    acts = {k for e in ev if len(e) > 3 for k in e[3]}
+    js = {int(e[4]['j']) for e in ev if len(e) > 4 and isinstance(e[4], dict) and e[4].get('j')}
+    out, iss = [], []
+    for r in riders:
+        for k, tiers in INJ_ITC.items():
+            if S.nname(k) not in (S.nname(r['name']), S.noren(r['name'])): continue
+            items = tiers.get(str(int(r['man']))) if r.get('man') else None
+            if not items:
+                iss.append({'구분': '계산제외', '담보': r['name'], '사유': '가입금액 %s만원이 약관 지급금액표(inj_itc.json)에 없음' % r.get('man')}); continue
+            parts, tot = [], 0
+            for it in items:
+                l = it['l']
+                if it['c'].startswith('수술'): amt = it['amt'] if 'surg' in acts and int(l[0]) in js else 0
+                else:
+                    key = next((v for kk, v in INJ_ACT.items() if kk in l), None); amt = it['amt'] if key and key in acts else 0
+                if amt: parts.append('%s %s' % (l, format(amt, ','))); tot += amt
+            if tot: out.append(dict(name=r['name'], amt=float(min(tot, r['man'])), why=' · '.join(parts), rule='itc', group='통합치료비', freq='each', no=r.get('no')))
+    return out, iss
 
 def has_need(c, riders):
     if not c.get('need'): return True
@@ -214,8 +242,11 @@ def cell_value(c, riders):
         rs = [r for r in riders if all(a in r['name'] for a in d['keys']) and not any(x in r['name'] for x in d.get('exclude', []))]
         return (None if not rs else sum(r['man'] for r in rs)), [dict(name=r['name'], amt=r['man'], why='가입금액 그대로', rule='direct') for r in rs], []
     L, iss = pay(riders, c['sc'])
+    il, ii = inj_lines(riders, c['sc'])
+    if il or ii: L, iss = L + il, iss + ii
     if c['mode'] == 'ms_only' and not any(r.get('itc') == 'ms' for r in riders): return None, L, iss
     if not has_need(c, riders): return None, L, iss
+    if c.get('na_if_empty') and not any(counts(l, c['mode']) for l in L): return None, L, iss   # 진단금 칸 : 이 진단에 지급되는 가입담보가 없으면 「미가입」(v8.75 · 전에는 0)
     return float(sum(counts(l, c['mode']) for l in L)), L, iss
 
 def tokens_of(v):
