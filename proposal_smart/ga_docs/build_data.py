@@ -10,8 +10,8 @@ R=json.load(open(sys.argv[1]))
 RULES={r['id']:r for r in S.RULES}
 KIND={'dx':'진단비','surg':'수술비','tx':'치료비','day':'입원·통원 일당','point2':'포인트적립형 치료비','skip':'계산 제외','care':'간병','life':'사망·후유장해','nonmed':'비의료','itc_unknown':'금액표 없음'}
 PAGES={1:'보장요약',2:'암보장',3:'뇌·심보장'}
-DN={'gan31-M.pdf':'간편31 남(GA 테스트)','mom-40.pdf':'통합간편 남40','the510-44f.pdf':'The건강한 5.10.5 여44','mom5105-40.pdf':'내Mom대로 5.10.5 여40','u355.pdf':'통합간편355 여','light355.pdf':'가벼운 간편355 여','mom-new-40.pdf':'내Mom대로 남40'}
-order=['gan31-M.pdf','the510-44f.pdf','mom-40.pdf','mom5105-40.pdf','mom-new-40.pdf','u355.pdf','light355.pdf']
+DN={'gan31-M.pdf':'간편31 남(GA 테스트)','mom-40.pdf':'통합간편 남40','the510-44f.pdf':'The건강한 5.10.5 여44','mom5105-40.pdf':'내Mom대로 5.10.5 여40','u355.pdf':'통합간편355 여','light355.pdf':'가벼운 간편355 여','mom-new-40.pdf':'내Mom대로 남40','gan31-41650.pdf':'간편31 여(41,650원)','d42940.pdf':'통합간편 남(42,940원)','d106010.pdf':'통합간편 여(106,010원)','d272600.pdf':'통합간편 남(272,600원)','d61760.pdf':'통합간편 연만기 남(61,760원)','d104810.pdf':'알파Plus 남(104,810원)','t5105-30020.pdf':'The건강한5.10.5 여(30,020원)','t5105-177770.pdf':'The건강한5.10.5 남(177,770원)','t5105-122661.pdf':'The건강한내Mom대로5.10.5 남(122,660원)','t5105-243046.pdf':'The건강한내Mom대로5.10.5 남(243,040원)'}
+order=['gan31-M.pdf','the510-44f.pdf','mom-40.pdf','mom5105-40.pdf','mom-new-40.pdf','u355.pdf','light355.pdf','gan31-41650.pdf','d42940.pdf','d106010.pdf','d272600.pdf','d61760.pdf','d104810.pdf','t5105-30020.pdf','t5105-177770.pdf','t5105-122661.pdf','t5105-243046.pdf']
 D={d['pdf']:d for d in R['designs']}
 designs=[{'k':p,'l':DN[p],'prod':re.sub(r'\(무\)\s*','',D[p]['meta'].get('product','')).split('(해약')[0][:60]} for p in order if p in D]
 names=[]; NI={}

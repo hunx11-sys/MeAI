@@ -22,7 +22,7 @@ URID = {r['db_id']: r for r in RES['universe_riders']}
 CELLS = RES['cells']; CELL = {c['id']: c for c in CELLS}
 DESIGNS = RES['designs']
 DNAME = {'gan31-M.pdf': '간편31 남(GA 테스트)', 'mom-40.pdf': '통합간편 남40', 'the510-44f.pdf': 'The건강한5.10.5 여44', 'mom5105-40.pdf': '내Mom대로5.10.5 여40',
-         'u355.pdf': '통합간편355(연만기) 여', 'light355.pdf': 'The가벼운 간편355 여', 'mom-new-40.pdf': '내Mom대로 남40'}
+         'u355.pdf': '통합간편355(연만기) 여', 'light355.pdf': 'The가벼운 간편355 여', 'mom-new-40.pdf': '내Mom대로 남40', 'gan31-41650.pdf': '간편31 여(41,650원)', 'd42940.pdf': '통합간편 남(42,940원)', 'd106010.pdf': '통합간편 여(106,010원)', 'd272600.pdf': '통합간편 남(272,600원)', 'd61760.pdf': '통합간편 연만기 남(61,760원)', 'd104810.pdf': '알파Plus 남(104,810원)', 't5105-30020.pdf': 'The건강한5.10.5 여(30,020원)', 't5105-177770.pdf': 'The건강한5.10.5 남(177,770원)', 't5105-122661.pdf': 'The건강한내Mom대로5.10.5 남(122,660원)', 't5105-243046.pdf': 'The건강한내Mom대로5.10.5 남(243,040원)'}
 _VER = re.search(r"VERSION = '([^']+)'", open(os.path.join(PS, 'api.py'), encoding='utf-8').read()).group(1)
 _DBN = len(json.load(open(os.path.join(PS, 'db.json'), encoding='utf-8'))['riders'])
 _EXD = json.load(open(os.path.join(PS, 'db_terms_extra.json'), encoding='utf-8')) if os.path.exists(os.path.join(PS, 'db_terms_extra.json')) else {'riders': [], 'meta': {}}
