@@ -29,7 +29,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v8.73'
+VERSION = 'v8.74'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 동시 생성 2건까지(렌더가 무거워 과부하 방지)
 GA_LOCK = threading.Lock()                   # GA 생성기는 한 건씩(모듈 안에 설계서 상태를 둔다)
@@ -165,7 +165,7 @@ class Handler(BaseHTTPRequestHandler):
             shutil.rmtree(tmp, ignore_errors=True)
             return self._err(503, '처리 대기가 길어졌습니다 — 잠시 후 다시 시도해 주세요')
         try:
-            if path in ('/v1/ga/pdf', '/v1/ga/all'):              # GA 양식 6쪽(ga_proposal.py)
+            if path in ('/v1/ga/pdf', '/v1/ga/all'):              # GA 양식 v5(표지·보장요약·암·뇌심 + 세부내역 · ga_proposal.py)
                 import ga_proposal
                 with GA_LOCK:
                     out = os.path.join(tmp, 'ga_proposal.pdf')

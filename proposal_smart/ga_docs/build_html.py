@@ -3,13 +3,13 @@
   python3 build_html.py <data.json> <캡처폴더> <out.html> [캡처 설계서 이름]"""
 import os, sys, os, base64
 D, CAP, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
-label = sys.argv[4] if len(sys.argv) > 4 else 'The건강한 5.10.5 여44 설계서'
+label = sys.argv[4] if len(sys.argv) > 4 else '간편31 남 설계서(GA 테스트)'
 here = os.path.dirname(os.path.abspath(__file__))
 t = open(os.path.join(here, 'tpl.html'), encoding='utf-8').read()
 t = t.replace('(The건강한 5.10.5 여44 설계서)', '(%s)' % label)
 d = open(D, encoding='utf-8').read().replace('</', '<\\/')
 h = t.replace('__DATA__', d)
-imgs = {i: 'data:image/jpeg;base64,' + base64.b64encode(open(os.path.join(CAP, 'p%d.jpg' % i), 'rb').read()).decode() for i in range(1, 7)}
+imgs = {i: 'data:image/jpeg;base64,' + base64.b64encode(open(os.path.join(CAP, 'p%d.jpg' % i), 'rb').read()).decode() for i in range(1, 4)}
 js = "const IMG=" + str({str(k): v for k, v in imgs.items()}).replace("'", '"') + ";"
 old = '<img src="p\'+st.p+\'.jpg"'
 assert old in h, 'tpl img tag'

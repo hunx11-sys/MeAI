@@ -15,14 +15,14 @@ HTML, DESIGN, XLSX = sys.argv[2], sys.argv[3], sys.argv[4]
 WORK = os.path.join(os.path.dirname(os.path.abspath(HTML)), '_visual'); os.makedirs(WORK, exist_ok=True)
 D = next(d for d in RES['designs'] if os.path.basename(d['pdf']) == DESIGN)
 CELLS = RES['cells']
-PAGES = {1: '보장 한눈에', 2: '암 세부', 3: '뇌심 세부', 4: '암치료 세부내역', 5: '뇌·심장 치료 세부내역', 6: '주요 수술비 세부내역'}
+PAGES = {1: '보장요약', 2: '암보장', 3: '뇌·심보장'}          # v5(2026-10-08) : 표지(칸 없음) → 1~3 → 예상 보장금액 세부내역(calcpg)
 
 # ── 1. 토큰 → 칸 번호 ──
 order = []
 for c in CELLS:
     for _ in D['cells'][c['id']]['tokens']: order.append(c['id'])
 h = open(HTML, encoding='utf-8').read()
-PAT = re.compile(r'<b class="v[^"]*">([^<]+)<i>만원</i></b>|<span class="na">(미가입|면책)</span>|<span class="txt">(지원가능)</span>')
+PAT = re.compile(r'<b class="v[^"]*">([^<]+)<i>만원</i></b>|<span class="na">(미가입|면책)</span>|<span class="txt">(보내줌|지원가능)</span>')
 ms = list(PAT.finditer(h))
 assert len(ms) == len(order), (len(ms), len(order))
 out, last, seen = [], 0, set()
@@ -47,16 +47,17 @@ async def render():
         await pg.goto(pathlib.Path(ah).resolve().as_uri()); await pg.evaluate('document.fonts.ready'); await pg.wait_for_timeout(500); await pg.evaluate('window.__badge()')
         await pg.pdf(path=apdf, prefer_css_page_size=True, print_background=True); await b.close()
 asyncio.run(render())
-doc = pymupdf.open(apdf); PNG = {}; CALC = []
-kinds = re.findall(r'<div class="page( calcpg)?">', h)          # 지면 순서 : 1쪽 → 합산 계산서(calcpg) → 2~6쪽 (v8.68~)
+doc = pymupdf.open(apdf); PNG = {}; CALC = []; COVER = None
+kinds = re.findall(r'<div class="page( [a-z]+)?">', h)          # 지면 순서(v5) : 표지(cover) → 보장요약 → 암 → 뇌심(roomy) → 세부내역(calcpg)
 assert len(kinds) == doc.page_count, (len(kinds), doc.page_count)
 pno = 0
 for i, k in enumerate(kinds):
     p = os.path.join(WORK, 'page%d.png' % (i + 1)); doc[i].get_pixmap(dpi=110).save(p)
-    if k: CALC.append(p)
-    else: pno += 1; PNG[pno] = p
-    if not k:                                                      # 칸별 특약 지도(HTML)용 캡처
-        doc[i].get_pixmap(dpi=96).save(os.path.join(WORK, 'p%d.jpg' % pno), jpg_quality=72)
+    if k == ' calcpg': CALC.append(p)
+    elif k == ' cover': COVER = p
+    else:
+        pno += 1; PNG[pno] = p
+        doc[i].get_pixmap(dpi=96).save(os.path.join(WORK, 'p%d.jpg' % pno), jpg_quality=72)   # 칸별 특약 지도(HTML)용 캡처
 
 # ── 2. 칸별 특약 ──
 def used(lines):
@@ -93,7 +94,7 @@ HF = PatternFill('solid', fgColor='1F4E9E'); ZF = PatternFill('solid', fgColor='
 thin = Side(style='thin', color='C9CED6'); BD = Border(left=thin, right=thin, top=thin, bottom=thin)
 WRAP = Alignment(wrap_text=True, vertical='top')
 meta = D.get('meta') or {}
-for pno in range(1, 7):
+for pno in range(1, 4):
     ws = wb.create_sheet('캡처 %d쪽 %s' % (pno, PAGES[pno])[:31], index=pno)
     ws.sheet_view.showGridLines = False
     ws['A1'] = 'GA 스마트 제안서 %d쪽 「%s」 — 칸 번호별로 계산되는 특약' % (pno, PAGES[pno]); ws['A1'].font = Font(bold=True, size=14)
@@ -131,15 +132,19 @@ for pno in range(1, 7):
         r += 1
     ws.freeze_panes = 'A5'
     print(pno, PAGES[pno], 'cells', r - 5)
-for j, p in enumerate(CALC, 1):                                   # 1쪽 뒤 합산 계산서 — 그림만(내용은 ⑪ 설계서 칸별 특약 금액 시트와 같다)
-    ws = wb.create_sheet('캡처 1-%d 합산 계산서' % j, index=1 + j)
+ws = wb.create_sheet('캡처 표지', index=1)                       # 표지(탑재상품 · 분석 대상 설계서) — 칸 없음
+ws.sheet_view.showGridLines = False
+ws['A1'] = 'GA 스마트 제안서 표지 — 탑재상품 13개(GA 명칭 · 알파Plus = 케어프리 M-Basket) 중 이 설계서의 상품을 표시. 설계서 %s' % DESIGN; ws['A1'].font = Font(bold=True, size=13)
+img = XImg(COVER); ratio = img.height / img.width; img.width = 640; img.height = int(640 * ratio); ws.add_image(img, 'A3')
+for j, p in enumerate(CALC, 1):                                   # 예상 보장금액 세부내역(합산 계산서 · 맨 뒤) — 그림만(내용은 ⑪ 설계서 칸별 특약 금액 시트와 같다)
+    ws = wb.create_sheet('캡처 세부내역 %d' % j, index=4 + j)
     ws.sheet_view.showGridLines = False
-    ws['A1'] = '1쪽 「보장 한눈에」 뒤에 붙는 합산 계산서 %d/%d — 1쪽 칸마다 어떤 설계 특약을 더해 그 금액이 나왔는지(특약명 · 가입금액 · 지급액). 설계서 %s' % (j, len(CALC), DESIGN); ws['A1'].font = Font(bold=True, size=13)
+    ws['A1'] = '뇌·심보장 뒤에 반드시 붙는 「예상 보장금액 세부내역」 %d/%d — 보장요약 칸마다 어떤 설계 특약을 더해 그 금액이 나왔는지(특약명 · 지급 조건 · 가입금액 · 지급액). 설계서 %s' % (j, len(CALC), DESIGN); ws['A1'].font = Font(bold=True, size=13)
     img = XImg(p); ratio = img.height / img.width; img.width = 900; img.height = int(900 * ratio); ws.add_image(img, 'A3')
 ov = wb.worksheets[0]; MARK = '【캡처 시트】'
 if not any(isinstance(c.value, str) and c.value.startswith(MARK) for row in ov.iter_rows() for c in row):
     r0 = ov.max_row + 2
-    ov.cell(row=r0, column=1, value=MARK + ' 「캡처 1쪽~6쪽」 시트 — 지면 캡처에 칸 번호(파란 숫자)를 달고, 옆 표에 칸 번호별로 계산되는 특약 이름·금액을 나열. 「캡처 1-①~③ 합산 계산서」는 1쪽 뒤에 반드시 붙는 계산서 지면(GA 확정 2026-10-02). '
+    ov.cell(row=r0, column=1, value=MARK + ' 「캡처 표지」·「캡처 1~3쪽」 시트 — 지면 캡처에 칸 번호(파란 숫자)를 달고, 옆 표에 칸 번호별로 계산되는 특약 이름·금액을 나열. 「캡처 세부내역 1~n」은 뇌·심보장 뒤에 반드시 붙는 예상 보장금액 세부내역(합산 계산서) 지면. '
             '먼저 이 시트로 칸을 찾고, 자세한 조건은 ②·③·④ 시트에서 같은 칸 번호(P쪽-번호)로 찾는다.').font = Font(bold=True, color='1F4E9E')
 wb.save(XLSX)
 print('saved', XLSX, [w.title for w in wb.worksheets])
