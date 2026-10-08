@@ -40,8 +40,11 @@ def daily(r):
     return v / 10 if m.group(2) == '천원' else (v / 10000 if m.group(2) == '원' else v)
 
 def _dz(rs):  return [r for r in rs if '질병입원일당' in r['name'] and '요양성' not in r['name']]
-def _d180(rs): return [r for r in rs if '181일' not in r['name']]
-def support(rs):      # 간병인지원 질병입원일당(Ⅰ·Ⅵ·Ⅶ …) 1일이상 — 현물 간병인
+def _d180(rs):
+    """1일이상(180일한도) 담보만 — 없으면 181일이상 담보(설계서에 181일이상만 가입한 경우도 가입으로 본다 · 소유자 2026-10-08 The건강한5.10.5 사례)"""
+    a = [r for r in rs if '181일' not in r['name']]
+    return a if a else rs
+def support(rs):      # 간병인지원 질병입원일당(Ⅰ·Ⅵ·Ⅶ …) — 현물 간병인
     return _d180([r for r in _dz(rs) if '간병인지원' in r['name'] and '간호·간병' not in r['name']])
 def support_nh(rs):   # 간병인지원 요양성특정질병입원일당(…)(요양병원)
     return [r for r in rs if '간병인지원' in r['name'] and '요양성특정질병입원일당' in r['name'] and '(요양병원)' in r['name']]
@@ -52,8 +55,7 @@ def use(rs, kind):    # 간병인사용(금액지원) — 1일이상 담보, 없
     if kind == 'gen':   sel = [r for r in dz if '간병인사용' in r['name'] and '(요양병원)' not in r['name'] and '간호·간병' not in r['name']]
     elif kind == 'nh':  sel = [r for r in dz if '간병인사용' in r['name'] and '(요양병원)' in r['name']]
     else:               sel = [r for r in dz if '간호·간병통합서비스' in r['name'] and '간병인지원' not in r['name']]
-    a = _d180(sel)
-    return a if a else sel
+    return _d180(sel)
 
 def unused(rs):
     sp = support(rs)

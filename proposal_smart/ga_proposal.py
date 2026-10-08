@@ -167,7 +167,8 @@ def p3():
 def _man_of(name):
     """지급 줄 이름과 같은 설계 담보의 가입금액(만원) — 못 찾으면 None"""
     for r in RID:
-        if _ns(r['name']) == _ns(name) or _ns(r['name']).replace('치매주요질환입원일당', '질병입원일당') == _ns(name): return r['man']
+        if _ns(r['name']) == _ns(name) or _ns(r['name']).replace('치매주요질환입원일당', '질병입원일당') == _ns(name):
+            return r['man'] if r['man'] or '간병인지원' not in r['name'] else CARE.daily(r)   # 간병인지원 「간병인지원 또는 N만원」 — 금액란 숫자(현물 담보는 가입금액 0 으로 읽힘)
     return None
 def _wn(v):
     """계산서용 숫자 — 1쪽 값 표시(b.v)와 다른 표기를 써서 지면 대조(ga_spec)가 칸 수를 잘못 세지 않게 한다"""
