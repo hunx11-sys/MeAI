@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
 <style>
-@font-face{font-family:P;font-weight:300;src:url(Pretendard-Light.woff2)}
-@font-face{font-family:P;font-weight:400;src:url(Pretendard-Regular.woff2)}
-@font-face{font-family:P;font-weight:600;src:url(Pretendard-SemiBold.woff2)}
-@font-face{font-family:P;font-weight:700;src:url(Pretendard-Bold.woff2)}
-@font-face{font-family:P;font-weight:800;src:url(Pretendard-ExtraBold.woff2)}
+@font-face{font-family:P;font-weight:300;src:url(../promo_shared/Pretendard-Light.woff2)}
+@font-face{font-family:P;font-weight:400;src:url(../promo_shared/Pretendard-Regular.woff2)}
+@font-face{font-family:P;font-weight:600;src:url(../promo_shared/Pretendard-SemiBold.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../promo_shared/Pretendard-Bold.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../promo_shared/Pretendard-ExtraBold.woff2)}
 html,body{margin:0;background:#000}
 #v{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;background:#F6F4EE;color:#111}
 .L{position:absolute;inset:0}
@@ -23,7 +23,7 @@ html,body{margin:0;background:#000}
 </style></head><body>
 <div id="v"></div>
 <script>
-const TOOLS=[['특약검색기','s1b.png'],['보상시뮬레이터','s2.png'],['통합치료비 시뮬레이터','s3c.png'],['상품 라인업','s4.png'],['프롬프트 라이브러리','s5.png'],['명패 제작기','s6.png']];
+const TOOLS=[['특약검색기','../promo_shared/s1b.png'],['보상시뮬레이터','../promo_shared/s2.png'],['통합치료비 시뮬레이터','../promo_shared/s3c.png'],['상품 라인업','../promo_shared/s4.png'],['프롬프트 라이브러리','../promo_shared/s5.png'],['명패 제작기','../promo_shared/s6.png']];
 const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const ex=x=>{x=cl(x);return x===1?1:1-Math.pow(2,-10*x)};
 const io=x=>{x=cl(x);return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
@@ -113,7 +113,7 @@ function s3(t){
   const k=lt-2.5;
   return `<div class="pn" style="left:30px;top:30px;width:1020px;height:880px;transform:translateX(${(1-ex(k/.35))*1100}px)">
       <div class="L tone-l" style="opacity:.5"></div>
-      ${ph('s1b.png',300,60,420,900,'bw','transform:rotate(-12deg)')}
+      ${ph('../promo_shared/s1b.png',300,60,420,900,'bw','transform:rotate(-12deg)')}
       ${bubble(560,80,420,260,'약관 근거도\n버튼 하나.',42,{tail:[.2,.95,.05,1.2],op:cl((k-.2)*6)})}
     </div>
     <div class="pn" style="left:30px;top:940px;width:640px;height:950px;transform:translateY(${(1-ex((k-.15)/.35))*1100}px)">

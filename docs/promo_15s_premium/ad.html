@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
 <style>
-@font-face{font-family:P;font-weight:100;src:url(Pretendard-Thin.woff2)}
-@font-face{font-family:P;font-weight:300;src:url(Pretendard-Light.woff2)}
-@font-face{font-family:P;font-weight:400;src:url(Pretendard-Regular.woff2)}
-@font-face{font-family:P;font-weight:600;src:url(Pretendard-SemiBold.woff2)}
-@font-face{font-family:P;font-weight:700;src:url(Pretendard-Bold.woff2)}
-@font-face{font-family:P;font-weight:800;src:url(Pretendard-ExtraBold.woff2)}
+@font-face{font-family:P;font-weight:100;src:url(../promo_shared/Pretendard-Thin.woff2)}
+@font-face{font-family:P;font-weight:300;src:url(../promo_shared/Pretendard-Light.woff2)}
+@font-face{font-family:P;font-weight:400;src:url(../promo_shared/Pretendard-Regular.woff2)}
+@font-face{font-family:P;font-weight:600;src:url(../promo_shared/Pretendard-SemiBold.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../promo_shared/Pretendard-Bold.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../promo_shared/Pretendard-ExtraBold.woff2)}
 html,body{margin:0;background:#000}
 #v{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;color:#F4F1EC;background:#0B0B0D}
 .L{position:absolute;inset:0}
@@ -27,12 +27,12 @@ html,body{margin:0;background:#000}
 <script>
 const BEAT=.5;   // 120 BPM
 const TOOLS=[
- {n:'특약검색기',d:'특약 1,155종,<br>약관 근거까지 한 번에.',img:'s1b.png',y:0},
- {n:'보상시뮬레이터',d:'병명 하나로 진단부터 입원까지<br>보상 흐름을 한눈에.',img:'s2.png',y:0},
- {n:'통합치료비 시뮬레이터',d:'"얼마 받나요?"<br>숫자로 답합니다.',img:'s3c.png',y:0},
- {n:'상품 라인업',d:'고객 조건에 맞는 상품과<br>알릴의무를 바로.',img:'s4.png',y:0},
- {n:'프롬프트 라이브러리',d:'MeAI에 바로 쓰는<br>검증된 질문 272개.',img:'s5.png',y:0},
- {n:'명패 제작기',d:'엑셀 한 장으로<br>행사 명패까지.',img:'s6.png',y:0},
+ {n:'특약검색기',d:'특약 1,155종,<br>약관 근거까지 한 번에.',img:'../promo_shared/s1b.png',y:0},
+ {n:'보상시뮬레이터',d:'병명 하나로 진단부터 입원까지<br>보상 흐름을 한눈에.',img:'../promo_shared/s2.png',y:0},
+ {n:'통합치료비 시뮬레이터',d:'"얼마 받나요?"<br>숫자로 답합니다.',img:'../promo_shared/s3c.png',y:0},
+ {n:'상품 라인업',d:'고객 조건에 맞는 상품과<br>알릴의무를 바로.',img:'../promo_shared/s4.png',y:0},
+ {n:'프롬프트 라이브러리',d:'MeAI에 바로 쓰는<br>검증된 질문 272개.',img:'../promo_shared/s5.png',y:0},
+ {n:'명패 제작기',d:'엑셀 한 장으로<br>행사 명패까지.',img:'../promo_shared/s6.png',y:0},
 ];
 const A0=0, A1=5*BEAT, B1=7*BEAT, C1=B1+18*BEAT, END=15;   // 2.5s · 3.5s · 12.5s
 const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));

@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
 <style>
-@font-face{font-family:P;font-weight:300;src:url(Pretendard-Light.woff2)}
-@font-face{font-family:P;font-weight:400;src:url(Pretendard-Regular.woff2)}
-@font-face{font-family:P;font-weight:600;src:url(Pretendard-SemiBold.woff2)}
-@font-face{font-family:P;font-weight:700;src:url(Pretendard-Bold.woff2)}
-@font-face{font-family:P;font-weight:800;src:url(Pretendard-ExtraBold.woff2)}
+@font-face{font-family:P;font-weight:300;src:url(../promo_shared/Pretendard-Light.woff2)}
+@font-face{font-family:P;font-weight:400;src:url(../promo_shared/Pretendard-Regular.woff2)}
+@font-face{font-family:P;font-weight:600;src:url(../promo_shared/Pretendard-SemiBold.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../promo_shared/Pretendard-Bold.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../promo_shared/Pretendard-ExtraBold.woff2)}
 html,body{margin:0;background:#000}
 #v{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;background:#050506;color:#fff}
 #w{position:absolute;inset:0}
@@ -20,7 +20,7 @@ html,body{margin:0;background:#000}
 </style></head><body>
 <div id="v"><div id="w"></div><div class="L" id="fx" style="pointer-events:none"></div></div>
 <script>
-const TOOLS=[['특약검색기','s1b.png'],['보상시뮬레이터','s2.png'],['통합치료비 시뮬레이터','s3c.png'],['상품 라인업','s4.png'],['프롬프트 라이브러리','s5.png'],['명패 제작기','s6.png']];
+const TOOLS=[['특약검색기','../promo_shared/s1b.png'],['보상시뮬레이터','../promo_shared/s2.png'],['통합치료비 시뮬레이터','../promo_shared/s3c.png'],['상품 라인업','../promo_shared/s4.png'],['프롬프트 라이브러리','../promo_shared/s5.png'],['명패 제작기','../promo_shared/s6.png']];
 const IM={red_stern:[930,966],red_eyes:[630,480],slick:[864,966],long_grin:[1215,615],profile:[660,582],long_muscle:[1200,588],red_point_face:[1470,642],fist:[942,534],suit:[912,966],group:[1026,978]};
 const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const ex=x=>{x=cl(x);return x===1?1:1-Math.pow(2,-10*x)};
@@ -94,7 +94,7 @@ function s3(t){
       +cap([['편리함도',.2,110],['겨우 14~15배.',.7,150,'#FFD23F']],60,1420,lt)+NOTE,'box-shadow:none')}
   const k=lt-2.5;
   return pn(0,0,1080,760,`<div class="L" style="background:radial-gradient(80% 90% at 30% 50%,#3a0710,#000)"></div>`+speed(1080,760,lt,30,'rgba(255,255,255,.12)')
-       +ph('s1b.png',120,60,400,860,'transform:rotate(-10deg);box-shadow:0 0 0 5px #fff,0 0 60px rgba(228,0,43,.6)')
+       +ph('../promo_shared/s1b.png',120,60,400,860,'transform:rotate(-10deg);box-shadow:0 0 0 5px #fff,0 0 60px rgba(228,0,43,.6)')
        +cap([['약관 근거도',k+0.2>0?2.7:9,80],['버튼 하나.',3.0,110,'#FFD23F']],560,250,lt,-4),`transform:translateX(${(1-ex(k/.3))*1100}px)`)
     +pn(0,776,660,1144,pic('red_point_face',660,1144,.36,.42,1.0+k*.04)+DARK(0,.8,50)+sfx('고고고',420,560,80,-6,cl((k-.5)*3))
        +cap([['빠르다고 해봐야',2.95,62],['겨우 11~12배.',3.35,88,'#FFD23F']],40,890,lt,-4),`transform:translateY(${(1-ex((k-.12)/.3))*1200}px)`)

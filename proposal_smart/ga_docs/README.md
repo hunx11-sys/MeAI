@@ -10,7 +10,6 @@ python build_ga_visual.py <결과.json> <html폴더>/gan31-M-ga.html gan31-M.pdf
 python build_ga_blueprint.py <결과.json> ../../dist/ga-blueprint-final.xlsx                              # 설계도 1~12 시트
 python build_data.py <결과.json> <data.json>
 python build_html.py <data.json> <html폴더>/_visual ../../dist/ga-cell-map.html "간편31 남 설계서(GA 테스트)"
-cp ../../dist/ga-blueprint-final.xlsx ../../dist/ga-cell-rider-mapping.xlsx
 ```
 
 - `build_ga_xlsx.py` 는 엑셀을 새로 만든다. **⑫ 검수 메모처럼 손으로 적은 시트는 이전 파일에서 다시 복사해 넣는다** — 이전 엑셀을 먼저 복사해 두고, blueprint 뒤에 `restore_memo.py`(아래)를 돌린다(2026-10-02 · 2026-10-08 에 그렇게 했다).
