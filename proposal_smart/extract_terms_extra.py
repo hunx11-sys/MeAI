@@ -43,9 +43,28 @@ def strip_examples(t):
        제외코드에 C18·C50·C25·C34·C73 등 예시 코드가 들어가 14대특정암 폐암(C34) 사례가 0원이 되던 것)."""
     return EXAMPLE.sub(' ', t)
 
+def join_split_ranges(t):
+    """표 칸 폭 때문에 범위 끝 코드의 마지막 숫자가 다음 줄로 넘어간 것을 잇는다(v8.73).
+       'C00~C1' 처럼 끝이 '영문+숫자 1자리'면 KCD 로 완결되지 않은 것이다 — 바로 다음 줄, 또는 설명 글 줄 몇 개 뒤에
+       숫자 한 자리만 있는 줄이 나오면 그 숫자를 붙이고 그 줄은 지운다(The건강한내Mom대로5.10.5 p.1285 : 'C74~C7' … '5', 'C77~C8' … '0')."""
+    L = t.split('\n')
+    for i, line in enumerate(L):
+        m = re.search(r'([~∼～]\s*[A-Z]\d)\s*$', line)
+        if not m:
+            continue
+        for j in range(i + 1, min(i + 6, len(L))):
+            if re.fullmatch(r'\s*\d\s*', L[j]):
+                L[i] = line.rstrip() + L[j].strip(); L[j] = ''
+                break
+            if re.search(r'[A-Z]\d{2}', L[j]):                             # 다른 코드가 먼저 나오면 잇지 않는다
+                break
+    return '\n'.join(L)
+
+
 def kcds(txt):
     """표·본문 텍스트 → (코드목록, 제외코드목록). '(… 제외)' 괄호 안 코드는 제외코드로."""
     t = re.sub(r'([A-Z]\d{2}\.)\s*\n\s*(\d)', r'\1\2', txt)          # 'C78.' + 줄바꿈 + '4'
+    t = join_split_ranges(t)                                           # 'C00~C1' … '4' (The건강한내Mom대로5.10.5 통합암 분류표 · v8.73)
     t = strip_examples(t)
     ex = []
     for m in re.finditer(r'[(（]([^()（）]{0,120}?)제외\s*[)）]', t):
@@ -92,9 +111,18 @@ def appendix(lines, starts):
             k += 1
             if name and re.search(r'(표|계산|비용|종류|목록)$', name[-1]): break
         txt = '\n'.join(l for _, l in lines[k:j])
+        cut = TAB_END.search(txt)                    # 부록 마지막 표 뒤로 다음 약관 조문이 이어지면 거기서 끊는다(v8.73)
+        if cut:
+            txt = txt[:cut.start()]
         cur['tabs'].setdefault(key, []).append({'key': key, 'name': ' '.join(name), 'page': lines[i][0] + 1, 'text': txt})
         cur['b'] = j
     return [(r['a'], r['b'], r['tabs']) for r in regions]
+
+# 부록 마지막 표 뒤에 다음 약관('제2관 …' · '제3조(보험금의 지급사유)')이 붙어 나오면 거기부터는 표가 아니다 —
+# 내Mom대로·어린이 【별표2 독감(인플루엔자) 분류표】가 3만6천 자로 늘어나, 보통약관 해설 '습관성 유산, 불임 … N96~N98'을
+# 대상코드로 읽던 것(v8.73 · 독감 항바이러스제치료비 5건).
+TAB_END = re.compile(r'\n\s*제\s*\d+\s*관\s+\S|\n\s*제\s*\d+\s*조\s*\(')
+
 
 def pick(tabs, key, name):
     c = tabs.get(key) or []
@@ -180,8 +208,27 @@ def category(n):
 
 def tid(product, e): return 'X' + hashlib.md5((product + '|' + e['key'] + '|' + str(e['page'])).encode('utf-8')).hexdigest()[:10]
 
+def col_text(page):
+    """두 단 조판 쪽을 '왼쪽 단 → 오른쪽 단' 순서로 읽는다(v8.73).
+       pymupdf 기본 get_text() 는 줄 높이가 같으면 두 단을 가로로 섞어, 별표 둘째 단의 코드가 다음 별표로 넘어가거나
+       (특정순환계질환 분류표 52 → 34코드) 옆 표의 코드가 들어왔다(대상포진 분류표에 I21·I60 등 · 악성신생물 분류표에 B15·I00 등).
+       가로 전체를 차지하는 블록(제목·표머리)은 위치대로 앞에 둔다."""
+    w = page.rect.width
+    bl = [b for b in page.get_text('blocks') if b[6] == 0 and b[4].strip()]
+    full = [b for b in bl if b[0] < w * 0.35 and b[2] > w * 0.65]
+    rest = [b for b in bl if b not in full]
+    left = [b for b in rest if (b[0] + b[2]) / 2 < w / 2]
+    right = [b for b in rest if (b[0] + b[2]) / 2 >= w / 2]
+    if not left or not right:                                   # 한 단 쪽은 기본 읽기 그대로
+        return page.get_text()
+    seq = sorted(full + left, key=lambda b: (b[1], b[0])) + sorted(right, key=lambda b: (b[1], b[0]))
+    nl = chr(10)
+    return nl.join(b[4].rstrip(nl) for b in seq) + nl
+
+
 def parse(path, product, prefix):
-    d = pymupdf.open(path); pages = [d[i].get_text() for i in range(len(d))]
+    d = pymupdf.open(path)
+    pages = [col_text(d[i]) if os.environ.get('TERMS_COLS', '1') == '1' else d[i].get_text() for i in range(len(d))]
     lines = IT.build_lines(pages)
     blocks = IT.heading_blocks(lines)
     regs = appendix(lines, [b['bstart'] for b in blocks])
@@ -244,16 +291,45 @@ def parse(path, product, prefix):
 # 보강 상품의 추출(감수) 순서 — 같은 이름 특약의 코드를 빌릴 때 이 순서에서 앞선 상품 것만 쓴다
 ORDER = ['내Mom대로', '내Mom같은어린이', '간편31', 'The건강한내Mom대로5.10.5', 'The건강한5.10.5', 'The좋은내Mom대로', 'The가벼운간편355']
 
+MUGAM = re.compile(r'\((?:감액및면책기간미적용|감액기간미적용|면책기간미적용)\)')
+GJ_ = re.compile(r'\([^()]{1,24}가입\)')
+
+
+def settle_key(n):
+    """감수 마스터와 '같은 특약'을 찾는 이름 열쇠(v8.73).
+       · 공백 → 가입 꼬리표 → 갱신형 → 무감액 꼬리표((면책기간미적용) 등) 순으로 뗀다. 무감액 판은 면책·감액 기간만 다르고
+         보장 문구·별표가 같다(The건강한5.10.5 p.699 항암방사선약물치료비(면책기간미적용) 제1조·제3조 = 통48 과 같은 문구).
+       · 세트 특약 'A[A[B]]' → 'A[B]', 'A[A'(B)(연간1회한)]' → 'A[B]' (구성특약 이름에서 부모 이름·(연간1회한)을 뗀다)
+       · 약관 추출 때 앞에 붙은 번호('8계속받는…', '926종…')는 그 이름이 감수 마스터에 없을 때만 뗀다(호출하는 쪽에서)."""
+    t = MUGAM.sub('', re.sub(r'^갱신형', '', GJ_.sub('', re.sub(r'\s', '', n or ''))))
+    m = re.fullmatch(r'([^\[\]]+)\[(.*)\]', t)
+    if m:
+        par, comp = m.group(1), m.group(2)
+        mm = re.fullmatch(r'([^\[\]]+)\[(.*)\]', comp)
+        if mm and settle_key(mm.group(1)) == par:
+            comp = mm.group(2)
+        comp = MUGAM.sub('', re.sub(r'^갱신형', '', comp)).replace('(연간1회한)', '')
+        if comp.startswith(par):
+            comp = comp[len(par):]
+        if comp.startswith('(') and comp.endswith(')'):
+            comp = comp[1:-1]
+        t = par + '[' + comp + ']'
+    return t
+
+
 def settle(riders):
     """감수(監修)된 특약 마스터(db.json)에 같은 이름 특약이 있으면 그 코드(k·x·hc)를 쓴다 — 메리츠 특약은 상품이 달라도
        같은 이름이면 같은 약관 조문·별표를 쓴다(원문 대조 : 같은 이름 668건 중 469건이 파싱 결과와 완전 일치, 나머지는
        파서의 한계 — 암종 구분 열이 있는 표·'분류표 중 C44' 같은 정의 조문). 마스터에 없는 특약만 파싱 코드를 쓰고 근거(별표)를 남긴다."""
     sys.path.insert(0, BASE)
-    GJ = re.compile(r'\([^()]{1,24}가입\)')
-    key = lambda n: re.sub(r'^갱신형', '', GJ.sub('', re.sub(r'\s', '', n or '')))      # 공백을 먼저 없애야 '(편한가 입)' 꼬리표도 떨어진다(v8.71)
+    key = settle_key
+    # 정확한 이름(공백·가입 꼬리표·갱신형만 뗀 것)이 먼저 — 무감액 꼬리표까지 뗀 열쇠는 정확한 짝이 없을 때만 쓴다(v8.73).
+    # 예) 가벼249 「암진단비(유사암및소액암제외)(감액및면책기간미적용)」 은 통291(같은 무감액판)이 짝이고, 통229(일반판)가 아니다.
+    exact = lambda n: re.sub(r'^갱신형', '', GJ_.sub('', re.sub(r'\s', '', n or '')))
     db = json.load(open(os.path.join(BASE, 'db.json'), encoding='utf-8'))['riders']
-    idx = collections.defaultdict(list)
-    for r in db: idx[key(r['n'])].append(r)
+    idx = collections.defaultdict(list); idx0 = collections.defaultdict(list)
+    for r in db:
+        idx[key(r['n'])].append(r); idx0[exact(r['n'])].append(r)
     ex_idx = collections.defaultdict(list)                           # 먼저 추출한 다른 보강 상품(같은 약관 문구)의 파싱 결과 — KCD 를 못 뽑은 특약의 보조 근거
     # 빌려오는 상품은 ORDER 에서 이 상품보다 앞선 것만, ORDER 순서대로 — 어떤 순서로 다시 뽑아도 결과가 같다(v8.71).
     # 전에는 db_terms_extra.json 에 들어 있는 순서(마지막에 뽑은 상품이 맨 뒤)를 따라서, 한 상품만 다시 뽑으면 다른 상품 코드를 빌리던 특약이 바뀌었다.
@@ -268,7 +344,8 @@ def settle(riders):
             o = ex_idx[key(r['n'])][0]
             r.update(k=list(o['k']), x=list(o.get('x') or []), hc=list(o.get('hc') or r['hc']), src=o.get('src') or [])
             r['basis_from'] = '%s %s(같은 이름 특약 약관 p.%s)' % (o['p'], o['id'], o.get('pg'))
-        c = idx.get(key(r['n']))
+        kk = key(r['n'])
+        c = idx0.get(exact(r['n'])) or idx.get(kk) or (idx.get(kk[1:]) if re.match(r'^\d', kk) else None)
         if c:
             best = c[0]
             r.update(k=list(best.get('k') or []), x=list(best.get('x') or []), hc=list(best.get('hc') or []), c=best.get('c') or r['c'],
