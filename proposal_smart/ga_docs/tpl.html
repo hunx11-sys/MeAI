@@ -133,7 +133,7 @@ function valHtml(t){
   if(/보내줌|지원가능/.test(t)) return '<span class="val" style="color:var(--accent)">'+esc(t)+'</span>';
   return '<span class="val">'+t.split(' / ').map(x=>/^[\d,억 ]+$/.test(x)?esc(x)+'<i>만원</i>':esc(x)).join(' · ')+'</span>';
 }
-$('#meta').textContent='엔진 '+D.meta.ver+' · 칸 '+D.meta.cells+'개 · 8개 상품 특약 '+D.meta.master.toLocaleString('ko-KR')+'건 기준';
+$('#meta').textContent='엔진 '+D.meta.ver+' · 칸 '+D.meta.cells+'개 · 특약 마스터 '+D.meta.master.toLocaleString('ko-KR')+'건 기준 · GA 양식 v5(표지·보장요약·암·뇌심·세부내역)';
 $('#foot').textContent='금액은 계약 1년 경과 후 첫 지급 기준의 예시값이며 실제 지급은 약관과 심사 기준에 따릅니다. 질병코드·금액은 약관 별표와 지급금액표에서만 가져옵니다.';
 const sel=$('#dsel');
 D.designs.forEach((d,i)=>{const o=document.createElement('option'); o.value=i; o.textContent=d.l; sel.appendChild(o);});
