@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 dist/single/
 dist/meritz_tools_allinone*.html
+.claude/settings.local.json
