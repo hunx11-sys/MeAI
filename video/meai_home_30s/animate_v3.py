@@ -291,7 +291,62 @@ def build(P):
         dx, dy = shake(t, 26 * max(0.0, 1 - t / 0.5), seed=7)
         im = cam(P[9], 1.18 - 0.18 * ease(t / 0.35), 0.5, 0.55, dx, dy)
         im = speed_lines(im, t, 70 if t < 1.2 else 40, 9)
-        return flash(im, 0.8 - t * 2.5, (255, 220, 220))
+        im = flash(im, 0.8 - t * 2.5, (255, 220, 220))
+        # 그림 속 옛 문구 띠를 진한 띠로 덮고 새 문구를 쾅 얹는다
+        band = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(band).rectangle([0, 1385, W, 1715], fill=238)
+        band = band.filter(ImageFilter.GaussianBlur(14))
+        im = Image.composite(Image.new("RGB", (W, H), (12, 6, 9)), im, band)
+        if t > 0.3:
+            k = min(1.0, (t - 0.3) / 0.22)
+            sc = 1.0 + 1.2 * (1 - ease(k))
+            lay = Image.new("RGBA", (W, 360), (0, 0, 0, 0))
+            draw_rich(ImageDraw.Draw(lay), W / 2, 40, "[MeAI]에서 고객추천부터\n분석, 설계까지 한번에!",
+                      pf(84, "Black"), (255, 255, 255), (255, 70, 78), int(255 * min(1.0, k * 1.6)), lh=1.3)
+            if sc > 1.001:
+                lay = lay.resize((int(W * sc), int(360 * sc)), Image.BILINEAR)
+            im = im.convert("RGBA")
+            im.alpha_composite(lay, (int(W / 2 - lay.width / 2), int(1550 - lay.height / 2)))
+            im = im.convert("RGB")
+            if 0.52 < t < 0.75:                         # 착지 순간 흔들림
+                ex, ey = shake(t, 14, seed=11)
+                im = cam(im, 1.02, 0.5 + ex / W, 0.5 + ey / H)
+        return im
+
+    def s_finale(t, d):
+        im = Image.new("RGB", (W, H), (0, 0, 0))
+        glow = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(glow).ellipse([-100, 560, W + 100, 1400], fill=int(90 * ease((t - 0.55) / 0.4)))
+        im = Image.composite(Image.new("RGB", (W, H), (110, 12, 20)), im, glow.filter(ImageFilter.GaussianBlur(150)))
+        d_ = ImageDraw.Draw(im, "RGBA")
+        k1 = ease((t - 0.05) / 0.4)
+        if k1 > 0:
+            draw_rich(d_, W / 2, 760 - 18 * (1 - k1), "더 나은 세일즈를 위해,", pf(66, "SemiBold"), (235, 235, 240),
+                      RED, int(255 * k1), shadow=False)
+        if t > 0.55:                                    # '세일즈혁신TF'가 화면 밖에서 쿵 날아와 박힌다
+            k = min(1.0, (t - 0.55) / 0.2)
+            sc = 1.0 + 3.0 * (1 - ease(k)) ** 2
+            f = pf(150, "Black")
+            lay = Image.new("RGBA", (W, 260), (0, 0, 0, 0))
+            dl = ImageDraw.Draw(lay)
+            tw = dl.textlength("세일즈혁신", font=f)
+            tw2 = dl.textlength("TF", font=f)
+            x0 = W / 2 - (tw + tw2 + 14) / 2
+            a = int(255 * min(1.0, k * 1.5))
+            dl.text((x0, 40), "세일즈혁신", font=f, fill=(255, 255, 255, a))
+            dl.text((x0 + tw + 14, 40), "TF", font=f, fill=RED + (a,))
+            if sc > 1.001:
+                lay = lay.resize((int(W * sc), int(260 * sc)), Image.BILINEAR)
+            im = im.convert("RGBA")
+            ex, ey = shake(t, 30 * max(0.0, 1 - (t - 0.75) / 0.45), seed=13) if t > 0.75 else (0, 0)
+            im.alpha_composite(lay, (int(W / 2 - lay.width / 2 + ex), int(980 - lay.height / 2 + ey)))
+            im = im.convert("RGB")
+            if t > 0.75:                                # 착지 : 번쩍 + 빨간 밑줄이 쓱
+                im = flash(im, 0.7 - (t - 0.75) * 3)
+                u = ease((t - 0.8) / 0.35)
+                dd = ImageDraw.Draw(im)
+                dd.rectangle([W / 2 - 330 * u, 1145, W / 2 + 330 * u, 1153], fill=RED)
+        return im
 
     def s_end(t, d):
         im = Image.new("RGB", (W, H), (0, 0, 0))
@@ -307,10 +362,10 @@ def build(P):
             draw_rich(dd, W / 2, 1010, "찾아가는 영업,\nMeAI홈으로", f, RED, RED, int(255 * k2), lh=1.25, shadow=False)
         return watermark(im)
 
-    return [("despair", s_despair, 3.0), ("portal", s_portal, 1.7), ("click", s_click, 1.5),
-            ("glitch", s_glitch, 1.4), ("home", s_home, 2.4), ("reco", s_reco, 2.8), ("custom", s_custom, 2.6),
-            ("answer", s_answer, 2.8), ("design", s_design, 2.0), ("report", s_report, 1.8),
-            ("eyes", s_eyes, 1.2), ("fist", s_fist, 3.0), ("end", s_end, 3.8)]
+    return [("despair", s_despair, 2.8), ("portal", s_portal, 1.7), ("click", s_click, 1.5),
+            ("glitch", s_glitch, 1.4), ("home", s_home, 2.2), ("reco", s_reco, 2.6), ("custom", s_custom, 2.4),
+            ("answer", s_answer, 2.6), ("design", s_design, 1.8), ("report", s_report, 1.8),
+            ("eyes", s_eyes, 1.2), ("fist", s_fist, 2.8), ("end", s_end, 2.6), ("finale", s_finale, 2.6)]
 
 
 # ---------------------------------------------------------------- 효과음
@@ -409,7 +464,18 @@ def make_audio(path, scenes):
     x = np.arange(int(1.5 * SR)) / SR
     add(S["end"] + 0.2, np.sin(2 * np.pi * 55 * x) * np.exp(-x * 1.5), 0.7)
     add(S["end"] + 1.3, boom(1.0), 0.6)
-    add(S["end"] + 1.3, tone(392, 2.3, 1.0) + tone(587, 2.3, 1.0) + tone(784, 2.3, 0.8), 0.22)
+    add(S["end"] + 1.3, tone(392, 1.3, 0.6) + tone(587, 1.3, 0.6) + tone(784, 1.3, 0.5), 0.22)
+    # 결심 문구 착지
+    add(S["fist"] + 0.5, boom(0.6), 0.55)
+    # 피날레 : 휙(날아옴) → 쿵 + 금속성 울림 + 마지막 화음
+    add(S["finale"] + 0.05, chirp(500, 900, 0.3, 0.15), 0.18)
+    w = whoosh(0.4)
+    add(S["finale"] + 0.38, w * np.linspace(0.3, 1.0, len(w)), 0.8)
+    add(S["finale"] + 0.75, boom(1.6), 1.0)
+    add(S["finale"] + 0.75, noise(0.25, 0.03), 0.5)
+    add(S["finale"] + 0.75, tone(110, 1.8, 0.9) * 0.8 + tone(220, 1.8, 0.6) * 0.4, 0.6)
+    add(S["finale"] + 0.8, tone(523, 1.8, 0.9) + tone(659, 1.8, 0.9) + tone(784, 1.8, 0.8) + tone(1047, 1.8, 0.6),
+        0.18)
 
     out = out / max(1e-6, np.abs(out).max()) * 0.88
     out[-int(0.7 * SR):] *= np.linspace(1, 0, int(0.7 * SR))
@@ -440,7 +506,7 @@ def main():
         for i in range(int(round(d * FPS))):
             t = i / FPS
             im = fn(t, d).convert("RGB")
-            if prev is not None and name not in ("glitch", "home", "fist", "end") and t < 0.12:
+            if prev is not None and name not in ("glitch", "home", "fist", "end", "finale") and t < 0.12:
                 im = Image.blend(prev, im, 0.35 + 0.65 * t / 0.12)
             enc.stdin.write(im.tobytes())
         prev = im
