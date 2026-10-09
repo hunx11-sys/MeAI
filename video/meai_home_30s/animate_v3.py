@@ -285,7 +285,28 @@ def build(P):
         im = cam(P[8], 1.0 + 0.35 * ease(t / 0.6), 0.5, 0.36)
         im = speed_lines(im, t, 110)
         im = flash(im, 0.6 - t * 2)
-        return bubble(im, 0.2, t, "와…!", (640, 1420, 340, 190), (560, 1250), "shout", 80)
+        if t < 0.15:
+            return im
+        # 말풍선 없이 'WOW' 글자만 : 톡 튀어나와 살짝 기울어진 채 커진다
+        k = min(1.0, (t - 0.15) / 0.25)
+        sc = 0.4 + 0.6 * back(k) + 0.04 * (t - 0.15)
+        f = pf(230, "Black")
+        lay = Image.new("RGBA", (900, 380), (0, 0, 0, 0))
+        dl = ImageDraw.Draw(lay)
+        tw = dl.textlength("WOW", font=f)
+        x0, y0 = 450 - tw / 2, 40
+        sh = Image.new("RGBA", lay.size, (0, 0, 0, 0))
+        ImageDraw.Draw(sh).text((x0 + 10, y0 + 16), "WOW", font=f, fill=(0, 0, 0, 150), stroke_width=14,
+                                stroke_fill=(0, 0, 0, 150))
+        lay.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10)))
+        dl.text((x0, y0), "WOW", font=f, fill=(255, 255, 255, 255), stroke_width=14, stroke_fill=RED + (255,))
+        lay = lay.rotate(-8, resample=Image.BICUBIC, expand=False)
+        lay = lay.resize((max(1, int(900 * sc)), max(1, int(380 * sc))), Image.BILINEAR)
+        if k < 1:
+            lay.putalpha(lay.getchannel("A").point(lambda v: int(v * min(1.0, k * 2))))
+        im = im.convert("RGBA")
+        im.alpha_composite(lay, (int(560 - lay.width / 2), int(1700 - lay.height / 2)))
+        return im.convert("RGB")
 
     def s_fist(t, d):
         dx, dy = shake(t, 26 * max(0.0, 1 - t / 0.5), seed=7)
