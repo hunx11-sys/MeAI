@@ -32,10 +32,10 @@ W, H = round((146 - LON0) * K * COS, 1), round((LAT1 - 30) * K, 1)
 INSET = dict(lonMin=122.6, lonMax=128.6, latMax=27.2, latMin=23.8, x=10.0, y=10.0)   # 왼쪽 위 빈 바다에 둔다
 INSET['w'] = round((INSET['lonMax'] - INSET['lonMin']) * K * COS, 1)
 INSET['h'] = round((INSET['latMax'] - INSET['latMin']) * K, 1)
-LABELS = [  # 지역 이름 자리(지도 좌표)
-    dict(t='홋카이도', x=262, y=86), dict(t='도호쿠', x=232, y=170), dict(t='간토', x=228, y=236),
-    dict(t='주부', x=168, y=214, anchor='end'), dict(t='간사이', x=160, y=258, anchor='end'), dict(t='주고쿠', x=118, y=232, anchor='end'),
-    dict(t='시코쿠', x=122, y=276, anchor='end'), dict(t='규슈', x=70, y=272, anchor='end'),
+LABELS = [  # 지역 이름 자리(지도 좌표). 점과 겹치지 않게 바다 쪽에 둔다
+    dict(t='홋카이도', x=292, y=98), dict(t='도호쿠', x=276, y=142), dict(t='간토', x=262, y=212),
+    dict(t='주부', x=197, y=154, anchor='middle'), dict(t='간사이', x=168, y=258, anchor='middle'), dict(t='주고쿠', x=118, y=196, anchor='middle'),
+    dict(t='시코쿠', x=136, y=276, anchor='middle'), dict(t='규슈', x=60, y=268, anchor='end'),
 ]
 
 
