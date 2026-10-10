@@ -1,0 +1,39 @@
+{
+ "note": "조사 때 웹 검색 한도가 끊겨 '확인필요'로만 남은 노선을 2026-10-10 세션의 지식(2026년 중반까지)으로 보정한 목록. 출처 URL 이 없는 보정은 confidence 를 '보통' 이하로 두고 season_note 에 '웹 확인 못 함' 을 남긴다. 새 근거를 찾으면 이 파일을 고치고 python3 travel/tools/apply_flight_review.py 를 다시 돌린다.",
+ "airline_names": {
+  "티웨이": "트리니티항공(구 티웨이)", "티웨이항공": "트리니티항공(구 티웨이)", "티웨이(트리니티항공)": "트리니티항공(구 티웨이)", "트리니티항공": "트리니티항공(구 티웨이)",
+  "아시아나": "아시아나항공", "이스타": "이스타항공", "피치": "피치항공", "에어서울항공": "에어서울"
+ },
+ "overrides": [
+  {"iata": "FUK", "from": "ICN", "status": "정기", "weekly": "매일 10편 이상(여러 항공사)", "confidence": "보통", "note": "한·일 최다 노선 중 하나. 웹 확인 못 함"},
+  {"iata": "FUK", "from": "PUS", "status": "정기", "weekly": "매일 여러 편", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "FUK", "from": "TAE", "status": "정기", "weekly": "매일 1~3편", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "FUK", "from": "CJJ", "status": "확인필요", "airlines": ["에어로케이"], "note": "청주-후쿠오카는 운항 여부가 불확실. 예약 전 확인"},
+  {"iata": "FUK", "from": "CJU", "status": "운휴", "note": "제주-후쿠오카 정기편은 확인되지 않음"},
+  {"iata": "KKJ", "from": "ICN", "status": "정기", "airlines": ["진에어", "제주항공"], "weekly": "매일 1~2편", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "KKJ", "from": "PUS", "status": "정기", "airlines": ["진에어"], "weekly": "매일 1편", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "KMJ", "from": "ICN", "status": "정기", "airlines": ["트리니티항공(구 티웨이)"], "weekly": "매일 1편", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "OIT", "from": "ICN", "status": "정기", "airlines": ["제주항공", "진에어"], "weekly": "매일 1~2편", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "KOJ", "from": "ICN", "status": "정기", "airlines": ["대한항공"], "weekly": "주 3~4회", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "KMI", "from": "ICN", "status": "정기", "airlines": ["아시아나항공"], "weekly": "주 3회", "confidence": "낮음", "note": "2026-12-17 아시아나 통합 후 대한항공 편명으로 바뀔 수 있음. 웹 확인 못 함"},
+  {"iata": "HSG", "from": "ICN", "status": "정기", "airlines": ["트리니티항공(구 티웨이)"], "weekly": "매일 1편", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "OKA", "from": "ICN", "status": "정기", "weekly": "매일 여러 편", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "OKA", "from": "PUS", "status": "정기", "weekly": "매일 1편 안팎", "confidence": "보통", "note": "웹 확인 못 함"},
+  {"iata": "OKA", "from": "TAE", "status": "확인필요", "note": "대구-오키나와는 시기에 따라 운항. 예약 전 확인"},
+  {"iata": "OKA", "from": "CJJ", "status": "확인필요", "note": "청주-오키나와는 운항 여부가 불확실"},
+  {"iata": "NGS", "from": "ICN", "status": "확인필요", "note": "인천-나가사키는 항공사·운항 여부가 불확실. 예약 전 확인"},
+  {"iata": "GAJ", "from": "ICN", "status": "전세", "note": "부정기 전세편만 있음"},
+  {"iata": "TTJ", "from": "ICN", "status": "전세", "note": "부정기 전세편만 있음"},
+  {"iata": "ISG", "from": "ICN", "status": "전세", "note": "부정기 전세편만 있음"},
+  {"iata": "SHI", "from": "ICN", "status": "전세", "note": "부정기 전세편만 있음"},
+  {"iata": "MMJ", "from": "ICN", "status": "운휴", "note": "인천-마쓰모토 정기편 없음(청주발 전세편만)"},
+  {"iata": "FKS", "from": "ICN", "status": "운휴", "note": "인천-후쿠시마 정기편 없음(청주발 전세편만)"},
+  {"iata": "NRT", "from": "YNY", "status": "운휴", "note": "양양-나리타 정기편 없음"},
+  {"iata": "YGJ", "from": "TAE", "status": "운휴", "note": "대구-요나고 정기편은 확인되지 않음"},
+  {"iata": "KMJ", "from": "TAE", "status": "운휴", "note": "대구-구마모토 정기편은 확인되지 않음"},
+  {"iata": "KMJ", "from": "PUS", "status": "운휴", "note": "부산-구마모토 정기편은 확인되지 않음"},
+  {"iata": "OIT", "from": "PUS", "status": "운휴", "note": "부산-오이타 정기편은 확인되지 않음"},
+  {"iata": "KCZ", "from": "ICN", "status": "전세", "airlines": ["제주항공"], "note": "2026-09 전세편 운항 사례. 정기편 없음"}
+ ],
+ "flight_minutes_default": {"FUK": 85, "KKJ": 80, "KMJ": 90, "OIT": 90, "KOJ": 95, "KMI": 100, "HSG": 95, "OKA": 140, "NGS": 90, "GAJ": 140, "TTJ": 95, "ISG": 180, "SHI": 175}
+}

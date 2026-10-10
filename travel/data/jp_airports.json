@@ -1,0 +1,3063 @@
+{
+ "generated": "2026-10-10",
+ "note": "회의론자 검증을 거친 조사값. 확인필요 = 근거가 약하거나 판정이 엇갈림. 운휴 = 화면에 숨김",
+ "airports": [
+  {
+   "iata": "AKJ",
+   "name_ko": "아사히카와공항",
+   "name_ja": "旭川空港",
+   "name_en": "Asahikawa Airport",
+   "region": "홋카이도",
+   "prefecture_ko": "홋카이도",
+   "city_ko": "아사히카와",
+   "lat": 43.6708,
+   "lng": 142.4475,
+   "has_korea_direct": false,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "아시아나항공",
+      "대한항공"
+     ],
+     "flight_minutes": 170,
+     "weekly": "운휴(2025 하계 주 4회였음)",
+     "status": "운휴",
+     "season_note": "2024-12-19 재개 → 2026-03-28 마지막 운항 후 2026 하계·동계 스케줄에 없음(FlightsFrom 과거 노선 표기). 2026 동계 아시아나 한일노선 공지에도 미포함",
+     "source_url": "https://www.flightsfrom.com/ICN/OZ",
+     "source_date": "2026-09",
+     "confidence": "보통",
+     "verified": true
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "버스",
+     "to": "아사히카와역",
+     "minutes": 40,
+     "fare_yen": 750,
+     "note": "항공편 연계 운행"
+    },
+    {
+     "mode": "버스(라벤더호)",
+     "to": "후라노역",
+     "minutes": 60,
+     "fare_yen": 790,
+     "note": "여름 라벤더 시즌 편리, 요금 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "아사히카와역",
+     "minutes": 35,
+     "fare_yen": 5000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "비에이·후라노 관문. 2026년 현재 한국 직항이 끊겨 신치토세 경유(JR 특급 약 1시간 25분)로 간다"
+  },
+  {
+   "iata": "AOJ",
+   "name_ko": "아오모리공항",
+   "name_ja": "青森空港",
+   "name_en": "Aomori Airport",
+   "region": "도호쿠",
+   "prefecture_ko": "아오모리현",
+   "city_ko": "아오모리",
+   "lat": 40.7347,
+   "lng": 140.6908,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 155,
+     "weekly": "주 5회(화·목·금·토·일)",
+     "status": "정기",
+     "season_note": "2026 동계(10/25~2027/3/27) 주 5회로 증편(전년 동계 주 3회). 인천 10:05발→12:40착, 아오모리 13:50발→16:50착, 158석",
+     "source_url": "https://www.toonippo.co.jp/articles/-/2357367",
+     "source_date": "2026-10",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "버스",
+     "to": "아오모리역",
+     "minutes": 35,
+     "fare_yen": 800,
+     "note": "항공편 연계 운행, 요금 대략값"
+    },
+    {
+     "mode": "버스",
+     "to": "히로사키 버스터미널",
+     "minutes": 55,
+     "fare_yen": 1200,
+     "note": "히로사키성 벚꽃 시즌 편리, 요금 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "아오모리역",
+     "minutes": 30,
+     "fare_yen": 5000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "네부타 축제·히로사키 벚꽃·하코다테 연계 여행 거점. 겨울 폭설 공항이지만 운항률이 높기로 유명"
+  },
+  {
+   "iata": "AXT",
+   "name_ko": "아키타공항",
+   "name_ja": "秋田空港",
+   "name_en": "Akita Airport",
+   "region": "도호쿠",
+   "prefecture_ko": "아키타현",
+   "city_ko": "아키타",
+   "lat": 39.6156,
+   "lng": 140.2187,
+   "has_korea_direct": false,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 150,
+     "weekly": "운휴(재개 미정)",
+     "status": "운휴",
+     "season_note": "과거 운항 노선. 2026년 현재 운휴·재개 미정(국제선은 타이베이 전세편 위주)",
+     "source_url": "https://travelist.jp/airport_AXT/guide/posts/p1187",
+     "source_date": "2026-04",
+     "confidence": "낮음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "아키타역",
+     "minutes": 40,
+     "fare_yen": 950,
+     "note": "항공편 연계 운행"
+    },
+    {
+     "mode": "택시",
+     "to": "아키타역",
+     "minutes": 30,
+     "fare_yen": 6000,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "버스·렌터카",
+     "to": "가쿠노다테·다자와호",
+     "minutes": 80,
+     "fare_yen": 0,
+     "note": "직행 버스가 적어 렌터카가 편리"
+    }
+   ],
+   "notes": "2026년 한국 직항 없음. 아오모리 또는 센다이 입국 후 신칸센·렌터카 이동"
+  },
+  {
+   "iata": "CTS",
+   "name_ko": "신치토세공항",
+   "name_ja": "新千歳空港",
+   "name_en": "New Chitose Airport",
+   "region": "홋카이도",
+   "prefecture_ko": "홋카이도",
+   "city_ko": "삿포로",
+   "lat": 42.7752,
+   "lng": 141.6923,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "제주항공",
+      "진에어",
+      "트리니티항공(구 티웨이)",
+      "에어부산",
+      "이스타항공",
+      "파라타항공",
+      "에어프레미아"
+     ],
+     "flight_minutes": 170,
+     "weekly": "매일 2편(KE765/766·KE769/770)",
+     "status": "정기",
+     "season_note": "2026 하계(~10/24) 매일 2왕복, 7/1~8/31 KE771/772 추가로 최대 1일 3왕복. 2026 동계(10/25~) 삿포로선 편수는 공식 노선별 발표 미확인(아시아나 통합 12/17 이후 한일노선 주 412왕복으로 증편 예고)",
+     "source_url": "https://sky-budget.com/2026/07/01/korean-air-increase-cts-icn-1jul/",
+     "source_date": "2026-07",
+     "confidence": "높음",
+     "verified": true
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산",
+      "진에어",
+      "제주항공",
+      "트리니티항공(구 티웨이)",
+      "이스타항공"
+     ],
+     "flight_minutes": 150,
+     "weekly": "매일 1편(BX182 등)",
+     "status": "정기",
+     "season_note": "2026-10-30 김해 09:00발 BX523 판매 확인. 요일별 편수는 자료마다 달라 공식 시간표 대조 필요",
+     "source_url": "https://namu.wiki/w/%EB%B6%80%EC%82%B0-%EC%8B%A0%EC%B9%98%ED%86%A0%EC%84%B8%20%ED%95%AD%EA%B3%B5%EB%85%B8%EC%84%A0",
+     "source_date": "2026-09",
+     "confidence": "보통",
+     "verified": true
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 150,
+     "weekly": "운휴(계절편 주 4회였음)",
+     "status": "운휴",
+     "season_note": "2026-05 기준 계절편 주 4회 → 나무위키 '2026-09-10 이후 무기한 운휴' 표기. 트리니티항공 특가 페이지에 대구-삿포로가 남아 있어 재개 가능성은 있음. 2026-01~03 여행사 전세편 운항 이력",
+     "source_url": "https://namu.wiki/w/%ED%8B%B0%EC%9B%A8%EC%9D%B4%ED%95%AD%EA%B3%B5/%EB%85%B8%EC%84%A0%EB%A7%9D",
+     "source_date": "2026-09",
+     "confidence": "낮음"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이",
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 165,
+     "weekly": "매일 1편(11월 말~3월 초 하루 2편)",
+     "status": "정기",
+     "season_note": "2024-11-28 취항. 2026-10-08 보도: 겨울 성수기(11월 말~2027년 3월 초) 하루 2회로 증편",
+     "source_url": "https://www.fnnews.com/news/202610081655043380",
+     "source_date": "2026-10",
+     "confidence": "높음",
+     "verified": true
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "JR 쾌속 에어포트",
+     "to": "삿포로역",
+     "minutes": 40,
+     "fare_yen": 1150,
+     "note": "12~15분 간격, 가장 빠르고 확실. 지정석(u시트)은 +840엔"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "삿포로 시내(주요 호텔)",
+     "minutes": 80,
+     "fare_yen": 1300,
+     "note": "호텔 앞 정차, 눈 오는 날 지연 가능"
+    },
+    {
+     "mode": "JR",
+     "to": "신삿포로역",
+     "minutes": 30,
+     "fare_yen": 1150,
+     "note": "쾌속 에어포트 도중 정차"
+    },
+    {
+     "mode": "택시",
+     "to": "삿포로역",
+     "minutes": 60,
+     "fare_yen": 15000,
+     "note": "정액 요금제 택시 있음, 요금은 대략값"
+    }
+   ],
+   "notes": "한국발 홋카이도 관문. 인천·부산·청주에서 9개 항공사가 들어와 선택지가 가장 넓고, 겨울(12~2월)은 편수가 늘어난다"
+  },
+  {
+   "iata": "FKS",
+   "name_ko": "후쿠시마공항",
+   "name_ja": "福島空港",
+   "name_en": "Fukushima Airport",
+   "region": "도호쿠",
+   "prefecture_ko": "후쿠시마현",
+   "city_ko": "고리야마",
+   "lat": 37.2274,
+   "lng": 140.4308,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [],
+     "flight_minutes": 135,
+     "weekly": "비정기",
+     "status": "운휴",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 인천-후쿠시마 정기편 없음(청주발 전세편만)",
+     "source_url": "https://fks-ab.co.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 135,
+     "weekly": "2왕복(2026-07-17~20, 10-09~12)",
+     "status": "전세",
+     "season_note": "일본 HIS 패키지용 전세편. 10/9 후쿠시마 14:00→청주 16:15, 10/12 청주 11:00→후쿠시마 13:00. 개별 항공권 판매 없음",
+     "source_url": "https://fks-ab.co.jp/korea2026/",
+     "source_date": "2026-06",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "고리야마역",
+     "minutes": 40,
+     "fare_yen": 1100,
+     "note": "항공편 연계 운행, 요금 대략값"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "후쿠시마역",
+     "minutes": 60,
+     "fare_yen": 1400,
+     "note": "요금 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "스카가와역",
+     "minutes": 15,
+     "fare_yen": 3000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "정기 국제선 없음. 한국발은 청주발 전세편만. 아이즈·오우치주쿠는 도쿄 또는 센다이 입국이 현실적"
+  },
+  {
+   "iata": "FSZ",
+   "name_ko": "시즈오카공항(후지산 시즈오카)",
+   "name_ja": "富士山静岡空港",
+   "name_en": "Mt. Fuji Shizuoka Airport",
+   "region": "주부",
+   "prefecture_ko": "시즈오카현",
+   "city_ko": "시즈오카",
+   "lat": 34.7961,
+   "lng": 138.1894,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "제주항공",
+      "에어서울"
+     ],
+     "flight_minutes": 130,
+     "weekly": "매일 2편(7C1601~1604)",
+     "status": "정기",
+     "season_note": "2025-06-01부터 1일 2왕복. B737-800. 2026 동계 공식 편수는 별도 확인 권장",
+     "source_url": "https://www.mtfuji-shizuokaairport.jp/timetable/public/information/routedetail/international/18",
+     "source_date": "2026-01",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산"
+     ],
+     "flight_minutes": 115,
+     "weekly": "주 3회(월·수·금)",
+     "status": "정기",
+     "season_note": "2026-03-30 신규 취항, 10/23까지 연장 후 2026-10-25~2027-03-27 계속 운항·기간 증편 결정(공항 공지 2026-10-02). A321LR",
+     "source_url": "https://www.mtfuji-shizuokaairport.jp/information/2026s-shizuoka-busan-13036-16773/",
+     "source_date": "2026-10",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "시즈테쓰 버스",
+     "to": "시즈오카역·신시즈오카",
+     "minutes": 50,
+     "fare_yen": 1200,
+     "note": "어린이 600엔"
+    },
+    {
+     "mode": "노선버스",
+     "to": "JR 가나야역",
+     "minutes": 13,
+     "fare_yen": 500,
+     "note": "가나야에서 JR 도카이도선·오이가와철도(SL) 환승"
+    },
+    {
+     "mode": "노선버스",
+     "to": "JR 후지에다역",
+     "minutes": 40,
+     "fare_yen": 500,
+     "note": ""
+    },
+    {
+     "mode": "렌터카",
+     "to": "후지산·이즈·하마마쓰",
+     "minutes": 90,
+     "fare_yen": 0,
+     "note": "후지산 5합목·이즈반도 여행은 렌터카가 편리"
+    }
+   ],
+   "notes": "후지산·이즈·하코네 서쪽 접근용. 작은 공항이라 수속 빠르고 도쿄까지 신칸센(시즈오카역) 1시간"
+  },
+  {
+   "iata": "FUK",
+   "name_ko": "후쿠오카공항",
+   "name_ja": "福岡空港",
+   "name_en": "Fukuoka Airport",
+   "region": "규슈",
+   "prefecture_ko": "후쿠오카현",
+   "city_ko": "후쿠오카",
+   "lat": 33.5859,
+   "lng": 130.4507,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "제주항공",
+      "진에어",
+      "트리니티항공(구 티웨이)",
+      "에어서울",
+      "에어부산",
+      "이스타항공"
+     ],
+     "flight_minutes": 85,
+     "weekly": "매일 10편 이상(여러 항공사)",
+     "status": "정기",
+     "season_note": "한·일 최다 노선 중 하나. 웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산",
+      "제주항공",
+      "진에어",
+      "대한항공",
+      "트리니티항공(구 티웨이)",
+      "이스타항공"
+     ],
+     "flight_minutes": 55,
+     "weekly": "매일 여러 편",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "CJU",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 74,
+     "weekly": "미확인",
+     "status": "운휴",
+     "season_note": "기억 기반·confidence 낮음. 운휴 가능성 높음. 제주-후쿠오카 정기편은 확인되지 않음",
+     "source_url": "https://www.airport.co.kr/jeju/index.do",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "트리니티항공(구 티웨이)",
+      "에어부산",
+      "제주항공"
+     ],
+     "flight_minutes": 70,
+     "weekly": "매일 1~3편",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 80,
+     "weekly": "매일 1편 안팎(기억 기준)",
+     "status": "확인필요",
+     "season_note": "청주-후쿠오카는 운항 여부가 불확실. 예약 전 확인",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "낮음",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "MWX",
+     "airlines": [
+      "제주항공"
+     ],
+     "flight_minutes": 80,
+     "weekly": "운휴",
+     "status": "운휴",
+     "season_note": "무안공항 국제선은 2024년 12월 사고 이후 전면 운휴 기억. 과거 운항 여부 포함 재확인 필요",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "낮음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "지하철(공항선)",
+     "to": "하카타역",
+     "minutes": 6,
+     "fare_yen": 260,
+     "note": "국내선터미널 지하에서 탑승. 국제선터미널에서는 무료 연락버스(약 10~15분)로 국내선터미널 이동 후 탑승"
+    },
+    {
+     "mode": "지하철(공항선)",
+     "to": "텐진역",
+     "minutes": 12,
+     "fare_yen": 260,
+     "note": "하카타역을 지나 텐진까지 직통"
+    },
+    {
+     "mode": "니시테츠 버스",
+     "to": "하카타역(하카타버스터미널)",
+     "minutes": 15,
+     "fare_yen": 310,
+     "note": "국제선터미널 앞 정류장에서 바로 탑승. 요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "하카타역",
+     "minutes": 15,
+     "fare_yen": 2000,
+     "note": "도심과 매우 가까움. 요금은 대략값"
+    }
+   ],
+   "notes": "도심에서 가장 가까운 대형 공항. 국제선터미널과 국내선터미널이 떨어져 있어 지하철은 국내선 쪽에서 탄다"
+  },
+  {
+   "iata": "GAJ",
+   "name_ko": "야마가타공항",
+   "name_ja": "山形空港",
+   "name_en": "Yamagata Airport",
+   "region": "도호쿠",
+   "prefecture_ko": "야마가타현",
+   "city_ko": "야마가타",
+   "lat": 38.4119,
+   "lng": 140.3711,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [],
+     "flight_minutes": 140,
+     "weekly": "비정기",
+     "status": "전세",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음",
+     "source_url": "https://www.yamagata-airport.co.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "버스",
+     "to": "야마가타역",
+     "minutes": 35,
+     "fare_yen": 1000,
+     "note": "항공편 연계, 요금 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "야마가타역",
+     "minutes": 30,
+     "fare_yen": 5000,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "택시·JR",
+     "to": "사쿠란보히가시네역(신칸센)",
+     "minutes": 10,
+     "fare_yen": 1500,
+     "note": "야마가타 신칸센 연결, 요금 대략값"
+    }
+   ],
+   "notes": "국제 정기편 없음(전세는 대만 위주). 자오 온천·긴잔 온천은 센다이공항 입국이 가장 가깝다"
+  },
+  {
+   "iata": "HIJ",
+   "name_ko": "히로시마공항",
+   "name_ja": "広島空港",
+   "name_en": "Hiroshima Airport",
+   "region": "주고쿠",
+   "prefecture_ko": "히로시마현",
+   "city_ko": "히로시마",
+   "lat": 34.4361,
+   "lng": 132.9194,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "제주항공",
+      "대한항공",
+      "에어서울"
+     ],
+     "flight_minutes": 100,
+     "weekly": "매일 2편 + 월·금·토·일 1편(주 18회)",
+     "status": "정기",
+     "season_note": "2026-09-01~10-24 공항 시간표: 7C1612·7C1616 매일, 7C1674 월금토일. 동계 편수 별도 확인",
+     "source_url": "https://www.hij.airport.jp/flight/kokusai/korea.html",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 80,
+     "weekly": "주 4회(월·수·금·일)",
+     "status": "정기",
+     "season_note": "2025-07-15 취항, RF386 청주 13:30→히로시마 14:50, A320. 2026 하계 스케줄(~10/24) 기준",
+     "source_url": "https://www.hij.airport.jp/ko/flight/kokusai/cheongju.html",
+     "source_date": "2026-06",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "히로시마역",
+     "minutes": 50,
+     "fare_yen": 1500,
+     "note": "히로시마시 공식 FAQ(2026-04) 기준. 버스센터행도 55분 1,500엔"
+    },
+    {
+     "mode": "노선버스+JR 산요본선",
+     "to": "히로시마역",
+     "minutes": 60,
+     "fare_yen": 1000,
+     "note": "버스 490엔으로 시라이치역, JR 약 45분. 합산 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "히로시마역",
+     "minutes": 45,
+     "fare_yen": 15000,
+     "note": "13,000~18,000엔 수준"
+    }
+   ],
+   "notes": "공항이 시내에서 멀어(약 50km) 버스 시간을 넉넉히 잡아야 함. 부산발 직항은 없음"
+  },
+  {
+   "iata": "HKD",
+   "name_ko": "하코다테공항",
+   "name_ja": "函館空港",
+   "name_en": "Hakodate Airport",
+   "region": "홋카이도",
+   "prefecture_ko": "홋카이도",
+   "city_ko": "하코다테",
+   "lat": 41.77,
+   "lng": 140.822,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "제주항공"
+     ],
+     "flight_minutes": 140,
+     "weekly": "매일 1편(2026-12-01부터)",
+     "status": "계절",
+     "season_note": "2025-06-05 취항(주 2→4회) → 2026-06-08 운휴 → 2026-12-01 재운항(매일, 인천 13:10발→15:30착, 하코다테 16:30발→19:30착). 2026-10-10 현재는 운항하지 않음",
+     "source_url": "https://www.hankyung.com/article/202610080128g",
+     "source_date": "2026-10",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "셔틀버스",
+     "to": "하코다테역",
+     "minutes": 20,
+     "fare_yen": 500,
+     "note": "항공편에 맞춰 운행, 유노카와 온천 경유"
+    },
+    {
+     "mode": "택시",
+     "to": "하코다테역",
+     "minutes": 20,
+     "fare_yen": 3000,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "버스",
+     "to": "유노카와 온천",
+     "minutes": 10,
+     "fare_yen": 300,
+     "note": "온천 숙박이면 공항에서 가장 가까움"
+    }
+   ],
+   "notes": "작은 공항이라 수속이 빠르고 시내까지 20분. 한국 직항은 겨울 시즌(12월~)에만 열리는 점을 확인할 것"
+  },
+  {
+   "iata": "HNA",
+   "name_ko": "이와테하나마키공항",
+   "name_ja": "いわて花巻空港",
+   "name_en": "Iwate Hanamaki Airport",
+   "region": "도호쿠",
+   "prefecture_ko": "이와테현",
+   "city_ko": "모리오카",
+   "lat": 39.4286,
+   "lng": 141.1353,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "이스타항공"
+     ],
+     "flight_minutes": 145,
+     "weekly": "2왕복(2026-09-24·09-27)",
+     "status": "전세",
+     "season_note": "추석 연휴 한국인 방일객 전용 전세편(B737-8, 158석). 일본발 판매 없음",
+     "source_url": "https://www.aviationwire.jp/archives/349795",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 150,
+     "weekly": "부정기 전세(2026년 HIS 투어 수 회)",
+     "status": "전세",
+     "season_note": "2025년부터 HIS 도호쿠 패키지용 전세편 반복 운항(2026-01 제4탄 판매, 2026-07-08 공항 공지). 개별 항공권 판매 없음",
+     "source_url": "https://fesan-jp.com/news/2026/01/19/2925.html",
+     "source_date": "2026-01",
+     "confidence": "보통"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "버스",
+     "to": "모리오카역",
+     "minutes": 45,
+     "fare_yen": 1500,
+     "note": "항공편 연계 운행, 요금 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "하나마키공항역(JR)",
+     "minutes": 10,
+     "fare_yen": 1500,
+     "note": "JR 도호쿠본선으로 모리오카·히라이즈미 이동, 요금 대략값"
+    },
+    {
+     "mode": "버스",
+     "to": "하나마키 온천향",
+     "minutes": 30,
+     "fare_yen": 600,
+     "note": "요금 대략값"
+    }
+   ],
+   "notes": "정기 한국 직항 없음(전세편만). 모리오카·히라이즈미·하나마키 온천 여행은 센다이 입국 후 신칸센 40분이 현실적"
+  },
+  {
+   "iata": "HND",
+   "name_ko": "하네다공항(도쿄국제공항)",
+   "name_ja": "東京国際空港（羽田）",
+   "name_en": "Tokyo Haneda Airport",
+   "region": "간토",
+   "prefecture_ko": "도쿄도",
+   "city_ko": "도쿄",
+   "lat": 35.5494,
+   "lng": 139.7798,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "피치항공"
+     ],
+     "flight_minutes": 140,
+     "weekly": "매일 2편(주 14회, 통합 후 합산)",
+     "status": "정기",
+     "season_note": "심야 운수권 노선(야간 출발·새벽 도착). 2026 동계 하네다-인천 주 14왕복",
+     "source_url": "https://sky-budget.com/2026/09/07/korean-air-news-schedule-winter2026/",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "GMP",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "JAL",
+      "ANA"
+     ],
+     "flight_minutes": 135,
+     "weekly": "매일 6편(주 42회, 2026-12-17 아시아나 통합 후 합산)",
+     "status": "정기",
+     "season_note": "2026 동계 하네다-김포 주 42왕복(통합 후). 통합 전에는 KE 3편+OZ 3편",
+     "source_url": "https://sky-budget.com/2026/09/07/korean-air-news-schedule-winter2026/",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "게이큐선",
+     "to": "시나가와역",
+     "minutes": 13,
+     "fare_yen": 330,
+     "note": "가장 빠르고 저렴. 시나가와에서 JR·신칸센 환승"
+    },
+    {
+     "mode": "도쿄 모노레일",
+     "to": "하마마쓰초역",
+     "minutes": 18,
+     "fare_yen": 520,
+     "note": "하마마쓰초에서 JR 야마노테선 환승"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "도쿄역·신주쿠·긴자",
+     "minutes": 45,
+     "fare_yen": 1400,
+     "note": "호텔 앞 정차 노선 많음"
+    },
+    {
+     "mode": "택시(정액)",
+     "to": "도쿄역·긴자",
+     "minutes": 30,
+     "fare_yen": 8000,
+     "note": "심야 할증 별도. 새벽 도착 피치편 이용 시 참고"
+    }
+   ],
+   "notes": "도심까지 30분 이내로 가장 가깝다. 김포 출발이면 서울 도심에서도 가까워 '도심→도심' 2박 3일에 최적"
+  },
+  {
+   "iata": "HSG",
+   "name_ko": "사가공항(규슈사가국제공항)",
+   "name_ja": "佐賀空港（九州佐賀国際空港）",
+   "name_en": "Saga Airport",
+   "region": "규슈",
+   "prefecture_ko": "사가현",
+   "city_ko": "사가",
+   "lat": 33.1497,
+   "lng": 130.3022,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 95,
+     "weekly": "매일 1편",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "사가역",
+     "minutes": 35,
+     "fare_yen": 600,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "사가역",
+     "minutes": 30,
+     "fare_yen": 5000,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "렌터카",
+     "to": "사가·다케오·우레시노 온천",
+     "minutes": 60,
+     "fare_yen": 0,
+     "note": "작은 공항이라 수속 빠르고 렌터카 이용이 많음"
+    }
+   ],
+   "notes": "작은 공항이라 수속이 빠름. 후쿠오카 서부·다케오·우레시노 온천 접근에 유리"
+  },
+  {
+   "iata": "IBR",
+   "name_ko": "이바라키공항",
+   "name_ja": "茨城空港",
+   "name_en": "Ibaraki Airport",
+   "region": "간토",
+   "prefecture_ko": "이바라키현",
+   "city_ko": "미토(도쿄 북동)",
+   "lat": 36.1811,
+   "lng": 140.4147,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 135,
+     "weekly": "주 3회(2025-11-12 취항 당시)",
+     "status": "운휴",
+     "season_note": "2026-08-03부터 운휴. 에어로케이가 인천발 국제선 전면 철수(청주 집중)해 재개 계획 없음",
+     "source_url": "https://www.dynews.co.kr/news/articleView.html?idxno=850846",
+     "source_date": "2026-07",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 130,
+     "weekly": "주 3회(화·목·토)",
+     "status": "정기",
+     "season_note": "2026-04-09~05-30 운휴 후 2026-09-01 재개",
+     "source_url": "https://www.traicy.com/posts/20260809378416/",
+     "source_date": "2026-08",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "고속버스(간테쓰)",
+     "to": "도쿄역 야에스·니혼바시",
+     "minutes": 100,
+     "fare_yen": 1200,
+     "note": "2026-08-03부터 운휴 중(관동철도 공지). 재개 여부 확인 필요. 항공편 이용자 500엔 할인 제도도 종료 방침"
+    },
+    {
+     "mode": "노선버스",
+     "to": "JR 이시오카역",
+     "minutes": 35,
+     "fare_yen": 640,
+     "note": "이시오카에서 JR 조반선으로 우에노까지 약 70분"
+    },
+    {
+     "mode": "노선버스",
+     "to": "미토역",
+     "minutes": 40,
+     "fare_yen": 1100,
+     "note": "미토 가이라쿠엔·히타치 해변공원 방면"
+    },
+    {
+     "mode": "렌터카",
+     "to": "쓰쿠바·히타치 해변공원",
+     "minutes": 60,
+     "fare_yen": 0,
+     "note": "공항 주변 렌터카 이용이 현실적. 주차 무료"
+    }
+   ],
+   "notes": "작은 공항이라 수속이 빠르고 주차 무료. 다만 2026년 10월 현재 한국 직항은 청주발 주 3회뿐이고 도쿄행 직통버스가 운휴라 도심 접근이 불편"
+  },
+  {
+   "iata": "ISG",
+   "name_ko": "신이시가키공항",
+   "name_ja": "新石垣空港",
+   "name_en": "New Ishigaki Airport",
+   "region": "오키나와",
+   "prefecture_ko": "오키나와현",
+   "city_ko": "이시가키",
+   "lat": 24.3964,
+   "lng": 124.245,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [],
+     "flight_minutes": 180,
+     "weekly": "비정기",
+     "status": "전세",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음",
+     "source_url": "https://www.ishigaki-airport.co.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "이시가키항 이도 터미널(시내)",
+     "minutes": 30,
+     "fare_yen": 540,
+     "note": "카리유시 관광버스 직행. 요금은 대략값"
+    },
+    {
+     "mode": "노선버스",
+     "to": "이시가키 버스터미널(시내)",
+     "minutes": 45,
+     "fare_yen": 550,
+     "note": "아즈마 버스 시내선. 요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "이시가키 시내",
+     "minutes": 30,
+     "fare_yen": 3000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "한국 직항 없음. 나하 또는 도쿄·오사카 경유 국내선, 혹은 타이베이·홍콩 국제선으로 접근. 다케토미·이리오모테 등 이도 여행의 거점"
+  },
+  {
+   "iata": "IWK",
+   "name_ko": "이와쿠니공항(이와쿠니긴타이쿄공항)",
+   "name_ja": "岩国錦帯橋空港",
+   "name_en": "Iwakuni Kintaikyo Airport",
+   "region": "주고쿠",
+   "prefecture_ko": "야마구치현",
+   "city_ko": "이와쿠니",
+   "lat": 34.1439,
+   "lng": 132.2356,
+   "has_korea_direct": false,
+   "routes": [],
+   "city_access": [
+    {
+     "mode": "연락버스",
+     "to": "이와쿠니역",
+     "minutes": 12,
+     "fare_yen": 0,
+     "note": "요금 검색 미확인"
+    },
+    {
+     "mode": "택시",
+     "to": "긴타이쿄(錦帯橋)",
+     "minutes": 20,
+     "fare_yen": 0,
+     "note": ""
+    }
+   ],
+   "notes": "미 해병대 기지와 활주로를 함께 쓰는 군민공용 공항. ANA 하네다·나하 국내선만 운항, 국제선 없음. 긴타이쿄·미야지마는 히로시마공항 이용이 현실적"
+  },
+  {
+   "iata": "IZO",
+   "name_ko": "이즈모공항(이즈모엔무스비공항)",
+   "name_ja": "出雲空港（出雲縁結び空港）",
+   "name_en": "Izumo Enmusubi Airport",
+   "region": "주고쿠",
+   "prefecture_ko": "시마네현",
+   "city_ko": "이즈모",
+   "lat": 35.4136,
+   "lng": 132.89,
+   "has_korea_direct": false,
+   "routes": [],
+   "city_access": [
+    {
+     "mode": "연락버스",
+     "to": "이즈모시역",
+     "minutes": 30,
+     "fare_yen": 0,
+     "note": "요금 검색 미확인"
+    },
+    {
+     "mode": "연락버스",
+     "to": "마쓰에역",
+     "minutes": 35,
+     "fare_yen": 0,
+     "note": "요금 검색 미확인"
+    },
+    {
+     "mode": "연락버스",
+     "to": "이즈모타이샤",
+     "minutes": 35,
+     "fare_yen": 0,
+     "note": "요금 검색 미확인"
+    }
+   ],
+   "notes": "국내선(하네다·나고야·이타미·후쿠오카·오키)만 운항, 국제선 없음. 이즈모타이샤는 요나고공항에서도 차로 1시간"
+  },
+  {
+   "iata": "KCZ",
+   "name_ko": "고치료마공항",
+   "name_ja": "高知龍馬空港",
+   "name_en": "Kochi Ryoma Airport",
+   "region": "시코쿠",
+   "prefecture_ko": "고치현",
+   "city_ko": "고치",
+   "lat": 33.5461,
+   "lng": 133.6694,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "제주항공"
+     ],
+     "flight_minutes": 110,
+     "weekly": "부정기(미확인)",
+     "status": "전세",
+     "season_note": "나무위키 '한일노선'에 2026-09-20~23 전세기(7C1681/7C1682) 기재가 있으나 공식 출처로 교차 확인하지 못함. 고치현은 2027년 3월 인천-고치 전세기 운항을 준비 중이며 2027년 4월 국제선 터미널 전면 개장 후 정기편 유치 목표(여행신문 2026-09). 한국 전세기는 2017년이 마지막(고치신문). 정기·계절편 없음. 비행시간은 추정값. 2026-09 전세편 운항 사례. 정기편 없음",
+     "source_url": "https://www.traveltimes.co.kr/news/articleView.html?idxno=500420",
+     "source_date": "2026-09",
+     "confidence": "낮음",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "연락버스",
+     "to": "고치역 버스터미널(하리마야바시 경유)",
+     "minutes": 25,
+     "fare_yen": 900,
+     "note": "도사덴교통 공항연락버스. 2026-11-01 요금 개정 예정(개정 후 금액 미확인). 전국 교통계 IC카드 불가, 현지 IC '데스카'·PayPay 가능."
+    },
+    {
+     "mode": "택시",
+     "to": "고치 시내(고치역)",
+     "minutes": 30,
+     "fare_yen": 5000,
+     "note": "약 16km. 요금은 가정값."
+    },
+    {
+     "mode": "렌터카",
+     "to": "가쓰라하마·니요도가와·시만토 방면",
+     "minutes": 30,
+     "fare_yen": 0,
+     "note": "고치는 관광지가 넓게 흩어져 있어 렌터카가 유리. 공항 내 영업소 다수."
+    }
+   ],
+   "notes": "2026년 10월 현재 한국 직항 없음. 다카마쓰공항까지 직항 후 버스·렌터카(약 2시간) 또는 마쓰야마공항 경유가 현실적. 고치현이 다카마쓰 등 인근 공항 이용 한국인 단체의 버스·대형택시 비용을 지원함."
+  },
+  {
+   "iata": "KIJ",
+   "name_ko": "니가타공항",
+   "name_ja": "新潟空港",
+   "name_en": "Niigata Airport",
+   "region": "주부",
+   "prefecture_ko": "니가타현",
+   "city_ko": "니가타",
+   "lat": 37.9559,
+   "lng": 139.1207,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 130,
+     "weekly": "매일 1편(KE2197/2198, 2026-06-01부터)",
+     "status": "정기",
+     "season_note": "2023-10-31 재개 후 2026-06-01부터 주 3회→7회. A321neo. 2026 동계(10/25~) 편수 공식 미확인(직전 동계는 화·목·토 주 3회)",
+     "source_url": "https://www.niigata-airport.gr.jp/news/detail/?id=283",
+     "source_date": "2026-02",
+     "confidence": "보통"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스(직행)",
+     "to": "니가타역",
+     "minutes": 25,
+     "fare_yen": 470,
+     "note": "니가타역 버스터미널 18번 승강장. 현금·교통IC"
+    },
+    {
+     "mode": "노선버스(각 정차)",
+     "to": "니가타역",
+     "minutes": 35,
+     "fare_yen": 470,
+     "note": ""
+    },
+    {
+     "mode": "택시",
+     "to": "니가타역·후루마치",
+     "minutes": 25,
+     "fare_yen": 3500,
+     "note": ""
+    },
+    {
+     "mode": "렌터카",
+     "to": "사도섬 페리터미널·유자와",
+     "minutes": 30,
+     "fare_yen": 0,
+     "note": "사도섬은 니가타항에서 페리"
+    }
+   ],
+   "notes": "도심까지 25분으로 가깝다. 쌀·사케·사도섬 여행 거점. 겨울 폭설 시 결항 주의"
+  },
+  {
+   "iata": "KIX",
+   "name_ko": "간사이국제공항",
+   "name_ja": "関西国際空港",
+   "name_en": "Kansai International Airport",
+   "region": "간사이",
+   "prefecture_ko": "오사카부",
+   "city_ko": "오사카",
+   "lat": 34.4347,
+   "lng": 135.2441,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "제주항공",
+      "진에어",
+      "트리니티항공(구 티웨이)",
+      "에어서울",
+      "에어부산",
+      "이스타항공",
+      "파라타항공",
+      "피치항공"
+     ],
+     "flight_minutes": 110,
+     "weekly": "매일 4편(주 28회) → 아시아나 통합(2026-12-17) 후 주 63회 계획",
+     "status": "정기",
+     "season_note": "2026 동계(10/25~) 계획: 통합 전 주 28회, 통합 후 1일 9왕복으로 증편 예정",
+     "source_url": "https://www.aviationwire.jp/archives/350200",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "GMP",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "제주항공",
+      "피치항공"
+     ],
+     "flight_minutes": 105,
+     "weekly": "매일 2편(주 14회) → 통합 후 주 28회 계획",
+     "status": "정기",
+     "season_note": "2026 동계 계획: 아시아나 통합(2026-12-17) 후 증편",
+     "source_url": "https://www.aviationwire.jp/archives/350200",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산",
+      "진에어",
+      "제주항공",
+      "트리니티항공(구 티웨이)",
+      "이스타항공"
+     ],
+     "flight_minutes": 90,
+     "weekly": "주 21회(매일 3편)",
+     "status": "정기",
+     "season_note": "부산-오사카 취항 15주년(2026). 편수는 위키 2026-09 운항표 기준",
+     "source_url": "https://namu.wiki/w/%EB%B6%80%EC%82%B0-%EA%B0%84%EC%82%AC%EC%9D%B4%20%ED%95%AD%EA%B3%B5%EB%85%B8%EC%84%A0",
+     "source_date": "2026-09",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "CJU",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 110,
+     "weekly": "매일 1편(TW331/332)",
+     "status": "정기",
+     "season_note": "제주 16:05(하계)/16:00(동계) 출발. 제주-간사이 유일 운항사",
+     "source_url": "https://namu.wiki/w/%EC%A0%9C%EC%A3%BC-%EA%B0%84%EC%82%AC%EC%9D%B4%20%ED%95%AD%EA%B3%B5%EB%85%B8%EC%84%A0",
+     "source_date": "2026-09",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 95,
+     "weekly": "매일 2편(TW509/510, TW313/314)",
+     "status": "정기",
+     "season_note": "대구-간사이 유일 운항사. 하계·동계 모두 매일 표기(위키 기준)",
+     "source_url": "https://namu.wiki/w/%EB%8C%80%EA%B5%AC-%EA%B0%84%EC%82%AC%EC%9D%B4%20%ED%95%AD%EA%B3%B5%EB%85%B8%EC%84%A0",
+     "source_date": "2026-09",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이",
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 105,
+     "weekly": "매일 3편",
+     "status": "정기",
+     "season_note": "RF311 등. 에어로케이 2026 하계 스케줄 PDF 참조",
+     "source_url": "https://namu.wiki/w/%EC%B2%AD%EC%A3%BC-%EA%B0%84%EC%82%AC%EC%9D%B4%20%ED%95%AD%EA%B3%B5%EB%85%B8%EC%84%A0",
+     "source_date": "2026-09",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "MWX",
+     "airlines": [
+      "제주항공",
+      "진에어"
+     ],
+     "flight_minutes": 100,
+     "weekly": "운휴",
+     "status": "운휴",
+     "season_note": "무안공항 활주로 폐쇄(2026-09-24까지 연장, 연내 재개항 어려움). 2026 하계·동계 운항계획에 무안 노선 없음",
+     "source_url": "https://v.daum.net/v/20260520211557457",
+     "source_date": "2026-05",
+     "confidence": "보통"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "난카이 특급 라피트",
+     "to": "난바역",
+     "minutes": 38,
+     "fare_yen": 1490,
+     "note": "전석 지정석, 환승 없음. 요금은 승차권+특급권 합산 대략값"
+    },
+    {
+     "mode": "JR 특급 하루카",
+     "to": "오사카역(우메키타)·신오사카역",
+     "minutes": 50,
+     "fare_yen": 2410,
+     "note": "자유석 기준 대략값, 지정석은 더 비쌈. 낮 시간 약 30분 간격"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "오사카역앞(우메다)",
+     "minutes": 60,
+     "fare_yen": 1800,
+     "note": "정체 시 90분까지 걸릴 수 있음"
+    },
+    {
+     "mode": "난카이 공항급행",
+     "to": "난바역",
+     "minutes": 45,
+     "fare_yen": 970,
+     "note": "가장 저렴한 철도 경로"
+    }
+   ],
+   "notes": "한국발 노선이 가장 많은 일본 공항 중 하나(인천·김포·부산·대구·청주·제주 직항). 제1터미널은 FSC·일부 LCC, 제2터미널은 피치 전용이라 터미널을 꼭 확인"
+  },
+  {
+   "iata": "KKJ",
+   "name_ko": "기타큐슈공항",
+   "name_ja": "北九州空港",
+   "name_en": "Kitakyushu Airport",
+   "region": "규슈",
+   "prefecture_ko": "후쿠오카현",
+   "city_ko": "기타큐슈",
+   "lat": 33.8459,
+   "lng": 131.0349,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "진에어",
+      "제주항공"
+     ],
+     "flight_minutes": 80,
+     "weekly": "매일 1~2편",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "진에어"
+     ],
+     "flight_minutes": 50,
+     "weekly": "매일 1편",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "공항버스",
+     "to": "고쿠라역",
+     "minutes": 35,
+     "fare_yen": 710,
+     "note": "논스톱 버스. 요금은 대략값"
+    },
+    {
+     "mode": "공항버스",
+     "to": "시모노세키역",
+     "minutes": 60,
+     "fare_yen": 0,
+     "note": "혼슈 시모노세키 방면 노선도 있음(요금 미확인)"
+    },
+    {
+     "mode": "택시",
+     "to": "고쿠라역",
+     "minutes": 30,
+     "fare_yen": 6000,
+     "note": "해상공항이라 거리가 있음. 요금은 대략값"
+    }
+   ],
+   "notes": "24시간 운영 해상공항. 수속 빠르고 고쿠라·모지코 여행에 편리"
+  },
+  {
+   "iata": "KMI",
+   "name_ko": "미야자키공항",
+   "name_ja": "宮崎空港（宮崎ブーゲンビリア空港）",
+   "name_en": "Miyazaki Airport",
+   "region": "규슈",
+   "prefecture_ko": "미야자키현",
+   "city_ko": "미야자키",
+   "lat": 31.8772,
+   "lng": 131.4486,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "아시아나항공"
+     ],
+     "flight_minutes": 100,
+     "weekly": "주 3회",
+     "status": "정기",
+     "season_note": "2026-12-17 아시아나 통합 후 대한항공 편명으로 바뀔 수 있음. 웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "낮음",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "JR 미야자키공항선",
+     "to": "미야자키역",
+     "minutes": 10,
+     "fare_yen": 360,
+     "note": "공항 바로 옆에 역이 있어 가장 편리. 요금은 대략값"
+    },
+    {
+     "mode": "버스",
+     "to": "미야자키역",
+     "minutes": 25,
+     "fare_yen": 0,
+     "note": "요금 미확인"
+    },
+    {
+     "mode": "택시",
+     "to": "미야자키역",
+     "minutes": 15,
+     "fare_yen": 2500,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "시내와 매우 가까운 공항. JR역이 터미널에 붙어 있음"
+  },
+  {
+   "iata": "KMJ",
+   "name_ko": "구마모토공항(아소구마모토공항)",
+   "name_ja": "熊本空港（阿蘇くまもと空港）",
+   "name_en": "Kumamoto Airport",
+   "region": "규슈",
+   "prefecture_ko": "구마모토현",
+   "city_ko": "구마모토",
+   "lat": 32.8373,
+   "lng": 130.855,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 90,
+     "weekly": "매일 1편",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산"
+     ],
+     "flight_minutes": 90,
+     "weekly": "미확인",
+     "status": "운휴",
+     "season_note": "기억 기반·confidence 매우 낮음. 구마모토 노선은 인천-티웨이가 주력. 부산발 정기 여부 확인 필요. 부산-구마모토 정기편은 확인되지 않음",
+     "source_url": "https://www.kumamoto-airport.co.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 90,
+     "weekly": "미확인",
+     "status": "운휴",
+     "season_note": "기억 기반·confidence 매우 낮음. 대구-구마모토 정기편은 확인되지 않음",
+     "source_url": "https://www.kumamoto-airport.co.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "구마모토역",
+     "minutes": 60,
+     "fare_yen": 1000,
+     "note": "사쿠라마치 버스터미널(시내 중심) 경유 약 45분. 요금은 대략값"
+    },
+    {
+     "mode": "공항라이너(무료 셔틀)",
+     "to": "JR 히고오즈역",
+     "minutes": 15,
+     "fare_yen": 0,
+     "note": "무료 승합 셔틀로 역까지 간 뒤 JR 호히본선으로 구마모토역 이동"
+    },
+    {
+     "mode": "택시",
+     "to": "구마모토역",
+     "minutes": 45,
+     "fare_yen": 8000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "2023년 새 터미널 개장. 아소 방면 렌터카 이용이 많음"
+  },
+  {
+   "iata": "KMQ",
+   "name_ko": "고마쓰공항",
+   "name_ja": "小松空港",
+   "name_en": "Komatsu Airport",
+   "region": "주부",
+   "prefecture_ko": "이시카와현",
+   "city_ko": "가나자와",
+   "lat": 36.3946,
+   "lng": 136.4067,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 110,
+     "weekly": "매일 1편(KE2189/2190, 2026-03-29부터)",
+     "status": "정기",
+     "season_note": "2026 하계 주 3회→7회. 2026 동계(10/25~) 편수 공식 미확인(직전 동계는 화·목·토 주 3회)",
+     "source_url": "https://www.komatsuairport.jp/info/20260216114902.html",
+     "source_date": "2026-02",
+     "confidence": "보통"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스(호쿠테쓰)",
+     "to": "가나자와역 서쪽 출구",
+     "minutes": 40,
+     "fare_yen": 1400,
+     "note": "2026-08-01부터 1,300→1,400엔 인상. 고린보까지 55분"
+    },
+    {
+     "mode": "노선버스+IR이시카와철도",
+     "to": "가나자와역",
+     "minutes": 45,
+     "fare_yen": 580,
+     "note": "공항→고마쓰역 버스 280엔 10분 후 열차 환승. 가장 저렴"
+    },
+    {
+     "mode": "택시",
+     "to": "가나자와역",
+     "minutes": 35,
+     "fare_yen": 7000,
+     "note": ""
+    },
+    {
+     "mode": "노선버스",
+     "to": "고마쓰역",
+     "minutes": 10,
+     "fare_yen": 280,
+     "note": "가가온천(야마시로·야마나카)은 고마쓰·가가온천역에서 버스"
+    }
+   ],
+   "notes": "가나자와·가가온천·시라카와고 여행 관문. 공항에서 가나자와까지 40분"
+  },
+  {
+   "iata": "KOJ",
+   "name_ko": "가고시마공항",
+   "name_ja": "鹿児島空港",
+   "name_en": "Kagoshima Airport",
+   "region": "규슈",
+   "prefecture_ko": "가고시마현",
+   "city_ko": "가고시마",
+   "lat": 31.8034,
+   "lng": 130.7194,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 95,
+     "weekly": "주 3~4회",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "가고시마추오역",
+     "minutes": 40,
+     "fare_yen": 1400,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "텐몬칸",
+     "minutes": 40,
+     "fare_yen": 1400,
+     "note": "시내 번화가 직행. 요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "가고시마추오역",
+     "minutes": 40,
+     "fare_yen": 10000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "공항은 기리시마 쪽 내륙에 있어 시내까지 40분. 기리시마 온천·사쿠라지마 여행 거점"
+  },
+  {
+   "iata": "KUH",
+   "name_ko": "구시로공항",
+   "name_ja": "釧路空港",
+   "name_en": "Kushiro Airport",
+   "region": "홋카이도",
+   "prefecture_ko": "홋카이도",
+   "city_ko": "구시로",
+   "lat": 43.041,
+   "lng": 144.193,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 180,
+     "weekly": "6왕복(2026-07-15~08-01, 수·토)",
+     "status": "전세",
+     "season_note": "한국 여행사 판매 전용 전세편(B737-900ER 173석). 2019년 이후 7년 만. 동계 계획 발표 없음",
+     "source_url": "https://www.hokkaido-airports.com/ja/corporate/pressrelease/assets/docs/260602_Release_HAP.pdf",
+     "source_date": "2026-06",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "구시로역",
+     "minutes": 45,
+     "fare_yen": 950,
+     "note": "항공편 연계 운행"
+    },
+    {
+     "mode": "버스(아칸 에어포트 라이너)",
+     "to": "아칸호 온천",
+     "minutes": 75,
+     "fare_yen": 2190,
+     "note": "예약제, 요금 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "구시로역",
+     "minutes": 40,
+     "fare_yen": 7000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "구시로 습원·아칸호 관문. 한국 직항은 여름 전세편뿐이라 패키지 상품을 노리거나 신치토세 경유"
+  },
+  {
+   "iata": "MMB",
+   "name_ko": "메만베쓰공항",
+   "name_ja": "女満別空港",
+   "name_en": "Memanbetsu Airport",
+   "region": "홋카이도",
+   "prefecture_ko": "홋카이도",
+   "city_ko": "아바시리",
+   "lat": 43.8806,
+   "lng": 144.164,
+   "has_korea_direct": false,
+   "routes": [],
+   "city_access": [
+    {
+     "mode": "버스",
+     "to": "아바시리역",
+     "minutes": 35,
+     "fare_yen": 1050,
+     "note": "항공편 연계, 요금 대략값"
+    },
+    {
+     "mode": "버스(시레토코 에어포트 라이너)",
+     "to": "우토로 온천(시레토코)",
+     "minutes": 130,
+     "fare_yen": 3300,
+     "note": "계절 운행·예약제, 요금 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "아바시리역",
+     "minutes": 30,
+     "fare_yen": 6000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "유빙·시레토코 관문. 2026년 한국 직항·전세편 없음(국내선 4개 노선뿐)"
+  },
+  {
+   "iata": "MMJ",
+   "name_ko": "마쓰모토공항(신슈 마쓰모토)",
+   "name_ja": "松本空港（信州まつもと空港）",
+   "name_en": "Matsumoto Airport",
+   "region": "주부",
+   "prefecture_ko": "나가노현",
+   "city_ko": "마쓰모토",
+   "lat": 36.1668,
+   "lng": 137.9227,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [],
+     "flight_minutes": 120,
+     "weekly": "비정기",
+     "status": "운휴",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 인천-마쓰모토 정기편 없음(청주발 전세편만)",
+     "source_url": "https://www.matsumoto-airport.co.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 120,
+     "weekly": "부정기(2025-09-13, 2026-05-03 등 단발 전세)",
+     "status": "전세",
+     "season_note": "2025-09 청주-마쓰모토 전세편 6년 3개월 만에 운항, 2026 GW 알피코교통 전세 투어(에어로케이). 정기편 없음",
+     "source_url": "https://travel.alpico.co.jp/seoul-charter-2026-gw",
+     "source_date": "2026-03",
+     "confidence": "보통"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "알피코 셔틀버스",
+     "to": "마쓰모토역",
+     "minutes": 30,
+     "fare_yen": 650,
+     "note": "항공편 연계 운행"
+    },
+    {
+     "mode": "택시",
+     "to": "마쓰모토역·마쓰모토성",
+     "minutes": 25,
+     "fare_yen": 3500,
+     "note": ""
+    },
+    {
+     "mode": "렌터카",
+     "to": "가미코치·시라호네온천",
+     "minutes": 80,
+     "fare_yen": 0,
+     "note": "가미코치는 마이카 규제, 사와도에서 셔틀 환승"
+    }
+   ],
+   "notes": "한국 정기 직항 없음(전세편만 간헐 운항). 마쓰모토성·가미코치는 나고야(NGO)에서 특급 시나노로 2시간, 도쿄에서 아즈사로 2시간 반"
+  },
+  {
+   "iata": "MMY",
+   "name_ko": "미야코공항",
+   "name_ja": "宮古空港",
+   "name_en": "Miyako Airport",
+   "region": "오키나와",
+   "prefecture_ko": "오키나와현",
+   "city_ko": "미야코지마",
+   "lat": 24.7828,
+   "lng": 125.2951,
+   "has_korea_direct": false,
+   "routes": [],
+   "city_access": [
+    {
+     "mode": "노선버스",
+     "to": "히라라 시내",
+     "minutes": 15,
+     "fare_yen": 300,
+     "note": "미야코 협영버스. 편수 적음. 요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "히라라 시내",
+     "minutes": 10,
+     "fare_yen": 1500,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "국내선 전용(나하·도쿄·오사카 등). 한국 직항 없음. 시내와 가까운 소형 공항"
+  },
+  {
+   "iata": "MYJ",
+   "name_ko": "마쓰야마공항",
+   "name_ja": "松山空港",
+   "name_en": "Matsuyama Airport",
+   "region": "시코쿠",
+   "prefecture_ko": "에히메현",
+   "city_ko": "마쓰야마",
+   "lat": 33.8272,
+   "lng": 132.6997,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "제주항공"
+     ],
+     "flight_minutes": 100,
+     "weekly": "매일 2편(오전·오후)",
+     "status": "정기",
+     "season_note": "2023-03-26 주3회로 재개 후 증편, 현재 매일 2왕복 정기(7C1721/1722 오전, 7C1703/1704 오후). 2026년 7~9월 일부 기간 1왕복 추가 증편(에히메현 2026-06-16 발표, 7C1771/1772). 2026-10-25 동계 시각표는 공식 미확인 — 직전 동계(2025-10-26~2026-03-28)도 매일 2왕복 운항.",
+     "source_url": "https://www.ehime-np.co.jp/article/news202606160268",
+     "source_date": "2026-06",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산"
+     ],
+     "flight_minutes": 70,
+     "weekly": "매일 1편(시기별 주 3회로 축소)",
+     "status": "정기",
+     "season_note": "2023-11-10 주3회(수·금·일) 취항, 2025-10-26부터 1일 1왕복. BX134 부산 16:30→마쓰야마 17:40 / BX133 마쓰야마 18:35→부산 19:55. 2026년 8월 기준 일부 기간 주 3회 운항. 2026 동계 공식 발표는 미확인.",
+     "source_url": "https://www.traicy.com/posts/20251013352914/",
+     "source_date": "2025-10",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 100,
+     "weekly": "주 3회(수·금·일, 2026-10-14~23 한정)",
+     "status": "전세",
+     "season_note": "청주 첫 마쓰야마 노선. 2026-06-02~09 총 4항차 부정기편(하나투어 전세기 완판) 후 2026-10-14~23 수·금·일 부정기편 추가 투입(홈페이지 일반 판매). 정기편 전환 검토 중이나 동계 정기 취항은 미발표. 비행시간은 추정값.",
+     "source_url": "https://www.fnnews.com/news/202608141105091605",
+     "source_date": "2026-08",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "마쓰야마시역(이요테쓰)",
+     "minutes": 20,
+     "fare_yen": 1000,
+     "note": "이요테쓰버스 공항리무진. 출처별 요금 차이(550엔/1,000엔) — 2026년 기사 기준 1,000엔(캐시리스 980엔)으로 적음. JR마쓰야마역 경유, 오카이도 방면 약 25분."
+    },
+    {
+     "mode": "리무진버스",
+     "to": "도고온천역앞",
+     "minutes": 40,
+     "fare_yen": 1200,
+     "note": "시내를 거쳐 도고온천까지 직행. 어린이 600엔. 요금은 구간별로 다름."
+    },
+    {
+     "mode": "택시",
+     "to": "마쓰야마 시내(오카이도)",
+     "minutes": 15,
+     "fare_yen": 3000,
+     "note": "공항~시내 약 6km로 가까움. 요금은 가정값."
+    }
+   ],
+   "notes": "시내까지 차로 15분이면 닿는 가까운 공항. 도고온천·마쓰야마성이 목적이면 가장 편한 시코쿠 관문이며, 서울발 하루 2편·부산발 매일편에 청주 부정기편까지 선택지가 넓음."
+  },
+  {
+   "iata": "NGO",
+   "name_ko": "중부국제공항(센트레아)",
+   "name_ja": "中部国際空港（セントレア）",
+   "name_en": "Chubu Centrair International Airport",
+   "region": "주부",
+   "prefecture_ko": "아이치현",
+   "city_ko": "나고야",
+   "lat": 34.8584,
+   "lng": 136.8054,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "제주항공",
+      "진에어",
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 115,
+     "weekly": "매일 2편",
+     "status": "정기",
+     "season_note": "12/17 아시아나 통합 후 OZ편 흡수, 2026 동계 중부 노선별 편수는 공식 미공개",
+     "source_url": "https://namu.wiki/w/%EC%9D%B8%EC%B2%9C-%EB%82%98%EA%B3%A0%EC%95%BC%20%ED%95%AD%EA%B3%B5%EB%85%B8%EC%84%A0",
+     "source_date": "2026-09",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "GMP",
+     "airlines": [
+      "피치항공"
+     ],
+     "flight_minutes": 110,
+     "weekly": "매일 1~2편(주 7~14회)",
+     "status": "정기",
+     "season_note": "센트레아 2026 하계 계획에 김포선 주 14→14→7편으로 기간별 변동",
+     "source_url": "https://www.centrair.jp/corporate/newsroom/__icsFiles/afieldfile/2026/03/27/JP_2026_summer_schedule_web.pdf",
+     "source_date": "2026-03",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "대한항공",
+      "진에어",
+      "에어부산"
+     ],
+     "flight_minutes": 90,
+     "weekly": "매일 1편(주 7회)",
+     "status": "정기",
+     "season_note": "",
+     "source_url": "https://www.centrair.jp/corporate/newsroom/__icsFiles/afieldfile/2026/03/27/JP_2026_summer_schedule_web.pdf",
+     "source_date": "2026-03",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 105,
+     "weekly": "매일 1편(주 7회)",
+     "status": "정기",
+     "season_note": "2025-05-01부터 매일 운항",
+     "source_url": "https://www.centrair.jp/corporate/newsroom/__icsFiles/afieldfile/2026/03/27/JP_2026_summer_schedule_web.pdf",
+     "source_date": "2026-03",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "메이테쓰 뮤스카이(전석 지정)",
+     "to": "메이테쓰나고야역",
+     "minutes": 28,
+     "fare_yen": 1250,
+     "note": "승차권 890엔+뮤티켓 360엔(2026년 요금 인상 여부 확인). 가장 빠름"
+    },
+    {
+     "mode": "메이테쓰 특급",
+     "to": "메이테쓰나고야역",
+     "minutes": 37,
+     "fare_yen": 890,
+     "note": "일반석 이용 시 뮤티켓 불필요"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "나고야역·사카에",
+     "minutes": 60,
+     "fare_yen": 1500,
+     "note": "호텔 직행 노선 있음"
+    },
+    {
+     "mode": "고속선(쓰 에어포트라인)",
+     "to": "미에현 쓰항",
+     "minutes": 45,
+     "fare_yen": 2800,
+     "note": "이세신궁 방면이면 배가 빠름"
+    }
+   ],
+   "notes": "2026 하계 한국선 주 98편으로 개항 이래 최다. 공항이 인공섬이라 쇼핑·온천 시설이 좋고 나고야까지 30분"
+  },
+  {
+   "iata": "NGS",
+   "name_ko": "나가사키공항",
+   "name_ja": "長崎空港",
+   "name_en": "Nagasaki Airport",
+   "region": "규슈",
+   "prefecture_ko": "나가사키현",
+   "city_ko": "나가사키",
+   "lat": 32.9169,
+   "lng": 129.9136,
+   "has_korea_direct": false,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "진에어"
+     ],
+     "flight_minutes": 90,
+     "weekly": "주 3~4회(기억 기준)",
+     "status": "확인필요",
+     "season_note": "인천-나가사키는 항공사·운항 여부가 불확실. 예약 전 확인",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "낮음",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "나가사키역",
+     "minutes": 45,
+     "fare_yen": 1200,
+     "note": "오무라만 해상공항에서 나가사키 시내까지. 요금은 대략값"
+    },
+    {
+     "mode": "버스",
+     "to": "하우스텐보스",
+     "minutes": 50,
+     "fare_yen": 1250,
+     "note": "사세보 방면 노선. 요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "나가사키역",
+     "minutes": 40,
+     "fare_yen": 10000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "세계 최초 해상공항. 시내까지 40분 이상 걸려 버스 시간 확인 필수"
+  },
+  {
+   "iata": "NRT",
+   "name_ko": "나리타국제공항",
+   "name_ja": "成田国際空港",
+   "name_en": "Narita International Airport",
+   "region": "간토",
+   "prefecture_ko": "지바현",
+   "city_ko": "도쿄",
+   "lat": 35.772,
+   "lng": 140.3929,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "제주항공",
+      "진에어",
+      "트리니티항공(구 티웨이)",
+      "에어프레미아",
+      "이스타항공",
+      "에어서울",
+      "에어부산",
+      "피치항공",
+      "ZIPAIR",
+      "JAL",
+      "ANA",
+      "스프링재팬"
+     ],
+     "flight_minutes": 140,
+     "weekly": "매일 8편(주 56회, 2026-12-17 아시아나 통합 후 합산)",
+     "status": "정기",
+     "season_note": "2026년 동계(10/25~) 계획. 12/17 아시아나 통합 후 OZ편이 KE편명으로 바뀌며 나리타-인천 주 56왕복",
+     "source_url": "https://www.kankokeizai.com/2609201900kks/",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "대한항공",
+      "제주항공",
+      "진에어",
+      "에어부산",
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 125,
+     "weekly": "매일 2편(주 14회)",
+     "status": "정기",
+     "season_note": "2026 동계 나리타-부산 주 14왕복",
+     "source_url": "https://www.kankokeizai.com/2609201900kks/",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "CJU",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 150,
+     "weekly": "주 4회(월·수·금·일)",
+     "status": "정기",
+     "season_note": "2024-07-19 복항, 2025-10-27부터 주 4회",
+     "source_url": "https://namu.wiki/w/%EC%A0%9C%EC%A3%BC-%EB%82%98%EB%A6%AC%ED%83%80%20%ED%95%AD%EA%B3%B5%EB%85%B8%EC%84%A0",
+     "source_date": "2026-09",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 120,
+     "weekly": "매일 1편(TW251/252)",
+     "status": "정기",
+     "season_note": "자료에 따라 주 7~14회로 엇갈림",
+     "source_url": "https://namu.wiki/w/%EB%8C%80%EA%B5%AC-%EB%82%98%EB%A6%AC%ED%83%80%20%ED%95%AD%EA%B3%B5%EB%85%B8%EC%84%A0",
+     "source_date": "2026-09",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 130,
+     "weekly": "매일 3편(동계 최대 4편 계획)",
+     "status": "정기",
+     "season_note": "2023-08 취항, 누적 66만 명. 2026 동계부터 하루 최대 4회 확대 계획",
+     "source_url": "https://www.fnnews.com/news/202608031334584601",
+     "source_date": "2026-08",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "YNY",
+     "airlines": [],
+     "flight_minutes": 133,
+     "weekly": "미확인",
+     "status": "운휴",
+     "season_note": "양양은 정기 일본편 없음으로 판단. 전세편 운항 가능성만 있어 확인 필요. 기억 기반·confidence 매우 낮음. 양양-나리타 정기편 없음",
+     "source_url": "https://www.airport.co.kr/yangyang/index.do",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "JR 나리타익스프레스(N'EX)",
+     "to": "도쿄역",
+     "minutes": 60,
+     "fare_yen": 3070,
+     "note": "신주쿠·시나가와·요코하마까지 직통. 외국인용 왕복 할인 있음"
+    },
+    {
+     "mode": "게이세이 스카이라이너",
+     "to": "우에노역(닛포리)",
+     "minutes": 41,
+     "fare_yen": 2580,
+     "note": "가장 빠름. 닛포리에서 JR 야마노테선 환승"
+    },
+    {
+     "mode": "게이세이 액세스특급",
+     "to": "아사쿠사·니혼바시",
+     "minutes": 60,
+     "fare_yen": 1310,
+     "note": "환승 없이 도심, 가성비 좋음"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "도쿄역·신주쿠 주요 호텔",
+     "minutes": 90,
+     "fare_yen": 3600,
+     "note": "짐 많을 때 편리, 교통 체증 시 지연"
+    }
+   ],
+   "notes": "터미널이 3개라 항공사별 터미널(LCC 대부분 T3, 피치는 T1) 미리 확인. 도심까지 60분 이상 걸린다"
+  },
+  {
+   "iata": "OBO",
+   "name_ko": "도카치오비히로공항",
+   "name_ja": "とかち帯広空港",
+   "name_en": "Tokachi-Obihiro Airport",
+   "region": "홋카이도",
+   "prefecture_ko": "홋카이도",
+   "city_ko": "오비히로",
+   "lat": 42.7333,
+   "lng": 143.2172,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 170,
+     "weekly": "운휴",
+     "status": "운휴",
+     "season_note": "2026 하계부터 당면 운휴(에어로케이 2026-02 결정)",
+     "source_url": "https://sapporo.mofa.go.kr/jp-sapporo-ko/brd/m_453/view.do?seq=1442172",
+     "source_date": "2026-02",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 170,
+     "weekly": "주 2회(수·일, 운항 기간 한정)",
+     "status": "계절",
+     "season_note": "2025-05-21 취항(주 3회). 2026: 4/15~7/12 운휴 → 7/15~8/30 주 2회 운항 → 9/1~10/21 운휴. 10/22 이후 동계 운항 여부 공식 발표 미확인",
+     "source_url": "https://www.traicy.com/posts/20260630374805/",
+     "source_date": "2026-06",
+     "confidence": "보통"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "버스",
+     "to": "오비히로역",
+     "minutes": 40,
+     "fare_yen": 1000,
+     "note": "항공편 연계 운행"
+    },
+    {
+     "mode": "택시",
+     "to": "오비히로역",
+     "minutes": 35,
+     "fare_yen": 7000,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "렌터카",
+     "to": "도카치 평야·가든 가도",
+     "minutes": 30,
+     "fare_yen": 0,
+     "note": "공항 앞 렌터카 영업소 다수, 자가 운전 여행에 적합"
+    }
+   ],
+   "notes": "에어로케이 단독 취항지. 운휴 기간이 잦아 예약 전 에어로케이 공지를 꼭 확인"
+  },
+  {
+   "iata": "OIT",
+   "name_ko": "오이타공항",
+   "name_ja": "大分空港",
+   "name_en": "Oita Airport",
+   "region": "규슈",
+   "prefecture_ko": "오이타현",
+   "city_ko": "오이타(벳푸·유후인)",
+   "lat": 33.4794,
+   "lng": 131.7373,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "제주항공",
+      "진에어"
+     ],
+     "flight_minutes": 90,
+     "weekly": "매일 1~2편",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "제주항공"
+     ],
+     "flight_minutes": 90,
+     "weekly": "미확인",
+     "status": "운휴",
+     "season_note": "기억 기반·confidence 매우 낮음. 운항 여부 미확인. 부산-오이타 정기편은 확인되지 않음",
+     "source_url": "https://www.oita-airport.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스(에어라이너)",
+     "to": "오이타역",
+     "minutes": 60,
+     "fare_yen": 1600,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "리무진버스(에어라이너)",
+     "to": "벳푸(기타하마)",
+     "minutes": 45,
+     "fare_yen": 1500,
+     "note": "온천 여행 수요가 많은 노선. 요금은 대략값"
+    },
+    {
+     "mode": "버스",
+     "to": "유후인역",
+     "minutes": 55,
+     "fare_yen": 1550,
+     "note": "편수가 적어 시간표 확인 필요. 요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "벳푸역",
+     "minutes": 45,
+     "fare_yen": 8000,
+     "note": "요금은 대략값"
+    }
+   ],
+   "notes": "벳푸·유후인 온천 관문. 공항이 반도 끝에 있어 버스 시간 확인 필수"
+  },
+  {
+   "iata": "OKA",
+   "name_ko": "나하공항",
+   "name_ja": "那覇空港",
+   "name_en": "Naha Airport",
+   "region": "오키나와",
+   "prefecture_ko": "오키나와현",
+   "city_ko": "나하",
+   "lat": 26.1958,
+   "lng": 127.6459,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "아시아나항공",
+      "제주항공",
+      "진에어",
+      "트리니티항공(구 티웨이)",
+      "이스타항공",
+      "피치항공"
+     ],
+     "flight_minutes": 140,
+     "weekly": "매일 여러 편",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "진에어",
+      "제주항공",
+      "에어부산"
+     ],
+     "flight_minutes": 110,
+     "weekly": "매일 1편 안팎",
+     "status": "정기",
+     "season_note": "웹 확인 못 함",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 125,
+     "weekly": "주 4회~매일",
+     "status": "확인필요",
+     "season_note": "대구-오키나와는 시기에 따라 운항. 예약 전 확인",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "낮음",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "진에어",
+      "이스타항공"
+     ],
+     "flight_minutes": 140,
+     "weekly": "미확인",
+     "status": "확인필요",
+     "season_note": "청주-오키나와는 운항 여부가 불확실",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "낮음",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "MWX",
+     "airlines": [
+      "진에어"
+     ],
+     "flight_minutes": 140,
+     "weekly": "운휴",
+     "status": "운휴",
+     "season_note": "무안공항 2024-12 사고 이후 국제선 운항 중단 상태로 기억. 재개 여부 확인 필요",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "낮음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "모노레일",
+     "to": "현청앞역(국제거리)",
+     "minutes": 13,
+     "fare_yen": 270,
+     "note": "유이레일. 나하공항역이 국내선 터미널 2층과 연결. 요금은 대략값"
+    },
+    {
+     "mode": "모노레일",
+     "to": "오모로마치역(신도심·DFS)",
+     "minutes": 19,
+     "fare_yen": 300,
+     "note": "유이레일. 요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "국제거리",
+     "minutes": 15,
+     "fare_yen": 1500,
+     "note": "요금은 대략값. 심야 할증 있음"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "온나·나고 북부 리조트 호텔",
+     "minutes": 90,
+     "fare_yen": 2000,
+     "note": "공항 리무진버스 노선별 60~120분. 요금은 호텔 구간별 상이(대략값)"
+    }
+   ],
+   "notes": "국제선 터미널과 국내선 터미널이 연결통로로 이어져 있음. 렌터카 이용객이 많아 성수기 렌터카 영업소 셔틀 대기 긴 편"
+  },
+  {
+   "iata": "OKJ",
+   "name_ko": "오카야마공항(모모타로공항)",
+   "name_ja": "岡山空港（岡山桃太郎空港）",
+   "name_en": "Okayama Momotaro Airport",
+   "region": "주고쿠",
+   "prefecture_ko": "오카야마현",
+   "city_ko": "오카야마",
+   "lat": 34.7569,
+   "lng": 133.8553,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공"
+     ],
+     "flight_minutes": 100,
+     "weekly": "주 4회(월·수·금·일)",
+     "status": "정기",
+     "season_note": "KE2185 인천 10:35→오카야마 12:15, A220-300. 2026 하계 주 3회→4회 증편. 동계 유지 여부 미확인(JAL 코드셰어)",
+     "source_url": "https://www.okayama-airport.org/en/timetable/seoul",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "오카야마역",
+     "minutes": 30,
+     "fare_yen": 780,
+     "note": "공항 직행"
+    },
+    {
+     "mode": "리무진버스",
+     "to": "구라시키역 북쪽출구",
+     "minutes": 35,
+     "fare_yen": 1150,
+     "note": "구라시키 미관지구 갈 때 편리"
+    },
+    {
+     "mode": "택시",
+     "to": "오카야마역",
+     "minutes": 30,
+     "fare_yen": 7000,
+     "note": "가정값"
+    }
+   ],
+   "notes": "작은 공항이라 수속이 빠름. 오카야마는 산요신칸센 환승 거점이라 히로시마·고베·다카마쓰 연계 여행에 좋음"
+  },
+  {
+   "iata": "SDJ",
+   "name_ko": "센다이공항",
+   "name_ja": "仙台空港",
+   "name_en": "Sendai Airport",
+   "region": "도호쿠",
+   "prefecture_ko": "미야기현",
+   "city_ko": "센다이",
+   "lat": 38.1397,
+   "lng": 140.917,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "아시아나항공",
+      "제주항공"
+     ],
+     "flight_minutes": 145,
+     "weekly": "주 5회(OZ151/152)",
+     "status": "정기",
+     "season_note": "2026 하계 주 5회(미야기현 공식). 2026-12-17부터 대한항공편으로 이관 예정(대한항공 2026 동계 발표). 동계 요일은 미확인",
+     "source_url": "https://www.pref.miyagi.jp/soshiki/kurin/unkojyokyo.html",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "센다이공항 액세스선(철도)",
+     "to": "센다이역",
+     "minutes": 25,
+     "fare_yen": 660,
+     "note": "쾌속 17분·보통 25분, 가장 편리"
+    },
+    {
+     "mode": "택시",
+     "to": "센다이역",
+     "minutes": 40,
+     "fare_yen": 6000,
+     "note": "요금은 대략값"
+    },
+    {
+     "mode": "버스",
+     "to": "마쓰시마",
+     "minutes": 60,
+     "fare_yen": 1200,
+     "note": "관광버스·철도 환승, 요금 대략값"
+    }
+   ],
+   "notes": "도호쿠 유일의 매일급 한국 정기편 관문. 마쓰시마·야마데라·자오 온천의 거점"
+  },
+  {
+   "iata": "SHI",
+   "name_ko": "시모지시마공항",
+   "name_ja": "下地島空港",
+   "name_en": "Shimojishima Airport",
+   "region": "오키나와",
+   "prefecture_ko": "오키나와현",
+   "city_ko": "미야코지마",
+   "lat": 24.8267,
+   "lng": 125.1447,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "제주항공"
+     ],
+     "flight_minutes": 175,
+     "weekly": "비정기",
+     "status": "전세",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음",
+     "source_url": "https://www.shimojishima.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "노선버스",
+     "to": "히라라 시내",
+     "minutes": 30,
+     "fare_yen": 600,
+     "note": "미야코 협영버스 공항 연결선. 항공편 도착에 맞춰 운행. 요금은 대략값"
+    },
+    {
+     "mode": "택시",
+     "to": "히라라 시내",
+     "minutes": 25,
+     "fare_yen": 3500,
+     "note": "이라부대교 경유. 요금은 대략값"
+    }
+   ],
+   "notes": "미야코지마 이라부섬의 리조트형 공항(도쿄·오사카 등 국내선, 홍콩·타이베이 국제선 운항 이력). 한국발 전세편 추진 소식이 있었던 것으로 기억하나 출처 미확인이라 목록에 넣지 않음. 정기 직항 없음"
+  },
+  {
+   "iata": "TAK",
+   "name_ko": "다카마쓰공항",
+   "name_ja": "高松空港",
+   "name_en": "Takamatsu Airport",
+   "region": "시코쿠",
+   "prefecture_ko": "가가와현",
+   "city_ko": "다카마쓰",
+   "lat": 34.2142,
+   "lng": 134.0156,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "에어서울",
+      "진에어"
+     ],
+     "flight_minutes": 105,
+     "weekly": "매일 1편",
+     "status": "정기",
+     "season_note": "하계(~2026-10-24) RS741 인천 08:45→다카마쓰 10:30 / RS742 다카마쓰 11:40→인천 13:20. 2026-10-25 동계 시각표는 공식 미확인(역탐 11/7 조회값 다카마쓰발 11:35). 2025년 겨울에는 12월 중순~연말 운휴 사례 있음(닛케이) — 동계 운항 여부는 예약 전 재확인.",
+     "source_url": "https://www.takamatsu-airport.com/seoul/",
+     "source_date": "2026-05",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산"
+     ],
+     "flight_minutes": 75,
+     "weekly": "주 3회(월·목·토, 10/25부터)",
+     "status": "계절",
+     "season_note": "2026-03-31 기간운항(부정기편 편명)으로 시작, 하계는 화·금·일 BX1325 부산→다카마쓰 17:20 / BX1315 다카마쓰 19:35. 2026-07-21 가가와현·다카마쓰공항 발표로 운항기간을 2027-03-27까지 연장, 10/25부터 월·목·토 BX9713 다카마쓰 18:20→부산 19:30(BX9714 부산→다카마쓰). 이용객 약 1시간 20분.",
+     "source_url": "https://www.takamatsu-airport.com/news/info/20260721-9917/",
+     "source_date": "2026-07",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "다카마쓰역(JR·고토덴 버스터미널)",
+     "minutes": 45,
+     "fare_yen": 1000,
+     "note": "고토덴버스 공항리무진. 어린이 500엔, 교통계 IC카드·IruCa 사용 가능. 리쓰린공원앞 경유."
+    },
+    {
+     "mode": "택시",
+     "to": "다카마쓰 시내(다카마쓰역)",
+     "minutes": 30,
+     "fare_yen": 5000,
+     "note": "약 19km. 요금은 가정값(약 4,500~5,500엔), 심야 할증 별도."
+    },
+    {
+     "mode": "렌터카",
+     "to": "다카마쓰 시내·고토히라·쇼도시마 페리터미널",
+     "minutes": 30,
+     "fare_yen": 0,
+     "note": "공항 앞 렌터카 영업소 다수. 가가와는 우동 투어·고토히라 등 교외 이동에 렌터카가 편함."
+    }
+   ],
+   "notes": "서울에서 하루 2편(에어서울·진에어)에 부산발까지 더해져 시코쿠 관문 역할. 작은 공항이라 입국 수속이 빠르고, 공항에서 우동 가게가 바로 있음. 겨울엔 한국 LCC 운휴·감편 전례가 있어 예약 전 운항 여부 확인 권장."
+  },
+  {
+   "iata": "TKS",
+   "name_ko": "도쿠시마아와오도리공항",
+   "name_ja": "徳島阿波おどり空港",
+   "name_en": "Tokushima Awa Odori Airport",
+   "region": "시코쿠",
+   "prefecture_ko": "도쿠시마현",
+   "city_ko": "도쿠시마",
+   "lat": 34.1328,
+   "lng": 134.6067,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "이스타항공"
+     ],
+     "flight_minutes": 100,
+     "weekly": "주 3회(화·목·토)",
+     "status": "정기",
+     "season_note": "2024-12-26 국내 항공사 최초 취항(도쿠시마 첫 국제정기편). 하계(2026-03-29~10-24) 인천 13:45 출발 / 도쿠시마 16:30 출발, 보잉 737-800. 2026-09 요미우리·도쿠시마신문 보도: 홈페이지에서 2026년 12월 말까지만 예약 가능, 2027년 1월 이후 미판매(도쿠시마현과 노선 유지 지원 조건 협의 중). 탑승률 80%대. 동계 초반(10/25~12월)은 운항 예정이나 2027년 1월 이후는 미정.",
+     "source_url": "https://www.pref.tokushima.lg.jp/ippannokata/kyoiku/kanko/7245532/",
+     "source_date": "2026-09",
+     "confidence": "보통"
+    },
+    {
+     "from_iata": "CJU",
+     "airlines": [
+      "이스타항공"
+     ],
+     "flight_minutes": 95,
+     "weekly": "부정기(2025-11-01~04)",
+     "status": "전세",
+     "season_note": "2025-11-01~04 제주~도쿠시마 전세기 운항 사례(나무위키 도쿠시마공항). 2026년 재운항 정보 없음. 비행시간은 추정값.",
+     "source_url": "https://namu.wiki/w/%EB%8F%84%EC%BF%A0%EC%8B%9C%EB%A7%88%20%EA%B3%B5%ED%95%AD",
+     "source_date": "2025-11",
+     "confidence": "낮음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "리무진버스",
+     "to": "도쿠시마역앞",
+     "minutes": 30,
+     "fare_yen": 800,
+     "note": "도쿠시마버스 공항리무진, 항공편 도착에 맞춰 운행. 요금은 여행사이트 기준(공식 요금표 미확인)."
+    },
+    {
+     "mode": "택시",
+     "to": "도쿠시마 시내(도쿠시마역)",
+     "minutes": 25,
+     "fare_yen": 4000,
+     "note": "약 10km. 요금은 가정값."
+    },
+    {
+     "mode": "고속버스",
+     "to": "나루토 우즈시오(오나루토교)·고베 방면",
+     "minutes": 40,
+     "fare_yen": 0,
+     "note": "공항에서 나루토 소용돌이까지 차로 약 30~40분. 고베·오사카행 고속버스는 도쿠시마역·마쓰시게 정류장에서 환승."
+    }
+   ],
+   "notes": "인천에서만 주 3회(화·목·토)라 2박3일·3박4일 일정이 요일에 묶임. 나루토 소용돌이·오보케 협곡·이야 계곡까지 1~2시간으로 간사이(고베·오사카)와 묶는 동선도 가능. 2027년 1월 이후 운항은 미정이므로 예약 전 확인 필수."
+  },
+  {
+   "iata": "TOY",
+   "name_ko": "도야마공항(도야마 기토키토)",
+   "name_ja": "富山空港（富山きときと空港）",
+   "name_en": "Toyama Airport",
+   "region": "주부",
+   "prefecture_ko": "도야마현",
+   "city_ko": "도야마",
+   "lat": 36.6483,
+   "lng": 137.1875,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "트리니티항공(구 티웨이)",
+      "대한항공",
+      "아시아나항공"
+     ],
+     "flight_minutes": 115,
+     "weekly": "부정기(2026년 5월 등 집중 운항, TW353/354)",
+     "status": "전세",
+     "season_note": "도야마현 2026-03-25 발표: 인천-도야마 전세편 총 18왕복, B737-800. 공항 홈페이지 2026-10-09 기준 TW353 전세편 운항 표시",
+     "source_url": "https://www.toyama-airport.jp/flight/charter-r8",
+     "source_date": "2026-05",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 110,
+     "weekly": "부정기(2026-05-17 등, TW351/352)",
+     "status": "전세",
+     "season_note": "",
+     "source_url": "https://www.toyama-airport.jp/flight/charter-r8",
+     "source_date": "2026-05",
+     "confidence": "보통"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "노선버스",
+     "to": "도야마역",
+     "minutes": 25,
+     "fare_yen": 420,
+     "note": "항공편 연계 운행"
+    },
+    {
+     "mode": "택시",
+     "to": "도야마역",
+     "minutes": 20,
+     "fare_yen": 2500,
+     "note": ""
+    },
+    {
+     "mode": "렌터카",
+     "to": "다테야마 구로베 알펜루트·고카야마",
+     "minutes": 60,
+     "fare_yen": 0,
+     "note": "알펜루트는 4월 중순~11월 개통"
+    },
+    {
+     "mode": "버스+호쿠리쿠신칸센",
+     "to": "가나자와역",
+     "minutes": 50,
+     "fare_yen": 3800,
+     "note": "도야마역에서 신칸센 20분"
+    }
+   ],
+   "notes": "2026년 10월 현재 정기 직항은 없고 티웨이(트리니티) 전세편 위주. 알펜루트·도야마만 해산물 여행 거점"
+  },
+  {
+   "iata": "TTJ",
+   "name_ko": "돗토리공항(돗토리사구 코난공항)",
+   "name_ja": "鳥取空港（鳥取砂丘コナン空港）",
+   "name_en": "Tottori Sand Dunes Conan Airport",
+   "region": "주고쿠",
+   "prefecture_ko": "돗토리현",
+   "city_ko": "돗토리",
+   "lat": 35.5301,
+   "lng": 134.1667,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [],
+     "flight_minutes": 95,
+     "weekly": "비정기",
+     "status": "전세",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음",
+     "source_url": "https://www.ttj-ap-bld.co.jp/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "공항 연락버스(히노마루자동차)",
+     "to": "돗토리역",
+     "minutes": 20,
+     "fare_yen": 480,
+     "note": "철도 직결 없음"
+    },
+    {
+     "mode": "택시",
+     "to": "돗토리역",
+     "minutes": 15,
+     "fare_yen": 0,
+     "note": ""
+    }
+   ],
+   "notes": "국내선(하네다)만 운항. 과거 타이베이 전세편 사례만 있고 한국 노선은 없음. 한국에서 갈 때는 요나고공항(에어서울) 이용"
+  },
+  {
+   "iata": "UBJ",
+   "name_ko": "야마구치우베공항",
+   "name_ja": "山口宇部空港",
+   "name_en": "Yamaguchi Ube Airport",
+   "region": "주고쿠",
+   "prefecture_ko": "야마구치현",
+   "city_ko": "우베",
+   "lat": 33.93,
+   "lng": 131.2789,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "아시아나항공"
+     ],
+     "flight_minutes": 90,
+     "weekly": "전세 주 3회(월·목·토), 2026-01-22~02-19 13왕복",
+     "status": "전세",
+     "season_note": "정기편 없음. 2025 여름 4왕복, 2026 1~2월 13왕복(탑승률 99.1%). 2026 가을·겨울 전세편 발표 미확인",
+     "source_url": "https://www.pref.yamaguchi.lg.jp/press/327194.html",
+     "source_date": "2025-11",
+     "confidence": "높음"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "버스",
+     "to": "신야마구치역",
+     "minutes": 35,
+     "fare_yen": 0,
+     "note": "요금 검색 미확인"
+    },
+    {
+     "mode": "JR 우베선",
+     "to": "우베신카와역·신야마구치역",
+     "minutes": 30,
+     "fare_yen": 0,
+     "note": "공항에서 구사에역 도보 약 7분. 요금 미확인"
+    },
+    {
+     "mode": "택시",
+     "to": "우베시내",
+     "minutes": 10,
+     "fare_yen": 0,
+     "note": ""
+    }
+   ],
+   "notes": "한국 정기 직항 없음. 명절·방학 시기에 아시아나 전세편이 간헐적으로 뜨므로 여행사 패키지로만 이용 가능"
+  },
+  {
+   "iata": "UKB",
+   "name_ko": "고베공항",
+   "name_ja": "神戸空港",
+   "name_en": "Kobe Airport",
+   "region": "간사이",
+   "prefecture_ko": "효고현",
+   "city_ko": "고베",
+   "lat": 34.6328,
+   "lng": 135.2239,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "대한항공",
+      "제주항공",
+      "진에어",
+      "아시아나항공",
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 105,
+     "weekly": "매일 2편",
+     "status": "정기",
+     "season_note": "2025-04-18 국적사 최초 취항, A321neo. 고베공항은 국제 정기편 미해금 상태라 제도상 '정기 전세편' 형태",
+     "source_url": "https://www.incheontoday.com/news/articleView.html?idxno=301040",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [
+      "에어로케이"
+     ],
+     "flight_minutes": 100,
+     "weekly": "부정기(2026-02-25~03-09 주 3회, 2026-06-01~23 매일 1편)",
+     "status": "전세",
+     "season_note": "청주-고베 유일 직항. 정기편 전환 검토 중이나 확정 발표 없음",
+     "source_url": "https://www.newspim.com/news/view/20260403001022",
+     "source_date": "2026-04",
+     "confidence": "보통"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "포트라이너(모노레일)",
+     "to": "산노미야역",
+     "minutes": 18,
+     "fare_yen": 340,
+     "note": "터미널 2층 직결. '기타후토행' 등 공항까지 안 가는 열차 주의"
+    },
+    {
+     "mode": "택시",
+     "to": "산노미야",
+     "minutes": 25,
+     "fare_yen": 3000,
+     "note": "가정값(거리 약 8km)"
+    },
+    {
+     "mode": "고속선 베이셔틀",
+     "to": "간사이공항",
+     "minutes": 30,
+     "fare_yen": 1880,
+     "note": "간사이공항과 고베를 바다로 잇는 환승 경로(요금 대략값)"
+    }
+   ],
+   "notes": "2025년 4월 국제선 개방 후 한국 노선이 급증. 시내(산노미야)까지 18분으로 간사이공항보다 훨씬 가까움. 국제선 발착 상한 1일 40편"
+  },
+  {
+   "iata": "YGJ",
+   "name_ko": "요나고공항(기타로공항)",
+   "name_ja": "米子空港（米子鬼太郎空港）",
+   "name_en": "Yonago Kitaro Airport",
+   "region": "주고쿠",
+   "prefecture_ko": "돗토리현",
+   "city_ko": "요나고",
+   "lat": 35.4922,
+   "lng": 133.2364,
+   "has_korea_direct": true,
+   "routes": [
+    {
+     "from_iata": "ICN",
+     "airlines": [
+      "에어서울"
+     ],
+     "flight_minutes": 85,
+     "weekly": "주 5회(월·수·목·금·일)",
+     "status": "정기",
+     "season_note": "RS745/746. 공항 시간표상 2026 동계(10/25~2027/3/27)도 주 5회. 2025 동계(12/23~)에는 매일 운항했음. 겨울 폭설 결항 사례(2026-02-08)",
+     "source_url": "https://www.yonago-air.com/flight/seoul",
+     "source_date": "2026-09",
+     "confidence": "높음"
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "에어서울"
+     ],
+     "flight_minutes": 85,
+     "weekly": "미확인",
+     "status": "운휴",
+     "season_note": "기억 기반·confidence 매우 낮음. 요나고 정기편은 인천-에어서울이 주력이며 대구발은 전세·부정기 또는 없음 가능성. 대구-요나고 정기편은 확인되지 않음",
+     "source_url": "https://www.yonago-air.com/",
+     "source_date": "",
+     "confidence": "보통",
+     "reviewed": "2026-10-10 지식 기반 보정"
+    }
+   ],
+   "city_access": [
+    {
+     "mode": "공항 연락버스",
+     "to": "요나고역",
+     "minutes": 25,
+     "fare_yen": 0,
+     "note": "요금 검색 미확인(약 600엔 수준으로 알려짐)"
+    },
+    {
+     "mode": "JR 사카이선",
+     "to": "요나고역",
+     "minutes": 40,
+     "fare_yen": 240,
+     "note": "요나고공항역 도보 5분. 에어서울 안내 기준"
+    },
+    {
+     "mode": "버스",
+     "to": "사카이미나토(미즈키 시게루 로드)",
+     "minutes": 20,
+     "fare_yen": 0,
+     "note": "요금 검색 미확인"
+    }
+   ],
+   "notes": "산인(돗토리·시마네) 여행 관문. 돗토리 사구·사카이미나토·마쓰에·이즈모타이샤 연계. 에어서울 단독 운항이라 결항 시 대체편 적음"
+  }
+ ],
+ "reviewed": "조사 때 웹 검색 한도가 끊겨 '확인필요'로만 남은 노선을 2026-10-10 세션의 지식(2026년 중반까지)으로 보정한 목록. 출처 URL 이 없는 보정은 confidence 를 '보통' 이하로 두고 season_note 에 '웹 확인 못 함' 을 남긴다. 새 근거를 찾으면 이 파일을 고치고 python3 travel/tools/apply_flight_review.py 를 다시 돌린다."
+}
