@@ -223,6 +223,7 @@ def main():
                 .replace('<!--FONTS-->', fonts_link).replace('/*FONT_STACK*/', stack)
                 .replace('/*LEAFLET_CSS*/', css).replace('/*LEAFLET_JS*/', js).replace('/*DATA*/', jsonsafe(data)))
         out = os.path.join(out_dir, out_name or L['file'])
+        os.makedirs(out_dir, exist_ok=True)
         open(out, 'w', encoding='utf-8').write(html)
         if OUT_ART_DIR:
             os.makedirs(OUT_ART_DIR, exist_ok=True)
