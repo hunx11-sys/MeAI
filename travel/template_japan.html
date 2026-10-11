@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="/*LANG*/">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,14 +7,13 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#FFFCFA">
 <meta name="format-detection" content="telephone=no">
-<title>일본 직항 여행 플래너</title>
+<title>/*TITLE*/</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<!--FONTS-->
 <style id="leaflet-css">/*LEAFLET_CSS*/</style>
 <style>
-/* 레이아웃 개념 : 한 손으로 쓰는 세로 한 줄. 출발 공항 → 일본 지도 → 목적지 카드 → 일정. 글꼴은 Pretendard(OFL, 무료)·Noto Sans KR(OFL) 만 쓴다. 제목은 같은 글꼴을 굵게. */
+/* 레이아웃 개념 : 한 손으로 쓰는 세로 한 줄. 출발 공항 → 일본 지도 → 목적지 카드 → 일정. 글꼴은 Pretendard(OFL, 무료)·Noto Sans(OFL) 만 쓴다. 제목은 같은 글꼴을 굵게. */
 :root{
   --bg:#FFFCFA; --surface:#FFFFFF; --fill:#F8F1ED; --fill-2:#F1E7E1; --line:#EFE3DD; --line-2:#E2D3CB;
   --ink:#2B2320; --ink-2:#6B5E58; --ink-3:#A3968F; --ink-4:#CFC4BE;
@@ -24,8 +23,9 @@
   --sun:#D9A62E; --sun-deep:#A87C14; --sun-soft:#FBF1D6;
   --plum:#7A5E90; --plum-soft:#EFE8F4;
   --coral:#E36A4C; --coral-deep:#B84D33; --coral-soft:#FCE9E3;
-  --display:'Pretendard Variable',Pretendard,'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-  --body:'Pretendard Variable',Pretendard,'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --mint:#3BA39A; --mint-soft:#E2F3F1;
+  --display:/*FONT_STACK*/;
+  --body:/*FONT_STACK*/;
   --r-sm:10px; --r-md:14px; --r-lg:18px; --r-xl:24px; --r-full:999px;
   --shadow:0 8px 28px rgba(90,52,44,.08);
   color-scheme:light;
@@ -43,16 +43,24 @@ img,svg{max-width:100%}
 :focus-visible{outline:3px solid var(--rose);outline-offset:2px;border-radius:8px}
 .num{font-variant-numeric:tabular-nums}
 .app{max-width:640px;margin:0 auto;padding-block:0 calc(100px + env(safe-area-inset-bottom,0px));padding-inline:0}
-.sec{padding-inline:18px}
 .hide{display:none!important}
 
 /* ── 상단 바 ── */
-.topbar{position:sticky;top:0;z-index:50;background:rgba(255,252,250,.92);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;display:flex;align-items:center;gap:10px}
-.topbar .brand{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:17px;letter-spacing:-.2px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,252,250,.92);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;display:flex;align-items:center;gap:8px}
+.topbar .brand{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:17px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar .brand small{font-family:var(--body);font-size:11.5px;color:var(--ink-3);margin-left:6px;font-weight:500}
-.iconbtn{width:38px;height:38px;border-radius:var(--r-full);background:var(--fill);display:grid;place-items:center;color:var(--ink-2);flex:0 0 auto}
+.iconbtn{width:38px;height:38px;border-radius:var(--r-full);background:var(--fill);display:grid;place-items:center;color:var(--ink-2);flex:0 0 auto;position:relative}
 .iconbtn svg{width:18px;height:18px}
-.iconbtn.rose{background:var(--rose);color:#fff}
+.iconbtn .lc{position:absolute;right:-2px;bottom:-2px;font-size:8.5px;font-weight:700;background:var(--rose);color:#fff;border-radius:6px;padding:1px 4px;line-height:1.2;letter-spacing:.02em}
+.langmenu{position:fixed;right:14px;top:calc(58px + env(safe-area-inset-top,0px));z-index:70;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:8px;min-width:190px;display:none}
+.langmenu.on{display:block}
+.langmenu .lt{font-size:11px;font-weight:500;color:var(--ink-3);padding:6px 10px 4px;letter-spacing:.04em}
+.langmenu a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--ink);font-size:14px;font-weight:500}
+.langmenu a:hover{background:var(--fill)}
+.langmenu a[aria-current="true"]{background:var(--rose-soft);color:var(--rose-deep)}
+.langmenu a small{font-size:11px;color:var(--ink-3);font-weight:400}
+.scrim{position:fixed;inset:0;z-index:65;display:none}
+.scrim.on{display:block}
 
 /* ── 홈 히어로 ── */
 .hero{padding:26px 18px 10px}
@@ -61,8 +69,8 @@ img,svg{max-width:100%}
 .hero h1 em{font-style:normal;color:var(--rose)}
 .hero .lead{margin-top:10px;font-size:14px;color:var(--ink-2);line-height:1.7}
 .q{margin-top:22px}
-.q .qt{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
-.q .qt b{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:16px;font-weight:700}
+.q .qt{display:flex;align-items:baseline;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+.q .qt b{font-family:var(--display);font-size:16px;font-weight:700}
 .q .qt span{font-size:12px;color:var(--ink-3)}
 .chips{display:flex;gap:7px;overflow-x:auto;padding:2px 18px 6px;margin-inline:-18px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-padding-inline:18px}
 .chips::-webkit-scrollbar{display:none}
@@ -74,9 +82,9 @@ img,svg{max-width:100%}
 
 /* ── 일본 지도 ── */
 .mapcard{margin:18px 18px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);box-shadow:var(--shadow);overflow:hidden}
-.mapcard .mh{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 0}
-.mapcard .mh b{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:15px}
-.mapcard .mh span{font-size:11.5px;color:var(--ink-3)}
+.mapcard .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px 0}
+.mapcard .mh b{font-family:var(--display);font-size:15px;font-weight:700}
+.mapcard .mh span{font-size:11.5px;color:var(--ink-3);text-align:right}
 .jpmap{display:block;width:100%;height:auto;padding:6px 8px 2px}
 .jpmap .land{fill:var(--fill-2);stroke:#fff;stroke-width:.8;stroke-linejoin:round}
 .jpmap .land.kr{fill:#EDE4E0}
@@ -103,14 +111,13 @@ img,svg{max-width:100%}
 
 /* ── 목적지 목록 ── */
 .filters{padding:20px 18px 6px}
-.fbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.fbar b{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:17px}
-.fbar .cnt{font-size:12px;color:var(--ink-3)}
+.fbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.fbar b{font-family:var(--display);font-size:17px;font-weight:700}
 .seg{display:inline-flex;background:var(--fill);border-radius:var(--r-full);padding:3px}
 .seg button{padding:6px 12px;border-radius:var(--r-full);font-size:12.5px;font-weight:500;color:var(--ink-3)}
 .seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .rghead{display:flex;align-items:center;gap:10px;padding:22px 18px 8px}
-.rghead b{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:18px}
+.rghead b{font-family:var(--display);font-size:18px;font-weight:700}
 .rghead span{font-size:12px;color:var(--ink-3)}
 .rghead::after{content:"";flex:1;height:1px;background:var(--line)}
 .dlist{display:grid;gap:10px;padding:0 18px}
@@ -119,7 +126,7 @@ img,svg{max-width:100%}
 .dcard.flash{border-color:var(--rose);box-shadow:0 0 0 4px var(--rose-soft)}
 .dcard .row{display:flex;gap:12px;align-items:flex-start}
 .dcard .nm{flex:1;min-width:0}
-.dcard h3{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:19px;line-height:1.3;letter-spacing:-.3px}
+.dcard h3{font-family:var(--display);font-size:19px;line-height:1.3;letter-spacing:-.02em;font-weight:700}
 .dcard h3 small{font-family:var(--body);font-size:12px;color:var(--ink-3);font-weight:400;margin-left:6px}
 .dcard .tg{margin-top:3px;font-size:13px;color:var(--ink-2)}
 .dcard .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
@@ -130,7 +137,12 @@ img,svg{max-width:100%}
 .tag.sun{background:var(--sun-soft);color:var(--sun-deep)}
 .tag.plum{background:var(--plum-soft);color:var(--plum)}
 .tag.coral{background:var(--coral-soft);color:var(--coral-deep)}
+.tag.mint{background:var(--mint-soft);color:var(--mint)}
 .tag.ghost{background:transparent;border:1px solid var(--line-2);color:var(--ink-3)}
+/* 해시태그(특징·장점) : 알록달록 */
+.hts{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.ht{font-size:12px;font-weight:600;padding:4px 10px;border-radius:var(--r-full);line-height:1.4;letter-spacing:-.01em}
+.ht-0{background:#FBE7EC;color:#B63B57}.ht-1{background:#E6F1E9;color:#3F7A55}.ht-2{background:#E5EFF9;color:#2F6AA3}.ht-3{background:#FBF1D6;color:#A3730A}.ht-4{background:#EFE8F4;color:#6E4E8C}.ht-5{background:#E2F3F1;color:#2A8A80}.ht-6{background:#FCE9E3;color:#B84D33}.ht-7{background:#EEF0D6;color:#6E7A1A}
 .flight{display:flex;align-items:flex-start;gap:8px;margin-top:11px;padding:10px 11px;border-radius:var(--r-md);background:var(--rose-pale);font-size:12.5px;color:var(--ink-2);line-height:1.5}
 .flight.off{background:var(--fill);color:var(--ink-3)}
 .flight svg{width:15px;height:15px;flex:0 0 auto;margin-top:2px;color:var(--rose)}
@@ -143,7 +155,7 @@ img,svg{max-width:100%}
 
 /* ── 도장 ── */
 .stamp{flex:0 0 auto;width:58px;height:58px;border-radius:50%;border:1.5px dashed var(--rose);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--rose-deep);transform:rotate(-8deg);background:var(--rose-pale);line-height:1}
-.stamp .code{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:15px;font-weight:700;letter-spacing:.04em}
+.stamp .code{font-family:var(--display);font-size:15px;font-weight:800;letter-spacing:.04em}
 .stamp .ja{font-size:8.5px;margin-top:3px;opacity:.85;max-width:50px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stamp.big{width:72px;height:72px}
 .stamp.big .code{font-size:18px}
@@ -161,20 +173,21 @@ img,svg{max-width:100%}
 .months{display:flex;gap:3px;margin-top:14px}
 .months span{flex:1;text-align:center;font-size:10px;padding:5px 0;border-radius:6px;background:var(--fill);color:var(--ink-3)}
 .months span.on{background:var(--rose-soft);color:var(--rose-deep);font-weight:700}
-.months-lbl{display:flex;justify-content:space-between;margin-top:6px;font-size:11.5px;color:var(--ink-3)}
+.months-lbl{margin-top:6px;font-size:11.5px;color:var(--ink-3)}
+.season{margin-top:6px;font-size:12.5px;color:var(--ink-2);line-height:1.6}
 .card{margin:16px 18px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:15px 15px 14px}
-.card h2{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.card h2{font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .card h2 .sub{font-family:var(--body);font-size:12px;color:var(--ink-3);font-weight:400;margin-left:auto}
 .route{display:flex;flex-direction:column;gap:8px}
-.route .ap{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500}
-.route .ap .code{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:14px;color:var(--rose-deep)}
+.route .ap{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500;flex-wrap:wrap}
+.route .ap .code{font-family:var(--display);font-size:14px;font-weight:700;color:var(--rose-deep)}
 .rline{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:10px 12px;border-radius:var(--r-md);background:var(--fill);font-size:13px;color:var(--ink-2)}
 .rline .al{color:var(--ink);font-weight:500}
 .rline .st{margin-left:auto}
 .noroute{padding:10px 12px;border-radius:var(--r-md);background:var(--fill);font-size:13px;color:var(--ink-3)}
 .access{margin-top:12px;border-top:1px dashed var(--line-2);padding-top:10px}
 .access .ah{font-size:12px;font-weight:500;color:var(--ink-3);margin-bottom:6px}
-.access li{display:flex;gap:8px;font-size:13px;padding:5px 0;color:var(--ink-2)}
+.access li{display:flex;gap:8px;font-size:13px;padding:5px 0;color:var(--ink-2);flex-wrap:wrap}
 .access li b{color:var(--ink);font-weight:500;min-width:0}
 .access li .num{margin-left:auto;white-space:nowrap;color:var(--ink)}
 details.more{margin-top:10px}
@@ -186,30 +199,30 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 
 /* ── 박 수 · 플랜 선택 ── */
 .pick{padding:20px 18px 0}
-.pick .lbl{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:16px;margin-bottom:9px;display:flex;align-items:baseline;gap:8px}
-.pick .lbl span{font-family:var(--body);font-size:12px;color:var(--ink-3)}
+.pick .lbl{font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:9px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pick .lbl span{font-family:var(--body);font-size:12px;color:var(--ink-3);font-weight:400}
 .nseg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}
 .nseg button{padding:11px 4px;border-radius:var(--r-md);border:1px solid var(--line-2);background:var(--surface);font-size:14px;font-weight:500;color:var(--ink-2);line-height:1.2}
-.nseg button small{display:block;font-size:10.5px;color:var(--ink-3);margin-top:3px;font-weight:400}
+.nseg button small{display:block;font-size:10.5px;color:var(--ink-3);margin-top:3px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nseg button[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:#fff}
 .nseg button[aria-pressed="true"] small{color:rgba(255,255,255,.85)}
 .vchips{margin-top:12px}
 .psum{margin:16px 18px 0;padding:16px 16px 15px;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--rose-pale),var(--sun-soft));border:1px solid var(--line)}
 .psum .k{font-size:12px;font-weight:500;color:var(--rose-deep)}
-.psum h2{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:21px;line-height:1.3;margin-top:4px}
+.psum h2{font-family:var(--display);font-size:21px;font-weight:700;line-height:1.3;margin-top:4px;letter-spacing:-.02em}
 .psum p{margin-top:7px;font-size:13.5px;color:var(--ink-2);line-height:1.7}
 
 /* ── 일차 타일 ── */
 .dgrid{display:grid;gap:7px;padding:16px 18px 0;grid-template-columns:repeat(auto-fit,minmax(64px,1fr))}
 .tile{background:var(--fill);border-radius:var(--r-md);padding:10px 4px 9px;text-align:center;transition:background .15s}
 .tile .n{display:block;font-size:10.5px;color:var(--ink-3);font-weight:500}
-.tile .l{display:block;font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:14px;margin-top:2px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .l{display:block;font-family:var(--display);font-size:14px;font-weight:700;margin-top:2px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile[aria-pressed="true"]{background:var(--rose-soft)}
 .tile[aria-pressed="true"] .l{color:var(--rose-deep)}
 .tile[aria-pressed="true"] .n{color:var(--rose)}
 .dayhead{padding:20px 18px 0}
 .dayhead .kicker{font-size:12.5px;font-weight:500;color:var(--rose)}
-.dayhead h2{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:23px;line-height:1.3;letter-spacing:-.3px;margin-top:4px}
+.dayhead h2{font-family:var(--display);font-size:23px;font-weight:700;line-height:1.3;letter-spacing:-.02em;margin-top:4px}
 .dayhead p{margin-top:7px;font-size:14px;color:var(--ink-2);line-height:1.7}
 .notice{display:flex;gap:9px;margin:12px 0 0;padding:12px 14px;border-radius:var(--r-md);background:var(--sun-soft);color:var(--sun-deep);font-size:13px;line-height:1.6}
 .notice.warn{background:var(--coral-soft);color:var(--coral-deep)}
@@ -220,14 +233,14 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .sketch .ln{fill:none;stroke:var(--rose);stroke-width:1.5;stroke-dasharray:4 3}
 .sketch .pt circle{fill:var(--rose);stroke:#fff;stroke-width:2}
 .sketch .pt text{font-size:9px;fill:#fff;font-weight:700;text-anchor:middle}
-.sketch .nm{font-size:9.5px;fill:var(--ink-2)}
+.sketch .nm{font-size:9px;fill:var(--ink-2)}
 .maphint{margin:7px 18px 0;font-size:11.5px;color:var(--ink-3)}
 .leaflet-container{font-family:var(--body);background:var(--fill)}
 .leaflet-tile-pane{filter:saturate(.55) brightness(1.03)}
 .leaflet-control-attribution{font-size:9px!important;background:rgba(255,255,255,.7)!important}
 .leaflet-popup-content-wrapper{border-radius:12px;box-shadow:var(--shadow)}
 .leaflet-popup-content{margin:9px 13px;font-size:13px;line-height:1.5}
-.leaflet-popup-content b{font-family:var(--display);font-weight:700;letter-spacing:-.015em}
+.leaflet-popup-content b{font-family:var(--display);font-weight:700}
 .pin{width:24px;height:24px;border-radius:50%;background:var(--rose);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 .pin.on{background:var(--ink);transform:scale(1.15)}
 
@@ -248,9 +261,9 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .ic.c-airport{background:#E5EFF9;color:#38689A}.ic.c-hotel{background:#EFE8F4;color:#7A5E90}.ic.c-food{background:#FBF1D6;color:#A87C14}.ic.c-free{background:var(--fill);color:var(--ink-3)}
 .sinfo{flex:1;min-width:0}
 .tline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tm{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:16px;color:var(--rose-deep);line-height:1}
+.tm{font-family:var(--display);font-size:16px;font-weight:700;color:var(--rose-deep);line-height:1;font-variant-numeric:tabular-nums}
 .tline .tags{display:flex;gap:4px;flex-wrap:wrap}
-.scard h3{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:17px;line-height:1.35;letter-spacing:-.2px;margin-top:5px}
+.scard h3{font-family:var(--display);font-size:17px;font-weight:700;line-height:1.35;letter-spacing:-.02em;margin-top:5px}
 .scard .sub{font-size:12px;color:var(--ink-3);margin-top:2px}
 .scard .desc{margin-top:7px;font-size:13.5px;color:var(--ink-2);line-height:1.65}
 .scard .note{margin-top:7px;font-size:13.5px;color:var(--ink);line-height:1.6}
@@ -261,13 +274,13 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .box b{font-weight:700}
 .meta{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px;font-size:12px;color:var(--ink-3)}
 .meta span b{color:var(--ink-2);font-weight:500}
-.go{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:12.5px;font-weight:500;color:var(--rose-deep)}
+.go{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:12.5px;font-weight:500;color:var(--rose-deep);text-decoration:none}
 .go svg{width:13px;height:13px}
 .opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .opt{padding:7px 11px;border-radius:var(--r-full);border:1px solid var(--line-2);background:var(--surface);font-size:12.5px;font-weight:500;color:var(--ink-2)}
 .opt[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:#fff}
 .rmini{margin-top:10px;padding:11px 12px;border-radius:var(--r-md);background:var(--sun-soft)}
-.rmini .rn{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:15px}
+.rmini .rn{font-family:var(--display);font-size:15px;font-weight:700}
 .rmini .rn small{font-family:var(--body);font-size:11px;color:var(--ink-3);margin-left:6px;font-weight:400}
 .rmini .rs{font-size:12.5px;color:var(--ink-2);margin-top:3px}
 .rmini .rd{font-size:12.5px;color:var(--ink-2);margin-top:6px;line-height:1.6}
@@ -279,25 +292,25 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .move span em{font-style:normal;font-weight:500;color:var(--ink)}
 .free{padding:4px 18px}
 .free p{margin-left:30px;font-size:13px;color:var(--ink-3);padding:6px 0}
-.free p b{color:var(--ink-2);font-weight:500;font-family:var(--display);font-weight:700;letter-spacing:-.015em}
+.free p b{color:var(--ink-2);font-weight:600;font-family:var(--display)}
 
 /* ── 아코디언 ── */
 .accs{margin:24px 18px 0;border-top:1px solid var(--line)}
 .acc{border-bottom:1px solid var(--line)}
-.acc>summary{list-style:none;cursor:pointer;padding:16px 2px;display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:17px;letter-spacing:-.2px}
+.acc>summary{list-style:none;cursor:pointer;padding:16px 2px;display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:-.02em}
 .acc>summary::-webkit-details-marker{display:none}
 .acc>summary .cnt{font-family:var(--body);font-size:12px;color:var(--ink-3);font-weight:400}
-.acc>summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--ink-4);border-bottom:2px solid var(--ink-4);transform:rotate(45deg);transition:transform .2s}
+.acc>summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--ink-4);border-bottom:2px solid var(--ink-4);transform:rotate(45deg);transition:transform .2s;flex:0 0 auto}
 .acc[open]>summary::after{transform:rotate(-135deg)}
 .abody{padding:0 2px 20px}
 .abody p{font-size:13.5px;color:var(--ink-2);line-height:1.7}
 .abody p+p{margin-top:8px}
-.abody h4{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:14.5px;color:var(--rose-deep);margin:14px 0 6px}
+.abody h4{font-family:var(--display);font-size:14.5px;font-weight:700;color:var(--rose-deep);margin:14px 0 6px}
 .abody h4:first-child{margin-top:0}
 .hcard{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .hcard:last-child{border-bottom:0}
 .hcard .hi{flex:1;min-width:0}
-.hcard .hn{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:15.5px;line-height:1.35}
+.hcard .hn{font-family:var(--display);font-size:15.5px;font-weight:700;line-height:1.35}
 .hcard .ha{font-size:12px;color:var(--ink-3);margin-top:2px}
 .hcard .hd{font-size:13px;color:var(--ink-2);margin-top:6px;line-height:1.6}
 .hcard .pts{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
@@ -305,11 +318,11 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 table.bt{width:100%;border-collapse:collapse;font-size:13.5px}
 .bt th,.bt td{text-align:left;padding:10px 0;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
 .bt th{font-size:11.5px;font-weight:500;color:var(--ink-3)}
-.bt td:last-child,.bt th:last-child{text-align:right;white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums}
+.bt td:last-child,.bt th:last-child{text-align:right;white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums;padding-left:10px}
 .bt td small{display:block;font-size:11.5px;color:var(--ink-3)}
 .bt tr.total td{border-bottom:0;padding-top:14px}
-.bt tr.total td:first-child{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:15px;color:var(--ink)}
-.bt tr.total td:last-child{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:20px;color:var(--rose-deep)}
+.bt tr.total td:first-child{font-family:var(--display);font-size:15px;font-weight:700;color:var(--ink)}
+.bt tr.total td:last-child{font-family:var(--display);font-size:20px;font-weight:800;color:var(--rose-deep)}
 .note{font-size:12.5px;color:var(--ink-3);margin-top:10px;line-height:1.6}
 .checks li{position:relative;padding:10px 0 10px 28px;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--ink-2);line-height:1.6;cursor:pointer}
 .checks li:last-child{border-bottom:0}
@@ -319,8 +332,8 @@ table.bt{width:100%;border-collapse:collapse;font-size:13.5px}
 .checks li.done::after{content:"";position:absolute;left:5px;top:16px;width:4px;height:8px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
 .bp{padding:11px 0;border-bottom:1px solid var(--line)}
 .bp:last-child{border-bottom:0}
-.bp .bh{display:flex;align-items:center;gap:8px}
-.bp .bh b{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:15px;font-weight:700}
+.bp .bh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bp .bh b{font-family:var(--display);font-size:15px;font-weight:700}
 .bp .bd{font-size:13px;color:var(--ink-2);margin-top:4px;line-height:1.6}
 .rlist{display:flex;flex-direction:column}
 .ritem{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
@@ -328,28 +341,29 @@ table.bt{width:100%;border-collapse:collapse;font-size:13.5px}
 .ritem .ic{width:38px;height:38px;border-radius:12px}
 .ritem .ic svg{width:19px;height:19px}
 .ritem .ri{flex:1;min-width:0}
-.ritem .rn{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:15px;line-height:1.35}
+.ritem .rn{font-family:var(--display);font-size:15px;font-weight:700;line-height:1.35}
 .ritem .rn small{font-family:var(--body);font-size:11px;color:var(--ink-3);margin-left:5px;font-weight:400}
 .ritem .rs{font-size:12.5px;color:var(--ink-2);margin-top:2px}
 .ritem .rd{font-size:12.5px;color:var(--ink-3);margin-top:4px;line-height:1.55}
 .altcard{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:12px 0;border-bottom:1px solid var(--line)}
 .altcard:last-child{border-bottom:0}
 .altcard .ai{flex:1;min-width:0}
-.altcard .an{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:16px}
+.altcard .an{font-family:var(--display);font-size:16px;font-weight:700}
 .altcard .ar{font-size:13px;color:var(--ink-2);margin-top:3px;line-height:1.55}
 .altcard .af{font-size:12px;color:var(--ink-3);margin-top:4px}
 .altcard .arrow{color:var(--ink-4)}
+.altcard .arrow svg{width:16px;height:16px}
 .srcs li{font-size:11.5px;color:var(--ink-3);padding:3px 0;word-break:break-all}
 .srcs a{color:var(--ink-3)}
 
 /* ── 하단 바 · 토스트 ── */
 .bottombar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:11px 18px calc(11px + env(safe-area-inset-bottom,0px))}
-.bottombar .in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.bottombar .in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px}
 .bottombar .amt{flex:1;min-width:0;line-height:1.25}
-.bottombar .k{display:block;font-size:11px;color:var(--ink-3)}
-.bottombar .v{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:19px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bottombar .v small{font-family:var(--body);font-size:11.5px;color:var(--ink-3);margin-left:5px;font-weight:400}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:var(--r-md);background:var(--rose);color:#fff;font-size:14px;font-weight:700;white-space:nowrap;transition:transform .12s,background .15s}
+.bottombar .k{display:block;font-size:11px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bottombar .v{font-family:var(--display);font-size:19px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.bottombar .v small{display:block;font-family:var(--body);font-size:11px;color:var(--ink-3);font-weight:400;letter-spacing:0;line-height:1.2;margin-top:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:var(--r-md);background:var(--rose);color:#fff;font-size:14px;font-weight:700;white-space:nowrap;transition:transform .12s,background .15s}
 .btn:active{transform:scale(.97);background:var(--rose-deep)}
 .btn.ghost{background:var(--fill);color:var(--ink)}
 .btn svg{width:16px;height:16px}
@@ -358,13 +372,15 @@ table.bt{width:100%;border-collapse:collapse;font-size:13.5px}
 footer{padding:28px 18px 8px;font-size:11.5px;color:var(--ink-3);line-height:1.75}
 footer a{color:var(--ink-3)}
 .empty{margin:14px 18px 0;padding:28px 18px;text-align:center;background:var(--surface);border:1px dashed var(--line-2);border-radius:var(--r-lg);color:var(--ink-2);font-size:14px;line-height:1.7}
-.empty b{display:block;font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:17px;color:var(--ink);margin-bottom:4px}
+.empty b{display:block;font-family:var(--display);font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media (min-width:640px){.app{padding-top:12px}}
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
+<div class="scrim" id="scrim"></div>
+<div class="langmenu" id="langmenu" role="menu"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script id="DATA" type="application/json">/*DATA*/</script>
 <script>/*LEAFLET_JS*/</script>
@@ -373,15 +389,45 @@ footer a{color:var(--ink-3)}
 'use strict';
 /* ───────── 자료 ───────── */
 const DATA = JSON.parse(document.getElementById('DATA').textContent || '{}');
+const LANG = DATA.lang || 'ko';
+const UI = DATA.ui || {};
+const LANGS = DATA.langs || [];
+const APN = DATA.apnames || {};
 const AIRPORTS = DATA.airports || [];
 const AP = Object.fromEntries(AIRPORTS.map(a => [a.iata, a]));
 const KR = DATA.kr || [];
 const KRP = Object.fromEntries(KR.map(k => [k.iata, k]));
 const GUIDES = DATA.guides || {};
 const REGIONS = DATA.regions || ['홋카이도','도호쿠','간토','주부','간사이','주고쿠','시코쿠','규슈','오키나와'];
-const TAGS = DATA.tags || ['온천','미식','자연','도시','쇼핑','아이동반','야경','역사','바다','겨울','벚꽃','단풍','테마파크','드라이브','섬','예술','커피','애니','휴양'];
+const TAGS = DATA.tags || [];
 const MAPD = DATA.map || null;
 const HAS_L = typeof L !== 'undefined';
+
+/* ───────── 글자 ───────── */
+function T(key, p){ let s = UI[key]; if (s == null) s = key; if (p) for (const k in p) s = s.split('{' + k + '}').join(p[k]); return s; }
+const dict = (name, v) => (UI[name] && UI[name][v]) || v;
+const regionName = r => dict('regions', r);
+const tagName = t => dict('tags', t);
+const tierName = t => dict('tiers', t);
+const whenName = w => dict('when', w);
+const paceName = p => dict('pace_v', p);
+const stName = s => dict('status', s);
+const krName = iata => (UI.kr && UI.kr[iata]) || (KRP[iata] ? KRP[iata].name : iata);
+const alName = a => (UI.airlines && UI.airlines[a]) || a;
+function apName(a){ if (!a) return ''; if (LANG === 'ko') return a.name_ko; const n = APN[a.iata] || {}; if (LANG === 'en' || LANG === 'es') return n.en ? n.en + ' Airport' : a.name_en; return n[LANG] || n.ja || a.name_ja || a.name_en; }
+function apCity(a){ if (!a) return ''; if (LANG === 'ko') return a.city_ko || a.name_ko; const n = APN[a.iata] || {}; const k = 'city_' + (LANG === 'es' ? 'en' : LANG); return n[k] || n.city_en || a.name_en; }
+const HANGUL = /[가-힣]/;
+const WK = {
+  en: [[/매일\s*(\d+)[~～-](\d+)편/g, '$1-$2 daily'], [/매일\s*(\d+)편/g, '$1 daily'], [/매일\s*여러\s*편/g, 'several daily'], [/매일\s*다수편/g, 'many daily'], [/매일/g, 'daily'], [/주\s*(\d+)[~～-](\d+)회/g, '$1-$2/week'], [/주\s*(\d+)회/g, '$1/week'], [/일\s*(\d+)회/g, '$1 daily'], [/(\d+)편/g, '$1 flights'], [/운휴/g, 'suspended'], [/부정기/g, 'irregular'], [/미확인|확인\s*필요/g, 'TBC'], [/이상/g, '+'], [/안팎/g, 'approx.']],
+  es: [[/매일\s*(\d+)[~～-](\d+)편/g, '$1-$2 diarios'], [/매일\s*(\d+)편/g, '$1 diarios'], [/매일\s*여러\s*편/g, 'varios al día'], [/매일\s*다수편/g, 'muchos al día'], [/매일/g, 'diario'], [/주\s*(\d+)[~～-](\d+)회/g, '$1-$2/sem.'], [/주\s*(\d+)회/g, '$1/sem.'], [/일\s*(\d+)회/g, '$1 al día'], [/(\d+)편/g, '$1 vuelos'], [/운휴/g, 'suspendido'], [/부정기/g, 'irregular'], [/미확인|확인\s*필요/g, 'por confirmar'], [/이상/g, '+'], [/안팎/g, 'aprox.']],
+  ja: [[/매일/g, '毎日'], [/주\s*(\d+)[~～-](\d+)회/g, '週$1〜$2便'], [/주\s*(\d+)회/g, '週$1便'], [/일\s*(\d+)회/g, '1日$1便'], [/여러\s*편/g, '複数便'], [/다수편/g, '多数'], [/(\d+)편/g, '$1便'], [/운휴/g, '運休'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '要確認'], [/이상/g, '以上'], [/안팎/g, '前後']],
+  zh: [[/매일/g, '每天'], [/주\s*(\d+)[~～-](\d+)회/g, '每周$1~$2班'], [/주\s*(\d+)회/g, '每周$1班'], [/일\s*(\d+)회/g, '每天$1班'], [/여러\s*편/g, '多班'], [/다수편/g, '多班'], [/(\d+)편/g, '$1班'], [/운휴/g, '停飞'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '待确认'], [/이상/g, '以上'], [/안팎/g, '左右']],
+  yue: [[/매일/g, '每日'], [/주\s*(\d+)[~～-](\d+)회/g, '每週$1~$2班'], [/주\s*(\d+)회/g, '每週$1班'], [/일\s*(\d+)회/g, '每日$1班'], [/여러\s*편/g, '多班'], [/다수편/g, '多班'], [/(\d+)편/g, '$1班'], [/운휴/g, '停飛'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '待確認'], [/이상/g, '以上'], [/안팎/g, '左右']]
+};
+function weeklyText(s){ s = String(s || ''); if (LANG === 'ko' || !HANGUL.test(s)) return s; for (const [re, to] of (WK[LANG] || [])) s = s.replace(re, to); s = s.replace(/\([^)]*[가-힣][^)]*\)/g, '').replace(/[가-힣]+/g, '').replace(/\s{2,}/g, ' ').replace(/^[\s·,]+|[\s·,]+$/g, ''); return s || T('weekly_tbd'); }
+function kText(s){ return (LANG !== 'ko' && HANGUL.test(String(s || ''))) ? '' : String(s || ''); }
+const KW = { '상시': { en: 'Open all day', es: 'Siempre abierto', ja: '常時', zh: '全天', yue: '全日' }, '없음': { en: 'None', es: 'Ninguno', ja: 'なし', zh: '无', yue: '無' }, '확인 필요': { en: 'TBC', es: 'por confirmar', ja: '要確認', zh: '待确认', yue: '待確認' }, '부정기': { en: 'irregular', es: 'irregular', ja: '不定期', zh: '不定期', yue: '不定期' } };
+function hText(s){ s = String(s || ''); if (LANG === 'ko' || !HANGUL.test(s)) return s; for (const k in KW) s = s.split(k).join(KW[k][LANG] || k); return HANGUL.test(s) ? s.replace(/\([^)]*[가-힣][^)]*\)/g, '').replace(/[가-힣]+/g, '').replace(/\s{2,}/g, ' ').trim() : s; }
 
 /* ───────── 저장 ───────── */
 const S = {
@@ -398,16 +444,16 @@ if (!KRP[st.origin]) st.origin = 'ICN';
 /* ───────── 도우미 ───────── */
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rich = s => esc(s).replace(/&lt;(\/?b)&gt;/g, '<$1>').replace(/&lt;br\s*\/?&gt;/g, '<br>');
-const nd = n => `${n}박 ${n + 1}일`;
-const fmtMin = m => { m = Number(m) || 0; const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}시간 ${r}분` : `${h}시간`) : `${r}분`; };
-const man = n => { n = Number(n) || 0; return n >= 10000 ? `${Math.round(n / 10000).toLocaleString('ko-KR')}만원` : `${n.toLocaleString('ko-KR')}원`; };
-const manR = v => Array.isArray(v) ? (v[0] === v[1] ? man(v[0]) : `${man(v[0]).replace('원','')}~${man(v[1])}`) : man(v);
-const yen = n => `${Number(n).toLocaleString('ko-KR')}엔`;
-const gmap = (q, ll) => ll ? `https://www.google.com/maps/search/?api=1&query=${ll[0]},${ll[1]}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || '')}`;
+const nd = n => T('nd', { n, m: n + 1 });
+const fmtMin = m => { m = Number(m) || 0; const h = Math.floor(m / 60), r = m % 60; return h ? (r ? T('hm', { h, m: r }) : T('h', { h })) : T('m', { m: r }); };
+const man = n => { n = Number(n) || 0; if (LANG === 'ko') return n >= 10000 ? `${Math.round(n / 10000).toLocaleString('ko-KR')}만원` : `${n.toLocaleString('ko-KR')}원`; return '₩' + n.toLocaleString('en-US'); };
+const manR = v => Array.isArray(v) ? (v[0] === v[1] ? man(v[0]) : (LANG === 'ko' ? `${man(v[0]).replace('원','')}~${man(v[1])}` : `${man(v[0])} ~ ${man(v[1])}`)) : man(v);
+const yen = n => T('yen', { n: Number(n).toLocaleString('en-US') });
+const gmap = (q, ll) => ll && ll[0] ? `https://www.google.com/maps/search/?api=1&query=${ll[0]},${ll[1]}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || '')}`;
 const stCls = s => ({'정기':'sage','계절':'sun','전세':'plum','확인필요':'ghost','운휴':'coral'}[s] || 'ghost');
-const stName = s => s === '확인필요' ? '확인 필요' : s;
-const yenLv = p => ['', '1인 1,500엔 안팎', '1인 3,000엔 안팎', '1인 5,000엔 이상'][p] || '';
+const yenLv = p => ['', T('price1'), T('price2'), T('price3')][p] || '';
 const yenMark = p => ['', '¥', '¥¥', '¥¥¥'][p] || '';
+const dayLabel = n => T('day', { n });
 
 /* ───────── 아이콘 ───────── */
 const I = {
@@ -444,23 +490,25 @@ const I = {
 const ico = (k) => `<svg viewBox="0 0 24 24" aria-hidden="true">${I[k] || I.free}</svg>`;
 const moveIcon = (mode) => {
   const m = String(mode || '');
-  if (/도보|걸|걷/.test(m)) return 'walk';
-  if (/페리|배|선박|크루즈/.test(m)) return 'ferry';
-  if (/로프웨이|케이블|리프트/.test(m)) return 'ropeway';
-  if (/노면|전차|트램/.test(m)) return 'tram';
-  if (/버스|리무진|셔틀/.test(m)) return 'bus';
-  if (/택시/.test(m)) return 'taxi';
-  if (/렌터카|자동차|차량|운전|드라이브/.test(m)) return 'car';
-  if (/비행|항공/.test(m)) return 'plane';
-  if (/JR|열차|전철|지하철|기차|신칸센|모노레일|철도|선$|라인|코토덴|이요테츠|한큐|한신|긴테쓰|게이한|난카이|메이테쓰/.test(m)) return 'train';
+  if (/도보|걸|걷|walk|a pie|徒歩|步行/i.test(m)) return 'walk';
+  if (/페리|배|선박|크루즈|ferry|船|渡輪|渡轮/i.test(m)) return 'ferry';
+  if (/로프웨이|케이블|리프트|ropeway|cable|lift|ロープウェイ|缆车|纜車/i.test(m)) return 'ropeway';
+  if (/노면|전차|트램|tram|路面電車|有轨电车/i.test(m)) return 'tram';
+  if (/버스|리무진|셔틀|bus|autob|バス|巴士|公交/i.test(m)) return 'bus';
+  if (/택시|taxi|タクシー|的士|出租/i.test(m)) return 'taxi';
+  if (/렌터카|자동차|차량|운전|드라이브|car|coche|レンタカー|租车|租車|自驾|自駕/i.test(m)) return 'car';
+  if (/비행|항공|flight|vuelo|飛行機|航班/i.test(m)) return 'plane';
+  if (/JR|열차|전철|지하철|기차|신칸센|모노레일|철도|선$|라인|코토덴|이요테츠|한큐|한신|긴테쓰|게이한|난카이|메이테쓰|train|tren|metro|subway|rail|地下鉄|電車|列車|新幹線|地铁|地鐵|火车|火車/i.test(m)) return 'train';
   return 'walk';
 };
 const svgPlane = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I.airport + '</svg>';
 const svgBack = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+const svgNext = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
 const svgShare = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4M5 13v6h14v-6"/></svg>';
 const svgInfo = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>';
 const svgPin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>';
 const svgTop = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+const svgGlobe = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>';
 
 /* ───────── 항공편 계산 ───────── */
 const RANK = {'정기':0, '계절':1, '전세':2, '확인필요':3, '운휴':9};
@@ -486,24 +534,27 @@ function otherOrigins(g, origin){
   return [...set.keys()].sort((a, b) => KR.findIndex(k => k.iata === a) - KR.findIndex(k => k.iata === b));
 }
 function airlineText(list, max){
-  list = list || []; max = max || 3;
-  if (!list.length) return '항공사 확인 필요';
-  const head = list.slice(0, max).join('·');
-  return list.length > max ? `${head} 외 ${list.length - max}` : head;
+  list = (list || []).map(alName); max = max || 3;
+  if (!list.length) return T('airline_tbd');
+  const head = list.slice(0, max).join(' · ');
+  return list.length > max ? T('and_more', { head, n: list.length - max }) : head;
 }
-function routeStatusClass(origin, g){
-  const b = bestRoute(origin, g);
-  if (!b) return 'off';
-  return b.r.status === '정기' ? 'on' : b.r.status === '계절' ? 'season' : 'charter';
-}
+function otherOriginsOfAirport(a){ const s = new Set(); for (const r of a.routes || []) if (r.status !== '운휴' && r.status !== '확인필요' && KRP[r.from_iata]) s.add(r.from_iata); return [...s]; }
+const listNames = arr => arr.map(k => esc(krName(k))).join(' · ');
 
 /* ───────── 그리기 ───────── */
 const app = document.getElementById('app');
 function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 1800); }
-
-function tagHtml(t){ const c = {'온천':'coral','미식':'sun','자연':'sage','바다':'sky','섬':'sky','아이동반':'sun','야경':'plum','예술':'plum','벚꽃':'rose','휴양':'sage','겨울':'sky','단풍':'coral','테마파크':'plum','커피':'sun','애니':'plum'}[t] || ''; return `<span class="tag ${c}">${esc(t)}</span>`; }
+function tagHtml(t){ const c = {'온천':'coral','미식':'sun','자연':'sage','바다':'sky','섬':'sky','아이동반':'sun','야경':'plum','예술':'plum','벚꽃':'rose','휴양':'sage','겨울':'sky','단풍':'coral','테마파크':'plum','커피':'sun','애니':'plum','도시':'mint','쇼핑':'rose','역사':'ghost','드라이브':'mint'}[t] || ''; return `<span class="tag ${c}">${esc(tagName(t))}</span>`; }
+function htsHtml(g, max){ const hs = (g.highlights || []).slice(0, max || 6); if (!hs.length) return ''; return `<div class="hts">${hs.map((h, i) => { const s = String(h).trim(); return `<span class="ht ht-${i % 8}">${esc(s.startsWith('#') ? s : '#' + s)}</span>`; }).join('')}</div>`; }
 function stamp(g, big, off){ const code = (g.airports && g.airports[0]) || '';
   return `<div class="stamp ${big ? 'big' : ''} ${off ? 'off' : ''}" aria-hidden="true"><span class="code">${esc(code)}</span><span class="ja">${esc(g.name_ja || '')}</span></div>`; }
+function langBtn(){ return `<button class="iconbtn" data-act="lang" aria-label="${esc(T('lang'))}" aria-haspopup="menu">${svgGlobe}<span class="lc">${esc(LANG.toUpperCase())}</span></button>`; }
+function langMenu(){
+  const hash = location.hash && location.hash !== '#home' ? location.hash : '';
+  const links = DATA.langLinks || {};
+  return `<div class="lt">${esc(T('lang'))}</div>` + LANGS.map(l => `<a href="${esc((links[l.code] || l.file) + hash)}" role="menuitem" aria-current="${l.code === LANG}"><span>${esc(l.name)}</span><small>${esc(l.code.toUpperCase())}</small></a>`).join('');
+}
 
 /* 일본 지도(SVG) */
 function proj(lat, lng){
@@ -518,7 +569,6 @@ function jpMapSvg(){
   const o = KRP[st.origin]; const op = o ? proj(o.lat, o.lng) : null;
   let arcs = '', dots = '';
   const list = Object.values(GUIDES);
-  const used = new Set();
   for (const a of AIRPORTS){
     if (!a.lat || !a.lng) continue;
     const p = proj(a.lat, a.lng); if (!p) continue;
@@ -535,35 +585,32 @@ function jpMapSvg(){
       arcs += `<path class="arc ${cls === 'season' ? 'season' : cls === 'charter' ? 'charter' : ''}" d="M${op.x.toFixed(1)} ${op.y.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}"/>`;
     }
     const sel = st.mapSel === a.iata ? 'sel' : '';
-    dots += `<g class="dot ${cls} ${sel}" data-act="mapdot" data-v="${esc(a.iata)}" tabindex="0" role="button" aria-label="${esc(a.name_ko)}"><circle class="halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="14" fill="transparent"/><circle class="c" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}"/></g>`;
-    used.add(a.iata);
+    dots += `<g class="dot ${cls} ${sel}" data-act="mapdot" data-v="${esc(a.iata)}" tabindex="0" role="button" aria-label="${esc(apName(a))}"><circle class="halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="14" fill="transparent"/><circle class="c" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}"/></g>`;
   }
   let origin = '';
-  if (o && op){ origin = `<g class="origin"><circle cx="${op.x.toFixed(1)}" cy="${op.y.toFixed(1)}" r="4.2"/><text x="${(op.x - 6).toFixed(1)}" y="${(op.y - 7).toFixed(1)}" text-anchor="end">${esc(o.short || o.name)}</text></g>`; }
-  const labels = (m.labels || []).map(l => `<text class="rg" x="${l.x}" y="${l.y}" text-anchor="${l.anchor || 'start'}">${esc(l.t)}</text>`).join('');
-  const ins = m.inset; const insetBox = `<rect class="inset" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" rx="4"/><text class="insetlbl" x="${ins.x}" y="${ins.y + ins.h + 11}">오키나와 · 이시가키</text>`;
-  return `<svg class="jpmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="한국과 일본 지도. 선택한 출발 공항에서 직항이 있는 일본 공항이 표시됩니다">
+  if (o && op){ origin = `<g class="origin"><circle cx="${op.x.toFixed(1)}" cy="${op.y.toFixed(1)}" r="4.2"/><text x="${(op.x - 6).toFixed(1)}" y="${(op.y - 7).toFixed(1)}" text-anchor="end">${esc(krName(o.iata).replace(/\s*[(（].*[)）]/, ''))}</text></g>`; }
+  const labels = (m.labels || []).map(l => `<text class="rg" x="${l.x}" y="${l.y}" text-anchor="${l.anchor || 'start'}">${esc(regionName(l.t))}</text>`).join('');
+  const ins = m.inset; const insetBox = `<rect class="inset" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" rx="4"/><text class="insetlbl" x="${ins.x}" y="${ins.y + ins.h + 11}">${esc(regionName('오키나와'))}</text>`;
+  return `<svg class="jpmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="${esc(T('map_title', { origin: krName(st.origin) }))}">
     <path class="land kr" d="${m.paths.korea}"/><path class="land" d="${m.paths.japan}"/>${insetBox}<path class="land" d="${m.paths.okinawa}"/>${labels}${arcs}${dots}${origin}</svg>`;
 }
 function mapTip(){
   if (!st.mapSel || !AP[st.mapSel]) return '';
   const a = AP[st.mapSel]; const rs = routesFrom(st.origin, a.iata);
   const g = Object.values(GUIDES).find(x => (x.airports || []).includes(a.iata));
-  let t = `<b>${esc(a.name_ko)}</b> <span style="color:var(--ink-3)">${esc(a.iata)} · ${esc(a.prefecture_ko || a.region || '')}</span><br>`;
-  if (rs.length){ const r = rs[0]; t += `${esc(KRP[st.origin].name)}에서 ${fmtMin(r.flight_minutes)} · ${esc(airlineText(r.airlines))} · ${esc(r.weekly || '')} <span class="tag ${stCls(r.status)}">${esc(stName(r.status))}</span>`; }
-  else { const oo = otherOriginsOfAirport(a); t += oo.length ? `${esc(KRP[st.origin].name)} 직항은 없고, ${oo.map(k => esc(KRP[k].name)).join('·')}에서 직항` : '현재 한국 직항이 없습니다'; }
-  if (g) t += `<button class="go" data-act="open" data-v="${esc(g.key)}">${esc(g.name)} 가이드 보기 ›</button>`;
+  let t = `<b>${esc(apName(a))}</b> <span style="color:var(--ink-3)">${esc(a.iata)} · ${esc(regionName(a.region || ''))}</span><br>`;
+  if (rs.length){ const r = rs[0]; t += `${esc(T('from_to', { origin: krName(st.origin), to: apCity(a) }))} · ${fmtMin(r.flight_minutes)} · ${esc(airlineText(r.airlines))} · ${esc(weeklyText(r.weekly))} <span class="tag ${stCls(r.status)}">${esc(stName(r.status))}</span>`; }
+  else { const oo = otherOriginsOfAirport(a); t += oo.length ? T('no_direct_here', { origin: esc(krName(st.origin)), list: listNames(oo) }) : esc(T('no_korea_direct')); }
+  if (g) t += `<button class="go" data-act="open" data-v="${esc(g.key)}">${esc(T('guide_go', { name: g.name }))}</button>`;
   return `<div class="maptip">${t}</div>`;
 }
-function otherOriginsOfAirport(a){ const s = new Set(); for (const r of a.routes || []) if (r.status !== '운휴' && r.status !== '확인필요' && KRP[r.from_iata]) s.add(r.from_iata); return [...s]; }
 
 /* 홈 */
 function renderHome(){
-  const o = KRP[st.origin];
   const originChips = KR.filter(k => k.iata === 'ICN' || AIRPORTS.some(a => (a.routes || []).some(r => r.from_iata === k.iata && r.status !== '운휴'))).map(k =>
-    `<button class="chip rose" data-act="origin" data-v="${esc(k.iata)}" aria-pressed="${st.origin === k.iata}">${esc(k.name)}<small>${esc(k.iata)}</small></button>`).join('');
-  const nightChips = [0, 2, 3, 4, 5].map(n => `<button class="chip" data-act="nights" data-v="${n}" aria-pressed="${st.nights === n}">${n ? nd(n) : '상관없음'}</button>`).join('');
-  const tagChips = [''].concat(TAGS).map(t => `<button class="chip" data-act="tag" data-v="${esc(t)}" aria-pressed="${st.tag === t}">${t ? esc(t) : '전체'}</button>`).join('');
+    `<button class="chip rose" data-act="origin" data-v="${esc(k.iata)}" aria-pressed="${st.origin === k.iata}">${esc(krName(k.iata))}<small>${esc(k.iata)}</small></button>`).join('');
+  const nightChips = [0, 2, 3, 4, 5].map(n => `<button class="chip" data-act="nights" data-v="${n}" aria-pressed="${st.nights === n}">${n ? esc(nd(n)) : esc(T('any'))}</button>`).join('');
+  const tagChips = [''].concat(TAGS).map(t => `<button class="chip" data-act="tag" data-v="${esc(t)}" aria-pressed="${st.tag === t}">${t ? esc(tagName(t)) : esc(T('all'))}</button>`).join('');
   let list = Object.values(GUIDES);
   if (st.tag) list = list.filter(g => (g.tags || []).includes(st.tag));
   if (st.nights) list = list.filter(g => (g.plans || []).some(p => p.nights === st.nights));
@@ -572,53 +619,56 @@ function renderHome(){
   else withR.sort((x, y) => REGIONS.indexOf(x.g.region) - REGIONS.indexOf(y.g.region) || (x.g.order || 0) - (y.g.order || 0));
   const direct = withR.filter(x => x.b).length;
   let cards = '';
-  if (!withR.length) cards = `<div class="empty"><b>조건에 맞는 곳이 없어요</b>테마나 박 수를 바꿔 보세요.</div>`;
+  if (!withR.length) cards = `<div class="empty"><b>${esc(T('empty_t'))}</b>${esc(T('empty_d'))}</div>`;
   else if (st.sort === 'time') cards = `<div class="dlist" style="margin-top:12px">${withR.map(x => destCard(x.g, x.b)).join('')}</div>`;
   else {
     for (const rg of REGIONS){
       const part = withR.filter(x => x.g.region === rg); if (!part.length) continue;
-      cards += `<div class="rghead"><b>${esc(rg)}</b><span>${part.length}곳</span></div><div class="dlist">${part.map(x => destCard(x.g, x.b)).join('')}</div>`;
+      cards += `<div class="rghead"><b>${esc(regionName(rg))}</b><span>${esc(T('n_places', { n: part.length }))}</span></div><div class="dlist">${part.map(x => destCard(x.g, x.b)).join('')}</div>`;
     }
   }
+  const on = krName(st.origin);
   app.innerHTML = `
-  <div class="topbar"><div class="brand">일본 직항 여행 플래너<small>${esc(DATA.version || '')}</small></div><button class="iconbtn" data-act="top" aria-label="맨 위로">${svgTop}</button></div>
+  <div class="topbar"><div class="brand">${esc(T('brand'))}<small>${esc(DATA.version || '')}</small></div>${langBtn()}<button class="iconbtn" data-act="top" aria-label="${esc(T('to_top'))}">${svgTop}</button></div>
   <header class="hero">
-    <div class="eyebrow">Japan · Direct flights</div>
-    <h1>${esc(o ? o.name : '인천')}에서 바로 가는<br><em>일본 ${Object.keys(GUIDES).length}곳</em>, 몇 박 할까요?</h1>
-    <p class="lead">출발 공항과 박 수만 고르면 직항편, 하루하루 동선, 맛집, 숙소, 예산까지 한 번에 짜 드려요. 마음에 안 들면 대체 동선과 대체 여행지도 함께 보여 드립니다.</p>
-    <div class="q"><div class="qt"><b>어디서 출발하세요?</b><span>직항이 뜨는 공항만 보여요</span></div><div class="chips">${originChips}</div></div>
-    <div class="q"><div class="qt"><b>며칠 다녀오세요?</b><span>박 수에 맞는 플랜이 있는 곳만</span></div><div class="chips">${nightChips}</div></div>
+    <div class="eyebrow">${esc(T('eyebrow'))}</div>
+    <h1>${T('hero_h1', { origin: esc(on), n: Object.keys(GUIDES).length })}</h1>
+    <p class="lead">${esc(T('lead'))}</p>
+    <div class="q"><div class="qt"><b>${esc(T('q_origin'))}</b><span>${esc(T('q_origin_sub'))}</span></div><div class="chips">${originChips}</div></div>
+    <div class="q"><div class="qt"><b>${esc(T('q_nights'))}</b><span>${esc(T('q_nights_sub'))}</span></div><div class="chips">${nightChips}</div></div>
   </header>
-  <section class="mapcard" aria-label="직항 지도">
-    <div class="mh"><b>${esc(o ? o.name : '')} 출발 직항 지도</b><span>점을 누르면 항공편이 보여요</span></div>
+  <section class="mapcard" aria-label="${esc(T('map_title', { origin: on }))}">
+    <div class="mh"><b>${esc(T('map_title', { origin: on }))}</b><span>${esc(T('map_sub'))}</span></div>
     <div id="jpmap">${jpMapSvg()}</div>
-    <div class="legend"><span><i style="background:var(--rose)"></i>정기편</span><span><i style="background:var(--sun)"></i>계절편</span><span><i style="background:var(--plum)"></i>전세편</span><span><i style="background:var(--ink-4)"></i>직항 없음</span><span><i style="background:var(--sky)"></i>출발 공항</span></div>
+    <div class="legend"><span><i style="background:var(--rose)"></i>${esc(T('lg_regular'))}</span><span><i style="background:var(--sun)"></i>${esc(T('lg_season'))}</span><span><i style="background:var(--plum)"></i>${esc(T('lg_charter'))}</span><span><i style="background:var(--ink-4)"></i>${esc(T('lg_none'))}</span><span><i style="background:var(--sky)"></i>${esc(T('lg_origin'))}</span></div>
     <div id="maptip">${mapTip()}</div>
   </section>
   <section class="filters">
-    <div class="fbar"><b>여행지 고르기</b><div class="seg"><button data-act="sort" data-v="region" aria-pressed="${st.sort === 'region'}">지역순</button><button data-act="sort" data-v="time" aria-pressed="${st.sort === 'time'}">비행시간순</button></div></div>
+    <div class="fbar"><b>${esc(T('pick_title'))}</b><div class="seg"><button data-act="sort" data-v="region" aria-pressed="${st.sort === 'region'}">${esc(T('sort_region'))}</button><button data-act="sort" data-v="time" aria-pressed="${st.sort === 'time'}">${esc(T('sort_time'))}</button></div></div>
     <div class="chips">${tagChips}</div>
-    <div class="cnt" style="margin-top:8px;font-size:12px;color:var(--ink-3)">${withR.length}곳 · ${esc(o ? o.name : '')} 직항 ${direct}곳</div>
+    <div class="cnt" style="margin-top:8px;font-size:12px;color:var(--ink-3)">${esc(T('count', { n: withR.length, origin: on, d: direct }))}</div>
   </section>
   ${cards}
-  <footer>항공편·요금·영업시간은 자주 바뀝니다. 예약 전에 항공사와 시설의 공식 안내를 한 번 더 확인하세요. 금액은 100엔=900원 기준 가정값입니다.<br>지도 바탕 © <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a>(공개 자료) · 상세 지도 © OpenStreetMap 기여자, 타일 © CARTO · 지도 엔진 Leaflet(BSD) · 글꼴 Pretendard · Noto Sans KR(OFL 무료 글꼴)<br>자료 기준일 ${esc(DATA.generated || '')}</footer>`;
+  <footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}<br>${esc(T('footer_date', { d: DATA.generated || '' }))}</footer>`;
   window.scrollTo(0, 0);
 }
 function destCard(g, b){
-  const o = KRP[st.origin];
+  const on = krName(st.origin);
   let fl;
   if (b){
     const a = AP[b.iata]; const r = b.r;
-    fl = `<div class="flight">${svgPlane}<div><b>${esc(o.name)} → ${esc(a ? a.name_ko : b.iata)}</b> <span class="num">${fmtMin(r.flight_minutes)}</span><br>${esc(airlineText(r.airlines))} · ${esc(r.weekly || '운항 횟수 확인 필요')} <span class="tag ${stCls(r.status)}">${esc(stName(r.status))}</span>${(g.airports || []).length > 1 && (g.airports || []).some(x => x !== b.iata && routesFrom(st.origin, x).length) ? ` <span class="tag ghost">${esc((g.airports || []).filter(x => x !== b.iata && routesFrom(st.origin, x).length).map(x => AP[x] ? AP[x].name_ko : x).join('·'))}도 가능</span>` : ''}</div></div>`;
+    const others = (g.airports || []).filter(x => x !== b.iata && routesFrom(st.origin, x).length).map(x => apCity(AP[x]) || x);
+    fl = `<div class="flight">${svgPlane}<div><b>${esc(T('from_to', { origin: on, to: apCity(a) }))}</b> <span class="num">${fmtMin(r.flight_minutes)}</span><br>${esc(airlineText(r.airlines))} · ${esc(weeklyText(r.weekly) || T('weekly_tbd'))} <span class="tag ${stCls(r.status)}">${esc(stName(r.status))}</span>${others.length ? ` <span class="tag ghost">${esc(T('also_ok', { list: others.join(' · ') }))}</span>` : ''}</div></div>`;
   } else {
     const oo = otherOrigins(g, st.origin);
-    fl = `<div class="flight off">${svgPlane}<div><b>${esc(o.name)} 직항 없음</b>${oo.length ? `<br>${oo.map(k => esc(KRP[k].name)).join('·')}에서 직항` : '<br>인천·지방 공항 모두 직항이 없어 경유가 필요해요'}</div></div>`;
+    fl = `<div class="flight off">${svgPlane}<div><b>${esc(T('no_direct', { origin: on }))}</b><br>${oo.length ? T('direct_from', { list: listNames(oo) }) : esc(T('no_direct_any'))}</div></div>`;
   }
   const ns = (g.plans || []).map(p => p.nights).sort((x, y) => x - y);
   return `<button class="dcard" data-act="open" data-v="${esc(g.key)}" id="card-${esc(g.key)}">
     <div class="row">${stamp(g, false, !b)}<div class="nm"><h3>${esc(g.name)}<small>${esc(g.prefecture || '')}</small></h3><div class="tg">${esc(g.tagline || '')}</div><div class="tags">${(g.tags || []).slice(0, 5).map(tagHtml).join('')}</div></div></div>
+    ${htsHtml(g, 5)}
     ${fl}
-    <div class="nights">${ns.map(n => `<span class="${st.nights === n ? 'hit' : ''}">${nd(n)}</span>`).join('')}</div>
+    <div class="nights">${ns.map(n => `<span class="${st.nights === n ? 'hit' : ''}">${esc(nd(n))}</span>`).join('')}</div>
   </button>`;
 }
 
@@ -637,7 +687,7 @@ function curPlan(g){
 }
 function renderDest(){
   const g = GUIDES[st.dest]; if (!g){ st.dest = null; return renderHome(); }
-  const o = KRP[st.origin];
+  const on = krName(st.origin);
   const plans = (g.plans || []).slice().sort((a, b) => a.nights - b.nights);
   if (!plans.some(p => p.nights === st.nightsSel)) st.nightsSel = (plans.find(p => p.nights === st.nights) || plans[0] || {}).nights || 0;
   const plan = curPlan(g);
@@ -650,48 +700,49 @@ function renderDest(){
   for (const iata of g.airports || []){
     const a = AP[iata]; if (!a) continue;
     const rs = routesFrom(st.origin, iata);
-    routeHtml += `<div class="ap"><span class="code">${esc(iata)}</span>${esc(a.name_ko)}<span style="font-size:11.5px;color:var(--ink-3)">${esc(a.name_ja || '')}</span></div>`;
-    if (rs.length) routeHtml += rs.map(r => `<div class="rline"><span class="al">${esc(o.name)} → ${esc(a.city_ko || a.name_ko)}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 4))}</span><span>${esc(r.weekly || '')}</span>${r.season_note ? `<span style="font-size:12px;color:var(--ink-3)">${esc(r.season_note)}</span>` : ''}<span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('');
-    else { const oo = otherOriginsOfAirport(a); routeHtml += `<div class="noroute">${esc(o.name)} 출발 직항이 없어요${oo.length ? `. ${oo.map(k => esc(KRP[k].name)).join('·')}에서는 직항이 있습니다` : ''}</div>`; }
+    routeHtml += `<div class="ap"><span class="code">${esc(iata)}</span>${esc(apName(a))}<span style="font-size:11.5px;color:var(--ink-3)">${LANG === 'ja' ? '' : esc(a.name_ja || '')}</span></div>`;
+    if (rs.length) routeHtml += rs.map(r => `<div class="rline"><span class="al">${esc(T('from_to', { origin: on, to: apCity(a) }))}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 4))}</span><span>${esc(weeklyText(r.weekly))}</span>${kText(r.season_note) ? `<span style="font-size:12px;color:var(--ink-3)">${esc(r.season_note)}</span>` : ''}<span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('');
+    else { const oo = otherOriginsOfAirport(a); routeHtml += `<div class="noroute">${esc(T('no_route', { origin: on }))}${oo.length ? T('route_elsewhere', { list: listNames(oo) }) : ''}</div>`; }
     const others = (a.routes || []).filter(r => r.from_iata !== st.origin && r.status !== '운휴' && KRP[r.from_iata]);
-    if (others.length) routeHtml += `<details class="more"><summary>다른 출발 공항 ${others.length}편</summary><div class="body">${others.map(r => `<div class="rline"><span class="al">${esc(KRP[r.from_iata].name)}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 4))}</span><span>${esc(r.weekly || '')}</span><span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('')}</div></details>`;
+    if (others.length) routeHtml += `<details class="more"><summary>${esc(T('other_origins', { n: others.length }))}</summary><div class="body">${others.map(r => `<div class="rline"><span class="al">${esc(krName(r.from_iata))}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 4))}</span><span>${esc(weeklyText(r.weekly))}</span><span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('')}</div></details>`;
     const acc = (g.airport_access || []).filter(x => !x.airport || x.airport === iata);
-    if (acc.length) routeHtml += `<div class="access"><div class="ah">공항에서 시내까지</div><ul>${acc.map(x => `<li><b>${esc(x.mode)}</b><span>→ ${esc(x.to)}${x.note ? ` · ${esc(x.note)}` : ''}</span><span class="num">${x.minutes ? fmtMin(x.minutes) : ''}${x.fare_yen ? ` · ${yen(x.fare_yen)}` : ''}</span></li>`).join('')}</ul></div>`;
+    if (acc.length) routeHtml += `<div class="access"><div class="ah">${esc(T('access'))}</div><ul>${acc.map(x => `<li><b>${esc(x.mode)}</b><span>→ ${esc(x.to)}${x.note ? ` · ${esc(x.note)}` : ''}</span><span class="num">${x.minutes ? fmtMin(x.minutes) : ''}${x.fare_yen ? ` · ${yen(x.fare_yen)}` : ''}</span></li>`).join('')}</ul></div>`;
   }
-  const nseg = plans.map(p => `<button data-act="setnights" data-v="${p.nights}" aria-pressed="${st.nightsSel === p.nights}">${nd(p.nights)}<small>${esc(p.theme || p.title || '')}</small></button>`).join('');
-  const vchips = vs.length ? `<div class="chips vchips"><button class="chip" data-act="variant" data-v="0" aria-pressed="${st.variant === 0}">기본 플랜</button>${vs.map((v, i) => `<button class="chip" data-act="variant" data-v="${i + 1}" aria-pressed="${st.variant === i + 1}">${esc(v.title)}</button>`).join('')}</div>` : '';
+  const nseg = plans.map(p => `<button data-act="setnights" data-v="${p.nights}" aria-pressed="${st.nightsSel === p.nights}">${esc(nd(p.nights))}<small>${esc(p.theme || p.title || '')}</small></button>`).join('');
+  const vchips = vs.length ? `<div class="chips vchips"><button class="chip" data-act="variant" data-v="0" aria-pressed="${st.variant === 0}">${esc(T('base_plan'))}</button>${vs.map((v, i) => `<button class="chip" data-act="variant" data-v="${i + 1}" aria-pressed="${st.variant === i + 1}">${esc(v.title)}</button>`).join('')}</div>` : '';
   app.innerHTML = `
-  <div class="topbar"><button class="iconbtn" data-act="back" aria-label="뒤로">${svgBack}</button><div class="brand">${esc(g.name)}<small>${esc(o.name)} 출발</small></div><button class="iconbtn" data-act="share" aria-label="공유">${svgShare}</button></div>
+  <div class="topbar"><button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button><div class="brand">${esc(g.name)}<small>${esc(T('dep', { origin: on }))}</small></div>${langBtn()}<button class="iconbtn" data-act="share" aria-label="${esc(T('share'))}">${svgShare}</button></div>
   <header class="dhero">
-    <div class="top">${stamp(g, true, !bestRoute(st.origin, g))}<div><h1>${esc(g.name)}</h1><div class="ja">${esc(g.name_ja || '')} · ${esc(g.region)} ${esc(g.prefecture || '')}</div></div></div>
+    <div class="top">${stamp(g, true, !bestRoute(st.origin, g))}<div><h1>${esc(g.name)}</h1><div class="ja">${LANG === 'ja' ? '' : esc(g.name_ja || '') + ' · '}${esc(regionName(g.region))} ${esc(g.prefecture || '')}</div></div></div>
     <p class="tagline">${esc(g.tagline || '')}</p>
+    ${htsHtml(g, 8)}
     <p class="intro">${rich(g.intro || '')}</p>
-    <div class="tags">${(g.tags || []).map(tagHtml).join('')}${g.pace ? `<span class="tag ghost">일정 ${esc(g.pace)}</span>` : ''}</div>
-    <div class="months" aria-label="추천 달">${months}</div><div class="months-lbl"><span>추천 시기 (월)</span><span>${esc(g.season_notes || '')}</span></div>
+    <div class="tags">${(g.tags || []).map(tagHtml).join('')}${g.pace ? `<span class="tag ghost">${esc(T('pace', { pace: paceName(g.pace) }))}</span>` : ''}</div>
+    <div class="months" aria-label="${esc(T('best_months'))}">${months}</div><div class="months-lbl">${esc(T('best_months'))}</div>${g.season_notes ? `<p class="season">${esc(g.season_notes)}</p>` : ''}
   </header>
-  <section class="card"><h2>직항편<span class="sub">2026년 10월 기준 · 출발 전 확인</span></h2><div class="route">${routeHtml || '<div class="noroute">항공편 자료가 없습니다</div>'}</div></section>
-  <section class="pick"><div class="lbl">몇 박 몇 일?<span>박 수에 맞춰 동선이 바뀌어요</span></div><div class="nseg">${nseg}</div>${vchips}</section>
+  <section class="card"><h2>${esc(T('flights'))}<span class="sub">${esc(T('flights_sub'))}</span></h2><div class="route">${routeHtml || `<div class="noroute">${esc(T('no_flight_data'))}</div>`}</div></section>
+  <section class="pick"><div class="lbl">${esc(T('nights_q'))}<span>${esc(T('nights_sub'))}</span></div><div class="nseg">${nseg}</div>${vchips}</section>
   <div id="planarea">${planHtml(g, plan)}</div>
   <div class="accs">${accordions(g, plan)}</div>
-  <footer>항공편·요금·영업시간은 자주 바뀝니다. 예약 전에 공식 안내를 한 번 더 확인하세요. 금액은 100엔=900원 기준 가정값입니다.<br>지도 © OpenStreetMap 기여자 · 타일 © CARTO · Leaflet(BSD)</footer>
+  <footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}</footer>
   ${bottomBar(g, plan)}`;
   window.scrollTo(0, 0);
   mountMap(g, plan);
 }
 function bottomBar(g, plan){
   const b = plan && plan.budget; const tot = b ? manR(b.total_krw) : '';
-  return `<div class="bottombar"><div class="in"><div class="amt"><span class="k">${plan ? nd(plan.nights) : ''} 1인 예상 경비</span><span class="v">${tot || '확인 필요'}<small>항공·숙박 포함</small></span></div><button class="btn ghost" data-act="budget">${svgInfo}자세히</button><button class="btn" data-act="share">${svgShare}공유</button></div></div>`;
+  return `<div class="bottombar"><div class="in"><div class="amt"><span class="k">${plan ? esc(T('budget_k', { nd: nd(plan.nights) })) : ''}</span><span class="v">${tot || esc(T('tbd'))}<small>${esc(T('budget_incl'))}</small></span></div><button class="btn ghost" data-act="budget">${svgInfo}${esc(T('detail'))}</button><button class="btn" data-act="share">${svgShare}${esc(T('share'))}</button></div></div>`;
 }
 function planHtml(g, plan){
-  if (!plan) return `<div class="empty"><b>아직 일정이 없어요</b>이 지역의 플랜은 준비 중입니다.</div>`;
-  const tiles = plan.days.map((d, i) => `<button class="tile" data-act="day" data-v="${i}" aria-pressed="${st.day === i}"><span class="n">Day ${i + 1}</span><span class="l">${esc(d.label || '')}</span></button>`).join('');
+  if (!plan) return `<div class="empty"><b>${esc(T('no_plan_t'))}</b>${esc(T('no_plan_d'))}</div>`;
+  const tiles = plan.days.map((d, i) => `<button class="tile" data-act="day" data-v="${i}" aria-pressed="${st.day === i}"><span class="n">${esc(dayLabel(i + 1))}</span><span class="l">${esc(d.label || '')}</span></button>`).join('');
   const d = plan.days[st.day] || plan.days[0];
   const notice = d.notice && d.notice.t ? `<div class="notice ${d.notice.k === 'warn' ? 'warn' : ''}">${svgInfo}<span>${rich(d.notice.t)}</span></div>` : '';
   return `
-  <section class="psum"><div class="k">${plan.isVariant ? '대체 플랜' : '추천 플랜'} · ${nd(plan.nights)}</div><h2>${esc(plan.title || '')}</h2><p>${rich(plan.summary || '')}</p></section>
-  <nav class="dgrid" aria-label="일차 선택">${tiles}</nav>
+  <section class="psum"><div class="k">${esc(plan.isVariant ? T('alt_plan') : T('rec_plan'))} · ${esc(nd(plan.nights))}</div><h2>${esc(plan.title || '')}</h2><p>${rich(plan.summary || '')}</p></section>
+  <nav class="dgrid" aria-label="Day">${tiles}</nav>
   <div class="dayhead"><div class="kicker">${esc(d.kicker || '')}</div><h2>${esc(d.title || '')}</h2><p>${rich(d.note || '')}</p>${notice}</div>
-  <div class="daymap" id="daymap"><div class="lmap" id="lmap"></div></div><p class="maphint">일정을 누르면 지도가 그 자리로 옮겨 가요. 핀 번호는 순서입니다.</p>
+  <div class="daymap" id="daymap"><div class="lmap" id="lmap"></div></div><p class="maphint">${esc(T('map_hint'))}</p>
   <ol class="stops">${d.items.map((it, i) => itemHtml(g, plan, d, it, i)).join('')}</ol>`;
 }
 function findP(g, id){ return (g.spots || []).find(x => x.id === id) || (g.hotels || []).find(x => x.id === id) || null; }
@@ -699,7 +750,7 @@ function findR(g, id){ return (g.restaurants || []).find(x => x.id === id) || nu
 function pickKey(g, plan, di, ii){ return `${g.key}|${plan.nights}|${st.variant}|${di}|${ii}`; }
 function itemHtml(g, plan, d, it, i){
   const k = it.k;
-  if (k === 'move'){ return `<li class="move"><span>${ico(moveIcon(it.mode))}<em>${esc(it.mode || '')}</em>${esc(it.text || '')}${it.minutes ? ` · ${fmtMin(it.minutes)}` : ''}</span></li>`; }
+  if (k === 'move'){ const txt = String(it.text || ''); const dup = it.minutes && (txt.includes(String(it.minutes)) || /\d\s*(분|min|分|h\b|시간|時間|小時|小时)/.test(txt)); return `<li class="move"><span>${ico(moveIcon(it.mode))}<em>${esc(it.mode || '')}</em>${esc(txt)}${it.minutes && !dup ? ` · ${fmtMin(it.minutes)}` : ''}</span></li>`; }
   if (k === 'free'){ return `<li class="free"><p><b>${esc(it.t || '')}</b> ${esc(it.text || it.note || '')}</p></li>`; }
   const idx = stopIndex(d, i);
   if (k === 'meal'){
@@ -707,24 +758,24 @@ function itemHtml(g, plan, d, it, i){
     const pk = pickKey(g, plan, st.day, i);
     const chosen = opts.find(r => r.id === st.picks[pk]) || opts[0];
     const pills = opts.map(r => `<button class="opt" data-act="pick" data-v="${esc(pk)}|${esc(r.id)}" aria-pressed="${chosen && chosen.id === r.id}">${esc(r.name)}<small style="margin-left:4px;opacity:.75">${yenMark(r.price_level)}</small></button>`).join('');
-    const mini = chosen ? `<div class="rmini"><div class="rn">${esc(chosen.name)}<small>${esc(chosen.name_ja || '')}</small></div><div class="rs">${esc(chosen.cuisine || '')} · ${esc(chosen.signature || '')}</div><div class="rd">${rich(chosen.desc || '')}</div><div class="meta"><span><b>${esc(yenLv(chosen.price_level))}</b></span>${chosen.hours ? `<span>영업 <b>${esc(chosen.hours)}</b></span>` : ''}${chosen.closed ? `<span>휴무 <b>${esc(chosen.closed)}</b></span>` : ''}${chosen.reserve ? '<span><b>예약 권장</b></span>' : ''}</div>${(chosen.tips || []).length ? `<div class="tags">${chosen.tips.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}<a class="go" href="${gmap(chosen.maps_q, [chosen.lat, chosen.lng])}" target="_blank" rel="noopener">${svgPin}구글 지도에서 열기</a></div>` : '';
-    return `<li><span class="track"></span><div class="scard" id="stop-${idx}" data-act="focus" data-v="${idx}"><div class="ic c-food">${ico('food')}</div><div class="sinfo"><div class="tline"><span class="tm">${esc(it.t)}</span><span class="tags"><span class="tag sun">${esc(it.label || '식사')}</span>${opts.length ? `<span class="tag ghost">후보 ${opts.length}곳</span>` : ''}</span></div><h3>${chosen ? esc(chosen.name) : '식당 선택'}</h3>${it.note ? `<p class="note">${rich(it.note)}</p>` : ''}<div class="opts">${pills}</div>${mini}</div></div></li>`;
+    const mini = chosen ? `<div class="rmini"><div class="rn">${esc(chosen.name)}<small>${LANG === 'ja' ? '' : esc(chosen.name_ja || '')}</small></div><div class="rs">${esc(chosen.cuisine || '')} · ${esc(chosen.signature || '')}</div><div class="rd">${rich(chosen.desc || '')}</div><div class="meta"><span><b>${esc(yenLv(chosen.price_level))}</b></span>${chosen.hours ? `<span>${esc(T('hours'))} <b>${esc(hText(chosen.hours))}</b></span>` : ''}${chosen.closed && chosen.closed !== '없음' ? `<span>${esc(T('closed'))} <b>${esc(hText(chosen.closed))}</b></span>` : ''}${chosen.reserve ? `<span><b>${esc(T('reserve'))}</b></span>` : ''}</div>${(chosen.tips || []).length ? `<div class="tags">${chosen.tips.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}<a class="go" href="${gmap(chosen.maps_q, [chosen.lat, chosen.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div>` : '';
+    return `<li><span class="track"></span><div class="scard" id="stop-${idx}" data-act="focus" data-v="${idx}"><div class="ic c-food">${ico('food')}</div><div class="sinfo"><div class="tline"><span class="tm">${esc(it.t)}</span><span class="tags"><span class="tag sun">${esc(it.label || '')}</span>${opts.length ? `<span class="tag ghost">${esc(T('cands', { n: opts.length }))}</span>` : ''}</span></div><h3>${chosen ? esc(chosen.name) : esc(T('pick_rest'))}</h3>${it.note ? `<p class="note">${rich(it.note)}</p>` : ''}<div class="opts">${pills}</div>${mini}</div></div></li>`;
   }
   const p = findP(g, it.ref);
   const isHotel = k === 'hotel' || (p && p.tier);
   const cat = isHotel ? 'hotel' : (p && p.cat) || 'free';
   const name = p ? p.name : (it.ref || '');
   const tags = [];
-  if (p && !isHotel){ if (p.must) tags.push('<span class="tag rose">꼭</span>'); if (p.fee_yen === 0) tags.push('<span class="tag sage">무료</span>'); else if (p.fee_yen > 0) tags.push(`<span class="tag">${yen(p.fee_yen)}</span>`); if (p.duration_min) tags.push(`<span class="tag ghost">${fmtMin(p.duration_min)}</span>`); }
-  if (isHotel && p) tags.push(`<span class="tag plum">${esc(p.tier)}</span>`);
-  const meta = p && !isHotel ? `<div class="meta">${p.hours ? `<span>영업 <b>${esc(p.hours)}</b></span>` : ''}${p.closed && p.closed !== '없음' ? `<span>휴무 <b>${esc(p.closed)}</b></span>` : ''}${p.access ? `<span>가는 법 <b>${esc(p.access)}</b></span>` : ''}</div>` : '';
+  if (p && !isHotel){ if (p.must) tags.push(`<span class="tag rose">${esc(T('must'))}</span>`); if (p.fee_yen === 0) tags.push(`<span class="tag sage">${esc(T('free'))}</span>`); else if (p.fee_yen > 0) tags.push(`<span class="tag">${yen(p.fee_yen)}</span>`); if (p.duration_min) tags.push(`<span class="tag ghost">${fmtMin(p.duration_min)}</span>`); }
+  if (isHotel && p) tags.push(`<span class="tag plum">${esc(tierName(p.tier))}</span>`);
+  const meta = p && !isHotel ? `<div class="meta">${p.hours ? `<span>${esc(T('hours'))} <b>${esc(hText(p.hours))}</b></span>` : ''}${p.closed && p.closed !== '없음' ? `<span>${esc(T('closed'))} <b>${esc(hText(p.closed))}</b></span>` : ''}${p.access ? `<span>${esc(T('access_how'))} <b>${esc(p.access)}</b></span>` : ''}</div>` : '';
   return `<li><span class="track"></span><div class="scard" id="stop-${idx}" data-act="focus" data-v="${idx}"><div class="ic c-${esc(cat)}">${ico(cat)}</div><div class="sinfo">
     <div class="tline"><span class="tm">${esc(it.t)}</span><span class="tags">${tags.join('')}</span></div>
-    <h3>${esc(name)}</h3><div class="sub">${p ? esc(p.name_ja || '') : ''}${p && p.area ? ` · ${esc(p.area)}` : ''}</div>
-    ${it.note ? `<p class="note">${rich(it.note)}</p>` : ''}${p && p.desc ? `<p class="desc">${rich(p.desc)}</p>` : ''}${meta}
-    ${p && p.tip ? `<div class="box tip">${rich(p.tip)}</div>` : ''}${p && p.kid_tip ? `<div class="box kid"><b>아이와 함께라면</b> ${rich(p.kid_tip)}</div>` : ''}
-    ${isHotel && p ? `<div class="box tip">${rich(p.desc || '')}${(p.pts || []).length ? `<br>${p.pts.map(esc).join(' · ')}` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<br><b>2인 1실 ${manR(p.price_krw_night)}</b> 안팎(가정값)` : ''}</div>` : ''}
-    ${p ? `<a class="go" href="${gmap(p.maps_q || p.name_ja || p.name, [p.lat, p.lng])}" target="_blank" rel="noopener">${svgPin}구글 지도에서 열기</a>` : ''}
+    <h3>${esc(name)}</h3><div class="sub">${p && LANG !== 'ja' ? esc(p.name_ja || '') : ''}${p && p.area ? ` · ${esc(p.area)}` : ''}</div>
+    ${it.note ? `<p class="note">${rich(it.note)}</p>` : ''}${p && p.desc && !isHotel ? `<p class="desc">${rich(p.desc)}</p>` : ''}${meta}
+    ${p && p.tip ? `<div class="box tip">${rich(p.tip)}</div>` : ''}${p && p.kid_tip ? `<div class="box kid"><b>${esc(T('with_kids'))}</b> ${rich(p.kid_tip)}</div>` : ''}
+    ${isHotel && p ? `<div class="box tip">${rich(p.desc || '')}${(p.pts || []).length ? `<br>${p.pts.map(esc).join(' · ')}` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<br><b>${esc(T('per_room'))} ${manR(p.price_krw_night)}</b> ${esc(T('approx'))}` : ''}</div>` : ''}
+    ${p ? `<a class="go" href="${gmap(p.maps_q || p.name_ja || p.name, [p.lat, p.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a>` : ''}
   </div></div></li>`;
 }
 function stopIndex(d, i){ let n = -1; for (let j = 0; j <= i; j++){ const k = d.items[j].k; if (k === 'spot' || k === 'hotel' || k === 'meal') n++; } return n; }
@@ -764,7 +815,7 @@ function sketch(pts){
   const el = document.getElementById('daymap'); if (!el) return;
   if (lmap){ try { lmap.remove(); } catch(e){} lmap = null; }
   const v = pts.map((p, i) => p ? { p, i } : null).filter(Boolean);
-  if (!v.length){ el.innerHTML = '<div class="empty" style="margin:0;border:0">이 날은 지도에 표시할 장소가 없어요</div>'; return; }
+  if (!v.length){ el.innerHTML = `<div class="empty" style="margin:0;border:0">${esc(T('no_map_pts'))}</div>`; return; }
   const W = 360, H = 220, pad = 34;
   const lats = v.map(x => x.p.ll[0]), lngs = v.map(x => x.p.ll[1]);
   const la0 = Math.min(...lats), la1 = Math.max(...lats), lo0 = Math.min(...lngs), lo1 = Math.max(...lngs);
@@ -774,8 +825,8 @@ function sketch(pts){
   const ox = (W - sw * s) / 2, oy = (H - sh * s) / 2;
   const P = x => ({ x: ox + (x.p.ll[1] - lo0) * cos * s, y: oy + (la1 - x.p.ll[0]) * s });
   const poly = v.map(x => { const q = P(x); return `${q.x.toFixed(1)},${q.y.toFixed(1)}`; }).join(' ');
-  const dots = v.map(x => { const q = P(x); return `<g class="pt" data-act="focus" data-v="${x.i}"><circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="10"/><text x="${q.x.toFixed(1)}" y="${(q.y + 3.3).toFixed(1)}">${x.i + 1}</text><text class="nm" x="${(q.x + 13).toFixed(1)}" y="${(q.y + 3.5).toFixed(1)}">${esc(x.p.name).slice(0, 14)}</text></g>`; }).join('');
-  el.innerHTML = `<svg class="sketch" viewBox="0 0 ${W} ${H}" role="img" aria-label="동선 약도"><polyline class="ln" points="${poly}"/>${dots}<text x="10" y="${H - 8}" style="font-size:9px;fill:var(--ink-3)">지도 타일을 못 불러와 약도로 보여 드려요. 장소를 누르면 구글 지도로 열립니다.</text></svg>`;
+  const dots = v.map(x => { const q = P(x); const right = q.x > W / 2; return `<g class="pt" data-act="focus" data-v="${x.i}"><circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="10"/><text x="${q.x.toFixed(1)}" y="${(q.y + 3.3).toFixed(1)}">${x.i + 1}</text><text class="nm" x="${(right ? q.x - 13 : q.x + 13).toFixed(1)}" y="${(q.y + 3.5).toFixed(1)}" text-anchor="${right ? 'end' : 'start'}">${esc(String(x.p.name).slice(0, 10))}</text></g>`; }).join('');
+  el.innerHTML = `<svg class="sketch" viewBox="0 0 ${W} ${H}" role="img"><polyline class="ln" points="${poly}"/>${dots}<text x="10" y="${H - 8}" style="font-size:9px;fill:var(--ink-3)">${esc(T('sketch_note'))}</text></svg>`;
 }
 function focusStop(i, scrollMap){
   st.sel = i;
@@ -785,34 +836,34 @@ function focusStop(i, scrollMap){
   if (lmap && mk){ lmap.setView(mk.getLatLng(), Math.max(lmap.getZoom(), 14), { animate: true }); mk.openPopup(); if (scrollMap){ const m = document.getElementById('daymap'); if (m) m.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
 }
 function accordions(g, plan){
-  const hotels = (g.hotels || []).map(h => `<div class="hcard"><div class="ic c-hotel">${ico('hotel')}</div><div class="hi"><div class="hn">${esc(h.name)} <span class="tag plum">${esc(h.tier)}</span></div><div class="ha">${esc(h.name_ja || '')} · ${esc(h.area || '')}</div><div class="hd">${rich(h.desc || '')}</div>${(h.pts || []).length ? `<div class="pts">${h.pts.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}${h.price_krw_night && h.price_krw_night[1] ? `<div class="pr">2인 1실 1박 ${manR(h.price_krw_night)} 안팎 <span style="color:var(--ink-3);font-weight:400">(가정값)</span></div>` : ''}<a class="go" href="${gmap(h.maps_q || h.name_ja || h.name, [h.lat, h.lng])}" target="_blank" rel="noopener">${svgPin}구글 지도에서 열기</a></div></div>`).join('');
+  const hotels = (g.hotels || []).map(h => `<div class="hcard"><div class="ic c-hotel">${ico('hotel')}</div><div class="hi"><div class="hn">${esc(h.name)} <span class="tag plum">${esc(tierName(h.tier))}</span></div><div class="ha">${LANG === 'ja' ? '' : esc(h.name_ja || '') + ' · '}${esc(h.area || '')}</div><div class="hd">${rich(h.desc || '')}</div>${(h.pts || []).length ? `<div class="pts">${h.pts.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}${h.price_krw_night && h.price_krw_night[1] ? `<div class="pr">${esc(T('per_room'))} · ${esc(T('per_night'))} ${manR(h.price_krw_night)} <span style="color:var(--ink-3);font-weight:400">${esc(T('approx'))}</span></div>` : ''}<a class="go" href="${gmap(h.maps_q || h.name_ja || h.name, [h.lat, h.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div></div>`).join('');
   const b = plan && plan.budget;
-  const budget = b ? `<table class="bt"><tr><th>항목 · ${esc(b.per || '1인 기준')}</th><th>금액</th></tr>
-    <tr><td>항공권 왕복<small>${esc(KRP[st.origin].name)} 출발 · 시기에 따라 큰 차이</small></td><td>${manR(b.flight_krw)}</td></tr>
-    <tr><td>숙박 ${plan.nights}박<small>2인 1실 기준 1인 몫</small></td><td>${manR(b.hotel_krw)}</td></tr>
-    <tr><td>식비</td><td>${manR(b.food_krw)}</td></tr><tr><td>교통<small>공항 왕복 · 시내 이동</small></td><td>${manR(b.transport_krw)}</td></tr>
-    <tr><td>입장료</td><td>${manR(b.entry_krw)}</td></tr><tr><td>쇼핑 · 간식</td><td>${manR(b.shopping_krw)}</td></tr>
-    <tr class="total"><td>다 합쳐서</td><td>${manR(b.total_krw)}</td></tr></table><p class="note">${esc(b.basis || '')} 실제 금액은 시기·환율·예약 시점에 따라 달라집니다(가정값).</p>` : '<p>예산 자료가 없습니다.</p>';
+  const budget = b ? `<table class="bt"><tr><th>${esc(T('b_item', { per: b.per || '' }))}</th><th>${esc(T('b_amount'))}</th></tr>
+    <tr><td>${esc(T('b_flight'))}<small>${esc(T('b_flight_s', { origin: krName(st.origin) }))}</small></td><td>${manR(b.flight_krw)}</td></tr>
+    <tr><td>${esc(T('b_hotel', { n: plan.nights }))}<small>${esc(T('b_hotel_s'))}</small></td><td>${manR(b.hotel_krw)}</td></tr>
+    <tr><td>${esc(T('b_food'))}</td><td>${manR(b.food_krw)}</td></tr><tr><td>${esc(T('b_transport'))}<small>${esc(T('b_transport_s'))}</small></td><td>${manR(b.transport_krw)}</td></tr>
+    <tr><td>${esc(T('b_entry'))}</td><td>${manR(b.entry_krw)}</td></tr><tr><td>${esc(T('b_shop'))}</td><td>${manR(b.shopping_krw)}</td></tr>
+    <tr class="total"><td>${esc(T('b_total'))}</td><td>${manR(b.total_krw)}</td></tr></table><p class="note">${esc(b.basis || '')} ${esc(T('b_note'))}</p>` : `<p>${esc(T('no_budget'))}</p>`;
   const checks = [].concat(plan && plan.checks || [], g.checks || []);
-  const checkHtml = checks.length ? `<ul class="checks">${checks.map((c, i) => { const ck = `${g.key}|${i}`; return `<li class="${st.checks[ck] ? 'done' : ''}" data-act="check" data-v="${esc(ck)}">${rich(c)}</li>`; }).join('')}</ul>` : '<p>준비물 자료가 없습니다.</p>';
+  const checkHtml = checks.length ? `<ul class="checks">${checks.map((c, i) => { const ck = `${g.key}|${i}`; return `<li class="${st.checks[ck] ? 'done' : ''}" data-act="check" data-v="${esc(ck)}">${rich(c)}</li>`; }).join('')}</ul>` : `<p>${esc(T('no_check'))}</p>`;
   const whenCls = w => ({'비 오는 날':'sky','아이와':'sun','시간 남을 때':'sage','렌터카':'plum','휴무일 때':'coral'}[w] || '');
-  const bplan = (g.bplan || []).map(x => { const p = x.ref ? findP(g, x.ref) : null; return `<div class="bp"><div class="bh"><b>${esc(x.title)}</b>${x.when ? `<span class="tag ${whenCls(x.when)}">${esc(x.when)}</span>` : ''}</div><div class="bd">${rich(x.desc || '')}</div><a class="go" href="${gmap(x.maps_q || x.title, p ? [p.lat, p.lng] : null)}" target="_blank" rel="noopener">${svgPin}구글 지도에서 열기</a></div>`; }).join('');
-  const rest = (g.restaurants || []).map(r => `<div class="ritem"><div class="ic c-food">${ico('food')}</div><div class="ri"><div class="rn">${esc(r.name)}<small>${esc(r.name_ja || '')}</small></div><div class="rs">${esc(r.cuisine || '')} · ${esc(r.signature || '')} · ${yenMark(r.price_level)}</div><div class="rd">${rich(r.desc || '')}${r.closed && r.closed !== '없음' ? ` <b>휴무 ${esc(r.closed)}</b>` : ''}${r.hours ? ` · ${esc(r.hours)}` : ''}</div><a class="go" href="${gmap(r.maps_q, [r.lat, r.lng])}" target="_blank" rel="noopener">${svgPin}지도</a></div></div>`).join('');
-  const spots = (g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').map(s => `<div class="ritem"><div class="ic c-${esc(s.cat)}">${ico(s.cat)}</div><div class="ri"><div class="rn">${esc(s.name)}<small>${esc(s.name_ja || '')}</small>${s.must ? ' <span class="tag rose">꼭</span>' : ''}</div><div class="rs">${esc(s.area || '')} · ${s.fee_yen === 0 ? '무료' : s.fee_yen > 0 ? yen(s.fee_yen) : '요금 확인'} · ${fmtMin(s.duration_min || 60)}</div><div class="rd">${rich(s.desc || '')}${s.closed && s.closed !== '없음' ? ` <b>휴무 ${esc(s.closed)}</b>` : ''}</div><a class="go" href="${gmap(s.maps_q || s.name_ja || s.name, [s.lat, s.lng])}" target="_blank" rel="noopener">${svgPin}지도</a></div></div>`).join('');
+  const bplan = (g.bplan || []).map(x => { const p = x.ref ? findP(g, x.ref) : null; return `<div class="bp"><div class="bh"><b>${esc(x.title)}</b>${x.when ? `<span class="tag ${whenCls(x.when)}">${esc(whenName(x.when))}</span>` : ''}</div><div class="bd">${rich(x.desc || '')}</div><a class="go" href="${gmap(x.maps_q || x.title, p ? [p.lat, p.lng] : null)}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div>`; }).join('');
+  const rest = (g.restaurants || []).map(r => `<div class="ritem"><div class="ic c-food">${ico('food')}</div><div class="ri"><div class="rn">${esc(r.name)}<small>${LANG === 'ja' ? '' : esc(r.name_ja || '')}</small></div><div class="rs">${esc(r.cuisine || '')} · ${esc(r.signature || '')} · ${yenMark(r.price_level)}</div><div class="rd">${rich(r.desc || '')}${r.closed && r.closed !== '없음' ? ` <b>${esc(T('closed'))} ${esc(hText(r.closed))}</b>` : ''}${r.hours ? ` · ${esc(hText(r.hours))}` : ''}</div><a class="go" href="${gmap(r.maps_q, [r.lat, r.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('gmap'))}</a></div></div>`).join('');
+  const spots = (g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').map(s => `<div class="ritem"><div class="ic c-${esc(s.cat)}">${ico(s.cat)}</div><div class="ri"><div class="rn">${esc(s.name)}<small>${LANG === 'ja' ? '' : esc(s.name_ja || '')}</small>${s.must ? ` <span class="tag rose">${esc(T('must'))}</span>` : ''}</div><div class="rs">${esc(s.area || '')} · ${s.fee_yen === 0 ? esc(T('free')) : s.fee_yen > 0 ? yen(s.fee_yen) : esc(T('fee_tbd'))} · ${fmtMin(s.duration_min || 60)}</div><div class="rd">${rich(s.desc || '')}${s.closed && s.closed !== '없음' ? ` <b>${esc(T('closed'))} ${esc(hText(s.closed))}</b>` : ''}</div><a class="go" href="${gmap(s.maps_q || s.name_ja || s.name, [s.lat, s.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('gmap'))}</a></div></div>`).join('');
   const alts = (g.nearby_alternatives || []).map(x => { const ag = GUIDES[x.key]; if (!ag) return ''; const bb = bestRoute(st.origin, ag); const a = bb && AP[bb.iata];
-    return `<button class="altcard" data-act="open" data-v="${esc(ag.key)}">${stamp(ag, false, !bb)}<div class="ai"><div class="an">${esc(ag.name)}</div><div class="ar">${rich(x.reason || '')}</div><div class="af">${bb ? `${esc(KRP[st.origin].name)} → ${esc(a ? a.name_ko : '')} ${fmtMin(bb.r.flight_minutes)} · ${esc(airlineText(bb.r.airlines))}` : `${esc(KRP[st.origin].name)} 직항 없음`} · ${(ag.plans || []).map(p => nd(p.nights)).join(' / ')}</div></div><span class="arrow">${svgBack.replace('M15 5l-7 7 7 7', 'M9 5l7 7-7 7')}</span></button>`; }).join('');
-  const season = `<p>${esc(g.season_notes || '')}</p>${g.getting_around ? `<h4>시내 이동</h4><p>${rich(g.getting_around)}</p>` : ''}${g.transport_pass ? `<h4>교통 패스</h4><p>${rich(g.transport_pass)}</p>` : ''}`;
+    return `<button class="altcard" data-act="open" data-v="${esc(ag.key)}">${stamp(ag, false, !bb)}<div class="ai"><div class="an">${esc(ag.name)}</div><div class="ar">${rich(x.reason || '')}</div><div class="af">${bb ? `${esc(T('from_to', { origin: krName(st.origin), to: apCity(a) }))} ${fmtMin(bb.r.flight_minutes)} · ${esc(airlineText(bb.r.airlines))}` : esc(T('no_direct', { origin: krName(st.origin) }))} · ${(ag.plans || []).map(p => esc(nd(p.nights))).join(' / ')}</div></div><span class="arrow">${svgNext}</span></button>`; }).join('');
+  const season = `<p>${esc(g.season_notes || '')}</p>${g.getting_around ? `<h4>${esc(T('getting_around'))}</h4><p>${rich(g.getting_around)}</p>` : ''}${g.transport_pass ? `<h4>${esc(T('pass'))}</h4><p>${rich(g.transport_pass)}</p>` : ''}`;
   const srcs = (g.sources || []).slice(0, 40).map(u => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></li>`).join('');
   const acc = (id, title, cnt, body, open) => `<details class="acc" id="acc-${id}" ${open ? 'open' : ''}><summary>${esc(title)}${cnt ? `<span class="cnt">${esc(cnt)}</span>` : ''}</summary><div class="abody">${body}</div></details>`;
-  return acc('hotel', '어디서 잘까요?', `${(g.hotels || []).length}곳`, hotels || '<p>숙소 자료가 없습니다.</p>') +
-    acc('budget', '얼마나 들까요?', plan ? nd(plan.nights) : '', budget) +
-    acc('check', '가기 전에 이건 꼭', `${checks.length}개`, checkHtml) +
-    acc('bplan', '플랜 B · 이럴 땐 여기로', `${(g.bplan || []).length}곳`, bplan || '<p>대안 장소 자료가 없습니다.</p>') +
-    acc('alt', '대신 갈 만한 곳', `${(g.nearby_alternatives || []).length}곳`, alts || '<p>대체 여행지 자료가 없습니다.</p>') +
-    acc('food', '맛집 전체', `${(g.restaurants || []).length}곳`, `<div class="rlist">${rest}</div>`) +
-    acc('spot', '명소 전체', `${(g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').length}곳`, `<div class="rlist">${spots}</div>`) +
-    acc('season', '시기 · 이동 요령', '', season) +
-    acc('src', '참고한 자료', `${(g.sources || []).length}건`, `<ul class="srcs">${srcs || '<li>없음</li>'}</ul>`);
+  return acc('hotel', T('acc_hotel'), T('n_places', { n: (g.hotels || []).length }), hotels || `<p>${esc(T('no_hotel'))}</p>`) +
+    acc('budget', T('acc_budget'), plan ? nd(plan.nights) : '', budget) +
+    acc('check', T('acc_check'), T('n_items', { n: checks.length }), checkHtml) +
+    acc('bplan', T('acc_bplan'), T('n_places', { n: (g.bplan || []).length }), bplan || `<p>${esc(T('no_bplan'))}</p>`) +
+    acc('alt', T('acc_alt'), T('n_places', { n: (g.nearby_alternatives || []).length }), alts || `<p>${esc(T('no_alt'))}</p>`) +
+    acc('food', T('acc_food'), T('n_places', { n: (g.restaurants || []).length }), `<div class="rlist">${rest}</div>`) +
+    acc('spot', T('acc_spot'), T('n_places', { n: (g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').length }), `<div class="rlist">${spots}</div>`) +
+    acc('season', T('acc_season'), '', season) +
+    acc('src', T('acc_src'), T('n_docs', { n: (g.sources || []).length }), `<ul class="srcs">${srcs || `<li>${esc(T('none'))}</li>`}</ul>`);
 }
 
 /* ───────── 이동(주소창) ───────── */
@@ -822,9 +873,12 @@ function go(dest, push){
   if (push !== false){ try { history.pushState({ dest }, '', h); } catch(e){ location.hash = h; } }
   render();
 }
-function render(){ if (st.dest && GUIDES[st.dest]) renderDest(); else renderHome(); }
+function render(){ closeLang(); if (st.dest && GUIDES[st.dest]) renderDest(); else renderHome(); }
 function parseHash(){ const h = (location.hash || '').replace('#', ''); return GUIDES[h] ? h : null; }
 window.addEventListener('popstate', () => { st.dest = parseHash(); st.day = 0; st.sel = -1; st.variant = 0; render(); });
+function openLang(){ const m = document.getElementById('langmenu'); m.innerHTML = langMenu(); m.classList.add('on'); document.getElementById('scrim').classList.add('on'); }
+function closeLang(){ document.getElementById('langmenu').classList.remove('on'); document.getElementById('scrim').classList.remove('on'); }
+document.getElementById('scrim').addEventListener('click', closeLang);
 
 /* ───────── 입력 처리 ───────── */
 app.addEventListener('click', e => {
@@ -835,6 +889,7 @@ app.addEventListener('click', e => {
   if (act === 'tag'){ st.tag = v; renderHome(); return; }
   if (act === 'sort'){ st.sort = v; renderHome(); return; }
   if (act === 'top'){ window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (act === 'lang'){ e.stopPropagation(); const m = document.getElementById('langmenu'); if (m.classList.contains('on')) closeLang(); else openLang(); return; }
   if (act === 'mapdot'){ e.preventDefault(); st.mapSel = st.mapSel === v ? '' : v; document.getElementById('jpmap').innerHTML = jpMapSvg(); document.getElementById('maptip').innerHTML = mapTip();
     const g = Object.values(GUIDES).find(x => (x.airports || []).includes(v)); if (g){ const c = document.getElementById(`card-${g.key}`); if (c){ c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1600); } }
     return; }
@@ -842,9 +897,9 @@ app.addEventListener('click', e => {
   if (act === 'back'){ if (history.state && history.state.dest !== undefined && history.length > 1) history.back(); else go(null); return; }
   if (act === 'setnights'){ st.nightsSel = Number(v); st.variant = 0; st.day = 0; st.sel = -1; renderDest(); return; }
   if (act === 'variant'){ st.variant = Number(v); st.day = 0; st.sel = -1; renderDest(); return; }
-  if (act === 'day'){ st.day = Number(v); st.sel = -1; const g = GUIDES[st.dest]; const plan = curPlan(g); document.getElementById('planarea').innerHTML = planHtml(g, plan); document.querySelector('.dayhead').scrollIntoView({ behavior: 'smooth', block: 'start' }); mountMap(g, plan); return; }
+  if (act === 'day'){ st.day = Number(v); st.sel = -1; const g = GUIDES[st.dest]; const plan = curPlan(g); document.getElementById('planarea').innerHTML = planHtml(g, plan); const dh = document.querySelector('.dayhead'); if (dh) dh.scrollIntoView({ behavior: 'smooth', block: 'start' }); mountMap(g, plan); return; }
   if (act === 'focus'){ if (e.target.closest('a,button.opt')) return; focusStop(Number(v), true); return; }
-  if (act === 'pick'){ e.stopPropagation(); const [pk, rid] = v.split(/\|(?=[^|]*$)/); st.picks[pk] = rid; S.set('picks', st.picks); const g = GUIDES[st.dest]; const plan = curPlan(g); const y = window.scrollY; document.getElementById('planarea').innerHTML = planHtml(g, plan); window.scrollTo(0, y); mountMap(g, plan); return; }
+  if (act === 'pick'){ e.stopPropagation(); const at = v.lastIndexOf('|'); const pk = v.slice(0, at), rid = v.slice(at + 1); st.picks[pk] = rid; S.set('picks', st.picks); const g = GUIDES[st.dest]; const plan = curPlan(g); const y = window.scrollY; document.getElementById('planarea').innerHTML = planHtml(g, plan); window.scrollTo(0, y); mountMap(g, plan); return; }
   if (act === 'check'){ st.checks[v] = !st.checks[v]; S.set('checks', st.checks); el.classList.toggle('done', !!st.checks[v]); return; }
   if (act === 'budget'){ const d = document.getElementById('acc-budget'); if (d){ d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
   if (act === 'share'){ share(); return; }
@@ -852,9 +907,9 @@ app.addEventListener('click', e => {
 app.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.dot,.checks li')){ e.preventDefault(); e.target.click(); } });
 function share(){
   const g = GUIDES[st.dest]; const plan = g && curPlan(g);
-  const title = g ? `${g.name} ${plan ? nd(plan.nights) : ''} 여행 플랜` : '일본 직항 여행 플래너';
+  const title = g ? `${g.name} ${plan ? nd(plan.nights) : ''} ${T('plan_word')}` : T('brand');
   const url = location.href;
-  const copy = () => { try { navigator.clipboard.writeText(url).then(() => toast('링크를 복사했어요'), () => toast(url)); } catch(e){ toast(url); } };
+  const copy = () => { try { navigator.clipboard.writeText(url).then(() => toast(T('copied')), () => toast(url)); } catch(e){ toast(url); } };
   if (navigator.share){ navigator.share({ title, url }).catch(() => {}); } else copy();
 }
 

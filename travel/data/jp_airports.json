@@ -288,7 +288,7 @@
      "flight_minutes": 135,
      "weekly": "비정기",
      "status": "운휴",
-     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 인천-후쿠시마 정기편 없음(청주발 전세편만)",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 인천-후쿠시마 정기편 없음(청주발 전세편만) 인천-후쿠시마 정기편 없음(청주발 전세편만) 인천-후쿠시마 정기편 없음(청주발 전세편만)",
      "source_url": "https://fks-ab.co.jp/",
      "source_date": "",
      "confidence": "보통",
@@ -422,130 +422,120 @@
      "airlines": [
       "대한항공",
       "아시아나항공",
-      "제주항공",
       "진에어",
-      "트리니티항공(구 티웨이)",
       "에어서울",
-      "에어부산",
-      "이스타항공"
+      "이스타항공",
+      "트리니티항공(구 티웨이)",
+      "제주항공"
      ],
      "flight_minutes": 85,
-     "weekly": "매일 10편 이상(여러 항공사)",
+     "weekly": "매일 10편 안팎(항공사 7곳)",
      "status": "정기",
-     "season_note": "한·일 최다 노선 중 하나. 웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "보통",
+     "season_note": "2026 하계(3/29~)부터 일 3회로 증편. 2026 동계 편수는 검색 범위에서 확인 못함. 대한항공 일 3회(2026 하계), 아시아나·진에어·에어서울·이스타·트리니티 매일 운항 확인. 제주항공만 2026 자료 미확인",
+     "source_url": "https://www.aeroroutes.com/eng/260216-kens26int",
+     "source_date": "2026-02-15",
+     "confidence": "높음",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     },
     {
      "from_iata": "PUS",
      "airlines": [
       "에어부산",
+      "이스타항공",
       "제주항공",
-      "진에어",
-      "대한항공",
       "트리니티항공(구 티웨이)",
-      "이스타항공"
+      "아시아나항공"
      ],
      "flight_minutes": 55,
-     "weekly": "매일 여러 편",
+     "weekly": "매일 여러 편(항공사 5곳)",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "보통",
+     "season_note": "2025 동계(2025-10-26~2026-03-28) 부산-후쿠오카 운휴. 2026 동계 재개 여부는 확인 못함. 대한항공은 2025 동계 부산-후쿠오카 운휴 후 재개 미확인이라 뺌",
+     "source_url": "https://www.aviationwire.jp/archives/331064",
+     "source_date": "2025-09-25",
+     "confidence": "높음",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     },
     {
      "from_iata": "CJU",
      "airlines": [
-      "대한항공"
+      "트리니티항공(구 티웨이)"
      ],
-     "flight_minutes": 74,
-     "weekly": "미확인",
-     "status": "운휴",
-     "season_note": "기억 기반·confidence 낮음. 운휴 가능성 높음. 제주-후쿠오카 정기편은 확인되지 않음",
-     "source_url": "https://www.airport.co.kr/jeju/index.do",
-     "source_date": "",
+     "flight_minutes": 65,
+     "weekly": "주 4회(2025-12-20 취항 시 기준)",
+     "status": "정기",
+     "season_note": "2025-12-20 취항, 6년 만의 제주발 일본 직항. 2026-10-03 TW227 운항 확인. 동계 편수 미확인.",
+     "source_url": "https://v.daum.net/v/20251219180502934",
+     "source_date": "2025-12-19",
      "confidence": "보통",
-     "reviewed": "2026-10-10 지식 기반 보정"
+     "verified": true
     },
     {
      "from_iata": "TAE",
      "airlines": [
       "트리니티항공(구 티웨이)",
-      "에어부산",
-      "제주항공"
+      "에어부산"
      ],
      "flight_minutes": 70,
-     "weekly": "매일 1~3편",
+     "weekly": "매일 1편 안팎(트리니티 TW214/215 확인)",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
+     "season_note": "2026-09·10월 TW214/215 대구-후쿠오카 운항 기록. 동계 편수 미확인. 에어부산 대구-후쿠오카는 편수 미확인",
+     "source_url": "https://www.airnavradar.com/data/flights/TW214",
+     "source_date": "2026-09-19",
      "confidence": "보통",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     },
     {
      "from_iata": "CJJ",
      "airlines": [
+      "트리니티항공(구 티웨이)",
       "에어로케이"
      ],
      "flight_minutes": 80,
-     "weekly": "매일 1편 안팎(기억 기준)",
-     "status": "확인필요",
-     "season_note": "청주-후쿠오카는 운항 여부가 불확실. 예약 전 확인",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "낮음",
+     "weekly": "편수 확인 필요(트리니티 TW226 운항 확인)",
+     "status": "정기",
+     "season_note": "2026-09-17 TW226 후쿠오카 10:40발→청주 12:00착 운항 기록. 동계 편수 미확인. 에어로케이 청주-후쿠오카는 운항 여부 미확인",
+     "source_url": "https://www.airnavradar.com/data/flights/TW226",
+     "source_date": "2026-09-17",
+     "confidence": "보통",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
-    },
-    {
-     "from_iata": "MWX",
-     "airlines": [
-      "제주항공"
-     ],
-     "flight_minutes": 80,
-     "weekly": "운휴",
-     "status": "운휴",
-     "season_note": "무안공항 국제선은 2024년 12월 사고 이후 전면 운휴 기억. 과거 운항 여부 포함 재확인 필요",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "낮음"
     }
    ],
    "city_access": [
     {
-     "mode": "지하철(공항선)",
+     "mode": "지하철 공항선",
      "to": "하카타역",
      "minutes": 6,
      "fare_yen": 260,
-     "note": "국내선터미널 지하에서 탑승. 국제선터미널에서는 무료 연락버스(약 10~15분)로 국내선터미널 이동 후 탑승"
+     "note": "국제선터미널→국내선터미널 무료 연락버스(약 10~15분) 후 지하철. 요금은 참고값"
     },
     {
-     "mode": "지하철(공항선)",
+     "mode": "지하철 공항선",
      "to": "텐진역",
      "minutes": 12,
      "fare_yen": 260,
-     "note": "하카타역을 지나 텐진까지 직통"
+     "note": "국내선터미널 지하 역에서 탑승. 참고값"
     },
     {
-     "mode": "니시테츠 버스",
-     "to": "하카타역(하카타버스터미널)",
+     "mode": "직행버스",
+     "to": "하카타 버스터미널",
      "minutes": 15,
      "fare_yen": 310,
-     "note": "국제선터미널 앞 정류장에서 바로 탑승. 요금은 대략값"
+     "note": "국제선터미널에서 바로 탑승. 참고값"
     },
     {
      "mode": "택시",
      "to": "하카타역",
      "minutes": 15,
-     "fare_yen": 2000,
-     "note": "도심과 매우 가까움. 요금은 대략값"
+     "fare_yen": 1500,
+     "note": "참고값(시간대·교통상황에 따라 다름)"
     }
    ],
-   "notes": "도심에서 가장 가까운 대형 공항. 국제선터미널과 국내선터미널이 떨어져 있어 지하철은 국내선 쪽에서 탄다"
+   "notes": "2026 동계 기준 인천발은 대한항공·진에어·에어서울이 동계 편명 변경(10/25) 자료로 운항 확인. 아시아나 편은 12/17부터 대한항공 운항. 부산·대구·청주·제주발은 2026 하계 운항 기록만 있고 동계 편수는 미확인. 교통 요금은 검색으로 검증하지 못한 참고값.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "GAJ",
@@ -565,7 +555,7 @@
      "flight_minutes": 140,
      "weekly": "비정기",
      "status": "전세",
-     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음 부정기 전세편만 있음 부정기 전세편만 있음",
      "source_url": "https://www.yamagata-airport.co.jp/",
      "source_date": "",
      "confidence": "보통",
@@ -858,7 +848,7 @@
   {
    "iata": "HSG",
    "name_ko": "사가공항(규슈사가국제공항)",
-   "name_ja": "佐賀空港（九州佐賀国際空港）",
+   "name_ja": "佐賀空港",
    "name_en": "Saga Airport",
    "region": "규슈",
    "prefecture_ko": "사가현",
@@ -872,13 +862,43 @@
      "airlines": [
       "트리니티항공(구 티웨이)"
      ],
-     "flight_minutes": 95,
-     "weekly": "매일 1편",
+     "flight_minutes": 85,
+     "weekly": "주 4회(월·수·금·일, 2026 하계 기준 · 동계 시간표 미공개)",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
+     "season_note": "2025 동계 285편 08:25착/286편 10:50발, 2026 하계 286편 10:40발(월수금일). 할인 대상 탑승기간이 2026-10-24까지라 동계 스케줄은 별도 확인 필요.",
+     "source_url": "https://www.pref.saga.lg.jp/kiji00379503/3_79503_382397_up_3yoe0srb.pdf",
+     "source_date": "2026-03-29",
      "confidence": "보통",
+     "verified": true
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 60,
+     "weekly": "미운항 추정",
+     "status": "운휴",
+     "season_note": "2019년 자료에 서울·부산·대구 3노선 기록. 2026 부산선 운항 자료 없음. 부산-사가 정기편 없음(미운항 추정)",
+     "source_url": "https://www.pref.saga.lg.jp/chiji/kiji00392138/3_92138_2_shiryou1.pdf",
+     "source_date": "2019-01-01",
+     "confidence": "낮음",
+     "verified": true,
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "TAE",
+     "airlines": [
+      "트리니티항공(구 티웨이)"
+     ],
+     "flight_minutes": 75,
+     "weekly": "미운항 추정",
+     "status": "운휴",
+     "season_note": "2019년 자료에만 대구선 기록. 2026 운항 자료 없음. 대구-사가 정기편 없음(미운항 추정)",
+     "source_url": "https://www.pref.saga.lg.jp/chiji/kiji00392138/3_92138_2_shiryou1.pdf",
+     "source_date": "2019-01-01",
+     "confidence": "낮음",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     }
    ],
@@ -888,24 +908,25 @@
      "to": "사가역",
      "minutes": 35,
      "fare_yen": 600,
-     "note": "요금은 대략값"
+     "note": "참고값"
     },
     {
      "mode": "택시",
      "to": "사가역",
      "minutes": 30,
      "fare_yen": 5000,
-     "note": "요금은 대략값"
+     "note": "참고값"
     },
     {
-     "mode": "렌터카",
-     "to": "사가·다케오·우레시노 온천",
-     "minutes": 60,
-     "fare_yen": 0,
-     "note": "작은 공항이라 수속 빠르고 렌터카 이용이 많음"
+     "mode": "버스+JR 특급",
+     "to": "하카타역",
+     "minutes": 80,
+     "fare_yen": 2400,
+     "note": "사가역에서 특급 약 40분. 합산 참고값"
     }
    ],
-   "notes": "작은 공항이라 수속이 빠름. 후쿠오카 서부·다케오·우레시노 온천 접근에 유리"
+   "notes": "서울(인천)선 티웨이(트리니티) 주4회가 유일한 한국 노선. 2026 동계 시간표는 사가현 공식 페이지에서 미공개 상태. 교통 요금은 참고값.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "IBR",
@@ -992,41 +1013,37 @@
    "routes": [
     {
      "from_iata": "ICN",
-     "airlines": [],
-     "flight_minutes": 180,
-     "weekly": "비정기",
-     "status": "전세",
-     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음",
-     "source_url": "https://www.ishigaki-airport.co.jp/",
-     "source_date": "",
+     "airlines": [
+      "진에어"
+     ],
+     "flight_minutes": 165,
+     "weekly": "주5~7회(출처 상이)",
+     "status": "정기",
+     "season_note": "2025년 하계 주5회로 개설(LJ361 인천 09:05발/LJ362 이시가키 13:00발). 2026-04~07 제3자 스케줄 사이트는 주7회·2시간45분 표시, 여행사 블로그는 주5회(월화목금일). 진에어 단독 노선. 2026 동계 공식 횟수 미확인.",
+     "source_url": "https://www.aeroroutes.com/eng/250224-ljns25isg",
+     "source_date": "2025-02-24",
      "confidence": "보통",
-     "reviewed": "2026-10-10 지식 기반 보정"
+     "verified": true
     }
    ],
    "city_access": [
     {
-     "mode": "리무진버스",
-     "to": "이시가키항 이도 터미널(시내)",
-     "minutes": 30,
-     "fare_yen": 540,
-     "note": "카리유시 관광버스 직행. 요금은 대략값"
-    },
-    {
-     "mode": "노선버스",
-     "to": "이시가키 버스터미널(시내)",
-     "minutes": 45,
-     "fare_yen": 550,
-     "note": "아즈마 버스 시내선. 요금은 대략값"
+     "mode": "노선버스(동운수)",
+     "to": "이시가키항 이도터미널(시가지)",
+     "minutes": 40,
+     "fare_yen": 500,
+     "note": "시간당 1~2편. 운임 500엔 전후(과거 520엔)"
     },
     {
      "mode": "택시",
-     "to": "이시가키 시내",
+     "to": "시가지·이시가키항 이도터미널",
      "minutes": 30,
-     "fare_yen": 3000,
-     "note": "요금은 대략값"
+     "fare_yen": 3110,
+     "note": "약 13km"
     }
    ],
-   "notes": "한국 직항 없음. 나하 또는 도쿄·오사카 경유 국내선, 혹은 타이베이·홍콩 국제선으로 접근. 다케토미·이리오모테 등 이도 여행의 거점"
+   "notes": "야에야마 제도 관문. 한국 직항은 진에어 인천선뿐. 2025-11 진에어 '단독 노선 이시가키·미야코지마' 프로모션 보도 있음.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "IWK",
@@ -1115,7 +1132,7 @@
      "flight_minutes": 110,
      "weekly": "부정기(미확인)",
      "status": "전세",
-     "season_note": "나무위키 '한일노선'에 2026-09-20~23 전세기(7C1681/7C1682) 기재가 있으나 공식 출처로 교차 확인하지 못함. 고치현은 2027년 3월 인천-고치 전세기 운항을 준비 중이며 2027년 4월 국제선 터미널 전면 개장 후 정기편 유치 목표(여행신문 2026-09). 한국 전세기는 2017년이 마지막(고치신문). 정기·계절편 없음. 비행시간은 추정값. 2026-09 전세편 운항 사례. 정기편 없음",
+     "season_note": "나무위키 '한일노선'에 2026-09-20~23 전세기(7C1681/7C1682) 기재가 있으나 공식 출처로 교차 확인하지 못함. 고치현은 2027년 3월 인천-고치 전세기 운항을 준비 중이며 2027년 4월 국제선 터미널 전면 개장 후 정기편 유치 목표(여행신문 2026-09). 한국 전세기는 2017년이 마지막(고치신문). 정기·계절편 없음. 비행시간은 추정값. 2026-09 전세편 운항 사례. 정기편 없음 2026-09 전세편 운항 사례. 정기편 없음 2026-09 전세편 운항 사례. 정기편 없음",
      "source_url": "https://www.traveltimes.co.kr/news/articleView.html?idxno=500420",
      "source_date": "2026-09",
      "confidence": "낮음",
@@ -1374,16 +1391,16 @@
     {
      "from_iata": "ICN",
      "airlines": [
-      "진에어",
-      "제주항공"
+      "진에어"
      ],
      "flight_minutes": 80,
-     "weekly": "매일 1~2편",
+     "weekly": "매일 1~2편(진에어 단독)",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
+     "season_note": "2026-10-25부터 인천-기타큐슈 편명 LJ34x/35x → LJ38x 로 변경(동계 운항 계속). 기타큐슈-서울은 진에어 단독 운항. japanaviationhub 2026: 기타큐슈-인천 진에어 단독 운항",
+     "source_url": "https://www.aeroroutes.com/eng/260630-ljnw26int",
+     "source_date": "2026-06-30",
      "confidence": "보통",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     },
     {
@@ -1391,66 +1408,82 @@
      "airlines": [
       "진에어"
      ],
-     "flight_minutes": 50,
-     "weekly": "매일 1편",
-     "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "보통",
+     "flight_minutes": 60,
+     "weekly": "미운항 추정",
+     "status": "운휴",
+     "season_note": "진에어 2026 동계 부산발 편명 목록(방콕·세부·클락·다낭·괌·오키나와·오사카·삿포로·타이베이·도쿄)에 기타큐슈 없음. 2017년 주5회 운항 기록만 확인. 부산-기타큐슈 정기편 없음(미운항 추정)",
+     "source_url": "https://www.aeroroutes.com/eng/260630-ljnw26int",
+     "source_date": "2026-06-30",
+     "confidence": "낮음",
+     "verified": true,
+     "reviewed": "2026-10-10 지식 기반 보정"
+    },
+    {
+     "from_iata": "CJJ",
+     "airlines": [],
+     "flight_minutes": 75,
+     "weekly": "편수 미확인",
+     "status": "운휴",
+     "season_note": "Fukuoka Now 기사에 '서울·청주 정기편'이 언급되나 다른 자료와 불일치(오기 가능성). 청주-기타큐슈는 항공사·운항 여부 미확인",
+     "source_url": "https://www.fukuoka-now.com/en/news/starflyer-to-restart-kitakyushu-taipei-route/",
+     "source_date": "2026-09-02",
+     "confidence": "낮음",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     }
    ],
    "city_access": [
     {
-     "mode": "공항버스",
+     "mode": "공항버스(논스톱)",
      "to": "고쿠라역",
      "minutes": 35,
      "fare_yen": 710,
-     "note": "논스톱 버스. 요금은 대략값"
-    },
-    {
-     "mode": "공항버스",
-     "to": "시모노세키역",
-     "minutes": 60,
-     "fare_yen": 0,
-     "note": "혼슈 시모노세키 방면 노선도 있음(요금 미확인)"
+     "note": "참고값"
     },
     {
      "mode": "택시",
      "to": "고쿠라역",
      "minutes": 30,
      "fare_yen": 6000,
-     "note": "해상공항이라 거리가 있음. 요금은 대략값"
+     "note": "참고값"
+    },
+    {
+     "mode": "신칸센 연계",
+     "to": "하카타역",
+     "minutes": 55,
+     "fare_yen": 2800,
+     "note": "고쿠라역에서 신칸센 약 16분. 버스+신칸센 합산 참고값"
     }
    ],
-   "notes": "24시간 운영 해상공항. 수속 빠르고 고쿠라·모지코 여행에 편리"
+   "notes": "서울(인천)-기타큐슈는 진에어 단독. 스타플라이어 국제선 재개는 타이베이선만(서울선 없음). 교통 요금은 참고값.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "KMI",
    "name_ko": "미야자키공항",
-   "name_ja": "宮崎空港（宮崎ブーゲンビリア空港）",
+   "name_ja": "宮崎空港",
    "name_en": "Miyazaki Airport",
    "region": "규슈",
    "prefecture_ko": "미야자키현",
    "city_ko": "미야자키",
    "lat": 31.8772,
-   "lng": 131.4486,
+   "lng": 131.4487,
    "has_korea_direct": true,
    "routes": [
     {
      "from_iata": "ICN",
      "airlines": [
-      "아시아나항공"
+      "아시아나항공",
+      "대한항공"
      ],
      "flight_minutes": 100,
-     "weekly": "주 3회",
+     "weekly": "주 7회(2026-12-18부터 대한항공 KE 편명)",
      "status": "정기",
-     "season_note": "2026-12-17 아시아나 통합 후 대한항공 편명으로 바뀔 수 있음. 웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "낮음",
-     "reviewed": "2026-10-10 지식 기반 보정"
+     "season_note": "현재 아시아나 운항(2026-10-25~12-17 편수 미확인). 통합 후 12/18부터 대한항공이 주7회 운항하며 OZ→KE 편명 변경. 2026-01~03 동계 데일리 운항 실적.",
+     "source_url": "https://www.aviationwire.jp/archives/350200/print/",
+     "source_date": "2026-09-07",
+     "confidence": "높음",
+     "verified": true
     }
    ],
    "city_access": [
@@ -1459,77 +1492,94 @@
      "to": "미야자키역",
      "minutes": 10,
      "fare_yen": 360,
-     "note": "공항 바로 옆에 역이 있어 가장 편리. 요금은 대략값"
+     "note": "참고값"
     },
     {
-     "mode": "버스",
+     "mode": "리무진버스",
      "to": "미야자키역",
      "minutes": 25,
-     "fare_yen": 0,
-     "note": "요금 미확인"
+     "fare_yen": 500,
+     "note": "참고값"
     },
     {
      "mode": "택시",
-     "to": "미야자키역",
-     "minutes": 15,
-     "fare_yen": 2500,
-     "note": "요금은 대략값"
+     "to": "미야자키 시내",
+     "minutes": 20,
+     "fare_yen": 3000,
+     "note": "참고값"
     }
    ],
-   "notes": "시내와 매우 가까운 공항. JR역이 터미널에 붙어 있음"
+   "notes": "인천선 단일 노선. 부산발 직항은 검색에서 확인되지 않음. 미야자키공항은 라운지 미운영. 교통 요금은 참고값.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "KMJ",
-   "name_ko": "구마모토공항(아소구마모토공항)",
-   "name_ja": "熊本空港（阿蘇くまもと空港）",
+   "name_ko": "구마모토공항",
+   "name_ja": "熊本空港",
    "name_en": "Kumamoto Airport",
    "region": "규슈",
    "prefecture_ko": "구마모토현",
    "city_ko": "구마모토",
    "lat": 32.8373,
-   "lng": 130.855,
+   "lng": 130.8551,
    "has_korea_direct": true,
    "routes": [
     {
      "from_iata": "ICN",
      "airlines": [
-      "트리니티항공(구 티웨이)"
+      "대한항공",
+      "아시아나항공"
      ],
      "flight_minutes": 90,
-     "weekly": "매일 1편",
+     "weekly": "주 7회(2025 동계·2026 하계 기준)",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
+     "season_note": "2025-10-26부터 주3→7회, 2026 하계도 매일 운항 유지. 2026 동계 편수 공식 확인은 못했으나 운항 지속 전망.",
+     "source_url": "https://honichi.com/news/2026/02/20/korean_air-2026summer/",
+     "source_date": "2026-02-20",
      "confidence": "보통",
-     "reviewed": "2026-10-10 지식 기반 보정"
+     "verified": true
     },
     {
      "from_iata": "PUS",
      "airlines": [
-      "에어부산"
+      "이스타항공"
      ],
-     "flight_minutes": 90,
-     "weekly": "미확인",
-     "status": "운휴",
-     "season_note": "기억 기반·confidence 매우 낮음. 구마모토 노선은 인천-티웨이가 주력. 부산발 정기 여부 확인 필요. 부산-구마모토 정기편은 확인되지 않음",
-     "source_url": "https://www.kumamoto-airport.co.jp/",
-     "source_date": "",
+     "flight_minutes": 70,
+     "weekly": "일 1회(2024-12-19 취항 시 기준)",
+     "status": "정기",
+     "season_note": "부산-구마모토는 이스타항공 단독 운항(2026-09-24 기사). 동계 편수 미확인.",
+     "source_url": "https://www.insight.co.kr/news/484014",
+     "source_date": "2026-09-24",
      "confidence": "보통",
-     "reviewed": "2026-10-10 지식 기반 보정"
+     "verified": true
+    },
+    {
+     "from_iata": "CJU",
+     "airlines": [
+      "에어서울"
+     ],
+     "flight_minutes": 80,
+     "weekly": "2회(10/31·11/2 부정기)",
+     "status": "전세",
+     "season_note": "2026-10-31·11-02 두 차례 부정기편, 220석 기종.",
+     "source_url": "https://economist.co.kr/article/view/ecn202610060001",
+     "source_date": "2026-10-06",
+     "confidence": "높음",
+     "verified": true
     },
     {
      "from_iata": "TAE",
      "airlines": [
       "트리니티항공(구 티웨이)"
      ],
-     "flight_minutes": 90,
-     "weekly": "미확인",
+     "flight_minutes": 80,
+     "weekly": "미운항 추정",
      "status": "운휴",
-     "season_note": "기억 기반·confidence 매우 낮음. 대구-구마모토 정기편은 확인되지 않음",
-     "source_url": "https://www.kumamoto-airport.co.jp/",
-     "source_date": "",
-     "confidence": "보통",
+     "season_note": "2018년 취항 기사만 있고 2026 자료 없음. 대구-구마모토 정기편 없음(미운항 추정)",
+     "source_url": "https://www.ajunews.com/view/20180827092626664",
+     "source_date": "2018-08-27",
+     "confidence": "낮음",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     }
    ],
@@ -1539,24 +1589,25 @@
      "to": "구마모토역",
      "minutes": 60,
      "fare_yen": 1000,
-     "note": "사쿠라마치 버스터미널(시내 중심) 경유 약 45분. 요금은 대략값"
+     "note": "사쿠라마치 버스터미널 경유. 참고값"
     },
     {
-     "mode": "공항라이너(무료 셔틀)",
-     "to": "JR 히고오즈역",
-     "minutes": 15,
-     "fare_yen": 0,
-     "note": "무료 승합 셔틀로 역까지 간 뒤 JR 호히본선으로 구마모토역 이동"
+     "mode": "공항라이너(무료셔틀)+JR",
+     "to": "구마모토역",
+     "minutes": 50,
+     "fare_yen": 480,
+     "note": "히고오즈역까지 무료 셔틀 약 15분 + JR 호히본선. 참고값"
     },
     {
      "mode": "택시",
-     "to": "구마모토역",
-     "minutes": 45,
+     "to": "구마모토 시내",
+     "minutes": 40,
      "fare_yen": 8000,
-     "note": "요금은 대략값"
+     "note": "참고값"
     }
    ],
-   "notes": "2023년 새 터미널 개장. 아소 방면 렌터카 이용이 많음"
+   "notes": "2026-07-28 구마모토 지진으로 활주로 일시 폐쇄 이력. 대한항공 매일 운항이 핵심 노선. 교통 요금은 참고값.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "KMQ",
@@ -1631,15 +1682,32 @@
     {
      "from_iata": "ICN",
      "airlines": [
-      "대한항공"
+      "제주항공",
+      "대한항공",
+      "이스타항공"
      ],
      "flight_minutes": 95,
-     "weekly": "주 3~4회",
+     "weekly": "주 7회",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "보통",
+     "season_note": "2026-10-25부터 재운항. 인천 12:40발→가고시마 14:15착.",
+     "source_url": "https://www.fnnews.com/news/202610080932187409",
+     "source_date": "2026-10-08",
+     "confidence": "높음",
+     "verified": true
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산"
+     ],
+     "flight_minutes": 80,
+     "weekly": "주 3회(수·금·일)",
+     "status": "정기",
+     "season_note": "2026-10-25부터 부정기편(에어부산 발표). aeroroutes 는 정기편으로 표기. A321 232석. 2026-10-25 취항(aeroroutes 260824-bxnw26koj)",
+     "source_url": "https://www.aeroroutes.com/eng/260824-bxnw26koj",
+     "source_date": "2026-08-24",
+     "confidence": "높음",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     }
    ],
@@ -1649,24 +1717,32 @@
      "to": "가고시마추오역",
      "minutes": 40,
      "fare_yen": 1400,
-     "note": "요금은 대략값"
+     "note": "참고값"
     },
     {
      "mode": "리무진버스",
      "to": "텐몬칸",
-     "minutes": 40,
+     "minutes": 50,
      "fare_yen": 1400,
-     "note": "시내 번화가 직행. 요금은 대략값"
+     "note": "참고값"
+    },
+    {
+     "mode": "버스",
+     "to": "기리시마 온천",
+     "minutes": 35,
+     "fare_yen": 900,
+     "note": "참고값"
     },
     {
      "mode": "택시",
-     "to": "가고시마추오역",
+     "to": "가고시마 시내",
      "minutes": 40,
      "fare_yen": 10000,
-     "note": "요금은 대략값"
+     "note": "참고값"
     }
    ],
-   "notes": "공항은 기리시마 쪽 내륙에 있어 시내까지 40분. 기리시마 온천·사쿠라지마 여행 거점"
+   "notes": "서울선은 제주항공(10/25 주7회 재개)·대한항공·이스타 3사. 부산선은 에어부산 부정기 주3회 신설. 교통 요금은 참고값.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "KUH",
@@ -1774,7 +1850,7 @@
      "flight_minutes": 120,
      "weekly": "비정기",
      "status": "운휴",
-     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 인천-마쓰모토 정기편 없음(청주발 전세편만)",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 인천-마쓰모토 정기편 없음(청주발 전세편만) 인천-마쓰모토 정기편 없음(청주발 전세편만) 인천-마쓰모토 정기편 없음(청주발 전세편만)",
      "source_url": "https://www.matsumoto-airport.co.jp/",
      "source_date": "",
      "confidence": "보통",
@@ -1826,28 +1902,29 @@
    "name_en": "Miyako Airport",
    "region": "오키나와",
    "prefecture_ko": "오키나와현",
-   "city_ko": "미야코지마",
+   "city_ko": "미야코지마(히라라)",
    "lat": 24.7828,
    "lng": 125.2951,
    "has_korea_direct": false,
    "routes": [],
    "city_access": [
     {
-     "mode": "노선버스",
-     "to": "히라라 시내",
-     "minutes": 15,
-     "fare_yen": 300,
-     "note": "미야코 협영버스. 편수 적음. 요금은 대략값"
+     "mode": "버스(미야코시모지시마 에어포트라이너)",
+     "to": "히라라항",
+     "minutes": 20,
+     "fare_yen": 800,
+     "note": "시가지 중심 히라라항 정류장"
     },
     {
      "mode": "택시",
-     "to": "히라라 시내",
-     "minutes": 10,
+     "to": "히라라 시가지",
+     "minutes": 15,
      "fare_yen": 1500,
-     "note": "요금은 대략값"
+     "note": "약 1,500엔 안내"
     }
    ],
-   "notes": "국내선 전용(나하·도쿄·오사카 등). 한국 직항 없음. 시내와 가까운 소형 공항"
+   "notes": "국내선(나하·간사이 등) 전용. 한국발 미야코지마 직항은 같은 섬권의 시모지시마공항(SHI)으로 운항하므로 항공권 발착 공항 확인 필요.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "MYJ",
@@ -2038,21 +2115,36 @@
    "prefecture_ko": "나가사키현",
    "city_ko": "나가사키",
    "lat": 32.9169,
-   "lng": 129.9136,
-   "has_korea_direct": false,
+   "lng": 129.9135,
+   "has_korea_direct": true,
    "routes": [
     {
      "from_iata": "ICN",
      "airlines": [
-      "진에어"
+      "대한항공"
      ],
-     "flight_minutes": 90,
-     "weekly": "주 3~4회(기억 기준)",
-     "status": "확인필요",
-     "season_note": "인천-나가사키는 항공사·운항 여부가 불확실. 예약 전 확인",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "낮음",
+     "flight_minutes": 95,
+     "weekly": "주 3회(2026 하계 기준 · 동계 미확인)",
+     "status": "정기",
+     "season_note": "2026-03-29부터 주4→3회 감편, 3/31부터 A220-300 투입. 2026-08~09 인천발 나가사키 프로모션으로 운항 중 확인. 2026 동계 편수 미확인.",
+     "source_url": "https://www.aeroroutes.com/eng/260212-kens26jp",
+     "source_date": "2026-02-11",
+     "confidence": "보통",
+     "verified": true
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "에어부산"
+     ],
+     "flight_minutes": 60,
+     "weekly": "부정기(2026-01~04 주 3~5회 운항 사례)",
+     "status": "계절",
+     "season_note": "2025-10 전세편 시작 → 2026-01-04~03-28 주3회 → 03-29~04-25 주5회(월수목토일) 부정기편. 2026 동계 운항 여부 미확인. 2026 동계 운항 여부 미확인",
+     "source_url": "https://www.twig24.com/news/local_bs/2026/03/04/20260304500132",
+     "source_date": "2026-03-04",
+     "confidence": "보통",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     }
    ],
@@ -2062,24 +2154,25 @@
      "to": "나가사키역",
      "minutes": 45,
      "fare_yen": 1200,
-     "note": "오무라만 해상공항에서 나가사키 시내까지. 요금은 대략값"
+     "note": "참고값"
     },
     {
      "mode": "버스",
-     "to": "하우스텐보스",
-     "minutes": 50,
-     "fare_yen": 1250,
-     "note": "사세보 방면 노선. 요금은 대략값"
+     "to": "사세보역",
+     "minutes": 90,
+     "fare_yen": 1500,
+     "note": "참고값"
     },
     {
      "mode": "택시",
-     "to": "나가사키역",
+     "to": "나가사키 시내",
      "minutes": 40,
      "fare_yen": 10000,
-     "note": "요금은 대략값"
+     "note": "참고값"
     }
    ],
-   "notes": "세계 최초 해상공항. 시내까지 40분 이상 걸려 버스 시간 확인 필수"
+   "notes": "인천 노선은 대한항공만(2026 하계 주3회). 부산 노선은 에어부산 부정기편으로 운항해 왔으며 동계 계획은 미확인. 교통 요금은 참고값.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "NRT",
@@ -2181,7 +2274,7 @@
      "flight_minutes": 133,
      "weekly": "미확인",
      "status": "운휴",
-     "season_note": "양양은 정기 일본편 없음으로 판단. 전세편 운항 가능성만 있어 확인 필요. 기억 기반·confidence 매우 낮음. 양양-나리타 정기편 없음",
+     "season_note": "양양은 정기 일본편 없음으로 판단. 전세편 운항 가능성만 있어 확인 필요. 기억 기반·confidence 매우 낮음. 양양-나리타 정기편 없음 양양-나리타 정기편 없음 양양-나리타 정기편 없음",
      "source_url": "https://www.airport.co.kr/yangyang/index.do",
      "source_date": "",
      "confidence": "보통",
@@ -2291,72 +2384,51 @@
    "name_en": "Oita Airport",
    "region": "규슈",
    "prefecture_ko": "오이타현",
-   "city_ko": "오이타(벳푸·유후인)",
+   "city_ko": "오이타·벳푸",
    "lat": 33.4794,
-   "lng": 131.7373,
+   "lng": 131.7371,
    "has_korea_direct": true,
    "routes": [
     {
      "from_iata": "ICN",
      "airlines": [
-      "제주항공",
-      "진에어"
+      "대한항공"
      ],
-     "flight_minutes": 90,
-     "weekly": "매일 1~2편",
+     "flight_minutes": 95,
+     "weekly": "주 4회(월·수·금·일)",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "보통",
-     "reviewed": "2026-10-10 지식 기반 보정"
-    },
-    {
-     "from_iata": "PUS",
-     "airlines": [
-      "제주항공"
-     ],
-     "flight_minutes": 90,
-     "weekly": "미확인",
-     "status": "운휴",
-     "season_note": "기억 기반·confidence 매우 낮음. 운항 여부 미확인. 부산-오이타 정기편은 확인되지 않음",
-     "source_url": "https://www.oita-airport.jp/",
-     "source_date": "",
-     "confidence": "보통",
-     "reviewed": "2026-10-10 지식 기반 보정"
+     "season_note": "2026-10-25~2027-03-26 동계 한정 재개(약 2년 반 만). 인천 09:15발→오이타 10:50착, A321neo 182석.",
+     "source_url": "https://www.hankyung.com/article/202609118832P",
+     "source_date": "2026-09-11",
+     "confidence": "높음",
+     "verified": true
     }
    ],
    "city_access": [
     {
-     "mode": "리무진버스(에어라이너)",
+     "mode": "공항특급버스(에어라이너)",
      "to": "오이타역",
      "minutes": 60,
      "fare_yen": 1600,
-     "note": "요금은 대략값"
+     "note": "참고값"
     },
     {
-     "mode": "리무진버스(에어라이너)",
-     "to": "벳푸(기타하마)",
-     "minutes": 45,
+     "mode": "공항특급버스(에어라이너)",
+     "to": "벳푸 기타하마",
+     "minutes": 50,
      "fare_yen": 1500,
-     "note": "온천 여행 수요가 많은 노선. 요금은 대략값"
-    },
-    {
-     "mode": "버스",
-     "to": "유후인역",
-     "minutes": 55,
-     "fare_yen": 1550,
-     "note": "편수가 적어 시간표 확인 필요. 요금은 대략값"
+     "note": "참고값"
     },
     {
      "mode": "택시",
-     "to": "벳푸역",
-     "minutes": 45,
-     "fare_yen": 8000,
-     "note": "요금은 대략값"
+     "to": "벳푸 시내",
+     "minutes": 40,
+     "fare_yen": 9000,
+     "note": "참고값"
     }
    ],
-   "notes": "벳푸·유후인 온천 관문. 공항이 반도 끝에 있어 버스 시간 확인 필수"
+   "notes": "LCC(진에어·제주항공·티웨이) 2026 오이타 노선은 검색에서 확인되지 않음. 오이타현 자료에도 한국노선 운휴 기술. 교통 요금은 참고값.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "OKA",
@@ -2377,33 +2449,34 @@
       "아시아나항공",
       "제주항공",
       "진에어",
-      "트리니티항공(구 티웨이)",
       "이스타항공",
-      "피치항공"
+      "트리니티항공(구 티웨이)",
+      "피치항공",
+      "에어서울"
      ],
      "flight_minutes": 140,
-     "weekly": "매일 여러 편",
+     "weekly": "매일 3편 이상(대한항공·제주항공·이스타 각 매일)",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "보통",
+     "season_note": "2026 동계(10/25~3/27) 대한항공 발표: 아시아나와 2026-12-17 통합 후 인천-나하 주7→주14왕복으로 배증. 2026-08-24부터 KE/OZ 상호 코드셰어. 진에어·트리니티·에어서울은 2026 동계 편수 미확인. 피치항공은 운휴",
+     "source_url": "https://www.aviationwire.jp/archives/350200/print/",
+     "source_date": "2026-09-07",
+     "confidence": "높음",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     },
     {
      "from_iata": "PUS",
      "airlines": [
-      "진에어",
-      "제주항공",
-      "에어부산"
+      "진에어"
      ],
-     "flight_minutes": 110,
-     "weekly": "매일 1편 안팎",
+     "flight_minutes": 120,
+     "weekly": "매일 1편 안팎(진에어)",
      "status": "정기",
-     "season_note": "웹 확인 못 함",
-     "source_url": "",
-     "source_date": "",
+     "season_note": "aeroroutes: 2026-10-25 NW26부터 부산-오키나와 편명 LJ37x→LJ70x 변경(동계 운항 유지). 주간 횟수 미확인. 이스타·에어부산 부산-오키나와는 2026 동계 운항 미확인",
+     "source_url": "https://www.aeroroutes.com/eng/260630-ljnw26int",
+     "source_date": "2026-06-30",
      "confidence": "보통",
+     "verified": true,
      "reviewed": "2026-10-10 지식 기반 보정"
     },
     {
@@ -2411,75 +2484,55 @@
      "airlines": [
       "트리니티항공(구 티웨이)"
      ],
-     "flight_minutes": 125,
-     "weekly": "주 4회~매일",
+     "flight_minutes": 130,
+     "weekly": "확인필요",
      "status": "확인필요",
-     "season_note": "대구-오키나와는 시기에 따라 운항. 예약 전 확인",
-     "source_url": "",
-     "source_date": "",
+     "season_note": "trip.com에 TW278 나하→대구 편 조회 페이지 있으나 카약은 '대구-오키나와 직항 없음' 표시로 상충. 2026-06 티웨이 특가에 대구 출발 오키나와 포함 가능성. 동계 운항 미확인.",
+     "source_url": "https://kr.trip.com/flights/status-tw278/",
+     "source_date": "2026-10-10",
      "confidence": "낮음",
-     "reviewed": "2026-10-10 지식 기반 보정"
+     "verified": true
     },
     {
      "from_iata": "CJJ",
      "airlines": [
-      "진에어",
-      "이스타항공"
+      "에어로케이"
      ],
-     "flight_minutes": 140,
-     "weekly": "미확인",
-     "status": "확인필요",
-     "season_note": "청주-오키나와는 운항 여부가 불확실",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "낮음",
-     "reviewed": "2026-10-10 지식 기반 보정"
-    },
-    {
-     "from_iata": "MWX",
-     "airlines": [
-      "진에어"
-     ],
-     "flight_minutes": 140,
-     "weekly": "운휴",
-     "status": "운휴",
-     "season_note": "무안공항 2024-12 사고 이후 국제선 운항 중단 상태로 기억. 재개 여부 확인 필요",
-     "source_url": "",
-     "source_date": "",
-     "confidence": "낮음"
+     "flight_minutes": 130,
+     "weekly": "주7회",
+     "status": "정기",
+     "season_note": "2025-10-01 취항, 매일 1회, 비행 약2시간10분, 청주 출발 유일 오키나와 직항. 2026 동계 지속 여부는 카약 '매일 직항' 표시 외 공식 미확인.",
+     "source_url": "https://www.segye.com/newsView/20250806517403",
+     "source_date": "2025-08-06",
+     "confidence": "보통",
+     "verified": true
     }
    ],
    "city_access": [
     {
-     "mode": "모노레일",
+     "mode": "모노레일(유이레일)",
      "to": "현청앞역(국제거리)",
      "minutes": 13,
-     "fare_yen": 270,
-     "note": "유이레일. 나하공항역이 국내선 터미널 2층과 연결. 요금은 대략값"
+     "fare_yen": 290,
+     "note": "나하공항역 직결. 운임은 출처에 따라 270~290엔"
     },
     {
-     "mode": "모노레일",
-     "to": "오모로마치역(신도심·DFS)",
-     "minutes": 19,
-     "fare_yen": 300,
-     "note": "유이레일. 요금은 대략값"
+     "mode": "노선버스",
+     "to": "현청앞·국제거리",
+     "minutes": 20,
+     "fare_yen": 280,
+     "note": "나하시내 균일 280엔"
     },
     {
      "mode": "택시",
      "to": "국제거리",
      "minutes": 15,
      "fare_yen": 1500,
-     "note": "요금은 대략값. 심야 할증 있음"
-    },
-    {
-     "mode": "리무진버스",
-     "to": "온나·나고 북부 리조트 호텔",
-     "minutes": 90,
-     "fare_yen": 2000,
-     "note": "공항 리무진버스 노선별 60~120분. 요금은 호텔 구간별 상이(대략값)"
+     "note": "요금은 가정값(거리 약 5km 기준)"
     }
    ],
-   "notes": "국제선 터미널과 국내선 터미널이 연결통로로 이어져 있음. 렌터카 이용객이 많아 성수기 렌터카 영업소 셔틀 대기 긴 편"
+   "notes": "오키나와 본섬 관문. 한국 직항이 가장 많은 공항으로 인천·부산·청주 직항 확인. 2026-12-17 대한항공·아시아나 통합으로 인천선 대한항공 주14회 예정. 피치 인천선은 2020년부터 운휴. 2026 동계 공식 시간표는 검색 한도로 일부 미확인.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "OKJ",
@@ -2591,7 +2644,7 @@
    "name_en": "Shimojishima Airport",
    "region": "오키나와",
    "prefecture_ko": "오키나와현",
-   "city_ko": "미야코지마",
+   "city_ko": "미야코지마(이라부)",
    "lat": 24.8267,
    "lng": 125.1447,
    "has_korea_direct": true,
@@ -2599,35 +2652,57 @@
     {
      "from_iata": "ICN",
      "airlines": [
-      "제주항공"
+      "진에어"
      ],
-     "flight_minutes": 175,
-     "weekly": "비정기",
-     "status": "전세",
-     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음",
-     "source_url": "https://www.shimojishima.jp/",
-     "source_date": "",
-     "confidence": "보통",
-     "reviewed": "2026-10-10 지식 기반 보정"
+     "flight_minutes": 150,
+     "weekly": "주7회",
+     "status": "정기",
+     "season_note": "2024-05-29 주5회 개설 → 2026-03-29부터 매일(주7회) 증편. 2026-06 취항 2주년 누적 16만명. 비행시간 150분은 가정값(인천-이시가키 165분 참고). 2026 동계 공식 시간표 미확인.",
+     "source_url": "https://www.aviationwire.jp/archives/338125",
+     "source_date": "2026-02-16",
+     "confidence": "높음",
+     "verified": true
+    },
+    {
+     "from_iata": "PUS",
+     "airlines": [
+      "진에어"
+     ],
+     "flight_minutes": 135,
+     "weekly": "주2회(목·일)",
+     "status": "정기",
+     "season_note": "2026-04-02 취항. 김해 14:45발→현지 17:00착. 2026 동계 지속 여부 미확인.",
+     "source_url": "https://www.heraldk.com/article/2026040216054243269",
+     "source_date": "2026-04-02",
+     "confidence": "높음",
+     "verified": true
     }
    ],
    "city_access": [
     {
-     "mode": "노선버스",
-     "to": "히라라 시내",
+     "mode": "노선버스 9번(미야코시모지시마공항 리조트선)",
+     "to": "마티다시민극장앞(히라라 시가지)",
      "minutes": 30,
      "fare_yen": 600,
-     "note": "미야코 협영버스 공항 연결선. 항공편 도착에 맞춰 운행. 요금은 대략값"
+     "note": "항공편 연계 운행"
+    },
+    {
+     "mode": "버스(미야코시모지시마 에어포트라이너)",
+     "to": "마티다시민극장앞(히라라 시가지)",
+     "minutes": 30,
+     "fare_yen": 600,
+     "note": "히라라항 방면"
     },
     {
      "mode": "택시",
-     "to": "히라라 시내",
+     "to": "히라라 시가지",
      "minutes": 25,
      "fare_yen": 3500,
-     "note": "이라부대교 경유. 요금은 대략값"
+     "note": "요금은 가정값(약 15km)"
     }
    ],
-   "notes": "미야코지마 이라부섬의 리조트형 공항(도쿄·오사카 등 국내선, 홍콩·타이베이 국제선 운항 이력). 한국발 전세편 추진 소식이 있었던 것으로 기억하나 출처 미확인이라 목록에 넣지 않음. 정기 직항 없음"
+   "notes": "미야코지마 서쪽 이라부섬의 국제선 공항. 2026-07-01 세관 지정 공항. 국제선 이용객 2025년도 10만명 돌파. 한국 직항은 진에어 인천(매일)·부산(주2회) 단독.",
+   "researched": "2026-10-10 웹 검색(출처 포함)"
   },
   {
    "iata": "TAK",
@@ -2849,7 +2924,7 @@
      "flight_minutes": 95,
      "weekly": "비정기",
      "status": "전세",
-     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음",
+     "season_note": "기억 기반·confidence 낮음. 전세편 위주. 부정기 전세편만 있음 부정기 전세편만 있음 부정기 전세편만 있음",
      "source_url": "https://www.ttj-ap-bld.co.jp/",
      "source_date": "",
      "confidence": "보통",
@@ -3026,7 +3101,7 @@
      "flight_minutes": 85,
      "weekly": "미확인",
      "status": "운휴",
-     "season_note": "기억 기반·confidence 매우 낮음. 요나고 정기편은 인천-에어서울이 주력이며 대구발은 전세·부정기 또는 없음 가능성. 대구-요나고 정기편은 확인되지 않음",
+     "season_note": "기억 기반·confidence 매우 낮음. 요나고 정기편은 인천-에어서울이 주력이며 대구발은 전세·부정기 또는 없음 가능성. 대구-요나고 정기편은 확인되지 않음 대구-요나고 정기편은 확인되지 않음 대구-요나고 정기편은 확인되지 않음",
      "source_url": "https://www.yonago-air.com/",
      "source_date": "",
      "confidence": "보통",
@@ -3059,5 +3134,5 @@
    "notes": "산인(돗토리·시마네) 여행 관문. 돗토리 사구·사카이미나토·마쓰에·이즈모타이샤 연계. 에어서울 단독 운항이라 결항 시 대체편 적음"
   }
  ],
- "reviewed": "조사 때 웹 검색 한도가 끊겨 '확인필요'로만 남은 노선을 2026-10-10 세션의 지식(2026년 중반까지)으로 보정한 목록. 출처 URL 이 없는 보정은 confidence 를 '보통' 이하로 두고 season_note 에 '웹 확인 못 함' 을 남긴다. 새 근거를 찾으면 이 파일을 고치고 python3 travel/tools/apply_flight_review.py 를 다시 돌린다."
+ "reviewed": "조사 때 웹 검색 한도가 끊겨 '확인필요'로만 남은 노선을 2026-10-10 세션의 지식(2026년 중반까지)으로 보정한 목록. 출처 URL 이 없는 보정은 confidence 를 '보통' 이하로 두고 season_note 에 '웹 확인 못 함' 을 남긴다. 새 근거를 찾으면 이 파일을 고치고 python3 travel/tools/apply_flight_review.py 를 다시 돌린다. 규슈·오키나와 공항은 2026-10-10 웹 검색 조사값으로 교체했고, 그 전 보정은 superseded_2026_10_10 에 기록만 남긴다. 규슈·오키나와 웹 조사(2026-10-10) 뒤 남은 모호한 값(편수 미확인·미운항 추정)은 조사 메모를 근거로 정리한 보정을 위에 두었다."
 }
