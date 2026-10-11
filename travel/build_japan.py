@@ -11,6 +11,7 @@
    사용 :  python3 travel/build_japan.py              (저장소 루트에서. 언어 6개 전부)
           python3 travel/build_japan.py --lang ko,en  (일부 언어만)
           python3 travel/build_japan.py --strict      (가이드 점검 오류가 하나라도 있으면 중단)
+          python3 travel/build_japan.py --lang ko --no-lang-menu   (한국어 미리보기 : 언어 버튼 숨김)
    가이드 JSON 은 travel/tools/validate_guide.py 로 먼저 점검하고, 오류가 있는 파일은 빼고(경고만 출력) 조립한다.
    그래서 잘못된 자료는 틀린 화면이 아니라 '없는 목적지'로 나타난다.
    번역이 없는 언어의 목적지는 한국어 원문이 그대로 들어간다(조립 요약에 번역 없음으로 표시)."""
@@ -127,6 +128,7 @@ def load_tr(lang, name):
 
 def main():
     strict = '--strict' in sys.argv
+    hide_lang = '--no-lang-menu' in sys.argv  # 미리보기용 : 언어 버튼 숨김
     want = None
     for i, a in enumerate(sys.argv):
         if a == '--lang' and i + 1 < len(sys.argv):
@@ -198,7 +200,7 @@ def main():
             taps, _ = apply_translation({'airports': aps}, tr)
             taps = taps['airports']
         data = {
-            'version': VERSION, 'generated': generated, 'lang': code, 'ui': ui, 'langs': ui_all['langs'], 'langLinks': lang_links,
+            'version': VERSION, 'generated': generated, 'lang': code, 'hideLang': hide_lang, 'ui': ui, 'langs': ui_all['langs'], 'langLinks': lang_links,
             'regions': REGIONS, 'tags': TAGS, 'kr': kr, 'apnames': apn, 'airports': taps, 'guides': tguides, 'map': mapd,
         }
         fonts_link, stack = FONTS.get(L.get('font', 'pretendard'), FONTS['pretendard'])

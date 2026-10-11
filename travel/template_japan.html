@@ -554,7 +554,7 @@ function tagHtml(t){ const c = {'온천':'coral','미식':'sun','자연':'sage',
 function htsHtml(g, max){ const hs = (g.highlights || []).slice(0, max || 6); if (!hs.length) return ''; return `<div class="hts">${hs.map((h, i) => { const s = String(h).trim(); return `<span class="ht ht-${i % 8}">${esc(s.startsWith('#') ? s : '#' + s)}</span>`; }).join('')}</div>`; }
 function stamp(g, big, off){ const code = (g.airports && g.airports[0]) || '';
   return `<div class="stamp ${big ? 'big' : ''} ${off ? 'off' : ''}" aria-hidden="true"><span class="code">${esc(code)}</span><span class="ja">${esc(g.name_ja || '')}</span></div>`; }
-function langBtn(){ return `<button class="iconbtn" data-act="lang" aria-label="${esc(T('lang'))}" aria-haspopup="menu">${svgGlobe}<span class="lc">${esc(LANG.toUpperCase())}</span></button>`; }
+function langBtn(){ if (DATA.hideLang) return ''; return `<button class="iconbtn" data-act="lang" aria-label="${esc(T('lang'))}" aria-haspopup="menu">${svgGlobe}<span class="lc">${esc(LANG.toUpperCase())}</span></button>`; }
 function langMenu(){
   const hash = location.hash && location.hash !== '#home' ? location.hash : '';
   const links = DATA.langLinks || {};
