@@ -156,15 +156,6 @@ img,svg{max-width:100%}
 .nights span{font-size:12px;font-weight:500;padding:5px 10px;border-radius:var(--r-full);border:1px solid var(--line-2);color:var(--ink-2)}
 .nights span.hit{border-color:var(--rose);color:var(--rose-deep);background:var(--rose-pale)}
 
-/* ── 도장 ── */
-.stamp{flex:0 0 auto;width:58px;height:58px;border-radius:50%;border:1.5px dashed var(--rose);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--rose-deep);transform:rotate(-8deg);background:var(--rose-pale);line-height:1}
-.stamp .code{font-family:var(--display);font-size:15px;font-weight:800;letter-spacing:.04em}
-.stamp .ja{font-size:8.5px;margin-top:3px;opacity:.85;max-width:50px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stamp.big{width:72px;height:72px}
-.stamp.big .code{font-size:18px}
-.stamp.big .ja{font-size:9.5px;max-width:62px}
-.stamp.off{border-color:var(--ink-4);color:var(--ink-3);background:var(--fill)}
-
 /* ── 목적지 화면 ── */
 .dhero{padding:22px 18px 6px}
 .dhero .top{display:flex;gap:14px;align-items:center}
@@ -376,6 +367,110 @@ footer{padding:28px 18px 8px;font-size:11.5px;color:var(--ink-3);line-height:1.7
 footer a{color:var(--ink-3)}
 .empty{margin:14px 18px 0;padding:28px 18px;text-align:center;background:var(--surface);border:1px dashed var(--line-2);border-radius:var(--r-lg);color:var(--ink-2);font-size:14px;line-height:1.7}
 .empty b{display:block;font-family:var(--display);font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px}
+/* ── 도시 색(프로필 color) ── */
+.c-rose{--c:var(--rose);--cd:var(--rose-deep);--cs:var(--rose-pale)}
+.c-sage{--c:var(--sage);--cd:var(--sage-deep);--cs:var(--sage-soft)}
+.c-sky{--c:var(--sky);--cd:var(--sky-deep);--cs:var(--sky-soft)}
+.c-sun{--c:var(--sun);--cd:var(--sun-deep);--cs:var(--sun-soft)}
+.c-plum{--c:var(--plum);--cd:var(--plum);--cs:var(--plum-soft)}
+.c-coral{--c:var(--coral);--cd:var(--coral-deep);--cs:var(--coral-soft)}
+.c-mint{--c:var(--mint);--cd:#2A7F77;--cs:var(--mint-soft)}
+
+/* ── 도시 검색 ── */
+.search{margin-top:20px;position:relative}
+.sbox{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--line-2);border-radius:var(--r-full);padding:0 6px 0 15px;box-shadow:var(--shadow);transition:border-color .15s}
+.sbox:focus-within{border-color:var(--rose)}
+.sbox svg{width:18px;height:18px;color:var(--ink-3);flex:0 0 auto}
+.sbox input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:16px;color:var(--ink);padding:13px 0;-webkit-appearance:none;appearance:none}
+.sbox input::placeholder{color:var(--ink-3)}
+.sbox input::-webkit-search-cancel-button{display:none}
+.sbox .sx{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--ink-3);background:var(--fill)}
+.sbox .sx svg{width:14px;height:14px}
+.sex{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.sex .k{font-size:12px;color:var(--ink-3);margin-right:2px}
+.sex button{font-size:12.5px;font-weight:500;padding:5px 11px;border-radius:var(--r-full);background:var(--fill);color:var(--ink-2)}
+.sres{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden}
+.sres:empty{display:none}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+.sitem:last-child{border-bottom:0}
+.sitem:active{background:var(--fill)}
+.sitem .ill{width:46px;height:46px;border-radius:13px}
+.sitem .stx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.sitem .stx b{font-family:var(--display);font-size:15.5px;font-weight:700;letter-spacing:-.02em}
+.sitem .stx b small{font-family:var(--body);font-weight:400;font-size:11.5px;color:var(--ink-3);margin-left:5px}
+.sitem .stx span{font-size:12.5px;color:var(--cd,var(--ink-2));font-weight:500}
+.sitem .stx em{font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sitem .stx em i{font-style:normal;font-weight:600;color:var(--ink-2)}
+.sitem .gt{color:var(--ink-4);flex:0 0 auto}
+.sitem .gt svg{width:16px;height:16px}
+.snone{padding:16px 14px;font-size:13px;color:var(--ink-3);line-height:1.6}
+.snone b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}
+.smore{padding:9px 14px;font-size:12px;color:var(--ink-3);background:var(--fill)}
+
+/* ── 도시 그림 · 위치 지도 ── */
+.ill{flex:0 0 auto;display:block;width:64px;height:64px;border-radius:18px;overflow:hidden;background:var(--fill);box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+.ill svg{width:100%;height:100%;display:block}
+.ill.sm{width:52px;height:52px;border-radius:15px}
+.ill.lg{width:88px;height:88px;border-radius:24px;box-shadow:0 6px 18px rgba(90,52,44,.12)}
+.loc{display:block;flex:0 0 auto;width:52px;height:auto;color:#D6C3B9;overflow:visible}
+.loc .lr{fill:var(--c,var(--rose));opacity:.22}
+.loc .ld{fill:var(--c,var(--rose));stroke:#fff;stroke-width:9}
+.loc.lg{width:118px}
+.loc.lg .ld{stroke-width:6}
+
+/* ── 목적지 카드(개편) ── */
+.dcard .row{align-items:center}
+.dcard .vibe{margin-top:3px;font-family:var(--display);font-size:14px;font-weight:600;color:var(--cd,var(--rose-deep));letter-spacing:-.01em;line-height:1.4}
+.wstrip{display:flex;align-items:center;gap:10px;margin-top:11px;padding:8px 12px 8px 8px;border-radius:var(--r-md);background:var(--cs,var(--fill))}
+.wstrip p{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.kf{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}
+.kf div{padding:8px 9px 9px;border-radius:var(--r-md);background:var(--fill);font-size:12.5px;line-height:1.4;color:var(--ink);font-weight:500;letter-spacing:-.01em}
+.kf div i{display:block;font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.02em;margin-bottom:3px}
+.kf .eat i{color:var(--coral-deep)}.kf .see i{color:var(--sky-deep)}.kf .do i{color:var(--sage-deep)}
+.kf .eat{background:#FDF1EC}.kf .see{background:#EEF4FB}.kf .do{background:#EEF6F0}
+.dfoot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap}
+.dfoot .nights{margin-top:0}
+.bf{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11.5px;color:var(--ink-3)}
+.bf span{font-size:11.5px;font-weight:500;padding:3px 8px;border-radius:var(--r-full);background:var(--cs,var(--fill));color:var(--cd,var(--ink-2))}
+
+/* ── 홈 지도 : 도시 핀 · 지역 확대 ── */
+.rchips{padding:10px 16px 0;margin-inline:0;scroll-padding-inline:16px}
+.rchips .chip{padding:6px 12px;font-size:12.5px}
+.jpmap .land,.jpmap .arc,.jpmap .inset{vector-effect:non-scaling-stroke}
+.jpmap .cpin{cursor:pointer}
+.jpmap .cpin .pc{stroke:#fff}
+.jpmap .cpin.on .pc{fill:var(--rose)}
+.jpmap .cpin.season .pc{fill:var(--sun)}
+.jpmap .cpin.charter .pc{fill:var(--plum)}
+.jpmap .cpin.tbc .pc,.jpmap .cpin.off .pc{fill:var(--ink-3)}
+.jpmap .cpin.dim{opacity:.35}
+.jpmap .cpin.sel .ph{fill:var(--rose);opacity:.2}
+.jpmap .pl{fill:var(--ink);font-weight:600;paint-order:stroke;stroke:#fff;stroke-linejoin:round;letter-spacing:-.02em;transition:opacity .25s}
+.jpmap .cpin.sel .pl{fill:var(--rose-deep);font-weight:800}
+.jpmap.zm .arc{opacity:.16}
+.jpmap .ll{stroke:var(--ink-3);stroke-width:.8;vector-effect:non-scaling-stroke;opacity:.7;transition:opacity .25s}
+.jpmap.anim .pl,.jpmap.anim .rg,.jpmap.anim .ll{opacity:0;transition:none}
+.maptip.dtip{display:flex;gap:12px;align-items:flex-start}
+.maptip.dtip .ill{width:52px;height:52px;border-radius:15px}
+.maptip.dtip .vb{color:var(--cd,var(--rose-deep));font-weight:600}
+.maptip.dtip .wh{font-size:12px;color:var(--ink-3);margin-top:2px}
+.maptip.dtip .fl{margin-top:5px;font-size:12.5px}
+
+/* ── 목적지 '한눈에' ── */
+.dhero .vibe{margin-top:5px;font-family:var(--display);font-weight:700;font-size:15.5px;color:var(--cd,var(--rose-deep));letter-spacing:-.01em;line-height:1.4}
+.glance{margin-top:16px;padding:14px;border-radius:var(--r-lg);background:var(--cs,var(--fill));border:1px solid var(--line)}
+.glance .gh{font-size:12px;font-weight:700;color:var(--cd,var(--rose-deep));letter-spacing:.04em;margin-bottom:8px}
+.glance .gw{display:flex;gap:12px;align-items:center}
+.glance .gw p{font-size:13.5px;color:var(--ink);line-height:1.6;font-weight:500}
+.glance .gw p small{display:block;font-size:11.5px;color:var(--ink-3);font-weight:400;margin-bottom:2px}
+.glance .kf div{background:rgba(255,255,255,.75)}
+.glance .bf{margin-top:10px}
+.glance .bf span{background:#fff}
+.glance .vs{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,.1);font-size:12.5px;color:var(--ink-2);line-height:1.6}
+.glance .vs b{color:var(--ink);font-weight:700;margin-right:4px}
+.glance .vs button{color:var(--rose-deep);font-weight:600;margin-left:4px;font-size:12.5px}
+@media (max-width:359px){.kf{grid-template-columns:1fr}.loc.lg{width:96px}}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media (min-width:640px){.app{padding-top:12px}}
 </style>
@@ -442,7 +537,7 @@ const S = {
 const st = {
   origin: S.get('origin', 'ICN'), nights: S.get('nights', 0), tag: '', sort: 'region',
   dest: null, nightsSel: 0, variant: 0, day: 0, sel: -1,
-  picks: S.get('picks', {}), checks: S.get('checks', {}), mapSel: '', pushed: 0
+  picks: S.get('picks', {}), checks: S.get('checks', {}), mapSel: '', pinSel: '', region: '', q: '', pushed: 0
 };
 if (!KRP[st.origin]) st.origin = 'ICN';
 
@@ -514,6 +609,8 @@ const svgShare = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const svgInfo = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>';
 const svgPin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>';
 const svgTop = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+const svgSearch = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>';
+const svgX = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 const svgGlobe = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>';
 
 /* ───────── 항공편 계산 ───────── */
@@ -553,8 +650,134 @@ const app = document.getElementById('app');
 function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 1800); }
 function tagHtml(t){ const c = {'온천':'coral','미식':'sun','자연':'sage','바다':'sky','섬':'sky','아이동반':'sun','야경':'plum','예술':'plum','벚꽃':'rose','휴양':'sage','겨울':'sky','단풍':'coral','테마파크':'plum','커피':'sun','애니':'plum','도시':'mint','쇼핑':'rose','역사':'ghost','드라이브':'mint'}[t] || ''; return `<span class="tag ${c}">${esc(tagName(t))}</span>`; }
 function htsHtml(g, max){ const hs = (g.highlights || []).slice(0, max || 6); if (!hs.length) return ''; return `<div class="hts">${hs.map((h, i) => { const s = String(h).trim(); return `<span class="ht ht-${i % 8}">${esc(s.startsWith('#') ? s : '#' + s)}</span>`; }).join('')}</div>`; }
-function stamp(g, big, off){ const code = (g.airports && g.airports[0]) || '';
-  return `<div class="stamp ${big ? 'big' : ''} ${off ? 'off' : ''}" aria-hidden="true"><span class="code">${esc(code)}</span><span class="ja">${esc(g.name_ja || '')}</span></div>`; }
+/* 도시 얼굴 : 그림 · 위치 · 성격(프로필) */
+const PF = g => { const p = (g && g.profile) || {}; if (LANG === 'ko' || g._ko_only) return p; const t = x => kText(x);
+  return Object.assign({}, p, { vibe: t(p.vibe), where: t(p.where), vs: t(p.vs), known_for: (p.known_for || []).filter(x => t(x.text)) }); };
+const cCls = g => 'c-' + (PF(g).color || 'rose');
+const shortName = g => String(g.name || '').split(/\s*[·・&,、]\s*/)[0].replace(/\s*(본섬|Main Island|本島|本岛|isla principal)$/i, '');
+function illHtml(g, cls){ return `<span class="ill ${cls || ''}" aria-hidden="true">${g.icon || ''}</span>`; }
+function silDefs(){
+  const m = MAPD; if (!m || document.getElementById('jpsil')) return;
+  const ins = m.inset, d = document.createElement('div');
+  d.innerHTML = `<svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false"><symbol id="jpsil" viewBox="0 0 ${m.w} ${m.h}"><path d="${m.paths.korea}" fill="#EEE7E3"/><path d="${m.paths.japan}" fill="currentColor"/><rect x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" rx="6" fill="none" stroke="#E3D6CF" stroke-width="5" stroke-dasharray="10 8"/><path d="${m.paths.okinawa}" fill="currentColor"/></symbol></svg>`;
+  document.body.appendChild(d.firstChild);
+}
+function locSvg(g, big){
+  const m = MAPD; if (!m || !g.center) return '';
+  const p = proj(g.center[0], g.center[1]); if (!p) return '';
+  const x = p.x.toFixed(1), y = p.y.toFixed(1);
+  return `<svg class="loc ${big ? 'lg' : ''}" viewBox="0 0 ${m.w} ${m.h}" aria-hidden="true" focusable="false"><use href="#jpsil"/><circle class="lr" cx="${x}" cy="${y}" r="${big ? 30 : 50}"/><circle class="ld" cx="${x}" cy="${y}" r="${big ? 13 : 21}"/></svg>`;
+}
+function kfHtml(g){ const k = PF(g).known_for || []; return k.length === 3 ? `<div class="kf">${k.map(x => `<div class="${esc(x.k)}"><i>${esc(T('kf_' + x.k))}</i>${esc(x.text)}</div>`).join('')}</div>` : ''; }
+function bfHtml(g, lbl){ const b = PF(g).best_for || []; return b.length ? `<div class="bf">${lbl ? `<b>${esc(T('bf_lbl'))}</b>` : ''}${b.map(x => `<span>${esc(dict('best_for', x))}</span>`).join('')}</div>` : ''; }
+function glanceHtml(g){
+  const pf = PF(g); if (!pf.where && !(pf.known_for || []).length) return '';
+  const vs = pf.vs_key && own(GUIDES, pf.vs_key) ? GUIDES[pf.vs_key] : null;
+  return `<section class="glance" aria-label="${esc(T('glance'))}"><div class="gh">${esc(T('glance'))}</div>
+    ${pf.where ? `<div class="gw">${locSvg(g, true)}<p><small>${esc(T('where_q'))}</small>${esc(pf.where)}</p></div>` : ''}
+    ${kfHtml(g)}${bfHtml(g, true)}
+    ${pf.vs ? `<div class="vs"><b>${esc(T('vs_lbl'))}</b>${esc(pf.vs)}${vs ? `<button data-act="open" data-v="${esc(vs.key)}">${esc(T('see_x', { name: vs.name }))}</button>` : ''}</div>` : ''}
+  </section>`;
+}
+
+/* 도시 검색 : 한글(초성·치는 중인 글자 포함) · 영어 · 일본어 · 공항 코드 · 명소 · 음식 · 특징 */
+const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+const JSPLIT = {1:[0,0],2:[0,1],3:[1,9],4:[0,2],5:[4,12],6:[4,18],7:[0,3],8:[0,5],9:[8,0],10:[8,6],11:[8,7],12:[8,9],13:[8,16],14:[8,17],15:[8,18],16:[0,6],17:[0,7],18:[17,9],19:[0,9],20:[0,10],21:[0,11],22:[0,12],23:[0,14],24:[0,15],25:[0,16],26:[0,17],27:[0,18]};
+const JPRE = { 8: [9, 10, 11], 13: [14, 15, 16], 18: [19] };
+const syl = c => { const n = c.charCodeAt(0) - 0xAC00; return n >= 0 && n < 11172 ? [Math.floor(n / 588), Math.floor(n % 588 / 28), n % 28] : null; };
+const snorm = s => String(s || '').normalize('NFC').toLowerCase()
+  .replace(/[！-～]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+  .replace(/[À-ɏ]/g, c => c.normalize('NFD')[0])
+  .replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60))
+  .replace(/[\s·・,.\-–_'"()（）\[\]「」『』!?~/&+:;|#]+/g, '');
+function chEq(tc, qc, last, loose){
+  if (tc === qc) return true;
+  const ci = CHO.indexOf(qc);
+  if (ci >= 0){ const s = syl(tc); return !!s && s[0] === ci; }
+  if (last || loose){ const a = syl(qc), b = syl(tc); if (a && b && !a[2] && a[0] === b[0] && (a[1] === b[1] || (last && (JPRE[a[1]] || []).includes(b[1])))) return true; }
+  return false;
+}
+function sfind(t, q, loose){
+  const n = t.length, m = q.length; if (!m || m > n) return -1;
+  for (let i = 0; i + m <= n; i++){ let j = 0; while (j < m && chEq(t[i + j], q[j], j === m - 1, loose)) j++; if (j === m) return i; }
+  return -1;
+}
+function qVariants(q){
+  const out = [q], s = syl(q[q.length - 1] || '');
+  if (s && s[2]){ const [rj, ch] = JSPLIT[s[2]]; out.push(q.slice(0, -1) + String.fromCharCode(0xAC00 + s[0] * 588 + s[1] * 28 + rj) + CHO[ch]); }
+  return out;
+}
+let SIDX = null;
+function sIndex(){
+  if (SIDX) return SIDX;
+  SIDX = Object.values(GUIDES).map(g => {
+    const pf = PF(g), E = [];
+    const add = (txt, kind, w, label) => { const t = snorm(txt); if (t) E.push({ t, kind, w, label: label || String(txt) }); };
+    add(g.name, 'name', 100); String(g.name || '').split(/\s*[·・&,、]\s*/).forEach(x => add(x, 'name', 100, g.name));
+    add(g.name_ja, 'name', 96, g.name); add(g.key.replace(/_/g, ' '), 'name', 90, g.name);
+    (pf.aliases || []).forEach(a => add(a, 'alias', 92));
+    (g.airports || []).forEach((c, i) => { add(c, 'ap', i ? 66 : 88, `${c} ${apName(AP[c])}`); if (AP[c]) add(apName(AP[c]), 'ap', i ? 34 : 40); });
+    add(regionName(g.region), 'area', 64); if (LANG !== 'ko') add(g.region, 'area', 64, regionName(g.region));
+    add(g.prefecture, 'area', 62); add(prefName(g), 'area', 62);
+    (pf.known_for || []).forEach(x => add(x.text, 'feat', 60));
+    (g.highlights || []).forEach(h => add(h, 'feat', 58));
+    (g.tags || []).forEach(t => { add(t, 'feat', 54, tagName(t)); if (LANG !== 'ko') add(tagName(t), 'feat', 54); });
+    (pf.best_for || []).forEach(b => { add(b, 'feat', 46, dict('best_for', b)); if (LANG !== 'ko') add(dict('best_for', b), 'feat', 46); });
+    add(pf.vibe, 'feat', 42); add(g.tagline, 'feat', 40);
+    (g.spots || []).forEach(s => { if (s.cat === 'airport') return; add(s.name, 'spot', 52); add(s.name_ja, 'spot', 50, s.name); });
+    (g.restaurants || []).forEach(r => { add(r.cuisine, 'food', 48, r.cuisine); add(r.name, 'food', 44, `${r.name} · ${r.cuisine || ''}`); add(r.signature, 'food', 36, r.signature); });
+    (g.spots || []).forEach(s => add(s.area, 'spot', 30, s.area));
+    return { g, E };
+  });
+  return SIDX;
+}
+function searchRun(q0){
+  const qs = qVariants(snorm(q0)); if (!qs[0]) return [];
+  const short = qs[0].length < 2, onlyCho = [...qs[0]].every(c => CHO.includes(c));
+  const pass = loose => {
+    const res = [];
+    for (const { g, E } of sIndex()){
+      let best = null;
+      for (const e of E){
+        if ((short || onlyCho) && !/name|alias|ap|area/.test(e.kind)) continue;
+        for (const q of qs){
+          const i = sfind(e.t, q, loose); if (i < 0 || (short && i > 0)) continue;
+          const sc = e.w * (i === 0 ? 1 : 0.86) + (e.t.length === q.length ? 12 : 0) - Math.min(e.t.length, 40) * 0.05;
+          if (!best || sc > best.sc) best = { sc, e };
+        }
+      }
+      if (best) res.push({ g, e: best.e, sc: best.sc });
+    }
+    return res;
+  };
+  let res = pass(false);
+  if (!res.length && !short && !onlyCho) res = pass(true);   // 받침을 빠뜨린 오타(사포로 → 삿포로)는 정확히 맞는 게 하나도 없을 때만
+  return res.sort((a, b) => b.sc - a.sc || rankOf(a.g) - rankOf(b.g));
+}
+function searchHtml(){
+  const q0 = (st.q || '').trim(); if (!q0) return '';
+  const res = searchRun(q0);
+  if (!res.length) return `<div class="snone" role="status"><b>${esc(T('s_none_t'))}</b>${esc(T('s_none_d'))}</div>`;
+  const max = 8;
+  return res.slice(0, max).map(({ g, e }) => `<button class="sitem ${cCls(g)}" data-act="open" data-v="${esc(g.key)}">${illHtml(g)}<span class="stx"><b>${esc(g.name)}<small>${esc(regionName(g.region))}${prefName(g) ? ' · ' + esc(prefName(g)) : ''}</small></b><span>${esc(PF(g).vibe || g.tagline || '')}</span>${e.kind !== 'name' ? `<em><i>${esc(T('s_' + e.kind))}</i> · ${esc(e.label)}</em>` : ''}</span><span class="gt">${svgNext}</span></button>`).join('')
+    + (res.length > max ? `<div class="smore">${esc(T('s_more', { n: res.length - max }))}</div>` : '');
+}
+function searchBox(){
+  const ex = UI.search_ex || [];
+  return `<div class="search" role="search">
+    <label class="sbox">${svgSearch}<input id="q" type="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="${esc(T('search_ph'))}" aria-label="${esc(T('search_label'))}" value="${esc(st.q || '')}"><button type="button" class="sx ${st.q ? '' : 'hide'}" data-act="sclear" aria-label="${esc(T('clear'))}">${svgX}</button></label>
+    <div class="sex ${st.q ? 'hide' : ''}"><span class="k">${esc(T('search_ex_k'))}</span>${ex.map(x => `<button type="button" data-act="sq" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>
+    <div class="sres" id="sres">${searchHtml()}</div>
+  </div>`;
+}
+function centerChip(){ const row = document.querySelector('.rchips'), c = row && row.querySelector('[aria-pressed="true"]'); if (!row || !c) return; const a = row.getBoundingClientRect(), b = c.getBoundingClientRect(); row.scrollLeft = Math.max(0, row.scrollLeft + (b.left - a.left) - a.width / 2 + b.width / 2); }
+function updSearch(){
+  const r = document.getElementById('sres'); if (!r) return;
+  r.innerHTML = searchHtml();
+  const x = document.querySelector('.sbox .sx'); if (x) x.classList.toggle('hide', !st.q);
+  const ex = document.querySelector('.search .sex'); if (ex) ex.classList.toggle('hide', !!st.q);
+}
+
 function langBtn(){ if (DATA.hideLang) return ''; return `<button class="iconbtn" data-act="lang" aria-label="${esc(T('lang'))}" aria-haspopup="menu">${svgGlobe}<span class="lc">${esc(LANG.toUpperCase())}</span></button>`; }
 function langMenu(){
   const hash = location.hash && location.hash !== '#home' ? location.hash : '';
@@ -570,44 +793,115 @@ function proj(lat, lng){
   }
   return { x: (lng - m.lon0) * m.k * m.cos, y: (m.lat1 - lat) * m.k, inset: false };
 }
+const RANK_KEYS = ['tokyo','osaka','fukuoka','sapporo','okinawa','kyoto','nagoya','hiroshima','kagoshima','nagasaki','kumamoto','oita','sendai','hakodate','kanazawa','kobe','nara','matsuyama','takamatsu','kitakyushu','okayama','miyazaki','ishigaki','saga','asahikawa','aomori','niigata','shizuoka','toyama','takayama','hakone_kamakura','yonago','kochi'];
+const rankOf = g => { const i = RANK_KEYS.indexOf(g.key); return i < 0 ? 99 : i; };
+const textW = t => [...String(t)].reduce((w, c) => w + (/[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uff00-\uffef]/.test(c) ? 1.04 : 0.6), 0.3);
+function pinStatus(g){ const b = bestRoute(st.origin, g); if (!b) return 'off'; const s = b.r.status; return s === '정기' ? 'on' : s === '계절' ? 'season' : s === '전세' ? 'charter' : 'tbc'; }
+function regionView(r){
+  const m = MAPD, full = [0, 0, m.w, m.h];
+  if (!r) return full;
+  const ps = Object.values(GUIDES).filter(g => g.region === r && g.center).map(g => proj(g.center[0], g.center[1]));
+  if (!ps.length) return full;
+  const pad = 22;
+  let x0 = Math.min(...ps.map(p => p.x)) - pad, x1 = Math.max(...ps.map(p => p.x)) + pad;
+  let y0 = Math.min(...ps.map(p => p.y)) - pad * 0.8, y1 = Math.max(...ps.map(p => p.y)) + pad * 0.8;
+  const ar = m.w / m.h;
+  let w = Math.max(x1 - x0, 62), h = Math.max(y1 - y0, 62 / ar);
+  if (w / h > ar) h = w / ar; else w = h * ar;
+  const x = Math.max(0, Math.min(m.w - w, (x0 + x1) / 2 - w / 2)), y = Math.max(0, Math.min(m.h - h, (y0 + y1) / 2 - h / 2));
+  return [x, y, w, h].map(n => Math.round(n * 10) / 10);
+}
 function jpMapSvg(){
   const m = MAPD; if (!m) return '';
+  const vb = regionView(st.region), s = vb[2] / m.w, zoomed = s < 0.77;
+  const R = (zoomed ? 5.4 : 4.4) * s, FS = (zoomed ? 11.5 : 9.2) * s;
   const o = KRP[st.origin]; const op = o ? proj(o.lat, o.lng) : null;
+  const list = Object.values(GUIDES).filter(g => g.center);
+  const guided = new Set(list.flatMap(g => g.airports || []));
   let arcs = '', dots = '';
-  const list = Object.values(GUIDES);
   for (const a of AIRPORTS){
     if (!a.lat || !a.lng) continue;
     const p = proj(a.lat, a.lng); if (!p) continue;
-    const rs = routesFrom(st.origin, a.iata);
-    const best = rs[0];
+    const best = routesFrom(st.origin, a.iata)[0];
     const cls = !best ? 'off' : best.status === '정기' ? 'on' : best.status === '계절' ? 'season' : best.status === '전세' ? 'charter' : 'tbc';
-    const r = cls === 'off' ? 2.4 : 3.6;
-    const hasGuide = list.some(g => (g.airports || []).includes(a.iata));
-    if (cls === 'off' && !hasGuide && !a.has_korea_direct) continue;
     if (best && op && !p.inset){
-      const mx = (op.x + p.x) / 2, my = (op.y + p.y) / 2;
-      const dx = p.x - op.x, dy = p.y - op.y; const len = Math.hypot(dx, dy) || 1;
-      const cx = mx - dy / len * len * 0.18, cy = my + dx / len * len * 0.18;
-      arcs += `<path class="arc ${cls === 'on' ? '' : cls}" d="M${op.x.toFixed(1)} ${op.y.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}"/>`;
+      const mx = (op.x + p.x) / 2, my = (op.y + p.y) / 2, dx = p.x - op.x, dy = p.y - op.y;
+      arcs += `<path class="arc ${cls === 'on' ? '' : cls}" d="M${op.x.toFixed(1)} ${op.y.toFixed(1)} Q${(mx - dy * 0.18).toFixed(1)} ${(my + dx * 0.18).toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}"/>`;
     }
+    if (guided.has(a.iata) || (cls === 'off' && !a.has_korea_direct)) continue;   // 가이드가 있는 공항은 도시 핀이 대신한다
     const sel = st.mapSel === a.iata ? 'sel' : '';
-    dots += `<g class="dot ${cls} ${sel}" data-act="mapdot" data-v="${esc(a.iata)}" tabindex="0" role="button" aria-label="${esc(apName(a))}"><circle class="halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="14" fill="transparent"/><circle class="c" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}"/></g>`;
+    dots += `<g class="dot ${cls} ${sel}" data-act="mapdot" data-v="${esc(a.iata)}" tabindex="0" role="button" aria-label="${esc(apName(a))}"><circle class="halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(11 * s).toFixed(2)}" fill="transparent"/><circle class="c" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(2.6 * s).toFixed(2)}" stroke-width="${(1.2 * s).toFixed(2)}"/></g>`;
   }
+  /* 도시 핀 + 이름(겹치지 않게 자리 고르기, 중요한 도시부터) */
+  const pts = list.map(g => { const p = proj(g.center[0], g.center[1]); return { g, x: p.x, y: p.y, cls: pinStatus(g), inR: !st.region || g.region === st.region }; });
+  const boxes = pts.filter(p => p.inR).map(p => [p.x - R, p.y - R, p.x + R, p.y + R]);
+  if (op) boxes.push([op.x - 50 * s, op.y - 18 * s, op.x + 6 * s, op.y + 6 * s]);
+  if (!zoomed) for (const l of m.labels || []){ const w = textW(regionName(l.t)) * 8.6, x0 = l.anchor === 'end' ? l.x - w : l.anchor === 'middle' ? l.x - w / 2 : l.x; boxes.push([x0, l.y - 8, x0 + w, l.y + 2]); }
+  const [vx0, vy0] = vb, vx1 = vb[0] + vb[2], vy1 = vb[1] + vb[3];
+  const hit = b => boxes.some(q => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]);
+  const lab = {};
+  const order = pts.filter(p => p.inR).sort((a, b) => (b.g.key === st.pinSel) - (a.g.key === st.pinSel) || rankOf(a.g) - rankOf(b.g));
+  for (const p of order){
+    const t = shortName(p.g), w = textW(t) * FS;
+    const ring = (gap, lead) => { const d = gap * 0.72; return [['start', p.x + gap, p.y + FS * 0.36], ['end', p.x - gap, p.y + FS * 0.36], ['middle', p.x, p.y - gap - FS * 0.12], ['middle', p.x, p.y + gap + FS * 0.82],
+      ['start', p.x + d, p.y - d], ['start', p.x + d, p.y + d + FS * 0.7], ['end', p.x - d, p.y - d], ['end', p.x - d, p.y + d + FS * 0.7]].map(c => c.concat(lead)); };
+    const g1 = R + 2.2 * s;
+    for (const [an, x, y, lead] of ring(g1, false).concat(ring(g1 + 13 * s, true), ring(g1 + 24 * s, true))){
+      const x0 = an === 'start' ? x : an === 'end' ? x - w : x - w / 2;
+      const b = [x0 - s, y - FS * 0.86, x0 + w + s, y + FS * 0.2];
+      if (b[0] < vx0 + 2 * s || b[2] > vx1 - 2 * s || b[1] < vy0 + 2 * s || b[3] > vy1 - 2 * s || hit(b)) continue;
+      let ln = null;
+      if (lead){ const ex = Math.max(b[0], Math.min(p.x, b[2])), ey = Math.max(b[1], Math.min(p.y, b[3])), dx = ex - p.x, dy = ey - p.y, L = Math.hypot(dx, dy) || 1;
+        ln = [p.x + dx / L * R, p.y + dy / L * R, ex - dx / L * 1.2 * s, ey - dy / L * 1.2 * s]; }
+      boxes.push(b); lab[p.g.key] = { an, x, y, t, ln }; break;
+    }
+  }
+  pts.sort((a, b) => (a.g.key === st.pinSel) - (b.g.key === st.pinSel) || (a.inR - b.inR));
+  const pins = pts.map(p => { const L = lab[p.g.key], x = p.x.toFixed(1), y = p.y.toFixed(1);
+    return `<g class="cpin ${p.cls}${p.inR ? '' : ' dim'}${p.g.key === st.pinSel ? ' sel' : ''}" data-act="mappin" data-v="${esc(p.g.key)}" tabindex="${p.inR ? 0 : -1}" role="button" aria-label="${esc(p.g.name)}"><circle class="ph" cx="${x}" cy="${y}" r="${(R * 3).toFixed(2)}" fill="transparent"/><circle class="pc" cx="${x}" cy="${y}" r="${R.toFixed(2)}" stroke-width="${(1.5 * s).toFixed(2)}"/>${L && L.ln ? `<line class="ll" x1="${L.ln[0].toFixed(1)}" y1="${L.ln[1].toFixed(1)}" x2="${L.ln[2].toFixed(1)}" y2="${L.ln[3].toFixed(1)}"/>` : ''}${L ? `<text class="pl" x="${L.x.toFixed(1)}" y="${L.y.toFixed(1)}" text-anchor="${L.an}" font-size="${FS.toFixed(2)}" stroke-width="${(2.8 * s).toFixed(2)}">${esc(L.t)}</text>` : ''}</g>`; }).join('');
   let origin = '';
-  if (o && op){ origin = `<g class="origin"><circle cx="${op.x.toFixed(1)}" cy="${op.y.toFixed(1)}" r="4.2"/><text x="${(op.x - 6).toFixed(1)}" y="${(op.y - 7).toFixed(1)}" text-anchor="end">${esc(krName(o.iata).replace(/\s*[(（].*[)）]/, ''))}</text></g>`; }
-  const labels = (m.labels || []).map(l => `<text class="rg" x="${l.x}" y="${l.y}" text-anchor="${l.anchor || 'start'}">${esc(regionName(l.t))}</text>`).join('');
-  const ins = m.inset; const insetBox = `<rect class="inset" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" rx="4"/><text class="insetlbl" x="${ins.x}" y="${ins.y + ins.h + 11}">${esc(regionName('오키나와'))}</text>`;
-  return `<svg class="jpmap" viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="${esc(T('map_title', { origin: krName(st.origin) }))}">
-    <path class="land kr" d="${m.paths.korea}"/><path class="land" d="${m.paths.japan}"/>${insetBox}<path class="land" d="${m.paths.okinawa}"/>${labels}${arcs}${dots}${origin}</svg>`;
+  if (o && op){ origin = `<g class="origin"><circle cx="${op.x.toFixed(1)}" cy="${op.y.toFixed(1)}" r="${(4.2 * s).toFixed(2)}" stroke-width="${(1.6 * s).toFixed(2)}"/><text x="${(op.x - 6 * s).toFixed(1)}" y="${(op.y - 7 * s).toFixed(1)}" text-anchor="end" font-size="${(9.5 * s).toFixed(2)}">${esc(krName(o.iata).replace(/\s*[(（].*[)）]/, ''))}</text></g>`; }
+  const labels = zoomed ? '' : (m.labels || []).map(l => `<text class="rg" x="${l.x}" y="${l.y}" text-anchor="${l.anchor || 'start'}">${esc(regionName(l.t))}</text>`).join('');
+  const ins = m.inset;
+  const insetBox = `<rect class="inset" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" rx="4"/>${zoomed && st.region !== '오키나와' ? '' : `<text class="insetlbl" x="${ins.x}" y="${(ins.y + ins.h + 3 + 8 * s).toFixed(1)}" font-size="${(8 * s).toFixed(2)}">${esc(regionName('오키나와'))}</text>`}`;
+  return `<svg class="jpmap${zoomed ? ' zm' : ''}" viewBox="${vb.join(' ')}" role="img" aria-label="${esc(T('map_title', { origin: krName(st.origin) }))}">
+    <path class="land kr" d="${m.paths.korea}"/><path class="land" d="${m.paths.japan}"/>${insetBox}<path class="land" d="${m.paths.okinawa}"/>${labels}${arcs}${dots}${origin}${pins}</svg>`;
+}
+let mapAnim = 0;
+function animateMap(from, to){
+  const svg = document.querySelector('#jpmap svg'); if (!svg || from.join() === to.join()) return;
+  try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch(e){}
+  cancelAnimationFrame(mapAnim);
+  svg.classList.add('anim'); svg.setAttribute('viewBox', from.join(' '));
+  const t0 = performance.now(), D = 420;
+  const step = now => { const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+    svg.setAttribute('viewBox', from.map((a, i) => (a + (to[i] - a) * e).toFixed(2)).join(' '));
+    if (k < 1) mapAnim = requestAnimationFrame(step); else { svg.setAttribute('viewBox', to.join(' ')); svg.classList.remove('anim'); } };
+  mapAnim = requestAnimationFrame(step);
+}
+function pinTip(){
+  const g = GUIDES[st.pinSel]; if (!g) return '';
+  const pf = PF(g), b = bestRoute(st.origin, g), on = krName(st.origin);
+  let fl;
+  if (b){ const a = AP[b.iata]; fl = `${esc(T('from_to', { origin: on, to: apCity(a) }))} · <span class="num">${fmtMin(b.r.flight_minutes)}</span> <span class="tag ${stCls(b.r.status)}">${esc(stName(b.r.status))}</span>`; }
+  else { const oo = otherOrigins(g, st.origin); fl = `${esc(T('no_direct', { origin: on }))}${oo.length ? ' · ' + T('direct_from', { list: listNames(oo) }) : ''}`; }
+  return `<div class="maptip dtip ${cCls(g)}">${illHtml(g)}<div style="flex:1;min-width:0"><b>${esc(g.name)}</b> <span style="color:var(--ink-3);font-size:12px">${esc(regionName(g.region))}${prefName(g) ? ' · ' + esc(prefName(g)) : ''}</span><div class="vb">${esc(pf.vibe || g.tagline || '')}</div>${pf.where ? `<div class="wh">${esc(pf.where)}</div>` : ''}<div class="fl">${fl}</div><button class="go" style="margin:6px 0 0" data-act="open" data-v="${esc(g.key)}">${esc(T('guide_go', { name: g.name }))}</button></div></div>`;
+}
+function nearestGuide(lat, lng){
+  let best = null;
+  for (const g of Object.values(GUIDES)){ if (!g.center) continue; const dy = (g.center[0] - lat) * 111, dx = (g.center[1] - lng) * 111 * Math.cos(lat * Math.PI / 180), d = Math.hypot(dx, dy); if (!best || d < best.d) best = { g, d }; }
+  return best;
 }
 function mapTip(){
+  if (st.pinSel) return pinTip();
   if (!st.mapSel || !AP[st.mapSel]) return '';
   const a = AP[st.mapSel]; const rs = routesFrom(st.origin, a.iata);
-  const g = Object.values(GUIDES).find(x => (x.airports || []).includes(a.iata));
   let t = `<b>${esc(apName(a))}</b> <span style="color:var(--ink-3)">${esc(a.iata)} · ${esc(regionName(a.region || ''))}</span><br>`;
   if (rs.length){ const r = rs[0]; t += `${esc(T('from_to', { origin: krName(st.origin), to: apCity(a) }))} · ${fmtMin(r.flight_minutes)} · ${esc(airlineText(r.airlines))} · ${esc(weeklyText(r.weekly))} <span class="tag ${stCls(r.status)}">${esc(stName(r.status))}</span>`; }
   else { const oo = otherOriginsOfAirport(a); t += oo.length ? T('no_direct_here', { origin: esc(krName(st.origin)), list: listNames(oo) }) : esc(T('no_korea_direct')); }
+  const g = Object.values(GUIDES).find(x => (x.airports || []).includes(a.iata));
   if (g) t += `<button class="go" data-act="open" data-v="${esc(g.key)}">${esc(T('guide_go', { name: g.name }))}</button>`;
+  else { const n = nearestGuide(a.lat, a.lng); if (n && n.d < 260) t += `<br><span style="font-size:12px;color:var(--ink-3)">${esc(T('near_dest', { name: n.g.name, km: Math.round(n.d / 10) * 10 }))}</span> <button class="go" data-act="open" data-v="${esc(n.g.key)}">${esc(T('guide_go', { name: n.g.name }))}</button>`; }
   return `<div class="maptip">${t}</div>`;
 }
 
@@ -621,6 +915,7 @@ function renderHome(){
   let list = Object.values(GUIDES);
   if (st.tag) list = list.filter(g => (g.tags || []).includes(st.tag));
   if (st.nights) list = list.filter(g => (g.plans || []).some(p => p.nights === st.nights));
+  if (st.region) list = list.filter(g => g.region === st.region);
   const withR = list.map(g => ({ g, b: bestRoute(st.origin, g) }));
   if (st.sort === 'time') withR.sort((x, y) => ((x.b ? x.b.rk : 1e9) - (y.b ? y.b.rk : 1e9)));
   else withR.sort((x, y) => REGIONS.indexOf(x.g.region) - REGIONS.indexOf(y.g.region) || (x.g.order || 0) - (y.g.order || 0));
@@ -635,17 +930,21 @@ function renderHome(){
     }
   }
   const on = krName(st.origin);
+  const rgs = REGIONS.filter(r => Object.values(GUIDES).some(g => g.region === r));
+  const regionChips = [''].concat(rgs).map(r => `<button class="chip" data-act="region" data-v="${esc(r)}" aria-pressed="${st.region === r}">${r ? esc(regionName(r)) : esc(T('region_all'))}${r ? `<small>${Object.values(GUIDES).filter(g => g.region === r).length}</small>` : ''}</button>`).join('');
   app.innerHTML = `
   <div class="topbar"><div class="brand">${esc(T('brand'))}<small>${esc(DATA.version || '')}</small></div>${langBtn()}<button class="iconbtn" data-act="top" aria-label="${esc(T('to_top'))}">${svgTop}</button></div>
   <header class="hero">
     <div class="eyebrow">${esc(T('eyebrow'))}</div>
     <h1>${T('hero_h1', { origin: esc(on), n: Object.keys(GUIDES).length })}</h1>
     <p class="lead">${esc(T('lead'))}</p>
+    ${searchBox()}
     <div class="q"><div class="qt"><b>${esc(T('q_origin'))}</b><span>${esc(T('q_origin_sub'))}</span></div><div class="chips">${originChips}</div></div>
     <div class="q"><div class="qt"><b>${esc(T('q_nights'))}</b><span>${esc(T('q_nights_sub'))}</span></div><div class="chips">${nightChips}</div></div>
   </header>
   <section class="mapcard" aria-label="${esc(T('map_title', { origin: on }))}">
     <div class="mh"><b>${esc(T('map_title', { origin: on }))}</b><span>${esc(T('map_sub'))}</span></div>
+    <div class="chips rchips" role="group" aria-label="${esc(T('region_pick'))}">${regionChips}</div>
     <div id="jpmap">${jpMapSvg()}</div>
     <div class="legend"><span><i style="background:var(--rose)"></i>${esc(T('lg_regular'))}</span><span><i style="background:var(--sun)"></i>${esc(T('lg_season'))}</span><span><i style="background:var(--plum)"></i>${esc(T('lg_charter'))}</span><span><i style="background:var(--ink-3)"></i>${esc(stName('확인필요'))}</span><span><i style="background:var(--ink-4)"></i>${esc(T('lg_none'))}</span><span><i style="background:var(--sky)"></i>${esc(T('lg_origin'))}</span></div>
     <div id="maptip">${mapTip()}</div>
@@ -653,7 +952,7 @@ function renderHome(){
   <section class="filters">
     <div class="fbar"><b>${esc(T('pick_title'))}</b><div class="seg"><button data-act="sort" data-v="region" aria-pressed="${st.sort === 'region'}">${esc(T('sort_region'))}</button><button data-act="sort" data-v="time" aria-pressed="${st.sort === 'time'}">${esc(T('sort_time'))}</button></div></div>
     <div class="chips">${tagChips}</div>
-    <div class="cnt" style="margin-top:8px;font-size:12px;color:var(--ink-3)">${esc(T('count', { n: withR.length, origin: on, d: direct }))}</div>
+    <div class="cnt" style="margin-top:8px;font-size:12px;color:var(--ink-3)">${st.region ? `<b style="color:var(--rose-deep)">${esc(regionName(st.region))}</b> · ` : ''}${esc(T('count', { n: withR.length, origin: on, d: direct }))}${st.region ? ` <button data-act="region" data-v="" style="color:var(--rose-deep);font-weight:600;margin-left:4px">${esc(T('region_all'))} ›</button>` : ''}</div>
   </section>
   ${cards}
   <footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}<br>${esc(T('footer_date', { d: DATA.generated || '' }))}</footer>`;
@@ -670,11 +969,14 @@ function destCard(g, b){
     fl = `<div class="flight off">${svgPlane}<div><b>${esc(T('no_direct', { origin: on }))}</b><br>${oo.length ? T('direct_from', { list: listNames(oo) }) : esc(T('no_direct_any'))}</div></div>`;
   }
   const ns = (g.plans || []).map(p => p.nights).sort((x, y) => x - y);
-  return `<button class="dcard" data-act="open" data-v="${esc(g.key)}" id="card-${esc(g.key)}">
-    <div class="row">${stamp(g, false, !b)}<div class="nm"><h3>${esc(g.name)}<small>${esc(prefName(g))}</small></h3>${g._ko_only && LANG !== 'ko' ? `<span class="tag kmark">${esc(T('ko_only'))}</span>` : ''}<div class="tg">${esc(g.tagline || '')}</div><div class="tags">${(g.tags || []).slice(0, 5).map(tagHtml).join('')}</div></div></div>
-    ${htsHtml(g, 5)}
+  const pf = PF(g);
+  return `<button class="dcard ${cCls(g)}" data-act="open" data-v="${esc(g.key)}" id="card-${esc(g.key)}">
+    <div class="row">${illHtml(g)}<div class="nm"><h3>${esc(g.name)}<small>${esc(prefName(g))}</small></h3>${g._ko_only && LANG !== 'ko' ? `<span class="tag kmark">${esc(T('ko_only'))}</span>` : ''}<div class="vibe">${esc(pf.vibe || g.tagline || '')}</div></div></div>
+    ${pf.where ? `<div class="wstrip">${locSvg(g)}<p>${esc(pf.where)}</p></div>` : ''}
+    ${kfHtml(g)}
+    ${htsHtml(g, 4)}
     ${fl}
-    <div class="nights">${ns.map(n => `<span class="${st.nights === n ? 'hit' : ''}">${esc(nd(n))}</span>`).join('')}</div>
+    <div class="dfoot"><div class="nights">${ns.map(n => `<span class="${st.nights === n ? 'hit' : ''}">${esc(nd(n))}</span>`).join('')}</div>${bfHtml(g)}</div>
   </button>`;
 }
 
@@ -718,9 +1020,10 @@ function renderDest(){
   const vchips = vs.length ? `<div class="chips vchips"><button class="chip" data-act="variant" data-v="0" aria-pressed="${st.variant === 0}">${esc(T('base_plan'))}</button>${vs.map((v, i) => `<button class="chip" data-act="variant" data-v="${i + 1}" aria-pressed="${st.variant === i + 1}">${esc(v.title)}</button>`).join('')}</div>` : '';
   app.innerHTML = `
   <div class="topbar"><button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button><div class="brand">${esc(g.name)}<small>${esc(T('dep', { origin: on }))}</small></div>${langBtn()}<button class="iconbtn" data-act="share" aria-label="${esc(T('share'))}">${svgShare}</button></div>
-  <header class="dhero">
-    <div class="top">${stamp(g, true, !bestRoute(st.origin, g))}<div><h1>${esc(g.name)}</h1><div class="jline">${LANG === 'ja' ? '' : esc(g.name_ja || '') + ' · '}${esc(regionName(g.region))} ${esc(prefName(g))}</div></div></div>
-    ${g._ko_only && LANG !== 'ko' ? `<p style="margin-top:12px"><span class="tag kmark">${esc(T('ko_only'))}</span></p>` : ''}<p class="tagline">${esc(g.tagline || '')}</p>
+  <header class="dhero ${cCls(g)}">
+    <div class="top">${illHtml(g, 'lg')}<div><h1>${esc(g.name)}</h1><div class="jline">${LANG === 'ja' ? '' : esc(g.name_ja || '') + ' · '}${esc(regionName(g.region))} ${esc(prefName(g))}</div>${PF(g).vibe ? `<div class="vibe">${esc(PF(g).vibe)}</div>` : ''}</div></div>
+    ${g._ko_only && LANG !== 'ko' ? `<p style="margin-top:12px"><span class="tag kmark">${esc(T('ko_only'))}</span></p>` : ''}
+    ${glanceHtml(g)}<p class="tagline">${esc(g.tagline || '')}</p>
     ${htsHtml(g, 8)}
     <p class="intro">${rich(g.intro || '')}</p>
     <div class="tags">${(g.tags || []).map(tagHtml).join('')}${g.pace ? `<span class="tag ghost">${esc(T('pace', { pace: paceName(g.pace) }))}</span>` : ''}</div>
@@ -883,7 +1186,7 @@ function accordions(g, plan){
   const spots = (g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').map(s => `<div class="ritem"><div class="ic c-${esc(s.cat)}">${ico(s.cat)}</div><div class="ri"><div class="rn">${esc(s.name)}<small>${LANG === 'ja' ? '' : esc(s.name_ja || '')}</small>${s.must ? ` <span class="tag rose">${esc(T('must'))}</span>` : ''}</div><div class="rs">${esc(s.area || '')} · ${s.fee_yen === 0 ? esc(T('free')) : s.fee_yen > 0 ? yen(s.fee_yen) : esc(T('fee_tbd'))} · ${fmtMin(s.duration_min || 60)}</div><div class="rd">${rich(s.desc || '')}${s.closed && s.closed !== '없음' ? ` <b>${esc(T('closed'))} ${esc(hText(s.closed))}</b>` : ''}</div><a class="go" href="${gmap(s.maps_q || s.name_ja || s.name, [s.lat, s.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('gmap'))}</a></div></div>`).join('');
   const altList = (g.nearby_alternatives || []).filter(x => own(GUIDES, x.key));
   const alts = altList.map(x => { const ag = GUIDES[x.key]; const bb = bestRoute(st.origin, ag); const a = bb && AP[bb.iata];
-    return `<button class="altcard" data-act="open" data-v="${esc(ag.key)}">${stamp(ag, false, !bb)}<div class="ai"><div class="an">${esc(ag.name)}</div><div class="ar">${rich(x.reason || '')}</div><div class="af">${bb ? `${esc(T('from_to', { origin: krName(st.origin), to: apCity(a) }))} ${fmtMin(bb.r.flight_minutes)} · ${esc(airlineText(bb.r.airlines))}` : esc(T('no_direct', { origin: krName(st.origin) }))} · ${(ag.plans || []).map(p => esc(nd(p.nights))).join(' / ')}</div></div><span class="arrow">${svgNext}</span></button>`; }).join('');
+    return `<button class="altcard" data-act="open" data-v="${esc(ag.key)}">${illHtml(ag, 'sm')}<div class="ai"><div class="an">${esc(ag.name)}</div><div class="ar">${rich(x.reason || '')}</div><div class="af">${bb ? `${esc(T('from_to', { origin: krName(st.origin), to: apCity(a) }))} ${fmtMin(bb.r.flight_minutes)} · ${esc(airlineText(bb.r.airlines))}` : esc(T('no_direct', { origin: krName(st.origin) }))} · ${(ag.plans || []).map(p => esc(nd(p.nights))).join(' / ')}</div></div><span class="arrow">${svgNext}</span></button>`; }).join('');
   const season = `<p>${esc(g.season_notes || '')}</p>${g.getting_around ? `<h4>${esc(T('getting_around'))}</h4><p>${rich(g.getting_around)}</p>` : ''}${g.transport_pass ? `<h4>${esc(T('pass'))}</h4><p>${rich(g.transport_pass)}</p>` : ''}`;
   const srcs = (g.sources || []).slice(0, 40).map(u => /^https?:\/\//i.test(String(u)) ? `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></li>` : `<li>${esc(u)}</li>`).join('');
   const acc = (id, title, cnt, body, open) => `<details class="acc" id="acc-${id}" ${open ? 'open' : ''}><summary>${esc(title)}${cnt ? `<span class="cnt">${esc(cnt)}</span>` : ''}</summary><div class="abody">${body}</div></details>`;
@@ -922,9 +1225,13 @@ app.addEventListener('click', e => {
   if (act === 'sort'){ st.sort = v; renderHome(); return; }
   if (act === 'top'){ window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   if (act === 'lang'){ e.stopPropagation(); const m = document.getElementById('langmenu'); if (m.classList.contains('on')) closeLang(); else openLang(); return; }
-  if (act === 'mapdot'){ e.preventDefault(); st.mapSel = st.mapSel === v ? '' : v; document.getElementById('jpmap').innerHTML = jpMapSvg(); document.getElementById('maptip').innerHTML = mapTip();
-    const g = Object.values(GUIDES).find(x => (x.airports || []).includes(v)); if (g){ const c = document.getElementById(`card-${g.key}`); if (c){ c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1600); } }
+  if (act === 'mapdot'){ e.preventDefault(); st.mapSel = st.mapSel === v ? '' : v; st.pinSel = ''; document.getElementById('jpmap').innerHTML = jpMapSvg(); document.getElementById('maptip').innerHTML = mapTip(); return; }
+  if (act === 'mappin'){ e.preventDefault(); st.pinSel = st.pinSel === v ? '' : v; st.mapSel = ''; document.getElementById('jpmap').innerHTML = jpMapSvg(); document.getElementById('maptip').innerHTML = mapTip();
+    const c = st.pinSel && document.getElementById(`card-${v}`); if (c){ c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1600); }
     return; }
+  if (act === 'region'){ const from = regionView(st.region); st.region = v; st.pinSel = ''; st.mapSel = ''; renderHome(); animateMap(from, regionView(st.region)); centerChip(); return; }
+  if (act === 'sclear'){ e.preventDefault(); st.q = ''; const q = document.getElementById('q'); if (q){ q.value = ''; q.focus(); } updSearch(); return; }
+  if (act === 'sq'){ st.q = v; const q = document.getElementById('q'); if (q) q.value = v; updSearch(); return; }
   if (act === 'open'){ e.stopPropagation(); go(v); return; }
   if (act === 'back'){ if (st.pushed > 0) history.back(); else go(null); return; }
   if (act === 'setnights'){ st.nightsSel = Number(v); st.variant = 0; st.day = 0; st.sel = -1; renderDest(); return; }
@@ -936,7 +1243,11 @@ app.addEventListener('click', e => {
   if (act === 'budget'){ const d = document.getElementById('acc-budget'); if (d){ d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
   if (act === 'share'){ share(); return; }
 });
-app.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.dot,.checks li')){ e.preventDefault(); e.target.click(); } });
+app.addEventListener('keydown', e => {
+  if (e.target.id === 'q'){ if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); const f = document.querySelector('#sres .sitem'); if (f){ e.target.blur(); go(f.dataset.v); } } else if (e.key === 'Escape'){ st.q = ''; e.target.value = ''; updSearch(); } return; }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.dot,.cpin,.checks li')){ e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
+});
+app.addEventListener('input', e => { if (e.target.id === 'q'){ st.q = e.target.value; updSearch(); } });
 function share(){
   const g = GUIDES[st.dest]; const plan = g && curPlan(g);
   const title = g ? `${g.name} ${plan ? nd(plan.nights) : ''} ${T('plan_word')}` : T('brand');
@@ -946,6 +1257,7 @@ function share(){
 }
 
 /* ───────── 시작 ───────── */
+silDefs();
 st.dest = parseHash();
 try { history.replaceState({ dest: st.dest }, '', st.dest ? `#${st.dest}` : location.hash || '#home'); } catch(e){}
 render();

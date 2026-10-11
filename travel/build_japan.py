@@ -16,7 +16,7 @@
    가이드 JSON 은 travel/tools/validate_guide.py 로 먼저 점검하고, 오류가 있는 파일은 빼고(경고만 출력) 조립한다.
    그래서 잘못된 자료는 틀린 화면이 아니라 '없는 목적지'로 나타난다.
    번역이 없는 언어의 목적지는 한국어 원문이 그대로 들어간다(조립 요약에 번역 없음으로 표시)."""
-import copy, datetime, json, math, os, subprocess, sys
+import copy, datetime, json, math, os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, 'data')
@@ -27,7 +27,7 @@ TPL = os.path.join(HERE, 'template_japan.html')
 VALID = os.path.join(HERE, 'tools', 'validate_guide.py')
 sys.path.insert(0, os.path.join(HERE, 'tools'))
 OUT_ART_DIR = os.environ.get('JAPAN_ARTIFACT_DIR', '')  # 아티팩트(claude.ai)용 본문만 뽑을 폴더. 비어 있으면 안 만든다
-VERSION = 'v1.2'
+VERSION = 'v1.3'
 
 REGIONS = ['홋카이도', '도호쿠', '간토', '주부', '간사이', '주고쿠', '시코쿠', '규슈', '오키나와']
 TAGS = ['온천', '미식', '자연', '도시', '쇼핑', '아이동반', '야경', '역사', '바다', '겨울', '벚꽃', '단풍', '테마파크', '드라이브', '섬', '예술', '커피', '애니', '휴양']
@@ -137,6 +137,26 @@ def load_tr(lang, name):
         return None
 
 
+ICON_BAD = re.compile(r'<\s*(script|foreignObject|image|iframe|a)\b|\bon[a-z]+\s*=|href|url\(|javascript:|<text\b', re.I)
+
+
+def load_icons():
+    """travel/data/icons.json : 목적지별 그림(SVG). 위험한 요소가 있거나 너무 크면 빼고 알린다."""
+    path = os.path.join(DATA, 'icons.json')
+    if not os.path.exists(path):
+        return {}
+    icons = json.load(open(path, encoding='utf-8'))
+    out = {}
+    for k, svg in icons.items():
+        if k.startswith('_'):
+            continue
+        if not isinstance(svg, str) or not svg.lstrip().startswith('<svg') or ICON_BAD.search(svg) or len(svg.encode('utf-8')) > 4000:
+            print('  그림 제외 %s : 허용되지 않은 요소 또는 4KB 초과' % k)
+            continue
+        out[k] = svg.strip()
+    return out
+
+
 def main():
     strict = '--strict' in sys.argv
     hide_lang = '--no-lang-menu' in sys.argv  # 미리보기용 : 언어 버튼 숨김
@@ -180,6 +200,12 @@ def main():
         return (REGIONS.index(g['region']) if g['region'] in REGIONS else 99, -float(g['center'][0]))
     for i, g in enumerate(sorted(guides.values(), key=order_key)):
         g['order'] = i
+    icons = load_icons()
+    for key, g in guides.items():
+        if key in icons:
+            g['icon'] = icons[key]
+    no_icon = [k for k in guides if k not in icons]
+    no_prof = [k for k, g in guides.items() if not g.get('profile')]
 
     mapd = {
         'w': W, 'h': H, 'lon0': LON0, 'lat1': LAT1, 'k': K, 'cos': round(COS, 5), 'inset': INSET, 'labels': LABELS,
@@ -236,6 +262,7 @@ def main():
 
     nroutes = sum(len(a.get('routes', [])) for a in aps)
     print('조립 완료 · 일본 공항 %d개 · 직항 노선 %d건 · 목적지 가이드 %d곳%s' % (len(aps), nroutes, len(guides), (' · 건너뜀 %d' % len(skipped)) if skipped else ''))
+    print('  도시 그림 %d/%d · 도시 프로필 %d/%d%s' % (len(guides) - len(no_icon), len(guides), len(guides) - len(no_prof), len(guides), ('  (그림 없음: %s)' % ','.join(no_icon[:8])) if no_icon else ''))
     for code, f, mb, missing in summary:
         print('  %-4s %-16s %.1f MB%s' % (code, f, mb, ('  번역 없음 %d곳: %s' % (len(missing), ','.join(missing[:6]) + ('…' if len(missing) > 6 else ''))) if missing else ''))
     for key, g in sorted(guides.items(), key=lambda kv: kv[1]['order']):

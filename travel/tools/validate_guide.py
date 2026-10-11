@@ -11,6 +11,8 @@ CATS = {'shrine','castle','view','nature','park','street','market','onsen','them
 TIERS = {'1순위','가성비','감각파','플렉스','온천','가족'}
 KEYS = {'sapporo','hakodate','asahikawa','sendai','aomori','tokyo','hakone_kamakura','nagoya','takayama','shizuoka','niigata','toyama','kanazawa','osaka','kyoto','nara','kobe','hiroshima','okayama','yonago','takamatsu','matsuyama','kochi','fukuoka','kitakyushu','nagasaki','kumamoto','oita','kagoshima','miyazaki','saga','okinawa','ishigaki'}
 REGIONS_OK = {'홋카이도','도호쿠','간토','주부','간사이','주고쿠','시코쿠','규슈','오키나와'}
+BEST_FOR = {'첫 일본','커플','부모님','아이 동반','혼자 여행','친구끼리','온천 휴식','미식가','쇼핑','사진','드라이브','자연·트레킹','역사·문화','바다·휴양','겨울 눈','짧은 주말'}
+COLORS = {'rose','sage','sky','sun','plum','coral','mint'}
 ID_RE = re.compile(r'^[a-z][a-z0-9_]*$')
 TIME_RE = re.compile(r'^([01]\d|2[0-3]):[0-5]\d$')
 
@@ -162,6 +164,24 @@ def main():
         if a.get('key') not in KEYS: E(f'nearby_alternatives[{ai}]: key 가 목록에 없음 {a.get("key")!r}')
         if a.get('key') == g['key']: E('nearby_alternatives 에 자기 자신')
         if 'reason' not in a: E(f'nearby_alternatives[{ai}]: reason 없음')
+    pf = g.get('profile')
+    if pf is not None:  # 도시 얼굴(선택 항목) : 성격 한 줄 · 위치 · 먹을/볼/할 것 · 이런 분께 · 비슷한 곳 비교 · 검색 별칭 · 색
+        for k in ('vibe', 'where', 'known_for', 'best_for', 'vs', 'vs_key', 'aliases', 'color'):
+            if k not in pf: E(f'profile.{k} 없음')
+        if not (4 <= len(pf.get('vibe', '')) <= 22): W(f'profile.vibe 길이 {len(pf.get("vibe", ""))} (8~18자 권장)')
+        if not (12 <= len(pf.get('where', '')) <= 60): W(f'profile.where 길이 {len(pf.get("where", ""))} (25~45자 권장)')
+        kf = pf.get('known_for', [])
+        if [x.get('k') for x in kf] != ['eat', 'see', 'do']: E('profile.known_for 는 eat·see·do 순서로 3개')
+        for x in kf:
+            if not x.get('text'): E('profile.known_for 에 text 없음')
+        for b in pf.get('best_for', []):
+            if b not in BEST_FOR: E(f'profile.best_for 에 목록 밖 값 {b!r}')
+        if not (1 <= len(pf.get('best_for', [])) <= 3): E('profile.best_for 는 1~3개')
+        if pf.get('vs_key') not in KEYS or pf.get('vs_key') == g['key']: E(f'profile.vs_key 가 잘못됨 {pf.get("vs_key")!r}')
+        if pf.get('color') not in COLORS: E(f'profile.color 는 {sorted(COLORS)} 중 하나')
+        if not isinstance(pf.get('aliases'), list): E('profile.aliases 는 목록')
+        for k in ('vibe', 'where', 'vs'):
+            if '—' in pf.get(k, ''): E(f'profile.{k} 에 긴 줄표')
     report(errs, warns)
 
 def report(errs, warns):

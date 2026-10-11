@@ -14,9 +14,9 @@ import json, re, sys
 # 번역 대상 필드(이 이름의 문자열 값만 뽑는다)
 FIELDS = {'name', 'area', 'tagline', 'intro', 'season_notes', 'getting_around', 'transport_pass', 'mode', 'to', 'note', 'desc', 'access',
           'hours', 'closed', 'tip', 'kid_tip', 'cuisine', 'signature', 'tips', 'pts', 'title', 'theme', 'summary', 'label', 'kicker', 't_notice',
-          'text', 'per', 'basis', 'checks', 'reason', 'when_text', 'highlights', 'weekly', 'season_note', 'notes'}
+          'text', 'per', 'basis', 'checks', 'reason', 'when_text', 'highlights', 'weekly', 'season_note', 'notes', 'vibe', 'where', 'vs'}
 SKIP = {'id', 'key', 'name_ja', 'name_en', 'maps_q', 'sources', 'source_url', 'iata', 'from_iata', 'airports', 'airlines', 'cat', 'tier', 'when',
-        'tags', 'region', 'prefecture', 'generated', 'status', 'confidence', 'source_date', 'reviewed', 'name_ko', 'city_ko', 'prefecture_ko', 'region_key'}
+        'tags', 'region', 'prefecture', 'generated', 'status', 'confidence', 'source_date', 'reviewed', 'name_ko', 'city_ko', 'prefecture_ko', 'region_key', 'aliases', 'color', 'vs_key', 'best_for', 'icon'}
 HANGUL = re.compile('[가-힣]')
 
 
