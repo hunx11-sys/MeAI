@@ -48,6 +48,16 @@ FONTS = {
            "'Pretendard Variable',Pretendard,'Noto Sans HK','Noto Sans TC',-apple-system,BlinkMacSystemFont,'PingFang HK','Microsoft JhengHei',sans-serif"),
 }
 
+# 상세 지도 바탕(타일) 서버 : 위에서부터 시도하고, 그림을 하나도 못 받으면 다음 서버로, 다 안 되면 약도로 바뀐다.
+#   지리원 타일(일본 국토지리원 '淡色地図') : 키 없이 공개, 출처 표기 조건. 일본 영역만 그려지므로 일본 여행용에 맞다.
+#   OpenStreetMap 표준 타일 : 키 없이 공개(이용 정책상 대량 사용은 별도 서버 권장).
+#   CARTO 는 2025년 이후 키 없이 부르면 'API KEY REQUIRED' 그림을 돌려주므로 쓰지 않는다.
+#   정식 서비스로 낼 때는 계약한 지도 서버(키 포함) 한 줄을 맨 위에 넣으면 된다.
+TILES = [
+    {'url': 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', 'attribution': '出典: <a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">地理院タイル</a>', 'maxNativeZoom': 18},
+    {'url': 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', 'attribution': '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>', 'maxNativeZoom': 19},
+]
+
 # 지도 투영 : 간단한 등장방형(경도에 cos 38° 를 곱해 가로를 줄임). 자바스크립트 proj() 와 같은 식이어야 한다.
 LON0, LAT1, K, COS = 125.0, 46.0, 20.0, math.cos(math.radians(38))
 W, H = round((146 - LON0) * K * COS, 1), round((LAT1 - 30) * K, 1)
@@ -206,7 +216,7 @@ def main():
             taps = taps['airports']
         data = {
             'version': VERSION, 'generated': generated, 'lang': code, 'hideLang': hide_lang, 'ui': ui, 'langs': ui_all['langs'], 'langLinks': lang_links,
-            'regions': REGIONS, 'tags': TAGS, 'kr': kr, 'apnames': apn, 'airports': taps, 'guides': tguides, 'map': mapd,
+            'regions': REGIONS, 'tags': TAGS, 'tiles': TILES, 'kr': kr, 'apnames': apn, 'airports': taps, 'guides': tguides, 'map': mapd,
         }
         fonts_link, stack = FONTS.get(L.get('font', 'pretendard'), FONTS['pretendard'])
         html = (tpl.replace('/*LANG*/', L.get('html', code)).replace('/*TITLE*/', ui.get('brand', '일본 직항 여행 플래너'))

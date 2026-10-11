@@ -802,11 +802,20 @@ function mountMap(g, plan){
   if (!HAS_L || !valid.length){ sketch(pts); return; }
   try {
     lmap = L.map(el, { scrollWheelZoom: false, tap: false, attributionControl: true, zoomControl: true });
-    let ok = false, errs = 0;
-    const tl = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap · © CARTO', maxZoom: 19, subdomains: 'abcd' });
-    tl.on('tileload', () => { ok = true; });
-    tl.on('tileerror', () => { errs++; if (!ok && errs >= 2) sketch(pts); });
-    tl.addTo(lmap);
+    // 지도 바탕 : 자료(DATA.tiles)에 적힌 순서대로 시도하고, 그림을 하나도 못 받은 채 실패가 쌓이면 다음 서버로, 다 안 되면 약도로
+    const TILES = (DATA.tiles && DATA.tiles.length) ? DATA.tiles : [{ url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap', maxNativeZoom: 19 }];
+    let ti = 0, tl = null;
+    const useTile = () => {
+      if (!lmap) return;
+      if (tl){ try { lmap.removeLayer(tl); } catch(e){} }
+      if (ti >= TILES.length){ sketch(pts); return; }
+      const my = ti, cfg = TILES[ti]; let ok = false, errs = 0;
+      tl = L.tileLayer(cfg.url, { attribution: cfg.attribution, maxZoom: 19, maxNativeZoom: cfg.maxNativeZoom || 18, subdomains: cfg.subdomains || 'abc', crossOrigin: false });
+      tl.on('tileload', () => { ok = true; });
+      tl.on('tileerror', () => { if (my !== ti) return; errs++; if (!ok && errs >= 3){ ti++; useTile(); } });
+      tl.addTo(lmap);
+    };
+    useTile();
     const line = [];
     pts.forEach((p, i) => { if (!p) return; line.push(p.ll);
       const mk = L.marker(p.ll, { icon: L.divIcon({ className: '', html: `<div class="pin ${st.sel === i ? 'on' : ''}">${i + 1}</div>`, iconSize: [24, 24], iconAnchor: [12, 12] }) }).addTo(lmap);
