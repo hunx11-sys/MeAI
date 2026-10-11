@@ -33,7 +33,7 @@
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg)}
 html{-webkit-text-size-adjust:100%}
-body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip;touch-action:manipulation}
+body{word-break:keep-all;overflow-wrap:anywhere;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip;touch-action:manipulation}
 h1,h2,h3,h4{margin:0;font-weight:700;text-wrap:balance}
 p{margin:0}
 button{font-family:inherit;font-size:inherit;line-height:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
@@ -46,13 +46,13 @@ img,svg{max-width:100%}
 .hide{display:none!important}
 
 /* ── 상단 바 ── */
-.topbar{position:sticky;top:0;z-index:50;background:rgba(255,252,250,.92);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;display:flex;align-items:center;gap:8px}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(255,252,250,.92);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:8px}
 .topbar .brand{font-family:var(--display);font-weight:700;letter-spacing:-.015em;font-size:17px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar .brand small{font-family:var(--body);font-size:11.5px;color:var(--ink-3);margin-left:6px;font-weight:500}
 .iconbtn{width:38px;height:38px;border-radius:var(--r-full);background:var(--fill);display:grid;place-items:center;color:var(--ink-2);flex:0 0 auto;position:relative}
 .iconbtn svg{width:18px;height:18px}
 .iconbtn .lc{position:absolute;right:-2px;bottom:-2px;font-size:8.5px;font-weight:700;background:var(--rose);color:#fff;border-radius:6px;padding:1px 4px;line-height:1.2;letter-spacing:.02em}
-.langmenu{position:fixed;right:14px;top:calc(58px + env(safe-area-inset-top,0px));z-index:70;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:8px;min-width:190px;display:none}
+.langmenu{position:fixed;right:14px;top:calc(62px + env(safe-area-inset-top,0px));z-index:70;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:8px;min-width:190px;display:none}
 .langmenu.on{display:block}
 .langmenu .lt{font-size:11px;font-weight:500;color:var(--ink-3);padding:6px 10px 4px;letter-spacing:.04em}
 .langmenu a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:var(--r-sm);text-decoration:none;color:var(--ink);font-size:14px;font-weight:500}
@@ -236,7 +236,7 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .sketch .ln{fill:none;stroke:var(--rose);stroke-width:1.5;stroke-dasharray:4 3}
 .sketch .pt circle{fill:var(--rose);stroke:#fff;stroke-width:2}
 .sketch .pt text{font-size:9px;fill:#fff;font-weight:700;text-anchor:middle}
-.sketch .nm{font-size:9px;fill:var(--ink-2)}
+.sketch .nm{font-size:10px;fill:var(--ink-2);font-weight:500;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
 .maphint{margin:7px 18px 0;font-size:11.5px;color:var(--ink-3)}
 .leaflet-container{font-family:var(--body);background:var(--fill)}
 .leaflet-tile-pane{filter:saturate(.55) brightness(1.03)}
@@ -453,6 +453,7 @@ const nd = n => T('nd', { n, m: n + 1 });
 const fmtMin = m => { m = Number(m) || 0; const h = Math.floor(m / 60), r = m % 60; return h ? (r ? T('hm', { h, m: r }) : T('h', { h })) : T('m', { m: r }); };
 const man = n => { n = Math.round(Number(n) || 0); if (LANG === 'ko'){ if (n < 10000) return `${n.toLocaleString('ko-KR')}원`; const m = Math.floor(n / 10000), r = n % 10000; return r ? `${m.toLocaleString('ko-KR')}만 ${r.toLocaleString('ko-KR')}원` : `${m.toLocaleString('ko-KR')}만원`; } return '₩' + n.toLocaleString('en-US'); };
 const manR = v => Array.isArray(v) ? (v[0] === v[1] ? man(v[0]) : (LANG === 'ko' ? `${man(v[0]).replace('원','')}~${man(v[1])}` : `${man(v[0])} ~ ${man(v[1])}`)) : man(v);
+const manA = v => { const r = x => Math.round((Number(x) || 0) / 10000); if (LANG !== 'ko') return manR(v); const a = Array.isArray(v) ? v : [v, v]; return a[0] === a[1] ? `약 ${r(a[0]).toLocaleString('ko-KR')}만원` : `약 ${r(a[0]).toLocaleString('ko-KR')}만~${r(a[1]).toLocaleString('ko-KR')}만원`; };
 const yen = n => T('yen', { n: Number(n).toLocaleString('en-US') });
 const gmap = (q, ll) => ll && ll[0] ? `https://www.google.com/maps/search/?api=1&query=${ll[0]},${ll[1]}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || '')}`;
 const stCls = s => ({'정기':'sage','계절':'sun','전세':'plum','확인필요':'ghost','운휴':'coral'}[s] || 'ghost');
@@ -614,7 +615,8 @@ function mapTip(){
 function renderHome(){
   const originChips = KR.filter(k => k.iata === 'ICN' || AIRPORTS.some(a => (a.routes || []).some(r => r.from_iata === k.iata && r.status !== '운휴'))).map(k =>
     `<button class="chip rose" data-act="origin" data-v="${esc(k.iata)}" aria-pressed="${st.origin === k.iata}">${esc(krName(k.iata))}<small>${esc(k.iata)}</small></button>`).join('');
-  const nightChips = [0, 2, 3, 4, 5].map(n => `<button class="chip" data-act="nights" data-v="${n}" aria-pressed="${st.nights === n}">${n ? esc(nd(n)) : esc(T('any'))}</button>`).join('');
+  const nightsAvail = [...new Set(Object.values(GUIDES).flatMap(g => (g.plans || []).map(p => p.nights)))].sort((a, b) => a - b);
+  const nightChips = [0].concat(nightsAvail).map(n => `<button class="chip" data-act="nights" data-v="${n}" aria-pressed="${st.nights === n}">${n ? esc(nd(n)) : esc(T('any'))}</button>`).join('');
   const tagChips = [''].concat(TAGS).map(t => `<button class="chip" data-act="tag" data-v="${esc(t)}" aria-pressed="${st.tag === t}">${t ? esc(tagName(t)) : esc(T('all'))}</button>`).join('');
   let list = Object.values(GUIDES);
   if (st.tag) list = list.filter(g => (g.tags || []).includes(st.tag));
@@ -733,7 +735,7 @@ function renderDest(){
   mountMap(g, plan);
 }
 function bottomBar(g, plan){
-  const b = plan && plan.budget; const tot = b ? manR(b.total_krw) : '';
+  const b = plan && plan.budget; const tot = b ? manA(b.total_krw) : '';
   return `<div class="bottombar"><div class="in"><div class="amt"><span class="k">${plan ? esc(T('budget_k', { nd: nd(plan.nights) })) : ''}</span><span class="v">${tot || esc(T('tbd'))}<small>${esc(T('budget_incl'))}</small></span></div><button class="btn ghost" data-act="budget">${svgInfo}${esc(T('detail'))}</button><button class="btn" data-act="share">${svgShare}${esc(T('share'))}</button></div></div>`;
 }
 function planHtml(g, plan){
@@ -819,17 +821,34 @@ function sketch(pts){
   if (lmap){ try { lmap.remove(); } catch(e){} lmap = null; }
   const v = pts.map((p, i) => p ? { p, i } : null).filter(Boolean);
   if (!v.length){ el.innerHTML = `<div class="empty" style="margin:0;border:0">${esc(T('no_map_pts'))}</div>`; return; }
-  const W = 360, H = 220, pad = 34;
+  const W = 360, H = 250, padX = 26, padTop = 22, padBot = 34;
   const lats = v.map(x => x.p.ll[0]), lngs = v.map(x => x.p.ll[1]);
   const la0 = Math.min(...lats), la1 = Math.max(...lats), lo0 = Math.min(...lngs), lo1 = Math.max(...lngs);
   const cos = Math.cos((la0 + la1) / 2 * Math.PI / 180);
   const sw = Math.max((lo1 - lo0) * cos, 1e-4), sh = Math.max(la1 - la0, 1e-4);
-  const s = Math.min((W - pad * 2) / sw, (H - pad * 2) / sh);
-  const ox = (W - sw * s) / 2, oy = (H - sh * s) / 2;
+  const s = Math.min((W - padX * 2) / sw, (H - padTop - padBot) / sh);
+  const ox = (W - sw * s) / 2, oy = padTop + ((H - padTop - padBot) - sh * s) / 2;
   const P = x => ({ x: ox + (x.p.ll[1] - lo0) * cos * s, y: oy + (la1 - x.p.ll[0]) * s });
-  const poly = v.map(x => { const q = P(x); return `${q.x.toFixed(1)},${q.y.toFixed(1)}`; }).join(' ');
-  const dots = v.map(x => { const q = P(x); const right = q.x > W / 2; return `<g class="pt" data-act="focus" data-v="${x.i}"><circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="10"/><text x="${q.x.toFixed(1)}" y="${(q.y + 3.3).toFixed(1)}">${x.i + 1}</text><text class="nm" x="${(right ? q.x - 13 : q.x + 13).toFixed(1)}" y="${(q.y + 3.5).toFixed(1)}" text-anchor="${right ? 'end' : 'start'}">${esc(String(x.p.name).slice(0, 10))}</text></g>`; }).join('');
-  el.innerHTML = `<svg class="sketch" viewBox="0 0 ${W} ${H}" role="img"><polyline class="ln" points="${poly}"/>${dots}<text x="10" y="${H - 8}" style="font-size:9px;fill:var(--ink-3)">${esc(T('sketch_note'))}</text></svg>`;
+  const q = v.map(x => Object.assign({ i: x.i, name: String(x.p.name) }, P(x)));
+  // 같은 자리에 겹친 핀은 살짝 벌린다
+  for (let a = 0; a < q.length; a++) for (let b = 0; b < a; b++){ const dx = q[a].x - q[b].x, dy = q[a].y - q[b].y; if (Math.hypot(dx, dy) < 14){ const ang = (a * 2.4); q[a].x = Math.min(W - 12, Math.max(12, q[b].x + Math.cos(ang) * 15)); q[a].y = Math.min(H - padBot, Math.max(12, q[b].y + Math.sin(ang) * 15)); } }
+  // 이름표 자리 : 핀·다른 이름표와 겹치지 않는 곳(오른쪽 → 왼쪽 → 위 → 아래), 없으면 번호만
+  const boxes = q.map(o => ({ x0: o.x - 10, y0: o.y - 10, x1: o.x + 10, y1: o.y + 10 }));
+  const hit = (b) => b.x0 < 2 || b.x1 > W - 2 || b.y0 < 2 || b.y1 > H - 16 || boxes.some(o => !(b.x1 < o.x0 || b.x0 > o.x1 || b.y1 < o.y0 || b.y0 > o.y1));
+  const labels = q.map(o => {
+    const t = o.name.length > 9 ? o.name.slice(0, 8) + '…' : o.name;
+    const w = t.length * 9.2 + 4, h = 13;
+    const cand = [ { x: o.x + 13, y: o.y + 4, a: 'start', b: { x0: o.x + 12, y0: o.y - 7, x1: o.x + 12 + w, y1: o.y + 6 } },
+                   { x: o.x - 13, y: o.y + 4, a: 'end', b: { x0: o.x - 12 - w, y0: o.y - 7, x1: o.x - 12, y1: o.y + 6 } },
+                   { x: o.x, y: o.y - 14, a: 'middle', b: { x0: o.x - w / 2, y0: o.y - 25, x1: o.x + w / 2, y1: o.y - 12 } },
+                   { x: o.x, y: o.y + 24, a: 'middle', b: { x0: o.x - w / 2, y0: o.y + 13, x1: o.x + w / 2, y1: o.y + 13 + h } } ];
+    const c = cand.find(c => !hit(c.b)); if (!c) return '';
+    boxes.push(c.b);
+    return `<text class="nm" x="${c.x.toFixed(1)}" y="${c.y.toFixed(1)}" text-anchor="${c.a}">${esc(t)}</text>`;
+  });
+  const poly = q.map(o => `${o.x.toFixed(1)},${o.y.toFixed(1)}`).join(' ');
+  const dots = q.map((o, k) => `<g class="pt" data-act="focus" data-v="${o.i}"><circle cx="${o.x.toFixed(1)}" cy="${o.y.toFixed(1)}" r="10"/><text x="${o.x.toFixed(1)}" y="${(o.y + 3.3).toFixed(1)}">${o.i + 1}</text></g>`).join('');
+  el.innerHTML = `<svg class="sketch" viewBox="0 0 ${W} ${H}" role="img"><rect x="0" y="0" width="${W}" height="${H}" fill="var(--surface)"/><polyline class="ln" points="${poly}"/>${labels.join('')}${dots}<text x="10" y="${H - 8}" style="font-size:9px;fill:var(--ink-3)">${esc(T('sketch_note'))}</text></svg>`;
 }
 function focusStop(i, scrollMap){
   st.sel = i;

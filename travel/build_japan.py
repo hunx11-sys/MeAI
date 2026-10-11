@@ -26,7 +26,7 @@ TPL = os.path.join(HERE, 'template_japan.html')
 VALID = os.path.join(HERE, 'tools', 'validate_guide.py')
 sys.path.insert(0, os.path.join(HERE, 'tools'))
 OUT_ART_DIR = os.environ.get('JAPAN_ARTIFACT_DIR', '')  # 아티팩트(claude.ai)용 본문만 뽑을 폴더. 비어 있으면 안 만든다
-VERSION = 'v1.1'
+VERSION = 'v1.2'
 
 REGIONS = ['홋카이도', '도호쿠', '간토', '주부', '간사이', '주고쿠', '시코쿠', '규슈', '오키나와']
 TAGS = ['온천', '미식', '자연', '도시', '쇼핑', '아이동반', '야경', '역사', '바다', '겨울', '벚꽃', '단풍', '테마파크', '드라이브', '섬', '예술', '커피', '애니', '휴양']
@@ -213,6 +213,8 @@ def main():
             os.makedirs(OUT_ART_DIR, exist_ok=True)
             inner = html.split('<title>', 1)[1]
             inner = '<title>' + inner.split('</body>', 1)[0].replace('</head>\n<body>', '')
+            # 아티팩트 화면은 Google Fonts 말고 외부 글꼴 파일을 막으므로 jsDelivr(Pretendard) 줄을 뺀다(Noto Sans 로 표시)
+            inner = '\n'.join(l for l in inner.split('\n') if 'cdn.jsdelivr.net/gh/orioncactus/pretendard' not in l)
             open(os.path.join(OUT_ART_DIR, L['file']), 'w', encoding='utf-8').write(inner)
         summary.append((code, L['file'], os.path.getsize(out) / 1048576, missing))
 
