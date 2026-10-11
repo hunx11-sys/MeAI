@@ -23,7 +23,7 @@ HANGUL = re.compile('[가-힣]')
 def walk(obj, path, out):
     if isinstance(obj, dict):
         for k, v in obj.items():
-            if k in SKIP:
+            if k in SKIP and not (k == 'airports' and isinstance(v, list) and v and isinstance(v[0], dict)):
                 continue
             p = f'{path}/{k}' if path else k
             if k == 'notice' and isinstance(v, dict):
