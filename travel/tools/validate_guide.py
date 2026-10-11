@@ -10,6 +10,7 @@ TAGS = {'미식','온천','자연','도시','쇼핑','아이동반','야경','�
 CATS = {'shrine','castle','view','nature','park','street','market','onsen','theme','museum','sea','night','shop','kids','cafe','station','airport','hotel','food'}
 TIERS = {'1순위','가성비','감각파','플렉스','온천','가족'}
 KEYS = {'sapporo','hakodate','asahikawa','sendai','aomori','tokyo','hakone_kamakura','nagoya','takayama','shizuoka','niigata','toyama','kanazawa','osaka','kyoto','nara','kobe','hiroshima','okayama','yonago','takamatsu','matsuyama','kochi','fukuoka','kitakyushu','nagasaki','kumamoto','oita','kagoshima','miyazaki','saga','okinawa','ishigaki'}
+REGIONS_OK = {'홋카이도','도호쿠','간토','주부','간사이','주고쿠','시코쿠','규슈','오키나와'}
 ID_RE = re.compile(r'^[a-z][a-z0-9_]*$')
 TIME_RE = re.compile(r'^([01]\d|2[0-3]):[0-5]\d$')
 
@@ -38,6 +39,7 @@ def main():
         for e in errs: print('오류:', e)
         sys.exit(1)
     if g['key'] not in KEYS: E(f'key 가 목록에 없음: {g["key"]}')
+    if g.get('region') not in REGIONS_OK: E(f'region 이 9개 지역 이름이 아님: {g.get("region")}')
     for t in g['tags']:
         if t not in TAGS: E(f'tags 에 허용되지 않은 값: {t}')
     if not (3 <= len(g['tags']) <= 6): W(f'tags 는 3~6개 권장 (지금 {len(g["tags"])})')

@@ -36,7 +36,7 @@ html{-webkit-text-size-adjust:100%}
 body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip;touch-action:manipulation}
 h1,h2,h3,h4{margin:0;font-weight:700;text-wrap:balance}
 p{margin:0}
-button{font-family:inherit;font-size:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+button{font-family:inherit;font-size:inherit;line-height:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
 a{color:var(--rose-deep)}
 ul,ol{margin:0;padding:0;list-style:none}
 img,svg{max-width:100%}
@@ -91,18 +91,20 @@ img,svg{max-width:100%}
 .jpmap .arc{fill:none;stroke:var(--rose);stroke-width:1.1;opacity:.45;stroke-linecap:round}
 .jpmap .arc.season{stroke:var(--sun);stroke-dasharray:3 2}
 .jpmap .arc.charter{stroke:var(--plum);stroke-dasharray:1.5 2}
+.jpmap .arc.tbc{stroke:var(--ink-3);stroke-dasharray:1 2.5;opacity:.5}
 .jpmap .dot{cursor:pointer}
 .jpmap .dot circle.c{stroke:#fff;stroke-width:1.4}
 .jpmap .dot.on circle.c{fill:var(--rose)}
 .jpmap .dot.season circle.c{fill:var(--sun)}
 .jpmap .dot.charter circle.c{fill:var(--plum)}
 .jpmap .dot.off circle.c{fill:var(--ink-4)}
+.jpmap .dot.tbc circle.c{fill:var(--ink-3)}
 .jpmap .dot.sel circle.halo{fill:var(--rose);opacity:.18}
 .jpmap .origin circle{fill:var(--sky);stroke:#fff;stroke-width:1.6}
-.jpmap .origin text{font-size:7.5px;font-weight:700;fill:var(--sky-deep)}
-.jpmap .rg{font-size:6.6px;fill:var(--ink-3);letter-spacing:.04em}
+.jpmap .origin text{font-size:9.5px;font-weight:700;fill:var(--sky-deep)}
+.jpmap .rg{font-size:8.6px;fill:var(--ink-3);letter-spacing:.04em}
 .jpmap .inset{fill:none;stroke:var(--line-2);stroke-dasharray:2 2}
-.jpmap .insetlbl{font-size:6px;fill:var(--ink-3)}
+.jpmap .insetlbl{font-size:8px;fill:var(--ink-3)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 12px;padding:8px 16px 14px;font-size:11.5px;color:var(--ink-2)}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .maptip{margin:0 16px 14px;padding:11px 13px;border-radius:var(--r-md);background:var(--rose-pale);font-size:13px;color:var(--ink-2);line-height:1.55}
@@ -139,6 +141,7 @@ img,svg{max-width:100%}
 .tag.coral{background:var(--coral-soft);color:var(--coral-deep)}
 .tag.mint{background:var(--mint-soft);color:var(--mint)}
 .tag.ghost{background:transparent;border:1px solid var(--line-2);color:var(--ink-3)}
+.tag.kmark{background:var(--sky-soft);color:var(--sky-deep)}
 /* 해시태그(특징·장점) : 알록달록 */
 .hts{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
 .ht{font-size:12px;font-weight:600;padding:4px 10px;border-radius:var(--r-full);line-height:1.4;letter-spacing:-.01em}
@@ -166,7 +169,7 @@ img,svg{max-width:100%}
 .dhero{padding:22px 18px 6px}
 .dhero .top{display:flex;gap:14px;align-items:center}
 .dhero h1{font-family:var(--display);font-weight:800;font-size:28px;line-height:1.25;letter-spacing:-.03em}
-.dhero .ja{font-size:13px;color:var(--ink-3);margin-top:3px}
+.dhero .jline{font-size:13px;color:var(--ink-3);margin-top:3px}
 .dhero .tagline{margin-top:14px;font-family:var(--display);font-weight:600;letter-spacing:-.01em;font-size:17px;color:var(--rose-deep);line-height:1.5}
 .dhero .intro{margin-top:8px;font-size:14px;color:var(--ink-2);line-height:1.75}
 .dhero .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
@@ -216,18 +219,18 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 .dgrid{display:grid;gap:7px;padding:16px 18px 0;grid-template-columns:repeat(auto-fit,minmax(64px,1fr))}
 .tile{background:var(--fill);border-radius:var(--r-md);padding:10px 4px 9px;text-align:center;transition:background .15s}
 .tile .n{display:block;font-size:10.5px;color:var(--ink-3);font-weight:500}
-.tile .l{display:block;font-family:var(--display);font-size:14px;font-weight:700;margin-top:2px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .l{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-family:var(--display);font-size:13px;font-weight:700;margin-top:2px;letter-spacing:-.02em;line-height:1.25;word-break:keep-all}
 .tile[aria-pressed="true"]{background:var(--rose-soft)}
 .tile[aria-pressed="true"] .l{color:var(--rose-deep)}
 .tile[aria-pressed="true"] .n{color:var(--rose)}
-.dayhead{padding:20px 18px 0}
+.dayhead{padding:20px 18px 0;scroll-margin-top:calc(72px + env(safe-area-inset-top,0px))}
 .dayhead .kicker{font-size:12.5px;font-weight:500;color:var(--rose)}
 .dayhead h2{font-family:var(--display);font-size:23px;font-weight:700;line-height:1.3;letter-spacing:-.02em;margin-top:4px}
 .dayhead p{margin-top:7px;font-size:14px;color:var(--ink-2);line-height:1.7}
 .notice{display:flex;gap:9px;margin:12px 0 0;padding:12px 14px;border-radius:var(--r-md);background:var(--sun-soft);color:var(--sun-deep);font-size:13px;line-height:1.6}
 .notice.warn{background:var(--coral-soft);color:var(--coral-deep)}
 .notice svg{width:16px;height:16px;flex:0 0 auto;margin-top:2px}
-.daymap{margin:14px 18px 0;border-radius:var(--r-lg);overflow:hidden;background:var(--fill);border:1px solid var(--line);position:relative}
+.daymap{scroll-margin-top:calc(80px + env(safe-area-inset-top,0px));margin:14px 18px 0;border-radius:var(--r-lg);overflow:hidden;background:var(--fill);border:1px solid var(--line);position:relative}
 .daymap .lmap{height:240px;width:100%}
 .daymap .sketch{width:100%;height:auto;display:block;background:var(--surface)}
 .sketch .ln{fill:none;stroke:var(--rose);stroke-width:1.5;stroke-dasharray:4 3}
@@ -296,7 +299,7 @@ details.more .body{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 
 /* ── 아코디언 ── */
 .accs{margin:24px 18px 0;border-top:1px solid var(--line)}
-.acc{border-bottom:1px solid var(--line)}
+.acc{border-bottom:1px solid var(--line);scroll-margin-top:calc(72px + env(safe-area-inset-top,0px))}
 .acc>summary{list-style:none;cursor:pointer;padding:16px 2px;display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:-.02em}
 .acc>summary::-webkit-details-marker{display:none}
 .acc>summary .cnt{font-family:var(--body);font-size:12px;color:var(--ink-3);font-weight:400}
@@ -323,7 +326,7 @@ table.bt{width:100%;border-collapse:collapse;font-size:13.5px}
 .bt tr.total td{border-bottom:0;padding-top:14px}
 .bt tr.total td:first-child{font-family:var(--display);font-size:15px;font-weight:700;color:var(--ink)}
 .bt tr.total td:last-child{font-family:var(--display);font-size:20px;font-weight:800;color:var(--rose-deep)}
-.note{font-size:12.5px;color:var(--ink-3);margin-top:10px;line-height:1.6}
+.note,.abody p.note{font-size:12.5px;color:var(--ink-3);margin-top:10px;line-height:1.6}
 .checks li{position:relative;padding:10px 0 10px 28px;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--ink-2);line-height:1.6;cursor:pointer}
 .checks li:last-child{border-bottom:0}
 .checks li::before{content:"";position:absolute;left:0;top:14px;width:15px;height:15px;border-radius:5px;border:1.5px solid var(--line-2);background:#fff}
@@ -361,7 +364,7 @@ table.bt{width:100%;border-collapse:collapse;font-size:13.5px}
 .bottombar .in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px}
 .bottombar .amt{flex:1;min-width:0;line-height:1.25}
 .bottombar .k{display:block;font-size:11px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bottombar .v{font-family:var(--display);font-size:19px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.bottombar .v{display:block;font-family:var(--display);font-size:clamp(15px,4.6vw,19px);font-weight:800;color:var(--ink);line-height:1.2;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .bottombar .v small{display:block;font-family:var(--body);font-size:11px;color:var(--ink-3);font-weight:400;letter-spacing:0;line-height:1.2;margin-top:2px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:var(--r-md);background:var(--rose);color:#fff;font-size:14px;font-weight:700;white-space:nowrap;transition:transform .12s,background .15s}
 .btn:active{transform:scale(.97);background:var(--rose-deep)}
@@ -402,6 +405,7 @@ const REGIONS = DATA.regions || ['홋카이도','도호쿠','간토','주부','�
 const TAGS = DATA.tags || [];
 const MAPD = DATA.map || null;
 const HAS_L = typeof L !== 'undefined';
+const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 
 /* ───────── 글자 ───────── */
 function T(key, p){ let s = UI[key]; if (s == null) s = key; if (p) for (const k in p) s = s.split('{' + k + '}').join(p[k]); return s; }
@@ -411,6 +415,7 @@ const tagName = t => dict('tags', t);
 const tierName = t => dict('tiers', t);
 const whenName = w => dict('when', w);
 const paceName = p => dict('pace_v', p);
+const prefName = (g) => { const pr = dict('prefs', g.prefecture || ''); return pr && pr !== regionName(g.region) ? pr : ''; };
 const stName = s => dict('status', s);
 const krName = iata => (UI.kr && UI.kr[iata]) || (KRP[iata] ? KRP[iata].name : iata);
 const alName = a => (UI.airlines && UI.airlines[a]) || a;
@@ -418,16 +423,16 @@ function apName(a){ if (!a) return ''; if (LANG === 'ko') return a.name_ko; cons
 function apCity(a){ if (!a) return ''; if (LANG === 'ko') return a.city_ko || a.name_ko; const n = APN[a.iata] || {}; const k = 'city_' + (LANG === 'es' ? 'en' : LANG); return n[k] || n.city_en || a.name_en; }
 const HANGUL = /[가-힣]/;
 const WK = {
-  en: [[/매일\s*(\d+)[~～-](\d+)편/g, '$1-$2 daily'], [/매일\s*(\d+)편/g, '$1 daily'], [/매일\s*여러\s*편/g, 'several daily'], [/매일\s*다수편/g, 'many daily'], [/매일/g, 'daily'], [/주\s*(\d+)[~～-](\d+)회/g, '$1-$2/week'], [/주\s*(\d+)회/g, '$1/week'], [/일\s*(\d+)회/g, '$1 daily'], [/(\d+)편/g, '$1 flights'], [/운휴/g, 'suspended'], [/부정기/g, 'irregular'], [/미확인|확인\s*필요/g, 'TBC'], [/이상/g, '+'], [/안팎/g, 'approx.']],
-  es: [[/매일\s*(\d+)[~～-](\d+)편/g, '$1-$2 diarios'], [/매일\s*(\d+)편/g, '$1 diarios'], [/매일\s*여러\s*편/g, 'varios al día'], [/매일\s*다수편/g, 'muchos al día'], [/매일/g, 'diario'], [/주\s*(\d+)[~～-](\d+)회/g, '$1-$2/sem.'], [/주\s*(\d+)회/g, '$1/sem.'], [/일\s*(\d+)회/g, '$1 al día'], [/(\d+)편/g, '$1 vuelos'], [/운휴/g, 'suspendido'], [/부정기/g, 'irregular'], [/미확인|확인\s*필요/g, 'por confirmar'], [/이상/g, '+'], [/안팎/g, 'aprox.']],
-  ja: [[/매일/g, '毎日'], [/주\s*(\d+)[~～-](\d+)회/g, '週$1〜$2便'], [/주\s*(\d+)회/g, '週$1便'], [/일\s*(\d+)회/g, '1日$1便'], [/여러\s*편/g, '複数便'], [/다수편/g, '多数'], [/(\d+)편/g, '$1便'], [/운휴/g, '運休'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '要確認'], [/이상/g, '以上'], [/안팎/g, '前後']],
-  zh: [[/매일/g, '每天'], [/주\s*(\d+)[~～-](\d+)회/g, '每周$1~$2班'], [/주\s*(\d+)회/g, '每周$1班'], [/일\s*(\d+)회/g, '每天$1班'], [/여러\s*편/g, '多班'], [/다수편/g, '多班'], [/(\d+)편/g, '$1班'], [/운휴/g, '停飞'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '待确认'], [/이상/g, '以上'], [/안팎/g, '左右']],
-  yue: [[/매일/g, '每日'], [/주\s*(\d+)[~～-](\d+)회/g, '每週$1~$2班'], [/주\s*(\d+)회/g, '每週$1班'], [/일\s*(\d+)회/g, '每日$1班'], [/여러\s*편/g, '多班'], [/다수편/g, '多班'], [/(\d+)편/g, '$1班'], [/운휴/g, '停飛'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '待確認'], [/이상/g, '以上'], [/안팎/g, '左右']]
+  en: [[/(\d+)\s*왕복/g, '$1 round trips'], [/전세/g, 'charter'], [/정기/g, 'scheduled'], [/계절/g, 'seasonal'], [/매일\s*(\d+)[~～-](\d+)편/g, '$1-$2 daily'], [/매일\s*(\d+)편/g, '$1 daily'], [/매일\s*여러\s*편/g, 'several daily'], [/매일\s*다수편/g, 'many daily'], [/매일/g, 'daily'], [/주\s*(\d+)[~～-](\d+)회/g, '$1-$2/week'], [/주\s*(\d+)회/g, '$1/week'], [/일\s*(\d+)회/g, '$1 daily'], [/(\d+)편/g, '$1 flights'], [/운휴/g, 'suspended'], [/부정기/g, 'irregular'], [/미확인|확인\s*필요/g, 'TBC'], [/이상/g, '+'], [/안팎/g, 'approx.'], [/([(·,\s])월(?=[·,)\s]|$)/g, '$1Mon'], [/([(·,\s])화(?=[·,)\s]|$)/g, '$1Tue'], [/([(·,\s])수(?=[·,)\s]|$)/g, '$1Wed'], [/([(·,\s])목(?=[·,)\s]|$)/g, '$1Thu'], [/([(·,\s])금(?=[·,)\s]|$)/g, '$1Fri'], [/([(·,\s])토(?=[·,)\s]|$)/g, '$1Sat'], [/([(·,\s])일(?=[·,)\s]|$)/g, '$1Sun']],
+  es: [[/(\d+)\s*왕복/g, '$1 idas y vueltas'], [/전세/g, 'chárter'], [/정기/g, 'regular'], [/계절/g, 'temporada'], [/매일\s*(\d+)[~～-](\d+)편/g, '$1-$2 diarios'], [/매일\s*(\d+)편/g, '$1 diarios'], [/매일\s*여러\s*편/g, 'varios al día'], [/매일\s*다수편/g, 'muchos al día'], [/매일/g, 'diario'], [/주\s*(\d+)[~～-](\d+)회/g, '$1-$2/sem.'], [/주\s*(\d+)회/g, '$1/sem.'], [/일\s*(\d+)회/g, '$1 al día'], [/(\d+)편/g, '$1 vuelos'], [/운휴/g, 'suspendido'], [/부정기/g, 'irregular'], [/미확인|확인\s*필요/g, 'por confirmar'], [/이상/g, '+'], [/안팎/g, 'aprox.'], [/([(·,\s])월(?=[·,)\s]|$)/g, '$1lun'], [/([(·,\s])화(?=[·,)\s]|$)/g, '$1mar'], [/([(·,\s])수(?=[·,)\s]|$)/g, '$1mié'], [/([(·,\s])목(?=[·,)\s]|$)/g, '$1jue'], [/([(·,\s])금(?=[·,)\s]|$)/g, '$1vie'], [/([(·,\s])토(?=[·,)\s]|$)/g, '$1sáb'], [/([(·,\s])일(?=[·,)\s]|$)/g, '$1dom']],
+  ja: [[/(\d+)\s*왕복/g, '$1往復'], [/전세/g, 'チャーター'], [/정기/g, '定期'], [/계절/g, '季節'], [/매일/g, '毎日'], [/주\s*(\d+)[~～-](\d+)회/g, '週$1〜$2便'], [/주\s*(\d+)회/g, '週$1便'], [/일\s*(\d+)회/g, '1日$1便'], [/여러\s*편/g, '複数便'], [/다수편/g, '多数'], [/(\d+)편/g, '$1便'], [/운휴/g, '運休'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '要確認'], [/이상/g, '以上'], [/안팎/g, '前後'], [/([(·,\s])월(?=[·,)\s]|$)/g, '$1月'], [/([(·,\s])화(?=[·,)\s]|$)/g, '$1火'], [/([(·,\s])수(?=[·,)\s]|$)/g, '$1水'], [/([(·,\s])목(?=[·,)\s]|$)/g, '$1木'], [/([(·,\s])금(?=[·,)\s]|$)/g, '$1金'], [/([(·,\s])토(?=[·,)\s]|$)/g, '$1土'], [/([(·,\s])일(?=[·,)\s]|$)/g, '$1日']],
+  zh: [[/(\d+)\s*왕복/g, '$1次往返'], [/전세/g, '包机'], [/정기/g, '定期'], [/계절/g, '季节'], [/매일/g, '每天'], [/주\s*(\d+)[~～-](\d+)회/g, '每周$1~$2班'], [/주\s*(\d+)회/g, '每周$1班'], [/일\s*(\d+)회/g, '每天$1班'], [/여러\s*편/g, '多班'], [/다수편/g, '多班'], [/(\d+)편/g, '$1班'], [/운휴/g, '停飞'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '待确认'], [/이상/g, '以上'], [/안팎/g, '左右'], [/([(·,\s])월(?=[·,)\s]|$)/g, '$1周一'], [/([(·,\s])화(?=[·,)\s]|$)/g, '$1周二'], [/([(·,\s])수(?=[·,)\s]|$)/g, '$1周三'], [/([(·,\s])목(?=[·,)\s]|$)/g, '$1周四'], [/([(·,\s])금(?=[·,)\s]|$)/g, '$1周五'], [/([(·,\s])토(?=[·,)\s]|$)/g, '$1周六'], [/([(·,\s])일(?=[·,)\s]|$)/g, '$1周日']],
+  yue: [[/(\d+)\s*왕복/g, '$1次來回'], [/전세/g, '包機'], [/정기/g, '定期'], [/계절/g, '季節'], [/매일/g, '每日'], [/주\s*(\d+)[~～-](\d+)회/g, '每週$1~$2班'], [/주\s*(\d+)회/g, '每週$1班'], [/일\s*(\d+)회/g, '每日$1班'], [/여러\s*편/g, '多班'], [/다수편/g, '多班'], [/(\d+)편/g, '$1班'], [/운휴/g, '停飛'], [/부정기/g, '不定期'], [/미확인|확인\s*필요/g, '待確認'], [/이상/g, '以上'], [/안팎/g, '左右'], [/([(·,\s])월(?=[·,)\s]|$)/g, '$1週一'], [/([(·,\s])화(?=[·,)\s]|$)/g, '$1週二'], [/([(·,\s])수(?=[·,)\s]|$)/g, '$1週三'], [/([(·,\s])목(?=[·,)\s]|$)/g, '$1週四'], [/([(·,\s])금(?=[·,)\s]|$)/g, '$1週五'], [/([(·,\s])토(?=[·,)\s]|$)/g, '$1週六'], [/([(·,\s])일(?=[·,)\s]|$)/g, '$1週日']]
 };
 function weeklyText(s){ s = String(s || ''); if (LANG === 'ko' || !HANGUL.test(s)) return s; for (const [re, to] of (WK[LANG] || [])) s = s.replace(re, to); s = s.replace(/\([^)]*[가-힣][^)]*\)/g, '').replace(/[가-힣]+/g, '').replace(/\s{2,}/g, ' ').replace(/^[\s·,]+|[\s·,]+$/g, ''); return s || T('weekly_tbd'); }
 function kText(s){ return (LANG !== 'ko' && HANGUL.test(String(s || ''))) ? '' : String(s || ''); }
-const KW = { '상시': { en: 'Open all day', es: 'Siempre abierto', ja: '常時', zh: '全天', yue: '全日' }, '없음': { en: 'None', es: 'Ninguno', ja: 'なし', zh: '无', yue: '無' }, '확인 필요': { en: 'TBC', es: 'por confirmar', ja: '要確認', zh: '待确认', yue: '待確認' }, '부정기': { en: 'irregular', es: 'irregular', ja: '不定期', zh: '不定期', yue: '不定期' } };
-function hText(s){ s = String(s || ''); if (LANG === 'ko' || !HANGUL.test(s)) return s; for (const k in KW) s = s.split(k).join(KW[k][LANG] || k); return HANGUL.test(s) ? s.replace(/\([^)]*[가-힣][^)]*\)/g, '').replace(/[가-힣]+/g, '').replace(/\s{2,}/g, ' ').trim() : s; }
+const KW = { '월요일': { en: 'Mon', es: 'lunes', ja: '月曜', zh: '周一', yue: '週一' }, '화요일': { en: 'Tue', es: 'martes', ja: '火曜', zh: '周二', yue: '週二' }, '수요일': { en: 'Wed', es: 'miércoles', ja: '水曜', zh: '周三', yue: '週三' }, '목요일': { en: 'Thu', es: 'jueves', ja: '木曜', zh: '周四', yue: '週四' }, '금요일': { en: 'Fri', es: 'viernes', ja: '金曜', zh: '周五', yue: '週五' }, '토요일': { en: 'Sat', es: 'sábado', ja: '土曜', zh: '周六', yue: '週六' }, '일요일': { en: 'Sun', es: 'domingo', ja: '日曜', zh: '周日', yue: '週日' }, '공휴일': { en: 'holidays', es: 'festivos', ja: '祝日', zh: '节假日', yue: '公眾假期' }, '연말연시': { en: 'New Year period', es: 'fin de año', ja: '年末年始', zh: '年末年初', yue: '年尾年初' }, '매일': { en: 'daily', es: 'a diario', ja: '毎日', zh: '每天', yue: '每日' }, '무휴': { en: 'open daily', es: 'abierto a diario', ja: '無休', zh: '无休', yue: '無休' }, '상시': { en: 'Open all day', es: 'Siempre abierto', ja: '常時', zh: '全天', yue: '全日' }, '없음': { en: 'None', es: 'Ninguno', ja: 'なし', zh: '无', yue: '無' }, '확인 필요': { en: 'TBC', es: 'por confirmar', ja: '要確認', zh: '待确认', yue: '待確認' }, '부정기': { en: 'irregular', es: 'irregular', ja: '不定期', zh: '不定期', yue: '不定期' } };
+function hText(s){ s = String(s || ''); if (LANG === 'ko' || !HANGUL.test(s)) return s; for (const k in KW) s = s.split(k).join(KW[k][LANG] || k); if (!HANGUL.test(s)) return s; const t = s.replace(/\([^)]*[가-힣][^)]*\)/g, '').replace(/[가-힣]+/g, '').replace(/[()（）]\s*[()（）]/g, '').replace(/\s{2,}/g, ' ').replace(/^[\s·,()（）]+|[\s·,()（）]+$/g, '').trim(); return /[0-9A-Za-z\u3040-\u30ff\u4e00-\u9fff]/.test(t) ? t : T('tbd'); }
 
 /* ───────── 저장 ───────── */
 const S = {
@@ -437,7 +442,7 @@ const S = {
 const st = {
   origin: S.get('origin', 'ICN'), nights: S.get('nights', 0), tag: '', sort: 'region',
   dest: null, nightsSel: 0, variant: 0, day: 0, sel: -1,
-  picks: S.get('picks', {}), checks: S.get('checks', {}), mapSel: ''
+  picks: S.get('picks', {}), checks: S.get('checks', {}), mapSel: '', pushed: 0
 };
 if (!KRP[st.origin]) st.origin = 'ICN';
 
@@ -446,7 +451,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp
 const rich = s => esc(s).replace(/&lt;(\/?b)&gt;/g, '<$1>').replace(/&lt;br\s*\/?&gt;/g, '<br>');
 const nd = n => T('nd', { n, m: n + 1 });
 const fmtMin = m => { m = Number(m) || 0; const h = Math.floor(m / 60), r = m % 60; return h ? (r ? T('hm', { h, m: r }) : T('h', { h })) : T('m', { m: r }); };
-const man = n => { n = Number(n) || 0; if (LANG === 'ko') return n >= 10000 ? `${Math.round(n / 10000).toLocaleString('ko-KR')}만원` : `${n.toLocaleString('ko-KR')}원`; return '₩' + n.toLocaleString('en-US'); };
+const man = n => { n = Math.round(Number(n) || 0); if (LANG === 'ko'){ if (n < 10000) return `${n.toLocaleString('ko-KR')}원`; const m = Math.floor(n / 10000), r = n % 10000; return r ? `${m.toLocaleString('ko-KR')}만 ${r.toLocaleString('ko-KR')}원` : `${m.toLocaleString('ko-KR')}만원`; } return '₩' + n.toLocaleString('en-US'); };
 const manR = v => Array.isArray(v) ? (v[0] === v[1] ? man(v[0]) : (LANG === 'ko' ? `${man(v[0]).replace('원','')}~${man(v[1])}` : `${man(v[0])} ~ ${man(v[1])}`)) : man(v);
 const yen = n => T('yen', { n: Number(n).toLocaleString('en-US') });
 const gmap = (q, ll) => ll && ll[0] ? `https://www.google.com/maps/search/?api=1&query=${ll[0]},${ll[1]}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || '')}`;
@@ -574,7 +579,7 @@ function jpMapSvg(){
     const p = proj(a.lat, a.lng); if (!p) continue;
     const rs = routesFrom(st.origin, a.iata);
     const best = rs[0];
-    const cls = !best ? 'off' : best.status === '정기' ? 'on' : best.status === '계절' ? 'season' : 'charter';
+    const cls = !best ? 'off' : best.status === '정기' ? 'on' : best.status === '계절' ? 'season' : best.status === '전세' ? 'charter' : 'tbc';
     const r = cls === 'off' ? 2.4 : 3.6;
     const hasGuide = list.some(g => (g.airports || []).includes(a.iata));
     if (cls === 'off' && !hasGuide && !a.has_korea_direct) continue;
@@ -582,7 +587,7 @@ function jpMapSvg(){
       const mx = (op.x + p.x) / 2, my = (op.y + p.y) / 2;
       const dx = p.x - op.x, dy = p.y - op.y; const len = Math.hypot(dx, dy) || 1;
       const cx = mx - dy / len * len * 0.18, cy = my + dx / len * len * 0.18;
-      arcs += `<path class="arc ${cls === 'season' ? 'season' : cls === 'charter' ? 'charter' : ''}" d="M${op.x.toFixed(1)} ${op.y.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}"/>`;
+      arcs += `<path class="arc ${cls === 'on' ? '' : cls}" d="M${op.x.toFixed(1)} ${op.y.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}"/>`;
     }
     const sel = st.mapSel === a.iata ? 'sel' : '';
     dots += `<g class="dot ${cls} ${sel}" data-act="mapdot" data-v="${esc(a.iata)}" tabindex="0" role="button" aria-label="${esc(apName(a))}"><circle class="halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="14" fill="transparent"/><circle class="c" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}"/></g>`;
@@ -640,7 +645,7 @@ function renderHome(){
   <section class="mapcard" aria-label="${esc(T('map_title', { origin: on }))}">
     <div class="mh"><b>${esc(T('map_title', { origin: on }))}</b><span>${esc(T('map_sub'))}</span></div>
     <div id="jpmap">${jpMapSvg()}</div>
-    <div class="legend"><span><i style="background:var(--rose)"></i>${esc(T('lg_regular'))}</span><span><i style="background:var(--sun)"></i>${esc(T('lg_season'))}</span><span><i style="background:var(--plum)"></i>${esc(T('lg_charter'))}</span><span><i style="background:var(--ink-4)"></i>${esc(T('lg_none'))}</span><span><i style="background:var(--sky)"></i>${esc(T('lg_origin'))}</span></div>
+    <div class="legend"><span><i style="background:var(--rose)"></i>${esc(T('lg_regular'))}</span><span><i style="background:var(--sun)"></i>${esc(T('lg_season'))}</span><span><i style="background:var(--plum)"></i>${esc(T('lg_charter'))}</span><span><i style="background:var(--ink-3)"></i>${esc(stName('확인필요'))}</span><span><i style="background:var(--ink-4)"></i>${esc(T('lg_none'))}</span><span><i style="background:var(--sky)"></i>${esc(T('lg_origin'))}</span></div>
     <div id="maptip">${mapTip()}</div>
   </section>
   <section class="filters">
@@ -650,7 +655,6 @@ function renderHome(){
   </section>
   ${cards}
   <footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}<br>${esc(T('footer_date', { d: DATA.generated || '' }))}</footer>`;
-  window.scrollTo(0, 0);
 }
 function destCard(g, b){
   const on = krName(st.origin);
@@ -665,7 +669,7 @@ function destCard(g, b){
   }
   const ns = (g.plans || []).map(p => p.nights).sort((x, y) => x - y);
   return `<button class="dcard" data-act="open" data-v="${esc(g.key)}" id="card-${esc(g.key)}">
-    <div class="row">${stamp(g, false, !b)}<div class="nm"><h3>${esc(g.name)}<small>${esc(g.prefecture || '')}</small></h3><div class="tg">${esc(g.tagline || '')}</div><div class="tags">${(g.tags || []).slice(0, 5).map(tagHtml).join('')}</div></div></div>
+    <div class="row">${stamp(g, false, !b)}<div class="nm"><h3>${esc(g.name)}<small>${esc(prefName(g))}</small></h3>${g._ko_only && LANG !== 'ko' ? `<span class="tag kmark">${esc(T('ko_only'))}</span>` : ''}<div class="tg">${esc(g.tagline || '')}</div><div class="tags">${(g.tags || []).slice(0, 5).map(tagHtml).join('')}</div></div></div>
     ${htsHtml(g, 5)}
     ${fl}
     <div class="nights">${ns.map(n => `<span class="${st.nights === n ? 'hit' : ''}">${esc(nd(n))}</span>`).join('')}</div>
@@ -713,8 +717,8 @@ function renderDest(){
   app.innerHTML = `
   <div class="topbar"><button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button><div class="brand">${esc(g.name)}<small>${esc(T('dep', { origin: on }))}</small></div>${langBtn()}<button class="iconbtn" data-act="share" aria-label="${esc(T('share'))}">${svgShare}</button></div>
   <header class="dhero">
-    <div class="top">${stamp(g, true, !bestRoute(st.origin, g))}<div><h1>${esc(g.name)}</h1><div class="ja">${LANG === 'ja' ? '' : esc(g.name_ja || '') + ' · '}${esc(regionName(g.region))} ${esc(g.prefecture || '')}</div></div></div>
-    <p class="tagline">${esc(g.tagline || '')}</p>
+    <div class="top">${stamp(g, true, !bestRoute(st.origin, g))}<div><h1>${esc(g.name)}</h1><div class="jline">${LANG === 'ja' ? '' : esc(g.name_ja || '') + ' · '}${esc(regionName(g.region))} ${esc(prefName(g))}</div></div></div>
+    ${g._ko_only && LANG !== 'ko' ? `<p style="margin-top:12px"><span class="tag kmark">${esc(T('ko_only'))}</span></p>` : ''}<p class="tagline">${esc(g.tagline || '')}</p>
     ${htsHtml(g, 8)}
     <p class="intro">${rich(g.intro || '')}</p>
     <div class="tags">${(g.tags || []).map(tagHtml).join('')}${g.pace ? `<span class="tag ghost">${esc(T('pace', { pace: paceName(g.pace) }))}</span>` : ''}</div>
@@ -726,7 +730,6 @@ function renderDest(){
   <div class="accs">${accordions(g, plan)}</div>
   <footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}</footer>
   ${bottomBar(g, plan)}`;
-  window.scrollTo(0, 0);
   mountMap(g, plan);
 }
 function bottomBar(g, plan){
@@ -831,7 +834,7 @@ function sketch(pts){
 function focusStop(i, scrollMap){
   st.sel = i;
   document.querySelectorAll('.scard').forEach(c => c.classList.toggle('on', c.id === `stop-${i}`));
-  document.querySelectorAll('.pin').forEach((p, k) => p.classList.toggle('on', k === i));
+  markers.forEach((m, k) => { const el = m && m.getElement && m.getElement(); const pn = el && el.querySelector('.pin'); if (pn) pn.classList.toggle('on', k === i); });
   const mk = markers[i];
   if (lmap && mk){ lmap.setView(mk.getLatLng(), Math.max(lmap.getZoom(), 14), { animate: true }); mk.openPopup(); if (scrollMap){ const m = document.getElementById('daymap'); if (m) m.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
 }
@@ -844,22 +847,23 @@ function accordions(g, plan){
     <tr><td>${esc(T('b_food'))}</td><td>${manR(b.food_krw)}</td></tr><tr><td>${esc(T('b_transport'))}<small>${esc(T('b_transport_s'))}</small></td><td>${manR(b.transport_krw)}</td></tr>
     <tr><td>${esc(T('b_entry'))}</td><td>${manR(b.entry_krw)}</td></tr><tr><td>${esc(T('b_shop'))}</td><td>${manR(b.shopping_krw)}</td></tr>
     <tr class="total"><td>${esc(T('b_total'))}</td><td>${manR(b.total_krw)}</td></tr></table><p class="note">${esc(b.basis || '')} ${esc(T('b_note'))}</p>` : `<p>${esc(T('no_budget'))}</p>`;
-  const checks = [].concat(plan && plan.checks || [], g.checks || []);
-  const checkHtml = checks.length ? `<ul class="checks">${checks.map((c, i) => { const ck = `${g.key}|${i}`; return `<li class="${st.checks[ck] ? 'done' : ''}" data-act="check" data-v="${esc(ck)}">${rich(c)}</li>`; }).join('')}</ul>` : `<p>${esc(T('no_check'))}</p>`;
+  const checks = [].concat((plan && plan.checks || []).map((c, i) => ({ c, k: `${g.key}|${plan.nights}|p|${i}` })), (g.checks || []).map((c, i) => ({ c, k: `${g.key}|g|${i}` })));
+  const checkHtml = checks.length ? `<ul class="checks">${checks.map(x => `<li class="${st.checks[x.k] ? 'done' : ''}" data-act="check" data-v="${esc(x.k)}" tabindex="0" role="checkbox" aria-checked="${!!st.checks[x.k]}">${rich(x.c)}</li>`).join('')}</ul>` : `<p>${esc(T('no_check'))}</p>`;
   const whenCls = w => ({'비 오는 날':'sky','아이와':'sun','시간 남을 때':'sage','렌터카':'plum','휴무일 때':'coral'}[w] || '');
   const bplan = (g.bplan || []).map(x => { const p = x.ref ? findP(g, x.ref) : null; return `<div class="bp"><div class="bh"><b>${esc(x.title)}</b>${x.when ? `<span class="tag ${whenCls(x.when)}">${esc(whenName(x.when))}</span>` : ''}</div><div class="bd">${rich(x.desc || '')}</div><a class="go" href="${gmap(x.maps_q || x.title, p ? [p.lat, p.lng] : null)}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div>`; }).join('');
   const rest = (g.restaurants || []).map(r => `<div class="ritem"><div class="ic c-food">${ico('food')}</div><div class="ri"><div class="rn">${esc(r.name)}<small>${LANG === 'ja' ? '' : esc(r.name_ja || '')}</small></div><div class="rs">${esc(r.cuisine || '')} · ${esc(r.signature || '')} · ${yenMark(r.price_level)}</div><div class="rd">${rich(r.desc || '')}${r.closed && r.closed !== '없음' ? ` <b>${esc(T('closed'))} ${esc(hText(r.closed))}</b>` : ''}${r.hours ? ` · ${esc(hText(r.hours))}` : ''}</div><a class="go" href="${gmap(r.maps_q, [r.lat, r.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('gmap'))}</a></div></div>`).join('');
   const spots = (g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').map(s => `<div class="ritem"><div class="ic c-${esc(s.cat)}">${ico(s.cat)}</div><div class="ri"><div class="rn">${esc(s.name)}<small>${LANG === 'ja' ? '' : esc(s.name_ja || '')}</small>${s.must ? ` <span class="tag rose">${esc(T('must'))}</span>` : ''}</div><div class="rs">${esc(s.area || '')} · ${s.fee_yen === 0 ? esc(T('free')) : s.fee_yen > 0 ? yen(s.fee_yen) : esc(T('fee_tbd'))} · ${fmtMin(s.duration_min || 60)}</div><div class="rd">${rich(s.desc || '')}${s.closed && s.closed !== '없음' ? ` <b>${esc(T('closed'))} ${esc(hText(s.closed))}</b>` : ''}</div><a class="go" href="${gmap(s.maps_q || s.name_ja || s.name, [s.lat, s.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('gmap'))}</a></div></div>`).join('');
-  const alts = (g.nearby_alternatives || []).map(x => { const ag = GUIDES[x.key]; if (!ag) return ''; const bb = bestRoute(st.origin, ag); const a = bb && AP[bb.iata];
+  const altList = (g.nearby_alternatives || []).filter(x => own(GUIDES, x.key));
+  const alts = altList.map(x => { const ag = GUIDES[x.key]; const bb = bestRoute(st.origin, ag); const a = bb && AP[bb.iata];
     return `<button class="altcard" data-act="open" data-v="${esc(ag.key)}">${stamp(ag, false, !bb)}<div class="ai"><div class="an">${esc(ag.name)}</div><div class="ar">${rich(x.reason || '')}</div><div class="af">${bb ? `${esc(T('from_to', { origin: krName(st.origin), to: apCity(a) }))} ${fmtMin(bb.r.flight_minutes)} · ${esc(airlineText(bb.r.airlines))}` : esc(T('no_direct', { origin: krName(st.origin) }))} · ${(ag.plans || []).map(p => esc(nd(p.nights))).join(' / ')}</div></div><span class="arrow">${svgNext}</span></button>`; }).join('');
   const season = `<p>${esc(g.season_notes || '')}</p>${g.getting_around ? `<h4>${esc(T('getting_around'))}</h4><p>${rich(g.getting_around)}</p>` : ''}${g.transport_pass ? `<h4>${esc(T('pass'))}</h4><p>${rich(g.transport_pass)}</p>` : ''}`;
-  const srcs = (g.sources || []).slice(0, 40).map(u => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></li>`).join('');
+  const srcs = (g.sources || []).slice(0, 40).map(u => /^https?:\/\//i.test(String(u)) ? `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></li>` : `<li>${esc(u)}</li>`).join('');
   const acc = (id, title, cnt, body, open) => `<details class="acc" id="acc-${id}" ${open ? 'open' : ''}><summary>${esc(title)}${cnt ? `<span class="cnt">${esc(cnt)}</span>` : ''}</summary><div class="abody">${body}</div></details>`;
   return acc('hotel', T('acc_hotel'), T('n_places', { n: (g.hotels || []).length }), hotels || `<p>${esc(T('no_hotel'))}</p>`) +
     acc('budget', T('acc_budget'), plan ? nd(plan.nights) : '', budget) +
     acc('check', T('acc_check'), T('n_items', { n: checks.length }), checkHtml) +
     acc('bplan', T('acc_bplan'), T('n_places', { n: (g.bplan || []).length }), bplan || `<p>${esc(T('no_bplan'))}</p>`) +
-    acc('alt', T('acc_alt'), T('n_places', { n: (g.nearby_alternatives || []).length }), alts || `<p>${esc(T('no_alt'))}</p>`) +
+    acc('alt', T('acc_alt'), T('n_places', { n: altList.length }), alts || `<p>${esc(T('no_alt'))}</p>`) +
     acc('food', T('acc_food'), T('n_places', { n: (g.restaurants || []).length }), `<div class="rlist">${rest}</div>`) +
     acc('spot', T('acc_spot'), T('n_places', { n: (g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').length }), `<div class="rlist">${spots}</div>`) +
     acc('season', T('acc_season'), '', season) +
@@ -870,12 +874,12 @@ function accordions(g, plan){
 function go(dest, push){
   st.dest = dest; st.day = 0; st.sel = -1; st.variant = 0;
   const h = dest ? `#${dest}` : '#home';
-  if (push !== false){ try { history.pushState({ dest }, '', h); } catch(e){ location.hash = h; } }
-  render();
+  if (push !== false){ try { if (!dest && st.pushed === 0) history.replaceState({ dest }, '', h); else { history.pushState({ dest }, '', h); st.pushed++; } } catch(e){ location.hash = h; } }
+  render(); window.scrollTo(0, 0);
 }
 function render(){ closeLang(); if (st.dest && GUIDES[st.dest]) renderDest(); else renderHome(); }
-function parseHash(){ const h = (location.hash || '').replace('#', ''); return GUIDES[h] ? h : null; }
-window.addEventListener('popstate', () => { st.dest = parseHash(); st.day = 0; st.sel = -1; st.variant = 0; render(); });
+function parseHash(){ const h = (location.hash || '').replace('#', ''); return own(GUIDES, h) ? h : null; }
+window.addEventListener('popstate', () => { st.pushed = Math.max(0, st.pushed - 1); st.dest = parseHash(); st.day = 0; st.sel = -1; st.variant = 0; render(); window.scrollTo(0, 0); });
 function openLang(){ const m = document.getElementById('langmenu'); m.innerHTML = langMenu(); m.classList.add('on'); document.getElementById('scrim').classList.add('on'); }
 function closeLang(){ document.getElementById('langmenu').classList.remove('on'); document.getElementById('scrim').classList.remove('on'); }
 document.getElementById('scrim').addEventListener('click', closeLang);
@@ -894,13 +898,13 @@ app.addEventListener('click', e => {
     const g = Object.values(GUIDES).find(x => (x.airports || []).includes(v)); if (g){ const c = document.getElementById(`card-${g.key}`); if (c){ c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1600); } }
     return; }
   if (act === 'open'){ e.stopPropagation(); go(v); return; }
-  if (act === 'back'){ if (history.state && history.state.dest !== undefined && history.length > 1) history.back(); else go(null); return; }
+  if (act === 'back'){ if (st.pushed > 0) history.back(); else go(null); return; }
   if (act === 'setnights'){ st.nightsSel = Number(v); st.variant = 0; st.day = 0; st.sel = -1; renderDest(); return; }
   if (act === 'variant'){ st.variant = Number(v); st.day = 0; st.sel = -1; renderDest(); return; }
   if (act === 'day'){ st.day = Number(v); st.sel = -1; const g = GUIDES[st.dest]; const plan = curPlan(g); document.getElementById('planarea').innerHTML = planHtml(g, plan); const dh = document.querySelector('.dayhead'); if (dh) dh.scrollIntoView({ behavior: 'smooth', block: 'start' }); mountMap(g, plan); return; }
   if (act === 'focus'){ if (e.target.closest('a,button.opt')) return; focusStop(Number(v), true); return; }
   if (act === 'pick'){ e.stopPropagation(); const at = v.lastIndexOf('|'); const pk = v.slice(0, at), rid = v.slice(at + 1); st.picks[pk] = rid; S.set('picks', st.picks); const g = GUIDES[st.dest]; const plan = curPlan(g); const y = window.scrollY; document.getElementById('planarea').innerHTML = planHtml(g, plan); window.scrollTo(0, y); mountMap(g, plan); return; }
-  if (act === 'check'){ st.checks[v] = !st.checks[v]; S.set('checks', st.checks); el.classList.toggle('done', !!st.checks[v]); return; }
+  if (act === 'check'){ st.checks[v] = !st.checks[v]; S.set('checks', st.checks); el.classList.toggle('done', !!st.checks[v]); el.setAttribute('aria-checked', String(!!st.checks[v])); return; }
   if (act === 'budget'){ const d = document.getElementById('acc-budget'); if (d){ d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
   if (act === 'share'){ share(); return; }
 });
@@ -910,7 +914,7 @@ function share(){
   const title = g ? `${g.name} ${plan ? nd(plan.nights) : ''} ${T('plan_word')}` : T('brand');
   const url = location.href;
   const copy = () => { try { navigator.clipboard.writeText(url).then(() => toast(T('copied')), () => toast(url)); } catch(e){ toast(url); } };
-  if (navigator.share){ navigator.share({ title, url }).catch(() => {}); } else copy();
+  if (navigator.share && /^https?:/.test(url)){ navigator.share({ title, url }).catch(err => { if (!err || err.name !== 'AbortError') copy(); }); } else copy();
 }
 
 /* ───────── 시작 ───────── */

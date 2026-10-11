@@ -60,7 +60,8 @@ LABELS = [  # 지역 이름 자리(지도 좌표). 점과 겹치지 않게 바�
 
 
 def jsonsafe(obj):
-    return json.dumps(obj, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    # '<' 를 전부 \u003c 로 바꿔 <script> 블록을 데이터가 끊지 못하게 한다(JSON 으로는 같은 값)
+    return json.dumps(obj, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c')
 
 
 def project(lon, lat):
@@ -185,7 +186,7 @@ def main():
         for key, g in guides.items():
             tr = load_tr(code, key)
             if tr is None:
-                tguides[key] = g
+                tguides[key] = dict(g, _ko_only=(code != 'ko'))
                 if code != 'ko':
                     missing.append(key)
             else:
