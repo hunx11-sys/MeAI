@@ -2,6 +2,7 @@
 
 출발 공항과 박 수만 고르면 **직항편 → 하루하루 동선 → 맛집 → 지도 → 숙소 → 예산 → 대체 동선·대체 여행지**까지 한 화면에서 보여 주는 여행 가이드 프로그램입니다. 일본을 첫 대상으로 만들었고, 같은 틀에 다른 나라 자료를 넣으면 그대로 늘어납니다.
 
+- 다운로드용 한 파일 : **`dist/japan_travel_planner_ko_v1.2.html`** (한국어, 언어 버튼 없음. 컴퓨터 브라우저로 열면 지도까지 그대로 동작. 다시 만들 때 `python3 travel/build_japan.py --lang ko --no-lang-menu --out dist/japan_travel_planner_ko_v1.2.html`)
 - 완성 파일 : **`travel/japan.html`** (한국어. 파일 하나. 아이폰 사파리·크롬·엣지 어디서나 열립니다. 지도 바탕 그림과 글꼴만 인터넷이 필요하고, 나머지는 인터넷 없이도 됩니다)
 - 다른 언어 : `japan_en.html`(영어) · `japan_es.html`(스페인어) · `japan_zh.html`(중국어 간체) · `japan_yue.html`(중국어 광동어·번체) · `japan_ja.html`(일본어). 화면 오른쪽 위 지구본 버튼으로 오갑니다(보고 있던 목적지가 유지됨)
 - 자료(데이터베이스) : `travel/data/` 아래 JSON 파일들
