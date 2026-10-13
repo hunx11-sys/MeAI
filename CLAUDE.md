@@ -91,6 +91,7 @@ python3 scripts/sync_all.py --designs <설계서폴더>  # + 설계서 지면 �
 | 지면·문구·사례 | `gen2.py` |
 | 약관 → 데이터 재추출 | `extract_*.py` (명령은 README 실행 요구사항 표) |
 | 데이터 바꾼 뒤 세 산출물 한꺼번에 갱신 | `scripts/sync_all.py` (위 「세 산출물은 함께 간다」) |
+| 1-5종 보상지침(분류표에 없는 신의료 시술 → 같은 부위 / 88항, 예 : 하이푸 1종) | `surg5_guide.json` — 스마트 제안서 엔진과 영업지원도구 「수술비 비교 ⑦」가 같이 쓴다. 고친 뒤 `python3 scripts/sync_surg5_guide.py`(sync_all 0단계) |
 | 신수술비[기본]·[주요수술] 분류표(수술코드 ADRG) | `surg_new.json` — `python extract_surg_new.py "../약관.pdf"` 로 다시 뽑는다 |
 | 3차 안전장치(설계서 뒤쪽 표와 대조) | `verify3.py` |
 | 점검 하네스(H1~H6) · GA 칸 스펙 | `harness.py` · `ga_spec.py` · `.github/workflows/proposal-harness.yml` |

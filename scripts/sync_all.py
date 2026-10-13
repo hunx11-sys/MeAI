@@ -62,6 +62,9 @@ def main():
     db_p, ex_p = os.path.join(PS, 'db.json'), os.path.join(PS, 'db_terms_extra.json')
     db0 = riders(db_p); ex0 = riders(ex_p) if os.path.exists(ex_p) else {}
 
+    # 0. 1-5종 사용지침 판정표(surg5_guide.json) → tool.html 「수술비 비교」 창 (스마트 제안서 엔진과 같은 표)
+    run('0. 1-5종 보상지침 판정표 → 영업지원도구(tool.html)', [PY, os.path.join(ROOT, 'scripts', 'sync_surg5_guide.py')], ROOT)
+
     # 1. tool.html → db.json
     run('1. 영업지원도구 데이터(tool.html) → 특약 마스터 db.json', [PY, 'extract_db.py', '../tool.html'], PS)
 

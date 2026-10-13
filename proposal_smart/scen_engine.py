@@ -80,18 +80,33 @@ def surg7_group(x):
 SURG5 = {}
 _p5 = os.path.join(BASE, 'surg5.json')
 if os.path.exists(_p5): SURG5 = {i['no']: i for i in json.load(open(_p5, encoding='utf-8'))['items']}
+# 사용지침 5(분류표에 없는 신의료 시술 → 같은 부위 수술 / 내시경·카테터 → 88항) 판정표 — 시술 키(HIFU 등)나
+# 수가코드(RZ566 등)로 찾아 분류표 항목으로 바꾼다(v8.76 · surg5_guide.json)
+SURG5_GUIDE = {}
+_pg = os.path.join(BASE, 'surg5_guide.json')
+if os.path.exists(_pg):
+    for _g in json.load(open(_pg, encoding='utf-8'))['items']:
+        for _k in [_g['key']] + _g.get('hc', []): SURG5_GUIDE[_k.upper()] = _g
+def _surg5_item(x):
+    """항목번호면 그대로, 사용지침 5 시술 키·수가코드면 판정표가 가리키는 분류표 항목"""
+    x = str(x)
+    if x in SURG5: return SURG5[x]
+    g = SURG5_GUIDE.get(x.upper())
+    return SURG5.get(g['no']) if g else None
 def surg5_grade(x, kcd=None):
     """사례의 1-5종 표기 : 정수(종) 그대로, 항목번호('33'·'88-1'·'C1' 등)는 분류표에서 종을 찾고
        '단, ○○(KCD)로 인한 수술은 N종' 예외(담석증 K80→2종, 대장 용종 D12→1종, 기타피부암 C44→3종 등)를 질병코드로 적용한다."""
     if x is None or isinstance(x, int): return x
-    it = SURG5.get(str(x))
+    it = _surg5_item(x)
     if not it: return None
     for e in it.get('exceptions') or []:
         if kcd and (kcd == e['kcd'] or kcd.startswith(e['kcd'])): return e['grade']
     return it['grade']
 def surg5_name(x):
-    it = SURG5.get(str(x)) if isinstance(x, str) else None
-    return it['name'] if it else ''
+    it = _surg5_item(x) if isinstance(x, str) else None
+    if not it: return ''
+    g = SURG5_GUIDE.get(x.upper()) if x not in SURG5 else None
+    return ('%s → 사용지침 %s · %s항 %s' % (g['name'], g['rule'], g['no'], it['name'])) if g else it['name']
 def surg_open(tg):
     """사례 수술이 관혈(True)인지 비관혈(False)인지 — 모르면 None (v8.55)
 
@@ -101,6 +116,7 @@ def surg_open(tg):
     적힌 항목은 관혈. 그 밖은 모름."""
     if 'open' in tg: return bool(tg['open'])
     j = tg.get('surg')
+    if isinstance(j, str) and j not in SURG5 and j.upper() in SURG5_GUIDE: return False   # 사용지침 5 시술은 절개 없는 신의료·내시경·카테터 시술
     if not isinstance(j, str) or j not in SURG5: return None
     if j.startswith('88') or j == 'C2': return False
     nm = SURG5[j]['name']

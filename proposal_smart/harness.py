@@ -35,6 +35,10 @@ bad = ['%s 질병코드 형식 %s' % (r['id'], c) for r in DB for c in (r.get('k
 dup = ['id 중복 %s ×%d' % (i, n) for i, n in ids.items() if n > 1]
 noname = ['%s 이름 없음' % r['id'] for r in DB if not (r.get('n') or '').strip()]
 res('H1 특약 마스터 무결성', not (bad or dup or noname), '특약 %d건 · 형식 오류 %d · id 중복 %d · 이름 없음 %d' % (len(DB), len(bad), len(dup), len(noname)), dup + noname + bad)
+# 1-5종 사용지침 5 판정표(surg5_guide.json) : 가리키는 분류표 항목이 있고 종이 분류표와 같아야 한다(v8.76)
+g5 = ['%s → %s항 없음' % (g['key'], g['no']) if g['no'] not in S.SURG5 else '%s 종 %s ≠ 분류표 %s항 %s종' % (g['key'], g['grade'], g['no'], S.SURG5[g['no']]['grade'])
+      for g in {id(v): v for v in S.SURG5_GUIDE.values()}.values() if g['no'] not in S.SURG5 or S.SURG5[g['no']]['grade'] != g['grade']]
+res('H1 1-5종 사용지침 판정표', not g5, '시술 %d건 · 어긋남 %d' % (len({id(v) for v in S.SURG5_GUIDE.values()}), len(g5)), g5)
 
 # ── H2 ─────────────────────────────────────────────
 un = []
