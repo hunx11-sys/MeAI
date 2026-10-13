@@ -259,11 +259,12 @@
   .clause-tbl th{word-break:keep-all}
   .clause-note{margin:0 0 7px;padding:8px 11px;background:#FFF7E6;border:1px solid #F3DFB4;
     border-radius:8px;font-size:calc(12.5px * var(--fs));font-weight:700;color:#8A5A00;line-height:1.55}
-  table.clause-tbl td:first-child{font-weight:700;color:var(--red-dk);white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+  table.clause-tbl td.lead{font-weight:700;color:var(--red-dk);white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
   table.clause-tbl tbody tr:nth-child(even){background:#FbFdFc}
-  table.clause-tbl td:nth-child(n+4){font-variant-numeric:tabular-nums;text-align:right;
-    white-space:nowrap;font-weight:700}
-  .clause-tbl td:nth-child(n+4):not(:last-child){white-space:normal}
+  table.clause-tbl td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;font-weight:700}
+  table.clause-tbl thead th{white-space:normal;vertical-align:middle;text-align:center;border:1px solid var(--line);min-width:4.2em;position:static}
+  table.clause-tbl td{border-left:1px solid var(--line)}
+  table.clause-tbl td.grp{vertical-align:middle;text-align:center;background:#FFF8F8;min-width:3.2em;font-weight:800;color:var(--red-dk)}
   .clause-tbl td[data-long]{white-space:normal}
 
 </style>
@@ -1134,7 +1135,7 @@ function reflowClause(text){
   for(const raw of lines){
     const ln=raw.replace(/\s+$/,''); const t=ln.trim();
     if(t===''){ out.push(''); pe=true; continue; }
-    if(ln.indexOf(' | ')>=0 || t==='[표]' || t.indexOf('[표]')===0 || /^[<＜]\s*보험가입금액/.test(t)){ out.push(ln); pe=true; continue; }
+    if(ln.indexOf(' | ')>=0 || /^\[표(?::\d+)?\]/.test(t) || /^[<＜]\s*보험가입금액/.test(t)){ out.push(ln); pe=true; continue; }
     if(out.length && out[out.length-1].indexOf(' | ')>=0){ out.push(ln); pe=true; continue; }
     if(!out.length || out[out.length-1]===''){ out.push(ln); pe=sentEnd(ln); continue; }
     const prev=out[out.length-1];
@@ -1168,12 +1169,13 @@ function fmtClause(text){
   const cell=s=>_hlClause(esc(String(s).trim()));
   while(i<src.length){
     const line=src[i];
-    const isTitle=/^\s*\[표\]\s*/.test(line);
+    const tm=/^\s*\[표(?::(\d+))?\]\s*/.exec(line);
+    const isTitle=!!tm;
     const isPipe=line.indexOf(' | ')>=0;
     if(isTitle || isPipe){
       flush();
-      let title='', tnote='';
-      if(isTitle){ title=line.replace(/^\s*\[표\]\s*/,'').trim(); i++; }
+      let title='', tnote='', head=1;
+      if(isTitle){ head=+(tm[1]||1); title=line.replace(/^\s*\[표(?::\d+)?\]\s*/,'').trim(); i++; }
       if(i<src.length && /^\s*\[감액\]/.test(src[i])){ tnote=src[i].replace(/^\s*\[감액\]\s*/,'').trim(); i++; }
       const rows=[];
       while(i<src.length && src[i].indexOf(' | ')>=0){ rows.push(src[i].split('|').map(c=>c.trim())); i++; }
@@ -1181,13 +1183,27 @@ function fmtClause(text){
       if(title) html+=`<div class="clause-tbl-cap">${cell(title)}</div>`;
       if(tnote) html+=`<div class="clause-note">${cell(tnote)}</div>`;
       if(rows.length){
+        // 합친 칸 : '^' = 위 칸과 합침 · '<' = 왼쪽 칸과 합침 (scripts/fix_body_tables.py)
         const cols=Math.max.apply(null,rows.map(r=>r.length));
+        rows.forEach(r=>{ while(r.length<cols) r.push(''); });
+        const NUM=/^[\d,.]+\s*(?:만원|원|%|배|회|일)?$|^\d[\d,.]*\s*만원$/;
+        head=Math.min(head, Math.max(1, rows.length-1));
         html+='<div class="clause-tbl-scroll"><table class="clause-tbl">';
-        html+='<thead><tr>'+rows[0].map(c=>`<th>${cell(c)}</th>`).join('')+'</tr></thead><tbody>';
-        for(let r=1;r<rows.length;r++){
+        for(let r=0;r<rows.length;r++){
+          if(r===0) html+='<thead>';
+          if(r===head) html+='<tbody>';
           let tr='<tr>';
-          for(let c=0;c<cols;c++) tr+=`<td>${cell(rows[r][c]||'')}</td>`;
+          for(let c=0;c<cols;c++){
+            const v=rows[r][c];
+            if(v==='^'||v==='<') continue;
+            let cs=1; while(c+cs<cols && rows[r][c+cs]==='<') cs++;
+            let rs=1; while(r+rs<rows.length && rows[r+rs][c]==='^' && (r<head)===(r+rs<head)) rs++;
+            const tag=r<head?'th':'td';
+            const cls=[]; if(tag==='td' && NUM.test(v)) cls.push('num'); if(tag==='td' && c===0) cls.push(rs>1?'grp':'lead');
+            tr+=`<${tag}${cs>1?` colspan="${cs}"`:''}${rs>1?` rowspan="${rs}"`:''}${cls.length?` class="${cls.join(' ')}"`:''}>${cell(v)}</${tag}>`;
+          }
           tr+='</tr>'; html+=tr;
+          if(r===head-1) html+='</thead>';
         }
         html+='</tbody></table></div>';
       }
