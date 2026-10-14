@@ -19,7 +19,7 @@ OUT = os.path.join(os.path.dirname(HERE), 'data', 'regions_geo.json')
 # build_japan.py 와 같은 투영
 LON0, LAT1, K, COS = 125.0, 46.0, 20.0, math.cos(math.radians(38))
 W, H = round((146 - LON0) * K * COS, 1), round((LAT1 - 30) * K, 1)
-INSET = dict(lonMin=122.6, lonMax=128.6, latMax=27.2, latMin=23.8, x=10.0, y=10.0)
+INSET = dict(lonMin=122.6, lonMax=128.6, latMax=27.2, latMin=23.8, x=64.0, y=8.0)
 
 # 현 번호(ISO 3166-2:JP) → 여행 지역(가이드의 region 값과 같은 이름)
 def region_of(n):

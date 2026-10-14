@@ -61,7 +61,7 @@ TILES = [
 # 지도 투영 : 간단한 등장방형(경도에 cos 38° 를 곱해 가로를 줄임). 자바스크립트 proj() 와 같은 식이어야 한다.
 LON0, LAT1, K, COS = 125.0, 46.0, 20.0, math.cos(math.radians(38))
 W, H = round((146 - LON0) * K * COS, 1), round((LAT1 - 30) * K, 1)
-INSET = dict(lonMin=122.6, lonMax=128.6, latMax=27.2, latMin=23.8, x=10.0, y=10.0)   # 왼쪽 위 빈 바다에 둔다
+INSET = dict(lonMin=122.6, lonMax=128.6, latMax=27.2, latMin=23.8, x=64.0, y=8.0)   # 왼쪽 위 빈 바다에 둔다
 INSET['w'] = round((INSET['lonMax'] - INSET['lonMin']) * K * COS, 1)
 INSET['h'] = round((INSET['latMax'] - INSET['latMin']) * K, 1)
 LABELS = [  # 지역 이름 자리(지도 좌표). 점과 겹치지 않게 바다 쪽에 둔다

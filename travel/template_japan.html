@@ -501,7 +501,298 @@ footer a{color:var(--ink-3)}
 .rmap .cp.sel .pl{fill:var(--rose-deep)}
 .rmap .ll{stroke:var(--ink-3);vector-effect:non-scaling-stroke;opacity:.7}
 
+/* ═════════ v2 : 단계형 모바일 화면 ═════════ */
+.iconbtn{width:44px;height:44px}
+.topbar{min-height:64px}
+.scr.in-fwd{animation:inF .24s cubic-bezier(.2,.8,.2,1)}
+.scr.in-back{animation:inB .2s cubic-bezier(.2,.8,.2,1)}
+@keyframes inF{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}
+@keyframes inB{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:none}}
+.prog{display:flex;align-items:center;gap:6px;padding:10px 16px 0}
+.prog i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.prog i.on{background:var(--rose)}
+.prog span{font-size:12px;color:var(--ink-3);margin-left:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.qhead{padding:22px 16px 4px}
+.qhead h1{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.3}
+.qhead p{margin-top:6px;font-size:15px;color:var(--ink-2)}
+.qhead.sm{padding-top:14px}.qhead.sm h1{font-size:24px}
+.ncards{display:grid;gap:12px;padding:16px 16px 0}
+.ncards.in{padding:0}
+.ncard{display:flex;align-items:center;gap:14px;min-height:84px;width:100%;padding:12px 14px;border-radius:20px;background:var(--surface);border:1.5px solid var(--line-2);box-shadow:var(--shadow);text-align:left;transition:border-color .12s,background .12s}
+.ncard:active,.ncard.pressed,.ncard[aria-pressed="true"]{border-color:var(--rose);background:var(--rose-pale)}
+.ncard .art{width:56px;height:56px;flex:0 0 auto;border-radius:14px;overflow:hidden}
+.ncard .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.ncard b{font-family:var(--display);font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+.ncard small{font-size:14px;color:var(--ink-2);margin-top:2px;line-height:1.4}
+.ncard>svg:last-child{width:20px;height:20px;color:var(--ink-4);flex:0 0 auto}
+.txtbtn{display:block;width:calc(100% - 32px);margin:10px 16px 0;min-height:48px;border-radius:14px;font-size:15px;font-weight:600;color:var(--ink-2)}
+.txtbtn.sm{font-size:14px;color:var(--rose-deep)}
+.quick{display:flex;align-items:center;gap:10px;width:calc(100% - 32px);margin:8px 16px 0;min-height:56px;padding:0 18px;border-radius:var(--r-full);background:var(--fill);font-size:15px;color:var(--ink-2);text-align:left}
+.quick svg{width:20px;height:20px;color:var(--ink-3);flex:0 0 auto}
+.resume{display:flex;align-items:center;gap:12px;margin:14px 16px 0;padding:10px 12px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;width:calc(100% - 32px);min-height:76px}
+.resume .ill{width:56px;height:56px;border-radius:16px}
+.resume .t{flex:1;min-width:0}
+.resume small{display:block;font-size:12px;color:var(--rose-deep);font-weight:700}
+.resume b{display:block;font-size:16px;font-weight:700;line-height:1.35}
+.resume>svg{width:18px;height:18px;color:var(--ink-4)}
+.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0}
+.sheet .ogrid{padding:0}
+.obtn{min-height:76px;border-radius:18px;background:var(--surface);border:1.5px solid var(--line-2);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:10px 14px;text-align:left}
+.obtn b{font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+.obtn small{font-size:13px;color:var(--ink-2);margin-top:2px}
+.obtn[aria-pressed="true"]{border-color:var(--rose);background:var(--rose-pale)}
+.basis{padding:12px 16px 0;font-size:12px;color:var(--ink-3);line-height:1.6}
+.sheet .basis{padding:12px 0 0}
+.pills{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 0}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:var(--r-full);background:var(--surface);border:1px solid var(--line-2);font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap}
+.pill svg{width:17px;height:17px;color:var(--rose);flex:0 0 auto}
+.pill .ed{color:var(--ink-3);font-weight:500;font-size:13px}
+.pill .no{color:var(--ink-3);font-weight:600}
+/* 큰 지도 */
+.bigmap{position:relative;margin-top:8px;background:linear-gradient(180deg,#F1F7FC 0%,#FFFCFA 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.bigmap .rmap{display:block;width:100%;height:auto}
+.bigmap .whole{position:absolute;right:12px;top:10px;min-height:44px;padding:0 16px;border-radius:var(--r-full);background:#fff;box-shadow:var(--shadow);font-size:14px;font-weight:700;color:var(--ink-2)}
+.rmap .rg-a.zero{opacity:.9}
+.rmap .rl{cursor:pointer}
+.rmap .rl .hit{fill:transparent}
+.rmap .rl rect:not(.hit){fill:#fff;filter:drop-shadow(0 1px 2px rgba(60,30,20,.14))}
+.rmap .rl text{font-weight:800;fill:var(--ink);letter-spacing:-.02em}
+.rmap .rl .n{font-weight:800}
+.rmap .rl .sub{font-weight:600;fill:var(--ink-3)}
+.rmap .rl.zero text{fill:var(--ink-3)}
+.rmap .ins{fill:rgba(255,255,255,.55);stroke:var(--line-2);stroke-dasharray:4 3;vector-effect:non-scaling-stroke}
+.rmap.anim .rl,.rmap.anim .pl,.rmap.anim .ll{opacity:0;transition:none}
+.rmap .rl,.rmap .pl{transition:opacity .25s}
+.rmap .cp .pc{fill:var(--c,var(--ink))}
+.rmap .cp.off .pc{fill:var(--ink-4)}
+.rmap .cp.sel .pc{fill:var(--rose)}
+.pingo{position:sticky;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;justify-content:center;pointer-events:none;height:0;overflow:visible}
+.pingob{pointer-events:auto;transform:translateY(-62px);display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:6px 16px 6px 6px;border-radius:var(--r-full);background:var(--ink);color:#fff;font-size:15px;font-weight:700;box-shadow:0 10px 24px rgba(40,20,10,.25)}
+.pingob .ill{width:40px;height:40px;border-radius:50%}
+.pingob svg{width:16px;height:16px}
+.sec{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:22px 16px 10px;font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.3}
+.sec small{font-family:var(--body);font-size:13px;color:var(--ink-3);font-weight:500}
+.rgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 16px}
+.rcard{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid var(--line);text-align:left;min-height:132px}
+.rcard .art{display:block;aspect-ratio:3/2;line-height:0;overflow:hidden}
+.rcard .art svg{width:100%;height:100%;display:block}
+.rcard .tx{display:block;padding:7px 9px 9px}
+.rcard b{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+.rcard b i{font-style:normal;font-size:12px;color:#fff;background:var(--c);border-radius:9px;padding:1px 7px;font-weight:700}
+.rcard small{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.rcard.zero{opacity:.55}
+.chips.wrap{flex-wrap:wrap;overflow:visible;margin:0;padding:12px 16px 0}
+.clist{display:grid;gap:12px;padding:0 16px}
+.ccard{display:flex;align-items:center;gap:14px;min-height:116px;width:100%;padding:8px 12px 8px 8px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);text-align:left;transition:border-color .15s,box-shadow .15s}
+.ccard .ill{width:100px;height:100px;border-radius:16px}
+.ccard .ill img{width:100%;height:100%;object-fit:cover}
+.ccard .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.ccard b{font-family:var(--display);font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+.ccard .vb{font-size:15px;color:var(--cd);font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ccard .fl{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--ink-2)}
+.ccard .fl svg,.altc .fl svg{width:14px;height:14px;color:var(--rose);flex:0 0 auto}
+.ccard .nb{align-self:flex-start;font-size:12px;padding:2px 9px;border-radius:var(--r-full);background:var(--sage-soft);color:var(--sage-deep);font-weight:700}
+.ccard .nb.no{background:var(--sun-soft);color:var(--sun-deep)}
+.ccard>svg{width:18px;height:18px;color:var(--ink-4);flex:0 0 auto}
+.ccard.dim{opacity:.62;box-shadow:none}
+.ccard.flash{border-color:var(--rose);box-shadow:0 0 0 4px var(--rose-soft)}
+.sepl{display:flex;align-items:center;gap:10px;padding:22px 16px 10px;font-size:13px;color:var(--ink-3);font-weight:600}
+.sepl::after{content:"";flex:1;height:1px;background:var(--line)}
+.ill.xs{width:40px;height:40px}
+/* 검색 화면 */
+.topbar.sbar{gap:6px}
+.topbar.sbar .sbox{flex:1;box-shadow:none;padding-left:12px;min-height:46px}
+.topbar.sbar .sbox input{padding:10px 0}
+.scr .sex{padding:14px 16px 0;margin:0}
+.scr .sres{margin:10px 16px 0}
+/* 도시 화면 */
+.hero{position:relative;height:178px;overflow:hidden;background:var(--cs,var(--fill))}
+.hero .bg{position:absolute;inset:0;line-height:0}
+.hero .bg svg,.hero .bg img{width:100%;height:100%;display:block;object-fit:cover}
+.hero .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,252,250,0) 50%,rgba(255,252,250,.55) 100%);pointer-events:none}
+.hero .badge{position:absolute;left:16px;bottom:12px;width:92px;height:92px;border-radius:24px;overflow:hidden;border:4px solid #fff;box-shadow:0 8px 22px rgba(60,30,20,.18);background:#fff;line-height:0}
+.hero .badge svg{width:100%;height:100%}
+.introbtn{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:var(--r-full);background:rgba(255,255,255,.94);box-shadow:var(--shadow);font-size:14px;font-weight:700;color:var(--ink)}
+.introbtn svg{width:17px;height:17px;color:var(--rose)}
+.hero .cr,.shart .cr{position:absolute;right:8px;top:8px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:13px;font-weight:700;font-style:italic}
+.cname{padding:12px 16px 0}
+.cname h1{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.25}
+.cname .vb{margin-top:4px;font-size:15.5px;font-weight:700;color:var(--cd,var(--rose-deep));line-height:1.45}
+.spills{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 0}
+.wbox,.ybox{margin:12px 16px 0;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.55;display:flex;flex-direction:column;gap:8px}
+.wbox{background:var(--coral-soft);color:var(--coral-deep)}
+.ybox{background:var(--sun-soft);color:var(--sun-deep)}
+.wbox .btn2{align-self:flex-start;background:#fff}
+.vpills{display:flex;gap:8px;overflow-x:auto;padding:14px 16px 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.vpills::-webkit-scrollbar{display:none}
+.vpills .chip{min-height:44px;font-size:14px;display:inline-flex;align-items:center;gap:5px}
+.vpills .chip.ghost{border-style:dashed;color:var(--ink-3)}
+.vpills .chip svg{width:15px;height:15px}
+.dtabs{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));z-index:30;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;padding:10px 16px;margin-top:8px;background:rgba(255,252,250,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.dtab{min-height:52px;border-radius:14px;background:var(--fill);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 4px;min-width:0}
+.dtab small{font-size:12px;color:var(--ink-3);font-weight:600}
+.dtab b{display:block;max-width:100%;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.dtab[aria-pressed="true"]{background:var(--rose);color:#fff}
+.dtab[aria-pressed="true"] small{color:rgba(255,255,255,.88)}
+.dhd{display:flex;gap:12px;align-items:flex-start;padding:16px 16px 4px}
+.dhd .t{flex:1;min-width:0}
+.dhd h2{font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+.dhd .dn{margin-top:4px;font-size:14px;color:var(--ink-2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mmap{position:relative;flex:0 0 auto;width:88px;height:88px;border-radius:18px;overflow:hidden;background:#F2F6F9;border:1px solid var(--line)}
+.mmap svg{width:100%;height:100%;display:block}
+.mmap span{position:absolute;left:0;right:0;bottom:0;padding:2px 0 4px;font-size:12px;font-weight:700;color:var(--ink-2);background:rgba(255,255,255,.88)}
+.notice{width:calc(100% - 32px);margin:10px 16px 0;text-align:left;min-height:44px;align-items:flex-start}
+.notice .all{display:none}
+.notice.open .f{display:none}
+.notice.open .all{display:inline}
+.tl{list-style:none;margin:6px 0 0;padding:0 16px}
+.row{border-bottom:1px solid var(--line)}
+.rw{display:flex;align-items:center;gap:10px;min-height:72px;padding:10px 0;width:100%;text-align:left;cursor:pointer}
+.rw.nob{cursor:default}
+.rw .tm{width:44px;flex:0 0 auto;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.rw .no{width:24px;height:24px;border-radius:50%;background:var(--rose);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;flex:0 0 auto}
+.rw .th{width:48px;height:48px;border-radius:12px;overflow:hidden;flex:0 0 auto;line-height:0}
+.rw .th svg,.rw .th img{width:100%;height:100%;object-fit:cover}
+.rw .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.rw .tx em{font-style:normal;font-size:12px;font-weight:700;color:var(--sun-deep)}
+.rw .tx b{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em;line-height:1.35}
+.rw .tx small{font-size:13px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rw .bd{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}
+.row.free .tx small{white-space:normal}
+.bs{font-size:12px;padding:2px 8px;border-radius:9px;font-weight:700;background:var(--fill);color:var(--ink-2);white-space:nowrap}
+.bs.rose{background:var(--rose-soft);color:var(--rose-deep)}.bs.sage{background:var(--sage-soft);color:var(--sage-deep)}.bs.coral{background:var(--coral-soft);color:var(--coral-deep)}.bs.plum{background:var(--plum-soft);color:var(--plum)}
+.cand{flex:0 0 auto;min-height:44px;padding:0 12px;border-radius:var(--r-full);background:var(--sun-soft);color:var(--sun-deep);font-size:13px;font-weight:800;white-space:nowrap}
+.mv{list-style:none;display:flex;align-items:center;gap:6px;min-height:36px;padding:4px 0 4px 54px;font-size:13px;color:var(--ink-3);cursor:pointer;border-bottom:1px solid var(--line)}
+.mv svg{width:16px;height:16px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mv .full{display:none}
+.mv.open .s{display:none}
+.mv.open .full{display:inline;color:var(--ink-2);line-height:1.5}
+.rx{padding:0 0 16px 54px}
+.rx .ja{font-size:13px;color:var(--ink-3)}
+.rx p{font-size:14.5px;line-height:1.65;color:var(--ink-2);margin-top:6px}
+.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.mets{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mets span{font-size:13px;padding:5px 10px;border-radius:12px;background:var(--fill);color:var(--ink-2);line-height:1.45}
+.mets b{color:var(--ink);font-weight:700}
+.pr{font-size:14px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn2{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);font-size:14px;font-weight:700;color:var(--ink);text-decoration:none}
+.btn2 svg{width:16px;height:16px;color:var(--rose)}
+.btn2.wide{width:100%;min-height:52px;font-size:15px}
+.btn2.sm{min-height:40px;margin-top:8px}
+.btn1{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:14px;background:var(--rose);color:#fff;font-size:16px;font-weight:800}
+.sbtns{display:grid;gap:10px}
+.dend{display:grid;gap:10px;padding:16px 16px 0}
+.dnav{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dnav .btn2{min-height:56px}
+.alts{display:flex;gap:12px;overflow-x:auto;padding:0 16px 4px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.alts::-webkit-scrollbar{display:none}
+.altc{flex:0 0 232px;scroll-snap-align:start;border-radius:18px;background:var(--surface);border:1px solid var(--line);overflow:hidden;text-align:left;display:flex;flex-direction:column}
+.altc .art{position:relative;display:block;aspect-ratio:16/9;line-height:0;overflow:hidden}
+.altc .art>svg{width:100%;height:100%}
+.altc .badge{position:absolute;left:10px;bottom:8px;width:52px;height:52px;border-radius:14px;overflow:hidden;border:3px solid #fff;background:#fff}
+.altc .badge svg{width:100%;height:100%}
+.altc .tx{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px}
+.altc b{font-size:16px;font-weight:800}
+.altc small{font-size:13px;color:var(--ink-2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.altc .fl{display:flex;align-items:center;gap:5px;color:var(--ink-3)}
+/* 맛집 · 볼거리 · 숙소 */
+.fchips{display:flex;flex-wrap:wrap;gap:8px;padding:16px 16px 4px}
+.fchip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:var(--r-full);background:var(--surface);border:1px solid var(--line-2);font-size:14px;font-weight:700;color:var(--ink-2)}
+.fchip .mi{width:30px;height:30px;border-radius:50%;overflow:hidden;margin-left:-8px;line-height:0}
+.fchip .mi svg{width:100%;height:100%}
+.fchip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:10px 16px 0}
+.gcard{border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--line);text-align:left;display:flex;flex-direction:column}
+.gcard .art{position:relative;display:block;aspect-ratio:4/3;line-height:0;background:var(--fill);overflow:hidden}
+.gcard .art>svg,.gcard .art img{width:100%;height:100%;object-fit:cover}
+.gcard .tx{display:flex;flex-direction:column;gap:2px;padding:8px 10px 11px}
+.gcard b{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+.gcard small{font-size:13px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcard .inp{position:absolute;left:8px;top:8px;font-size:12px;padding:2px 9px;border-radius:10px;background:#fff;color:var(--rose-deep);font-weight:800;line-height:1.6}
+.catart{display:grid;place-items:center;width:100%;height:100%}
+.catart svg{width:46%!important;height:46%!important;max-width:44px;max-height:44px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.rw .th .catart svg{width:24px!important;height:24px!important}
+.catart.c-shrine{background:#FBE7EC;color:#B63B57}.catart.c-castle{background:#EDE8E1;color:#6C5A48}.catart.c-view{background:#E5EFF9;color:#38689A}.catart.c-nature{background:#E6F1E9;color:#47765A}
+.catart.c-park{background:#EAF3E3;color:#5A8A3E}.catart.c-street{background:#F3ECE4;color:#8A5A3A}.catart.c-market{background:#FBF1D6;color:#A87C14}.catart.c-onsen{background:#FCE9E3;color:#B84D33}
+.catart.c-theme{background:#EFE8F4;color:#7A5E90}.catart.c-museum{background:#E9ECF4;color:#4F5C86}.catart.c-sea{background:#E3F2F6;color:#2E7E96}.catart.c-night{background:#E5E4F0;color:#44406E}
+.catart.c-shop{background:#FBE7EC;color:#B63B57}.catart.c-kids{background:#FBF1D6;color:#C8781A}.catart.c-cafe{background:#F3ECE4;color:#8A5A3A}.catart.c-station{background:#E9ECF4;color:#4F5C86}
+.catart.c-airport{background:#E5EFF9;color:#38689A}.catart.c-hotel{background:#EFE8F4;color:#7A5E90}.catart.c-food{background:#FBF1D6;color:#A87C14}.catart.c-free{background:var(--fill);color:var(--ink-3)}
+.hlist{display:grid;gap:12px;padding:16px 16px 0}
+.hcard2{display:flex;align-items:center;gap:12px;min-height:96px;padding:10px 12px 10px 10px;border-radius:18px;background:var(--surface);border:1px solid var(--line);text-align:left;width:100%}
+.hcard2 .th{width:72px;height:72px;border-radius:16px;overflow:hidden;flex:0 0 auto}
+.hcard2 .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.hcard2 em{font-style:normal;font-size:12px;color:var(--rose-deep);font-weight:800}
+.hcard2 b{font-size:16px;font-weight:700;line-height:1.35}
+.hcard2 small{font-size:13px;color:var(--ink-2)}
+.hcard2 .pr{font-size:15px;font-weight:800}
+.hcard2>svg{width:18px;height:18px;color:var(--ink-4);flex:0 0 auto}
+/* 준비 */
+.prep{display:grid;gap:12px;padding:16px 16px 0}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px}
+.pcard h3{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-family:var(--display);font-size:18px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+.pcard h3 small{font-family:var(--body);font-size:13px;color:var(--ink-3);font-weight:500}
+.pcard h4{margin:12px 0 4px;font-size:15px}
+.pcard p{font-size:14.5px;color:var(--ink-2);line-height:1.65}
+.pcard .big{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.03em}
+.pcard .bar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:10px 0 6px;background:var(--fill)}
+.pcard .bar i{display:block;height:100%}
+.blist li{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:15px;border-bottom:1px solid var(--line)}
+.blist li:last-child{border-bottom:0}
+.blist li i{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.blist li span{flex:1}
+.blist li b{font-variant-numeric:tabular-nums}
+.pcard .note{font-size:12px;color:var(--ink-3);margin-top:8px}
+.pcard .months span{font-size:12px;padding:7px 0}
+.prep .acc{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:0 16px}
+.prep .checks li{min-height:48px;font-size:15px}
+/* 아래 탭바 */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:rgba(255,255,255,.97);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar button{min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--ink-3);font-weight:700}
+.tabbar svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar [aria-current="page"]{color:var(--rose)}
+/* 시트 안 */
+.sheet.full{height:92vh;height:92dvh;max-height:none}
+.sheet .sh-b>.kf{margin-top:10px}
+.shnote{font-size:15px;color:var(--ink-2);line-height:1.6;margin-bottom:12px}
+.shart{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;margin-bottom:6px;line-height:0;background:var(--fill)}
+.shart>svg,.shart img{width:100%;height:100%;object-fit:cover}
+.shart .catart svg{max-width:64px;max-height:64px}
+.sheet .rx{padding:0}
+.mcards{display:grid;gap:12px}
+.mcard{border-radius:18px;border:1.5px solid var(--line-2);overflow:hidden;background:var(--surface)}
+.mcard.on{border-color:var(--rose);background:var(--rose-pale)}
+.mpick{display:flex;gap:12px;align-items:center;width:100%;padding:10px;text-align:left;min-height:128px;position:relative}
+.mpick .art{width:104px;height:104px;border-radius:14px;overflow:hidden;flex:0 0 auto;line-height:0}
+.mpick .art svg{width:100%;height:100%}
+.mpick .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.mpick b{font-size:17px;font-weight:800}
+.mpick small{font-size:14px;color:var(--ink-2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mpick .mets{margin-top:4px}
+.mpick .ok{position:absolute;right:10px;top:10px;font-size:12px;font-weight:800;color:#fff;background:var(--rose);border-radius:10px;padding:2px 8px}
+.mcard details.more{padding:0 12px 10px;margin:0}
+.mcard details.more summary{min-height:40px}
+.dsum{list-style:none;display:grid;gap:8px}
+.dsum li{font-size:15px;line-height:1.5}
+.bmap{position:relative;height:56vh;height:56dvh;border-radius:18px;overflow:hidden;background:var(--fill);border:1px solid var(--line)}
+.bmap .lmap{height:100%;width:100%}
+.bmap .sketch{width:100%;height:100%}
+.mapcs{display:flex;gap:10px;overflow-x:auto;padding:12px 0 4px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.mapcs::-webkit-scrollbar{display:none}
+.mapc{flex:0 0 270px;scroll-snap-align:center;display:flex;align-items:center;gap:10px;min-height:72px;padding:10px 12px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line-2);text-align:left}
+.mapc.on{border-color:var(--rose);background:var(--rose-pale)}
+.mapc .no{width:28px;height:28px;border-radius:50%;background:var(--rose);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;flex:0 0 auto}
+.mapc .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.mapc b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mapc small{font-size:13px;color:var(--ink-3)}
+.mapc .go{min-height:40px;display:inline-flex;align-items:center;padding:0 10px;border-radius:10px;background:var(--fill);font-size:13px;font-weight:700;color:var(--ink);text-decoration:none}
+.sheet .glance{margin-top:0}
+.sheet .intro{margin-top:14px;font-size:15px;line-height:1.7;color:var(--ink-2)}
+.sheet .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+@media (max-width:359px){.rgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.ccard .ill{width:84px;height:84px}.dtab b{display:none}.rw .th{display:none}.rx{padding-left:0}.mv{padding-left:44px}}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion:reduce){.scr.in-fwd,.scr.in-back{animation:none!important}}
 @media (min-width:640px){.app{padding-top:12px}}
 </style>
 </head>
@@ -567,9 +858,10 @@ const S = {
   set(k, v){ try { localStorage.setItem('jptrip:' + k, JSON.stringify(v)); } catch(e){} }
 };
 const st = {
-  origin: S.get('origin', 'ICN'), nights: S.get('nights', 0), tag: '', sort: 'region',
-  dest: null, nightsSel: 0, variant: 0, day: 0, sel: -1,
-  picks: S.get('picks', {}), checks: S.get('checks', {}), mapSel: '', pinSel: '', region: '', q: '', pushed: 0
+  origin: S.get('origin', 'ICN'), originSet: !!S.get('originSet', false), nights: S.get('nights', 0),
+  picks: S.get('picks', {}), checks: S.get('checks', {}), last: S.get('last', null),
+  scr: 'home', region: '', city: null, n: 0, v: 0, d: 0, t: 'plan', open: -1, sel: -1,
+  ff: '', sf: '', atag: '', pinSel: '', q: '', pushed: 0, backBtn: false, pendingRegion: ''
 };
 if (!KRP[st.origin]) st.origin = 'ICN';
 
@@ -643,6 +935,8 @@ const svgPin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 const svgTop = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
 const svgSearch = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>';
 const svgX = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const svgCal = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+const svgBag = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="3"/><path d="M9 7V5a3 3 0 0 1 6 0v2M4 12h16"/></svg>';
 const svgGlobe = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>';
 
 /* ───────── 항공편 계산 ───────── */
@@ -807,7 +1101,7 @@ function updSearch(){
   const r = document.getElementById('sres'); if (!r) return;
   r.innerHTML = searchHtml();
   const x = document.querySelector('.sbox .sx'); if (x) x.classList.toggle('hide', !st.q);
-  const ex = document.querySelector('.search .sex'); if (ex) ex.classList.toggle('hide', !!st.q);
+  const ex = document.querySelector('.sex'); if (ex) ex.classList.toggle('hide', !!st.q);
 }
 
 function langBtn(){ if (DATA.hideLang) return ''; return `<button class="iconbtn" data-act="lang" aria-label="${esc(T('lang'))}" aria-haspopup="menu">${svgGlobe}<span class="lc">${esc(LANG.toUpperCase())}</span></button>`; }
@@ -825,86 +1119,17 @@ function proj(lat, lng){
   }
   return { x: (lng - m.lon0) * m.k * m.cos, y: (m.lat1 - lat) * m.k, inset: false };
 }
-const RANK_KEYS = ['tokyo','osaka','fukuoka','sapporo','okinawa','kyoto','nagoya','hiroshima','kagoshima','nagasaki','kumamoto','oita','sendai','hakodate','kanazawa','kobe','nara','matsuyama','takamatsu','kitakyushu','okayama','miyazaki','ishigaki','saga','asahikawa','aomori','niigata','shizuoka','toyama','takayama','hakone_kamakura','yonago','kochi'];
-const rankOf = g => { const i = RANK_KEYS.indexOf(g.key); return i < 0 ? 99 : i; };
-const textW = t => [...String(t)].reduce((w, c) => w + (/[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uff00-\uffef]/.test(c) ? 1.04 : 0.6), 0.3);
-function pinStatus(g){ const b = bestRoute(st.origin, g); if (!b) return 'off'; const s = b.r.status; return s === '정기' ? 'on' : s === '계절' ? 'season' : s === '전세' ? 'charter' : 'tbc'; }
-function regionView(r){
-  const m = MAPD, full = [0, 0, m.w, m.h];
-  if (!r) return full;
-  const ps = Object.values(GUIDES).filter(g => g.region === r && g.center).map(g => proj(g.center[0], g.center[1]));
-  if (!ps.length) return full;
-  const pad = 22;
-  let x0 = Math.min(...ps.map(p => p.x)) - pad, x1 = Math.max(...ps.map(p => p.x)) + pad;
-  let y0 = Math.min(...ps.map(p => p.y)) - pad * 0.8, y1 = Math.max(...ps.map(p => p.y)) + pad * 0.8;
-  const ar = m.w / m.h;
-  let w = Math.max(x1 - x0, 62), h = Math.max(y1 - y0, 62 / ar);
-  if (w / h > ar) h = w / ar; else w = h * ar;
-  const x = Math.max(0, Math.min(m.w - w, (x0 + x1) / 2 - w / 2)), y = Math.max(0, Math.min(m.h - h, (y0 + y1) / 2 - h / 2));
-  return [x, y, w, h].map(n => Math.round(n * 10) / 10);
-}
-function jpMapSvg(){
-  const m = MAPD; if (!m) return '';
-  const vb = regionView(st.region), s = vb[2] / m.w, zoomed = s < 0.77;
-  const R = (zoomed ? 5.4 : 4.4) * s, FS = (zoomed ? 11.5 : 9.2) * s;
-  const o = KRP[st.origin]; const op = o ? proj(o.lat, o.lng) : null;
-  const list = Object.values(GUIDES).filter(g => g.center);
-  const guided = new Set(list.flatMap(g => g.airports || []));
-  let arcs = '', dots = '';
-  for (const a of AIRPORTS){
-    if (!a.lat || !a.lng) continue;
-    const p = proj(a.lat, a.lng); if (!p) continue;
-    const best = routesFrom(st.origin, a.iata)[0];
-    const cls = !best ? 'off' : best.status === '정기' ? 'on' : best.status === '계절' ? 'season' : best.status === '전세' ? 'charter' : 'tbc';
-    if (best && op && !p.inset){
-      const mx = (op.x + p.x) / 2, my = (op.y + p.y) / 2, dx = p.x - op.x, dy = p.y - op.y;
-      arcs += `<path class="arc ${cls === 'on' ? '' : cls}" d="M${op.x.toFixed(1)} ${op.y.toFixed(1)} Q${(mx - dy * 0.18).toFixed(1)} ${(my + dx * 0.18).toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}"/>`;
-    }
-    if (guided.has(a.iata) || (cls === 'off' && !a.has_korea_direct)) continue;   // 가이드가 있는 공항은 도시 핀이 대신한다
-    const sel = st.mapSel === a.iata ? 'sel' : '';
-    dots += `<g class="dot ${cls} ${sel}" data-act="mapdot" data-v="${esc(a.iata)}" tabindex="0" role="button" aria-label="${esc(apName(a))}"><circle class="halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(11 * s).toFixed(2)}" fill="transparent"/><circle class="c" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(2.6 * s).toFixed(2)}" stroke-width="${(1.2 * s).toFixed(2)}"/></g>`;
-  }
-  /* 도시 핀 + 이름(겹치지 않게 자리 고르기, 중요한 도시부터) */
-  const pts = list.map(g => { const p = proj(g.center[0], g.center[1]); return { g, x: p.x, y: p.y, cls: pinStatus(g), inR: !st.region || g.region === st.region }; });
-  const boxes = pts.filter(p => p.inR).map(p => [p.x - R, p.y - R, p.x + R, p.y + R]);
-  if (op) boxes.push([op.x - 50 * s, op.y - 18 * s, op.x + 6 * s, op.y + 6 * s]);
-  if (!zoomed) for (const l of m.labels || []){ const w = textW(regionName(l.t)) * 8.6, x0 = l.anchor === 'end' ? l.x - w : l.anchor === 'middle' ? l.x - w / 2 : l.x; boxes.push([x0, l.y - 8, x0 + w, l.y + 2]); }
-  const [vx0, vy0] = vb, vx1 = vb[0] + vb[2], vy1 = vb[1] + vb[3];
-  const hit = b => boxes.some(q => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]);
-  const lab = {};
-  const order = pts.filter(p => p.inR).sort((a, b) => (b.g.key === st.pinSel) - (a.g.key === st.pinSel) || rankOf(a.g) - rankOf(b.g));
-  for (const p of order){
-    const t = shortName(p.g), w = textW(t) * FS;
-    const ring = (gap, lead) => { const d = gap * 0.72; return [['start', p.x + gap, p.y + FS * 0.36], ['end', p.x - gap, p.y + FS * 0.36], ['middle', p.x, p.y - gap - FS * 0.12], ['middle', p.x, p.y + gap + FS * 0.82],
-      ['start', p.x + d, p.y - d], ['start', p.x + d, p.y + d + FS * 0.7], ['end', p.x - d, p.y - d], ['end', p.x - d, p.y + d + FS * 0.7]].map(c => c.concat(lead)); };
-    const g1 = R + 2.2 * s;
-    for (const [an, x, y, lead] of ring(g1, false).concat(ring(g1 + 13 * s, true), ring(g1 + 24 * s, true))){
-      const x0 = an === 'start' ? x : an === 'end' ? x - w : x - w / 2;
-      const b = [x0 - s, y - FS * 0.86, x0 + w + s, y + FS * 0.2];
-      if (b[0] < vx0 + 2 * s || b[2] > vx1 - 2 * s || b[1] < vy0 + 2 * s || b[3] > vy1 - 2 * s || hit(b)) continue;
-      let ln = null;
-      if (lead){ const ex = Math.max(b[0], Math.min(p.x, b[2])), ey = Math.max(b[1], Math.min(p.y, b[3])), dx = ex - p.x, dy = ey - p.y, L = Math.hypot(dx, dy) || 1;
-        ln = [p.x + dx / L * R, p.y + dy / L * R, ex - dx / L * 1.2 * s, ey - dy / L * 1.2 * s]; }
-      boxes.push(b); lab[p.g.key] = { an, x, y, t, ln }; break;
-    }
-  }
-  pts.sort((a, b) => (a.g.key === st.pinSel) - (b.g.key === st.pinSel) || (a.inR - b.inR));
-  const pins = pts.map(p => { const L = lab[p.g.key], x = p.x.toFixed(1), y = p.y.toFixed(1);
-    return `<g class="cpin ${p.cls}${p.inR ? '' : ' dim'}${p.g.key === st.pinSel ? ' sel' : ''}" data-act="mappin" data-v="${esc(p.g.key)}" tabindex="${p.inR ? 0 : -1}" role="button" aria-label="${esc(p.g.name)}"><circle class="ph" cx="${x}" cy="${y}" r="${(R * 3).toFixed(2)}" fill="transparent"/><circle class="pc" cx="${x}" cy="${y}" r="${R.toFixed(2)}" stroke-width="${(1.5 * s).toFixed(2)}"/>${L && L.ln ? `<line class="ll" x1="${L.ln[0].toFixed(1)}" y1="${L.ln[1].toFixed(1)}" x2="${L.ln[2].toFixed(1)}" y2="${L.ln[3].toFixed(1)}"/>` : ''}${L ? `<text class="pl" x="${L.x.toFixed(1)}" y="${L.y.toFixed(1)}" text-anchor="${L.an}" font-size="${FS.toFixed(2)}" stroke-width="${(2.8 * s).toFixed(2)}">${esc(L.t)}</text>` : ''}</g>`; }).join('');
-  let origin = '';
-  if (o && op){ origin = `<g class="origin"><circle cx="${op.x.toFixed(1)}" cy="${op.y.toFixed(1)}" r="${(4.2 * s).toFixed(2)}" stroke-width="${(1.6 * s).toFixed(2)}"/><text x="${(op.x - 6 * s).toFixed(1)}" y="${(op.y - 7 * s).toFixed(1)}" text-anchor="end" font-size="${(9.5 * s).toFixed(2)}">${esc(krName(o.iata).replace(/\s*[(（].*[)）]/, ''))}</text></g>`; }
-  const labels = zoomed ? '' : (m.labels || []).map(l => `<text class="rg" x="${l.x}" y="${l.y}" text-anchor="${l.anchor || 'start'}">${esc(regionName(l.t))}</text>`).join('');
-  const ins = m.inset;
-  const insetBox = `<rect class="inset" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" rx="4"/>${zoomed && st.region !== '오키나와' ? '' : `<text class="insetlbl" x="${ins.x}" y="${(ins.y + ins.h + 3 + 8 * s).toFixed(1)}" font-size="${(8 * s).toFixed(2)}">${esc(regionName('오키나와'))}</text>`}`;
-  return `<svg class="jpmap${zoomed ? ' zm' : ''}" viewBox="${vb.join(' ')}" role="img" aria-label="${esc(T('map_title', { origin: krName(st.origin) }))}">
-    <path class="land kr" d="${m.paths.korea}"/><path class="land" d="${m.paths.japan}"/>${insetBox}<path class="land" d="${m.paths.okinawa}"/>${labels}${arcs}${dots}${origin}${pins}</svg>`;
-}
 /* ───────── 지역 색 지도(큰 지도) ───────── */
 const RCOL = { '홋카이도': '#9CC7E8', '도호쿠': '#9FD6C5', '간토': '#F4A6B8', '주부': '#B9D59A', '간사이': '#F7B98B', '주고쿠': '#F2D27A', '시코쿠': '#C7B3E3', '규슈': '#F09A86', '오키나와': '#7FD3D6' };
 const RDEEP = { '홋카이도': '#2F6AA3', '도호쿠': '#2A8A80', '간토': '#B63B57', '주부': '#47765A', '간사이': '#B84D33', '주고쿠': '#A87C14', '시코쿠': '#6E4E8C', '규슈': '#B84D33', '오키나와': '#1F8A8E' };
+/* 이름 알약 자리(지도 단위). 작은 지역은 바다 쪽에 두고 가는 선으로 잇는다 */
+const PILL_AT = { '홋카이도': [292, 50], '도호쿠': [252, 132], '간토': [292, 222], '주부': [192, 172], '간사이': [214, 272], '주고쿠': [116, 196], '시코쿠': [152, 296], '규슈': [88, 268], '오키나와': [112, 28] };
 const regionCities = r => Object.values(GUIDES).filter(g => g.region === r);
+const RANK_KEYS = ['tokyo','osaka','fukuoka','sapporo','okinawa','kyoto','nagoya','hiroshima','kagoshima','nagasaki','kumamoto','oita','sendai','hakodate','kanazawa','kobe','nara','matsuyama','takamatsu','kitakyushu','okayama','miyazaki','ishigaki','saga','asahikawa','aomori','niigata','shizuoka','toyama','takayama','hakone_kamakura','yonago','kochi'];
+const rankOf = g => { const i = RANK_KEYS.indexOf(g.key); return i < 0 ? 99 : i; };
+const textW = t => [...String(t)].reduce((w, c) => w + (/[ᄀ-ᇿ⺀-鿿가-힯＀-￯]/.test(c) ? 1.0 : 0.58), 0.2);
 function rmapView(focus, ar){
-  const m = MAPD; let x0 = 0, y0 = 0, x1 = m.w, y1 = m.h;
+  const m = MAPD; let x0 = 50, y0 = 2, x1 = m.w, y1 = m.h;
   const R = focus && m.regions && m.regions[focus];
   if (R){
     [x0, y0, x1, y1] = R.bbox;
@@ -912,10 +1137,9 @@ function rmapView(focus, ar){
     const px = (x1 - x0) * 0.12 + 5, py = (y1 - y0) * 0.12 + 5; x0 -= px; x1 += px; y0 -= py; y1 += py;
   }
   let x = x0, y = y0, w = x1 - x0, h = y1 - y0;
-  if (w / h > ar){ const nh = w / ar; y -= (nh - h) / 2; h = nh; } else { const nw = h * ar; x -= (nw - w) / 2; w = nw; }
+  if (ar){ if (w / h > ar){ const nh = w / ar; y -= (nh - h) / 2; h = nh; } else { const nw = h * ar; x -= (nw - w) / 2; w = nw; } }
   return [x, y, w, h].map(n => Math.round(n * 10) / 10);
 }
-/* 이름표 자리 고르기 : 붙여서 → 조금 떨어뜨려 가는 선으로 잇기. 겹치거나 화면 밖이면 다음 자리 */
 function placeLabels(items, vb, R, FS, u, boxes){
   const [vx0, vy0] = vb, vx1 = vb[0] + vb[2], vy1 = vb[1] + vb[3], out = {};
   const hit = b => boxes.some(q => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]);
@@ -937,285 +1161,417 @@ function placeLabels(items, vb, R, FS, u, boxes){
 /* o = { focus: '규슈' | '', sel: 도시key, cw: 표시 폭(px), ar: 가로/세로 비, nights } */
 function rmapSvg(o){
   const m = MAPD; if (!m || !m.regions) return '';
-  const focus = o.focus || '', cw = o.cw || Math.min(window.innerWidth || 390, 640) - 32, ar = o.ar || m.w / m.h;
-  const vb = rmapView(focus, ar), u = vb[2] / cw;   // 화면 1px 이 지도 몇 단위인지
-  const ins = m.inset, f = n => n.toFixed(1);
-  let body = `<path class="kr" d="${m.paths.korea}"/>`;
-  body += `<rect class="ins" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" rx="${f(6 * u)}"/>`;
+  const focus = o.focus || '', cw = o.cw || Math.min(window.innerWidth || 390, 640);
+  const vb = rmapView(focus, o.ar || 0), u = vb[2] / cw, f = n => n.toFixed(1), ins = m.inset;
+  const stats = {}; for (const r of Object.keys(m.regions)){ const cs = regionCities(r); stats[r] = { n: cs.length, d: cs.filter(g => bestRoute(st.origin, g)).length }; }
+  let body = `<defs><pattern id="rmh" width="${f(7 * u)}" height="${f(7 * u)}" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="${f(7 * u)}" height="${f(7 * u)}" fill="#EEE8E4"/><rect width="${f(2.2 * u)}" height="${f(7 * u)}" fill="#DCD2CC"/></pattern></defs>`;
+  if (!focus || focus === '오키나와') body += `<rect class="ins" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" rx="${f(10 * u)}"/>`;
   for (const [name, R] of Object.entries(m.regions)){
-    const dim = focus && name !== focus ? ' dim' : '';
-    body += `<path class="rg-a${dim}" d="${R.d}" fill="${RCOL[name] || '#ddd'}" data-act="pickregion" data-v="${esc(name)}" aria-label="${esc(regionName(name))}" role="button" tabindex="${focus ? -1 : 0}"/>`;
+    const dim = focus && name !== focus ? ' dim' : '', zero = !focus && stats[name].n && !stats[name].d;
+    body += `<path class="rg-a${dim}${zero ? ' zero' : ''}" d="${R.d}" fill="${zero ? 'url(#rmh)' : RCOL[name] || '#ddd'}" data-act="pickregion" data-v="${esc(name)}" role="button" tabindex="${focus ? -1 : 0}" aria-label="${esc(regionName(name))}"/>`;
   }
-  if (!focus || focus === '오키나와') body += `<rect class="ins-hit" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" data-act="pickregion" data-v="오키나와"/>`;
-  const boxes = [];
+  if (!focus) body += `<rect class="ins-hit" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" data-act="pickregion" data-v="오키나와"/>`;
   if (!focus){
-    /* 지역 이름 말풍선 : 이름 + 도시 수 */
-    const FS = 13 * u, H = 22 * u;
+    /* 이름 알약 : 지역 이름 + 도시 수 / 대표 도시 두 곳 */
+    const F1 = 14 * u, F2 = 11.5 * u, H = 38 * u;
     for (const [name, R] of Object.entries(m.regions)){
-      const n = regionCities(name).length; if (!n) continue;
-      let [lx, ly] = name === '오키나와' ? [ins.x + ins.w / 2, ins.y + 12 * u] : R.label;
-      const t = regionName(name), tw = x => [...String(x)].reduce((a, c) => a + (/[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af]/.test(c) ? 0.95 : 0.56), 0), w = (tw(t) + tw(' ' + n) * 0.85) * FS + 16 * u;
-      let x0 = lx - w / 2, y0 = ly - H / 2;
-      for (const [dx, dy] of [[0, 0], [0, -H * 0.9], [0, H * 0.9], [w * 0.45, 0], [-w * 0.45, 0], [0, -H * 1.8], [0, H * 1.8]]){
-        const b = [x0 + dx, y0 + dy, x0 + dx + w, y0 + dy + H];
-        if (!boxes.some(q => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1])){ x0 += dx; y0 += dy; boxes.push(b); break; }
-      }
-      body += `<g class="rl" data-act="pickregion" data-v="${esc(name)}"><rect x="${f(x0)}" y="${f(y0)}" width="${f(w)}" height="${f(H)}" rx="${f(H / 2)}" stroke="${RDEEP[name]}" stroke-opacity=".25" stroke-width="${f(u)}"/><text x="${f(x0 + 8 * u)}" y="${f(y0 + H * 0.68)}" font-size="${f(FS)}">${esc(t)}<tspan class="n" font-size="${f(FS * 0.85)}" dx="${f(4 * u)}">${n}</tspan></text></g>`;
+      const s = stats[name]; if (!s.n) continue;
+      const t = regionName(name), sub = s.d ? regionCities(name).sort((a, b) => rankOf(a) - rankOf(b)).slice(0, 2).map(shortName).join('·') : T('r_zero');
+      const w = Math.max(textW(t) * F1 + textW(String(s.n)) * F2 + 22 * u, textW(sub) * F2 + 16 * u);
+      const [cx, cy] = PILL_AT[name] || R.label, x0 = cx - w / 2, y0 = cy - H / 2;
+      const far = Math.hypot(cx - R.label[0], cy - R.label[1]) > 22 && name !== '오키나와';
+      body += `<g class="rl${s.d ? '' : ' zero'}" data-act="pickregion" data-v="${esc(name)}">${far ? `<line class="rll" x1="${f(R.label[0])}" y1="${f(R.label[1])}" x2="${f(Math.max(x0, Math.min(R.label[0], x0 + w)))}" y2="${f(Math.max(y0, Math.min(R.label[1], y0 + H)))}" stroke="${RDEEP[name]}" stroke-width="${f(1.2 * u)}"/><circle cx="${f(R.label[0])}" cy="${f(R.label[1])}" r="${f(2.5 * u)}" fill="${RDEEP[name]}"/>` : ''}<rect class="hit" x="${f(x0 - 6 * u)}" y="${f(y0 - 4 * u)}" width="${f(w + 12 * u)}" height="${f(H + 8 * u)}"/><rect x="${f(x0)}" y="${f(y0)}" width="${f(w)}" height="${f(H)}" rx="${f(12 * u)}" stroke="${RDEEP[name]}" stroke-opacity=".3" stroke-width="${f(u)}"/><text x="${f(x0 + 9 * u)}" y="${f(y0 + 17 * u)}" font-size="${f(F1)}">${esc(t)}<tspan class="n" font-size="${f(F2)}" dx="${f(4 * u)}" fill="${RDEEP[name]}">${s.n}</tspan></text><text class="sub" x="${f(x0 + 9 * u)}" y="${f(y0 + 31 * u)}" font-size="${f(F2)}">${esc(sub)}</text></g>`;
     }
   } else {
     /* 도시 핀 + 이름 */
-    const R = 7 * u, FS = 14 * u;
+    const R = 7 * u, FS = 14.5 * u, boxes = [];
     const pts = regionCities(focus).filter(g => g.center).map(g => { const p = proj(g.center[0], g.center[1]); return { key: g.key, g, x: p.x, y: p.y, t: shortName(g) }; });
     pts.forEach(p => boxes.push([p.x - R, p.y - R, p.x + R, p.y + R]));
-    const order = pts.slice().sort((a, b) => (b.key === o.sel) - (a.key === o.sel) || rankOf(a.g) - rankOf(b.g));
-    const lab = placeLabels(order, vb, R, FS, u, boxes);
+    const lab = placeLabels(pts.slice().sort((a, b) => (b.key === o.sel) - (a.key === o.sel) || rankOf(a.g) - rankOf(b.g)), vb, R, FS, u, boxes);
     for (const p of pts.sort((a, b) => (a.key === o.sel) - (b.key === o.sel))){
-      const L = lab[p.key], off = o.nights && !(p.g.plans || []).some(x => x.nights === o.nights);
-      body += `<g class="cp${p.key === o.sel ? ' sel' : ''}${off ? ' off' : ''}" data-act="pickcity" data-v="${esc(p.key)}" role="button" tabindex="0" aria-label="${esc(p.g.name)}"><circle class="ph" cx="${f(p.x)}" cy="${f(p.y)}" r="${f(22 * u)}"/><circle class="pc" cx="${f(p.x)}" cy="${f(p.y)}" r="${f(R)}" stroke-width="${f(2.5 * u)}"/>${L && L.ln ? `<line class="ll" x1="${f(L.ln[0])}" y1="${f(L.ln[1])}" x2="${f(L.ln[2])}" y2="${f(L.ln[3])}"/>` : ''}${L ? `<text class="pl" x="${f(L.x)}" y="${f(L.y)}" text-anchor="${L.an}" font-size="${f(FS)}" stroke-width="${f(3.5 * u)}">${esc(L.t)}</text>` : ''}</g>`;
+      const L = lab[p.key], off = !bestRoute(st.origin, p.g);
+      body += `<g class="cp${p.key === o.sel ? ' sel' : ''}${off ? ' off' : ''}" data-act="pickcity" data-v="${esc(p.key)}" role="button" tabindex="0" aria-label="${esc(p.g.name)}"><circle class="ph" cx="${f(p.x)}" cy="${f(p.y)}" r="${f(24 * u)}"/><circle class="pc" cx="${f(p.x)}" cy="${f(p.y)}" r="${f(R)}" stroke-width="${f(2.5 * u)}"/>${L && L.ln ? `<line class="ll" x1="${f(L.ln[0])}" y1="${f(L.ln[1])}" x2="${f(L.ln[2])}" y2="${f(L.ln[3])}"/>` : ''}${L ? `<text class="pl" x="${f(L.x)}" y="${f(L.y)}" text-anchor="${L.an}" font-size="${f(FS)}" stroke-width="${f(3.5 * u)}">${esc(L.t)}</text>` : ''}</g>`;
     }
   }
-  return `<svg class="rmap" viewBox="${vb.join(' ')}" role="img" aria-label="${esc(focus ? regionName(focus) : T('map_regions'))}">${body}</svg>`;
+  return `<svg class="rmap${focus ? ' zm' : ''}" viewBox="${vb.join(' ')}" role="img" aria-label="${esc(focus ? regionName(focus) : T('r_title'))}">${body}</svg>`;
 }
-
 let mapAnim = 0;
 function animateMap(from, to){
-  const svg = document.querySelector('#jpmap svg'); if (!svg || from.join() === to.join()) return;
-  try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch(e){}
+  const svg = document.querySelector('#bigmap svg'); if (!svg || !from || from.join() === to.join() || REDUCED) return;
   cancelAnimationFrame(mapAnim);
   svg.classList.add('anim'); svg.setAttribute('viewBox', from.join(' '));
-  const t0 = performance.now(), D = 420;
+  const t0 = performance.now(), D = 450;
   const step = now => { const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
     svg.setAttribute('viewBox', from.map((a, i) => (a + (to[i] - a) * e).toFixed(2)).join(' '));
     if (k < 1) mapAnim = requestAnimationFrame(step); else { svg.setAttribute('viewBox', to.join(' ')); svg.classList.remove('anim'); } };
   mapAnim = requestAnimationFrame(step);
 }
-function pinTip(){
-  const g = GUIDES[st.pinSel]; if (!g) return '';
-  const pf = PF(g), b = bestRoute(st.origin, g), on = krName(st.origin);
-  let fl;
-  if (b){ const a = AP[b.iata]; fl = `${esc(T('from_to', { origin: on, to: apCity(a) }))} · <span class="num">${fmtMin(b.r.flight_minutes)}</span> <span class="tag ${stCls(b.r.status)}">${esc(stName(b.r.status))}</span>`; }
-  else { const oo = otherOrigins(g, st.origin); fl = `${esc(T('no_direct', { origin: on }))}${oo.length ? ' · ' + T('direct_from', { list: listNames(oo) }) : ''}`; }
-  return `<div class="maptip dtip ${cCls(g)}">${illHtml(g)}<div style="flex:1;min-width:0"><b>${esc(g.name)}</b> <span style="color:var(--ink-3);font-size:12px">${esc(regionName(g.region))}${prefName(g) ? ' · ' + esc(prefName(g)) : ''}</span><div class="vb">${esc(pf.vibe || g.tagline || '')}</div>${pf.where ? `<div class="wh">${esc(pf.where)}</div>` : ''}<div class="fl">${fl}</div><button class="go" style="margin:6px 0 0" data-act="open" data-v="${esc(g.key)}">${esc(T('guide_go', { name: g.name }))}</button></div></div>`;
-}
-function nearestGuide(lat, lng){
-  let best = null;
-  for (const g of Object.values(GUIDES)){ if (!g.center) continue; const dy = (g.center[0] - lat) * 111, dx = (g.center[1] - lng) * 111 * Math.cos(lat * Math.PI / 180), d = Math.hypot(dx, dy); if (!best || d < best.d) best = { g, d }; }
-  return best;
-}
-function mapTip(){
-  if (st.pinSel) return pinTip();
-  if (!st.mapSel || !AP[st.mapSel]) return '';
-  const a = AP[st.mapSel]; const rs = routesFrom(st.origin, a.iata);
-  let t = `<b>${esc(apName(a))}</b> <span style="color:var(--ink-3)">${esc(a.iata)} · ${esc(regionName(a.region || ''))}</span><br>`;
-  if (rs.length){ const r = rs[0]; t += `${esc(T('from_to', { origin: krName(st.origin), to: apCity(a) }))} · ${fmtMin(r.flight_minutes)} · ${esc(airlineText(r.airlines))} · ${esc(weeklyText(r.weekly))} <span class="tag ${stCls(r.status)}">${esc(stName(r.status))}</span>`; }
-  else { const oo = otherOriginsOfAirport(a); t += oo.length ? T('no_direct_here', { origin: esc(krName(st.origin)), list: listNames(oo) }) : esc(T('no_korea_direct')); }
-  const g = Object.values(GUIDES).find(x => (x.airports || []).includes(a.iata));
-  if (g) t += `<button class="go" data-act="open" data-v="${esc(g.key)}">${esc(T('guide_go', { name: g.name }))}</button>`;
-  else { const n = nearestGuide(a.lat, a.lng); if (n && n.d < 260) t += `<br><span style="font-size:12px;color:var(--ink-3)">${esc(T('near_dest', { name: n.g.name, km: Math.round(n.d / 10) * 10 }))}</span> <button class="go" data-act="open" data-v="${esc(n.g.key)}">${esc(T('guide_go', { name: n.g.name }))}</button>`; }
-  return `<div class="maptip">${t}</div>`;
+
+/* ═════════ v2 : 단계형 화면(며칠 → 출발 → 지역 → 도시 → 일정) ═════════ */
+const RK = DATA.regionKeys || {};
+const RK_INV = Object.fromEntries(Object.entries(RK).map(([k, v]) => [v, k]));
+const ART = DATA.art || { regions: {}, dishes: {} };
+const PHOTOS = DATA.photos || {};
+const TABS = ['plan', 'food', 'spot', 'hotel', 'prep'];
+const REDUCED = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){ return false; } })();
+let lmap = null, markers = [];
+
+/* ── 그림·사진 ── */
+const svgFit = (s, mode) => String(s || '').replace('<svg ', `<svg preserveAspectRatio="xMidYMid ${mode || 'slice'}" `);
+const regionArt = r => ART.regions[RK[r]] || '';
+const dishArt = k => ART.dishes[k] || ART.dishes.teishoku || '';
+function photoOf(group, key){ const a = (PHOTOS[group] || {})[key]; return a && a[0] ? a[0] : null; }
+function photoImg(p, alt){ return p ? `<img class="ph" src="${esc(p.src)}" alt="${esc(alt || p.alt || '')}" loading="lazy" decoding="async"><button class="cr" data-act="credit" data-v="${esc(T('photo_cr', { by: p.credit || '?', lic: p.license }))}" aria-label="${esc(T('photo_src'))}">i</button>` : ''; }
+function catArt(cat){ return `<span class="catart c-${esc(cat)}">${ico(cat)}</span>`; }
+function nightsArt(n){
+  const moons = Array.from({ length: n }, (_, i) => `<path transform="translate(${10 + i * 13} 9)" d="M6 0a7 7 0 1 0 6 10A5.5 5.5 0 0 1 6 0z" fill="#F7E7A6"/>`).join('');
+  const suns = Array.from({ length: n + 1 }, (_, i) => `<circle cx="${9 + i * (38 / Math.max(1, n))}" cy="41" r="5" fill="#F2A65A"/>`).join('');
+  return `<svg class="art" viewBox="0 0 56 56" aria-hidden="true"><rect width="56" height="28" rx="0" fill="#3B4A72"/><rect y="28" width="56" height="28" fill="#FCE9D8"/>${moons}${suns}</svg>`;
 }
 
-/* 홈 */
-function renderHome(){
-  const originChips = KR.filter(k => k.iata === 'ICN' || AIRPORTS.some(a => (a.routes || []).some(r => r.from_iata === k.iata && r.status !== '운휴'))).map(k =>
-    `<button class="chip rose" data-act="origin" data-v="${esc(k.iata)}" aria-pressed="${st.origin === k.iata}">${esc(krName(k.iata))}<small>${esc(k.iata)}</small></button>`).join('');
-  const nightsAvail = [...new Set(Object.values(GUIDES).flatMap(g => (g.plans || []).map(p => p.nights)))].sort((a, b) => a - b);
-  const nightChips = [0].concat(nightsAvail).map(n => `<button class="chip" data-act="nights" data-v="${n}" aria-pressed="${st.nights === n}">${n ? esc(nd(n)) : esc(T('any'))}</button>`).join('');
-  const tagChips = [''].concat(TAGS).map(t => `<button class="chip" data-act="tag" data-v="${esc(t)}" aria-pressed="${st.tag === t}">${t ? esc(tagName(t)) : esc(T('all'))}</button>`).join('');
-  let list = Object.values(GUIDES);
-  if (st.tag) list = list.filter(g => (g.tags || []).includes(st.tag));
-  if (st.nights) list = list.filter(g => (g.plans || []).some(p => p.nights === st.nights));
-  if (st.region) list = list.filter(g => g.region === st.region);
-  const withR = list.map(g => ({ g, b: bestRoute(st.origin, g) }));
-  if (st.sort === 'time') withR.sort((x, y) => ((x.b ? x.b.rk : 1e9) - (y.b ? y.b.rk : 1e9)));
-  else withR.sort((x, y) => REGIONS.indexOf(x.g.region) - REGIONS.indexOf(y.g.region) || (x.g.order || 0) - (y.g.order || 0));
-  const direct = withR.filter(x => x.b).length;
-  let cards = '';
-  if (!withR.length) cards = `<div class="empty"><b>${esc(T('empty_t'))}</b>${esc(T('empty_d'))}</div>`;
-  else if (st.sort === 'time') cards = `<div class="dlist" style="margin-top:12px">${withR.map(x => destCard(x.g, x.b)).join('')}</div>`;
-  else {
-    for (const rg of REGIONS){
-      const part = withR.filter(x => x.g.region === rg); if (!part.length) continue;
-      cards += `<div class="rghead"><b>${esc(regionName(rg))}</b><span>${esc(T('n_places', { n: part.length }))}</span></div><div class="dlist">${part.map(x => destCard(x.g, x.b)).join('')}</div>`;
-    }
-  }
-  const on = krName(st.origin);
-  const rgs = REGIONS.filter(r => Object.values(GUIDES).some(g => g.region === r));
-  const regionChips = [''].concat(rgs).map(r => `<button class="chip" data-act="region" data-v="${esc(r)}" aria-pressed="${st.region === r}">${r ? esc(regionName(r)) : esc(T('region_all'))}${r ? `<small>${Object.values(GUIDES).filter(g => g.region === r).length}</small>` : ''}</button>`).join('');
-  app.innerHTML = `
-  <div class="topbar"><div class="brand">${esc(T('brand'))}<small>${esc(DATA.version || '')}</small></div>${langBtn()}<button class="iconbtn" data-act="top" aria-label="${esc(T('to_top'))}">${svgTop}</button></div>
-  <header class="hero">
-    <div class="eyebrow">${esc(T('eyebrow'))}</div>
-    <h1>${T('hero_h1', { origin: esc(on), n: Object.keys(GUIDES).length })}</h1>
-    <p class="lead">${esc(T('lead'))}</p>
-    ${searchBox()}
-    <div class="q"><div class="qt"><b>${esc(T('q_origin'))}</b><span>${esc(T('q_origin_sub'))}</span></div><div class="chips">${originChips}</div></div>
-    <div class="q"><div class="qt"><b>${esc(T('q_nights'))}</b><span>${esc(T('q_nights_sub'))}</span></div><div class="chips">${nightChips}</div></div>
-  </header>
-  <section class="mapcard" aria-label="${esc(T('map_title', { origin: on }))}">
-    <div class="mh"><b>${esc(T('map_title', { origin: on }))}</b><span>${esc(T('map_sub'))}</span></div>
-    <div class="chips rchips" role="group" aria-label="${esc(T('region_pick'))}">${regionChips}</div>
-    <div id="jpmap">${jpMapSvg()}</div>
-    <div class="legend"><span><i style="background:var(--rose)"></i>${esc(T('lg_regular'))}</span><span><i style="background:var(--sun)"></i>${esc(T('lg_season'))}</span><span><i style="background:var(--plum)"></i>${esc(T('lg_charter'))}</span><span><i style="background:var(--ink-3)"></i>${esc(stName('확인필요'))}</span><span><i style="background:var(--ink-4)"></i>${esc(T('lg_none'))}</span><span><i style="background:var(--sky)"></i>${esc(T('lg_origin'))}</span></div>
-    <div id="maptip">${mapTip()}</div>
-  </section>
-  <section class="filters">
-    <div class="fbar"><b>${esc(T('pick_title'))}</b><div class="seg"><button data-act="sort" data-v="region" aria-pressed="${st.sort === 'region'}">${esc(T('sort_region'))}</button><button data-act="sort" data-v="time" aria-pressed="${st.sort === 'time'}">${esc(T('sort_time'))}</button></div></div>
-    <div class="chips">${tagChips}</div>
-    <div class="cnt" style="margin-top:8px;font-size:12px;color:var(--ink-3)">${st.region ? `<b style="color:var(--rose-deep)">${esc(regionName(st.region))}</b> · ` : ''}${esc(T('count', { n: withR.length, origin: on, d: direct }))}${st.region ? ` <button data-act="region" data-v="" style="color:var(--rose-deep);font-weight:600;margin-left:4px">${esc(T('region_all'))} ›</button>` : ''}</div>
-  </section>
-  ${cards}
-  <footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}<br>${esc(T('footer_date', { d: DATA.generated || '' }))}</footer>`;
+/* ── 공통 머리 ── */
+function topbar(o){
+  return `<div class="topbar">${o.back ? `<button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button>` : ''}<div class="brand">${esc(o.title || '')}${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</div>${o.search === false ? '' : `<button class="iconbtn" data-act="search" aria-label="${esc(T('search_label'))}">${svgSearch}</button>`}${o.lang ? langBtn() : ''}${o.share ? `<button class="iconbtn" data-act="share" aria-label="${esc(T('share'))}">${svgShare}</button>` : ''}</div>`;
 }
-function destCard(g, b){
-  const on = krName(st.origin);
-  let fl;
-  if (b){
-    const a = AP[b.iata]; const r = b.r;
-    const others = (g.airports || []).filter(x => x !== b.iata && routesFrom(st.origin, x).length).map(x => apCity(AP[x]) || x);
-    fl = `<div class="flight">${svgPlane}<div><b>${esc(T('from_to', { origin: on, to: apCity(a) }))}</b> <span class="num">${fmtMin(r.flight_minutes)}</span><br>${esc(airlineText(r.airlines))} · ${esc(weeklyText(r.weekly) || T('weekly_tbd'))} <span class="tag ${stCls(r.status)}">${esc(stName(r.status))}</span>${others.length ? ` <span class="tag ghost">${esc(T('also_ok', { list: others.join(' · ') }))}</span>` : ''}</div></div>`;
-  } else {
-    const oo = otherOrigins(g, st.origin);
-    fl = `<div class="flight off">${svgPlane}<div><b>${esc(T('no_direct', { origin: on }))}</b><br>${oo.length ? T('direct_from', { list: listNames(oo) }) : esc(T('no_direct_any'))}</div></div>`;
-  }
-  const ns = (g.plans || []).map(p => p.nights).sort((x, y) => x - y);
-  const pf = PF(g);
-  return `<button class="dcard ${cCls(g)}" data-act="open" data-v="${esc(g.key)}" id="card-${esc(g.key)}">
-    <div class="row">${illHtml(g)}<div class="nm"><h3>${esc(g.name)}<small>${esc(prefName(g))}</small></h3>${g._ko_only && LANG !== 'ko' ? `<span class="tag kmark">${esc(T('ko_only'))}</span>` : ''}<div class="vibe">${esc(pf.vibe || g.tagline || '')}</div></div></div>
-    ${pf.where ? `<div class="wstrip">${locSvg(g)}<p>${esc(pf.where)}</p></div>` : ''}
-    ${kfHtml(g)}
-    ${htsHtml(g, 4)}
-    ${fl}
-    <div class="dfoot"><div class="nights">${ns.map(n => `<span class="${st.nights === n ? 'hit' : ''}">${esc(nd(n))}</span>`).join('')}</div>${bfHtml(g)}</div>
-  </button>`;
+function progress(n){ return `<div class="prog" role="img" aria-label="${esc(T('step', { n, t: 4 }))}">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}<span>${esc(T('step', { n, t: 4 }))}</span></div>`; }
+const krShort = iata => krName(iata).replace(/\s*[(（].*[)）]/, '');
+function choicePills(){
+  return `<div class="pills"><button class="pill" data-act="sh-n">${svgCal}${st.nights ? esc(nd(st.nights)) : esc(T('n_pick'))}<span class="ed">${esc(T('chg'))}</span></button><button class="pill" data-act="sh-o">${svgPlane}${esc(T('dep', { origin: krShort(st.origin) }))}<span class="ed">${esc(T('chg'))}</span></button></div>`;
+}
+const nightsAvail = () => [...new Set(Object.values(GUIDES).flatMap(g => (g.plans || []).map(p => p.nights)))].sort((a, b) => a - b);
+const directCount = iata => Object.values(GUIDES).filter(g => bestRoute(iata, g)).length;
+const originList = () => KR.filter(k => AIRPORTS.some(a => (a.routes || []).some(r => r.from_iata === k.iata && r.status !== '운휴'))).map(k => ({ k, n: directCount(k.iata) })).filter(x => x.n).sort((a, b) => b.n - a.n);
+const famous = r => regionCities(r).sort((a, b) => rankOf(a) - rankOf(b)).slice(0, 2).map(shortName);
+const flyText = g => { const b = bestRoute(st.origin, g); return b ? T('c_fly', { origin: krShort(st.origin), time: fmtMin(b.r.flight_minutes) }) + (b.r.status !== '정기' ? ` · ${stName(b.r.status)}` : '') : T('no_direct', { origin: krShort(st.origin) }); };
+const footer = () => `<footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}<br>${esc(T('footer_date', { d: DATA.generated || '' }))}</footer>`;
+
+/* ── S1 며칠 ── */
+function renderStart(){
+  const last = st.last && GUIDES[st.last.city] ? st.last : null;
+  const lg = last && GUIDES[last.city];
+  app.innerHTML = topbar({ title: T('brand'), lang: true }) + `<main class="scr">${progress(1)}
+    ${lg ? `<button class="resume ${cCls(lg)}" data-act="city" data-v="${esc(lg.key)}">${illHtml(lg)}<span class="t"><small>${esc(T('resume'))}</small><b>${esc(T('resume_v', { city: lg.name, nd: nd(last.n || (lg.plans[0] || {}).nights || 2), day: dayLabel((last.d || 0) + 1) }))}</b></span>${svgNext}</button>` : ''}
+    <header class="qhead"><h1>${esc(T('n_title'))}</h1><p>${esc(T('n_sub'))}</p></header>
+    <div class="ncards">${nightsAvail().map(n => `<button class="ncard" data-act="pickn" data-v="${n}">${nightsArt(n)}<span class="t"><b>${esc(nd(n))}</b><small>${esc(UI['n_off' + n] ? T('n_off' + n) : T('n_offx', { n }))}</small></span>${svgNext}</button>`).join('')}</div>
+    <button class="txtbtn" data-act="pickn" data-v="0">${esc(T('n_unsure'))}</button>
+    <button class="quick" data-act="search">${svgSearch}<span>${esc(T('quick'))}</span></button>
+    <button class="txtbtn sm" data-act="all">${esc(T('all_cities'))} ›</button>
+    ${footer()}</main>`;
+}
+/* ── S2 출발 공항 ── */
+function originGrid(cur){
+  return `<div class="ogrid">${originList().map(({ k, n }) => `<button class="obtn" data-act="picko" data-v="${esc(k.iata)}" aria-pressed="${cur === k.iata}"><b>${esc(krShort(k.iata))}</b><small>${esc(T('o_n', { n }))}</small></button>`).join('')}</div>`;
+}
+function renderFrom(){
+  app.innerHTML = topbar({ back: true, title: T('brand'), lang: true }) + `<main class="scr">${progress(2)}
+    <header class="qhead"><h1>${esc(T('o_title'))}</h1><p>${esc(T('o_sub'))}</p></header>
+    ${originGrid(st.originSet ? st.origin : '')}
+    <button class="txtbtn" data-act="picko" data-v="ICN">${esc(T('o_unsure'))}</button>
+    <p class="basis">${esc(T('o_basis', { d: DATA.generated || '' }))}</p></main>`;
+}
+/* ── S3 큰 색 지도 ── */
+function mapBox(){ const w = Math.min(window.innerWidth || 390, 640); return { cw: w }; }
+function regionStats(r){ const cs = regionCities(r); return { n: cs.length, d: cs.filter(g => bestRoute(st.origin, g)).length }; }
+function renderMap(o){
+  const regs = REGIONS.filter(r => regionCities(r).length);
+  const { cw } = mapBox();
+  app.innerHTML = topbar({ back: true, title: T('brand'), lang: true }) + `<main class="scr">${progress(3)}
+    ${choicePills()}
+    <header class="qhead sm"><h1>${esc(T('r_title'))}</h1><p>${esc(T('r_sub'))}</p></header>
+    <div class="bigmap" id="bigmap">${rmapSvg({ focus: '', cw, full: true })}</div>
+    <h2 class="sec">${esc(T('r_grid'))}</h2>
+    <div class="rgrid">${regs.map(r => { const s = regionStats(r); return `<button class="rcard${s.d ? '' : ' zero'}" data-act="pickregion" data-v="${esc(r)}" style="--c:${RDEEP[r]}"><span class="art">${svgFit(regionArt(r))}</span><span class="tx"><b>${esc(regionName(r))}<i>${s.n}</i></b><small>${esc(s.d ? famous(r).join('·') : T('r_zero'))}</small></span></button>`; }).join('')}</div>
+    <button class="txtbtn" data-act="all">${esc(T('all_cities'))} ›</button>
+    ${footer()}</main>`;
+  if (o && o.fromRegion) animateMap(rmapView(o.fromRegion, rmapFullAR()), rmapFullVB());
+}
+/* ── S4 지역 안 도시 ── */
+function cityCard(g, dim){
+  const b = bestRoute(st.origin, g), pf = PF(g);
+  const plans = (g.plans || []).map(p => p.nights);
+  const nb = st.nights ? (plans.includes(st.nights) ? `<span class="nb">${esc(T('c_has', { nd: nd(st.nights) }))}</span>` : `<span class="nb no">${esc(T('c_noplan', { nd: nd(st.nights), nd2: nd(plans[plans.length - 1] || 2) }))}</span>`) : '';
+  const ph = photoOf('cities', g.key);
+  return `<button class="ccard ${cCls(g)}${dim ? ' dim' : ''}" data-act="city" data-v="${esc(g.key)}" id="cc-${esc(g.key)}"><span class="ill">${ph ? `<img src="${esc(ph.src)}" alt="" loading="lazy">` : g.icon || ''}</span><span class="tx"><b>${esc(g.name)}</b><span class="vb">${esc(pf.vibe || g.tagline || '')}</span><span class="fl">${svgPlane}${esc(flyText(g))}</span>${nb}</span>${svgNext}</button>`;
+}
+function rmapAR(r){ const w = Math.min(window.innerWidth || 390, 640), h = Math.min(Math.round((window.innerHeight || 700) * 0.46), 380); return r ? w / h : null; }
+function rmapFullVB(){ return rmapView('', 0); }
+function rmapFullAR(){ const v = rmapFullVB(); return v[2] / v[3]; }
+function renderRegion(o){
+  const r = st.region; const s = regionStats(r);
+  const cs = regionCities(r).sort((a, b) => { const x = bestRoute(st.origin, a), y = bestRoute(st.origin, b); return (y ? 1 : 0) - (x ? 1 : 0) || (x && y ? x.rk - y.rk : 0) || rankOf(a) - rankOf(b); });
+  const on = cs.filter(g => bestRoute(st.origin, g)), off = cs.filter(g => !bestRoute(st.origin, g));
+  const { cw } = mapBox();
+  app.innerHTML = topbar({ back: true, title: regionName(r), lang: true }) + `<main class="scr">${progress(4)}
+    ${choicePills()}
+    <div class="bigmap zoom" id="bigmap" style="--c:${RDEEP[r]}">${rmapSvg({ focus: r, sel: st.pinSel, cw, ar: rmapAR(r), nights: st.nights })}<button class="whole" data-act="whole">${esc(T('c_whole'))}</button></div>
+    <div class="pingo" id="pingo" aria-live="polite"></div>
+    <h2 class="sec">${esc(T('c_title', { region: regionName(r), n: s.n }))}<small>${esc(T('c_sub', { origin: krShort(st.origin), d: s.d }))}</small></h2>
+    <div class="clist">${on.map(g => cityCard(g)).join('')}</div>
+    ${off.length ? `<div class="sepl">${esc(T('nodir_t', { origin: krShort(st.origin) }))}</div><div class="clist">${off.map(g => cityCard(g, true)).join('')}</div>` : ''}
+    ${footer()}</main>`;
+  if (o && o.zoomFrom) animateMap(o.zoomFrom, rmapView(r, rmapAR(r)));
+}
+/* ── 모든 도시(비교용) ── */
+function renderAll(){
+  const tagChips = [''].concat(TAGS.filter(t => Object.values(GUIDES).some(g => (g.tags || []).includes(t)))).map(t => `<button class="chip" data-act="atag" data-v="${esc(t)}" aria-pressed="${(st.atag || '') === t}">${t ? esc(tagName(t)) : esc(T('all'))}</button>`).join('');
+  let list = Object.values(GUIDES); if (st.atag) list = list.filter(g => (g.tags || []).includes(st.atag));
+  let html = '';
+  for (const r of REGIONS){ const part = list.filter(g => g.region === r).sort((a, b) => rankOf(a) - rankOf(b)); if (!part.length) continue; html += `<h2 class="sec">${esc(regionName(r))}<small>${esc(T('n_places', { n: part.length }))}</small></h2><div class="clist">${part.map(g => cityCard(g, !bestRoute(st.origin, g))).join('')}</div>`; }
+  app.innerHTML = topbar({ back: true, title: T('all_cities'), lang: true }) + `<main class="scr">${choicePills()}<div class="chips wrap">${tagChips}</div>${html || `<div class="empty"><b>${esc(T('empty_t'))}</b></div>`}${footer()}</main>`;
+}
+/* ── 검색 화면 ── */
+function renderSearch(){
+  const ex = UI.search_ex || [];
+  const recent = (S.get('recent', []) || []).filter(k => own(GUIDES, k)).slice(0, 3);
+  app.innerHTML = `<div class="topbar sbar"><button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button><label class="sbox">${svgSearch}<input id="q" type="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="${esc(T('search_ph'))}" aria-label="${esc(T('search_label'))}" value="${esc(st.q || '')}"><button type="button" class="sx ${st.q ? '' : 'hide'}" data-act="sclear" aria-label="${esc(T('clear'))}">${svgX}</button></label></div>
+  <main class="scr"><div class="sex ${st.q ? 'hide' : ''}"><span class="k">${esc(T('search_ex_k'))}</span>${ex.map(x => `<button type="button" data-act="sq" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>
+  ${recent.length && !st.q ? `<h2 class="sec">${esc(T('recent'))}</h2><div class="clist">${recent.map(k => cityCard(GUIDES[k])).join('')}</div>` : ''}
+  <div class="sres" id="sres">${searchHtml()}</div></main>`;
 }
 
-/* 목적지 */
-let lmap = null;
-function curPlan(g){
-  const plans = g.plans || [];
-  let p = plans.find(x => x.nights === st.nightsSel) || plans[0];
-  if (!p) return null;
-  if (st.variant > 0){
-    const vs = (g.variants || []).filter(v => v.for_nights === p.nights);
-    const v = vs[st.variant - 1];
-    if (v) return Object.assign({}, p, { title: v.title, theme: v.theme, summary: v.summary, days: v.days, isVariant: true });
-  }
-  return p;
-}
-function renderDest(){
-  const g = GUIDES[st.dest]; if (!g){ st.dest = null; return renderHome(); }
-  const on = krName(st.origin);
+/* ── S5 도시 · 일정 ── */
+function planFor(g){
   const plans = (g.plans || []).slice().sort((a, b) => a.nights - b.nights);
-  if (!plans.some(p => p.nights === st.nightsSel)) st.nightsSel = (plans.find(p => p.nights === st.nights) || plans[0] || {}).nights || 0;
-  const plan = curPlan(g);
-  const vs = (g.variants || []).filter(v => v.for_nights === st.nightsSel);
-  if (st.variant > vs.length) st.variant = 0;
-  if (plan && st.day >= plan.days.length) st.day = 0;
-  const months = Array.from({ length: 12 }, (_, i) => `<span class="${(g.best_months || []).includes(i + 1) ? 'on' : ''}">${i + 1}</span>`).join('');
-  /* 직항 카드 */
-  let routeHtml = '';
-  for (const iata of g.airports || []){
-    const a = AP[iata]; if (!a) continue;
-    const rs = routesFrom(st.origin, iata);
-    routeHtml += `<div class="ap"><span class="code">${esc(iata)}</span>${esc(apName(a))}<span style="font-size:11.5px;color:var(--ink-3)">${LANG === 'ja' ? '' : esc(a.name_ja || '')}</span></div>`;
-    if (rs.length) routeHtml += rs.map(r => `<div class="rline"><span class="al">${esc(T('from_to', { origin: on, to: apCity(a) }))}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 4))}</span><span>${esc(weeklyText(r.weekly))}</span>${kText(r.season_note) ? `<span style="font-size:12px;color:var(--ink-3)">${esc(r.season_note)}</span>` : ''}<span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('');
-    else { const oo = otherOriginsOfAirport(a); routeHtml += `<div class="noroute">${esc(T('no_route', { origin: on }))}${oo.length ? T('route_elsewhere', { list: listNames(oo) }) : ''}</div>`; }
-    const others = (a.routes || []).filter(r => r.from_iata !== st.origin && r.status !== '운휴' && KRP[r.from_iata]);
-    if (others.length) routeHtml += `<details class="more"><summary>${esc(T('other_origins', { n: others.length }))}</summary><div class="body">${others.map(r => `<div class="rline"><span class="al">${esc(krName(r.from_iata))}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 4))}</span><span>${esc(weeklyText(r.weekly))}</span><span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('')}</div></details>`;
-    const acc = (g.airport_access || []).filter(x => !x.airport || x.airport === iata);
-    if (acc.length) routeHtml += `<div class="access"><div class="ah">${esc(T('access'))}</div><ul>${acc.map(x => `<li><b>${esc(x.mode)}</b><span>→ ${esc(x.to)}${x.note ? ` · ${esc(x.note)}` : ''}</span><span class="num">${x.minutes ? fmtMin(x.minutes) : ''}${x.fare_yen ? ` · ${yen(x.fare_yen)}` : ''}</span></li>`).join('')}</ul></div>`;
-  }
-  const nseg = plans.map(p => `<button data-act="setnights" data-v="${p.nights}" aria-pressed="${st.nightsSel === p.nights}">${esc(nd(p.nights))}<small>${esc(p.theme || p.title || '')}</small></button>`).join('');
-  const vchips = vs.length ? `<div class="chips vchips"><button class="chip" data-act="variant" data-v="0" aria-pressed="${st.variant === 0}">${esc(T('base_plan'))}</button>${vs.map((v, i) => `<button class="chip" data-act="variant" data-v="${i + 1}" aria-pressed="${st.variant === i + 1}">${esc(v.title)}</button>`).join('')}</div>` : '';
-  app.innerHTML = `
-  <div class="topbar"><button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button><div class="brand">${esc(g.name)}<small>${esc(T('dep', { origin: on }))}</small></div>${langBtn()}<button class="iconbtn" data-act="share" aria-label="${esc(T('share'))}">${svgShare}</button></div>
-  <header class="dhero ${cCls(g)}">
-    <div class="top">${illHtml(g, 'lg')}<div><h1>${esc(g.name)}</h1><div class="jline">${LANG === 'ja' ? '' : esc(g.name_ja || '') + ' · '}${esc(regionName(g.region))} ${esc(prefName(g))}</div>${PF(g).vibe ? `<div class="vibe">${esc(PF(g).vibe)}</div>` : ''}</div></div>
-    ${g._ko_only && LANG !== 'ko' ? `<p style="margin-top:12px"><span class="tag kmark">${esc(T('ko_only'))}</span></p>` : ''}
-    ${glanceHtml(g)}<p class="tagline">${esc(g.tagline || '')}</p>
-    ${htsHtml(g, 8)}
-    <p class="intro">${rich(g.intro || '')}</p>
-    <div class="tags">${(g.tags || []).map(tagHtml).join('')}${g.pace ? `<span class="tag ghost">${esc(T('pace', { pace: paceName(g.pace) }))}</span>` : ''}</div>
-    <div class="months" aria-label="${esc(T('best_months'))}">${months}</div><div class="months-lbl">${esc(T('best_months'))}</div>${g.season_notes ? `<p class="season">${esc(g.season_notes)}</p>` : ''}
-  </header>
-  <section class="card"><h2>${esc(T('flights'))}<span class="sub">${esc(T('flights_sub'))}</span></h2><div class="route">${routeHtml || `<div class="noroute">${esc(T('no_flight_data'))}</div>`}</div></section>
-  <section class="pick"><div class="lbl">${esc(T('nights_q'))}<span>${esc(T('nights_sub'))}</span></div><div class="nseg">${nseg}</div>${vchips}</section>
-  <div id="planarea">${planHtml(g, plan)}</div>
-  <div class="accs">${accordions(g, plan)}</div>
-  <footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}</footer>
-  ${bottomBar(g, plan)}`;
-  mountMap(g, plan);
+  if (!plans.length) return { plans, base: null, want: 0, miss: false };
+  const want = st.n || st.nights || (g.recommended_nights || [])[0] || plans[0].nights;
+  let base = plans.find(p => p.nights === want);
+  const miss = !base;
+  if (!base) base = plans.filter(p => p.nights < want).pop() || plans[0];
+  return { plans, base, want, miss };
 }
-function bottomBar(g, plan){
-  const b = plan && plan.budget; const tot = b ? manA(b.total_krw) : '';
-  return `<div class="bottombar"><div class="in"><div class="amt"><span class="k">${plan ? esc(T('budget_k', { nd: nd(plan.nights) })) : ''}</span><span class="v">${tot || esc(T('tbd'))}<small>${esc(T('budget_incl'))}</small></span></div><button class="btn ghost" data-act="budget">${svgInfo}${esc(T('detail'))}</button><button class="btn" data-act="share">${svgShare}${esc(T('share'))}</button></div></div>`;
-}
-function planHtml(g, plan){
-  if (!plan) return `<div class="empty"><b>${esc(T('no_plan_t'))}</b>${esc(T('no_plan_d'))}</div>`;
-  const tiles = plan.days.map((d, i) => `<button class="tile" data-act="day" data-v="${i}" aria-pressed="${st.day === i}"><span class="n">${esc(dayLabel(i + 1))}</span><span class="l">${esc(d.label || '')}</span></button>`).join('');
-  const d = plan.days[st.day] || plan.days[0];
-  const notice = d.notice && d.notice.t ? `<div class="notice ${d.notice.k === 'warn' ? 'warn' : ''}">${svgInfo}<span>${rich(d.notice.t)}</span></div>` : '';
-  return `
-  <section class="psum"><div class="k">${esc(plan.isVariant ? T('alt_plan') : T('rec_plan'))} · ${esc(nd(plan.nights))}</div><h2>${esc(plan.title || '')}</h2><p>${rich(plan.summary || '')}</p></section>
-  <nav class="dgrid" aria-label="Day">${tiles}</nav>
-  <div class="dayhead"><div class="kicker">${esc(d.kicker || '')}</div><h2>${esc(d.title || '')}</h2><p>${rich(d.note || '')}</p>${notice}</div>
-  <div class="daymap" id="daymap"><div class="lmap" id="lmap"></div></div><p class="maphint">${esc(T('map_hint'))}</p>
-  <ol class="stops">${d.items.map((it, i) => itemHtml(g, plan, d, it, i)).join('')}</ol>`;
+function curPlan(g){
+  const { base } = planFor(g); if (!base) return null;
+  const vs = (g.variants || []).filter(v => v.for_nights === base.nights);
+  if (st.v > vs.length) st.v = 0;
+  if (st.v > 0){ const v = vs[st.v - 1]; if (v) return Object.assign({}, base, { title: v.title, theme: v.theme, summary: v.summary, days: v.days, isVariant: true }); }
+  return base;
 }
 function findP(g, id){ return (g.spots || []).find(x => x.id === id) || (g.hotels || []).find(x => x.id === id) || null; }
 function findR(g, id){ return (g.restaurants || []).find(x => x.id === id) || null; }
-function pickKey(g, plan, di, ii){ return `${g.key}|${plan.nights}|${st.variant}|${di}|${ii}`; }
-function itemHtml(g, plan, d, it, i){
-  const k = it.k;
-  if (k === 'move'){ const txt = String(it.text || ''); const dup = it.minutes && (txt.includes(String(it.minutes)) || /\d\s*(분|min|分|h\b|시간|時間|小時|小时)/.test(txt)); return `<li class="move"><span>${ico(moveIcon(it.mode))}<em>${esc(it.mode || '')}</em>${esc(txt)}${it.minutes && !dup ? ` · ${fmtMin(it.minutes)}` : ''}</span></li>`; }
-  if (k === 'free'){ return `<li class="free"><p><b>${esc(it.t || '')}</b> ${esc(it.text || it.note || '')}</p></li>`; }
-  const idx = stopIndex(d, i);
-  if (k === 'meal'){
-    const opts = (it.opts || []).map(id => findR(g, id)).filter(Boolean);
-    const pk = pickKey(g, plan, st.day, i);
-    const chosen = opts.find(r => r.id === st.picks[pk]) || opts[0];
-    const pills = opts.map(r => `<button class="opt" data-act="pick" data-v="${esc(pk)}|${esc(r.id)}" aria-pressed="${chosen && chosen.id === r.id}">${esc(r.name)}<small style="margin-left:4px;opacity:.75">${yenMark(r.price_level)}</small></button>`).join('');
-    const mini = chosen ? `<div class="rmini"><div class="rn">${esc(chosen.name)}<small>${LANG === 'ja' ? '' : esc(chosen.name_ja || '')}</small></div><div class="rs">${esc(chosen.cuisine || '')} · ${esc(chosen.signature || '')}</div><div class="rd">${rich(chosen.desc || '')}</div><div class="meta"><span><b>${esc(yenLv(chosen.price_level))}</b></span>${chosen.hours ? `<span>${esc(T('hours'))} <b>${esc(hText(chosen.hours))}</b></span>` : ''}${chosen.closed && chosen.closed !== '없음' ? `<span>${esc(T('closed'))} <b>${esc(hText(chosen.closed))}</b></span>` : ''}${chosen.reserve ? `<span><b>${esc(T('reserve'))}</b></span>` : ''}</div>${(chosen.tips || []).length ? `<div class="tags">${chosen.tips.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}<a class="go" href="${gmap(chosen.maps_q, [chosen.lat, chosen.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div>` : '';
-    return `<li><span class="track"></span><div class="scard" id="stop-${idx}" data-act="focus" data-v="${idx}"><div class="ic c-food">${ico('food')}</div><div class="sinfo"><div class="tline"><span class="tm">${esc(it.t)}</span><span class="tags"><span class="tag sun">${esc(it.label || '')}</span>${opts.length ? `<span class="tag ghost">${esc(T('cands', { n: opts.length }))}</span>` : ''}</span></div><h3>${chosen ? esc(chosen.name) : esc(T('pick_rest'))}</h3>${it.note ? `<p class="note">${rich(it.note)}</p>` : ''}<div class="opts">${pills}</div>${mini}</div></div></li>`;
-  }
-  const p = findP(g, it.ref);
-  const isHotel = k === 'hotel' || (p && p.tier);
-  const cat = isHotel ? 'hotel' : (p && p.cat) || 'free';
-  const name = p ? p.name : (it.ref || '');
-  const tags = [];
-  if (p && !isHotel){ if (p.must) tags.push(`<span class="tag rose">${esc(T('must'))}</span>`); if (p.fee_yen === 0) tags.push(`<span class="tag sage">${esc(T('free'))}</span>`); else if (p.fee_yen > 0) tags.push(`<span class="tag">${yen(p.fee_yen)}</span>`); if (p.duration_min) tags.push(`<span class="tag ghost">${fmtMin(p.duration_min)}</span>`); }
-  if (isHotel && p) tags.push(`<span class="tag plum">${esc(tierName(p.tier))}</span>`);
-  const meta = p && !isHotel ? `<div class="meta">${p.hours ? `<span>${esc(T('hours'))} <b>${esc(hText(p.hours))}</b></span>` : ''}${p.closed && p.closed !== '없음' ? `<span>${esc(T('closed'))} <b>${esc(hText(p.closed))}</b></span>` : ''}${p.access ? `<span>${esc(T('access_how'))} <b>${esc(p.access)}</b></span>` : ''}</div>` : '';
-  return `<li><span class="track"></span><div class="scard" id="stop-${idx}" data-act="focus" data-v="${idx}"><div class="ic c-${esc(cat)}">${ico(cat)}</div><div class="sinfo">
-    <div class="tline"><span class="tm">${esc(it.t)}</span><span class="tags">${tags.join('')}</span></div>
-    <h3>${esc(name)}</h3><div class="sub">${p && LANG !== 'ja' ? esc(p.name_ja || '') : ''}${p && p.area ? ` · ${esc(p.area)}` : ''}</div>
-    ${it.note ? `<p class="note">${rich(it.note)}</p>` : ''}${p && p.desc && !isHotel ? `<p class="desc">${rich(p.desc)}</p>` : ''}${meta}
-    ${p && p.tip ? `<div class="box tip">${rich(p.tip)}</div>` : ''}${p && p.kid_tip ? `<div class="box kid"><b>${esc(T('with_kids'))}</b> ${rich(p.kid_tip)}</div>` : ''}
-    ${isHotel && p ? `<div class="box tip">${rich(p.desc || '')}${(p.pts || []).length ? `<br>${p.pts.map(esc).join(' · ')}` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<br><b>${esc(T('per_room'))} ${manR(p.price_krw_night)}</b> ${esc(T('approx'))}` : ''}</div>` : ''}
-    ${p ? `<a class="go" href="${gmap(p.maps_q || p.name_ja || p.name, [p.lat, p.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a>` : ''}
-  </div></div></li>`;
+function pickKey(g, plan, di, ii){ return `${g.key}|${plan.nights}|${st.v}|${di}|${ii}`; }
+function chosenR(g, plan, di, ii, it){ const opts = (it.opts || []).map(id => findR(g, id)).filter(Boolean); const pk = pickKey(g, plan, di, ii); return { opts, pk, r: opts.find(r => r.id === st.picks[pk]) || opts[0] || null }; }
+function cityRoute(extra){ return Object.assign({ scr: 'city', city: st.city, n: st.n, v: st.v, d: st.d, t: st.t }, extra || {}); }
+function renderCity(){
+  const g = GUIDES[st.city]; if (!g){ st.scr = 'home'; return renderStart(); }
+  const { plans, base, want, miss } = planFor(g);
+  const plan = curPlan(g);
+  if (plan && st.d >= plan.days.length) st.d = 0;
+  if (plan){ st.last = { city: g.key, n: plan.nights, d: st.d }; S.set('last', st.last); }
+  const rec = (S.get('recent', []) || []).filter(k => k !== g.key); rec.unshift(g.key); S.set('recent', rec.slice(0, 6));
+  const pf = PF(g), b = bestRoute(st.origin, g), budget = plan && plan.budget;
+  const ph = photoOf('cities', g.key);
+  const hero = `<div class="hero ${cCls(g)}">${ph ? `<div class="bg photo">${photoImg(ph, g.name)}</div>` : `<div class="bg">${svgFit(regionArt(g.region))}</div><span class="badge">${g.icon || ''}</span>`}<button class="introbtn" data-act="intro">${svgInfo}${esc(T('intro'))}</button></div>`;
+  const pills = `<div class="spills">
+    <button class="pill" data-act="sh-fly">${svgPlane}${b ? esc(fmtMin(b.r.flight_minutes)) : `<span class="no">${esc(T('f_none'))}</span>`}</button>
+    ${plan ? `<button class="pill" data-act="sh-n">${svgCal}${esc(nd(plan.nights))}<span class="ed">▾</span></button>` : ''}
+    ${budget ? `<button class="pill" data-act="tab" data-v="prep">₩ ${esc(T('p_budget', { amt: manA(Array.isArray(budget.total_krw) ? budget.total_krw[0] : budget.total_krw) }))}~</button>` : ''}</div>`;
+  let warn = '';
+  if (!b){ const oo = otherOrigins(g, st.origin); const alt = (g.nearby_alternatives || []).map(x => GUIDES[x.key]).find(x => x && bestRoute(st.origin, x));
+    warn = `<div class="wbox"><b>${esc(T('nodir_t', { origin: krShort(st.origin) }))}</b>${oo.length ? `<button class="btn2" data-act="picko-here" data-v="${esc(oo[0])}">${esc(T('nodir_sw', { origin: krShort(oo[0]) }))}</button>` : ''}${alt ? `<button class="btn2" data-act="city" data-v="${esc(alt.key)}">${esc(T('nodir_alt', { name: alt.name }))} ›</button>` : ''}</div>`; }
+  if (miss && st.n) warn += `<div class="ybox"><b>${esc(T('noplan_t', { nd: nd(want) }))}</b> ${esc(T('noplan_d', { nd2: nd(base.nights) }))}</div>`;
+  let body = '';
+  if (st.t === 'food') body = foodTab(g, plan);
+  else if (st.t === 'spot') body = spotTab(g, plan);
+  else if (st.t === 'hotel') body = hotelTab(g, plan);
+  else if (st.t === 'prep') body = prepTab(g, plan);
+  else body = `<div id="planarea">${planTab(g, plan)}</div>`;
+  const tabIco = { plan: svgCal, food: ico('food'), spot: ico('shrine'), hotel: ico('hotel'), prep: svgBag };
+  app.innerHTML = topbar({ back: true, title: g.name, sub: T('dep', { origin: krShort(st.origin) }), share: true, lang: true }) + `<main class="scr city ${cCls(g)}">${hero}
+    <div class="cname"><h1>${esc(g.name)}</h1>${pf.vibe ? `<p class="vb">${esc(pf.vibe)}</p>` : `<p class="vb">${esc(g.tagline || '')}</p>`}</div>
+    ${pills}${warn}${body}${st.t === 'prep' ? footer() : ''}</main>
+    <nav class="tabbar" aria-label="${esc(g.name)}">${TABS.map(t => `<button data-act="tab" data-v="${t}" ${st.t === t ? 'aria-current="page"' : ''}>${tabIco[t]}<span>${esc(T('t_' + t))}</span></button>`).join('')}</nav>`;
 }
-function stopIndex(d, i){ let n = -1; for (let j = 0; j <= i; j++){ const k = d.items[j].k; if (k === 'spot' || k === 'hotel' || k === 'meal') n++; } return n; }
-function stopPoints(g, plan, d){
-  const pts = [];
+
+/* 일정 탭 */
+function dayPts(g, plan, di){
+  const d = plan.days[di] || plan.days[0]; const pts = [];
   d.items.forEach((it, i) => {
-    if (it.k === 'spot' || it.k === 'hotel'){ const p = findP(g, it.ref); if (p && p.lat) pts.push({ ll: [Number(p.lat), Number(p.lng)], name: p.name, t: it.t }); else pts.push(null); }
-    else if (it.k === 'meal'){ const pk = pickKey(g, plan, st.day, i); const opts = (it.opts || []).map(id => findR(g, id)).filter(Boolean); const r = opts.find(x => x.id === st.picks[pk]) || opts[0]; if (r && r.lat) pts.push({ ll: [Number(r.lat), Number(r.lng)], name: r.name, t: it.t }); else pts.push(null); }
+    if (it.k === 'spot' || it.k === 'hotel'){ const p = findP(g, it.ref); pts.push(p && p.lat ? { ll: [Number(p.lat), Number(p.lng)], name: p.name, t: it.t, i } : null); }
+    else if (it.k === 'meal'){ const { r } = chosenR(g, plan, di, i, it); pts.push(r && r.lat ? { ll: [Number(r.lat), Number(r.lng)], name: r.name, t: it.t, i } : null); }
   });
   return pts;
 }
-let markers = [];
-function mountMap(g, plan){
+function miniSketch(pts){
+  const v = pts.map((p, n) => p ? { p, n } : null).filter(Boolean); if (!v.length) return '';
+  const W = 88, H = 88, pad = 12;
+  const lats = v.map(x => x.p.ll[0]), lngs = v.map(x => x.p.ll[1]);
+  const la0 = Math.min(...lats), la1 = Math.max(...lats), lo0 = Math.min(...lngs), lo1 = Math.max(...lngs);
+  const cos = Math.cos((la0 + la1) / 2 * Math.PI / 180), sw = Math.max((lo1 - lo0) * cos, 1e-4), sh = Math.max(la1 - la0, 1e-4);
+  const s = Math.min((W - pad * 2) / sw, (H - pad * 2) / sh), ox = (W - sw * s) / 2, oy = (H - sh * s) / 2;
+  const q = v.map(x => ({ x: ox + (x.p.ll[1] - lo0) * cos * s, y: oy + (la1 - x.p.ll[0]) * s, n: x.n }));
+  return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${q.map(o => `${o.x.toFixed(1)},${o.y.toFixed(1)}`).join(' ')}" fill="none" stroke="#D9516E" stroke-width="1.6" stroke-dasharray="3 3"/>${q.map(o => `<circle cx="${o.x.toFixed(1)}" cy="${o.y.toFixed(1)}" r="4.2" fill="#D9516E" stroke="#fff" stroke-width="1.5"/>`).join('')}</svg>`;
+}
+const TIME_RE = /(\d{1,2})[:：](\d{2})\s*[–~\-〜～]\s*(익일\s*)?(\d{1,2})[:：](\d{2})/g;
+function closeBadge(p, t){
+  if (!p || !p.hours || !/^\d{2}:\d{2}$/.test(t || '') || ['airport', 'station', 'street', 'park', 'nature', 'sea', 'view', 'night', 'shrine'].includes(p.cat)) return '';
+  const m0 = Number(t.slice(0, 2)) * 60 + Number(t.slice(3)), end = m0 + (Number(p.duration_min) || 60);
+  let best = null; let m; TIME_RE.lastIndex = 0;
+  while ((m = TIME_RE.exec(String(p.hours)))){ const a = +m[1] * 60 + +m[2]; let b2 = +m[4] * 60 + +m[5]; if (m[3] || b2 <= a) b2 += 1440; if (a <= m0 && m0 < b2) best = b2; }
+  return best != null && best - end < 90 ? `<span class="bs coral">${esc(T('close_at', { t: Math.floor(best / 60) % 24 }))}</span>` : '';
+}
+function firstSentence(s){ s = String(s || ''); const m = s.match(/^.+?(다\.|요\.|[。．.!?！？])(\s|$)/); const f = m ? m[0].trim() : s; return f.length > 70 ? f.slice(0, 66) + '…' : f; }
+function planTab(g, plan){
+  if (!plan) return `<div class="empty"><b>${esc(T('no_plan_t'))}</b>${esc(T('no_plan_d'))}</div>`;
+  const vs = (g.variants || []).filter(v => v.for_nights === plan.nights);
+  const vrow = vs.length ? `<div class="vpills"><button class="chip" data-act="variant" data-v="0" aria-pressed="${st.v === 0}">${esc(T('base_plan'))}</button>${vs.map((v, i) => `<button class="chip" data-act="variant" data-v="${i + 1}" aria-pressed="${st.v === i + 1}">${esc(v.theme || v.title)}</button>`).join('')}<button class="chip ghost" data-act="planinfo">${svgInfo}${esc(T('plan_what'))}</button></div>` : `<div class="vpills"><button class="chip ghost" data-act="planinfo">${svgInfo}${esc(T('plan_what'))}</button></div>`;
+  const tabs = `<div id="dt-anchor"></div><nav class="dtabs" aria-label="Day">${plan.days.map((d, i) => `<button class="dtab" data-act="day" data-v="${i}" aria-pressed="${st.d === i}"><small>${esc(T('day_s', { n: i + 1 }))}</small><b>${esc(d.label || '')}</b></button>`).join('')}</nav>`;
+  const di = st.d, d = plan.days[di] || plan.days[0];
+  const pts = dayPts(g, plan, di);
+  let no = 0;
+  const rows = d.items.map((it, i) => {
+    if (it.k === 'move'){ const txt = String(it.text || ''); return `<li class="mv" data-act="mv" data-v="${i}">${ico(moveIcon(it.mode))}<span class="s">${esc(it.mode || '')}${it.minutes ? ` ${esc(fmtMin(it.minutes))}` : ''}</span><span class="full">${esc(txt)}</span></li>`; }
+    if (it.k === 'free') return `<li class="row free"><div class="rw nob"><span class="tm">${esc(it.t || '')}</span><span class="tx"><b>${esc(it.label || T('free_t'))}</b><small>${esc(it.text || it.note || '')}</small></span></div></li>`;
+    no++;
+    const open = st.open === i;
+    if (it.k === 'meal'){
+      const { opts, r } = chosenR(g, plan, di, i, it);
+      const ph = r && photoOf('dishes', r.dish);
+      return `<li class="row meal${open ? ' open' : ''}" id="row-${i}"><div class="rw" data-act="row" data-v="${i}" role="button" tabindex="0" aria-expanded="${open}"><span class="tm">${esc(it.t)}</span><span class="no">${no}</span><span class="th dish">${ph ? `<img src="${esc(ph.src)}" alt="">` : r ? svgFit(dishArt(r.dish)) : ''}</span><span class="tx"><em>${esc(it.label || '')}</em><b>${r ? esc(r.name) : esc(T('pick_rest'))}</b><small>${r ? esc(r.cuisine || '') : ''}</small></span>${opts.length > 1 ? `<button class="cand" data-act="meal" data-v="${i}">${esc(T('cands', { n: opts.length }))} ›</button>` : ''}</div>${open && r ? rowDetailR(r, it) : ''}</li>`;
+    }
+    const p = findP(g, it.ref); const isHotel = it.k === 'hotel' || (p && p.tier);
+    const cat = isHotel ? 'hotel' : (p && p.cat) || 'free';
+    const ph = p && photoOf('spots', `${g.key}:${p.id}`);
+    const badges = [];
+    if (p && !isHotel){ if (p.must) badges.push(`<span class="bs rose">${esc(T('must'))}</span>`); if (p.fee_yen === 0) badges.push(`<span class="bs sage">${esc(T('free'))}</span>`); else if (p.fee_yen > 0) badges.push(`<span class="bs">${esc(yen(p.fee_yen))}</span>`); const cb = closeBadge(p, it.t); if (cb) badges.push(cb); }
+    if (isHotel && p) badges.push(`<span class="bs plum">${esc(tierName(p.tier))}</span>`);
+    return `<li class="row${open ? ' open' : ''}" id="row-${i}"><div class="rw" data-act="row" data-v="${i}" role="button" tabindex="0" aria-expanded="${open}"><span class="tm">${esc(it.t)}</span><span class="no">${no}</span><span class="th">${ph ? `<img src="${esc(ph.src)}" alt="">` : catArt(cat)}</span><span class="tx"><b>${esc(p ? p.name : it.ref || '')}</b><small>${esc(it.note || (p && p.area) || '')}</small></span><span class="bd">${badges.slice(0, 2).join('')}</span></div>${open && p ? rowDetailP(g, p, isHotel, i) : ''}</li>`;
+  }).join('');
+  const notice = d.notice && d.notice.t ? `<button class="notice ${d.notice.k === 'warn' ? 'warn' : ''}" data-act="notice">${svgInfo}<span class="f">${esc(firstSentence(d.notice.t))}</span><span class="all">${rich(d.notice.t)}</span></button>` : '';
+  const last = di === plan.days.length - 1;
+  const alts = last ? (g.nearby_alternatives || []).filter(x => own(GUIDES, x.key)) : [];
+  return `${vrow}${tabs}
+    <div class="dhd"><div class="t"><h2>${esc(d.title || d.label || '')}</h2>${d.note ? `<p class="dn">${rich(d.note)}</p>` : ''}</div><button class="mmap" data-act="bigmap" aria-label="${esc(T('d_map'))}">${miniSketch(pts)}<span>${esc(T('d_map'))}</span></button></div>
+    ${notice}
+    <ol class="tl">${rows}</ol>
+    <div class="dend"><button class="btn2 wide" data-act="planb">☔ ${esc(T('planb'))}</button><div class="dnav">${di > 0 ? `<button class="btn2" data-act="day" data-v="${di - 1}">‹ ${esc(T('day_s', { n: di }))}</button>` : '<span></span>'}${!last ? `<button class="btn2" data-act="day" data-v="${di + 1}">${esc(T('day_s', { n: di + 2 }))} ›</button>` : '<span></span>'}</div></div>
+    ${alts.length ? `<h2 class="sec">${esc(T('alt_t'))}</h2><div class="alts">${alts.map(x => { const ag = GUIDES[x.key]; return `<button class="altc ${cCls(ag)}" data-act="city" data-v="${esc(ag.key)}"><span class="art">${svgFit(regionArt(ag.region))}<span class="badge">${ag.icon || ''}</span></span><span class="tx"><b>${esc(ag.name)}</b><small>${esc(firstSentence(kText(x.reason) || x.reason || ''))}</small><small class="fl">${svgPlane}${esc(flyText(ag))}</small></span></button>`; }).join('')}</div>` : ''}`;
+}
+function metsP(p){
+  return `<div class="mets">${p.hours ? `<span>${esc(T('hours'))} <b>${esc(hText(p.hours))}</b></span>` : ''}${p.closed && p.closed !== '없음' ? `<span>${esc(T('closed'))} <b>${esc(hText(p.closed))}</b></span>` : ''}${p.duration_min ? `<span>${esc(fmtMin(p.duration_min))}</span>` : ''}${p.access ? `<span>${esc(T('access_how'))} <b>${esc(p.access)}</b></span>` : ''}</div>`;
+}
+function rowDetailP(g, p, isHotel, ii){
+  return `<div class="rx">${p.name_ja && LANG !== 'ja' ? `<div class="ja">${esc(p.name_ja)}</div>` : ''}${p.desc ? `<p class="clamp">${rich(p.desc)}</p>` : ''}${isHotel ? `${(p.pts || []).length ? `<div class="mets">${p.pts.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<p class="pr">${esc(T('per_room'))} · ${esc(T('per_night'))} <b>${manR(p.price_krw_night)}</b> ${esc(T('approx'))}</p>` : ''}` : metsP(p)}
+    ${p.tip ? `<div class="box tip">${rich(p.tip)}</div>` : ''}${p.kid_tip ? `<div class="box kid"><b>${esc(T('with_kids'))}</b> ${rich(p.kid_tip)}</div>` : ''}
+    <div class="btns"><a class="btn2" href="${gmap(p.maps_q || p.name_ja || p.name, [p.lat, p.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a>${ii != null ? `<button class="btn2" data-act="bigmap" data-v="${ii}">${esc(T('map_on'))}</button>` : ''}${isHotel ? `<button class="btn2" data-act="tab" data-v="hotel">${esc(T('hotel_more'))}</button>` : ''}</div></div>`;
+}
+function rowDetailR(r){
+  return `<div class="rx">${r.name_ja && LANG !== 'ja' ? `<div class="ja">${esc(r.name_ja)}</div>` : ''}${r.signature ? `<p><b>${esc(r.signature)}</b></p>` : ''}${r.desc ? `<p class="clamp">${rich(r.desc)}</p>` : ''}
+    <div class="mets"><span><b>${esc(yenLv(r.price_level))}</b></span>${r.hours ? `<span>${esc(T('hours'))} <b>${esc(hText(r.hours))}</b></span>` : ''}${r.closed && r.closed !== '없음' ? `<span>${esc(T('closed'))} <b>${esc(hText(r.closed))}</b></span>` : ''}${r.reserve ? `<span><b>${esc(T('reserve'))}</b></span>` : ''}</div>
+    ${(r.tips || []).length ? `<div class="mets">${r.tips.map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
+    <div class="btns"><a class="btn2" href="${gmap(r.maps_q, [r.lat, r.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div></div>`;
+}
+
+/* 맛집·볼거리·숙소 탭 */
+const DISH_ORDER = ['ramen', 'sushi', 'seafood', 'udon', 'soba', 'okonomiyaki', 'takoyaki', 'katsu', 'beef', 'grill', 'unagi', 'tempura', 'curry', 'hotpot', 'gyoza', 'okinawa_soba', 'teishoku', 'western', 'snack', 'cafe', 'dessert', 'wagashi', 'drink'];
+function inPlanIds(g, plan){ const s = new Set(); if (!plan) return s; plan.days.forEach(d => d.items.forEach(it => { if (it.ref) s.add(it.ref); (it.opts || []).forEach(o => s.add(o)); })); return s; }
+function foodTab(g, plan){
+  const rs = g.restaurants || [], used = inPlanIds(g, plan);
+  const kinds = DISH_ORDER.filter(k => rs.some(r => r.dish === k));
+  const f = kinds.includes(st.ff) ? st.ff : '';
+  const list = rs.filter(r => !f || r.dish === f).sort((a, b) => used.has(b.id) - used.has(a.id));
+  return `<div class="fchips"><button class="fchip" data-act="ff" data-v="" aria-pressed="${!f}">${esc(T('f_all'))}</button>${kinds.map(k => `<button class="fchip" data-act="ff" data-v="${k}" aria-pressed="${f === k}"><span class="mi">${svgFit(dishArt(k))}</span>${esc(T('dish_' + k))}</button>`).join('')}</div>
+    <div class="grid2">${list.map(r => { const ph = photoOf('dishes', r.dish); return `<button class="gcard" data-act="rest" data-v="${esc(r.id)}"><span class="art">${ph ? `<img src="${esc(ph.src)}" alt="">` : svgFit(dishArt(r.dish))}${used.has(r.id) ? `<span class="inp">${esc(T('in_plan'))}</span>` : ''}</span><span class="tx"><b>${esc(r.name)}</b><small>${esc(r.cuisine || '')} · ${yenMark(r.price_level)}</small></span></button>`; }).join('')}</div>`;
+}
+const SPOT_GROUPS = { temple: ['shrine', 'castle'], nature: ['nature', 'park', 'sea', 'view', 'night'], town: ['street', 'market', 'shop', 'cafe', 'food'], fun: ['museum', 'theme', 'kids', 'onsen'] };
+function spotTab(g, plan){
+  const ss = (g.spots || []).filter(s => !['airport', 'station', 'hotel'].includes(s.cat)), used = inPlanIds(g, plan);
+  const grp = Object.keys(SPOT_GROUPS).filter(k => ss.some(s => SPOT_GROUPS[k].includes(s.cat)));
+  const f = grp.includes(st.sf) ? st.sf : '';
+  const list = ss.filter(s => !f || SPOT_GROUPS[f].includes(s.cat)).sort((a, b) => (b.must ? 1 : 0) - (a.must ? 1 : 0) || used.has(b.id) - used.has(a.id));
+  return `<div class="fchips"><button class="fchip" data-act="sf" data-v="" aria-pressed="${!f}">${esc(T('f_all'))}</button>${grp.map(k => `<button class="fchip" data-act="sf" data-v="${k}" aria-pressed="${f === k}">${esc(T('sg_' + k))}</button>`).join('')}</div>
+    <div class="grid2">${list.map(s => { const ph = photoOf('spots', `${g.key}:${s.id}`); return `<button class="gcard" data-act="spot" data-v="${esc(s.id)}"><span class="art">${ph ? `<img src="${esc(ph.src)}" alt="">` : catArt(s.cat)}${s.must ? `<span class="inp">${esc(T('must'))}</span>` : used.has(s.id) ? `<span class="inp">${esc(T('in_plan'))}</span>` : ''}</span><span class="tx"><b>${esc(s.name)}</b><small>${esc(s.area || '')}${s.fee_yen === 0 ? ` · ${esc(T('free'))}` : ''}</small></span></button>`; }).join('')}</div>`;
+}
+function hotelTab(g, plan){
+  const used = inPlanIds(g, plan);
+  const hs = (g.hotels || []).slice().sort((a, b) => used.has(b.id) - used.has(a.id));
+  return `<div class="hlist">${hs.map(h => `<button class="hcard2" data-act="hotel" data-v="${esc(h.id)}"><span class="th">${catArt('hotel')}</span><span class="tx">${used.has(h.id) ? `<em>${esc(T('hotel_in'))}</em>` : ''}<b>${esc(h.name)}</b><small><span class="bs plum">${esc(tierName(h.tier))}</span> ${esc(h.area || '')}</small>${h.price_krw_night && h.price_krw_night[1] ? `<span class="pr">${esc(T('per_night'))} ${manR(h.price_krw_night)}</span>` : ''}</span>${svgNext}</button>`).join('') || `<div class="empty">${esc(T('no_hotel'))}</div>`}</div>`;
+}
+/* 준비 탭 */
+function prepTab(g, plan){
+  const b = plan && plan.budget;
+  const lo = v => Array.isArray(v) ? v[0] : Number(v) || 0;
+  const items = b ? [['b_flight', b.flight_krw, '#4E8CC4'], ['b_hotel', b.hotel_krw, '#7A5E90'], ['b_food', b.food_krw, '#E36A4C'], ['b_transport', b.transport_krw, '#3BA39A'], ['b_entry', b.entry_krw, '#D9A62E'], ['b_shop', b.shopping_krw, '#D9516E']] : [];
+  const sum = items.reduce((a, x) => a + lo(x[1]), 0) || 1;
+  const budget = b ? `<section class="pcard" id="p-budget"><h3>${esc(T('acc_budget'))}<small>${esc(nd(plan.nights))} · ${esc(b.per || '')}</small></h3><div class="big">${manR(b.total_krw)}</div>
+    <div class="bar">${items.map(x => `<i style="width:${(lo(x[1]) / sum * 100).toFixed(1)}%;background:${x[2]}"></i>`).join('')}</div>
+    <ul class="blist">${items.map(x => `<li><i style="background:${x[2]}"></i><span>${esc(T(x[0], { n: plan.nights, origin: krShort(st.origin) }))}</span><b>${manR(x[1])}</b></li>`).join('')}</ul><p class="note">${esc(b.basis || '')} ${esc(T('b_note'))}</p></section>` : '';
+  const flights = `<section class="pcard"><h3>${esc(T('flights'))}<small>${esc(T('flights_sub'))}</small></h3>${flightBlock(g)}</section>`;
+  const checks = [].concat((plan && plan.checks || []).map((c, i) => ({ c, k: `${g.key}|${plan.nights}|p|${i}` })), (g.checks || []).map((c, i) => ({ c, k: `${g.key}|g|${i}` })));
+  const done = checks.filter(x => st.checks[x.k]).length;
+  const checkHtml = checks.length ? `<section class="pcard"><h3>${esc(T('acc_check'))}<small id="chkn">${esc(T('chk_n', { d: done, n: checks.length }))}</small></h3><ul class="checks">${checks.map(x => `<li class="${st.checks[x.k] ? 'done' : ''}" data-act="check" data-v="${esc(x.k)}" tabindex="0" role="checkbox" aria-checked="${!!st.checks[x.k]}">${rich(x.c)}</li>`).join('')}</ul></section>` : '';
+  const months = Array.from({ length: 12 }, (_, i) => `<span class="${(g.best_months || []).includes(i + 1) ? 'on' : ''}">${i + 1}</span>`).join('');
+  const season = `<section class="pcard"><h3>${esc(T('when_t'))}</h3><div class="months">${months}</div>${g.season_notes ? `<p class="clamp">${esc(g.season_notes)}</p>` : ''}</section>`;
+  const move = g.getting_around || g.transport_pass ? `<section class="pcard"><h3>${esc(T('getting_around'))}</h3>${g.getting_around ? `<p class="clamp">${rich(g.getting_around)}</p>` : ''}${g.transport_pass ? `<h4>${esc(T('pass'))}</h4><p class="clamp">${rich(g.transport_pass)}</p>` : ''}</section>` : '';
+  const srcs = (g.sources || []).slice(0, 40).map(u => /^https?:\/\//i.test(String(u)) ? `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></li>` : `<li>${esc(u)}</li>`).join('');
+  const credits = Object.entries(PHOTOS).flatMap(([grp, m]) => Object.entries(m).filter(([k]) => k === g.key || k.startsWith(g.key + ':')).flatMap(([, a]) => a)).map(p => `<li>${esc(p.alt || '')} · ${esc(p.credit || '')} · ${esc(p.license)} · <a href="${esc(p.source)}" target="_blank" rel="noopener">Wikimedia Commons</a></li>`).join('');
+  const src = `<details class="acc"><summary>${esc(T('acc_src'))}<span class="cnt">${esc(T('n_docs', { n: (g.sources || []).length }))}</span></summary><div class="abody"><ul class="srcs">${srcs || `<li>${esc(T('none'))}</li>`}</ul>${credits ? `<h4>${esc(T('photo_src'))}</h4><ul class="srcs">${credits}</ul>` : ''}</div></details>`;
+  return `<div class="prep">${budget}${flights}${checkHtml}${season}${move}${src}</div>`;
+}
+function flightBlock(g){
+  let h = '';
+  for (const iata of g.airports || []){
+    const a = AP[iata]; if (!a) continue;
+    const rs = routesFrom(st.origin, iata);
+    h += `<div class="ap"><span class="code">${esc(iata)}</span>${esc(apName(a))}</div>`;
+    h += rs.length ? rs.map(r => `<div class="rline"><span class="al">${esc(T('from_to', { origin: krShort(st.origin), to: apCity(a) }))}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 3))}</span><span>${esc(weeklyText(r.weekly))}</span><span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('') : `<div class="noroute">${esc(T('no_route', { origin: krShort(st.origin) }))}</div>`;
+    const acc = (g.airport_access || []).filter(x => !x.airport || x.airport === iata);
+    if (acc.length) h += `<div class="access"><div class="ah">${esc(T('access'))}</div><ul>${acc.map(x => `<li><b>${esc(x.mode)}</b><span>→ ${esc(x.to)}</span><span class="num">${x.minutes ? fmtMin(x.minutes) : ''}${x.fare_yen ? ` · ${yen(x.fare_yen)}` : ''}</span></li>`).join('')}</ul></div>`;
+  }
+  return `<div class="route">${h || `<div class="noroute">${esc(T('no_flight_data'))}</div>`}</div>`;
+}
+
+/* ── 시트 내용 ── */
+function sheetNights(){
+  const g = st.scr === 'city' && GUIDES[st.city];
+  const ns = g ? (g.plans || []).map(p => p.nights).sort((a, b) => a - b) : nightsAvail();
+  const cur = g ? (curPlan(g) || {}).nights : st.nights;
+  openSheet(T('n_pick'), `<div class="ncards in">${ns.map(n => `<button class="ncard" data-act="setn" data-v="${n}" aria-pressed="${cur === n}">${nightsArt(n)}<span class="t"><b>${esc(nd(n))}</b><small>${esc(UI['n_off' + n] ? T('n_off' + n) : T('n_offx', { n }))}</small></span></button>`).join('')}</div>`);
+}
+function sheetOrigin(){ openSheet(T('o_title'), `${originGrid(st.origin)}<p class="basis">${esc(T('o_basis', { d: DATA.generated || '' }))}</p>`); }
+function sheetMeal(i){
+  const g = GUIDES[st.city], plan = curPlan(g), d = plan.days[st.d], it = d.items[i];
+  const { opts, pk, r } = chosenR(g, plan, st.d, i, it);
+  openSheet(T('meal_q', { meal: it.label || T('meal_w') }), `${it.note ? `<p class="shnote">${rich(it.note)}</p>` : ''}<div class="mcards">${opts.map(x => `<div class="mcard${r && r.id === x.id ? ' on' : ''}"><button class="mpick" data-act="pick" data-v="${esc(pk)}|${esc(x.id)}"><span class="art">${svgFit(dishArt(x.dish))}</span><span class="tx"><b>${esc(x.name)}</b><small>${esc(x.cuisine || '')}${x.signature ? ` · ${esc(x.signature)}` : ''}</small><span class="mets"><span>${yenMark(x.price_level)}</span>${x.hours ? `<span>${esc(hText(x.hours))}</span>` : ''}${x.closed && x.closed !== '없음' ? `<span>${esc(T('closed'))} ${esc(hText(x.closed))}</span>` : ''}</span></span>${r && r.id === x.id ? `<span class="ok">✓ ${esc(T('picked'))}</span>` : ''}</button><details class="more"><summary>${esc(T('more'))}</summary><div class="body">${rowDetailR(x)}</div></details></div>`).join('')}</div><p class="basis">${esc(T('meal_note'))}</p>`);
+}
+function sheetPlace(id){ const g = GUIDES[st.city], p = findP(g, id); if (!p) return; const ph = photoOf('spots', `${g.key}:${p.id}`);
+  openSheet(p.name, `<div class="shart">${ph ? photoImg(ph, p.name) : catArt(p.cat)}</div>${rowDetailP(g, p, false, null)}`); }
+function sheetRest(id){ const g = GUIDES[st.city], r = findR(g, id); if (!r) return;
+  openSheet(r.name, `<div class="shart">${svgFit(dishArt(r.dish))}</div>${rowDetailR(r)}`); }
+function sheetHotel(id){ const g = GUIDES[st.city], h = (g.hotels || []).find(x => x.id === id); if (!h) return;
+  openSheet(h.name, `<div class="shart">${catArt('hotel')}</div>${rowDetailP(g, h, true, null)}`); }
+function sheetIntro(){
+  const g = GUIDES[st.city], pf = PF(g);
+  openSheet(g.name, `${glanceHtml(g)}${htsHtml(g, 6)}${g.intro ? `<p class="intro clamp">${rich(g.intro)}</p><button class="btn2 sm" data-act="unclamp">${esc(T('more'))}</button>` : ''}<div class="tags">${(g.tags || []).map(tagHtml).join('')}</div>`);
+}
+function sheetPlanInfo(){ const g = GUIDES[st.city], plan = curPlan(g); if (!plan) return;
+  openSheet(plan.title || T('plan_what'), `${plan.summary ? `<p class="shnote">${rich(plan.summary)}</p>` : ''}<ol class="dsum">${plan.days.map((d, i) => `<li><b>${esc(T('day_s', { n: i + 1 }))}</b> ${esc(d.title || d.label || '')}</li>`).join('')}</ol>`); }
+function sheetPlanB(){
+  const g = GUIDES[st.city]; const whenCls = w => ({ '비 오는 날': 'sky', '아이와': 'sun', '시간 남을 때': 'sage', '렌터카': 'plum', '휴무일 때': 'coral' }[w] || '');
+  openSheet(T('acc_bplan'), (g.bplan || []).map(x => { const p = x.ref ? findP(g, x.ref) : null; return `<div class="bp"><div class="bh"><b>${esc(x.title)}</b>${x.when ? `<span class="tag ${whenCls(x.when)}">${esc(whenName(x.when))}</span>` : ''}</div><div class="bd">${rich(x.desc || '')}</div><a class="btn2" href="${gmap(x.maps_q || x.title, p ? [p.lat, p.lng] : null)}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div>`; }).join('') || `<p>${esc(T('no_bplan'))}</p>`);
+}
+function sheetFly(){ const g = GUIDES[st.city]; openSheet(T('flights'), flightBlock(g) + `<p class="basis">${esc(T('flights_sub'))}</p>`); }
+function sheetNoDirect(r){
+  const best = originList().map(({ k }) => ({ k, n: regionCities(r).filter(g => bestRoute(k.iata, g)).length })).sort((a, b) => b.n - a.n)[0];
+  openSheet(T('r0_t', { origin: krShort(st.origin), region: regionName(r) }), `<div class="sbtns">${best && best.n ? `<button class="btn1" data-act="picko-r" data-v="${esc(best.k.iata)}">${esc(T('r0_sw', { origin: krShort(best.k.iata), n: best.n }))}</button>` : ''}<button class="btn2 wide" data-act="r0-go" data-v="${esc(r)}">${esc(T('r0_go'))}</button></div>`);
+}
+/* 큰 지도 시트 : Leaflet(지리원 → OSM → 약도) + 장소 카드 넘기기 */
+function sheetBigMap(focusI){
+  const g = GUIDES[st.city], plan = curPlan(g); if (!plan) return;
+  const pts = dayPts(g, plan, st.d);
+  const cards = pts.map((p, k) => p ? `<button class="mapc" data-act="mapc" data-v="${k}" id="mapc-${k}"><span class="no">${k + 1}</span><span class="tx"><b>${esc(p.name)}</b><small>${esc(p.t || '')}</small></span><a class="go" href="${gmap(p.name, p.ll)}" target="_blank" rel="noopener">${esc(T('route_go'))}</a></button>` : '').join('');
+  openSheet(T('map_day', { n: st.d + 1 }), `<div class="bmap" id="daymap"><div class="lmap" id="lmap"></div></div><div class="mapcs" id="mapcs">${cards}</div>`, () => {
+    const sh = document.getElementById('sheet'); let done = false;
+    const go2 = () => { if (done) return; done = true; mountMap(pts); if (focusI != null) focusStop(focusI); };
+    sh.addEventListener('transitionend', go2, { once: true }); setTimeout(go2, 380);
+  }, 'full');
+}
+function mountMap(pts){
   if (lmap){ try { lmap.remove(); } catch(e){} lmap = null; } markers = [];
-  const el = document.getElementById('lmap'); if (!el || !plan) return;
-  const d = plan.days[st.day] || plan.days[0];
-  const pts = stopPoints(g, plan, d);
+  const el = document.getElementById('lmap'); if (!el) return;
   const valid = pts.filter(Boolean);
   if (!HAS_L || !valid.length){ sketch(pts); return; }
   try {
     lmap = L.map(el, { scrollWheelZoom: false, tap: false, attributionControl: true, zoomControl: true });
-    // 지도 바탕 : 자료(DATA.tiles)에 적힌 순서대로 시도하고, 그림을 하나도 못 받은 채 실패가 쌓이면 다음 서버로, 다 안 되면 약도로
     const TILES = (DATA.tiles && DATA.tiles.length) ? DATA.tiles : [{ url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap', maxNativeZoom: 19 }];
     let ti = 0, tl = null;
     const useTile = () => {
@@ -1231,13 +1587,174 @@ function mountMap(g, plan){
     useTile();
     const line = [];
     pts.forEach((p, i) => { if (!p) return; line.push(p.ll);
-      const mk = L.marker(p.ll, { icon: L.divIcon({ className: '', html: `<div class="pin ${st.sel === i ? 'on' : ''}">${i + 1}</div>`, iconSize: [24, 24], iconAnchor: [12, 12] }) }).addTo(lmap);
-      mk.bindPopup(`<b>${esc(p.t)} ${esc(p.name)}</b>`); mk.on('click', () => focusStop(i, false)); markers[i] = mk; });
+      const mk = L.marker(p.ll, { icon: L.divIcon({ className: '', html: `<div class="pin">${i + 1}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(lmap);
+      mk.on('click', () => focusStop(i, true)); markers[i] = mk; });
     L.polyline(line, { color: '#D9516E', weight: 2, dashArray: '5 5', opacity: .8 }).addTo(lmap);
-    lmap.fitBounds(L.latLngBounds(line), { padding: [34, 34], maxZoom: 14 });
+    lmap.fitBounds(L.latLngBounds(line), { padding: [34, 34], maxZoom: 15 });
     setTimeout(() => { if (lmap) lmap.invalidateSize(); }, 60);
   } catch(e){ sketch(pts); }
 }
+function focusStop(i, fromMap){
+  st.sel = i;
+  markers.forEach((m, k) => { const el = m && m.getElement && m.getElement(); const pn = el && el.querySelector('.pin'); if (pn) pn.classList.toggle('on', k === i); });
+  document.querySelectorAll('.mapc').forEach(c => c.classList.toggle('on', c.id === `mapc-${i}`));
+  const mk = markers[i]; if (lmap && mk) lmap.setView(mk.getLatLng(), Math.max(lmap.getZoom(), 15), { animate: true });
+  if (fromMap){ const c = document.getElementById(`mapc-${i}`); if (c) c.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
+}
+
+/* ───────── 주소 · 이동 · 뒤로 가기 ───────── */
+function parseRoute(h){
+  h = decodeURIComponent(String(h == null ? location.hash : h).replace(/^#/, ''));
+  if (!h || h === 'home') return { scr: 'home' };
+  if (h === 'from' || h === 'map' || h === 'all' || h === 'search') return { scr: h };
+  const m = h.match(/^map\/([a-z]+)$/); if (m && own(RK_INV, m[1])) return { scr: 'region', region: RK_INV[m[1]] };
+  const parts = h.split('/'), key = parts[0];
+  if (own(GUIDES, key)){
+    const r = { scr: 'city', city: key, n: 0, v: 0, d: 0, t: 'plan' };
+    for (const p of parts.slice(1)){ let x; if ((x = p.match(/^n(\d{1,2})$/))) r.n = +x[1]; else if ((x = p.match(/^d(\d{1,2})$/))) r.d = Math.max(0, +x[1] - 1); else if ((x = p.match(/^v(\d)$/))) r.v = +x[1]; else if (TABS.includes(p)) r.t = p; }
+    return r;
+  }
+  return { scr: 'home' };
+}
+function routeHash(r){
+  if (r.scr === 'region') return '#map/' + (RK[r.region] || '');
+  if (r.scr === 'city'){ const a = [r.city]; if (r.n) a.push('n' + r.n); if (r.v) a.push('v' + r.v); if (r.d) a.push('d' + (r.d + 1)); if (r.t && r.t !== 'plan') a.push(r.t); return '#' + a.join('/'); }
+  return '#' + (r.scr || 'home');
+}
+function applyRoute(r){
+  st.scr = r.scr; st.open = -1;
+  if (r.scr === 'region') st.region = r.region;
+  if (r.scr === 'city'){ if (st.city !== r.city){ st.ff = ''; st.sf = ''; } st.city = r.city; st.n = r.n || 0; st.v = r.v || 0; st.d = r.d || 0; st.t = r.t || 'plan'; }
+}
+const scrollMem = {};
+function animIn(dir){ if (REDUCED || !dir) return; const s = app.querySelector('.scr'); if (!s) return; s.classList.remove('in-fwd', 'in-back'); void s.offsetWidth; s.classList.add('in-' + dir); }
+function render(o){
+  closeLang(); o = o || {};
+  const s = st.scr;
+  if (s === 'city' && GUIDES[st.city]) renderCity();
+  else if (s === 'region' && st.region) renderRegion(o);
+  else if (s === 'map') renderMap(o);
+  else if (s === 'from') renderFrom();
+  else if (s === 'all') renderAll();
+  else if (s === 'search') renderSearch();
+  else { st.scr = 'home'; renderStart(); }
+  animIn(o.dir);
+}
+function nav(r, o){
+  if (SH.open){ SH.after = () => nav(r, o); closeSheet(); return; }
+  scrollMem[location.hash || '#home'] = window.scrollY;
+  const h = routeHash(r);
+  try { history.pushState({ v2: 1 }, '', h); st.pushed++; } catch(e){ location.hash = h; }
+  applyRoute(r); render(Object.assign({ dir: 'fwd' }, o || {})); window.scrollTo(0, 0);
+}
+function swap(r, o){
+  const h = routeHash(r);
+  try { history.replaceState({ v2: 1 }, '', h); } catch(e){}
+  const y = window.scrollY; applyRoute(r); render(o || {});
+  if (o && o.keep) window.scrollTo(0, y); else if (!o || !o.noScroll) window.scrollTo(0, 0);
+}
+function parentRoute(){
+  if (st.scr === 'city'){ const g = GUIDES[st.city]; return g ? { scr: 'region', region: g.region } : { scr: 'map' }; }
+  if (st.scr === 'region') return { scr: 'map' };
+  if (st.scr === 'map') return st.originSet ? { scr: 'home' } : { scr: 'from' };
+  return { scr: 'home' };
+}
+function goBack(){
+  if (st.pushed > 0){ st.backBtn = true; history.back(); }
+  else { const p = parentRoute(); const from = st.scr === 'region' ? st.region : ''; swap(p, { dir: 'back', fromRegion: from }); }
+}
+window.addEventListener('popstate', () => {
+  if (SH.ignorePop > 0){ SH.ignorePop--; const f = SH.after; SH.after = null; if (f) setTimeout(f, 0); return; }
+  if (SH.open){ closeSheet(true); return; }
+  st.pushed = Math.max(0, st.pushed - 1);
+  const prev = st.scr === 'region' ? st.region : '';
+  const r = parseRoute(); applyRoute(r);
+  render({ dir: st.backBtn ? 'back' : '', fromRegion: r.scr === 'map' ? prev : '' }); st.backBtn = false;
+  window.scrollTo(0, scrollMem[location.hash || '#home'] || 0);
+});
+function openLang(){ const m = document.getElementById('langmenu'); m.innerHTML = langMenu(); m.classList.add('on'); document.getElementById('scrim').classList.add('on'); }
+function closeLang(){ document.getElementById('langmenu').classList.remove('on'); document.getElementById('scrim').classList.remove('on'); }
+document.getElementById('scrim').addEventListener('click', closeLang);
+
+/* ───────── 입력 처리(화면과 시트 모두) ───────── */
+function refreshPlan(keep){ const g = GUIDES[st.city]; if (st.scr !== 'city' || !g) return; swap(cityRoute(), { keep: keep !== false }); }
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  if (!app.contains(el) && !document.getElementById('sheet').contains(el)) return;
+  const act = el.dataset.act, v = el.dataset.v;
+  const inSheet = document.getElementById('sheet').contains(el);
+  if (el.tagName === 'A') return;
+  switch (act){
+    case 'back': goBack(); return;
+    case 'search': st.q = st.q || ''; nav({ scr: 'search' }); { const q = document.getElementById('q'); if (q) try { q.focus(); } catch(e2){} } return;
+    case 'all': nav({ scr: 'all' }); return;
+    case 'lang': e.stopPropagation(); { const m = document.getElementById('langmenu'); if (m.classList.contains('on')) closeLang(); else openLang(); } return;
+    case 'share': share(); return;
+    case 'pickn': st.nights = Number(v) || 0; S.set('nights', st.nights); el.classList.add('pressed'); setTimeout(() => nav(st.originSet ? { scr: 'map' } : { scr: 'from' }), REDUCED ? 0 : 120); return;
+    case 'picko': st.origin = v; st.originSet = true; S.set('origin', v); S.set('originSet', true);
+      if (inSheet){ SH.after = () => render({}); closeSheet(); } else nav({ scr: 'map' }); return;
+    case 'picko-here': st.origin = v; st.originSet = true; S.set('origin', v); S.set('originSet', true); refreshPlan(); toast(T('dep', { origin: krShort(v) })); return;
+    case 'picko-r': st.origin = v; st.originSet = true; S.set('origin', v); S.set('originSet', true); { const r = st.pendingRegion; SH.after = () => { if (st.scr === 'map' && r) nav({ scr: 'region', region: r }, { zoomFrom: rmapView('', rmapAR(r)) }); else render({}); }; closeSheet(); } return;
+    case 'r0-go': SH.after = () => nav({ scr: 'region', region: v }, { zoomFrom: rmapView('', rmapAR(v)) }); closeSheet(); return;
+    case 'sh-n': sheetNights(); return;
+    case 'sh-o': sheetOrigin(); return;
+    case 'sh-fly': sheetFly(); return;
+    case 'setn': { const n = Number(v); if (st.scr === 'city'){ st.nights = n; S.set('nights', n); SH.after = () => swap(cityRoute({ n, v: 0, d: 0 })); closeSheet(); } else { st.nights = n; S.set('nights', n); SH.after = () => render({}); closeSheet(); } } return;
+    case 'pickregion': {
+      const r = v; if (!regionCities(r).length) return;
+      if (!regionStats(r).d){ st.pendingRegion = r; sheetNoDirect(r); return; }
+      if (st.scr === 'region'){ const from = rmapView(st.region, rmapAR(st.region)); st.pinSel = ''; swap({ scr: 'region', region: r }, { zoomFrom: from }); return; }
+      st.pinSel = ''; nav({ scr: 'region', region: r }, { zoomFrom: st.scr === 'map' ? rmapView('', rmapAR(r)) : null }); return; }
+    case 'whole': goBack(); return;
+    case 'pickcity': {
+      if (st.pinSel === v){ nav({ scr: 'city', city: v }); return; }
+      st.pinSel = v; const { cw } = mapBox(); document.getElementById('bigmap').firstElementChild.outerHTML = rmapSvg({ focus: st.region, sel: v, cw, ar: rmapAR(st.region), nights: st.nights });
+      const g = GUIDES[v]; const pg = document.getElementById('pingo'); if (pg) pg.innerHTML = `<button class="pingob ${cCls(g)}" data-act="city" data-v="${esc(v)}">${illHtml(g, 'xs')}<span>${esc(T('pin_go', { name: g.name }))}</span>${svgNext}</button>`;
+      const c = document.getElementById(`cc-${v}`); if (c){ c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1400); }
+      return; }
+    case 'city': if (inSheet){ SH.after = () => nav({ scr: 'city', city: v }); closeSheet(); } else nav({ scr: 'city', city: v }); return;
+    case 'atag': st.atag = v; swap({ scr: 'all' }, { keep: true }); return;
+    case 'tab': if (st.scr !== 'city') return; swap(cityRoute({ t: v })); return;
+    case 'variant': swap(cityRoute({ v: Number(v), d: 0 }), { keep: true }); return;
+    case 'day': { st.open = -1; swap(cityRoute({ d: Number(v) }), { keep: true }); const a = document.getElementById('dt-anchor'), tb = document.querySelector('.topbar'); if (a){ const top = a.getBoundingClientRect().top + window.scrollY - (tb ? tb.offsetHeight : 0); if (window.scrollY > top + 1) window.scrollTo(0, top); } } return;
+    case 'row': { if (e.target.closest('.cand')) return; const i = Number(v); const g = GUIDES[st.city], plan = curPlan(g); st.open = st.open === i ? -1 : i;
+      const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, plan); window.scrollTo(0, y); return; }
+    case 'meal': sheetMeal(Number(v)); return;
+    case 'pick': { const at = v.lastIndexOf('|'); st.picks[v.slice(0, at)] = v.slice(at + 1); S.set('picks', st.picks); SH.after = () => { const g = GUIDES[st.city]; const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, curPlan(g)); window.scrollTo(0, y); }; setTimeout(() => closeSheet(), REDUCED ? 0 : 180); el.closest('.mcards') && el.closest('.mcards').querySelectorAll('.mcard').forEach(c => c.classList.toggle('on', c.contains(el))); return; }
+    case 'mv': el.classList.toggle('open'); return;
+    case 'notice': el.classList.toggle('open'); return;
+    case 'bigmap': { let fi = null; if (v){ const g = GUIDES[st.city], plan = curPlan(g); const pts = dayPts(g, plan, st.d); fi = pts.findIndex(p => p && p.i === Number(v)); if (fi < 0) fi = null; } sheetBigMap(fi); return; }
+    case 'mapc': if (e.target.closest('a')) return; focusStop(Number(v), false); return;
+    case 'planinfo': sheetPlanInfo(); return;
+    case 'planb': sheetPlanB(); return;
+    case 'intro': sheetIntro(); return;
+    case 'unclamp': { const p = el.previousElementSibling; if (p) p.classList.remove('clamp'); el.remove(); } return;
+    case 'ff': st.ff = v; swap(cityRoute(), { keep: true }); return;
+    case 'sf': st.sf = v; swap(cityRoute(), { keep: true }); return;
+    case 'rest': sheetRest(v); return;
+    case 'spot': sheetPlace(v); return;
+    case 'hotel': sheetHotel(v); return;
+    case 'check': { st.checks[v] = !st.checks[v]; S.set('checks', st.checks); el.classList.toggle('done', !!st.checks[v]); el.setAttribute('aria-checked', String(!!st.checks[v])); const ul = el.closest('ul'); const c = document.getElementById('chkn'); if (ul && c){ const all = ul.querySelectorAll('li'); c.textContent = T('chk_n', { d: [...all].filter(x => x.classList.contains('done')).length, n: all.length }); } } return;
+    case 'credit': toast(v); return;
+    case 'sclear': e.preventDefault(); st.q = ''; { const q = document.getElementById('q'); if (q){ q.value = ''; q.focus(); } } updSearch(); return;
+    case 'sq': st.q = v; { const q = document.getElementById('q'); if (q) q.value = v; } updSearch(); return;
+    case 'open': nav({ scr: 'city', city: v }); return;
+  }
+});
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (t && t.id === 'q'){ if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); const f = document.querySelector('#sres .sitem'); if (f){ t.blur(); nav({ scr: 'city', city: f.dataset.v }); } } else if (e.key === 'Escape'){ st.q = ''; t.value = ''; updSearch(); } return; }
+  if ((e.key === 'Enter' || e.key === ' ') && t && t.matches && t.matches('.cp,.rg-a,.checks li,.rw,[role="button"]')){ e.preventDefault(); t.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
+});
+app.addEventListener('input', e => { if (e.target.id === 'q'){ st.q = e.target.value; updSearch(); } });
+function share(){
+  const g = st.scr === 'city' && GUIDES[st.city]; const plan = g && curPlan(g);
+  const title = g ? `${g.name} ${plan ? nd(plan.nights) : ''} ${T('plan_word')}` : T('brand');
+  const url = location.href;
+  const copy = () => { try { navigator.clipboard.writeText(url).then(() => toast(T('copied')), () => toast(url)); } catch(e){ toast(url); } };
+  if (navigator.share && /^https?:/.test(url)){ navigator.share({ title, url }).catch(err => { if (!err || err.name !== 'AbortError') copy(); }); } else copy();
+}
+
 function sketch(pts){
   const el = document.getElementById('daymap'); if (!el) return;
   if (lmap){ try { lmap.remove(); } catch(e){} lmap = null; }
@@ -1272,63 +1789,16 @@ function sketch(pts){
   const dots = q.map((o, k) => `<g class="pt" data-act="focus" data-v="${o.i}"><circle cx="${o.x.toFixed(1)}" cy="${o.y.toFixed(1)}" r="10"/><text x="${o.x.toFixed(1)}" y="${(o.y + 3.3).toFixed(1)}">${o.i + 1}</text></g>`).join('');
   el.innerHTML = `<svg class="sketch" viewBox="0 0 ${W} ${H}" role="img"><rect x="0" y="0" width="${W}" height="${H}" fill="var(--surface)"/><polyline class="ln" points="${poly}"/>${labels.join('')}${dots}<text x="10" y="${H - 8}" style="font-size:9px;fill:var(--ink-3)">${esc(T('sketch_note'))}</text></svg>`;
 }
-function focusStop(i, scrollMap){
-  st.sel = i;
-  document.querySelectorAll('.scard').forEach(c => c.classList.toggle('on', c.id === `stop-${i}`));
-  markers.forEach((m, k) => { const el = m && m.getElement && m.getElement(); const pn = el && el.querySelector('.pin'); if (pn) pn.classList.toggle('on', k === i); });
-  const mk = markers[i];
-  if (lmap && mk){ lmap.setView(mk.getLatLng(), Math.max(lmap.getZoom(), 14), { animate: true }); mk.openPopup(); if (scrollMap){ const m = document.getElementById('daymap'); if (m) m.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
-}
-function accordions(g, plan){
-  const hotels = (g.hotels || []).map(h => `<div class="hcard"><div class="ic c-hotel">${ico('hotel')}</div><div class="hi"><div class="hn">${esc(h.name)} <span class="tag plum">${esc(tierName(h.tier))}</span></div><div class="ha">${LANG === 'ja' ? '' : esc(h.name_ja || '') + ' · '}${esc(h.area || '')}</div><div class="hd">${rich(h.desc || '')}</div>${(h.pts || []).length ? `<div class="pts">${h.pts.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}${h.price_krw_night && h.price_krw_night[1] ? `<div class="pr">${esc(T('per_room'))} · ${esc(T('per_night'))} ${manR(h.price_krw_night)} <span style="color:var(--ink-3);font-weight:400">${esc(T('approx'))}</span></div>` : ''}<a class="go" href="${gmap(h.maps_q || h.name_ja || h.name, [h.lat, h.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div></div>`).join('');
-  const b = plan && plan.budget;
-  const budget = b ? `<table class="bt"><tr><th>${esc(T('b_item', { per: b.per || '' }))}</th><th>${esc(T('b_amount'))}</th></tr>
-    <tr><td>${esc(T('b_flight'))}<small>${esc(T('b_flight_s', { origin: krName(st.origin) }))}</small></td><td>${manR(b.flight_krw)}</td></tr>
-    <tr><td>${esc(T('b_hotel', { n: plan.nights }))}<small>${esc(T('b_hotel_s'))}</small></td><td>${manR(b.hotel_krw)}</td></tr>
-    <tr><td>${esc(T('b_food'))}</td><td>${manR(b.food_krw)}</td></tr><tr><td>${esc(T('b_transport'))}<small>${esc(T('b_transport_s'))}</small></td><td>${manR(b.transport_krw)}</td></tr>
-    <tr><td>${esc(T('b_entry'))}</td><td>${manR(b.entry_krw)}</td></tr><tr><td>${esc(T('b_shop'))}</td><td>${manR(b.shopping_krw)}</td></tr>
-    <tr class="total"><td>${esc(T('b_total'))}</td><td>${manR(b.total_krw)}</td></tr></table><p class="note">${esc(b.basis || '')} ${esc(T('b_note'))}</p>` : `<p>${esc(T('no_budget'))}</p>`;
-  const checks = [].concat((plan && plan.checks || []).map((c, i) => ({ c, k: `${g.key}|${plan.nights}|p|${i}` })), (g.checks || []).map((c, i) => ({ c, k: `${g.key}|g|${i}` })));
-  const checkHtml = checks.length ? `<ul class="checks">${checks.map(x => `<li class="${st.checks[x.k] ? 'done' : ''}" data-act="check" data-v="${esc(x.k)}" tabindex="0" role="checkbox" aria-checked="${!!st.checks[x.k]}">${rich(x.c)}</li>`).join('')}</ul>` : `<p>${esc(T('no_check'))}</p>`;
-  const whenCls = w => ({'비 오는 날':'sky','아이와':'sun','시간 남을 때':'sage','렌터카':'plum','휴무일 때':'coral'}[w] || '');
-  const bplan = (g.bplan || []).map(x => { const p = x.ref ? findP(g, x.ref) : null; return `<div class="bp"><div class="bh"><b>${esc(x.title)}</b>${x.when ? `<span class="tag ${whenCls(x.when)}">${esc(whenName(x.when))}</span>` : ''}</div><div class="bd">${rich(x.desc || '')}</div><a class="go" href="${gmap(x.maps_q || x.title, p ? [p.lat, p.lng] : null)}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a></div>`; }).join('');
-  const rest = (g.restaurants || []).map(r => `<div class="ritem"><div class="ic c-food">${ico('food')}</div><div class="ri"><div class="rn">${esc(r.name)}<small>${LANG === 'ja' ? '' : esc(r.name_ja || '')}</small></div><div class="rs">${esc(r.cuisine || '')} · ${esc(r.signature || '')} · ${yenMark(r.price_level)}</div><div class="rd">${rich(r.desc || '')}${r.closed && r.closed !== '없음' ? ` <b>${esc(T('closed'))} ${esc(hText(r.closed))}</b>` : ''}${r.hours ? ` · ${esc(hText(r.hours))}` : ''}</div><a class="go" href="${gmap(r.maps_q, [r.lat, r.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('gmap'))}</a></div></div>`).join('');
-  const spots = (g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').map(s => `<div class="ritem"><div class="ic c-${esc(s.cat)}">${ico(s.cat)}</div><div class="ri"><div class="rn">${esc(s.name)}<small>${LANG === 'ja' ? '' : esc(s.name_ja || '')}</small>${s.must ? ` <span class="tag rose">${esc(T('must'))}</span>` : ''}</div><div class="rs">${esc(s.area || '')} · ${s.fee_yen === 0 ? esc(T('free')) : s.fee_yen > 0 ? yen(s.fee_yen) : esc(T('fee_tbd'))} · ${fmtMin(s.duration_min || 60)}</div><div class="rd">${rich(s.desc || '')}${s.closed && s.closed !== '없음' ? ` <b>${esc(T('closed'))} ${esc(hText(s.closed))}</b>` : ''}</div><a class="go" href="${gmap(s.maps_q || s.name_ja || s.name, [s.lat, s.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('gmap'))}</a></div></div>`).join('');
-  const altList = (g.nearby_alternatives || []).filter(x => own(GUIDES, x.key));
-  const alts = altList.map(x => { const ag = GUIDES[x.key]; const bb = bestRoute(st.origin, ag); const a = bb && AP[bb.iata];
-    return `<button class="altcard" data-act="open" data-v="${esc(ag.key)}">${illHtml(ag, 'sm')}<div class="ai"><div class="an">${esc(ag.name)}</div><div class="ar">${rich(x.reason || '')}</div><div class="af">${bb ? `${esc(T('from_to', { origin: krName(st.origin), to: apCity(a) }))} ${fmtMin(bb.r.flight_minutes)} · ${esc(airlineText(bb.r.airlines))}` : esc(T('no_direct', { origin: krName(st.origin) }))} · ${(ag.plans || []).map(p => esc(nd(p.nights))).join(' / ')}</div></div><span class="arrow">${svgNext}</span></button>`; }).join('');
-  const season = `<p>${esc(g.season_notes || '')}</p>${g.getting_around ? `<h4>${esc(T('getting_around'))}</h4><p>${rich(g.getting_around)}</p>` : ''}${g.transport_pass ? `<h4>${esc(T('pass'))}</h4><p>${rich(g.transport_pass)}</p>` : ''}`;
-  const srcs = (g.sources || []).slice(0, 40).map(u => /^https?:\/\//i.test(String(u)) ? `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></li>` : `<li>${esc(u)}</li>`).join('');
-  const acc = (id, title, cnt, body, open) => `<details class="acc" id="acc-${id}" ${open ? 'open' : ''}><summary>${esc(title)}${cnt ? `<span class="cnt">${esc(cnt)}</span>` : ''}</summary><div class="abody">${body}</div></details>`;
-  return acc('hotel', T('acc_hotel'), T('n_places', { n: (g.hotels || []).length }), hotels || `<p>${esc(T('no_hotel'))}</p>`) +
-    acc('budget', T('acc_budget'), plan ? nd(plan.nights) : '', budget) +
-    acc('check', T('acc_check'), T('n_items', { n: checks.length }), checkHtml) +
-    acc('bplan', T('acc_bplan'), T('n_places', { n: (g.bplan || []).length }), bplan || `<p>${esc(T('no_bplan'))}</p>`) +
-    acc('alt', T('acc_alt'), T('n_places', { n: altList.length }), alts || `<p>${esc(T('no_alt'))}</p>`) +
-    acc('food', T('acc_food'), T('n_places', { n: (g.restaurants || []).length }), `<div class="rlist">${rest}</div>`) +
-    acc('spot', T('acc_spot'), T('n_places', { n: (g.spots || []).filter(s => s.cat !== 'airport' && s.cat !== 'station').length }), `<div class="rlist">${spots}</div>`) +
-    acc('season', T('acc_season'), '', season) +
-    acc('src', T('acc_src'), T('n_docs', { n: (g.sources || []).length }), `<ul class="srcs">${srcs || `<li>${esc(T('none'))}</li>`}</ul>`);
-}
 
-/* ───────── 이동(주소창) ───────── */
-function go(dest, push){
-  st.dest = dest; st.day = 0; st.sel = -1; st.variant = 0;
-  const h = dest ? `#${dest}` : '#home';
-  if (push !== false){ try { if (!dest && st.pushed === 0) history.replaceState({ dest }, '', h); else { history.pushState({ dest }, '', h); st.pushed++; } } catch(e){ location.hash = h; } }
-  render(); window.scrollTo(0, 0);
-}
-function render(){ closeLang(); if (st.dest && GUIDES[st.dest]) renderDest(); else renderHome(); }
-function parseHash(){ const h = (location.hash || '').replace('#', ''); return own(GUIDES, h) ? h : null; }
-window.addEventListener('popstate', () => { st.pushed = Math.max(0, st.pushed - 1); st.dest = parseHash(); st.day = 0; st.sel = -1; st.variant = 0; render(); window.scrollTo(0, 0); });
 /* ───────── 바텀 시트 : 뒤로 가기(스와이프)로 닫힌다 ───────── */
 const SH = { open: false, ignorePop: 0, lastFocus: null };
-function openSheet(title, html, after){
+function openSheet(title, html, after, size){
   const sh = document.getElementById('sheet'), sc = document.getElementById('shscrim');
   document.getElementById('sh-t').textContent = title || '';
   const b = document.getElementById('sh-b'); b.innerHTML = html; b.scrollTop = 0;
   document.getElementById('sh-x').setAttribute('aria-label', T('close'));
-  if (!SH.open){ SH.lastFocus = document.activeElement; try { history.pushState({ sheet: 1, dest: st.dest }, '', location.hash); } catch(e){} }
+  if (!SH.open){ SH.lastFocus = document.activeElement; try { history.pushState({ sheet: 1, city: st.city }, '', location.hash); } catch(e){} }
+  sh.classList.toggle('full', size === 'full');
   SH.open = true; sh.classList.add('on'); sc.classList.add('on'); sh.setAttribute('aria-hidden', 'false');
   document.documentElement.style.overflow = 'hidden';
   setTimeout(() => { try { document.getElementById('sh-x').focus({ preventScroll: true }); } catch(e){} }, 30);
@@ -1353,57 +1823,13 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && SH.open) c
   sh.addEventListener('touchend', () => { if (y0 == null) return; sh.style.transition = ''; sh.style.transform = ''; if (dy > 90) closeSheet(); y0 = null; });
 })();
 
-function openLang(){ const m = document.getElementById('langmenu'); m.innerHTML = langMenu(); m.classList.add('on'); document.getElementById('scrim').classList.add('on'); }
-function closeLang(){ document.getElementById('langmenu').classList.remove('on'); document.getElementById('scrim').classList.remove('on'); }
-document.getElementById('scrim').addEventListener('click', closeLang);
-
-/* ───────── 입력 처리 ───────── */
-app.addEventListener('click', e => {
-  const el = e.target.closest('[data-act]'); if (!el || !app.contains(el)) return;
-  const act = el.dataset.act, v = el.dataset.v;
-  if (act === 'origin'){ st.origin = v; S.set('origin', v); st.mapSel = ''; renderHome(); return; }
-  if (act === 'nights'){ st.nights = Number(v); S.set('nights', st.nights); renderHome(); return; }
-  if (act === 'tag'){ st.tag = v; renderHome(); return; }
-  if (act === 'sort'){ st.sort = v; renderHome(); return; }
-  if (act === 'top'){ window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-  if (act === 'lang'){ e.stopPropagation(); const m = document.getElementById('langmenu'); if (m.classList.contains('on')) closeLang(); else openLang(); return; }
-  if (act === 'mapdot'){ e.preventDefault(); st.mapSel = st.mapSel === v ? '' : v; st.pinSel = ''; document.getElementById('jpmap').innerHTML = jpMapSvg(); document.getElementById('maptip').innerHTML = mapTip(); return; }
-  if (act === 'mappin'){ e.preventDefault(); st.pinSel = st.pinSel === v ? '' : v; st.mapSel = ''; document.getElementById('jpmap').innerHTML = jpMapSvg(); document.getElementById('maptip').innerHTML = mapTip();
-    const c = st.pinSel && document.getElementById(`card-${v}`); if (c){ c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1600); }
-    return; }
-  if (act === 'region'){ const from = regionView(st.region); st.region = v; st.pinSel = ''; st.mapSel = ''; renderHome(); animateMap(from, regionView(st.region)); centerChip(); return; }
-  if (act === 'sclear'){ e.preventDefault(); st.q = ''; const q = document.getElementById('q'); if (q){ q.value = ''; q.focus(); } updSearch(); return; }
-  if (act === 'sq'){ st.q = v; const q = document.getElementById('q'); if (q) q.value = v; updSearch(); return; }
-  if (act === 'open'){ e.stopPropagation(); go(v); return; }
-  if (act === 'back'){ if (st.pushed > 0) history.back(); else go(null); return; }
-  if (act === 'setnights'){ st.nightsSel = Number(v); st.variant = 0; st.day = 0; st.sel = -1; renderDest(); return; }
-  if (act === 'variant'){ st.variant = Number(v); st.day = 0; st.sel = -1; renderDest(); return; }
-  if (act === 'day'){ st.day = Number(v); st.sel = -1; const g = GUIDES[st.dest]; const plan = curPlan(g); document.getElementById('planarea').innerHTML = planHtml(g, plan); const dh = document.querySelector('.dayhead'); if (dh) dh.scrollIntoView({ behavior: 'smooth', block: 'start' }); mountMap(g, plan); return; }
-  if (act === 'focus'){ if (e.target.closest('a,button.opt')) return; focusStop(Number(v), true); return; }
-  if (act === 'pick'){ e.stopPropagation(); const at = v.lastIndexOf('|'); const pk = v.slice(0, at), rid = v.slice(at + 1); st.picks[pk] = rid; S.set('picks', st.picks); const g = GUIDES[st.dest]; const plan = curPlan(g); const y = window.scrollY; document.getElementById('planarea').innerHTML = planHtml(g, plan); window.scrollTo(0, y); mountMap(g, plan); return; }
-  if (act === 'check'){ st.checks[v] = !st.checks[v]; S.set('checks', st.checks); el.classList.toggle('done', !!st.checks[v]); el.setAttribute('aria-checked', String(!!st.checks[v])); return; }
-  if (act === 'budget'){ const d = document.getElementById('acc-budget'); if (d){ d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
-  if (act === 'share'){ share(); return; }
-});
-app.addEventListener('keydown', e => {
-  if (e.target.id === 'q'){ if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); const f = document.querySelector('#sres .sitem'); if (f){ e.target.blur(); go(f.dataset.v); } } else if (e.key === 'Escape'){ st.q = ''; e.target.value = ''; updSearch(); } return; }
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.dot,.cpin,.checks li')){ e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
-});
-app.addEventListener('input', e => { if (e.target.id === 'q'){ st.q = e.target.value; updSearch(); } });
-function share(){
-  const g = GUIDES[st.dest]; const plan = g && curPlan(g);
-  const title = g ? `${g.name} ${plan ? nd(plan.nights) : ''} ${T('plan_word')}` : T('brand');
-  const url = location.href;
-  const copy = () => { try { navigator.clipboard.writeText(url).then(() => toast(T('copied')), () => toast(url)); } catch(e){ toast(url); } };
-  if (navigator.share && /^https?:/.test(url)){ navigator.share({ title, url }).catch(err => { if (!err || err.name !== 'AbortError') copy(); }); } else copy();
-}
 
 /* ───────── 시작 ───────── */
 silDefs();
-try { window.__jp = { rmapSvg, searchRun, st }; } catch(e){}
-st.dest = parseHash();
-try { history.replaceState({ dest: st.dest }, '', st.dest ? `#${st.dest}` : location.hash || '#home'); } catch(e){}
-render();
+try { history.scrollRestoration = 'manual'; } catch(e){}
+try { window.__jp = { rmapSvg, searchRun, st, parseRoute, routeHash }; } catch(e){}
+{ const r = parseRoute(); applyRoute(r); try { history.replaceState({ v2: 1 }, '', routeHash(r)); } catch(e){} render({}); }
+
 })();
 </script>
 </body>
