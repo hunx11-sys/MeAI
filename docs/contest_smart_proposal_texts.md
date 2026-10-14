@@ -50,6 +50,6 @@
 
 ## 첨부파일 설명 (칸에 붙여 넣기)
 
-- `02_smart_proposal_compare_hyundai.pptx` : 현대해상 스마트 제안서와 지면 단위로 대조하고 메리츠 방식을 정한 브리핑(15장 · 2026-09-21 작성, 생성기 v8.49 시점 수치)
+- `02_smart_proposal_contest_deck.pptx` : 공모 설명서(17장) — 문제(설계서는 나열) · 경쟁사 현대해상 스마트 제안서의 한계 · 메리츠 방식 3원칙과 작동 5단계 · 생성 지면 9쪽 구성 상세 · 데이터와 검증 · 기대효과
 - `03_example_naemom5105_F40.pdf` · `03_example_the5105_F44.pdf` : 실제 설계서 2건(The건강한 내Mom대로 5.10.5 여40 · The건강한 5.10.5 여44)으로 만든 스마트 제안서 9쪽(영업담당자·피보험자 정보 가림)
 - `04_smart_proposal_program.zip` : 생성기 본체(윈도우 `start_windows.bat` 실행 → 브라우저에서 설계서 PDF 업로드)
