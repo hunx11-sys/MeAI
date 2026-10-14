@@ -140,6 +140,48 @@ def load_tr(lang, name):
 ICON_BAD = re.compile(r'<\s*(script|foreignObject|image|iframe|a)\b|\bon[a-z]+\s*=|href|url\(|javascript:|<text\b', re.I)
 
 
+REGION_KEYS = {'홋카이도': 'hokkaido', '도호쿠': 'tohoku', '간토': 'kanto', '주부': 'chubu', '간사이': 'kansai', '주고쿠': 'chugoku', '시코쿠': 'shikoku', '규슈': 'kyushu', '오키나와': 'okinawa'}
+sys.path.insert(0, os.path.join(HERE, 'tools'))
+from dish_category import dish_of  # noqa: E402
+
+
+def load_svg_set(path, limit):
+    """{key: svg} 묶음을 읽어 위험한 요소가 있거나 너무 큰 그림은 빼고 알린다."""
+    if not os.path.exists(path):
+        return {}
+    out = {}
+    for k, svg in json.load(open(path, encoding='utf-8')).items():
+        if k.startswith('_'):
+            continue
+        if not isinstance(svg, str) or not svg.lstrip().startswith('<svg') or ICON_BAD.search(svg) or len(svg.encode('utf-8')) > limit:
+            print('  그림 제외 %s/%s : 허용되지 않은 요소 또는 %dKB 초과' % (os.path.basename(path), k, limit // 1000))
+            continue
+        out[k] = svg.strip()
+    return out
+
+
+def load_photos():
+    """travel/data/photos.json : 사용 허가가 확인된 실물 사진 목록(없으면 빈 값). 파일은 travel/img/ 아래.
+       {"cities": {"kyoto": [{"file": "img/kyoto_1.webp", "credit": "촬영자", "license": "CC BY-SA 4.0", "source": "원본 주소"}]}, "spots": {...}}
+       조립 때 data: 주소로 파일 안에 넣는다(한 파일로 열리게). 파일이 없으면 그 사진은 건너뛴다."""
+    path = os.path.join(DATA, 'photos.json')
+    if not os.path.exists(path):
+        return {}
+    import base64
+    man = json.load(open(path, encoding='utf-8'))
+    out = {}
+    for group in ('cities', 'spots', 'regions', 'dishes'):
+        for key, items in (man.get(group) or {}).items():
+            for it in items:
+                fp = os.path.join(HERE, it.get('file', ''))
+                if not it.get('license') or not it.get('source') or not os.path.isfile(fp):
+                    continue
+                mime = 'image/webp' if fp.endswith('.webp') else 'image/jpeg'
+                src = 'data:%s;base64,%s' % (mime, base64.b64encode(open(fp, 'rb').read()).decode('ascii'))
+                out.setdefault(group, {}).setdefault(key, []).append({'src': src, 'credit': it.get('credit', ''), 'license': it['license'], 'source': it['source'], 'alt': it.get('alt', '')})
+    return out
+
+
 def load_icons():
     """travel/data/icons.json : 목적지별 그림(SVG). 위험한 요소가 있거나 너무 크면 빼고 알린다."""
     path = os.path.join(DATA, 'icons.json')
@@ -204,12 +246,19 @@ def main():
     for key, g in guides.items():
         if key in icons:
             g['icon'] = icons[key]
+    for g in guides.values():
+        for r in g.get('restaurants', []):
+            r['dish'] = dish_of(r.get('cuisine'), r.get('name'))
+    art = {'regions': load_svg_set(os.path.join(DATA, 'art_regions.json'), 8000), 'dishes': load_svg_set(os.path.join(DATA, 'art_dishes.json'), 4000)}
+    photos = load_photos()
+    regions_geo = json.load(open(os.path.join(DATA, 'regions_geo.json'), encoding='utf-8'))['regions'] if os.path.exists(os.path.join(DATA, 'regions_geo.json')) else {}
     no_icon = [k for k in guides if k not in icons]
     no_prof = [k for k, g in guides.items() if not g.get('profile')]
 
     mapd = {
         'w': W, 'h': H, 'lon0': LON0, 'lat1': LAT1, 'k': K, 'cos': round(COS, 5), 'inset': INSET, 'labels': LABELS,
         'paths': {'japan': rings_to_path(outline['japan'], False), 'okinawa': rings_to_path(outline['japan'], True), 'korea': rings_to_path(outline['korea'], False)},
+        'regions': {k: {'d': v['d'], 'label': v['label'], 'bbox': v['bbox']} for k, v in regions_geo.items()},
     }
     tpl = open(TPL, encoding='utf-8').read()
     css = open(os.path.join(VENDOR, 'leaflet.css'), encoding='utf-8').read()
@@ -242,7 +291,7 @@ def main():
             taps = taps['airports']
         data = {
             'version': VERSION, 'generated': generated, 'lang': code, 'hideLang': hide_lang, 'ui': ui, 'langs': ui_all['langs'], 'langLinks': lang_links,
-            'regions': REGIONS, 'tags': TAGS, 'tiles': TILES, 'kr': kr, 'apnames': apn, 'airports': taps, 'guides': tguides, 'map': mapd,
+            'regions': REGIONS, 'tags': TAGS, 'tiles': TILES, 'kr': kr, 'apnames': apn, 'airports': taps, 'guides': tguides, 'map': mapd, 'art': art, 'photos': photos, 'regionKeys': REGION_KEYS,
         }
         fonts_link, stack = FONTS.get(L.get('font', 'pretendard'), FONTS['pretendard'])
         html = (tpl.replace('/*LANG*/', L.get('html', code)).replace('/*TITLE*/', ui.get('brand', '일본 직항 여행 플래너'))
@@ -263,6 +312,7 @@ def main():
     nroutes = sum(len(a.get('routes', [])) for a in aps)
     print('조립 완료 · 일본 공항 %d개 · 직항 노선 %d건 · 목적지 가이드 %d곳%s' % (len(aps), nroutes, len(guides), (' · 건너뜀 %d' % len(skipped)) if skipped else ''))
     print('  도시 그림 %d/%d · 도시 프로필 %d/%d%s' % (len(guides) - len(no_icon), len(guides), len(guides) - len(no_prof), len(guides), ('  (그림 없음: %s)' % ','.join(no_icon[:8])) if no_icon else ''))
+    print('  지역 장면 그림 %d/9 · 음식 그림 %d종 · 실물 사진 %d장 · 지역 색 지도 %d/9' % (len(art['regions']), len(art['dishes']), sum(len(v) for grp in photos.values() for v in grp.values()), len(regions_geo)))
     for code, f, mb, missing in summary:
         print('  %-4s %-16s %.1f MB%s' % (code, f, mb, ('  번역 없음 %d곳: %s' % (len(missing), ','.join(missing[:6]) + ('…' if len(missing) > 6 else ''))) if missing else ''))
     for key, g in sorted(guides.items(), key=lambda kv: kv[1]['order']):

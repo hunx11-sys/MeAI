@@ -29,6 +29,9 @@
 | `data/guides/<목적지>.json` | 목적지 하나의 명소·식당·숙소·공항 교통·박 수별 플랜·대체 동선·플랜 B·대체 여행지·예산·준비물 | 목적지마다 조사(장소) → 설계(동선) → 검증(회의론자가 폐업·휴무·좌표·동선 반박) → 정정의 4단계. 소유자가 먼저 만들어 둔 마쓰야마·다카마쓰·고베·삿포로·도쿄 맛집·183곳 지도 자료를 씨앗으로 넣음 |
 | 가이드의 `profile` 항목 | 도시 얼굴 : 성격 한 줄(vibe) · 위치 설명(where) · 먹을/볼/할 것(known_for) · 이런 분께(best_for, 고정 목록 16개) · 비슷한 곳과 차이(vs, vs_key) · 검색 별칭(aliases) · 색(color) | 33곳 요약을 한 편집자가 한꺼번에 써서 서로 겹치지 않게 하고, 점검 스크립트로 글자 수·목록·중복·긴 줄표를 확인. 위치 설명의 시간은 가이드의 공항 교통·시내 이동에 있는 값만 씀. 넣는 도구 `tools/apply_profiles.py`, 점검은 `validate_guide.py` |
 | `data/icons.json` | 도시 그림 33장(평면 SVG, 한 장 2KB 안팎) | 이 프로젝트에서 직접 그림(외부 그림·로고·캐릭터 없음, 글자 없음). 조립 때 스크립트·외부 참조가 섞인 그림은 자동으로 뺀다 |
+| `data/regions_geo.json` | 지역 9개 경계(홈의 지역별 색 지도) | Natural Earth 1:10m 현 경계(공개 자료)를 지역별로 합치고 단순화. `python3 -I travel/tools/build_regions_geo.py <ne_10m_admin_1_states_provinces.geojson>` (shapely 필요) |
+| `data/art_regions.json` · `data/art_dishes.json` | 지역 장면 그림 9장(가로 3:2) · 음식 그림 23종(정사각) | 이 프로젝트에서 직접 그림(평면 SVG). 식당마다 어떤 음식 그림을 쓸지는 cuisine 글로 자동 분류(`tools/dish_category.py`, 조립 때 dish 값으로 붙음) |
+| `data/photos.json`(있을 때) | 실물 사진 목록(도시 대표·명소). 사진 파일은 `travel/img/` | `tools/fetch_photos.py` 가 위키미디어 공용에서 사용 허가가 분명한 사진(퍼블릭 도메인·CC0·CC BY·CC BY-SA)만 후보로 모아 `photos_candidates.json` 에 출처·촬영자·허가를 적는다 → 사람이 보고 골라 `photos.json` 으로 옮기면 조립 때 파일 안에 들어가고 화면에 촬영자 표기가 붙는다. 사진이 없으면 그림이 대신 보인다. 이 스크립트는 클라우드 환경에서 commons.wikimedia.org · upload.wikimedia.org 접속이 허용되어야 돈다 |
 | `data/kr_airports.json` | 한국 출발 공항 이름·좌표 | 손으로 작성 |
 | `data/ui_strings.json` | 화면 글자 6개 언어 사전(버튼·제목·단위·태그 이름·항공사 이름) | 손으로 작성 |
 | `data/airport_names.json` | 일본 공항·도시 이름의 영어·일본어·중국어(간체·번체) 표기 | 손으로 작성 |
