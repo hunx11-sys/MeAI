@@ -295,6 +295,20 @@
   #viewEx .vwhy .mk{flex:none;font-weight:800;width:14px}
   #viewEx .vwhy .mk.y{color:var(--green)}
   #viewEx .vwhy .mk.n{color:var(--red)}
+  #viewEx .vwhy .mk.w, #viewEx td .mk.w{color:#D97706}
+  #viewEx .ex-rule{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px}
+  #viewEx .ex-rule .lab{font-size:12px;font-weight:800;color:var(--sub);margin-right:2px}
+  #viewEx .ex-rule button{font:inherit;font-size:12.5px;font-weight:800;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--sub);cursor:pointer}
+  #viewEx .ex-rule button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  #viewEx .ex-chg{margin-top:12px;border:1px solid #FBE2B5;background:#FFFBEF;border-radius:12px;padding:10px 12px}
+  #viewEx .ex-chg summary{font-size:13px;font-weight:900;color:#8A5A00;cursor:pointer}
+  #viewEx .ex-chg table{width:100%;border-collapse:collapse;margin-top:9px;font-size:12.5px;line-height:1.5}
+  #viewEx .ex-chg th,#viewEx .ex-chg td{border:1px solid #F3DFB4;padding:6px 8px;text-align:left;vertical-align:top;word-break:keep-all}
+  #viewEx .ex-chg th{background:#FFF1CC;color:#8A5A00;font-weight:800}
+  #viewEx .ex-chg td:first-child{font-weight:800;white-space:nowrap}
+  #viewEx .ex-chg .sm{font-size:11.5px;color:#8A6A2A;font-weight:600}
+  #viewEx .ex-chg > .sm{margin-top:7px;line-height:1.55}
+  #viewEx .li-new{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:900;color:#B45309;background:#FEF3C7;border-radius:5px;padding:1px 6px}
   #viewEx .vwhy .why{color:var(--g500)}
   #viewEx .vcap{font-size:12px;color:var(--g500);font-weight:500;margin-top:11px}
   #viewEx .vover{font-size:13.5px;font-weight:700;color:var(--red);margin-top:12px}
@@ -421,9 +435,28 @@
 
   <div id="viewEx" style="display:none">
     <div class="ex-intro">
-      <span class="eyebrow">간편심사 예외질환 · ver2609</span>
+      <span class="eyebrow">간편심사 예외질환 · ver2610</span>
       <h2>이 병력, 어떤 간편보험이 들어갈 수 있을까요?</h2>
       <p>질환과 치료이력을 넣으면 간편상품 일반설계 · 3대진단플랜 · 어깨/무릎/디스크플랜, 간편정기, 유병자실손 5개 설계유형을 한 번에 판정합니다.</p>
+      <div class="ex-rule" id="ex-rule">
+        <span class="lab">판정 기준</span>
+        <button data-r="NEW">2026.10.16 시행 신기준</button>
+        <button data-r="OLD">종전 기준(10.15까지)</button>
+      </div>
+      <details class="ex-chg" open>
+        <summary>10월 16일부터 바뀌는 예외질환 인정기준 (유병력자실손 제외 간편상품)</summary>
+        <table>
+          <thead><tr><th>예외질환</th><th>변경 전</th><th>변경 후</th></tr></thead>
+          <tbody>
+            <tr><td>대장용종 <span class="sm">3.6.5~3.10.5</span></td><td>수술 2회 이내</td><td>10년 내 3회 · 단 5년 이내 최대 2회<br><span class="sm">(5년 이내·5~10년 : 2·1 / 1·2 / 0·3회)</span></td></tr>
+            <tr><td>수면무호흡</td><td>입원 1회, 수술 필수</td><td>입원 2회, 수술 필수</td></tr>
+            <tr><td>요로결석</td><td>수술 필수, 수술 2회 이내</td><td>수술 시 2회 이내 · <b>비수술도 인정</b><br><span class="sm">단 비수술이면 (질병)수술비 가입 불가</span></td></tr>
+            <tr><td>화상</td><td>표재성, 비수술</td><td>표재성·심재성, 수술 무관 · 수술 3회 이내</td></tr>
+            <tr><td>자궁내막증</td><td>수술 1회 (양측 난소절제술 필수)</td><td>수술 1회 (수술 종류 무관)</td></tr>
+          </tbody>
+        </table>
+        <div class="sm">(질병)수술비 : 질병수술비, 1-5종 수술비(plus 포함), (질병)1-7종 수술비, 상급종합병원질병수술비, 종합병원질병수술비, 질병수술비(특정2대질병제외, 특정5대질병제외, 특정6대질병제외) · 출처 : 예외질환 인정기준 변경 안내(시행 2026.10.16)</div>
+      </details>
     </div>
 
     <div class="card">
@@ -781,7 +814,11 @@ const ITEMS=[
     TRI:{c:'IS',d:60,x:'후유장해 있는 경우 제외'},
     SHD:{c:'IS',d:15,x:'후유장해 있는 경우 제외'},
     TRM:{c:'IS',d:60,x:'후유장해 있는 경우 제외'},
-    SIL:{c:'I',d:15,x:'표재층 1·2도 화상 / 구축·강직·피부이식·후유장해 있는 경우 제외'}}},
+    SIL:{c:'I',d:15,x:'표재층 1·2도 화상 / 구축·강직·피부이식·후유장해 있는 경우 제외'}},
+ pNew:{GEN:{c:'IS',d:15,x:'표재성·심재성 무관 / 구축·강직·후유장해 있는 경우 제외',lim:'수술 3회 이내',maxN:3},
+    TRI:{c:'IS',d:60,x:'표재성·심재성 무관 / 후유장해 있는 경우 제외',lim:'수술 3회 이내',maxN:3},
+    SHD:{c:'IS',d:15,x:'표재성·심재성 무관 / 후유장해 있는 경우 제외',lim:'수술 3회 이내',maxN:3},
+    TRM:{c:'IS',d:60,x:'표재성·심재성 무관 / 후유장해 있는 경우 제외',lim:'수술 3회 이내',maxN:3}}},
 
 {id:'A03',n:'코로나-19',g:'감염',code:'U07',kw:'코로나 코로나19 covid 확진 격리',
  p:{GEN:{c:'I',d:15,x:'중환자실 입원 제외'},TRI:{c:'I',d:15,x:'중환자실 입원 제외'},
@@ -905,11 +942,18 @@ const ITEMS=[
  p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
     TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10}}},
 
-{id:'C05',n:'비중격만곡증 / 수면무호흡(코골이) / 코폴립 수술',g:'이비인후',code:'J34.2 G47.3 J33',
- kw:'비중격만곡증 코중격 수면무호흡 코골이 코폴립 비용종 코수술',
+{id:'C05',n:'비중격만곡증 / 코폴립 수술',g:'이비인후',code:'J34.2 J33',
+ kw:'비중격만곡증 코중격 코폴립 비용종 코수술',
  p:{GEN:{c:'S',d:10,x:'현재 보유 폴립 없음'},TRI:{c:'S',d:10,x:'현재 보유 폴립 없음'},
     SHD:{c:'S',d:10,x:'현재 보유 폴립 없음'},TRM:{c:'S',d:10,x:'현재 보유 폴립 없음'},
-    SIL:{c:'S',d:10,sx:'비중격만곡증 / 코폴립 [현재보유폴립없음]',x:'유병자실손은 수면무호흡(코골이) 미포함'}}},
+    SIL:{c:'S',d:10,x:'현재 보유 폴립 없음'}}},
+
+{id:'C05b',n:'수면무호흡(코골이) 수술',g:'이비인후',code:'G47.3',cntKind:'입원',
+ kw:'수면무호흡 코골이 수면무호흡증 코골이수술',
+ p:{GEN:{c:'S',d:10,lim:'입원 1회 · 수술 필수',maxN:1},TRI:{c:'S',d:10,lim:'입원 1회 · 수술 필수',maxN:1},
+    SHD:{c:'S',d:10,lim:'입원 1회 · 수술 필수',maxN:1},TRM:{c:'S',d:10,lim:'입원 1회 · 수술 필수',maxN:1}},
+ pNew:{GEN:{c:'S',d:10,lim:'입원 2회 · 수술 필수',maxN:2},TRI:{c:'S',d:10,lim:'입원 2회 · 수술 필수',maxN:2},
+    SHD:{c:'S',d:10,lim:'입원 2회 · 수술 필수',maxN:2},TRM:{c:'S',d:10,lim:'입원 2회 · 수술 필수',maxN:2}}},
 
 {id:'C06',n:'기흉 수술',g:'호흡기',code:'J93',kw:'기흉 폐허탈 공기가슴증 폐',
  p:{GEN:{c:'S',d:10,x:'장기손상 없음',lim:'2회 이내'},TRI:{c:'S',d:10,x:'장기손상 없음',lim:'2회 이내'},
@@ -969,7 +1013,9 @@ const ITEMS=[
 
 {id:'C17',n:'요로결석 / 신장결석 완전제거',g:'비뇨',code:'N20',kw:'요로결석 신장결석 요관결석 결석 쇄석술 체외충격파',
  p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
-    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10,lim:'2회 이내'}}},
+    TRM:{c:'S',d:10,lim:'2회 이내'},SIL:{c:'S',d:10,lim:'2회 이내'}},
+ pNew:{GEN:{c:'IS',d:10,lim:'수술 시 2회 이내',maxN:2,noop:'비수술 시 (질병)수술비 가입 불가'},TRI:{c:'IS',d:10,lim:'수술 시 2회 이내',maxN:2,noop:'비수술 시 (질병)수술비 가입 불가'},
+    SHD:{c:'IS',d:10,lim:'수술 시 2회 이내',maxN:2,noop:'비수술 시 (질병)수술비 가입 불가'},TRM:{c:'IS',d:10,lim:'수술 시 2회 이내',maxN:2,noop:'비수술 시 (질병)수술비 가입 불가'}}},
 
 {id:'C18',n:'하지정맥류 수술',g:'순환기',code:'I83',kw:'하지정맥류 정맥류 다리혈관 다리',
  p:{GEN:{c:'S',d:10,lim:'2회 이내'},TRI:{c:'S',d:10,lim:'2회 이내'},SHD:{c:'S',d:10,lim:'2회 이내'},
@@ -1019,14 +1065,18 @@ const ITEMS=[
     SHD:{c:'S',d:10,x:'현재 보유 없음'},TRM:{c:'S',d:10,x:'현재 보유 없음'}}},
 
 {id:'C28',n:'자궁내막증 수술',g:'생식기',code:'N80',kw:'자궁내막증 내막증',
- p:{GEN:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당'},TRI:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당'},
-    SHD:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당'},TRM:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당'}}},
+ p:{GEN:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당',lim:'1회',maxN:1},TRI:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당',lim:'1회',maxN:1},
+    SHD:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당',lim:'1회',maxN:1},TRM:{c:'S',d:10,x:'양쪽 난소 절제술한 경우만 해당',lim:'1회',maxN:1}},
+ pNew:{GEN:{c:'S',d:10,x:'수술 종류 무관',lim:'1회',maxN:1},TRI:{c:'S',d:10,x:'수술 종류 무관',lim:'1회',maxN:1},
+    SHD:{c:'S',d:10,x:'수술 종류 무관',lim:'1회',maxN:1},TRM:{c:'S',d:10,x:'수술 종류 무관',lim:'1회',maxN:1}}},
 
-{id:'C29',n:'대장용종(양성) 완전제거',g:'소화기',code:'D12 K63.5',
+{id:'C29',n:'대장용종(양성) 완전제거',g:'소화기',code:'D12 K63.5',colon:1,
  kw:'대장용종 대장폴립 용종 폴립 대장내시경 용종절제 대장',
  p:{GEN:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},TRI:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},
     SHD:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},TRM:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'},
-    SIL:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'}}},
+    SIL:{c:'S',d:5,x:'현재 보유 없음',lim:'2회 이내'}},
+ pNew:{GEN:{c:'S',d:5,x:'현재 보유 없음',lim:'10년 내 3회 (5년 이내 최대 2회)',colon:'new'},TRI:{c:'S',d:5,x:'현재 보유 없음',lim:'10년 내 3회 (5년 이내 최대 2회)',colon:'new'},
+    SHD:{c:'S',d:5,x:'현재 보유 없음',lim:'10년 내 3회 (5년 이내 최대 2회)',colon:'new'},TRM:{c:'S',d:5,x:'현재 보유 없음',lim:'10년 내 3회 (5년 이내 최대 2회)',colon:'new'}}},
 
 {id:'C30',n:'위/식도/십이지장 용종(양성) 완전제거',g:'소화기',code:'D13 K31.7',
  kw:'위용종 식도용종 십이지장용종 용종 폴립 위내시경 위',
@@ -1050,6 +1100,17 @@ const ITEMS=[
 {id:'C34',n:'혈관종 수술',g:'피부',code:'D18',kw:'혈관종 혈관기형 붉은점',
  p:{GEN:{c:'S',d:5},TRI:{c:'S',d:5},SHD:{c:'S',d:5},TRM:{c:'S',d:5},SIL:{c:'S',d:5}}}
 ];
+
+/* =============== 2026.10.16 시행 예외질환 인정기준 변경 =============== */
+/* 대장용종(10년 내 3회·5년 이내 최대 2회) · 수면무호흡(입원 2회) · 요로결석(비수술도 인정, 단 (질병)수술비 불가)
+   · 화상(깊이·수술 무관, 수술 3회 이내) · 자궁내막증(수술 종류 무관) — 유병력자실손 제외 간편상품.
+   pNew 에 적힌 설계유형만 바뀐다. 날짜가 되면 자동으로 신기준, 화면에서 종전 기준으로 바꿔 볼 수 있다. */
+const EX_NEW_DATE='2026-10-16';
+const EX_SURG_RIDERS='질병수술비 · 1-5종 수술비(plus 포함) · (질병)1-7종 수술비 · 상급종합병원질병수술비 · 종합병원질병수술비 · 질병수술비(특정2대·특정5대·특정6대질병제외)';
+let exRule=(function(){const d=new Date(),t=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');return t>=EX_NEW_DATE?'NEW':'OLD';})();
+function rv(it,pid){ if(exRule==='NEW'&&it.pNew&&it.pNew[pid]) return it.pNew[pid]; return it.p[pid]; }
+function maxN(v){ if(v.maxN) return v.maxN; const m=/(\d+)\s*회/.exec(v.lim||''); return m?+m[1]:0; }
+function hasCount(it){ return PIDS.some(pid=>{const v=rv(it,pid);return v&&maxN(v);}); }
 
 /* =============== 초성 / 검색 유틸 =============== */
 const CHO=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
@@ -1107,7 +1168,7 @@ function renderRes(){
 }
 function rowHTML(it){
   const on=picked.some(p=>p.id===it.id);
-  const pills=PLANS.map(pl=>{const v=it.p[pl.id];
+  const pills=PLANS.map(pl=>{const v=rv(it,pl.id);
     return '<span class="pill '+(v?'y':'n')+'">'+shortNm(pl.nm)+(v?' '+v.d+'일':' 불가')+'</span>';}).join('');
   return '<div class="row'+(on?' on':'')+'" data-id="'+it.id+'">'+
     '<div class="txt"><div class="t1">'+esc(it.n)+'</div>'+
@@ -1117,7 +1178,7 @@ function rowHTML(it){
 }
 function toggle(id){
   if(picked.some(p=>p.id===id)) picked=picked.filter(p=>p.id!==id);
-  else picked.push({id,op:false,adm:0,out:0});
+  else picked.push({id,op:!!byId(id).colon,adm:0,out:0,cnt:1,c5:1,c10:0});
   renderAll();
 }
 
@@ -1141,6 +1202,11 @@ function renderPicked(){
         '<div class="f"><span class="lab">입원일수</span>'+stepHTML('adm',p.adm)+'</div>'+
         '<div class="f"><span class="lab">통원일수</span>'+stepHTML('out',p.out)+
           '<span style="font-size:12.5px;color:var(--g500);font-weight:500">실손 판정에만 합산</span></div>'+
+        (it.colon
+          ? '<div class="f"><span class="lab">5년 이내 수술</span>'+stepHTML('c5',p.c5,'회')+'</div>'+
+            '<div class="f"><span class="lab">5~10년 전 수술</span>'+stepHTML('c10',p.c10,'회')+'</div>'
+          : (hasCount(it)?'<div class="f"><span class="lab">'+(it.cntKind||'수술·시술')+' 횟수</span>'+stepHTML('cnt',p.cnt,'회')+
+              '<span style="font-size:12.5px;color:var(--g500);font-weight:500">수술한 경우에 봅니다</span></div>':''))+
       '</div></div>';
   }).join('');
   box.querySelectorAll('.item').forEach(el=>{
@@ -1155,27 +1221,39 @@ function renderPicked(){
     });
   });
 }
-function stepHTML(f,v){
+function stepHTML(f,v,u){
   return '<div class="stepper" data-f="'+f+'"><button class="ex-dec" aria-label="감소">−</button>'+
-    '<input type="number" value="'+v+'" min="0" aria-label="일수"><button class="ex-inc" aria-label="증가">+</button><span class="u">일</span></div>';
+    '<input type="number" value="'+v+'" min="0" aria-label="'+(u==='회'?'횟수':'일수')+'"><button class="ex-inc" aria-label="증가">+</button><span class="u">'+(u||'일')+'</span></div>';
 }
 
 /* =============== 판정 =============== */
 function judgeOne(it,p,plan){
-  const v=it.p[plan.id];
+  const v=rv(it,plan.id);
   if(!v) return {ok:false,r:'예외질환 아님'};
   if(p.op && v.c==='I') return {ok:false,r:'수술하면 불가, 입원만 인정'};
   if(!p.op && v.c==='S') return {ok:false,r:'수술한 경우만 인정'};
   const days = plan.id==='SIL' ? (p.adm+p.out) : p.adm;
   if(days>v.d) return {ok:false,r:plan.unit+' '+days+'일, 한도 '+v.d+'일 초과'};
+  if(p.op && it.colon){                       /* 대장용종 : 5년 이내 · 5~10년 횟수 */
+    const tot=p.c5+p.c10;
+    if(v.colon==='new'){
+      if(p.c5>2) return {ok:false,r:'5년 이내 '+p.c5+'회, 최대 2회 초과'};
+      if(tot>3) return {ok:false,r:'10년 내 '+tot+'회, 최대 3회 초과'};
+    } else if(tot>2) return {ok:false,r:'수술 '+tot+'회, 2회 초과'};
+  } else if(p.op){
+    const n=maxN(v), k=it.cntKind||'수술';
+    if(n && p.cnt>n) return {ok:false,r:k+' '+p.cnt+'회, 한도 '+n+'회 초과'};
+  }
+  if(!p.op && v.noop) return {ok:true,warn:1,r:plan.unit+' '+v.d+'일 이내 · '+v.noop};
   return {ok:true,r:plan.unit+' '+v.d+'일 이내'+(v.lim?', '+v.lim:'')};
 }
 function judgePlan(plan){
   if(!picked.length) return {st:'na',lines:[],over:false};
   const over=picked.length>plan.max;
   const lines=picked.map(p=>{const it=byId(p.id);const r=judgeOne(it,p,plan);
-    return {nm:it.n,ok:r.ok,r:r.r};});
-  return {st:(over||!lines.every(l=>l.ok))?'no':'ok',lines,over};
+    return {nm:it.n,ok:r.ok,r:r.r,warn:r.warn};});
+  const st=(over||!lines.every(l=>l.ok))?'no':'ok';
+  return {st,lines,over,warn:st==='ok'&&lines.some(l=>l.warn)};
 }
 
 function renderVerdict(){
@@ -1183,11 +1261,11 @@ function renderVerdict(){
   $('#ex-vlist').innerHTML=PLANS.map(pl=>{
     const r=res[pl.id];
     const cls=r.st==='na'?'':' '+r.st;
-    const label=r.st==='na'?'대기':(r.st==='ok'?'가능':'불가');
+    const label=r.st==='na'?'대기':(r.st==='ok'?(r.warn?'조건부 가능':'가능'):'불가');
     let why='';
     if(r.st!=='na'){
       why='<div class="vwhy">'+r.lines.map(l=>
-        '<div><span class="mk '+(l.ok?'y':'n')+'">'+(l.ok?'○':'✕')+'</span>'+
+        '<div><span class="mk '+(l.ok?(l.warn?'w':'y'):'n')+'">'+(l.ok?(l.warn?'△':'○'):'✕')+'</span>'+
         '<span>'+esc(l.nm)+' <span class="why">'+esc(l.r)+'</span></span></div>').join('')+'</div>';
       if(r.over) why+='<div class="vover">예외질환 '+picked.length+'개로 한도 '+pl.max+'개를 넘어 사고다발 처리됩니다</div>';
     }
@@ -1211,11 +1289,13 @@ function renderVerdict(){
       msgs.push('<b>유병자실손만 불가</b>합니다. 실손은 예외질환 3개 한도에 입·통원 일수를 합산해서 봅니다.');
     picked.forEach(p=>{
       const it=byId(p.id);
-      const no=PLANS.filter(pl=>!it.p[pl.id]).map(pl=>pl.nm);
-      const yes=PLANS.filter(pl=>it.p[pl.id]).map(pl=>pl.nm);
+      const no=PLANS.filter(pl=>!rv(it,pl.id)).map(pl=>pl.nm);
+      const yes=PLANS.filter(pl=>rv(it,pl.id)).map(pl=>pl.nm);
       if(no.length&&yes.length)
         msgs.push('「'+esc(it.n)+'」은(는) <b>'+no.join(' · ')+'</b>의 예외질환 목록에 아예 없습니다. 인정되는 곳은 '+yes.join(' · ')+'입니다.');
     });
+    if(PLANS.some(pl=>res[pl.id].warn))
+      msgs.push('요로결석을 <b>수술 없이</b> 치료했다면 인수는 되지만 <b>(질병)수술비는 가입할 수 없습니다</b>('+EX_SURG_RIDERS+'). 수술비를 넣으려면 종전처럼 수술(2회 이내)한 경우여야 합니다.');
     if(!okAny.length) msgs.push('지금 조건으로는 5개 모두 막힙니다. 치료일수와 치료형태를 다시 확인하거나, 예외질환을 운영하지 않는 <b>355 수술고지형</b>을 검토해 보세요.');
   }
   $('#ex-tipbox').innerHTML = msgs.length
@@ -1231,7 +1311,7 @@ function renderVerdict(){
     const it=byId(p.id);
     h+='<tr><td><div class="nm">'+esc(it.n)+'</div><div class="meta">'+(p.op?'수술·시술':'입원만')+' · 입원 '+p.adm+'일'+(p.out?' · 통원 '+p.out+'일':'')+'</div></td>';
     PLANS.forEach(pl=>{const r=judgeOne(it,p,pl);
-      h+='<td><span class="mk '+(r.ok?'y':'n')+'">'+(r.ok?'○':'✕')+'</span><span class="rs">'+esc(r.r)+'</span></td>';});
+      h+='<td><span class="mk '+(r.ok?(r.warn?'w':'y'):'n')+'">'+(r.ok?(r.warn?'△':'○'):'✕')+'</span><span class="rs">'+esc(r.r)+'</span></td>';});
     h+='</tr>';
   });
   $('#ex-mx').innerHTML=h+'</tbody></table>';
@@ -1249,18 +1329,20 @@ function renderList(){
     {k:'IS',t:(curPlan==='SIL'?'입원·통원':'입원')+' 또는 수술·시술한 경우'},
     {k:'S',t:'수술·시술한 경우'}
   ];
-  let h='<div class="lmeta">'+pl.grp+' · '+pl.nm+' · 예외질환 최대 '+pl.max+'개 · 일수는 '+pl.unit+' 기준</div>';
+  let h='<div class="lmeta">'+pl.grp+' · '+pl.nm+' · 예외질환 최대 '+pl.max+'개 · 일수는 '+pl.unit+' 기준 · '+(exRule==='NEW'?'2026.10.16 시행 기준':'종전 기준(10.15까지)')+'</div>';
   secs.forEach(sc=>{
-    const list=ITEMS.filter(it=>it.p[curPlan]&&it.p[curPlan].c===sc.k);
+    const list=ITEMS.filter(it=>rv(it,curPlan)&&rv(it,curPlan).c===sc.k);
     if(!list.length) return;
     h+='<div class="lgrp"><div><span class="gt">'+sc.t+'</span><span class="gc">'+list.length+'</span></div><ul>'+
-      list.map(it=>{const v=it.p[curPlan];
+      list.map(it=>{const v=rv(it,curPlan);
         const nm=(!it.s&&v.sx)?v.sx:it.n;
         const sub=it.s?(v.sx||it.s):'';
         return '<li><span class="day">'+pl.unit+' '+v.d+'일</span>'+esc(nm)+
           (sub?'<span class="li-sub"> ('+esc(sub)+')</span>':'')+
           (v.x?'<span class="li-x"> · '+esc(v.x)+'</span>':'')+
-          (v.lim?'<span class="li-lim"> · '+esc(v.lim)+'</span>':'')+'</li>';}).join('')+'</ul></div>';
+          (v.lim?'<span class="li-lim"> · '+esc(v.lim)+'</span>':'')+
+          (v.noop?'<span class="li-x"> · '+esc(v.noop)+'</span>':'')+
+          (exRule==='NEW'&&it.pNew&&it.pNew[curPlan]?'<span class="li-new">10.16 변경</span>':'')+'</li>';}).join('')+'</ul></div>';
   });
   h+='<div class="lgrp"><div><span class="gt">그 外</span></div><ul><li>'+
      '위 목록에 없는 질환으로 '+(curPlan==='SIL'?'입·통원':'입원')+'하거나 수술했다면 예외질환이 아니므로 <b style="color:var(--red)">인수불가</b>입니다.</li></ul></div>';
@@ -1268,6 +1350,12 @@ function renderList(){
 }
 
 /* =============== 이벤트 =============== */
+function renderRule(){
+  document.querySelectorAll('#ex-rule button').forEach(b=>b.classList.toggle('on',b.dataset.r===exRule));
+}
+document.querySelectorAll('#ex-rule button').forEach(b=>b.onclick=()=>{exRule=b.dataset.r;renderRule();renderAll();
+  if($('#ex-mask').classList.contains('on')) renderList();});
+renderRule();
 $('#ex-q').addEventListener('input',function(){ renderRes(); logSearchDebounced($('#ex-q').value.trim()); });
 $('#ex-clr').onclick=()=>{$('#ex-q').value='';renderRes();$('#ex-q').focus();};
 document.querySelectorAll('#viewEx .quick button').forEach(b=>b.onclick=()=>{$('#ex-q').value=b.dataset.q;renderRes();
@@ -1282,11 +1370,13 @@ $('#ex-copyBtn').onclick=()=>{
   if(!picked.length){alert('선택한 질환이 없습니다.');return;}
   let t='[간편보험 예외질환 판정결과]\n';
   picked.forEach(p=>{const it=byId(p.id);
-    t+='· '+it.n+' / '+(p.op?'수술·시술':'입원만')+' / 입원 '+p.adm+'일'+(p.out?' / 통원 '+p.out+'일':'')+'\n';});
+    t+='· '+it.n+' / '+(p.op?'수술·시술':'입원만')+' / 입원 '+p.adm+'일'+(p.out?' / 통원 '+p.out+'일':'')+
+      (p.op&&it.colon?' / 5년 이내 '+p.c5+'회 · 5~10년 '+p.c10+'회':(p.op&&hasCount(it)?' / '+(it.cntKind||'수술')+' '+p.cnt+'회':''))+'\n';});
+  t='[기준] '+(exRule==='NEW'?'2026.10.16 시행 예외질환 인정기준':'종전 기준(2026.10.15까지)')+'\n'+t;
   t+='\n';
   PLANS.forEach(pl=>{const r=judgePlan(pl);
     t+='['+pl.grp+' '+pl.nm+'] '+(r.st==='ok'?'인수 가능':'인수 불가')+'\n';
-    r.lines.forEach(l=>{t+='   '+(l.ok?'○':'✕')+' '+l.nm+' — '+l.r+'\n';});});
+    r.lines.forEach(l=>{t+='   '+(l.ok?(l.warn?'△':'○'):'✕')+' '+l.nm+' — '+l.r+'\n';});});
   t+='\n※ 사전 참고용이며 최종 인수는 심사 결과에 따릅니다.\n제작 : 세일즈혁신TF 이헌수';
   navigator.clipboard.writeText(t).then(()=>alert('결과를 복사했습니다.'),()=>{
     const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
