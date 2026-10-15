@@ -8,6 +8,10 @@
   "HND",
   "NRT"
  ],
+ "home_airports": [
+  "HND",
+  "NRT"
+ ],
  "center": [
   35.68,
   139.75

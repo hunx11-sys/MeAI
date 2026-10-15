@@ -8,6 +8,10 @@
   "KIX",
   "UKB"
  ],
+ "home_airports": [
+  "KIX",
+  "UKB"
+ ],
  "center": [
   34.7,
   135.19

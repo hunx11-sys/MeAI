@@ -75,7 +75,13 @@ LABELS = [  # 지역 이름 자리(지도 좌표). 점과 겹치지 않게 바�
 # 괄호 안 다른 말과 붙은 것('(공휴일이면 다음 날, 확인 필요)')은 꼬리표만 뺀다. 문장으로 쓴 '…확인 필요' 조언은 그대로 둔다.
 _CHK = [(re.compile(r'\s*\((?:휴무|요금|시간표|운임|영업시간|가격)?\s*확인\s*필요\)'), ''),
         (re.compile(r',\s*확인\s*필요\)'), ')'),
-        (re.compile(r'\(확인\s*필요,\s*'), '(')]
+        (re.compile(r'\(확인\s*필요,\s*'), '('),
+        (re.compile(r"\s*\(이 파일의 '확인 필요' 항목\)"), ''),
+        (re.compile(r"'확인 필요' 표시는\s*"), '')]
+# 영업시간·휴무 칸에서만 : '확인 필요(통상 11:00–20:00)' → '11:00–20:00', 칸 전체가 '확인 필요' 면 비움, 끝의 ', 확인 필요' 뺌
+_CHK_FIELD = [(re.compile(r'^확인\s*필요\s*\((?:통상\s*)?(.*)\)$'), r'\1'),
+              (re.compile(r'^(?:점포\s*)?확인\s*필요$'), ''),
+              (re.compile(r',\s*확인\s*필요$'), '')]
 
 
 def scrub_checks(obj):
@@ -86,7 +92,17 @@ def scrub_checks(obj):
     if isinstance(obj, list):
         return [scrub_checks(x) for x in obj]
     if isinstance(obj, dict):
-        return {k: (v if k in ('sources', 'id', 'ref') else scrub_checks(v)) for k, v in obj.items()}
+        out = {}
+        for k, v in obj.items():
+            if k in ('sources', 'id', 'ref'):
+                out[k] = v
+                continue
+            v = scrub_checks(v)
+            if k in ('hours', 'closed') and isinstance(v, str):
+                for rx, to in _CHK_FIELD:
+                    v = rx.sub(to, v.strip())
+            out[k] = v
+        return out
     return obj
 
 
@@ -162,7 +178,7 @@ ICON_BAD = re.compile(r'<\s*(script|foreignObject|image|iframe|a)\b|\bon[a-z]+\s
 REGION_KEYS = {'홋카이도': 'hokkaido', '도호쿠': 'tohoku', '간토': 'kanto', '주부': 'chubu', '간사이': 'kansai', '주고쿠': 'chugoku', '시코쿠': 'shikoku', '규슈': 'kyushu', '오키나와': 'okinawa'}
 sys.path.insert(0, os.path.join(HERE, 'tools'))
 from dish_category import dish_of  # noqa: E402
-from spot_kind import spot_kind  # noqa: E402
+from spot_kind import spot_kind, is_south  # noqa: E402
 
 
 def load_svg_set(path, limit):
@@ -283,7 +299,7 @@ def main():
         for r in g.get('restaurants', []):
             r['dish'] = dish_of(r.get('cuisine'), r.get('name'), r.get('signature'))
         for sp in g.get('spots', []):
-            sp['art'] = spot_kind(sp.get('cat'), sp.get('name'))   # 볼거리 그림 종류(절·신사 구분 포함)
+            sp['art'] = spot_kind(sp.get('cat'), sp.get('name'), south=is_south(g))   # 볼거리 그림 종류(절·신사 구분, 남쪽 섬은 눈 없는 숲)
     art = {'regions': load_svg_set(os.path.join(DATA, 'art_regions.json'), 8000), 'dishes': load_svg_set(os.path.join(DATA, 'art_dishes.json'), 4000),
            'spots': load_svg_set(os.path.join(DATA, 'art_spots.json'), 4000), 'hotels': load_svg_set(os.path.join(DATA, 'art_hotels.json'), 4000)}
     photos = load_photos()
