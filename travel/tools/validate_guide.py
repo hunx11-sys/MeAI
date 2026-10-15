@@ -9,7 +9,7 @@ import json, sys, math, re
 TAGS = {'미식','온천','자연','도시','쇼핑','아이동반','야경','역사','바다','겨울','벚꽃','단풍','테마파크','드라이브','섬','예술','커피','애니','휴양'}
 CATS = {'shrine','castle','view','nature','park','street','market','onsen','theme','museum','sea','night','shop','kids','cafe','station','airport','hotel','food'}
 TIERS = {'1순위','가성비','감각파','플렉스','온천','가족'}
-KEYS = {'sapporo','hakodate','asahikawa','sendai','aomori','tokyo','hakone_kamakura','nagoya','takayama','shizuoka','niigata','toyama','kanazawa','osaka','kyoto','nara','kobe','hiroshima','okayama','yonago','takamatsu','matsuyama','kochi','fukuoka','kitakyushu','nagasaki','kumamoto','oita','kagoshima','miyazaki','saga','okinawa','ishigaki'}
+KEYS = {'sapporo','hakodate','asahikawa','sendai','aomori','tokyo','hakone_kamakura','nagoya','takayama','shizuoka','niigata','toyama','kanazawa','osaka','kyoto','nara','kobe','hiroshima','okayama','yonago','takamatsu','matsuyama','kochi','fukuoka','kitakyushu','nagasaki','kumamoto','oita','kagoshima','miyazaki','saga','okinawa','ishigaki','miyako'}
 REGIONS_OK = {'홋카이도','도호쿠','간토','주부','간사이','주고쿠','시코쿠','규슈','오키나와'}
 BEST_FOR = {'첫 일본','커플','부모님','아이 동반','혼자 여행','친구끼리','온천 휴식','미식가','쇼핑','사진','드라이브','자연·트레킹','역사·문화','바다·휴양','겨울 눈','짧은 주말'}
 COLORS = {'rose','sage','sky','sun','plum','coral','mint'}
