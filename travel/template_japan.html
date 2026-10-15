@@ -954,7 +954,9 @@ function budgetFx(b){
 }
 const wonOfYen = n => man(Math.round((Number(n) || 0) * (st.fx || FX_BASE) / 100 / 100) * 100);
 const yenW = n => LANG === 'ko' && n >= 100 ? `${yen(n)}(${T('approx_w', { w: wonOfYen(n) })})` : yen(n);
-const gmap = (q, ll) => ll && ll[0] ? `https://www.google.com/maps/search/?api=1&query=${ll[0]},${ll[1]}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || '')}`;
+/* 좌표가 어림값인 가이드(coords_approx)는 구글 지도를 좌표 대신 이름 + 도시 이름으로 찾게 한다 */
+const gmap = (q, ll) => { const g0 = GUIDES[st.city]; if (g0 && g0.coords_approx){ ll = null; q = `${q || ''} ${g0.name_ja || ''}`.trim(); } return gmap0(q, ll); };
+const gmap0 = (q, ll) => ll && ll[0] ? `https://www.google.com/maps/search/?api=1&query=${ll[0]},${ll[1]}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || '')}`;
 const stCls = s => ({'정기':'sage','계절':'sun','전세':'plum','확인필요':'ghost','운휴':'coral'}[s] || 'ghost');
 const yenLv = p => ['', T('price1'), T('price2'), T('price3')][p] || '';
 const yenMark = p => ['', '¥', '¥¥', '¥¥¥'][p] || '';
@@ -1662,8 +1664,8 @@ function renderCity(){
 function dayPts(g, plan, di){
   const d = plan.days[di] || plan.days[0]; const pts = [];
   d.items.forEach((it, i) => {
-    if (it.k === 'spot' || it.k === 'hotel'){ const p = findP(g, it.ref); pts.push(p && p.lat ? { ll: [Number(p.lat), Number(p.lng)], name: p.name, t: it.t, i, air: p.cat === 'airport' } : null); }
-    else if (it.k === 'meal'){ const { r } = chosenR(g, plan, di, i, it); pts.push(r && r.lat ? { ll: [Number(r.lat), Number(r.lng)], name: r.name, t: it.t, i } : null); }
+    if (it.k === 'spot' || it.k === 'hotel'){ const p = findP(g, it.ref); pts.push(p && p.lat ? { ll: [Number(p.lat), Number(p.lng)], name: p.name, q: p.maps_q || p.name_ja || p.name, t: it.t, i, air: p.cat === 'airport' } : null); }
+    else if (it.k === 'meal'){ const { r } = chosenR(g, plan, di, i, it); pts.push(r && r.lat ? { ll: [Number(r.lat), Number(r.lng)], name: r.name, q: r.maps_q || r.name_ja || r.name, t: it.t, i } : null); }
   });
   return pts;
 }
@@ -1888,7 +1890,7 @@ function sheetNoDirect(r){
 function sheetBigMap(focusI){
   const g = GUIDES[st.city], plan = curPlan(g); if (!plan) return;
   const pts = dayPts(g, plan, st.d);
-  const cards = pts.map((p, k) => p ? `<button class="mapc" data-act="mapc" data-v="${k}" id="mapc-${k}"><span class="no">${k + 1}</span><span class="tx"><b>${esc(p.name)}</b><small>${esc(p.t || '')}</small></span><a class="go" href="${gmap(p.name, p.ll)}" target="_blank" rel="noopener">${esc(T('route_go'))}</a></button>` : '').join('');
+  const cards = pts.map((p, k) => p ? `<button class="mapc" data-act="mapc" data-v="${k}" id="mapc-${k}"><span class="no">${k + 1}</span><span class="tx"><b>${esc(p.name)}</b><small>${esc(p.t || '')}</small></span><a class="go" href="${gmap(p.q || p.name, p.ll)}" target="_blank" rel="noopener">${esc(T('route_go'))}</a></button>` : '').join('');
   openSheet(T('map_day', { n: st.d + 1 }), `<div class="bmap" id="daymap"><div class="lmap" id="lmap"></div></div><div class="mapcs" id="mapcs">${cards}</div>`, () => {
     const sh = document.getElementById('sheet'); let done = false;
     st.sel = focusI != null ? focusI : -1;
