@@ -71,6 +71,25 @@ LABELS = [  # 지역 이름 자리(지도 좌표). 점과 겹치지 않게 바�
 ]
 
 
+# 자료 안의 검수용 꼬리표 '(확인 필요)' 는 화면에 내보내지 않는다(대신 앱 곳곳에 '바뀔 수 있어요' 안내).
+# 괄호 안 다른 말과 붙은 것('(공휴일이면 다음 날, 확인 필요)')은 꼬리표만 뺀다. 문장으로 쓴 '…확인 필요' 조언은 그대로 둔다.
+_CHK = [(re.compile(r'\s*\((?:휴무|요금|시간표|운임|영업시간|가격)?\s*확인\s*필요\)'), ''),
+        (re.compile(r',\s*확인\s*필요\)'), ')'),
+        (re.compile(r'\(확인\s*필요,\s*'), '(')]
+
+
+def scrub_checks(obj):
+    if isinstance(obj, str):
+        for rx, to in _CHK:
+            obj = rx.sub(to, obj)
+        return obj
+    if isinstance(obj, list):
+        return [scrub_checks(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: (v if k in ('sources', 'id', 'ref') else scrub_checks(v)) for k, v in obj.items()}
+    return obj
+
+
 def jsonsafe(obj):
     # '<' 를 전부 \u003c 로 바꿔 <script> 블록을 데이터가 끊지 못하게 한다(JSON 으로는 같은 값)
     return json.dumps(obj, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c')
@@ -304,6 +323,9 @@ def main():
         if tr is not None:
             taps, _ = apply_translation({'airports': aps}, tr)
             taps = taps['airports']
+        if code == 'ko':
+            tguides = {k: scrub_checks(v) for k, v in tguides.items()}
+            taps = scrub_checks(taps)
         data = {
             'version': VERSION, 'generated': generated, 'lang': code, 'hideLang': hide_lang, 'ui': ui, 'langs': ui_all['langs'], 'langLinks': lang_links,
             'regions': REGIONS, 'tags': TAGS, 'tiles': TILES, 'kr': kr, 'apnames': apn, 'airports': taps, 'guides': tguides, 'map': mapd, 'art': art, 'photos': photos, 'regionKeys': REGION_KEYS,
