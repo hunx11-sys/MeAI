@@ -1,0 +1,17 @@
+[
+ {"iata":"ICN","name":"인천","short":"인천","name_full":"인천국제공항","lat":37.4602,"lng":126.4407},
+ {"iata":"GMP","name":"김포","short":"김포","name_full":"김포국제공항","lat":37.5583,"lng":126.7906},
+ {"iata":"PUS","name":"김해(부산)","short":"부산","name_full":"김해국제공항","lat":35.1795,"lng":128.9382},
+ {"iata":"CJU","name":"제주","short":"제주","name_full":"제주국제공항","lat":33.5113,"lng":126.4930},
+ {"iata":"TAE","name":"대구","short":"대구","name_full":"대구국제공항","lat":35.8941,"lng":128.6589},
+ {"iata":"CJJ","name":"청주","short":"청주","name_full":"청주국제공항","lat":36.7166,"lng":127.4991},
+ {"iata":"MWX","name":"무안","short":"무안","name_full":"무안국제공항","lat":34.9914,"lng":126.3828},
+ {"iata":"KWJ","name":"광주","short":"광주","name_full":"광주공항","lat":35.1264,"lng":126.8089},
+ {"iata":"RSU","name":"여수","short":"여수","name_full":"여수공항","lat":34.8423,"lng":127.6166},
+ {"iata":"USN","name":"울산","short":"울산","name_full":"울산공항","lat":35.5935,"lng":129.3518},
+ {"iata":"KPO","name":"포항경주","short":"포항","name_full":"포항경주공항","lat":35.9879,"lng":129.4205},
+ {"iata":"WJU","name":"원주","short":"원주","name_full":"원주공항","lat":37.4381,"lng":127.9602},
+ {"iata":"YNY","name":"양양","short":"양양","name_full":"양양국제공항","lat":38.0613,"lng":128.6692},
+ {"iata":"KUV","name":"군산","short":"군산","name_full":"군산공항","lat":35.9038,"lng":126.6159},
+ {"iata":"HIN","name":"사천","short":"사천","name_full":"사천공항","lat":35.0885,"lng":128.0704}
+]
