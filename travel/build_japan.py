@@ -261,7 +261,7 @@ def main():
             g['icon'] = icons[key]
     for g in guides.values():
         for r in g.get('restaurants', []):
-            r['dish'] = dish_of(r.get('cuisine'), r.get('name'))
+            r['dish'] = dish_of(r.get('cuisine'), r.get('name'), r.get('signature'))
     art = {'regions': load_svg_set(os.path.join(DATA, 'art_regions.json'), 8000), 'dishes': load_svg_set(os.path.join(DATA, 'art_dishes.json'), 4000)}
     photos = load_photos()
     regions_geo = json.load(open(os.path.join(DATA, 'regions_geo.json'), encoding='utf-8'))['regions'] if os.path.exists(os.path.join(DATA, 'regions_geo.json')) else {}
