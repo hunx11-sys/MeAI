@@ -775,7 +775,8 @@ footer a{color:var(--ink-3)}
 .catart.c-airport{background:#E5EFF9;color:#38689A}.catart.c-hotel{background:#EFE8F4;color:#7A5E90}.catart.c-food{background:#FBF1D6;color:#A87C14}.catart.c-free{background:var(--fill);color:var(--ink-3)}
 .hlist{display:grid;gap:12px;padding:16px 16px 0}
 .hcard2{display:flex;align-items:center;gap:12px;min-height:96px;padding:10px 12px 10px 10px;border-radius:18px;background:var(--surface);border:1px solid var(--line);text-align:left;width:100%}
-.hcard2 .th{width:72px;height:72px;border-radius:16px;overflow:hidden;flex:0 0 auto}
+.hcard2 .th{width:72px;height:72px;border-radius:16px;overflow:hidden;flex:0 0 auto;line-height:0}
+.hcard2 .th>svg{width:100%;height:100%}
 .hcard2 .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .hcard2 em{font-style:normal;font-size:12px;color:var(--rose-deep);font-weight:800}
 .hcard2 b{font-size:16px;font-weight:700;line-height:1.35}
@@ -1420,8 +1421,13 @@ const regionArt = r => ART.regions[RK[r]] || '';
 const dishArt = k => ART.dishes[k] || ART.dishes.teishoku || '';
 const VBG = ['#FCE9E3', '#E5EFF9', '#EFE8F4', '#FFF4D6', '#E6F1E9', '#F9E6EF'];
 /* n 번째로 나온 같은 그림 : 맨 뒤 바탕(첫 rect)의 색만 바꾼다 */
-function dishArtV(k, n){
-  const s = dishArt(k); if (!n) return s;
+function dishArtV(k, n){ return bgVar(dishArt(k), n); }
+/* 볼거리·숙소 그림(없으면 예전 선 아이콘) */
+const HOTEL_ART = { '온천': 'onsen', '가성비': 'value', '가족': 'family', '감각파': 'design', '플렉스': 'luxe', '1순위': 'top' };
+const hotelArt = h => { const a = (ART.hotels || {})[HOTEL_ART[h && h.tier]]; return a ? svgFit(a) : catArt('hotel'); };
+const spotArt = (p, n) => { const a = (ART.spots || {})[p && (p.art || p.cat)]; return a ? svgFit(bgVar(a, n || 0)) : catArt((p && p.cat) || 'free'); };
+function bgVar(s, n){
+  if (!n) return s;
   return s.replace(/(<rect width="100" height="100" fill=")(#[0-9A-Fa-f]{6})/, (m, a, c) => { let i = (VBG.indexOf(c.toUpperCase()) + n) % VBG.length; if (i < 0) i = (n - 1) % VBG.length; if (VBG[i] === c.toUpperCase()) i = (i + 1) % VBG.length; return a + VBG[i]; });
 }
 /* 2열 칸에서 같은 그림이 좌우·위아래로 붙지 않게 순서를 살짝 바꾼다 */
@@ -1695,7 +1701,7 @@ function planTab(g, plan){
     if (p && !isHotel){ const cb = closeBadge(p, it.t); bd = cb || (p.fee_yen > 0 ? `<span class="bs">${esc(yen(p.fee_yen))}</span>` : p.fee_yen === 0 && FREE_CATS.includes(p.cat) ? `<span class="bs sage">${esc(T('free'))}</span>` : ''); }
     if (isHotel && p) bd = `<span class="bs plum">${esc(tierName(p.tier))}</span>`;
     const must = p && !isHotel && p.must ? `<i class="mst">${esc(T('must'))}</i>` : '';
-    return `<li class="row${open ? ' open' : ''}" id="row-${i}"><div class="rw" data-act="row" data-v="${i}" role="button" tabindex="0" aria-expanded="${open}"><span class="tm">${esc(it.t)}</span><span class="no">${no}</span><span class="th">${ph ? `<img src="${esc(ph.src)}" alt="">` : catArt(cat)}</span><span class="tx"><b>${must}${nmHtml(p ? p.name : it.ref || '')}</b><small>${esc(it.note || (p && p.area) || '')}</small></span>${bd ? `<span class="bd">${bd}</span>` : ''}</div>${open && p ? rowDetailP(g, p, isHotel, i) : ''}</li>`;
+    return `<li class="row${open ? ' open' : ''}" id="row-${i}"><div class="rw" data-act="row" data-v="${i}" role="button" tabindex="0" aria-expanded="${open}"><span class="tm">${esc(it.t)}</span><span class="no">${no}</span><span class="th">${ph ? `<img src="${esc(ph.src)}" alt="">` : p ? (isHotel ? hotelArt(p) : spotArt(p)) : catArt(cat)}</span><span class="tx"><b>${must}${nmHtml(p ? p.name : it.ref || '')}</b><small>${esc(it.note || (p && p.area) || '')}</small></span>${bd ? `<span class="bd">${bd}</span>` : ''}</div>${open && p ? rowDetailP(g, p, isHotel, i) : ''}</li>`;
   }).join('');
   const notice = d.notice && d.notice.t ? `<button class="notice ${d.notice.k === 'warn' ? 'warn' : ''}" data-act="notice">${svgInfo}<span class="f">${esc(firstSentence(d.notice.t))}</span><span class="all">${rich(d.notice.t)}</span></button>` : '';
   const last = di === plan.days.length - 1;
@@ -1723,7 +1729,7 @@ function rowDetailR(r){
 }
 
 /* 맛집·볼거리·숙소 탭 */
-const DISH_ORDER = ['ramen', 'sushi', 'seafood', 'donburi', 'udon', 'soba', 'somen', 'okonomiyaki', 'takoyaki', 'katsu', 'beef', 'grill', 'unagi', 'tempura', 'curry', 'hotpot', 'tofu', 'gyoza', 'okinawa_soba', 'kaiseki', 'teishoku', 'western', 'snack', 'cafe', 'dessert', 'wagashi', 'drink'];
+const DISH_ORDER = ['ramen', 'sushi', 'seafood', 'shellfish', 'donburi', 'udon', 'soba', 'somen', 'okonomiyaki', 'takoyaki', 'katsu', 'beef', 'grill', 'unagi', 'tempura', 'curry', 'asian', 'hotpot', 'tofu', 'gyoza', 'okinawa_soba', 'kaiseki', 'teishoku', 'tamago', 'western', 'burger', 'pasta', 'snack', 'bakery', 'cafe', 'dessert', 'wagashi', 'drink'];
 function inPlanIds(g, plan){ const s = new Set(); if (!plan) return s; plan.days.forEach(d => d.items.forEach(it => { if (it.ref) s.add(it.ref); (it.opts || []).forEach(o => s.add(o)); })); return s; }
 function foodTab(g, plan){
   const rs = g.restaurants || [], used = inPlanIds(g, plan);
@@ -1738,14 +1744,14 @@ function spotTab(g, plan){
   const ss = (g.spots || []).filter(s => !['airport', 'station', 'hotel'].includes(s.cat)), used = inPlanIds(g, plan);
   const grp = Object.keys(SPOT_GROUPS).filter(k => ss.some(s => SPOT_GROUPS[k].includes(s.cat)));
   const f = grp.includes(st.sf) ? st.sf : '';
-  const list = ss.filter(s => !f || SPOT_GROUPS[f].includes(s.cat)).sort((a, b) => (b.must ? 1 : 0) - (a.must ? 1 : 0) || used.has(b.id) - used.has(a.id));
+  const list = spreadSame(ss.filter(s => !f || SPOT_GROUPS[f].includes(s.cat)).sort((a, b) => (b.must ? 1 : 0) - (a.must ? 1 : 0) || used.has(b.id) - used.has(a.id)), s => s.art || s.cat), seen = {};
   return `<div class="fchips"><button class="fchip" data-act="sf" data-v="" aria-pressed="${!f}">${esc(T('f_all'))}</button>${grp.map(k => `<button class="fchip" data-act="sf" data-v="${k}" aria-pressed="${f === k}">${esc(T('sg_' + k))}</button>`).join('')}</div>
-    <div class="grid2">${list.map(s => { const ph = photoOf('spots', `${g.key}:${s.id}`); return `<button class="gcard" data-act="spot" data-v="${esc(s.id)}"><span class="art">${ph ? `<img src="${esc(ph.src)}" alt="">` : catArt(s.cat)}${s.must ? `<span class="inp">${esc(T('must'))}</span>` : used.has(s.id) ? `<span class="inp">${esc(T('in_plan'))}</span>` : ''}</span><span class="tx"><b>${esc(s.name)}</b><small>${esc(s.area || '')}${s.fee_yen === 0 ? ` · ${esc(T('free'))}` : ''}</small></span></button>`; }).join('')}</div>`;
+    <div class="grid2">${list.map(s => { const ph = photoOf('spots', `${g.key}:${s.id}`), k = s.art || s.cat, n = seen[k] = (seen[k] || 0) + 1; return `<button class="gcard" data-act="spot" data-v="${esc(s.id)}"><span class="art${!ph && n > 1 ? ' v' + ((n - 2) % 3 + 1) : ''}">${ph ? `<img src="${esc(ph.src)}" alt="">` : spotArt(s, n - 1)}${s.must ? `<span class="inp">${esc(T('must'))}</span>` : used.has(s.id) ? `<span class="inp">${esc(T('in_plan'))}</span>` : ''}</span><span class="tx"><b>${nmHtml(s.name)}</b><small>${esc(s.area || '')}${s.fee_yen === 0 ? ` · ${esc(T('free'))}` : ''}</small></span></button>`; }).join('')}</div>`;
 }
 function hotelTab(g, plan){
   const used = inPlanIds(g, plan);
   const hs = (g.hotels || []).slice().sort((a, b) => used.has(b.id) - used.has(a.id));
-  return `<div class="hlist">${hs.map(h => `<button class="hcard2" data-act="hotel" data-v="${esc(h.id)}"><span class="th">${catArt('hotel')}</span><span class="tx">${used.has(h.id) ? `<em>${esc(T('hotel_in'))}</em>` : ''}<b>${esc(h.name)}</b><small><span class="bs plum">${esc(tierName(h.tier))}</span> ${h.area ? esc(T('near', { a: h.area })) : ''}</small>${h.price_krw_night && h.price_krw_night[1] ? `<span class="pr">${esc(T('per_night'))} ${manR(yenK(h.price_krw_night))}</span>` : ''}</span>${svgNext}</button>`).join('') || `<div class="empty">${esc(T('no_hotel'))}</div>`}</div>`;
+  return `<div class="hlist">${hs.map(h => `<button class="hcard2" data-act="hotel" data-v="${esc(h.id)}"><span class="th">${hotelArt(h)}</span><span class="tx">${used.has(h.id) ? `<em>${esc(T('hotel_in'))}</em>` : ''}<b>${esc(h.name)}</b><small><span class="bs plum">${esc(tierName(h.tier))}</span> ${h.area ? esc(T('near', { a: h.area })) : ''}</small>${h.price_krw_night && h.price_krw_night[1] ? `<span class="pr">${esc(T('per_night'))} ${manR(yenK(h.price_krw_night))}</span>` : ''}</span>${svgNext}</button>`).join('') || `<div class="empty">${esc(T('no_hotel'))}</div>`}</div>`;
 }
 /* 가이드 예산 메모의 '100엔=900원 가정값' 을 지금 환율로 */
 const fxBasis = t => st.fx === FX_BASE ? t : String(t).replace(/100엔\s*=\s*900원\s*가정값\.?\s*/, '') .replace(/^/, T('fx_now', { r: st.fx.toLocaleString('ko-KR') }) + ' ');
@@ -1825,11 +1831,11 @@ function sheetMeal(i){
   openSheet(T('meal_q', { meal: it.label || T('meal_w') }), `${it.note ? `<p class="shnote">${rich(it.note)}</p>` : ''}<div class="mcards">${opts.map((x, j) => `<div class="mcard${r && r.id === x.id ? ' on' : ''}"><button class="mpick" data-act="pick" data-v="${esc(pk)}|${esc(x.id)}"><span class="art">${svgFit(dishArtV(x.dish, opts.slice(0, j).filter(y => y.dish === x.dish).length))}</span><span class="tx">${r && r.id === x.id ? `<span class="ok">✓ ${esc(T('picked'))}</span>` : ''}<b>${esc(x.name)}</b><small>${esc(x.cuisine || '')}${x.signature ? ` · ${esc(x.signature)}` : ''}</small><span class="mets"><span>${yenMark(x.price_level)}</span>${x.hours ? `<span>${esc(hText(x.hours))}</span>` : ''}${x.closed && x.closed !== '없음' ? `<span>${esc(T('closed'))} ${esc(hText(x.closed))}</span>` : ''}</span></span></button><details class="more"><summary>${esc(T('more'))}</summary><div class="body">${rowDetailR(x)}</div></details></div>`).join('')}</div><p class="basis">${esc(T('meal_note'))}</p>`);
 }
 function sheetPlace(id){ const g = GUIDES[st.city], p = findP(g, id); if (!p) return; const ph = photoOf('spots', `${g.key}:${p.id}`);
-  openSheet(p.name, `<div class="shart">${ph ? photoImg(ph, p.name) : catArt(p.cat)}</div>${rowDetailP(g, p, false, null)}`); }
+  openSheet(p.name, `<div class="shart">${ph ? photoImg(ph, p.name) : spotArt(p)}</div>${rowDetailP(g, p, false, null)}`); }
 function sheetRest(id){ const g = GUIDES[st.city], r = findR(g, id); if (!r) return;
   openSheet(r.name, `<div class="shart">${svgFit(dishArt(r.dish))}</div>${rowDetailR(r)}`); }
 function sheetHotel(id){ const g = GUIDES[st.city], h = (g.hotels || []).find(x => x.id === id); if (!h) return;
-  openSheet(h.name, `<div class="shart">${catArt('hotel')}</div>${rowDetailP(g, h, true, null)}`); }
+  openSheet(h.name, `<div class="shart">${hotelArt(h)}</div>${rowDetailP(g, h, true, null)}`); }
 function sheetIntro(){
   const g = GUIDES[st.city], pf = PF(g);
   openSheet(g.name, `${glanceHtml(g)}${htsHtml(g, 6)}${g.intro ? `<p class="intro clamp">${rich(g.intro)}</p><button class="btn2 sm" data-act="unclamp">${esc(T('more'))}</button>` : ''}<div class="tags">${(g.tags || []).map(tagHtml).join('')}</div>`);

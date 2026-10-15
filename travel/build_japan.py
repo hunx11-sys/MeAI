@@ -162,6 +162,7 @@ ICON_BAD = re.compile(r'<\s*(script|foreignObject|image|iframe|a)\b|\bon[a-z]+\s
 REGION_KEYS = {'홋카이도': 'hokkaido', '도호쿠': 'tohoku', '간토': 'kanto', '주부': 'chubu', '간사이': 'kansai', '주고쿠': 'chugoku', '시코쿠': 'shikoku', '규슈': 'kyushu', '오키나와': 'okinawa'}
 sys.path.insert(0, os.path.join(HERE, 'tools'))
 from dish_category import dish_of  # noqa: E402
+from spot_kind import spot_kind  # noqa: E402
 
 
 def load_svg_set(path, limit):
@@ -281,7 +282,10 @@ def main():
     for g in guides.values():
         for r in g.get('restaurants', []):
             r['dish'] = dish_of(r.get('cuisine'), r.get('name'), r.get('signature'))
-    art = {'regions': load_svg_set(os.path.join(DATA, 'art_regions.json'), 8000), 'dishes': load_svg_set(os.path.join(DATA, 'art_dishes.json'), 4000)}
+        for sp in g.get('spots', []):
+            sp['art'] = spot_kind(sp.get('cat'), sp.get('name'))   # 볼거리 그림 종류(절·신사 구분 포함)
+    art = {'regions': load_svg_set(os.path.join(DATA, 'art_regions.json'), 8000), 'dishes': load_svg_set(os.path.join(DATA, 'art_dishes.json'), 4000),
+           'spots': load_svg_set(os.path.join(DATA, 'art_spots.json'), 4000), 'hotels': load_svg_set(os.path.join(DATA, 'art_hotels.json'), 4000)}
     photos = load_photos()
     regions_geo = json.load(open(os.path.join(DATA, 'regions_geo.json'), encoding='utf-8'))['regions'] if os.path.exists(os.path.join(DATA, 'regions_geo.json')) else {}
     no_icon = [k for k in guides if k not in icons]
@@ -349,7 +353,7 @@ def main():
     nroutes = sum(len(a.get('routes', [])) for a in aps)
     print('조립 완료 · 일본 공항 %d개 · 직항 노선 %d건 · 목적지 가이드 %d곳%s' % (len(aps), nroutes, len(guides), (' · 건너뜀 %d' % len(skipped)) if skipped else ''))
     print('  도시 그림 %d/%d · 도시 프로필 %d/%d%s' % (len(guides) - len(no_icon), len(guides), len(guides) - len(no_prof), len(guides), ('  (그림 없음: %s)' % ','.join(no_icon[:8])) if no_icon else ''))
-    print('  지역 장면 그림 %d/9 · 음식 그림 %d종 · 실물 사진 %d장 · 지역 색 지도 %d/9' % (len(art['regions']), len(art['dishes']), sum(len(v) for grp in photos.values() for v in grp.values()), len(regions_geo)))
+    print('  지역 장면 그림 %d/9 · 음식 그림 %d종 · 볼거리 그림 %d종 · 숙소 그림 %d종 · 실물 사진 %d장 · 지역 색 지도 %d/9' % (len(art['regions']), len(art['dishes']), len(art['spots']), len(art['hotels']), sum(len(v) for grp in photos.values() for v in grp.values()), len(regions_geo)))
     for code, f, mb, missing in summary:
         print('  %-4s %-16s %.1f MB%s' % (code, f, mb, ('  번역 없음 %d곳: %s' % (len(missing), ','.join(missing[:6]) + ('…' if len(missing) > 6 else ''))) if missing else ''))
     for key, g in sorted(guides.items(), key=lambda kv: kv[1]['order']):
