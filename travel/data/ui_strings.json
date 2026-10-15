@@ -45,7 +45,11 @@
   }
  ],
  "ko": {
-  "brand": "일본 직항 여행 플래너",
+  "brand": "비짓투재팬 VISIT to JAPAN",
+  "brand_ko": "비짓투재팬",
+  "brand_en": "VISIT to JAPAN",
+  "brand_sub": "{n}개 일본 도시 자동 여행 플래너",
+  "doc_title": "비짓투재팬 VISIT to JAPAN · {n}개 일본 도시 자동 여행 플래너",
   "eyebrow": "Japan · Direct flights",
   "hero_h1": "{origin}에서 바로 가는<br><em>일본 {n}곳</em>, 몇 박 할까요?",
   "lead": "출발 공항과 박 수만 고르면 직항편, 하루하루 동선, 맛집, 숙소, 예산까지 한 번에 짜 드려요. 마음에 안 들면 대체 동선과 대체 여행지도 함께 보여 드립니다.",

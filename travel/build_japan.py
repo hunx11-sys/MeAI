@@ -12,7 +12,7 @@
           python3 travel/build_japan.py --lang ko,en  (일부 언어만)
           python3 travel/build_japan.py --strict      (가이드 점검 오류가 하나라도 있으면 중단)
           python3 travel/build_japan.py --lang ko --no-lang-menu   (한국어 미리보기 : 언어 버튼 숨김)
-          python3 travel/build_japan.py --lang ko --no-lang-menu --out dist/japan_travel_planner_ko.html   (다운로드용 한 파일)
+          python3 travel/build_japan.py --lang ko --no-lang-menu --out dist/visit_to_japan_ko.html   (다운로드용 한 파일)
    가이드 JSON 은 travel/tools/validate_guide.py 로 먼저 점검하고, 오류가 있는 파일은 빼고(경고만 출력) 조립한다.
    그래서 잘못된 자료는 틀린 화면이 아니라 '없는 목적지'로 나타난다.
    번역이 없는 언어의 목적지는 한국어 원문이 그대로 들어간다(조립 요약에 번역 없음으로 표시)."""
@@ -309,7 +309,7 @@ def main():
             'regions': REGIONS, 'tags': TAGS, 'tiles': TILES, 'kr': kr, 'apnames': apn, 'airports': taps, 'guides': tguides, 'map': mapd, 'art': art, 'photos': photos, 'regionKeys': REGION_KEYS,
         }
         fonts_link, stack = FONTS.get(L.get('font', 'pretendard'), FONTS['pretendard'])
-        html = (tpl.replace('/*LANG*/', L.get('html', code)).replace('/*TITLE*/', ui.get('brand', '일본 직항 여행 플래너'))
+        html = (tpl.replace('/*LANG*/', L.get('html', code)).replace('/*TITLE*/', (ui.get('doc_title') or ui.get('brand', '일본 직항 여행 플래너')).replace('{n}', str(len(tguides))))
                 .replace('<!--FONTS-->', fonts_link).replace('/*FONT_STACK*/', stack)
                 .replace('/*LEAFLET_CSS*/', css).replace('/*LEAFLET_JS*/', js).replace('/*DATA*/', jsonsafe(data)))
         out = os.path.join(out_dir, out_name or L['file'])

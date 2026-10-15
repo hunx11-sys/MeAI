@@ -530,6 +530,17 @@ footer a{color:var(--ink-3)}
 .prog i.on{background:var(--rose)}
 .prog span{font-size:12px;color:var(--ink-3);margin-left:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .qhead{padding:22px 16px 4px}
+.topbar .brand.wm{display:flex;align-items:baseline;gap:7px}
+.topbar .brand.wm .wmk{font-weight:800;letter-spacing:-.02em}
+.topbar .brand.wm .wme{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--rose);overflow:hidden;text-overflow:ellipsis}
+.bhero{position:relative;display:grid;grid-template-columns:1fr auto;align-items:end;gap:4px 10px;margin:14px 16px 4px;padding:16px 16px 14px 18px;border-radius:22px;background:linear-gradient(135deg,#FFF3EC 0%,#FDE6E6 55%,#F8DCE6 100%);overflow:hidden}
+.bhero .ey{display:block;font-size:13px;font-weight:800;color:var(--rose-deep);letter-spacing:.04em}
+.bhero .logo{display:block;margin-top:4px;font-family:var(--display);font-size:32px;font-weight:800;line-height:1.05;letter-spacing:-.01em;color:var(--ink)}
+.bhero .logo i{font-style:italic;font-weight:600;font-size:.82em;color:var(--rose)}
+.bhero .mark{width:84px;height:74px;align-self:center}
+.bhero .tg{grid-column:1/-1;margin-top:6px;font-size:14.5px;font-weight:700;color:var(--ink-2);letter-spacing:-.01em}
+.bhero+.prog{padding-top:14px}
+@media (max-width:359px){.topbar .brand.wm .wme{display:none}.bhero .logo{font-size:28px}.bhero .mark{width:68px;height:60px}}
 .qhead h1{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.3}
 .qhead p{margin-top:6px;font-size:15px;color:var(--ink-2)}
 .qhead.sm{padding-top:14px}.qhead.sm h1{font-size:24px}
@@ -1388,7 +1399,8 @@ function nightsArt(n){
 
 /* ── 공통 머리 ── */
 function topbar(o){
-  return `<div class="topbar">${o.back ? `<button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button>` : ''}<div class="brand">${esc(o.title || '')}${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</div>${o.search === false ? '' : `<button class="iconbtn" data-act="search" aria-label="${esc(T('search_label'))}">${svgSearch}</button>`}${o.lang ? langBtn() : ''}${o.share ? `<button class="iconbtn" data-act="share" aria-label="${esc(T('share'))}">${svgShare}</button>` : ''}</div>`;
+  const title = o.wm && UI.brand_ko ? `<span class="wmk">${esc(T('brand_ko'))}</span><span class="wme">${esc(T('brand_en'))}</span>` : esc(o.title || '');
+  return `<div class="topbar">${o.back ? `<button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button>` : ''}<div class="brand${o.wm ? ' wm' : ''}">${title}${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</div>${o.search === false ? '' : `<button class="iconbtn" data-act="search" aria-label="${esc(T('search_label'))}">${svgSearch}</button>`}${o.lang ? langBtn() : ''}${o.share ? `<button class="iconbtn" data-act="share" aria-label="${esc(T('share'))}">${svgShare}</button>` : ''}</div>`;
 }
 function progress(n){ return `<div class="prog" role="img" aria-label="${esc(T('step', { n, t: 4 }))}">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}<span>${esc(T('step', { n, t: 4 }))}</span></div>`; }
 const krShort = iata => krName(iata).replace(/\s*[(（].*[)）]/, '');
@@ -1403,10 +1415,16 @@ const flyText = g => { const b = bestRoute(st.origin, g); return b ? T('c_fly', 
 const footer = () => `<footer>${esc(T('footer_home'))}<br>${esc(T('footer_credit'))}<br>${esc(T('footer_date', { d: DATA.generated || '' }))}</footer>`;
 
 /* ── S1 며칠 ── */
+function brandHero(){
+  if (!UI.brand_en) return '';
+  const en = esc(T('brand_en')).replace(/ to /, ' <i>to</i><br>');
+  return `<div class="bhero"><div class="tx"><span class="ey">${esc(T('brand_ko'))}</span><b class="logo">${en}</b></div><svg class="mark" viewBox="0 0 96 84" aria-hidden="true"><circle cx="60" cy="30" r="22" fill="#E8505B"/><path d="M8 78L40 34Q46 27 52 34L84 78Z" fill="#7C8FB8"/><path d="M33 44L40 34Q46 27 52 34L59 44L53 41L48 46L43 41Z" fill="#fff"/><path d="M0 78Q12 72 24 78T48 78T72 78T96 78V84H0Z" fill="#9FD3D8"/></svg><span class="tg">${esc(T('brand_sub', { n: Object.keys(GUIDES).length }))}</span></div>`;
+}
 function renderStart(){
   const last = st.last && GUIDES[st.last.city] ? st.last : null;
   const lg = last && GUIDES[last.city];
-  app.innerHTML = topbar({ title: T('brand'), lang: true }) + `<main class="scr">${progress(1)}
+  /* 첫 화면은 큰 제목 머리가 있으니 위 막대에는 이름을 빼고 단추만 */
+  app.innerHTML = topbar({ title: UI.brand_en ? '' : T('brand'), lang: true }) + `<main class="scr">${brandHero()}${progress(1)}
     ${lg ? `<button class="resume ${cCls(lg)}" data-act="city" data-v="${esc(lg.key)}">${illHtml(lg)}<span class="t"><small>${esc(T('resume'))}</small><b>${esc(T('resume_v', { city: lg.name, nd: nd(last.n || (lg.plans[0] || {}).nights || 2), day: T('day_s', { n: (last.d || 0) + 1 }) }))}</b></span>${svgNext}</button>` : ''}
     <header class="qhead"><h1>${esc(T('n_title'))}</h1><p>${esc(T('n_sub'))}</p></header>
     <div class="ncards">${nightsAvail().map(n => `<button class="ncard" data-act="pickn" data-v="${n}">${nightsArt(n)}<span class="t"><b>${esc(nd(n))}</b><small>${esc(UI['n_off' + n] ? T('n_off' + n) : T('n_offx', { n }))}</small></span>${svgNext}</button>`).join('')}</div>
@@ -1420,7 +1438,7 @@ function originGrid(cur){
   return `<div class="ogrid">${originList().map(({ k, n }) => `<button class="obtn" data-act="picko" data-v="${esc(k.iata)}" aria-pressed="${cur === k.iata}"><b>${esc(krShort(k.iata))}</b><small>${esc(T('o_n', { n }))}</small></button>`).join('')}</div>`;
 }
 function renderFrom(){
-  app.innerHTML = topbar({ back: true, title: T('brand'), lang: true }) + `<main class="scr">${progress(2)}
+  app.innerHTML = topbar({ back: true, title: T('brand'), wm: true, lang: true }) + `<main class="scr">${progress(2)}
     <header class="qhead"><h1>${esc(T('o_title'))}</h1><p>${esc(T('o_sub'))}</p></header>
     ${originGrid(st.originSet ? st.origin : '')}
     <button class="txtbtn" data-act="picko" data-v="ICN">${esc(T('o_unsure'))}</button>
@@ -1432,7 +1450,7 @@ function regionStats(r){ const cs = regionCities(r); return { n: cs.length, d: c
 function renderMap(o){
   const regs = REGIONS.filter(r => regionCities(r).length);
   const { cw } = mapBox();
-  app.innerHTML = topbar({ back: true, title: T('brand'), lang: true }) + `<main class="scr">${progress(3)}
+  app.innerHTML = topbar({ back: true, title: T('brand'), wm: true, lang: true }) + `<main class="scr">${progress(3)}
     ${choicePills()}
     <header class="qhead sm"><h1>${esc(T('r_title'))}</h1><p>${esc(T('r_sub'))}</p></header>
     <div class="bigmap" id="bigmap">${rmapSvg({ focus: '', cw, full: true })}</div>
