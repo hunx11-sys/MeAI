@@ -182,6 +182,19 @@ def load_photos():
     return out
 
 
+def local_name(g, code):
+    """번역이 아직 없는 가이드의 이름 : 일본어·중국어판은 일본어 표기, 영어·스페인어판은 로마자 별칭(앞 2개)."""
+    if code in ('ja', 'zh', 'yue'):
+        return g.get('name_ja') or g['name']
+    lat = []
+    for a in (g.get('profile') or {}).get('aliases', []):
+        if re.match(r'^[A-Za-z]', a):
+            lat.append(a)
+        else:
+            break
+    return ' · '.join(lat[:2]) or g['name']
+
+
 def load_icons():
     """travel/data/icons.json : 목적지별 그림(SVG). 위험한 요소가 있거나 너무 크면 빼고 알린다."""
     path = os.path.join(DATA, 'icons.json')
@@ -279,6 +292,8 @@ def main():
             tr = load_tr(code, key)
             if tr is None:
                 tguides[key] = dict(g, _ko_only=(code != 'ko'))
+                if code != 'ko':
+                    tguides[key]['name'] = local_name(g, code)
                 if code != 'ko':
                     missing.append(key)
             else:

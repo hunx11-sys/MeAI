@@ -132,7 +132,7 @@ img,svg{max-width:100%}
 .dcard h3 small{font-family:var(--body);font-size:12px;color:var(--ink-3);font-weight:400;margin-left:6px}
 .dcard .tg{margin-top:3px;font-size:13px;color:var(--ink-2)}
 .dcard .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
-.tag{font-size:11px;font-weight:500;padding:3px 8px;border-radius:var(--r-full);background:var(--fill);color:var(--ink-2);line-height:1.4}
+.tag{font-size:12px;font-weight:500;padding:3px 8px;border-radius:var(--r-full);background:var(--fill);color:var(--ink-2);line-height:1.4}
 .tag.rose{background:var(--rose-soft);color:var(--rose-deep)}
 .tag.sage{background:var(--sage-soft);color:var(--sage-deep)}
 .tag.sky{background:var(--sky-soft);color:var(--sky-deep)}
@@ -502,6 +502,9 @@ footer a{color:var(--ink-3)}
 .rmap .ll{stroke:var(--ink-3);vector-effect:non-scaling-stroke;opacity:.7}
 
 /* ═════════ v2 : 단계형 모바일 화면 ═════════ */
+.srcs li{font-size:13px}
+.srcs a{display:inline-block;min-height:44px;padding:12px 0;font-size:13px;word-break:break-all}
+.spills .pill{padding:0 12px}
 .iconbtn{width:44px;height:44px}
 .topbar{min-height:64px}
 .scr.in-fwd{animation:inF .24s cubic-bezier(.2,.8,.2,1)}
@@ -606,11 +609,11 @@ footer a{color:var(--ink-3)}
 .scr .sex{padding:14px 16px 0;margin:0}
 .scr .sres{margin:10px 16px 0}
 /* 도시 화면 */
-.hero{position:relative;height:178px;overflow:hidden;background:var(--cs,var(--fill))}
+.hero{position:relative;height:150px;overflow:hidden;background:var(--cs,var(--fill))}
 .hero .bg{position:absolute;inset:0;line-height:0}
 .hero .bg svg,.hero .bg img{width:100%;height:100%;display:block;object-fit:cover}
 .hero .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,252,250,0) 50%,rgba(255,252,250,.55) 100%);pointer-events:none}
-.hero .badge{position:absolute;left:16px;bottom:12px;width:92px;height:92px;border-radius:24px;overflow:hidden;border:4px solid #fff;box-shadow:0 8px 22px rgba(60,30,20,.18);background:#fff;line-height:0}
+.hero .badge{position:absolute;left:16px;bottom:10px;width:84px;height:84px;border-radius:24px;overflow:hidden;border:4px solid #fff;box-shadow:0 8px 22px rgba(60,30,20,.18);background:#fff;line-height:0}
 .hero .badge svg{width:100%;height:100%}
 .introbtn{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:var(--r-full);background:rgba(255,255,255,.94);box-shadow:var(--shadow);font-size:14px;font-weight:700;color:var(--ink)}
 .introbtn svg{width:17px;height:17px;color:var(--rose)}
@@ -628,7 +631,7 @@ footer a{color:var(--ink-3)}
 .vpills .chip{min-height:44px;font-size:14px;display:inline-flex;align-items:center;gap:5px}
 .vpills .chip.ghost{border-style:dashed;color:var(--ink-3)}
 .vpills .chip svg{width:15px;height:15px}
-.dtabs{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));z-index:30;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;padding:10px 16px;margin-top:8px;background:rgba(255,252,250,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.dtabs{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));z-index:30;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;padding:8px 16px;margin-top:10px;background:rgba(255,252,250,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .dtab{min-height:52px;border-radius:14px;background:var(--fill);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 4px;min-width:0}
 .dtab small{font-size:12px;color:var(--ink-3);font-weight:600}
 .dtab b{display:block;max-width:100%;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
@@ -638,6 +641,8 @@ footer a{color:var(--ink-3)}
 .dhd .t{flex:1;min-width:0}
 .dhd h2{font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1.35}
 .dhd .dn{margin-top:4px;font-size:14px;color:var(--ink-2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pinfo{display:inline-flex;align-items:center;gap:5px;min-height:44px;font-size:13px;font-weight:700;color:var(--ink-3)}
+.pinfo svg{width:15px;height:15px}
 .mmap{position:relative;flex:0 0 auto;width:88px;height:88px;border-radius:18px;overflow:hidden;background:#F2F6F9;border:1px solid var(--line)}
 .mmap svg{width:100%;height:100%;display:block}
 .mmap span{position:absolute;left:0;right:0;bottom:0;padding:2px 0 4px;font-size:12px;font-weight:700;color:var(--ink-2);background:rgba(255,255,255,.88)}
@@ -662,7 +667,7 @@ footer a{color:var(--ink-3)}
 .bs{font-size:12px;padding:2px 8px;border-radius:9px;font-weight:700;background:var(--fill);color:var(--ink-2);white-space:nowrap}
 .bs.rose{background:var(--rose-soft);color:var(--rose-deep)}.bs.sage{background:var(--sage-soft);color:var(--sage-deep)}.bs.coral{background:var(--coral-soft);color:var(--coral-deep)}.bs.plum{background:var(--plum-soft);color:var(--plum)}
 .cand{flex:0 0 auto;min-height:44px;padding:0 12px;border-radius:var(--r-full);background:var(--sun-soft);color:var(--sun-deep);font-size:13px;font-weight:800;white-space:nowrap}
-.mv{list-style:none;display:flex;align-items:center;gap:6px;min-height:36px;padding:4px 0 4px 54px;font-size:13px;color:var(--ink-3);cursor:pointer;border-bottom:1px solid var(--line)}
+.mv{list-style:none;display:flex;align-items:center;gap:6px;min-height:44px;padding:4px 0 4px 54px;font-size:13px;color:var(--ink-3);cursor:pointer;border-bottom:1px solid var(--line)}
 .mv svg{width:16px;height:16px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .mv .full{display:none}
 .mv.open .s{display:none}
@@ -769,7 +774,7 @@ footer a{color:var(--ink-3)}
 .mpick b{font-size:17px;font-weight:800}
 .mpick small{font-size:14px;color:var(--ink-2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .mpick .mets{margin-top:4px}
-.mpick .ok{position:absolute;right:10px;top:10px;font-size:12px;font-weight:800;color:#fff;background:var(--rose);border-radius:10px;padding:2px 8px}
+.mpick .ok{align-self:flex-start;font-size:12px;font-weight:800;color:#fff;background:var(--rose);border-radius:10px;padding:2px 8px}
 .mcard details.more{padding:0 12px 10px;margin:0}
 .mcard details.more summary{min-height:40px}
 .dsum{list-style:none;display:grid;gap:8px}
@@ -1123,7 +1128,7 @@ function proj(lat, lng){
 const RCOL = { '홋카이도': '#9CC7E8', '도호쿠': '#9FD6C5', '간토': '#F4A6B8', '주부': '#B9D59A', '간사이': '#F7B98B', '주고쿠': '#F2D27A', '시코쿠': '#C7B3E3', '규슈': '#F09A86', '오키나와': '#7FD3D6' };
 const RDEEP = { '홋카이도': '#2F6AA3', '도호쿠': '#2A8A80', '간토': '#B63B57', '주부': '#47765A', '간사이': '#B84D33', '주고쿠': '#A87C14', '시코쿠': '#6E4E8C', '규슈': '#B84D33', '오키나와': '#1F8A8E' };
 /* 이름 알약 자리(지도 단위). 작은 지역은 바다 쪽에 두고 가는 선으로 잇는다 */
-const PILL_AT = { '홋카이도': [292, 50], '도호쿠': [252, 132], '간토': [292, 222], '주부': [192, 172], '간사이': [214, 272], '주고쿠': [116, 196], '시코쿠': [152, 296], '규슈': [88, 268], '오키나와': [112, 28] };
+const PILL_AT = { '홋카이도': [292, 50], '도호쿠': [252, 132], '간토': [292, 222], '주부': [192, 172], '간사이': [214, 272], '주고쿠': [116, 196], '시코쿠': [154, 298], '규슈': [102, 262], '오키나와': [112, 28] };
 const regionCities = r => Object.values(GUIDES).filter(g => g.region === r);
 const RANK_KEYS = ['tokyo','osaka','fukuoka','sapporo','okinawa','kyoto','nagoya','hiroshima','kagoshima','nagasaki','kumamoto','oita','sendai','hakodate','kanazawa','kobe','nara','matsuyama','takamatsu','kitakyushu','okayama','miyazaki','ishigaki','saga','asahikawa','aomori','niigata','shizuoka','toyama','takayama','hakone_kamakura','yonago','kochi'];
 const rankOf = g => { const i = RANK_KEYS.indexOf(g.key); return i < 0 ? 99 : i; };
@@ -1173,14 +1178,14 @@ function rmapSvg(o){
   if (!focus) body += `<rect class="ins-hit" x="${ins.x - 3}" y="${ins.y - 3}" width="${ins.w + 6}" height="${ins.h + 6}" data-act="pickregion" data-v="오키나와"/>`;
   if (!focus){
     /* 이름 알약 : 지역 이름 + 도시 수 / 대표 도시 두 곳 */
-    const F1 = 14 * u, F2 = 11.5 * u, H = 38 * u;
+    const narrow = cw < 360, F1 = (narrow ? 13 : 14) * u, F2 = 11.5 * u, H = (narrow ? 26 : 38) * u;
     for (const [name, R] of Object.entries(m.regions)){
       const s = stats[name]; if (!s.n) continue;
       const t = regionName(name), sub = s.d ? regionCities(name).sort((a, b) => rankOf(a) - rankOf(b)).slice(0, 2).map(shortName).join('·') : T('r_zero');
-      const w = Math.max(textW(t) * F1 + textW(String(s.n)) * F2 + 22 * u, textW(sub) * F2 + 16 * u);
+      const w = Math.max(textW(t) * F1 + textW(String(s.n)) * F2 + 22 * u, narrow ? 0 : textW(sub) * F2 + 16 * u);
       const [cx, cy] = PILL_AT[name] || R.label, x0 = cx - w / 2, y0 = cy - H / 2;
       const far = Math.hypot(cx - R.label[0], cy - R.label[1]) > 22 && name !== '오키나와';
-      body += `<g class="rl${s.d ? '' : ' zero'}" data-act="pickregion" data-v="${esc(name)}">${far ? `<line class="rll" x1="${f(R.label[0])}" y1="${f(R.label[1])}" x2="${f(Math.max(x0, Math.min(R.label[0], x0 + w)))}" y2="${f(Math.max(y0, Math.min(R.label[1], y0 + H)))}" stroke="${RDEEP[name]}" stroke-width="${f(1.2 * u)}"/><circle cx="${f(R.label[0])}" cy="${f(R.label[1])}" r="${f(2.5 * u)}" fill="${RDEEP[name]}"/>` : ''}<rect class="hit" x="${f(x0 - 6 * u)}" y="${f(y0 - 4 * u)}" width="${f(w + 12 * u)}" height="${f(H + 8 * u)}"/><rect x="${f(x0)}" y="${f(y0)}" width="${f(w)}" height="${f(H)}" rx="${f(12 * u)}" stroke="${RDEEP[name]}" stroke-opacity=".3" stroke-width="${f(u)}"/><text x="${f(x0 + 9 * u)}" y="${f(y0 + 17 * u)}" font-size="${f(F1)}">${esc(t)}<tspan class="n" font-size="${f(F2)}" dx="${f(4 * u)}" fill="${RDEEP[name]}">${s.n}</tspan></text><text class="sub" x="${f(x0 + 9 * u)}" y="${f(y0 + 31 * u)}" font-size="${f(F2)}">${esc(sub)}</text></g>`;
+      body += `<g class="rl${s.d ? '' : ' zero'}" data-act="pickregion" data-v="${esc(name)}">${far ? `<line class="rll" x1="${f(R.label[0])}" y1="${f(R.label[1])}" x2="${f(Math.max(x0, Math.min(R.label[0], x0 + w)))}" y2="${f(Math.max(y0, Math.min(R.label[1], y0 + H)))}" stroke="${RDEEP[name]}" stroke-width="${f(1.2 * u)}"/><circle cx="${f(R.label[0])}" cy="${f(R.label[1])}" r="${f(2.5 * u)}" fill="${RDEEP[name]}"/>` : ''}<rect class="hit" x="${f(x0 - 6 * u)}" y="${f(y0 - 4 * u)}" width="${f(w + 12 * u)}" height="${f(H + 8 * u)}"/><rect x="${f(x0)}" y="${f(y0)}" width="${f(w)}" height="${f(H)}" rx="${f(12 * u)}" stroke="${RDEEP[name]}" stroke-opacity=".3" stroke-width="${f(u)}"/><text x="${f(x0 + 9 * u)}" y="${f(y0 + (narrow ? 18 : 17) * u)}" font-size="${f(F1)}">${esc(t)}<tspan class="n" font-size="${f(F2)}" dx="${f(4 * u)}" fill="${RDEEP[name]}">${s.n}</tspan></text>${narrow ? '' : `<text class="sub" x="${f(x0 + 9 * u)}" y="${f(y0 + 31 * u)}" font-size="${f(F2)}">${esc(sub)}</text>`}</g>`;
     }
   } else {
     /* 도시 핀 + 이름 */
@@ -1250,7 +1255,7 @@ function renderStart(){
   const last = st.last && GUIDES[st.last.city] ? st.last : null;
   const lg = last && GUIDES[last.city];
   app.innerHTML = topbar({ title: T('brand'), lang: true }) + `<main class="scr">${progress(1)}
-    ${lg ? `<button class="resume ${cCls(lg)}" data-act="city" data-v="${esc(lg.key)}">${illHtml(lg)}<span class="t"><small>${esc(T('resume'))}</small><b>${esc(T('resume_v', { city: lg.name, nd: nd(last.n || (lg.plans[0] || {}).nights || 2), day: dayLabel((last.d || 0) + 1) }))}</b></span>${svgNext}</button>` : ''}
+    ${lg ? `<button class="resume ${cCls(lg)}" data-act="city" data-v="${esc(lg.key)}">${illHtml(lg)}<span class="t"><small>${esc(T('resume'))}</small><b>${esc(T('resume_v', { city: lg.name, nd: nd(last.n || (lg.plans[0] || {}).nights || 2), day: T('day_s', { n: (last.d || 0) + 1 }) }))}</b></span>${svgNext}</button>` : ''}
     <header class="qhead"><h1>${esc(T('n_title'))}</h1><p>${esc(T('n_sub'))}</p></header>
     <div class="ncards">${nightsAvail().map(n => `<button class="ncard" data-act="pickn" data-v="${n}">${nightsArt(n)}<span class="t"><b>${esc(nd(n))}</b><small>${esc(UI['n_off' + n] ? T('n_off' + n) : T('n_offx', { n }))}</small></span>${svgNext}</button>`).join('')}</div>
     <button class="txtbtn" data-act="pickn" data-v="0">${esc(T('n_unsure'))}</button>
@@ -1364,7 +1369,7 @@ function renderCity(){
   const pills = `<div class="spills">
     <button class="pill" data-act="sh-fly">${svgPlane}${b ? esc(fmtMin(b.r.flight_minutes)) : `<span class="no">${esc(T('f_none'))}</span>`}</button>
     ${plan ? `<button class="pill" data-act="sh-n">${svgCal}${esc(nd(plan.nights))}<span class="ed">▾</span></button>` : ''}
-    ${budget ? `<button class="pill" data-act="tab" data-v="prep">₩ ${esc(T('p_budget', { amt: manA(Array.isArray(budget.total_krw) ? budget.total_krw[0] : budget.total_krw) }))}~</button>` : ''}</div>`;
+    ${budget ? `<button class="pill" data-act="tab" data-v="prep">₩ ${esc(T('p_budget', { amt: manA(Array.isArray(budget.total_krw) ? budget.total_krw[0] : budget.total_krw) }))}</button>` : ''}</div>`;
   let warn = '';
   if (!b){ const oo = otherOrigins(g, st.origin); const alt = (g.nearby_alternatives || []).map(x => GUIDES[x.key]).find(x => x && bestRoute(st.origin, x));
     warn = `<div class="wbox"><b>${esc(T('nodir_t', { origin: krShort(st.origin) }))}</b>${oo.length ? `<button class="btn2" data-act="picko-here" data-v="${esc(oo[0])}">${esc(T('nodir_sw', { origin: krShort(oo[0]) }))}</button>` : ''}${alt ? `<button class="btn2" data-act="city" data-v="${esc(alt.key)}">${esc(T('nodir_alt', { name: alt.name }))} ›</button>` : ''}</div>`; }
@@ -1413,7 +1418,7 @@ function firstSentence(s){ s = String(s || ''); const m = s.match(/^.+?(다\.|�
 function planTab(g, plan){
   if (!plan) return `<div class="empty"><b>${esc(T('no_plan_t'))}</b>${esc(T('no_plan_d'))}</div>`;
   const vs = (g.variants || []).filter(v => v.for_nights === plan.nights);
-  const vrow = vs.length ? `<div class="vpills"><button class="chip" data-act="variant" data-v="0" aria-pressed="${st.v === 0}">${esc(T('base_plan'))}</button>${vs.map((v, i) => `<button class="chip" data-act="variant" data-v="${i + 1}" aria-pressed="${st.v === i + 1}">${esc(v.theme || v.title)}</button>`).join('')}<button class="chip ghost" data-act="planinfo">${svgInfo}${esc(T('plan_what'))}</button></div>` : `<div class="vpills"><button class="chip ghost" data-act="planinfo">${svgInfo}${esc(T('plan_what'))}</button></div>`;
+  const vrow = vs.length ? `<div class="vpills"><button class="chip" data-act="variant" data-v="0" aria-pressed="${st.v === 0}">${esc(T('base_plan'))}</button>${vs.map((v, i) => `<button class="chip" data-act="variant" data-v="${i + 1}" aria-pressed="${st.v === i + 1}">${esc(v.theme || v.title)}</button>`).join('')}<button class="chip ghost" data-act="planinfo">${svgInfo}${esc(T('plan_what'))}</button></div>` : '';
   const tabs = `<div id="dt-anchor"></div><nav class="dtabs" aria-label="Day">${plan.days.map((d, i) => `<button class="dtab" data-act="day" data-v="${i}" aria-pressed="${st.d === i}"><small>${esc(T('day_s', { n: i + 1 }))}</small><b>${esc(d.label || '')}</b></button>`).join('')}</nav>`;
   const di = st.d, d = plan.days[di] || plan.days[0];
   const pts = dayPts(g, plan, di);
@@ -1440,7 +1445,7 @@ function planTab(g, plan){
   const last = di === plan.days.length - 1;
   const alts = last ? (g.nearby_alternatives || []).filter(x => own(GUIDES, x.key)) : [];
   return `${vrow}${tabs}
-    <div class="dhd"><div class="t"><h2>${esc(d.title || d.label || '')}</h2>${d.note ? `<p class="dn">${rich(d.note)}</p>` : ''}</div><button class="mmap" data-act="bigmap" aria-label="${esc(T('d_map'))}">${miniSketch(pts)}<span>${esc(T('d_map'))}</span></button></div>
+    <div class="dhd"><div class="t"><h2>${esc(d.title || d.label || '')}</h2>${d.note ? `<p class="dn">${rich(d.note)}</p>` : ''}${vs.length ? '' : `<button class="pinfo" data-act="planinfo">${svgInfo}${esc(T('plan_what'))}</button>`}</div><button class="mmap" data-act="bigmap" aria-label="${esc(T('d_map'))}">${miniSketch(pts)}<span>${esc(T('d_map'))}</span></button></div>
     ${notice}
     <ol class="tl">${rows}</ol>
     <div class="dend"><button class="btn2 wide" data-act="planb">☔ ${esc(T('planb'))}</button><div class="dnav">${di > 0 ? `<button class="btn2" data-act="day" data-v="${di - 1}">‹ ${esc(T('day_s', { n: di }))}</button>` : '<span></span>'}${!last ? `<button class="btn2" data-act="day" data-v="${di + 1}">${esc(T('day_s', { n: di + 2 }))} ›</button>` : '<span></span>'}</div></div>
@@ -1492,7 +1497,7 @@ function prepTab(g, plan){
   const lo = v => Array.isArray(v) ? v[0] : Number(v) || 0;
   const items = b ? [['b_flight', b.flight_krw, '#4E8CC4'], ['b_hotel', b.hotel_krw, '#7A5E90'], ['b_food', b.food_krw, '#E36A4C'], ['b_transport', b.transport_krw, '#3BA39A'], ['b_entry', b.entry_krw, '#D9A62E'], ['b_shop', b.shopping_krw, '#D9516E']] : [];
   const sum = items.reduce((a, x) => a + lo(x[1]), 0) || 1;
-  const budget = b ? `<section class="pcard" id="p-budget"><h3>${esc(T('acc_budget'))}<small>${esc(nd(plan.nights))} · ${esc(b.per || '')}</small></h3><div class="big">${manR(b.total_krw)}</div>
+  const budget = b ? `<section class="pcard" id="p-budget"><h3>${esc(T('acc_budget'))}<small>${esc(nd(plan.nights))} · ${esc(b.per || '')}</small></h3><div class="big">${manA(b.total_krw)}</div>
     <div class="bar">${items.map(x => `<i style="width:${(lo(x[1]) / sum * 100).toFixed(1)}%;background:${x[2]}"></i>`).join('')}</div>
     <ul class="blist">${items.map(x => `<li><i style="background:${x[2]}"></i><span>${esc(T(x[0], { n: plan.nights, origin: krShort(st.origin) }))}</span><b>${manR(x[1])}</b></li>`).join('')}</ul><p class="note">${esc(b.basis || '')} ${esc(T('b_note'))}</p></section>` : '';
   const flights = `<section class="pcard"><h3>${esc(T('flights'))}<small>${esc(T('flights_sub'))}</small></h3>${flightBlock(g)}</section>`;
@@ -1531,7 +1536,7 @@ function sheetOrigin(){ openSheet(T('o_title'), `${originGrid(st.origin)}<p clas
 function sheetMeal(i){
   const g = GUIDES[st.city], plan = curPlan(g), d = plan.days[st.d], it = d.items[i];
   const { opts, pk, r } = chosenR(g, plan, st.d, i, it);
-  openSheet(T('meal_q', { meal: it.label || T('meal_w') }), `${it.note ? `<p class="shnote">${rich(it.note)}</p>` : ''}<div class="mcards">${opts.map(x => `<div class="mcard${r && r.id === x.id ? ' on' : ''}"><button class="mpick" data-act="pick" data-v="${esc(pk)}|${esc(x.id)}"><span class="art">${svgFit(dishArt(x.dish))}</span><span class="tx"><b>${esc(x.name)}</b><small>${esc(x.cuisine || '')}${x.signature ? ` · ${esc(x.signature)}` : ''}</small><span class="mets"><span>${yenMark(x.price_level)}</span>${x.hours ? `<span>${esc(hText(x.hours))}</span>` : ''}${x.closed && x.closed !== '없음' ? `<span>${esc(T('closed'))} ${esc(hText(x.closed))}</span>` : ''}</span></span>${r && r.id === x.id ? `<span class="ok">✓ ${esc(T('picked'))}</span>` : ''}</button><details class="more"><summary>${esc(T('more'))}</summary><div class="body">${rowDetailR(x)}</div></details></div>`).join('')}</div><p class="basis">${esc(T('meal_note'))}</p>`);
+  openSheet(T('meal_q', { meal: it.label || T('meal_w') }), `${it.note ? `<p class="shnote">${rich(it.note)}</p>` : ''}<div class="mcards">${opts.map(x => `<div class="mcard${r && r.id === x.id ? ' on' : ''}"><button class="mpick" data-act="pick" data-v="${esc(pk)}|${esc(x.id)}"><span class="art">${svgFit(dishArt(x.dish))}</span><span class="tx">${r && r.id === x.id ? `<span class="ok">✓ ${esc(T('picked'))}</span>` : ''}<b>${esc(x.name)}</b><small>${esc(x.cuisine || '')}${x.signature ? ` · ${esc(x.signature)}` : ''}</small><span class="mets"><span>${yenMark(x.price_level)}</span>${x.hours ? `<span>${esc(hText(x.hours))}</span>` : ''}${x.closed && x.closed !== '없음' ? `<span>${esc(T('closed'))} ${esc(hText(x.closed))}</span>` : ''}</span></span></button><details class="more"><summary>${esc(T('more'))}</summary><div class="body">${rowDetailR(x)}</div></details></div>`).join('')}</div><p class="basis">${esc(T('meal_note'))}</p>`);
 }
 function sheetPlace(id){ const g = GUIDES[st.city], p = findP(g, id); if (!p) return; const ph = photoOf('spots', `${g.key}:${p.id}`);
   openSheet(p.name, `<div class="shart">${ph ? photoImg(ph, p.name) : catArt(p.cat)}</div>${rowDetailP(g, p, false, null)}`); }
@@ -1827,7 +1832,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && SH.open) c
 /* ───────── 시작 ───────── */
 silDefs();
 try { history.scrollRestoration = 'manual'; } catch(e){}
-try { window.__jp = { rmapSvg, searchRun, st, parseRoute, routeHash }; } catch(e){}
+try { window.__jp = { rmapSvg, searchRun, st, parseRoute, routeHash, applyRoute, render }; } catch(e){}
 { const r = parseRoute(); applyRoute(r); try { history.replaceState({ v2: 1 }, '', routeHash(r)); } catch(e){} render({}); }
 
 })();
