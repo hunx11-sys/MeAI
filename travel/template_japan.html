@@ -505,6 +505,20 @@ footer a{color:var(--ink-3)}
 .srcs li{font-size:13px}
 .srcs a{display:inline-block;min-height:44px;padding:12px 0;font-size:13px;word-break:break-all}
 .spills .pill{padding:0 12px}
+.pill.fx{flex-direction:column;align-items:flex-start;justify-content:center;gap:0;line-height:1.2;padding:4px 14px}
+.pill.fx small{font-size:12px;font-weight:600;color:var(--ink-3)}
+.fxb{margin-left:auto;min-height:44px;padding:0 12px;border-radius:var(--r-full);background:var(--fill);font-family:var(--body);font-size:13px;font-weight:700;color:var(--ink-2)}
+.fxrow{display:flex;align-items:center;gap:10px}
+.fxrow .l{font-size:16px;font-weight:700;white-space:nowrap}
+.fxs{width:52px;height:52px;border-radius:14px;background:var(--fill);font-size:24px;font-weight:700;flex:0 0 auto}
+.fxin{flex:1;display:flex;align-items:center;gap:6px;min-height:52px;padding:0 12px;border:1.5px solid var(--line-2);border-radius:14px;background:#fff}
+.fxin input{flex:1;min-width:0;border:0;outline:0;font:inherit;font-size:22px;font-weight:800;text-align:right;background:transparent;color:var(--ink);-moz-appearance:textfield;appearance:textfield}
+.fxin input::-webkit-outer-spin-button,.fxin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.fxin span{font-size:16px;font-weight:700;color:var(--ink-2)}
+.fxpre{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.fxpre .chip{min-height:44px;font-size:15px}
+.fxprev{margin:16px 0 10px;padding:14px;border-radius:14px;background:var(--rose-pale);font-size:16px;font-weight:800;color:var(--rose-deep);line-height:1.5}
+.fxprev:empty{display:none}
 .iconbtn{width:44px;height:44px}
 .topbar{min-height:64px}
 .scr.in-fwd{animation:inF .24s cubic-bezier(.2,.8,.2,1)}
@@ -866,7 +880,8 @@ const st = {
   origin: S.get('origin', 'ICN'), originSet: !!S.get('originSet', false), nights: S.get('nights', 0),
   picks: S.get('picks', {}), checks: S.get('checks', {}), last: S.get('last', null),
   scr: 'home', region: '', city: null, n: 0, v: 0, d: 0, t: 'plan', open: -1, sel: -1,
-  ff: '', sf: '', atag: '', pinSel: '', q: '', pushed: 0, backBtn: false, pendingRegion: ''
+  ff: '', sf: '', atag: '', pinSel: '', q: '', pushed: 0, backBtn: false, pendingRegion: '',
+  fx: Math.min(1500, Math.max(500, Number(S.get('fx', 900)) || 900))
 };
 if (!KRP[st.origin]) st.origin = 'ICN';
 
@@ -879,6 +894,22 @@ const man = n => { n = Math.round(Number(n) || 0); if (LANG === 'ko'){ if (n < 1
 const manR = v => Array.isArray(v) ? (v[0] === v[1] ? man(v[0]) : (LANG === 'ko' ? `${man(v[0]).replace('원','')}~${man(v[1])}` : `${man(v[0])} ~ ${man(v[1])}`)) : man(v);
 const manA = v => { const r = x => Math.round((Number(x) || 0) / 10000); if (LANG !== 'ko') return manR(v); const a = Array.isArray(v) ? v : [v, v]; return a[0] === a[1] ? `약 ${r(a[0]).toLocaleString('ko-KR')}만원` : `약 ${r(a[0]).toLocaleString('ko-KR')}만~${r(a[1]).toLocaleString('ko-KR')}만원`; };
 const yen = n => T('yen', { n: Number(n).toLocaleString('en-US') });
+/* 환율 : 가이드 금액은 100엔=900원 기준 가정값. 바꾸면 엔화로 쓰는 돈(숙박·식비·교통·입장료·쇼핑)만 다시 계산하고 항공권(원화 결제)은 그대로 */
+const FX_BASE = 900;
+const fxK = () => (st.fx || FX_BASE) / FX_BASE;
+const r1000 = x => Math.round(x / 1000) * 1000;
+const yenK = v => fxK() === 1 ? v : Array.isArray(v) ? v.map(x => r1000((Number(x) || 0) * fxK())) : r1000((Number(v) || 0) * fxK());
+function budgetFx(b){
+  if (!b || fxK() === 1) return b;
+  const o = Object.assign({}, b), keys = ['hotel_krw', 'food_krw', 'transport_krw', 'entry_krw', 'shopping_krw'];
+  keys.forEach(k => { if (b[k] != null) o[k] = yenK(b[k]); });
+  const lo = v => Array.isArray(v) ? v[0] : Number(v) || 0, hi = v => Array.isArray(v) ? v[1] : Number(v) || 0;
+  const all = ['flight_krw'].concat(keys);
+  o.total_krw = [all.reduce((a, k) => a + lo(o[k]), 0), all.reduce((a, k) => a + hi(o[k]), 0)];
+  return o;
+}
+const wonOfYen = n => man(Math.round((Number(n) || 0) * (st.fx || FX_BASE) / 100 / 100) * 100);
+const yenW = n => LANG === 'ko' && n >= 100 ? `${yen(n)}(${T('approx_w', { w: wonOfYen(n) })})` : yen(n);
 const gmap = (q, ll) => ll && ll[0] ? `https://www.google.com/maps/search/?api=1&query=${ll[0]},${ll[1]}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || '')}`;
 const stCls = s => ({'정기':'sage','계절':'sun','전세':'plum','확인필요':'ghost','운휴':'coral'}[s] || 'ghost');
 const yenLv = p => ['', T('price1'), T('price2'), T('price3')][p] || '';
@@ -1363,13 +1394,13 @@ function renderCity(){
   if (plan && st.d >= plan.days.length) st.d = 0;
   if (plan){ st.last = { city: g.key, n: plan.nights, d: st.d }; S.set('last', st.last); }
   const rec = (S.get('recent', []) || []).filter(k => k !== g.key); rec.unshift(g.key); S.set('recent', rec.slice(0, 6));
-  const pf = PF(g), b = bestRoute(st.origin, g), budget = plan && plan.budget;
+  const pf = PF(g), b = bestRoute(st.origin, g), budget = plan && budgetFx(plan.budget);
   const ph = photoOf('cities', g.key);
   const hero = `<div class="hero ${cCls(g)}">${ph ? `<div class="bg photo">${photoImg(ph, g.name)}</div>` : `<div class="bg">${svgFit(regionArt(g.region))}</div><span class="badge">${g.icon || ''}</span>`}<button class="introbtn" data-act="intro">${svgInfo}${esc(T('intro'))}</button></div>`;
   const pills = `<div class="spills">
     <button class="pill" data-act="sh-fly">${svgPlane}${b ? esc(fmtMin(b.r.flight_minutes)) : `<span class="no">${esc(T('f_none'))}</span>`}</button>
     ${plan ? `<button class="pill" data-act="sh-n">${svgCal}${esc(nd(plan.nights))}<span class="ed">▾</span></button>` : ''}
-    ${budget ? `<button class="pill" data-act="tab" data-v="prep">₩ ${esc(T('p_budget', { amt: manA(Array.isArray(budget.total_krw) ? budget.total_krw[0] : budget.total_krw) }))}</button>` : ''}</div>`;
+    ${budget ? `<button class="pill fx" data-act="sh-fx" aria-label="${esc(T('fx_sheet_t'))}"><small>${esc(T('fx_lbl', { r: st.fx.toLocaleString('ko-KR') }))}</small><span>₩ ${esc(T('p_budget', { amt: manA(Array.isArray(budget.total_krw) ? budget.total_krw[0] : budget.total_krw) }))}</span></button>` : ''}</div>`;
   let warn = '';
   if (!b){ const oo = otherOrigins(g, st.origin); const alt = (g.nearby_alternatives || []).map(x => GUIDES[x.key]).find(x => x && bestRoute(st.origin, x));
     warn = `<div class="wbox"><b>${esc(T('nodir_t', { origin: krShort(st.origin) }))}</b>${oo.length ? `<button class="btn2" data-act="picko-here" data-v="${esc(oo[0])}">${esc(T('nodir_sw', { origin: krShort(oo[0]) }))}</button>` : ''}${alt ? `<button class="btn2" data-act="city" data-v="${esc(alt.key)}">${esc(T('nodir_alt', { name: alt.name }))} ›</button>` : ''}</div>`; }
@@ -1452,10 +1483,10 @@ function planTab(g, plan){
     ${alts.length ? `<h2 class="sec">${esc(T('alt_t'))}</h2><div class="alts">${alts.map(x => { const ag = GUIDES[x.key]; return `<button class="altc ${cCls(ag)}" data-act="city" data-v="${esc(ag.key)}"><span class="art">${svgFit(regionArt(ag.region))}<span class="badge">${ag.icon || ''}</span></span><span class="tx"><b>${esc(ag.name)}</b><small>${esc(firstSentence(kText(x.reason) || x.reason || ''))}</small><small class="fl">${svgPlane}${esc(flyText(ag))}</small></span></button>`; }).join('')}</div>` : ''}`;
 }
 function metsP(p){
-  return `<div class="mets">${p.hours ? `<span>${esc(T('hours'))} <b>${esc(hText(p.hours))}</b></span>` : ''}${p.closed && p.closed !== '없음' ? `<span>${esc(T('closed'))} <b>${esc(hText(p.closed))}</b></span>` : ''}${p.duration_min ? `<span>${esc(fmtMin(p.duration_min))}</span>` : ''}${p.access ? `<span>${esc(T('access_how'))} <b>${esc(p.access)}</b></span>` : ''}</div>`;
+  return `<div class="mets">${p.hours ? `<span>${esc(T('hours'))} <b>${esc(hText(p.hours))}</b></span>` : ''}${p.closed && p.closed !== '없음' ? `<span>${esc(T('closed'))} <b>${esc(hText(p.closed))}</b></span>` : ''}${p.duration_min ? `<span>${esc(fmtMin(p.duration_min))}</span>` : ''}${p.fee_yen > 0 ? `<span>${esc(T('fee_w'))} <b>${esc(yenW(p.fee_yen))}</b></span>` : ''}${p.access ? `<span>${esc(T('access_how'))} <b>${esc(p.access)}</b></span>` : ''}</div>`;
 }
 function rowDetailP(g, p, isHotel, ii){
-  return `<div class="rx">${p.name_ja && LANG !== 'ja' ? `<div class="ja">${esc(p.name_ja)}</div>` : ''}${p.desc ? `<p class="clamp">${rich(p.desc)}</p>` : ''}${isHotel ? `${(p.pts || []).length ? `<div class="mets">${p.pts.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<p class="pr">${esc(T('per_room'))} · ${esc(T('per_night'))} <b>${manR(p.price_krw_night)}</b> ${esc(T('approx'))}</p>` : ''}` : metsP(p)}
+  return `<div class="rx">${p.name_ja && LANG !== 'ja' ? `<div class="ja">${esc(p.name_ja)}</div>` : ''}${p.desc ? `<p class="clamp">${rich(p.desc)}</p>` : ''}${isHotel ? `${(p.pts || []).length ? `<div class="mets">${p.pts.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<p class="pr">${esc(T('per_room'))} · ${esc(T('per_night'))} <b>${manR(yenK(p.price_krw_night))}</b> ${esc(T('approx'))}</p>` : ''}` : metsP(p)}
     ${p.tip ? `<div class="box tip">${rich(p.tip)}</div>` : ''}${p.kid_tip ? `<div class="box kid"><b>${esc(T('with_kids'))}</b> ${rich(p.kid_tip)}</div>` : ''}
     <div class="btns"><a class="btn2" href="${gmap(p.maps_q || p.name_ja || p.name, [p.lat, p.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a>${ii != null ? `<button class="btn2" data-act="bigmap" data-v="${ii}">${esc(T('map_on'))}</button>` : ''}${isHotel ? `<button class="btn2" data-act="tab" data-v="hotel">${esc(T('hotel_more'))}</button>` : ''}</div></div>`;
 }
@@ -1489,15 +1520,15 @@ function spotTab(g, plan){
 function hotelTab(g, plan){
   const used = inPlanIds(g, plan);
   const hs = (g.hotels || []).slice().sort((a, b) => used.has(b.id) - used.has(a.id));
-  return `<div class="hlist">${hs.map(h => `<button class="hcard2" data-act="hotel" data-v="${esc(h.id)}"><span class="th">${catArt('hotel')}</span><span class="tx">${used.has(h.id) ? `<em>${esc(T('hotel_in'))}</em>` : ''}<b>${esc(h.name)}</b><small><span class="bs plum">${esc(tierName(h.tier))}</span> ${esc(h.area || '')}</small>${h.price_krw_night && h.price_krw_night[1] ? `<span class="pr">${esc(T('per_night'))} ${manR(h.price_krw_night)}</span>` : ''}</span>${svgNext}</button>`).join('') || `<div class="empty">${esc(T('no_hotel'))}</div>`}</div>`;
+  return `<div class="hlist">${hs.map(h => `<button class="hcard2" data-act="hotel" data-v="${esc(h.id)}"><span class="th">${catArt('hotel')}</span><span class="tx">${used.has(h.id) ? `<em>${esc(T('hotel_in'))}</em>` : ''}<b>${esc(h.name)}</b><small><span class="bs plum">${esc(tierName(h.tier))}</span> ${esc(h.area || '')}</small>${h.price_krw_night && h.price_krw_night[1] ? `<span class="pr">${esc(T('per_night'))} ${manR(yenK(h.price_krw_night))}</span>` : ''}</span>${svgNext}</button>`).join('') || `<div class="empty">${esc(T('no_hotel'))}</div>`}</div>`;
 }
 /* 준비 탭 */
 function prepTab(g, plan){
-  const b = plan && plan.budget;
+  const b = plan && budgetFx(plan.budget);
   const lo = v => Array.isArray(v) ? v[0] : Number(v) || 0;
   const items = b ? [['b_flight', b.flight_krw, '#4E8CC4'], ['b_hotel', b.hotel_krw, '#7A5E90'], ['b_food', b.food_krw, '#E36A4C'], ['b_transport', b.transport_krw, '#3BA39A'], ['b_entry', b.entry_krw, '#D9A62E'], ['b_shop', b.shopping_krw, '#D9516E']] : [];
   const sum = items.reduce((a, x) => a + lo(x[1]), 0) || 1;
-  const budget = b ? `<section class="pcard" id="p-budget"><h3>${esc(T('acc_budget'))}<small>${esc(nd(plan.nights))} · ${esc(b.per || '')}</small></h3><div class="big">${manA(b.total_krw)}</div>
+  const budget = b ? `<section class="pcard" id="p-budget"><h3>${esc(T('acc_budget'))}<small>${esc(nd(plan.nights))} · ${esc(b.per || '')}</small><button class="fxb" data-act="sh-fx">${esc(T('fx_lbl', { r: st.fx.toLocaleString('ko-KR') }))} ›</button></h3><div class="big">${manA(b.total_krw)}</div>
     <div class="bar">${items.map(x => `<i style="width:${(lo(x[1]) / sum * 100).toFixed(1)}%;background:${x[2]}"></i>`).join('')}</div>
     <ul class="blist">${items.map(x => `<li><i style="background:${x[2]}"></i><span>${esc(T(x[0], { n: plan.nights, origin: krShort(st.origin) }))}</span><b>${manR(x[1])}</b></li>`).join('')}</ul><p class="note">${esc(b.basis || '')} ${esc(T('b_note'))}</p></section>` : '';
   const flights = `<section class="pcard"><h3>${esc(T('flights'))}<small>${esc(T('flights_sub'))}</small></h3>${flightBlock(g)}</section>`;
@@ -1520,7 +1551,7 @@ function flightBlock(g){
     h += `<div class="ap"><span class="code">${esc(iata)}</span>${esc(apName(a))}</div>`;
     h += rs.length ? rs.map(r => `<div class="rline"><span class="al">${esc(T('from_to', { origin: krShort(st.origin), to: apCity(a) }))}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 3))}</span><span>${esc(weeklyText(r.weekly))}</span><span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('') : `<div class="noroute">${esc(T('no_route', { origin: krShort(st.origin) }))}</div>`;
     const acc = (g.airport_access || []).filter(x => !x.airport || x.airport === iata);
-    if (acc.length) h += `<div class="access"><div class="ah">${esc(T('access'))}</div><ul>${acc.map(x => `<li><b>${esc(x.mode)}</b><span>→ ${esc(x.to)}</span><span class="num">${x.minutes ? fmtMin(x.minutes) : ''}${x.fare_yen ? ` · ${yen(x.fare_yen)}` : ''}</span></li>`).join('')}</ul></div>`;
+    if (acc.length) h += `<div class="access"><div class="ah">${esc(T('access'))}</div><ul>${acc.map(x => `<li><b>${esc(x.mode)}</b><span>→ ${esc(x.to)}</span><span class="num">${x.minutes ? fmtMin(x.minutes) : ''}${x.fare_yen ? ` · ${yenW(x.fare_yen)}` : ''}</span></li>`).join('')}</ul></div>`;
   }
   return `<div class="route">${h || `<div class="noroute">${esc(T('no_flight_data'))}</div>`}</div>`;
 }
@@ -1531,6 +1562,25 @@ function sheetNights(){
   const ns = g ? (g.plans || []).map(p => p.nights).sort((a, b) => a - b) : nightsAvail();
   const cur = g ? (curPlan(g) || {}).nights : st.nights;
   openSheet(T('n_pick'), `<div class="ncards in">${ns.map(n => `<button class="ncard" data-act="setn" data-v="${n}" aria-pressed="${cur === n}">${nightsArt(n)}<span class="t"><b>${esc(nd(n))}</b><small>${esc(UI['n_off' + n] ? T('n_off' + n) : T('n_offx', { n }))}</small></span></button>`).join('')}</div>`);
+}
+function fxPreview(){
+  const g = st.scr === 'city' && GUIDES[st.city], plan = g && curPlan(g), b = plan && budgetFx(plan.budget);
+  return b ? T('fx_prev', { nd: nd(plan.nights), amt: manA(b.total_krw) }) : '';
+}
+function sheetFx(){
+  const presets = [850, 900, 950, 1000];
+  openSheet(T('fx_sheet_t'), `<div class="fxrow"><span class="l">${esc(T('fx_100'))}</span><button class="fxs" data-act="fx" data-v="-10" aria-label="-10">−</button><label class="fxin"><input id="fxin" type="number" inputmode="numeric" min="500" max="1500" step="1" value="${st.fx}" aria-label="${esc(T('fx_sheet_t'))}"><span>${esc(T('won'))}</span></label><button class="fxs" data-act="fx" data-v="+10" aria-label="+10">+</button></div>
+    <div class="fxpre">${presets.map(v => `<button class="chip" data-act="fx" data-v="=${v}" aria-pressed="${st.fx === v}">${v.toLocaleString('ko-KR')}</button>`).join('')}</div>
+    <p class="fxprev" id="fxprev">${esc(fxPreview())}</p>
+    <p class="shnote">${esc(T('fx_note'))}</p><p class="basis">${esc(T('fx_tip'))}</p>`);
+}
+function setFx(v, fromInput){
+  v = Math.round(Number(v)); if (!isFinite(v)) return;
+  st.fx = Math.min(1500, Math.max(500, v)); S.set('fx', st.fx);
+  const inp = document.getElementById('fxin'); if (inp && !fromInput) inp.value = st.fx;
+  document.querySelectorAll('.fxpre .chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.v === '=' + st.fx)));
+  const pv = document.getElementById('fxprev'); if (pv) pv.textContent = fxPreview();
+  if (st.scr === 'city' && GUIDES[st.city]) swap(cityRoute(), { keep: true });
 }
 function sheetOrigin(){ openSheet(T('o_title'), `${originGrid(st.origin)}<p class="basis">${esc(T('o_basis', { d: DATA.generated || '' }))}</p>`); }
 function sheetMeal(i){
@@ -1704,6 +1754,8 @@ document.addEventListener('click', e => {
     case 'sh-n': sheetNights(); return;
     case 'sh-o': sheetOrigin(); return;
     case 'sh-fly': sheetFly(); return;
+    case 'sh-fx': sheetFx(); return;
+    case 'fx': if (v[0] === '=') setFx(Number(v.slice(1))); else setFx(st.fx + Number(v)); return;
     case 'setn': { const n = Number(v); if (st.scr === 'city'){ st.nights = n; S.set('nights', n); SH.after = () => swap(cityRoute({ n, v: 0, d: 0 })); closeSheet(); } else { st.nights = n; S.set('nights', n); SH.after = () => render({}); closeSheet(); } } return;
     case 'pickregion': {
       const r = v; if (!regionCities(r).length) return;
@@ -1752,6 +1804,8 @@ document.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && t && t.matches && t.matches('.cp,.rg-a,.checks li,.rw,[role="button"]')){ e.preventDefault(); t.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
 });
 app.addEventListener('input', e => { if (e.target.id === 'q'){ st.q = e.target.value; updSearch(); } });
+document.getElementById('sheet').addEventListener('input', e => { if (e.target.id === 'fxin'){ const v = Number(e.target.value); if (v >= 500 && v <= 1500) setFx(v, true); } });
+document.getElementById('sheet').addEventListener('change', e => { if (e.target.id === 'fxin') setFx(e.target.value); });
 function share(){
   const g = st.scr === 'city' && GUIDES[st.city]; const plan = g && curPlan(g);
   const title = g ? `${g.name} ${plan ? nd(plan.nights) : ''} ${T('plan_word')}` : T('brand');
