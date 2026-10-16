@@ -9,7 +9,8 @@
 실행 : python3 scripts/build_exception_manual.py
 산출 : dist/simple_exception_disease_2610.xlsx
        docs/meai_rag/simple_exception_disease_manual_2610.md
-필요 : node (products.html 안의 자바스크립트 데이터를 그대로 읽는다) · openpyxl
+       docs/simple_exception_disease_manual_2610.pdf   (MD 와 같은 내용 · 표지 · 차례 · 쪽번호)
+필요 : node (products.html 안의 자바스크립트 데이터를 그대로 읽는다) · openpyxl · markdown · playwright(Chromium)
 """
 import json, os, re, subprocess, sys, tempfile
 
@@ -17,6 +18,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'products.html')
 XLSX = os.path.join(ROOT, 'dist', 'simple_exception_disease_2610.xlsx')
 MD = os.path.join(ROOT, 'docs', 'meai_rag', 'simple_exception_disease_manual_2610.md')
+PDF = os.path.join(ROOT, 'docs', 'simple_exception_disease_manual_2610.pdf')
+FONTS = os.path.join(ROOT, 'docs', 'promo_shared')
 
 FORM = {'I': '입원만 인정(수술·시술하면 불가)', 'IS': '입원 또는 수술·시술 모두 인정', 'S': '수술·시술한 경우만 인정'}
 FORM_S = {'I': '입원만', 'IS': '입원·수술', 'S': '수술만'}
@@ -406,6 +409,85 @@ def build_md(D, ver):
     return len(L)
 
 
+# ═══════════════ PDF (MD 를 그대로 인쇄) ═══════════════
+def build_pdf(D, ver):
+    import base64, markdown
+    from playwright.sync_api import sync_playwright
+    txt = open(MD, encoding='utf-8').read()
+    body = txt.split('---', 2)[2] if txt.startswith('---') else txt
+    body = body.replace('# 간편보험 예외질환 심사 매뉴얼\n', '', 1)
+    html = markdown.markdown(body, extensions=['tables', 'toc'])
+    html = re.sub(r'<blockquote>.*?</blockquote>', '', html, count=1, flags=re.S)   # MeAI 답변 지침은 PDF 에서 뺀다
+    # 질환 차례
+    toc = ''.join('<li><a href="#%s">%s %s</a></li>' % (
+        re.sub(r'[^\w\- ]', '', ('%s %s' % (it['id'], it['n']))).strip().lower().replace(' ', '-'), it['id'], it['n'])
+        for it in D['ITEMS'])
+    toc = re.sub(r'href="#([^"]*)"', lambda m: 'href="#%s"' % m.group(1), toc)
+    def font(w, f):
+        b = base64.b64encode(open(os.path.join(FONTS, f), 'rb').read()).decode()
+        return "@font-face{font-family:P;font-weight:%d;src:url(data:font/woff2;base64,%s) format('woff2')}" % (w, b)
+    fonts = font(400, 'Pretendard-Regular.woff2') + font(600, 'Pretendard-SemiBold.woff2') + font(700, 'Pretendard-Bold.woff2') + font(800, 'Pretendard-ExtraBold.woff2')
+    css = fonts + """
+    @page{size:A4;margin:16mm 14mm 16mm 14mm}
+    body{font-family:P,sans-serif;font-size:9.6pt;line-height:1.6;color:#1d2433;margin:0}
+    .cover{height:255mm;display:flex;flex-direction:column;justify-content:center;page-break-after:always;padding:0 6mm}
+    .cover .k{font-size:11pt;font-weight:800;color:#E4002B;letter-spacing:.08em}
+    .cover h1{font-size:30pt;line-height:1.25;margin:10px 0 14px;font-weight:800;letter-spacing:-.02em}
+    .cover .sub{font-size:12pt;color:#4a5568;font-weight:600}
+    .cover .box{margin-top:34px;border-left:4px solid #E4002B;padding:10px 16px;background:#f7f8fb;font-size:10pt;line-height:1.75}
+    .cover .foot{margin-top:auto;font-size:9pt;color:#8a93a2}
+    .toc{page-break-after:always}
+    .toc h2{margin-top:0}
+    .toc ol{columns:2;column-gap:10mm;font-size:9pt;line-height:1.75;padding-left:18px}
+    .toc a{color:#1d2433;text-decoration:none}
+    h2{font-size:15pt;font-weight:800;color:#1F3A5F;border-bottom:2px solid #1F3A5F;padding-bottom:4px;margin:22px 0 10px;page-break-after:avoid}
+    h3{font-size:11.5pt;font-weight:800;margin:18px 0 6px;padding:5px 9px;background:#EEF3FA;border-left:4px solid #1F3A5F;page-break-after:avoid}
+    h2#5{page-break-before:always}
+    table{border-collapse:collapse;width:100%;margin:6px 0 10px;font-size:8.6pt;page-break-inside:avoid}
+    th{background:#1F3A5F;color:#fff;font-weight:700;padding:5px 6px;text-align:left}
+    td{border:1px solid #d5dbe5;padding:4px 6px;vertical-align:top}
+    tr:nth-child(even) td{background:#fafbfd}
+    blockquote{margin:8px 0;padding:8px 12px;background:#FFF8E6;border-left:4px solid #F0B429;color:#5c4400}
+    ul{padding-left:18px;margin:4px 0} li{margin:1px 0}
+    strong{font-weight:800}
+    p{margin:6px 0}
+    hr{border:0;border-top:1px solid #d5dbe5;margin:18px 0}
+    code{font-family:inherit;background:#f1f3f7;padding:0 3px;border-radius:3px}
+    """
+    html = re.sub(r'<td>O</td>', '<td style="color:#0a7d4f;font-weight:800;text-align:center">O</td>', html)
+    html = re.sub(r'<td>X</td>', '<td style="color:#c81e3a;font-weight:800;text-align:center">X</td>', html)
+    html = html.replace('<strong>가능</strong>', '<strong style="color:#0a7d4f">가능</strong>')
+    html = html.replace('<strong>불가</strong>', '<strong style="color:#c81e3a">불가</strong>')
+    html = html.replace('<strong>조건부 가능</strong>', '<strong style="color:#b45309">조건부 가능</strong>')
+    # 질환 차례 링크 : markdown toc 가 만든 id 를 그대로 쓴다
+    ids = re.findall(r'<h3 id="([^"]+)">([^<]+)</h3>', html)
+    toc = ''.join('<li><a href="#%s">%s</a></li>' % (i, t) for i, t in ids)
+    cover = """<section class="cover"><div class="k">MERITZ · 세일즈혁신TF</div>
+      <h1>간편보험 예외질환<br>심사 매뉴얼</h1>
+      <div class="sub">예외질환 경우의 수 · 판정 기준 설명서 (%s · %s 시행 기준)</div>
+      <div class="box">대상 : 간편상품(일반설계 · 3대진단플랜 · 어깨/무릎/디스크플랜) · 간편정기(정기·상조) · 유병자 실손의료비<br>
+      수록 : 예외질환 %d개 × 설계유형 %d개 · 인수 필수조건 · 판정 순서 · 2026.10.16 변경 · 질환별 경우의 수 · FAQ<br>
+      출처 : 영업지원도구 상품 라인업 「예외질환 판정」 데이터 · 간편상품(SI) 예외질환 안내 화면 5종 · 예외질환 인정기준 변경 안내(시행 2026.10.16)</div>
+      <div class="foot">사전 참고용 자료이며, 최종 인수 여부는 청약 심사 결과에 따릅니다. 질병코드는 검색 참고값이며 인수 판단 기준은 질환명입니다.<br>
+      문의 : 세일즈혁신TF 이헌수</div></section>""" % (ver, D['EX_NEW_DATE'], len(D['ITEMS']), len(D['PLANS']))
+    tocs = '<section class="toc"><h2>질환 차례</h2><ol>%s</ol></section>' % toc
+    doc = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>%s</style></head><body>%s%s%s</body></html>' % (css, cover, tocs, html)
+    tmp = PDF[:-4] + '.tmp.html'
+    open(tmp, 'w', encoding='utf-8').write(doc)
+    with sync_playwright() as p:
+        b = p.chromium.launch(executable_path='/opt/pw-browsers/chromium') if os.path.exists('/opt/pw-browsers/chromium') else p.chromium.launch()
+        pg = b.new_page()
+        pg.goto('file://' + tmp); pg.wait_for_timeout(500)
+        pg.pdf(path=PDF, format='A4', print_background=True, display_header_footer=True,
+               header_template='<div></div>',
+               footer_template='<div style="width:100%;font-size:7.5pt;color:#8a93a2;padding:0 14mm;display:flex;justify-content:space-between">'
+                               '<span>간편보험 예외질환 심사 매뉴얼 · ' + ver + '</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
+               margin={'top': '16mm', 'bottom': '16mm', 'left': '14mm', 'right': '14mm'}, outline=True)
+        b.close()
+    os.remove(tmp)
+    return os.path.getsize(PDF)
+
+
 if __name__ == '__main__':
     D, ver = load()
     n = build_xlsx(D, ver)
@@ -413,3 +495,5 @@ if __name__ == '__main__':
     print('질환 %d · 설계유형 %d · 변경 질환 %d' % (len(D['ITEMS']), len(D['PLANS']), sum(1 for i in D['ITEMS'] if i.get('pNew'))))
     print(os.path.relpath(XLSX, ROOT), '· 경우의 수', n, '행')
     print(os.path.relpath(MD, ROOT), '·', m, '줄 ·', os.path.getsize(MD) // 1024, 'KB')
+    k = build_pdf(D, ver)
+    print(os.path.relpath(PDF, ROOT), '·', k // 1024, 'KB')
