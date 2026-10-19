@@ -71,7 +71,7 @@ python3 scripts/sync_all.py --designs <설계서폴더>  # + 설계서 지면 �
 
 ## 새 상품·신담보·새 약관을 넣을 때 (루프 — 전부 통과할 때까지 돈다)
 
-1. 약관 PDF 를 저장소 루트에 올린다. 스마트 제안서 전용이면 `python extract_terms_extra.py "../약관.pdf" 상품명 접두어`, 영업지원도구에도 들어가는 상품이면 `tool.html` 을 고치고 `python extract_db.py ../tool.html`.
+1. 약관 PDF 를 저장소 루트에 올린다. 소유자는 웹 업로드(파일당 25MB) 대신 GitHub 릴리스 「약관 올리는 곳」(태그 `terms-inbox`)에 여러 개를 한 번에 끌어다 놓는다 — 세션은 `python3 scripts/fetch_terms.py --write` 로 받아 온다(PDF 첫 쪽 상품명으로 같은 상품의 옛 판을 바꾸고 `db_terms_extra.json` 의 약관 이름도 고친다. 채팅 첨부 파일은 `--from <폴더>`). 스마트 제안서 전용이면 `python extract_terms_extra.py "../약관.pdf" 상품명 접두어`, 영업지원도구에도 들어가는 상품이면 `tool.html` 을 고치고 `python extract_db.py ../tool.html`.
 2. 첫 쪽 상품명으로 상품라인을 못 읽으면 `build_all.guess_line` 에 한 줄 추가한다(화이트리스트가 아니라 읽기 규칙).
 3. `cd proposal_smart && python harness.py --designs <설계서PDF폴더>` — H1~H6.
 4. 실패 항목만 고친다 : H1 → 약관 별표·마스터 / H2 → `rules.json` 에 규칙 추가(약관 근거) / H3 → `scen_engine.GOJI`·`matcher` / H4·H5 → 핸들러·규칙 / H6 → `ga_proposal.py`·`ga_spec.py`.
