@@ -5,7 +5,8 @@
 대상 : 케392(케어프리 M-Basket) · 운133(운전자 상해 종합보험). 통합간편에는 이 특약이 없다(소유자 확인).
 근거 : 10-19 개정 약관(The건강한 5.10.5 2607, 1007~1011쪽)의 같은 이름 특약 — 이름이 같으면 약관도 같다(CLAUDE.md).
        The좋은 케어프리 M-Basket 2607 약관(1589쪽~)도 글자까지 같다.
-       케어프리·운전자 개정 약관 PDF 는 아직 저장소에 없다 → 받으면 쪽수(pg)만 고치면 된다.
+       케어프리 M-Basket 4.0 · 운전자 2608 3.0(둘 다 2026.10.19 판매) 약관도 받아 옛 판과 대조했다 — 바뀐 글은 이 특약뿐이고,
+       그 뒤 특약들의 쪽이 밀렸다(운전자 화재·배상책임 27개 +1~2쪽 · 케어프리 가전제품 고장수리비용 3개 +2쪽). 별표 쪽은 그대로.
 
 바뀌는 것 (개정 전 → 개정 후)
   · 이름 : 자동차사고 변호사선임비용(Ⅲ) → 자동차사고 변호사선임비용(Ⅲ)(변호사선임 현물급부 선택가능)
@@ -169,6 +170,39 @@ def add_hist(H):
     return H
 
 
+PDFS = {'운전자': '무배당 메리츠 운전자 상해 종합보험2608약관.pdf', '케어프리': '무배당 메리츠 케어프리보험 M-Basket2607약관.pdf'}
+FROM = {'운전자': 362, '케어프리': 1879}          # 이 쪽 뒤의 특약만 밀렸다
+
+
+def printed_pages(path):
+    """인쇄된 쪽 번호 → 그 쪽 글자(띄어쓰기 없앰)"""
+    import pymupdf
+    P = {}
+    for pg in pymupdf.open(path):
+        t = pg.get_text(); n = re.findall(r'(?m)^\s*(\d{1,4})\s*$', t)
+        if n: P[int(n[-1])] = P.get(int(n[-1]), '') + re.sub(r'\s+', '', t)
+    return P
+
+
+def fix_pages(D):
+    """새 판 약관에서 특약 제목이 있는 쪽으로 pg 를 옮긴다 — 세부보장은 부모와 같은 만큼"""
+    moved = {}
+    for P, f in PDFS.items():
+        pages = printed_pages(os.path.join(ROOT, f))
+        for r in D['riders']:
+            if r['p'] != P or r.get('parent') or r.get('pg') is None or int(r['pg']) <= FROM[P]: continue
+            key, pg = re.sub(r'\s+', '', r['n'])[:18], int(r['pg'])
+            if key in pages.get(pg, ''): continue
+            cand = [q for q in range(pg, pg + 8) if key in pages.get(q, '')]
+            if not cand: sys.exit('%s %s : 새 약관에서 쪽을 못 찾음' % (r['id'], r['n']))
+            moved[r['id']] = cand[0] - pg
+            r['pg'] = cand[0]
+        for r in D['riders']:
+            if r['p'] == P and r.get('parent') in moved and r.get('pg') is not None:
+                r['pg'] = int(r['pg']) + moved[r['parent']]
+    print('쪽 번호 옮김 : 특약 %d건 (%s)' % (len(moved), ', '.join('%s %+d' % kv for kv in moved.items())))
+
+
 def main(write):
     html = io.open(TOOL, encoding='utf-8').read()
     m = re.search(PAT, html, re.S)
@@ -181,6 +215,7 @@ def main(write):
         r['n'] = NEW_NAME
         print('%s %s : 본문 %d → %d자 · %s' % (i, r['p'], len(old), len(r['b']),
               ' '.join(re.findall(r'(?m)^제\d+조', r['b'].split('특별약관', 1)[1]))))
+    fix_pages(D)
     if not write:
         print(by[IDS[1]]['b'][:200]); return
     html = html[:m.start(2)] + json.dumps(deflate(D), ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/') + html[m.end(2):]
