@@ -66,11 +66,17 @@ def sha(p):
 
 
 def from_release(tmp):
-    api = 'https://api.github.com/repos/%s/releases/tags/%s' % (REPO, TAG)
+    # 태그 이름이 terms-inbox 가 아니어도(소유자가 「약관_올리는_곳」 등으로 만든 경우) 제목에 「약관」이 들어간 릴리스를 찾는다
+    api = 'https://api.github.com/repos/%s/releases?per_page=50' % REPO
     try:
-        rel = json.load(urllib.request.urlopen(api, timeout=30))
+        rels = json.load(urllib.request.urlopen(api, timeout=30))
     except Exception as e:
-        sys.exit('「약관 올리는 곳」(릴리스 %s)을 찾지 못했습니다 : %s\n  소유자가 이 파일 맨 위 안내대로 한 번 만들어 두어야 합니다.' % (TAG, e))
+        sys.exit('릴리스 목록을 읽지 못했습니다 : %s' % e)
+    rel = next((r for r in rels if r.get('tag_name') == TAG), None) or \
+          next((r for r in rels if '약관' in (r.get('name') or '') + (r.get('tag_name') or '')), None)
+    if not rel:
+        sys.exit('「약관 올리는 곳」(릴리스)을 찾지 못했습니다 — 소유자가 이 파일 맨 위 안내대로 한 번 만들어 두어야 합니다.')
+    print('릴리스 :', rel.get('name'), '(%s)' % rel.get('tag_name'))
     out = []
     for a in rel.get('assets', []):
         if not a['name'].lower().endswith('.pdf'):

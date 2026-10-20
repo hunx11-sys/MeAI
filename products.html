@@ -302,10 +302,15 @@
   #viewEx .ex-rule button.on{background:var(--blue);border-color:var(--blue);color:#fff}
   #viewEx .ex-chg{margin-top:12px;border:1px solid #FBE2B5;background:#FFFBEF;border-radius:12px;padding:10px 12px}
   #viewEx .ex-chg summary{font-size:13px;font-weight:900;color:#8A5A00;cursor:pointer}
-  #viewEx .ex-chg table{width:100%;border-collapse:collapse;margin-top:9px;font-size:12.5px;line-height:1.5}
-  #viewEx .ex-chg th,#viewEx .ex-chg td{border:1px solid #F3DFB4;padding:6px 8px;text-align:left;vertical-align:top;word-break:keep-all}
+  #viewEx .ex-chg{max-width:100%;box-sizing:border-box;overflow:hidden}
+  #viewEx .ex-chg table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;border-spacing:0;margin-top:9px;font-size:12.5px;line-height:1.5}
+  #viewEx .ex-chg th{white-space:normal;font-size:12px}
+  #viewEx .ex-chg col.c1{width:24%} #viewEx .ex-chg col.c2{width:32%} #viewEx .ex-chg col.c3{width:44%}
+  #viewEx .ex-chg th,#viewEx .ex-chg td{border:1px solid #F3DFB4;padding:6px 7px;text-align:left;vertical-align:top;word-break:keep-all;overflow-wrap:anywhere}
   #viewEx .ex-chg th{background:#FFF1CC;color:#8A5A00;font-weight:800}
-  #viewEx .ex-chg td:first-child{font-weight:800;white-space:nowrap}
+  #viewEx .ex-chg td:first-child{font-weight:800}
+  @media(max-width:520px){#viewEx .ex-chg table{font-size:11.5px} #viewEx .ex-chg th,#viewEx .ex-chg td{padding:5px 5px}}
+  #viewEx .ex-intro{max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
   #viewEx .ex-chg .sm{font-size:11.5px;color:#8A6A2A;font-weight:600}
   #viewEx .ex-chg > .sm{margin-top:7px;line-height:1.55}
   #viewEx .li-new{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:900;color:#B45309;background:#FEF3C7;border-radius:5px;padding:1px 6px}
@@ -446,6 +451,7 @@
       <details class="ex-chg" open>
         <summary>10월 16일부터 바뀌는 예외질환 인정기준 (유병력자실손 제외 간편상품)</summary>
         <table>
+          <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
           <thead><tr><th>예외질환</th><th>변경 전</th><th>변경 후</th></tr></thead>
           <tbody>
             <tr><td>대장용종 <span class="sm">3.6.5~3.10.5</span></td><td>수술 2회 이내</td><td>10년 내 3회 · 단 5년 이내 최대 2회<br><span class="sm">(5년 이내·5~10년 : 2·1 / 1·2 / 0·3회)</span></td></tr>
