@@ -14,4 +14,25 @@ Claude Code 는 디자인 작업을 받으면 이 폴더를 먼저 본다(`.clau
 - 회사 이름 → 파일 찾기 : `ls design/` 후 이름에 회사가 들어간 파일
 
 ## 지금 있는 것
-- `DESIGN-nike.md` — 나이키
+- `DESIGN-airtable.md`
+- `DESIGN-apple.md`
+- `DESIGN-bmw-m.md`
+- `DESIGN-bugatti.md`
+- `DESIGN-discord.md`
+- `DESIGN-ferrari.md`
+- `DESIGN-figma.md`
+- `DESIGN-lamborghini.md`
+- `DESIGN-mastercard.md`
+- `DESIGN-meta.md`
+- `DESIGN-nike.md`
+- `DESIGN-nintendo-2001.md`
+- `DESIGN-pinterest.md`
+- `DESIGN-slack.md`
+- `DESIGN-spotify.md`
+- `DESIGN-starbucks.md`
+- `DESIGN-tesla.md`
+- `DESIGN-교보문고.md`
+- `DESIGN-대한민국정부.md`
+- `DESIGN-배달의민족.md`
+- `DESIGN-쏘카.md`
+- `DESIGN-토스.md`
