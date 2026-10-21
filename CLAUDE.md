@@ -11,6 +11,7 @@
 | 세일즈혁신 가이드북 생성기(프로토타입) | `docs/guidebook_proto.html` | 상품설명서 PDF 를 끌어다 놓으면 담보표·설명문·Key Point·면책감액표를 묶은 가이드북을 만들어 브라우저 인쇄로 PDF 저장. 오프라인 단일 HTML(pdf.js 내장). 글 상자 창고 `scripts/guidebook_kp.json` · 틀 `scripts/guidebook_proto_template.html` · 조립 `python scripts/build_guidebook_proto.py`(pdf.js 는 파일 안의 것을 재사용). 수작업 초판은 `docs/guide_naemom_5105_2609.pdf` |
 | 영업지원도구(특약검색·통합치료비 시뮬레이터) | `tool.html` · `통합치료비.html` · `index.html` 등 | 브라우저에서 바로 쓰는 단일 HTML |
 | 배포·보고 산출물 | `dist/` · `docs/` | 메일 발송용 묶음, 검수 보고서 |
+| 디자인 문서 보관함 | `design/` | 회사별 디자인 문서(DESIGN-*.md · 토스 등). PPT·HTML·화면을 만들 때 **먼저 여기서 회사 문서를 찾아 그대로 따른다**(`.claude/skills/design-md`). 올리는 법은 `design/README.md` |
 
 약관 원문은 **`tool_body.js`**(특약별 본문, 특약 하나가 한 줄)와 `tool.html`(분류표 `"name":"○○ 분류표"`)에 그대로 들어 있다. 약관 근거를 확인할 때는 이 두 파일을 읽는다.
 본문 속 지급금액표 등은 「[표:머리줄수]」+ `|` 줄로 들어 있다(합친 칸 `^` 위 · `<` 왼쪽) — 약관 PDF 에서 본문을 다시 뽑으면 `python3 scripts/fix_body_tables.py --write` 로 표를 되살린다(PDF 칸 선 기준, 본문 글자는 바꾸지 않음).
