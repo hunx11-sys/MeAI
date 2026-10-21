@@ -151,6 +151,42 @@ def main():
     rowsp.sort(key=lambda z: ([k for k, _ in kinds].index(z[0]), z[4], z[1], z[2]))
     sheet(wb, '상품별 탑재', ['수술비 종류', '상품', '특약명', 'id', '출처'], rowsp, [12, 22, 50, 10, 26])
 
+    # ── 대표 질병(참고) : docs/surgery_rep_diseases.json — 코드는 WHO ICD-10(2019)에 있는 것만, 영문 공식명을 함께 싣는다 ──
+    rep = os.path.join(ROOT, 'docs', 'surgery_rep_diseases.json')
+    n_rep = {}
+    if os.path.exists(rep):
+        R = json.load(io.open(rep, encoding='utf-8'))
+        def g131(code):
+            """대표 질병이 130대 · 131대의 어느 세부보장에 드는가(특약 마스터 기준)"""
+            hit = [k for k, r in S131.items() if cov(r, P131, code)]
+            hit0 = [k for k, r in S130.items() if cov(r, P130, code)]
+            a = ', '.join(h.replace('6x대', '62대') for h in hit) or '-'
+            b = ', '.join(h.replace('6x대', '61대') for h in hit0) or '-'
+            return a, b
+        rows7 = []
+        for gg in sorted({(t[0][0], t[0][1]) for t in T}):
+            it = R['1-7종'].get('7-%03d' % gg[0], {})
+            js = sorted({t[3] for t in T if t[0][0] == gg[0]})
+            cs = [t[1] for t in T if t[0][0] == gg[0]]
+            for d in it.get('diseases', []):
+                a, b = g131(d['kcd'])
+                rows7.append([gg[0], gg[1], ', '.join(cs), '~'.join('%d종' % j for j in (js[0], js[-1])) if len(js) > 1 else '%d종' % js[0],
+                              d['name'], d['kcd'], d.get('who', ''), d.get('note', ''), a, b])
+        sheet(wb, '1-7종 대표질병', ['구분번호', '수술구분', '수술코드', '종', '대표 질병', 'KCD', 'WHO ICD-10 공식명(코드 검증)', '비고', '131대 해당 보장군', '130대 해당 보장군'],
+              rows7, [8, 30, 22, 9, 34, 9, 40, 26, 22, 22],
+              '수술구분별로 이 수술을 받게 되는 대표 질병(참고용 · 전부가 아님). 1-7종은 질병이 아니라 「급여 수술코드(ADRG)」로 지급 — 같은 질병이라도 수술코드가 표에 있어야 함. '
+              '131대/130대 칸 : 그 질병으로 수술하면 131대 · 130대 어느 보장군에도 해당하는지(특약 마스터 기준)')
+        rows5 = []
+        for r in SC['detail']:
+            it = R['1-5종'].get('5-' + r[1], {})
+            for d in it.get('diseases', []):
+                a, b = g131(d['kcd'])
+                rows5.append([r[0], r[1], r[2], r[3], d['name'], d['kcd'], d.get('who', ''), d.get('note', ''), a, b])
+        sheet(wb, '1-5종 대표질병', ['계통', '번호', '수술명', '종', '대표 질병', 'KCD', 'WHO ICD-10 공식명(코드 검증)', '비고', '131대 해당 보장군', '130대 해당 보장군'],
+              rows5, [12, 7, 34, 6, 34, 9, 40, 30, 22, 22],
+              '수술 항목별 대표 질병(참고용 · 전부가 아님). 1-5종Ⅱ는 「수술 술식」으로 지급 — 질병이 달라도 같은 수술이면 같은 종. 약관에 질병별 예외가 있는 것(담석증 K80 → 2종 · 유방의 비대 N62 → 1종)은 비고에 적음')
+        n_rep = {'7': len(rows7), '5': len(rows5)}
+
     # ── 안내 · 확인 결과 (맨 앞) ──
     ws = wb.create_sheet('안내', 0)
     ws.column_dimensions['A'].width = 26; ws.column_dimensions['B'].width = 16; ws.column_dimensions['C'].width = 90
@@ -165,6 +201,13 @@ def main():
         ('131대 대상질병', '=COUNTA(\'131대 대상질병\'!B3:B1000)', '약관 분류표의 대상질병 줄(11개 보장군)'),
         ('130·131대 KCD', '=COUNTA(\'130·131대 KCD\'!B3:B2000)', '세부보장별 KCD 전개 · 130대/131대 보장 여부'),
         ('상품별 탑재', '=COUNTA(\'상품별 탑재\'!C2:C1000)', '어느 상품에 어떤 수술비 특약이 있는지'),
+    ]
+    if n_rep:
+        lines += [
+            ('1-7종 대표질병', '=COUNTA(\'1-7종 대표질병\'!E3:E3000)', '수술구분별 대표 질병 · KCD · 131대/130대 해당 보장군 (참고용)'),
+            ('1-5종 대표질병', '=COUNTA(\'1-5종 대표질병\'!E3:E3000)', '수술 항목별 대표 질병 · KCD · 131대/130대 해당 보장군 (참고용)'),
+        ]
+    lines += [
         (None, None, None),
         ('1-7종 종별 수술코드 수', None, None),
     ]
@@ -178,7 +221,9 @@ def main():
         ('131대 · 130대', '1건 바로잡음', '황반변성(H35.3) : 약관 다빈도61대·62대 분류표에 「시각질환 · 황반변성 · 황반 및 후극부의 변성 H35.3」 독립 줄이 있어 보장. 10-20 오전(v8.78)에 「H30-H36 단, H35.3 제외」 문구만 보고 제외로 바꾼 것을 되돌림 — 130대 · 131대 11개 상품'),
         ('131대 · 130대', '일치', '세부보장 11개 코드 = 화면 표 = 약관. 130대와 131대 차이는 추간판장애(M50 · M51)뿐. 제외 코드 K23.0 · M74 · M78 · N39.3 · N39.4 는 어느 세부보장에도 없음(약관대로 미보장)'),
         ('주의', '', 'H35.0(배경망막병증)은 코드 하나에 고혈압성(특정31대)과 그 밖(다빈도)이 섞여 있어 코드만으로 나눌 수 없다 — 지급 판단 시 상병명 확인'),
-        ('출처', '', '영업지원도구(tool.html) 특약 마스터 · 수술비 비교 표 · 약관 별표 원문. 생성 : scripts/build_surgery_xlsx.py'),
+        ('대표 질병 시트', '참고용', '대표 질병은 약관에 적힌 목록이 아니라 「이 수술을 흔히 받게 되는 질병」 예시다(의학 자료 · 건강보험심사평가원 KDRG 분류 · 의료기관 안내 확인). '
+                                   '질병코드는 모두 WHO ICD-10(2019) 목록에 실제로 있는 코드만 싣고 영문 공식명을 옆에 붙여 대조할 수 있게 했다. 실제 지급은 수술코드(1-7종) · 수술 술식(1-5종)과 약관 조건으로 판단'),
+        ('출처', '', '영업지원도구(tool.html) 특약 마스터 · 수술비 비교 표 · 약관 별표 원문 · docs/surgery_rep_diseases.json. 생성 : scripts/build_surgery_xlsx.py'),
     ]
     for i, (a, b, c) in enumerate(lines, 1):
         for j, v in enumerate((a, b, c), 1):
