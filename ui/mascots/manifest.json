@@ -1,0 +1,306 @@
+[
+ {
+  "file": "merry_search.webp",
+  "character": "merry",
+  "pose": "looking through magnifier",
+  "use": "특약검색 — main",
+  "size": [
+   256,
+   360
+  ],
+  "bytes": 17754,
+  "source": "x/걱정인형 여름+질병/image38.emf",
+  "file_2x": "merry_search@2x.webp",
+  "bytes_2x": 38806
+ },
+ {
+  "file": "merry_detective.webp",
+  "character": "merry",
+  "pose": "detective with magnifier",
+  "use": "특약검색 — alt / loading",
+  "size": [
+   229,
+   360
+  ],
+  "bytes": 16344,
+  "source": "x/걱정인형_탐정/image5.emf",
+  "file_2x": "merry_detective@2x.webp",
+  "bytes_2x": 35548
+ },
+ {
+  "file": "merry_ok.webp",
+  "character": "merry",
+  "pose": "OK! hand signs",
+  "use": "특약검색 — result found",
+  "size": [
+   357,
+   360
+  ],
+  "bytes": 19530,
+  "source": "x/년걱정인형23/image74.emf"
+ },
+ {
+  "file": "eco_doctor.webp",
+  "character": "eco",
+  "pose": "doctor with stethoscope",
+  "use": "보상시뮬레이터 — main",
+  "size": [
+   272,
+   360
+  ],
+  "bytes": 16556,
+  "source": "x/걱정인형(병원)/image30.emf",
+  "file_2x": "eco_doctor@2x.webp",
+  "bytes_2x": 36212
+ },
+ {
+  "file": "eco_point.webp",
+  "character": "eco",
+  "pose": "wink, pointing forward",
+  "use": "보상시뮬레이터 — explaining / CTA",
+  "size": [
+   271,
+   360
+  ],
+  "bytes": 13870,
+  "source": "x/년걱정인형23/image20.emf",
+  "file_2x": "eco_point@2x.webp",
+  "bytes_2x": 29966
+ },
+ {
+  "file": "eco_think.webp",
+  "character": "eco",
+  "pose": "thinking, hand on chin",
+  "use": "보상시뮬레이터 — calculating",
+  "size": [
+   274,
+   360
+  ],
+  "bytes": 13080,
+  "source": "x/년걱정인형23/image57.emf",
+  "file_2x": "eco_think@2x.webp",
+  "bytes_2x": 28214
+ },
+ {
+  "file": "rara_present.webp",
+  "character": "rara",
+  "pose": "popping out of a gift box",
+  "use": "상품 라인업 — main (unveiling products)",
+  "size": [
+   276,
+   360
+  ],
+  "bytes": 21064,
+  "source": "x/년걱정인형23/image39.emf"
+ },
+ {
+  "file": "rara_mic.webp",
+  "character": "rara",
+  "pose": "reporter with microphone and notes",
+  "use": "상품 라인업 — presenting",
+  "size": [
+   250,
+   360
+  ],
+  "bytes": 15760,
+  "source": "x/걱정인형 여름+질병/image40.emf",
+  "file_2x": "rara_mic@2x.webp",
+  "bytes_2x": 34178
+ },
+ {
+  "file": "indi_idea.webp",
+  "character": "indi",
+  "pose": "sparkling, delighted (idea)",
+  "use": "프롬프트 — main",
+  "size": [
+   269,
+   360
+  ],
+  "bytes": 19260,
+  "source": "x/걱정인형 여름+질병/image36.emf"
+ },
+ {
+  "file": "indi_double.webp",
+  "character": "indi",
+  "pose": "'x2' with V sign",
+  "use": "프롬프트 — copy / reuse",
+  "size": [
+   334,
+   360
+  ],
+  "bytes": 23248,
+  "source": "x/년걱정인형23/image65.emf"
+ },
+ {
+  "file": "tata_board.webp",
+  "character": "tata",
+  "pose": "teacher pointing at whiteboard",
+  "use": "명패 — main (board/sign)",
+  "size": [
+   252,
+   360
+  ],
+  "bytes": 13592,
+  "source": "x/년걱정인형23/image66.emf",
+  "file_2x": "tata_board@2x.webp",
+  "bytes_2x": 28836
+ },
+ {
+  "file": "tata_ok.webp",
+  "character": "tata",
+  "pose": "OK! hand signs",
+  "use": "명패 — done",
+  "size": [
+   275,
+   360
+  ],
+  "bytes": 17998,
+  "source": "x/년걱정인형23/image72.emf",
+  "file_2x": "tata_ok@2x.webp",
+  "bytes_2x": 38526
+ },
+ {
+  "file": "ziziri_stars.webp",
+  "character": "ziziri",
+  "pose": "presenting five stars",
+  "use": "통합치료비 — main",
+  "size": [
+   360,
+   357
+  ],
+  "bytes": 28154,
+  "source": "x/년걱정인형23/image18.emf"
+ },
+ {
+  "file": "ziziri_cheer.webp",
+  "character": "ziziri",
+  "pose": "pompom cheering",
+  "use": "통합치료비 — result",
+  "size": [
+   278,
+   360
+  ],
+  "bytes": 20772,
+  "source": "x/년걱정인형23/image24.emf"
+ },
+ {
+  "file": "money_bills.webp",
+  "character": "rara",
+  "pose": "holding big 50,000-won notes",
+  "use": "통합치료비 — money accent (optional; ziziri has no money pose)",
+  "size": [
+   351,
+   360
+  ],
+  "bytes": 21578,
+  "source": "x/년걱정인형23/image64.emf"
+ },
+ {
+  "file": "empty_search.webp",
+  "character": "ziziri",
+  "pose": "spyglass with question mark",
+  "use": "state — empty ('찾지 못했어요')",
+  "size": [
+   236,
+   360
+  ],
+  "bytes": 17916,
+  "source": "x/년걱정인형23/image73.emf",
+  "file_2x": "empty_search@2x.webp",
+  "bytes_2x": 38068
+ },
+ {
+  "file": "empty_confused.webp",
+  "character": "tata",
+  "pose": "confused '?!' scratching head",
+  "use": "state — empty alt",
+  "size": [
+   258,
+   360
+  ],
+  "bytes": 15308,
+  "source": "x/년걱정인형23/image49.emf",
+  "file_2x": "empty_confused@2x.webp",
+  "bytes_2x": 33730
+ },
+ {
+  "file": "error_sorry.webp",
+  "character": "tata",
+  "pose": "bowing apologetically, sweat",
+  "use": "state — error",
+  "size": [
+   207,
+   360
+  ],
+  "bytes": 14836,
+  "source": "x/년걱정인형23/image11.emf",
+  "file_2x": "error_sorry@2x.webp",
+  "bytes_2x": 32164
+ },
+ {
+  "file": "error_sad.webp",
+  "character": "merry",
+  "pose": "tearful, hands together",
+  "use": "state — error alt",
+  "size": [
+   278,
+   360
+  ],
+  "bytes": 16496,
+  "source": "x/년걱정인형23/image7.emf",
+  "file_2x": "error_sad@2x.webp",
+  "bytes_2x": 34608
+ },
+ {
+  "file": "success_thumbs.webp",
+  "character": "rara",
+  "pose": "both thumbs up",
+  "use": "state — success / copied",
+  "size": [
+   261,
+   360
+  ],
+  "bytes": 17278,
+  "source": "x/년걱정인형23/image15.emf",
+  "file_2x": "success_thumbs@2x.webp",
+  "bytes_2x": 37384
+ },
+ {
+  "file": "hello_wave.webp",
+  "character": "indi",
+  "pose": "waving hello",
+  "use": "hero — greeting",
+  "size": [
+   278,
+   360
+  ],
+  "bytes": 18264,
+  "source": "x/년걱정인형23/image178.emf"
+ },
+ {
+  "file": "group_hello.webp",
+  "character": "all",
+  "pose": "all six leaning in (bottom edge is cut flat by design — place on a bottom edge)",
+  "use": "hero — group",
+  "size": [
+   720,
+   262
+  ],
+  "bytes": 42390,
+  "source": "guide PDF p.1"
+ },
+ {
+  "file": "group_lineup.webp",
+  "character": "all",
+  "pose": "all six standing in a row (official 2D lineup)",
+  "use": "about / footer — group",
+  "size": [
+   720,
+   180
+  ],
+  "bytes": 33904,
+  "source": "guide PDF p.4",
+  "file_2x": "group_lineup@2x.webp",
+  "bytes_2x": 75188
+ }
+]

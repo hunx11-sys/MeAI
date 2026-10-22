@@ -155,7 +155,9 @@
   /* ── 4) 스크롤해 보일 때 올라오기 ──
      처음 화면에 보이는 것은 건드리지 않는다(빈 화면이 생기지 않게). 화면 아래에 있는 카드만 숨겼다가 보일 때 올린다.
      인쇄할 때와 움직임 줄이기 설정에서는 하지 않는다. */
-  var REVEAL = '[data-reveal]';   // 목록 · 결과 카드는 숨기지 않는다(휴대폰에서 빠르게 내릴 때 빈 카드가 번쩍이며 나타나던 문제, 2026-10-22)
+  /* 대문 같은 꾸밈 구역에 [data-reveal] 을 붙인 것만 — 도구 화면의 목록 · 결과 · 상품 카드는 절대 숨기지 않는다
+     (빠르게 넘길 때 빈 카드가 번쩍이고, 카드마다 움직임이 겹쳐 스크롤이 끊기던 원인) */
+  var REVEAL = '[data-reveal]';
   var SKIP = '#mu-nav, #mu-sheet, .ov, #hov, #mapov, #oncoov, #scov, .modal-overlay, #ex-mask, .sheet, .dim, [role="dialog"], .sim-pick-wrap, .cmpbar';
   function reveal() {
     if (reduce || !w.IntersectionObserver) return;
@@ -193,6 +195,233 @@
     var showAll = function () { each(list, function (el) { el.classList.remove('mu-rv', 'mu-in'); }); };
     w.addEventListener('beforeprint', showAll);
   }
+
+  /* ── 5) 다듬기 : 미끄러지는 탭 표시 · 결과 차례로 나타나기 · 접기 높이 · 모달 초점 돌려주기 ──
+     화면별로 「어디에」만 아래 표에 적는다. 화면 코드(검색 · 계산)는 그대로 두고, 바뀐 결과(class · 자식 요소)를 보고 따라 움직인다. */
+  var tool = h.getAttribute('data-tool') || '';
+  var SPRING = 'cubic-bezier(.16,1,.3,1)';
+  var raf = w.requestAnimationFrame ? function (f) { return w.requestAnimationFrame(f); } : function (f) { return setTimeout(f, 16); };
+  var MO = w.MutationObserver;
+  function kids(box, sel) {
+    var out = [], c = box.children;
+    for (var i = 0; i < c.length; i++) if (c[i].className !== 'mu-ind' && c[i].matches && c[i].matches(sel)) out.push(c[i]);
+    return out;
+  }
+
+  /* 5-1) 미끄러지는 탭 · 세그먼트 표시 : root(늘 있는 요소) 안의 box 에서 .on 인 칸으로 표시가 미끄러진다.
+          carry : 화면이 box 를 통째로 다시 그리는 곳(통합치료비 시트) — 같은 자리에 다시 생기면 앞 자리에서 이어 미끄러진다 */
+  var SLIDE = {
+    merry: [{ root: '#modal', box: '.tabs', item: 'button' }, { root: '#seg', item: 'button' }],
+    rara: [{ root: '.tabs', item: '.tab', mode: 'line', inset: function () { return w.matchMedia && w.matchMedia('(max-width:640px)').matches ? 8 : 0; } },
+           { root: '#ex-rule', box: '.seg', item: 'button' }, { root: '#ex-ptabs', item: 'button' }],
+    zizi: [{ root: '#shB', box: '.seg', item: 'button', carry: 1 }],
+    home: [{ root: '#period', item: 'button' }, { root: '#gran', item: 'button' }, { root: '#dzmode', item: 'button' }],
+    tata: [{ root: '.seg', all: 1, item: 'button' }]
+  };
+  var MEM = {};
+  function slidePut(st, p, still) {
+    var ind = st.ind;
+    if (still) ind.classList.add('mu-still');
+    ind.style.transform = 'translate3d(' + p.x + 'px,' + p.y + 'px,0)';
+    ind.style.width = p.w + 'px'; ind.style.height = p.h + 'px'; ind.style.opacity = '1';
+    if (still) { void ind.offsetWidth; ind.classList.remove('mu-still'); }
+  }
+  function slideSync(box, cfg, key, root) {
+    var items = kids(box, cfg.item);
+    if (!items.length) return;
+    var on = null;
+    for (var i = 0; i < items.length; i++) if (items[i].classList.contains('on')) { on = items[i]; break; }
+    var st = box.__muSl, fresh = false;
+    if (!st) {
+      if (!box.offsetWidth) return;                 /* 아직 안 보이면 다음 기회에 */
+      var ind = d.createElement('span');
+      ind.className = 'mu-ind'; ind.setAttribute('aria-hidden', 'true');
+      if (cfg.mode !== 'line' && on) {              /* 선택된 칸의 바탕 · 그림자 · 모서리를 그대로 옮겨 입힌다 */
+        var cs = w.getComputedStyle(on);
+        ind.style.backgroundColor = cs.backgroundColor; ind.style.boxShadow = cs.boxShadow; ind.style.borderRadius = cs.borderRadius;
+      }
+      box.appendChild(ind);                          /* 맨 뒤에 둔다 — :first-child · nth-child 규칙과 화면 코드가 그대로 듣게 */
+      box.classList.add('mu-sl', cfg.mode === 'line' ? 'mu-sl-line' : 'mu-sl-pill');
+      st = box.__muSl = { ind: ind };
+      fresh = true;
+      if (w.ResizeObserver) new ResizeObserver(function () { slideSync(box, cfg, key, root); }).observe(box);
+    }
+    if (!on || !on.offsetWidth) { st.ind.style.opacity = '0'; return; }
+    var p = { x: on.offsetLeft, y: on.offsetTop, w: on.offsetWidth, h: on.offsetHeight };
+    if (cfg.mode === 'line') { var k = cfg.inset ? cfg.inset() : 0; p.x += k; p.w -= 2 * k; p.y = on.offsetTop + on.offsetHeight - 1; p.h = 2; }
+    if (st.p && st.p.x === p.x && st.p.y === p.y && st.p.w === p.w && st.p.h === p.h) return;
+    var r = box.getBoundingClientRect(), m = MEM[key];
+    if (root && root !== box) { var rr = root.getBoundingClientRect(); r = { left: r.left - rr.left, top: r.top - rr.top }; }   /* 시트가 움직여도 그 안 자리로 비교 */
+    if (fresh && cfg.carry && m && (Date.now() - m.t) < 1500 && Math.abs(r.left - m.bx) < 3 && Math.abs(r.top - m.by) < 3 && m.p) {
+      slidePut(st, m.p, true); fresh = false;       /* 다시 그려진 box : 앞 자리에서 출발 */
+    }
+    slidePut(st, p, fresh);
+    st.p = p; MEM[key] = { p: p, bx: r.left, by: r.top, t: Date.now() };
+  }
+  function slideScan() {
+    var list = SLIDE[tool]; if (!list) return;
+    each(list, function (cfg, n) {
+      var roots = cfg.all ? d.querySelectorAll(cfg.root) : [d.querySelector(cfg.root)];
+      each(roots, function (root, j) {
+        if (!root) return;
+        var key = tool + n + '-' + j;
+        var run = function () {
+          if (cfg.box) each(root.querySelectorAll(cfg.box), function (b) { slideSync(b, cfg, key, root); });
+          else slideSync(root, cfg, key, root);
+        };
+        if (!root.__muSlObs && MO) {
+          root.__muSlObs = 1;
+          var pend = false;
+          new MO(function () { if (!pend) { pend = true; raf(function () { pend = false; run(); }); } })
+            .observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+        }
+        run();
+      });
+    });
+  }
+
+  /* 5-2) 검색 · 필터 바로 뒤 화면에 보이는 앞 8장만 160ms 옅게 나타난다(이동 없음). 스크롤과는 무관(목록을 다시 그릴 때만),
+          연달아 다시 그리면(타자 중) 건너뛴다 */
+  var STAGGER = {
+    merry: [{ root: '#results', item: '.cards>.card, .empty' }],
+    eco: [{ root: '#timeline', item: '.stage, .no-result' }],
+    rara: [{ root: '#list', item: '.p, .empty' }, { root: '#viewDuty', item: '.dcard' }],
+    indi: [{ root: '#grid', item: '.card, .empty' }]
+  };
+  function stagger(root, cfg) {
+    var now = Date.now(), quick = now - (root.__muLast || 0) < 450;
+    root.__muLast = now;
+    if (reduce || quick || h.classList.contains('mu-enter') || d.hidden) return;
+    var list = root.querySelectorAll(cfg.item), vh = w.innerHeight || h.clientHeight, n = 0;
+    for (var i = 0; i < list.length && n < 8; i++) {
+      var el = list[i];
+      if (el.classList.contains('mu-rv')) continue;
+      var r = el.getBoundingClientRect();
+      if (!r.height || r.bottom < 0) continue;
+      if (r.top > vh) break;
+      el.classList.add('mu-st');
+      el.addEventListener('animationend', function fin(e) {
+        if (e.target !== this) return;
+        this.classList.remove('mu-st');
+        this.removeEventListener('animationend', fin);
+      });
+      n++;
+    }
+  }
+  function staggerInit() {
+    var list = STAGGER[tool]; if (!list || !MO) return;
+    each(list, function (cfg) {
+      var root = d.querySelector(cfg.root);
+      if (!root || root.__muSt) return;
+      root.__muSt = 1; root.__muLast = 0;
+      new MO(function (recs) {
+        for (var i = 0; i < recs.length; i++) if (recs[i].addedNodes.length) { stagger(root, cfg); return; }
+      }).observe(root, { childList: true });
+    });
+  }
+
+  /* 5-3) 접기 · 펴기 높이 : 화면 코드는 class(open)만 바꾸고, 여기서 높이를 부드럽게 잇는다(Web Animations) */
+  var EXPAND = {
+    merry: [{ root: '#modal', el: '.foot', body: '.foot-body', mode: 'foot' }, { root: '#modal', el: '.exp', body: '.exbody', mode: 'clamp' }],
+    rara: [{ root: '#list', el: '.p', body: '.pb', mode: 'body' }]
+  };
+  var EXP_MS = 420;
+  function anim(el, frames, done) {
+    var a;
+    try { a = el.animate(frames, { duration: EXP_MS, easing: SPRING }); } catch (e) { done(); return; }
+    a.onfinish = a.oncancel = done;
+  }
+  function expand(cfg, el, opening, obs) {
+    var body = el.querySelector(cfg.body);
+    if (!body || reduce || !body.animate) return;
+    if (body.getAnimations) each(body.getAnimations(), function (a) { a.cancel(); });
+    if (cfg.mode === 'body') {                       /* 상품 카드 : 닫힌 쪽은 display:none */
+      if (opening) {
+        var hO = body.offsetHeight; if (!hO) return;
+        body.style.overflow = 'hidden';
+        anim(body, [{ height: '0px', opacity: 0 }, { height: hO + 'px', opacity: 1 }], function () { body.style.overflow = ''; });
+      } else {
+        body.style.display = 'block'; body.style.overflow = 'hidden';
+        var hC = body.offsetHeight;
+        anim(body, [{ height: hC + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], function () { body.style.display = ''; body.style.overflow = ''; });
+      }
+    } else if (cfg.mode === 'foot') {                /* 특약 상세의 보장 코드 칸 : 칸 높이(max-height)를 잇는다 */
+      if (el.getAnimations) each(el.getAnimations(), function (a) { a.cancel(); });
+      var bar = el.firstElementChild ? el.firstElementChild.offsetHeight : 48;
+      if (opening) {
+        var to = el.offsetHeight;
+        anim(el, [{ maxHeight: bar + 'px' }, { maxHeight: to + 'px' }], function () {});
+      } else {
+        el.classList.add('open'); var from = el.offsetHeight; el.classList.remove('open');   /* 열려 있던 높이 */
+        if (obs) obs.takeRecords();
+        el.style.flex = '1 1 0'; body.style.display = 'block'; body.style.overflow = 'hidden';
+        anim(el, [{ maxHeight: from + 'px' }, { maxHeight: bar + 'px' }], function () { el.style.flex = ''; body.style.display = ''; body.style.overflow = ''; });
+      }
+    } else if (cfg.mode === 'clamp') {               /* 약관 · 코드 「전체 펼치기」 : 잘린 높이 ↔ 다 펼친 높이 */
+      var now = body.offsetHeight;
+      el.classList.toggle('open'); var before = body.offsetHeight; el.classList.toggle('open');
+      if (obs) obs.takeRecords();
+      if (before === now) return;
+      body.style.maxHeight = 'none'; body.style.overflow = 'hidden';
+      anim(body, [{ height: before + 'px' }, { height: now + 'px' }], function () { body.style.maxHeight = ''; body.style.overflow = ''; });
+    }
+  }
+  function expandInit() {
+    var list = EXPAND[tool]; if (!list || !MO) return;
+    each(list, function (cfg) {
+      var root = d.querySelector(cfg.root);
+      if (!root) return;
+      var obs = new MO(function (recs) {
+        each(recs, function (r) {
+          var t = r.target;
+          if (!t.matches || !t.matches(cfg.el)) return;
+          var was = /(^|\s)open(\s|$)/.test(r.oldValue || ''), is = t.classList.contains('open');
+          if (was !== is) expand(cfg, t, is, obs);
+        });
+      });
+      obs.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    });
+  }
+
+  /* 5-4) 모달 · 시트가 닫히면 초점을 연 단추로 돌려준다(Esc · 바깥 누름 · ✕ 모두) */
+  var OVSEL = '.ov, #hov, #mapov, #oncoov, #scov, .modal-overlay, #ex-mask, #sheet';
+  var lastPress = null, ovState = [];
+  d.addEventListener('pointerdown', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('a[href],button,[tabindex],input,select,textarea,summary') : null;
+    if (t) lastPress = t;
+  }, true);
+  function ovOpen(el) { return el.classList.contains('show') || el.classList.contains('on'); }
+  function ovWatch(recs) {
+    each(recs, function (r) {
+      var el = r.target;
+      if (!el.matches || !el.matches(OVSEL)) return;
+      var rec = null;
+      for (var i = 0; i < ovState.length; i++) if (ovState[i].el === el) rec = ovState[i];
+      if (!rec) { rec = { el: el, open: false, back: null }; ovState.push(rec); }
+      var now = ovOpen(el);
+      if (now === rec.open) return;
+      rec.open = now;
+      if (now) {
+        var a = d.activeElement;
+        rec.back = (a && a !== d.body && !el.contains(a)) ? a : (lastPress && !el.contains(lastPress) ? lastPress : null);
+      } else {
+        var b = rec.back, cur = d.activeElement; rec.back = null;
+        if (b && b.isConnected !== false && d.body.contains(b) && (!cur || cur === d.body || el.contains(cur))) {
+          try { b.focus({ preventScroll: true }); } catch (e) {}
+        }
+      }
+    });
+  }
+  if (MO) new MO(ovWatch).observe(d.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+  var polish = function () {
+    slideScan(); staggerInit(); expandInit();
+    try { if (d.fonts && d.fonts.ready) d.fonts.ready.then(slideScan); } catch (e) {}
+    /* 나중에 생기는 탭(시트 · 상세 창)을 위해 누를 때마다 한 번 더 살핀다 */
+    d.addEventListener('click', function () { raf(slideScan); }, true);
+  };
+  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', polish); else polish();
+
   var go = function () { (w.requestAnimationFrame || setTimeout)(function () { setTimeout(reveal, 0); }); };
   if (d.readyState === 'complete') go(); else w.addEventListener('load', go);
 })();

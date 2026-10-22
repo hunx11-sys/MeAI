@@ -58,8 +58,14 @@ SHELL = """<!DOCTYPE html>
 <meta name="robots" content="noindex, nofollow">
 <title>메리츠 영업지원도구 (올인원)</title>
 <style>html,body{margin:0;height:100%;background:#fff}
-iframe.v{position:fixed;inset:0;width:100%;height:100%;border:0;display:none}
-iframe.v.on{display:block}
+iframe.v{position:fixed;inset:0;width:100%;height:100%;border:0;display:none;z-index:0}
+iframe.v.on{display:block;z-index:1}
+/* 도구를 바꿀 때 : 새 도구가 위에서 240ms 동안 옅게 나타나고, 앞 도구는 그동안 밑에 그대로 있다가 숨는다 */
+@media (prefers-reduced-motion:no-preference){
+  iframe.v{transition:display 240ms allow-discrete}
+  iframe.v.on{transition:opacity 240ms cubic-bezier(.16,1,.3,1)}
+  @starting-style{iframe.v.on{opacity:0}}
+}
 #w{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:15px/1.6 sans-serif;color:#666}</style>
 </head><body>
 <div id="w">여는 중입니다…</div>
