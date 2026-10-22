@@ -88,7 +88,7 @@ radial-gradient(40% 50% at 50% -30%,rgba(43,91,191,.04),transparent 70%)}
 /* 머리 띠는 자기 합성 층(translateZ)에 올려 스크롤 때 다시 그리지 않는다. 휴대폰(760px 이하 · 터치 화면)은 블러 없이 거의 불투명한 흰색 —
 블러는 PC 에서만. 스크롤 그림자는 상자 그림자를 움직이지 않고 ::after 의 opacity 만 바꾼다. */
 #mu-nav{position:sticky;top:0;z-index:45;height:var(--mu-nav-h);box-sizing:border-box;margin:0;font-family:var(--font);
-background:rgba(255,255,255,.985);border-bottom:1px solid rgba(15,23,42,.07);view-transition-name:mu-nav;transform:translateZ(0)}
+background:#fff;border-bottom:1px solid rgba(15,23,42,.07);view-transition-name:mu-nav;transform:translateZ(0)}
 #mu-nav::after{content:"";position:absolute;left:0;right:0;top:100%;height:18px;pointer-events:none;opacity:0;
 background:linear-gradient(to bottom,color-mix(in srgb,var(--accent) 7%,rgba(15,23,42,.06)),transparent);transition:opacity 320ms var(--mu-spring)}
 html.mu-scrolled #mu-nav::after{opacity:1}
@@ -470,11 +470,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   .previewwrap{width:100%;overflow-x:auto;overflow-y:visible}
   .plates{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:22px;margin-top:10px}
   .page{display:flex;flex:0 0 150mm;width:150mm;height:70mm}
+  /* 화면이 명패(150mm)보다 좁으면 명패 묶음 전체를 같은 비율로 줄여 보여 준다(인쇄에는 영향 없음 — @media screen 안) */
+  @media screen{.plates{zoom:var(--np-fit,1)}}
 
   /* ============ 명패 150mm x 70mm ============ */
+  /* 안쪽 여백은 인쇄 결과에 고정한 값이다(2026-10-22). 예전 값 5.4cqw 8.5cqw 4.8cqw 는 명패 바깥에 기준 상자가 없어
+     「화면(창) 너비」를 기준으로 계산됐다 → 모니터 해상도마다 미리보기 글자 칸이 달라져 행사명이 이름에 겹쳤다.
+     인쇄할 때 기준은 A4 − 여백 5mm×2 = 인쇄 칸 755px 이므로 그 값으로 박아 두면 미리보기 = 인쇄, 해상도와 무관. */
   .plate{
     position:relative;width:150mm;height:70mm;flex:0 0 150mm;overflow:hidden;border-radius:10px;
-    container-type:inline-size;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5.4cqw 8.5cqw 4.8cqw;isolation:isolate;
+    container-type:inline-size;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(755px * .054) calc(755px * .085) calc(755px * .048);isolation:isolate;
   }
   .plate.light{background:linear-gradient(150deg,#ffffff 0%,#fbf7f0 46%,#f1e8d7 100%);color:var(--ink);box-shadow:0 8px 26px rgba(20,18,13,.11)}
   .plate.dark{background:radial-gradient(135% 165% at 50% -5%,#37302a 0%,#1c1712 55%,#110e0b 100%);color:#f7f2ea;box-shadow:0 9px 30px rgba(0,0,0,.32)}
@@ -1281,6 +1286,7 @@ function loadSample(){
 }
 loadSample();
 </script>
+<script id="np-fit">/* 명패 미리보기 맞춤 : 보이는 폭 ÷ 명패 폭(150mm)으로 축소 비율을 정한다. 1보다 크게 키우지 않는다. */(function(){var w=document.getElementById("plates");if(!w)return;var box=w.parentElement;function fit(){var mm=96/25.4,need=150*mm,cs=getComputedStyle(box),av=box.clientWidth-parseFloat(cs.paddingLeft||0)-parseFloat(cs.paddingRight||0);var z=Math.min(1,Math.max(.3,av/need));w.style.setProperty("--np-fit",z.toFixed(4));}fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(box);else window.addEventListener("resize",fit);})();</script>
 <script id="meai-site">
 /* MeAI 사이트 셸 — 규칙 design/DESIGN-MeAI.md 「11. 사이트 셸 · 움직임」
    이 파일이 원본이다. 화면에는 python3 scripts/apply_ui.py 가 script#meai-site 로 본문 끝에 끼워 넣는다.
