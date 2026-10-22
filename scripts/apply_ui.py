@@ -30,8 +30,14 @@ SITE_JS = io.open(os.path.join(ROOT, 'ui', 'meai-site.js'), encoding='utf-8').re
 BOOT = ('<script id="meai-boot">(function(h){h.classList.add("mu-js");try{if(window.matchMedia&&'
         'matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");'
         'setTimeout(function(){h.classList.remove("mu-enter")},1400)})(document.documentElement)</script>')
-FONT_LINK = ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/'
-             'pretendardvariable-dynamic-subset.min.css">')
+# 글꼴 : 저장소의 Pretendard 한 파일(assets/pretendard-subset.woff2 · 가변 · 2,612자)을 처음에 한 번만 받는다.
+# 예전에는 jsdelivr 의 「dynamic-subset」(글자 묶음 약 90개)을 썼는데, 휴대폰에서 아래로 내리다 새 글자가 나오면
+# 그 묶음을 그때 받아 화면 전체 글자를 다시 그려 번쩍이며 끊겼다(갤럭시 크롬 · 2026-10-22 소유자 제보).
+FONT_FILE = 'assets/pretendard-subset.woff2'
+FONT_LINK = ('<link id="meai-font-pre" rel="preload" href="%s" as="font" type="font/woff2" crossorigin>'
+             '<style id="meai-font">@font-face{font-family:"Pretendard Variable";font-weight:45 930;font-style:normal;'
+             'font-display:swap;src:url(%s) format("woff2-variations"),url(%s) format("woff2")}</style>') % ((FONT_FILE,) * 3)
+CDN_FONT = re.compile(r'[ \t]*<link[^>]+href="https?://cdn\.jsdelivr\.net/[^"]*pretendard[^"]*"[^>]*>\n?')
 PAGES = {'index.html': 'home', 'tool.html': 'merry', 'products.html': 'rara', 'prompts.html': 'indi',
          '명패생성기.html': 'tata', '통합치료비.html': 'zizi', 'stats.html': 'home'}
 # 머리 띠에서 「지금 화면」으로 표시할 칸(stats 는 머리 띠에 없으므로 빈칸)
@@ -113,9 +119,10 @@ def inject(s, tool, cur=None):
     nt = re.sub(r'\sdata-tool="[^"]*"', '', tag)
     nt = nt[:-1] + ' data-tool="%s">' % tool
     s = s[:m.start()] + nt + s[m.end():]
-    if 'pretendardvariable-dynamic-subset' not in s:
-        k = s.index('</style>', s.index('<style id="meai-ui">')) + len('</style>')
-        s = s[:k] + '\n' + FONT_LINK + s[k:]
+    s = CDN_FONT.sub('', s)
+    s = re.sub(r'<link id="meai-font-pre"[^>]*>(<style id="meai-font">.*?</style>)?', '', s, flags=re.S)
+    k = s.index('</style>', s.index('<style id="meai-ui">')) + len('</style>')
+    s = s[:k] + FONT_LINK + s[k:]
     # 머리 띠 (보상시뮬레이터 안쪽에는 넣지 않는다 : cur=None)
     if cur is not None:
         nb = nav_block(cur)

@@ -79,9 +79,10 @@ def offline(name, s, log, font_b64=None):
     """한 파일을 폐쇄망용으로 손본다"""
     # 1) 바깥 글꼴 CDN 링크 제거
     n = 0
-    for pat in (r'[ \t]*<link[^>]+href="https?://cdn\.jsdelivr\.net[^"]*"[^>]*>\n?',
+    for pat in (r'<link id="meai-font-pre"[^>]*>', r'<style id="meai-font">.*?</style>',   # 인터넷판 글꼴(assets/) → 아래에서 파일 안에 심는다
+                r'[ \t]*<link[^>]+href="https?://cdn\.jsdelivr\.net[^"]*"[^>]*>\n?',
                 r'[ \t]*<link[^>]+rel="preconnect"[^>]*href="https?://[^"]*"[^>]*>\n?'):
-        s, k = re.subn(pat, '', s)
+        s, k = re.subn(pat, '', s, flags=re.S)
         n += k
     if n:
         log.append(f'  글꼴 CDN 링크 {n}개 제거')
