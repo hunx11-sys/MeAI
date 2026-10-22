@@ -6,7 +6,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#FFFCFA">
+<meta name="color-scheme" content="only light">
 <meta name="format-detection" content="telephone=no">
+<meta name="description" content="/*DESC*/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="/*TITLE*/">
+<meta property="og:description" content="/*DESC*/">
+<meta property="og:url" content="/*OGURL*/">
+<meta property="og:image" content="/*SITE*/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/*FAVICON*/">
+<link rel="apple-touch-icon" href="/*SITE*/icon-180.png">
 <title>/*TITLE*/</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +40,7 @@
   --body:/*FONT_STACK*/;
   --r-sm:10px; --r-md:14px; --r-lg:18px; --r-xl:24px; --r-full:999px;
   --shadow:0 8px 28px rgba(90,52,44,.08);
-  color-scheme:light;
+  color-scheme:only light;
 }
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg)}
@@ -64,7 +76,7 @@ img,svg{max-width:100%}
 
 /* ── 홈 히어로 ── */
 .hero{padding:26px 18px 10px}
-.eyebrow{font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--rose);text-transform:uppercase}
+.eyebrow{font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--rose)}
 .hero h1{font-family:var(--display);font-weight:800;font-size:30px;line-height:1.3;letter-spacing:-.03em;margin-top:8px}
 .hero h1 em{font-style:normal;color:var(--rose)}
 .hero .lead{margin-top:10px;font-size:14px;color:var(--ink-2);line-height:1.7}
@@ -900,8 +912,15 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 .tabbar button{min-height:54px;border-radius:22px;transition:background-color .45s var(--spring),color .3s var(--glide),transform .45s var(--spring)}
 .tabbar button:active{transform:scale(.92)}
 .tabbar [aria-current="page"]{background:var(--rose-soft);color:var(--rose-deep)}
-.tabbar [aria-current="page"] svg{animation:tabPop .7s var(--spring) backwards}
+.tabbar.pop [aria-current="page"] svg{animation:tabPop .7s var(--spring) backwards}
 @keyframes tabPop{from{transform:scale(.6) translate3d(0,6px,0)}}
+
+/* 막대 위 작은 글자는 한 단계 진한 회색(대비 4.5:1 이상) */
+.tabbar button,.dtab small,.topbar .brand small,footer,footer a{color:var(--ink-2)}
+@media (hover:hover) and (pointer:fine){:root{--glass:rgba(255,252,249,.9)}}
+/* 키보드로 옮겨 다닐 때 초점이 떠 있는 막대 밑에 숨지 않게 */
+html{scroll-padding-top:calc(84px + env(safe-area-inset-top,0px));scroll-padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+html:has(.dtabs){scroll-padding-top:calc(164px + env(safe-area-inset-top,0px))}
 
 /* ── 일차 탭 : 떠 있는 둘째 막대 ── */
 .dtabs{top:calc(74px + env(safe-area-inset-top,0px));margin:12px 10px 0;padding:6px;border:1px solid rgba(255,255,255,.75);border-radius:22px;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);box-shadow:var(--amb-s),0 -10px 0 0 var(--bg)}
@@ -910,6 +929,8 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 
 /* ── 화면 넘김 : 탄성 있게 ── */
 .scr.in-fwd{animation:inF .65s var(--spring) backwards}
+.scr.in-tab{animation:inT .5s var(--spring) backwards}
+@keyframes inT{from{opacity:0;transform:translate3d(0,14px,0)}}
 .scr.in-back{animation:inB .6s var(--spring) backwards}
 @keyframes inF{from{opacity:0;transform:translate3d(28px,0,0)}}
 @keyframes inB{from{opacity:0;transform:translate3d(-28px,0,0)}}
@@ -949,8 +970,8 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 .sheet.on .sh-b>.rv{animation:rise .75s var(--spring) backwards;animation-delay:calc(var(--i,0) * 50ms + 140ms)}
 
 /* ── 지도 : 이름 알약·도시 핀이 차례로 톡 ── */
-[data-anim="1"] .rmap:not(.q) .rl,[data-anim="1"] .rmap:not(.q) .cp{animation:pinPop .75s var(--spring) backwards;animation-delay:calc(var(--i,0) * 70ms + 260ms);transform-box:fill-box;transform-origin:50% 50%}
-@keyframes pinPop{from{opacity:0;transform:scale(.55)}}
+[data-anim="1"] .rmap:not(.q) .rl,[data-anim="1"] .rmap:not(.q) .cp{animation:pinPop .6s var(--glide) backwards;animation-delay:calc(var(--i,0) * 60ms + 220ms)}
+@keyframes pinPop{from{opacity:0}}
 .rmap .rg-a{transition:opacity .4s var(--glide),filter .3s var(--glide)}
 .bigmap{border-radius:0 0 28px 28px;overflow:hidden}
 
@@ -972,12 +993,13 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 .cta .ic svg{width:20px;height:20px}
 .cta.ghost{background:rgba(255,255,255,.7);color:var(--ink);padding:6px 20px;box-shadow:inset 0 0 0 1px rgba(120,62,48,.12);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .eyebrow{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:999px;background:rgba(255,255,255,.7);box-shadow:inset 0 0 0 1px rgba(217,81,110,.18);color:var(--rose-deep);font-size:12px;font-weight:700;letter-spacing:.06em;line-height:1.3}
+.eyebrow .en{display:contents}
 .eyebrow em{font-family:var(--serif);font-size:15px;font-style:italic;font-weight:400;letter-spacing:.01em;color:var(--ink-2)}
 
 /* ═══ 첫 화면(포털) ═══ */
 main.home{padding-top:0}
-.phero{position:relative;isolation:isolate;overflow:hidden;margin-top:-66px;padding:88px 22px 34px;min-height:max(600px,100svh);display:flex;flex-direction:column;justify-content:flex-end;border-radius:0 0 36px 36px;background:#FCEDE6}
-.phero .mesh{position:absolute;inset:-25%;z-index:-3;animation:meshSpin 40s linear infinite;will-change:transform}
+.phero{position:relative;isolation:isolate;overflow:hidden;margin-top:-66px;padding:88px 22px 34px;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;border-radius:0 0 36px 36px;background:#FCEDE6}
+.phero .mesh{position:absolute;inset:-25%;z-index:-3;animation:meshSpin 40s linear infinite}
 .phero .mesh i{position:absolute;width:72%;aspect-ratio:1;border-radius:50%}
 .phero .mesh .b1{left:-6%;top:4%;background:radial-gradient(closest-side,rgba(246,160,142,.85),rgba(246,160,142,0))}
 .phero .mesh .b2{right:-8%;top:14%;background:radial-gradient(closest-side,rgba(247,200,128,.7),rgba(247,200,128,0))}
@@ -1048,7 +1070,7 @@ main.home{padding-top:0}
 .tile .tt{position:absolute;left:16px;right:16px;bottom:14px;display:block}
 .tile b{display:block;font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.25;word-break:keep-all;overflow-wrap:normal;text-shadow:0 1px 12px rgba(0,0,0,.35)}
 .tile small{display:block;margin-top:2px;font-size:13px;font-weight:600;opacity:.92;word-break:keep-all}
-.tile i{position:absolute;top:12px;right:12px;font-style:normal;min-width:44px;height:30px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;place-items:center;font-size:13px;font-weight:700}
+.tile i{position:absolute;top:12px;right:12px;font-style:normal;min-width:44px;height:30px;padding:0 10px;border-radius:999px;background:rgba(43,35,32,.66);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;place-items:center;font-size:13px;font-weight:700}
 @media (hover:hover){.tile:hover .art{transform:scale(1.06)}}
 .tile:active .art{transform:scale(1.04)}
 @media (min-width:560px){.bento{grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:170px}.tile:nth-child(1){grid-column:span 2;grid-row:span 2}.tile:nth-child(4),.tile:nth-child(5),.tile:nth-child(6){grid-column:span 2}}
@@ -1058,15 +1080,37 @@ main.home{padding-top:0}
 @media (max-width:359px){.topbar{margin:6px 6px 0;padding:5px 5px 5px 9px;gap:4px}}
 @media (max-height:700px){.hero{height:132px}}
 @media (max-width:359px){.phero{padding:84px 16px 26px}.phero .rotl{font-size:20px}.stats .st b{font-size:38px}.stats .st:first-child b{font-size:54px}.shd h2{font-size:24px}}
+/* 화면 밖으로 나간 장식 움직임은 멈춘다(JS decoPause 가 .oos 를 붙임) */
+.phero.oos .mesh,.phero.oos .scene .sun,.phero.oos .scene .cl,.phero.oos .scene .wv,.marq.oos .mt,.hero.oos .badge{animation-play-state:paused}
+/* 첫 화면 아래쪽 묶음은 화면에 가까워질 때 그린다(약한 폰에서 첫 화면이 늦게 뜨던 것) */
+.marq{content-visibility:auto;contain-intrinsic-size:auto 116px}
+.themes{content-visibility:auto;contain-intrinsic-size:auto 880px;padding-bottom:8px}
+main>footer{content-visibility:auto;contain-intrinsic-size:auto 200px}
+/* 움직임 멈춤 단추 */
+.stillbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin:14px 16px 0;padding:0 14px 0 10px;border-radius:999px;background:var(--surface);box-shadow:var(--amb-s),inset 0 0 0 1px rgba(120,62,48,.08);font-size:13px;font-weight:700;color:var(--ink-2)}
+.stillbtn svg{width:18px;height:18px;color:var(--rose-deep)}
+.stillbtn+.marq{padding-top:12px}
+@media print{.rv,.rv.sv{animation:none!important}.phero{min-height:auto}.tabbar,.stillbtn{display:none}}
 @media (prefers-reduced-motion:reduce){
   .rv,.rv.sv,.rmap .rl,.rmap .cp,.marq .mt,.phero .mesh,.phero .scene,.phero .scene *,.wordmark .w>span,.phero .rot b,.hero .bg,.hero .badge,.homebrand,.tabbar svg,.sheet .sh-b>*{animation:none!important}
   .homebrand{opacity:1}
+  .langmenu.on{animation:none!important}
+  .phero .mesh{will-change:auto}
+  .topbar.home::before{animation:none!important;opacity:0;transition:opacity .4s var(--glide)}.topbar.home.on::before{opacity:1}
+  .stillbtn{display:none}
   .marq .mq{overflow-x:auto;scrollbar-width:none}.marq .mq::-webkit-scrollbar{display:none}.marq .mt .dup{display:none}
   .marq .mt{padding-inline:16px}.marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 }
 /* 가벼운 모드(앱 안 브라우저) : 동작 줄이기와 같게 + 종이결·색 번짐 끔 */
 .lite .rv,.lite .rv.sv,.lite .rmap .rl,.lite .rmap .cp,.lite .marq .mt,.lite .phero .mesh,.lite .phero .scene,.lite .phero .scene *,.lite .wordmark .w>span,.lite .phero .rot b,.lite .hero .bg,.lite .hero .badge,.lite .homebrand,.lite .tabbar svg,.lite .sheet .sh-b>*,.lite .scr{animation:none!important}
 .lite .homebrand{opacity:1}
+.lite .langmenu.on{animation:none!important}
+.lite .topbar.home::before{animation:none!important;opacity:0;transition:opacity .4s var(--glide)}.lite .topbar.home.on::before{opacity:1}
+.lite .stillbtn{display:none}
+/* 움직임 멈춤(첫 화면 단추) : 흐르는 띠·장면·도시 이름 바뀜을 멈추고 띠는 손가락으로 민다 */
+.still .marq .mt,.still .phero .mesh,.still .phero .scene,.still .phero .scene *,.still .phero .rot b,.still .hero .badge{animation:none!important}
+.still .marq .mq{overflow-x:auto;scrollbar-width:none}.still .marq .mq::-webkit-scrollbar{display:none}.still .marq .mt .dup{display:none}
+.still .marq .mt{padding-inline:16px}.still .marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 .lite .marq .mq{overflow-x:auto;scrollbar-width:none}.lite .marq .mq::-webkit-scrollbar{display:none}.lite .marq .mt .dup{display:none}
 .lite .marq .mt{padding-inline:16px}.lite .marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 .lite body::after,.lite .phero .mesh{display:none}
@@ -1075,7 +1119,6 @@ main.home{padding-top:0}
   :root{--glass:rgba(255,252,249,.96)}
   .topbar,.topbar.home::before,.tabbar,.dtabs,.introbtn,.cta.ghost,.tile i,.shscrim.on,.bottombar{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
   .cta.ghost{background:rgba(255,255,255,.92)}
-  .tile i{background:rgba(43,35,32,.34)}
 }
 
 </style>
@@ -1236,6 +1279,8 @@ const moveIcon = (mode) => {
 };
 const svgPlane = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I.airport + '</svg>';
 const svgBack = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+const svgPause = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6.5" y="5" width="3.6" height="14" rx="1.2"/><rect x="13.9" y="5" width="3.6" height="14" rx="1.2"/></svg>';
+const svgPlay = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.6v12.8c0 .8.9 1.3 1.6.9l10-6.4c.6-.4.6-1.4 0-1.8l-10-6.4C8.9 4.3 8 4.8 8 5.6z"/></svg>';
 const svgNext = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
 const svgShare = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4M5 13v6h14v-6"/></svg>';
 const svgInfo = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>';
@@ -1258,6 +1303,7 @@ function bestRoute(origin, g){
   let best = null; const home = g.home_airports || [(g.airports || [])[0]];
   for (const iata of g.airports || []){
     for (const r of routesFrom(origin, iata)){
+      if (r.status === '확인필요') continue;   /* 확인 안 된 노선은 직항으로 세지 않는다(직항편 시트에는 그대로 보임) */
       const via = !home.includes(iata), rk = (via ? 100000 : 0) + (RANK[r.status] ?? 5) * 1000 + (r.flight_minutes || 999);
       if (!best || rk < best.rk) best = { iata, r, rk, via };
     }
@@ -1440,6 +1486,7 @@ function updSearch(){
   r.innerHTML = searchHtml();
   const x = document.querySelector('.sbox .sx'); if (x) x.classList.toggle('hide', !st.q);
   const ex = document.querySelector('.sex'); if (ex) ex.classList.toggle('hide', !!st.q);
+  const rc = document.getElementById('srecent'); if (rc) rc.classList.toggle('hide', !!st.q);
 }
 
 function langBtn(){ if (DATA.hideLang) return ''; return `<button class="iconbtn" data-act="lang" aria-label="${esc(T('lang'))}" aria-haspopup="menu">${svgGlobe}<span class="lc">${esc(LANG.toUpperCase())}</span></button>`; }
@@ -1659,6 +1706,9 @@ const TABS = ['plan', 'food', 'spot', 'hotel', 'prep'];
 const LITE = (() => { try { const q = (location.search.match(/[?&]lite=([01])/) || [])[1]; if (q) return q === '1';
   return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|FB_IAB|Line\/|DaumApps|; wv\)/i.test(navigator.userAgent || '') || !!(navigator.connection && navigator.connection.saveData); } catch(e){ return false; } })();
 if (LITE) document.documentElement.classList.add('lite');
+/* 첫 화면 '움직임 멈추기' 단추로 고른 값(이 기기에만 저장) */
+let STILL = false; try { STILL = localStorage.getItem('jp_still') === '1'; } catch(e){}
+if (STILL) document.documentElement.classList.add('still');
 const REDUCED = LITE || (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){ return false; } })();
 let lmap = null, markers = [];
 /* 이 앱이 쌓은 기록 번호(새로 고침해도 이어짐) · 마지막 화면 이동 시각(두 번 누름 막기) */
@@ -1701,7 +1751,7 @@ function nightsArt(n){
 
 /* ── 공통 머리 ── */
 function topbar(o){
-  const title = o.home && UI.brand_en ? `<span class="homebrand" aria-label="${esc(T('brand'))}">${esc(T('brand_en')).replace(/ to /, ' <em>to</em> ')}</span>` : o.wm && UI.brand_ko ? `<span class="wmk">${esc(T('brand_ko'))}</span><span class="wme">${esc(T('brand_en'))}</span>` : esc(o.title || '');
+  const title = o.home && UI.brand_en ? `<span class="homebrand" aria-hidden="true">${esc(T('brand_en')).replace(/ to /, ' <em>to</em> ')}</span>` : o.wm && UI.brand_ko ? `<span class="wmk">${esc(T('brand_ko'))}</span><span class="wme">${esc(T('brand_en'))}</span>` : esc(o.title || '');
   return `<div class="topbar${o.home ? ' home' : ''}">${o.back ? `<button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button>` : ''}<div class="brand${o.wm ? ' wm' : ''}">${title}${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</div>${o.search === false ? '' : `<button class="iconbtn" data-act="search" aria-label="${esc(T('search_label'))}">${svgSearch}</button>`}${o.lang ? langBtn() : ''}${o.share ? `<button class="iconbtn" data-act="share" aria-label="${esc(T('share'))}">${svgShare}</button>` : ''}</div>`;
 }
 function progress(n){ return `<div class="prog" role="img" aria-label="${esc(T('step', { n, t: 4 }))}">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}<span>${esc(T('step', { n, t: 4 }))}</span></div>`; }
@@ -1729,7 +1779,9 @@ function brandHero(){
 /* 첫 화면 숫자 : 모두 자료에서 센다(꾸민 숫자 없음) */
 function homeStats(){
   const gs = Object.values(GUIDES);
-  const routes = AIRPORTS.reduce((a, ap) => a + (ap.routes || []).filter(r => KRP[r.from_iata] && r.status !== '운휴' && r.status !== '확인필요').length, 0);
+  /* 직항 노선 : 앱의 도시들이 쓰는 공항으로 가는 정기·계절 노선만(지난 전세편·확인 안 된 노선은 뺀다) */
+  const used = new Set(gs.flatMap(g => g.airports || []));
+  const routes = AIRPORTS.filter(ap => used.has(ap.iata)).reduce((a, ap) => a + (ap.routes || []).filter(r => KRP[r.from_iata] && (r.status === '정기' || r.status === '계절')).length, 0);
   return [
     (() => { const d = gs.filter(g => KR.some(k => isDirect(k.iata, g))).length; return { n: gs.length, k: d === gs.length ? 'hs_city' : 'hs_city_d', d }; })(),
     { n: routes, k: 'hs_route' },
@@ -1740,7 +1792,7 @@ function homeStats(){
 /* 첫 화면 바둑판 테마 : 태그 · 그림 */
 const THEMES = [['온천', 'spots', 'onsen'], ['바다', 'spots', 'sea'], ['미식', 'dishes', 'ramen'], ['야경', 'spots', 'night'], ['아이동반', 'spots', 'kids'], ['역사', 'spots', 'temple']];
 const SCENE = `<svg class="scene" viewBox="0 0 400 300" aria-hidden="true"><g class="cl"><path d="M38 70h66a14 14 0 0 0-12-18 18 18 0 0 0-34-4 12 12 0 0 0-20 22z" fill="#fff" opacity=".85"/></g><g class="cl c2"><path d="M250 44h52a11 11 0 0 0-9-14 14 14 0 0 0-27-3 9 9 0 0 0-16 17z" fill="#fff" opacity=".7"/></g><circle class="sun" cx="292" cy="112" r="56" fill="#E8505B"/><path d="M40 268L172 120Q186 106 200 120L332 268Z" fill="#8FA0C6"/><path d="M146 150L172 120Q186 106 200 120L226 150L208 141L196 154L186 140L174 154L162 141Z" fill="#fff"/><path d="M0 268L70 214Q84 204 98 214L178 268Z" fill="#B7C3DD"/><path d="M230 268L300 222Q312 214 324 222L400 262V268Z" fill="#A9B7D6"/><g class="wv"><path d="M-30 262Q-15 254 0 262T30 262T60 262T90 262T120 262T150 262T180 262T210 262T240 262T270 262T300 262T330 262T360 262T390 262T420 262T450 262V300H-30Z" fill="#9FD3D8"/><path d="M-30 276Q-15 270 0 276T30 276T60 276T90 276T120 276T150 276T180 276T210 276T240 276T270 276T300 276T330 276T360 276T390 276T420 276T450 276V300H-30Z" fill="#7FC2C9"/></g></svg>`;
-let HOME_T = 0, HOME_IO = null, HOME_BAR = null;
+let HOME_T = 0, HOME_IO = null, HOME_BAR = null, TAB_LAST = '';
 /* 흐르는 띠의 도시 그림은 그림 파일(img)로 : 그림 68개를 화면 요소로 풀면 1,400개가 넘어 첫 화면이 무거워진다 */
 const ICO_URL = {};
 const icoImg = g => g.icon ? `<img src="${ICO_URL[g.key] || (ICO_URL[g.key] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(g.icon))}" alt="" decoding="async">` : '';
@@ -1756,7 +1808,7 @@ function renderStart(){
   app.innerHTML = topbar({ home: true, lang: true }) + `<main class="scr home">
     <section class="phero"><div class="mesh" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>${SCENE}
       <div class="pinner">
-        <span class="eyebrow">${esc(T('brand_ko'))}<em>${esc(T('hs_eyebrow', { n: gs.length }))}</em></span>
+        <span class="eyebrow">${esc(T('brand_ko'))}<em lang="en">${esc(T('hs_eyebrow', { n: gs.length }))}</em></span>
         <h1 class="wordmark" aria-label="${esc(T('brand'))}">${word(en[0], 0)}${en[1] ? word(en[1], 1, true) : ''}<br>${en[2] ? word(en[2], 2) : ''}</h1>
         <p class="rotl">${esc(T('hs_rot_a'))} <span class="rot" id="rot"><b>${esc(shortName(gs[0]))}</b></span>${esc(T('hs_rot_b'))}</p>
         <p class="lede">${esc(T('hs_lede'))}</p>
@@ -1764,13 +1816,14 @@ function renderStart(){
         ${lg ? `<button class="resume ${cCls(lg)}" data-act="resume" data-v="${esc(lg.key)}">${illHtml(lg)}<span class="t"><small>${esc(T('resume'))}</small><b>${nmHtml(T('resume_v', { city: lg.name, nd: nd(last.n || (lg.plans[0] || {}).nights || 2), day: T('day_s', { n: (last.d || 0) + 1 }) }))}</b></span>${svgNext}</button>` : ''}
       </div></section>
     <section class="stats" aria-label="${esc(T('hs_stats'))}">${homeStats().map(x => `<div class="st"><b data-count="${x.n}" aria-hidden="true">${x.n.toLocaleString('ko-KR')}</b><span class="vh">${x.n.toLocaleString('ko-KR')}</span><span>${esc(T(x.k, { d: x.d }))}</span></div>`).join('')}</section>
+    <button class="stillbtn" data-act="still" aria-pressed="${STILL}">${STILL ? svgPlay : svgPause}<span>${esc(T(STILL ? 'hs_move' : 'hs_still'))}</span></button>
     <section class="marq" aria-hidden="true">${row(gs.slice(0, half), '')}${row(gs.slice(half), ' r')}</section>
     <section class="step" id="start">
-      <div class="shd"><span class="eyebrow">STEP 1<em>of 4</em></span><h2>${esc(T('n_title'))}</h2><p>${esc(T('n_sub'))}</p></div>
+      <div class="shd"><span class="eyebrow"><span class="en" lang="en" aria-hidden="true">STEP 1<em>of 4</em></span><span class="vh">${esc(T('hs_step_sr', { n: 1, t: 4 }))}</span></span><h2>${esc(T('n_title'))}</h2><p>${esc(T('n_sub'))}</p></div>
       <div class="ncards">${nightsAvail().map(n => `<button class="ncard" data-act="pickn" data-v="${n}">${nightsArt(n)}<span class="t"><b>${esc(nd(n))}</b><small>${esc(glue(UI['n_off' + n] ? T('n_off' + n) : T('n_offx', { n })))}</small></span>${svgNext}</button>`).join('')}</div>
       <button class="txtbtn" data-act="pickn" data-v="0">${esc(T('n_unsure'))}</button>
     </section>
-    ${tiles ? `<section class="themes"><div class="shd"><span class="eyebrow">THEME<em>pick a mood</em></span><h2>${esc(T('hs_theme_t'))}</h2><p>${esc(T('hs_theme_d'))}</p></div><div class="bento">${tiles}</div><button class="txtbtn sm" data-act="all">${esc(T('all_cities'))} ›</button></section>` : ''}
+    ${tiles ? `<section class="themes"><div class="shd"><span class="eyebrow" lang="en" aria-hidden="true">THEME<em>pick a mood</em></span><h2>${esc(T('hs_theme_t'))}</h2><p>${esc(T('hs_theme_d'))}</p></div><div class="bento">${tiles}</div><button class="txtbtn sm" data-act="all">${esc(T('all_cities'))} ›</button></section>` : ''}
     ${footer()}</main>`;
   homeBar();
   homeMotion(gs);
@@ -1785,12 +1838,17 @@ function homeBar(){
   HOME_BAR.observe(wm);
 }
 /* 첫 화면 움직임 : 도시 이름이 차례로 바뀌고, 숫자는 화면에 보일 때 올라간다 */
+function homeRot(){
+  clearInterval(HOME_T); HOME_T = 0; if (REDUCED || STILL) return;
+  const names = Object.values(GUIDES).sort((a, b) => rankOf(a) - rankOf(b)).slice(0, 10).map(shortName); let k = 0;
+  HOME_T = setInterval(() => { const r = document.getElementById('rot'); if (!r){ clearInterval(HOME_T); return; } k = (k + 1) % names.length; r.innerHTML = `<b>${esc(names[k])}</b>`; }, 2400);
+}
 function homeMotion(gs){
   if (REDUCED) return;
-  const names = gs.slice(0, 10).map(shortName); let k = 0;
-  HOME_T = setInterval(() => { const r = document.getElementById('rot'); if (!r){ clearInterval(HOME_T); return; } k = (k + 1) % names.length; r.innerHTML = `<b>${esc(names[k])}</b>`; }, 2400);
+  homeRot();
   const nums = [...document.querySelectorAll('.stats [data-count]')]; if (!nums.length || typeof IntersectionObserver === 'undefined') return;
   nums.forEach(b => { b.textContent = '0'; });
+  addEventListener('beforeprint', () => nums.forEach(b => { b.textContent = (Number(b.dataset.count) || 0).toLocaleString('ko-KR'); }), { once: true });
   HOME_IO = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; HOME_IO.unobserve(e.target); const b = e.target, to = Number(b.dataset.count) || 0, t0 = performance.now(), D = 1400;
     /* 숫자 칸 폭을 최종값 폭으로 묶어 둔다(이 글꼴은 숫자 폭이 제각각이라 옆 글자가 흔들린다) */
     b.textContent = to.toLocaleString('ko-KR'); b.style.minWidth = Math.ceil(b.getBoundingClientRect().width) + 'px'; b.textContent = '0';
@@ -1801,13 +1859,24 @@ function homeMotion(gs){
 function stopHome(){ clearInterval(HOME_T); HOME_T = 0; if (HOME_IO){ try { HOME_IO.disconnect(); } catch(e){} HOME_IO = null; } if (HOME_BAR){ try { HOME_BAR.disconnect(); } catch(e){} HOME_BAR = null; } }
 /* 화면이 그려진 뒤 : 보이는 것은 차례로 떠오르고, 아래쪽은 스크롤할 때 떠오른다 */
 const RV_SEL = '.resume,.stats .st,.marq,.shd,.ncard,.step>.txtbtn,.tile,.themes>.txtbtn,.qhead,.prog,.pills,.bigmap,.rgrid>*,.clist>*,.sec,.sepl,.cname,.spills,.vpills,.dhd,.notice,.tl>li,.dend,.alts>*,.subhd,.fchips,.grid2>*,.hlist>*,.prep>*,.ogrid>*,.sitem,.chips.allc,.wbox,.ybox,.vnote,.sex,.snone,main>footer';
+/* 화면 밖 장식 움직임 멈춤 : 첫 화면 머리·도시 띠·도시 머리 그림이 안 보이면 .oos */
+let DECO_IO = null;
+function decoPause(){
+  if (DECO_IO){ try { DECO_IO.disconnect(); } catch(e){} DECO_IO = null; }
+  if (REDUCED || typeof IntersectionObserver === 'undefined') return;
+  const els = app.querySelectorAll('.phero,.marq,.hero'); if (!els.length) return;
+  DECO_IO = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('oos', !e.isIntersecting)));
+  els.forEach(el => DECO_IO.observe(el));
+}
 /* 같은 화면에서 칩·일차만 바꿀 때는 바뀐 목록만 다시 떠오른다(칩 줄·머리까지 깜빡이지 않게) */
 const RV_KEEP = '.clist>*,.grid2>*,.hlist>*,.tl>li,.dend,.alts>*,.sitem';
 function reveal(sel){
   if (REDUCED) return;
   document.body.dataset.anim = '1';
   /* 위치는 한 번에 다 재고(문서 기준) 나서 표시를 붙인다 : 하나씩 재면 그때마다 화면 계산을 다시 해 느려진다 */
-  const vh = window.innerHeight || 700, y0 = window.scrollY || 0, els = [...app.querySelectorAll(sel || RV_SEL)], tops = els.map(el => el.getBoundingClientRect().top + y0); let i = 0;
+  const vh = window.innerHeight || 700, y0 = window.scrollY || 0, els = [...app.querySelectorAll(sel || RV_SEL)], skip = st.scr === 'home' && !sel;
+  /* 첫 화면 아래 묶음(도시 띠·테마·바닥글)은 재지 않는다(재면 미뤄 둔 그리기를 당겨 와 느려진다). 같은 화면 바꿈은 화면 기준 위치 */
+  const tops = els.map(el => { if (skip && el.closest('.marq,.themes,main>footer')) return Infinity; const r = el.getBoundingClientRect(); return sel ? (r.bottom > 0 ? r.top : 1e9) : r.top + y0; }); let i = 0;
   /* 스크롤하며 떠오르기는 첫 화면(포털)에만. 목록 카드에 걸면 빨리 내릴 때 빈 카드가 번쩍인다(영업지원도구 휴대폰 제보) */
   const home = st.scr === 'home';
   els.forEach((el, k) => { if (tops[k] > vh + 20){ if (home) el.classList.add('rv', 'sv'); return; } el.classList.add('rv'); el.style.setProperty('--i', Math.min(i++, 12)); });
@@ -1885,7 +1954,7 @@ function renderSearch(){
   const recent = (S.get('recent', []) || []).filter(k => own(GUIDES, k)).slice(0, 3);
   app.innerHTML = `<div class="topbar sbar"><button class="iconbtn" data-act="back" aria-label="${esc(T('back'))}">${svgBack}</button><label class="sbox">${svgSearch}<input id="q" type="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="${esc(T('search_ph'))}" aria-label="${esc(T('search_label'))}" value="${esc(st.q || '')}"><button type="button" class="sx ${st.q ? '' : 'hide'}" data-act="sclear" aria-label="${esc(T('clear'))}">${svgX}</button></label></div>
   <main class="scr"><div class="sex ${st.q ? 'hide' : ''}"><span class="k">${esc(T('search_ex_k'))}</span>${ex.map(x => `<button type="button" data-act="sq" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>
-  ${recent.length && !st.q ? `<h2 class="sec">${esc(T('recent'))}</h2><div class="clist">${recent.map(k => cityCard(GUIDES[k])).join('')}</div>` : ''}
+  ${recent.length ? `<div id="srecent" class="${st.q ? 'hide' : ''}"><h2 class="sec">${esc(T('recent'))}</h2><div class="clist">${recent.map(k => cityCard(GUIDES[k])).join('')}</div></div>` : ''}
   <div class="sres" id="sres">${searchHtml()}</div></main>`;
 }
 
@@ -1935,9 +2004,9 @@ function renderCity(){
   const rec = (S.get('recent', []) || []).filter(k => k !== g.key); rec.unshift(g.key); S.set('recent', rec.slice(0, 6));
   const pf = PF(g), b = bestRoute(st.origin, g), budget = plan && budgetFx(plan.budget);
   const ph = photoOf('cities', g.key);
-  const hero = `<div class="hero ${cCls(g)}">${ph ? `<div class="bg photo">${photoImg(ph, g.name)}</div>` : `<div class="bg">${svgFit(regionArt(g.region))}</div><span class="badge">${g.icon || ''}</span>`}<button class="introbtn" data-act="intro">${svgInfo}${esc(T('intro'))}</button></div>`;
+  const hero = `<div class="hero ${cCls(g)}">${ph ? `<div class="bg photo">${photoImg(ph, g.name)}</div>` : `<div class="bg">${svgFit(regionArt(g.region))}</div><span class="badge" style="animation-delay:-${((performance.now() % 6000) / 1000).toFixed(2)}s">${g.icon || ''}</span>`}<button class="introbtn" data-act="intro">${svgInfo}${esc(T('intro'))}</button></div>`;
   const pills = `<div class="spills">
-    <button class="pill" data-act="sh-fly">${svgPlane}${b ? esc(fmtMin(b.r.flight_minutes)) + (b.via ? `<span class="ed">${esc(T('via_pill'))}</span>` : '') : `<span class="no">${esc(T('f_none'))}</span>`}</button>
+    <button class="pill" data-act="sh-fly">${svgPlane}${b ? esc(fmtMin(b.r.flight_minutes)) + (b.via ? `<span class="ed">${esc(T('via_pill'))}</span>` : '') + (b.r.status !== '정기' ? `<span class="ed">· ${esc(stName(b.r.status))}</span>` : '') : `<span class="no">${esc(T('f_none'))}</span>`}</button>
     ${plan ? `<button class="pill" data-act="sh-n">${svgCal}${esc(nd(plan.nights))}<span class="ed">▾</span></button>` : ''}
     ${budget ? `<button class="pill fx" data-act="sh-fx" aria-label="${esc(T('fx_sheet_t'))}"><small>${esc(T('fx_lbl', { r: st.fx.toLocaleString('ko-KR') }))}</small><span>${esc(T('p_budget1', { amt: manA(Array.isArray(budget.total_krw) ? budget.total_krw[0] : budget.total_krw) }))}</span></button>` : ''}</div>`;
   let warn = '';
@@ -1953,12 +2022,13 @@ function renderCity(){
   else if (st.t === 'prep') body = prepTab(g, plan);
   else body = `<div id="planarea">${planTab(g, plan)}</div>`;
   const tabIco = { plan: svgCal, food: ico('food'), spot: ico('shrine'), hotel: ico('hotel'), prep: svgBag };
+  const tk = g.key + '|' + st.t, tabPop = tk !== TAB_LAST ? ' pop' : ''; TAB_LAST = tk;   /* 탭 아이콘은 탭이 바뀔 때만 톡 */
   const subN = { food: (g.restaurants || []).length, spot: (g.spots || []).filter(x => !['airport', 'station', 'hotel'].includes(x.cat)).length, hotel: (g.hotels || []).length };
   const head = st.t === 'plan' ? `${hero}
-    <div class="cname"><h1>${esc(g.name)}</h1>${pf.vibe ? `<p class="vb">${esc(pf.vibe)}</p>` : `<p class="vb">${esc(g.tagline || '')}</p>`}</div>
+    <div class="cname"><h1>${nmHtml(g.name)}</h1>${pf.vibe ? `<p class="vb">${esc(pf.vibe)}</p>` : `<p class="vb">${esc(g.tagline || '')}</p>`}</div>
     ${pills}${warn}` : `<header class="subhd"><span class="ic" aria-hidden="true">${g.icon || ''}</span><div><h1>${esc(T('sub_' + st.t, { city: g.name }))}</h1><small>${esc(st.t === 'prep' ? (plan ? nd(plan.nights) : '') : T('n_places', { n: subN[st.t] || 0 }))}</small></div></header>${st.t === 'prep' ? warn : ''}`;
   app.innerHTML = topbar({ back: true, title: g.name, sub: T('dep', { origin: krShort(st.origin) }), share: true, lang: true }) + `<main class="scr city ${cCls(g)}">${head}${body}${st.t === 'prep' ? footer() : ''}</main>
-    <nav class="tabbar" aria-label="${esc(g.name)}">${TABS.map(t => `<button data-act="tab" data-v="${t}" ${st.t === t ? 'aria-current="page"' : ''}>${tabIco[t]}<span>${esc(T('t_' + t))}</span></button>`).join('')}</nav>`;
+    <nav class="tabbar${tabPop}" aria-label="${esc(g.name)}">${TABS.map(t => `<button data-act="tab" data-v="${t}" ${st.t === t ? 'aria-current="page"' : ''}>${tabIco[t]}<span>${esc(T('t_' + t))}</span></button>`).join('')}</nav>`;
 }
 
 /* 일정 탭 */
@@ -2116,13 +2186,15 @@ function prepTab(g, plan){
   const src = `<details class="acc"><summary>${esc(T('acc_src'))}<span class="cnt">${esc(T('n_docs', { n: (g.sources || []).length }))}</span></summary><div class="abody"><ul class="srcs">${srcs || `<li>${esc(T('none'))}</li>`}</ul>${credits ? `<h4>${esc(T('photo_src'))}</h4><ul class="srcs">${credits}</ul>` : ''}</div></details>`;
   return `<div class="prep">${budget}${flights}${checkHtml}${season}${move}${src}</div>`;
 }
+/* 운항 요일 글이 상태(확인필요 등)를 되풀이하면 한 번만 보인다 */
+const sameSt = (w, stt) => String(w || '').replace(/\s/g, '') === String(stt || '').replace(/\s/g, '') || String(w || '').replace(/\s/g, '') === String(stName(stt) || '').replace(/\s/g, '');
 function flightBlock(g){
   let h = '';
   for (const iata of g.airports || []){
     const a = AP[iata]; if (!a) continue;
     const rs = routesFrom(st.origin, iata);
     h += `<div class="ap"><span class="code">${esc(iata)}</span>${esc(apName(a))}</div>`;
-    h += rs.length ? rs.map(r => `<div class="rline"><span class="al">${esc(T('from_to', { origin: krShort(st.origin), to: apCity(a) }))}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 3))}</span><span>${esc(weeklyText(r.weekly))}</span><span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('') : `<div class="noroute">${esc(T('no_route', { origin: krShort(st.origin) }))}</div>`;
+    h += rs.length ? rs.map(r => `<div class="rline"><span class="al">${esc(T('from_to', { origin: krShort(st.origin), to: apCity(a) }))}</span><span class="num">${fmtMin(r.flight_minutes)}</span><span>${esc(airlineText(r.airlines, 3))}</span><span>${esc(sameSt(weeklyText(r.weekly), r.status) ? '' : weeklyText(r.weekly))}</span><span class="st tag ${stCls(r.status)}">${esc(stName(r.status))}</span></div>`).join('') : `<div class="noroute">${esc(T('no_route', { origin: krShort(st.origin) }))}</div>`;
     const acc = (g.airport_access || []).filter(x => !x.airport || x.airport === iata);
     if (acc.length) h += `<div class="access"><div class="ah">${esc(T('access'))}</div><ul>${acc.map(x => `<li><b>${esc(x.mode)}</b><span>→ ${esc(x.to)}</span><span class="num">${x.minutes ? fmtMin(x.minutes) : ''}${x.fare_yen ? ` · ${yenW(x.fare_yen)}` : ''}</span></li>`).join('')}</ul></div>`;
   }
@@ -2265,7 +2337,7 @@ function applyRoute(r){
   if (r.scr === 'city'){ if (st.city !== r.city){ st.ff = ''; st.sf = ''; } st.city = r.city; st.n = r.n || 0; st.v = r.v || 0; st.d = r.d || 0; st.t = r.t || 'plan'; }
 }
 const scrollMem = {};
-function animIn(dir){ if (REDUCED || !dir) return; const s = app.querySelector('.scr'); if (!s) return; s.classList.remove('in-fwd', 'in-back'); void s.offsetWidth; s.classList.add('in-' + dir); }
+function animIn(dir){ if (REDUCED || !dir) return; const s = app.querySelector('.scr'); if (!s) return; s.classList.remove('in-fwd', 'in-back', 'in-tab'); void s.offsetWidth; s.classList.add('in-' + dir); }
 function render(o){
   closeLang(); o = o || {}; stopHome();
   const s = st.scr;
@@ -2277,6 +2349,8 @@ function render(o){
   else if (s === 'search') renderSearch();
   else { st.scr = 'home'; renderStart(); }
   chipsIntoView();
+  if (s !== 'city') TAB_LAST = '';
+  decoPause();
   if (!o.quiet) reveal(o.keep ? RV_KEEP : '');
   animIn(o.dir);
 }
@@ -2339,6 +2413,8 @@ document.addEventListener('click', e => {
     case 'all': nav({ scr: 'all' }); return;
     case 'start': { const t = document.getElementById('start'), tb = document.querySelector('.topbar'); if (t){ window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - (tb ? tb.getBoundingClientRect().bottom + 8 : 0), behavior: REDUCED ? 'instant' : 'smooth' }); const h = t.querySelector('h2'); if (h){ h.setAttribute('tabindex', '-1'); try { h.focus({ preventScroll: true }); } catch(e2){} } } } return;
     case 'theme': nav({ scr: 'all', tag: v }); return;
+    case 'still': { STILL = !STILL; try { localStorage.setItem('jp_still', STILL ? '1' : '0'); } catch(e2){} document.documentElement.classList.toggle('still', STILL);
+      el.setAttribute('aria-pressed', String(STILL)); el.innerHTML = `${STILL ? svgPlay : svgPause}<span>${esc(T(STILL ? 'hs_move' : 'hs_still'))}</span>`; homeRot(); } return;
     case 'lang': e.stopPropagation(); { const m = document.getElementById('langmenu'); if (m.classList.contains('on')) closeLang(); else openLang(); } return;
     case 'share': share(); return;
     case 'pickn': if (el.classList.contains('pressed')) return; NAV_AT = performance.now(); st.nights = Number(v) || 0; S.set('nights', st.nights); el.classList.add('pressed'); setTimeout(() => nav(st.originSet ? { scr: 'map' } : { scr: 'from' }), REDUCED ? 0 : 120); return;
@@ -2370,12 +2446,12 @@ document.addEventListener('click', e => {
     case 'city': if (inSheet){ SH.after = () => nav({ scr: 'city', city: v }); closeSheet(); } else nav({ scr: 'city', city: v }); return;
     case 'atag': swap({ scr: 'all', tag: v }, { keep: true }); return;
     case 'tab': { const go = () => { if (st.scr !== 'city' || st.t === v) return;
-        if (st.t === 'plan'){ nav(cityRoute({ t: v }), { dir: '' }); st.tabPush = HI; return; }
+        if (st.t === 'plan'){ nav(cityRoute({ t: v }), { dir: 'tab', quiet: true }); st.tabPush = HI; return; }
         if (v === 'plan' && st.tabPush === HI){ st.tabPush = -1; history.back(); return; }
-        swap(cityRoute({ t: v })); };
+        swap(cityRoute({ t: v }), { dir: 'tab', quiet: true }); };
       if (inSheet){ SH.after = go; closeSheet(); } else go(); } return;
     case 'variant': swap(cityRoute({ v: Number(v), d: 0 }), { keep: true }); return;
-    case 'day': { st.open = -1; swap(cityRoute({ d: Number(v) }), { keep: true }); const a = document.getElementById('dt-anchor'), tb = document.querySelector('.topbar'); if (a){ const top = a.getBoundingClientRect().top + window.scrollY - (tb ? tb.getBoundingClientRect().bottom : 0); if (window.scrollY > top + 1) window.scrollTo(0, top); } } return;
+    case 'day': { st.open = -1; swap(cityRoute({ d: Number(v) }), { keep: true, quiet: true }); const a = document.getElementById('dt-anchor'), tb = document.querySelector('.topbar'); if (a){ const top = a.getBoundingClientRect().top + window.scrollY - (tb ? tb.getBoundingClientRect().bottom : 0); if (window.scrollY > top + 1) window.scrollTo(0, top); } reveal(RV_KEEP); } return;
     case 'row': { if (e.target.closest('.cand')) return; const i = Number(v); const g = GUIDES[st.city], plan = curPlan(g); st.open = st.open === i ? -1 : i;
       const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, plan); window.scrollTo(0, y); return; }
     case 'meal': sheetMeal(Number(v)); return;

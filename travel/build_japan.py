@@ -16,7 +16,8 @@
    가이드 JSON 은 travel/tools/validate_guide.py 로 먼저 점검하고, 오류가 있는 파일은 빼고(경고만 출력) 조립한다.
    그래서 잘못된 자료는 틀린 화면이 아니라 '없는 목적지'로 나타난다.
    번역이 없는 언어의 목적지는 한국어 원문이 그대로 들어간다(조립 요약에 번역 없음으로 표시)."""
-import copy, datetime, json, math, os, re, subprocess, sys
+import copy, datetime, json, math, os, re, subprocess, sys, urllib.parse
+from html import escape as html_escape
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, 'data')
@@ -26,6 +27,9 @@ VENDOR = os.path.join(HERE, 'vendor')
 TPL = os.path.join(HERE, 'template_japan.html')
 VALID = os.path.join(HERE, 'tools', 'validate_guide.py')
 sys.path.insert(0, os.path.join(HERE, 'tools'))
+SITE = 'https://hunx11-sys.github.io/MeAI/travel/'  # 깃허브 페이지 주소(공유 미리보기 그림·아이콘이 여기 있다)
+# 브라우저 탭 아이콘 : 해·후지산 도장(직접 그린 도형)
+FAVICON = 'data:image/svg+xml,' + urllib.parse.quote('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" rx="22" fill="#FCEDE6"/><circle cx="62" cy="34" r="20" fill="#E8505B"/><path d="M10 82L42 40Q48 33 54 40L86 82Z" fill="#7C8FB8"/><path d="M35 50L42 40Q48 33 54 40L61 50L55 47L50 52L45 47Z" fill="#fff"/><path d="M0 82Q12 76 24 82T48 82T72 82T96 82V96H0Z" fill="#9FD3D8"/></svg>')
 OUT_ART_DIR = os.environ.get('JAPAN_ARTIFACT_DIR', '')  # 아티팩트(claude.ai)용 본문만 뽑을 폴더. 비어 있으면 안 만든다
 VERSION = 'v1.5'
 
@@ -351,7 +355,9 @@ def main():
             'regions': REGIONS, 'tags': TAGS, 'tiles': TILES, 'kr': kr, 'apnames': apn, 'airports': taps, 'guides': tguides, 'map': mapd, 'art': art, 'photos': photos, 'regionKeys': REGION_KEYS,
         }
         fonts_link, stack = FONTS.get(L.get('font', 'pretendard'), FONTS['pretendard'])
+        desc = (ui.get('doc_desc') or ui.get('brand_sub') or '').replace('{n}', str(len(tguides)))
         html = (tpl.replace('/*LANG*/', L.get('html', code)).replace('/*TITLE*/', (ui.get('doc_title') or ui.get('brand', '일본 직항 여행 플래너')).replace('{n}', str(len(tguides))))
+                .replace('/*DESC*/', html_escape(desc)).replace('/*OGURL*/', SITE if code == 'ko' else SITE + L['file']).replace('/*SITE*/', SITE).replace('/*FAVICON*/', FAVICON)
                 .replace('<!--FONTS-->', fonts_link).replace('/*FONT_STACK*/', stack)
                 .replace('/*LEAFLET_CSS*/', css).replace('/*LEAFLET_JS*/', js).replace('/*DATA*/', jsonsafe(data)))
         out = os.path.join(out_dir, out_name or L['file'])
