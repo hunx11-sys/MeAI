@@ -350,3 +350,9 @@ html[data-tool="eco"] .chevron{transition:transform 420ms var(--mu-spring)}
   html.mu-js .mu-st{animation:none!important;opacity:1!important;transform:none!important}
   .mu-skel{animation:none!important}
 }
+
+/* 가벼운 모드(html.mu-lite — 카카오톡 등 앱 안 브라우저) : 「움직임 줄이기」와 같다. 장식 움직임 · 화면 넘김 효과 · 부드러운 스크롤을 끈다 */
+html.mu-lite *,html.mu-lite *::before,html.mu-lite *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}
+html.mu-lite{scroll-behavior:auto!important}
+html.mu-lite .mu-rv{opacity:1!important;transform:none!important}
+html.mu-lite::view-transition-group(*),html.mu-lite::view-transition-old(*),html.mu-lite::view-transition-new(*){animation:none!important}

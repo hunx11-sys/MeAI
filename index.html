@@ -334,7 +334,12 @@ html.mu-js .mu-st{animation:none}
 html.mu-js .mu-st{animation:none!important;opacity:1!important;transform:none!important}
 .mu-skel{animation:none!important}
 }
-</style><link id="meai-font-pre" rel="preload" href="assets/pretendard-subset.woff2" as="font" type="font/woff2" crossorigin><style id="meai-font">@font-face{font-family:"Pretendard Variable";font-weight:45 930;font-style:normal;font-display:swap;src:url(assets/pretendard-subset.woff2) format("woff2-variations"),url(assets/pretendard-subset.woff2) format("woff2")}</style><script id="meai-boot">(function(h){h.classList.add("mu-js");try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");setTimeout(function(){h.classList.remove("mu-enter")},1400)})(document.documentElement)</script>
+/* 가벼운 모드(html.mu-lite — 카카오톡 등 앱 안 브라우저) : 「움직임 줄이기」와 같다. 장식 움직임 · 화면 넘김 효과 · 부드러운 스크롤을 끈다 */
+html.mu-lite *,html.mu-lite *::before,html.mu-lite *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}
+html.mu-lite{scroll-behavior:auto!important}
+html.mu-lite .mu-rv{opacity:1!important;transform:none!important}
+html.mu-lite::view-transition-group(*),html.mu-lite::view-transition-old(*),html.mu-lite::view-transition-new(*){animation:none!important}
+</style><link id="meai-font-pre" rel="preload" href="assets/pretendard-subset.woff2" as="font" type="font/woff2" crossorigin><style id="meai-font">@font-face{font-family:"Pretendard Variable";font-weight:45 930;font-style:normal;font-display:swap;src:url(assets/pretendard-subset.woff2) format("woff2-variations"),url(assets/pretendard-subset.woff2) format("woff2")}</style><script id="meai-boot">(function(h){h.classList.add("mu-js");var L=false;try{var q=location.search,u=navigator.userAgent||"",c=navigator.connection;L=/[?&]lite=1/.test(q)||(!/[?&]lite=0/.test(q)&&(/KAKAOTALK|NAVER\(inapp|; wv\)|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|BAND\//i.test(u)||!!(c&&c.saveData)))}catch(e){}if(L){h.classList.add("mu-lite");var mm=window.matchMedia;window.matchMedia=function(x){if(/prefers-reduced-motion/.test(x)){var r=!/no-preference/.test(x);return{matches:r,media:x,onchange:null,addListener:function(){},removeListener:function(){},addEventListener:function(){},removeEventListener:function(){},dispatchEvent:function(){return false}}}return mm.call(window,x)};return}try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");setTimeout(function(){h.classList.remove("mu-enter")},1400)})(document.documentElement)</script>
 <!-- 검색엔진 수집 거부 : 링크를 받은 사람만 들어오게 한다.
      URL 은 그대로 동작하며, 구글·네이버 등의 검색 결과에는 나오지 않는다. -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
@@ -373,7 +378,7 @@ html.mu-js .mu-st{animation:none!important;opacity:1!important;transform:none!im
   .lede{font-size:clamp(15px,1.3vw,17px);line-height:1.7;color:var(--sub);max-width:34em;text-wrap:pretty}
 
   /* ══ 1. 첫 화면 ══ */
-  .hero{position:relative;isolation:isolate;display:flex;align-items:center;min-height:calc(88dvh - var(--mu-nav-h,0px));padding:48px 0 72px}
+  .hero{position:relative;isolation:isolate;display:flex;align-items:center;min-height:calc(88svh - var(--mu-nav-h,0px));padding:48px 0 72px}
   .hero-mesh{position:absolute;inset:calc(var(--mu-nav-h,0px) * -1) 0 0 0;z-index:-2;pointer-events:none;
     background:
       radial-gradient(38% 46% at 80% 34%,rgba(200,16,46,.075),transparent 70%),

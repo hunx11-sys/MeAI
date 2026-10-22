@@ -26,9 +26,18 @@ import base64, io, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSS = io.open(os.path.join(ROOT, 'ui', 'meai-ui.css'), encoding='utf-8').read()
 SITE_JS = io.open(os.path.join(ROOT, 'ui', 'meai-site.js'), encoding='utf-8').read()
-# 첫 그림 전에 켜는 표시 — 움직임 줄이기 설정이면 들어올 때 움직임(mu-enter)을 켜지 않는다
-BOOT = ('<script id="meai-boot">(function(h){h.classList.add("mu-js");try{if(window.matchMedia&&'
-        'matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");'
+# 첫 그림 전에 켜는 표시 — 움직임 줄이기 설정이면 들어올 때 움직임(mu-enter)을 켜지 않는다.
+# 가벼운 모드(html.mu-lite) : 카카오톡 · 네이버 앱 · 인스타그램 등 앱 안 브라우저(안드로이드 WebView)와 데이터 절약 모드에서는
+# 「움직임 줄이기」와 똑같이 동작한다 — 앱 안 브라우저는 크롬보다 느리고 아래 도구 막대가 스크롤마다 숨었다 나타나
+# 장식 움직임이 있으면 뚝뚝 끊겼다(2026-10-22 소유자 제보 : 즐겨찾기로 연 크롬은 매끄럽고 카톡 링크로 열면 버벅임).
+# matchMedia 의 prefers-reduced-motion 답을 「줄이기」로 바꿔 두므로 각 화면 스크립트도 그대로 따른다. 주소에 ?lite=0 / ?lite=1 로 강제.
+BOOT = ('<script id="meai-boot">(function(h){h.classList.add("mu-js");var L=false;'
+        'try{var q=location.search,u=navigator.userAgent||"",c=navigator.connection;'
+        'L=/[?&]lite=1/.test(q)||(!/[?&]lite=0/.test(q)&&(/KAKAOTALK|NAVER\\(inapp|; wv\\)|Instagram|FBAN|FBAV|Line\\/|DaumApps|everytimeApp|BAND\\//i.test(u)||!!(c&&c.saveData)))}catch(e){}'
+        'if(L){h.classList.add("mu-lite");var mm=window.matchMedia;window.matchMedia=function(x){if(/prefers-reduced-motion/.test(x)){var r=!/no-preference/.test(x);'
+        'return{matches:r,media:x,onchange:null,addListener:function(){},removeListener:function(){},addEventListener:function(){},removeEventListener:function(){},dispatchEvent:function(){return false}}}'
+        'return mm.call(window,x)};return}'
+        'try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");'
         'setTimeout(function(){h.classList.remove("mu-enter")},1400)})(document.documentElement)</script>')
 # 글꼴 : 저장소의 Pretendard 한 파일(assets/pretendard-subset.woff2 · 가변 · 2,612자)을 처음에 한 번만 받는다.
 # 예전에는 jsdelivr 의 「dynamic-subset」(글자 묶음 약 90개)을 썼는데, 휴대폰에서 아래로 내리다 새 글자가 나오면
