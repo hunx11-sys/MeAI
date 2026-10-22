@@ -72,7 +72,158 @@ background:var(--surface-2);color:var(--sub);white-space:nowrap}
 .mu-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
 .mu-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;font-weight:500;
 padding:12px 18px;border-radius:var(--r-md);box-shadow:var(--sh-2);z-index:2147483000}
-</style>
+/* ══ 사이트 셸 · 움직임 — 규칙 design/DESIGN-MeAI.md 「11. 사이트 셸 · 움직임」 ══
+머리 띠(#mu-nav) · 휴대폰 메뉴 시트(#mu-sheet) · 바탕 빛(#mu-amb)은 apply_ui.py 가 본문 맨 앞에 넣고,
+움직임은 ui/meai-site.js(script#meai-site)가 붙인다. 자바스크립트가 없어도 화면은 다 보인다. */
+:root{--mu-nav-h:0px;--mu-spring:cubic-bezier(.16,1,.3,1);--mu-t-in:560ms;--mu-t-hover:200ms;--mu-t-sheet:520ms}
+html:has(#mu-nav){--mu-nav-h:56px;scroll-padding-top:calc(var(--mu-nav-h) + 12px)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+.mu-home{--t-accent:#C8102E;--t-strong:#A50D26;--t-weak:#FDECEE}
+/* 바탕 빛 : 맨 위에만 그 도구 색을 아주 옅게(알파 .05~.08) — 글씨 대비에 영향 없음 */
+#mu-amb{position:absolute;left:0;right:0;top:0;height:560px;z-index:-1;pointer-events:none;
+background:radial-gradient(60% 70% at 12% -10%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 70%),
+radial-gradient(50% 60% at 88% -20%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 70%),
+radial-gradient(40% 50% at 50% -30%,rgba(43,91,191,.04),transparent 70%)}
+/* 머리 띠 */
+#mu-nav{position:sticky;top:0;z-index:45;height:var(--mu-nav-h);box-sizing:border-box;margin:0;font-family:var(--font);
+background:rgba(255,255,255,.78);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);
+border-bottom:1px solid rgba(15,23,42,.06);view-transition-name:mu-nav;
+transition:box-shadow 320ms var(--mu-spring),background-color 320ms var(--mu-spring)}
+html.mu-scrolled #mu-nav{background:rgba(255,255,255,.88);
+box-shadow:0 10px 28px -20px color-mix(in srgb,var(--accent) 35%,rgba(15,23,42,.5)),0 1px 0 rgba(15,23,42,.02)}
+#mu-nav *,#mu-sheet *{box-sizing:border-box}
+#mu-nav .mu-in{max-width:1248px;height:100%;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}
+#mu-nav a{text-decoration:none}
+#mu-nav .mu-brand{display:inline-flex;align-items:center;gap:10px;height:40px;flex:none;color:var(--ink);border-radius:var(--r-md)}
+#mu-nav .mu-mark,#mu-sheet .mu-mark{width:28px;height:28px;flex:none;border-radius:9px;background:#C8102E;color:#fff;display:grid;place-items:center;
+font:700 15px/1 var(--font);letter-spacing:-.02em;box-shadow:0 4px 10px -5px rgba(200,16,46,.45)}
+#mu-nav .mu-bt{font-size:16px;font-weight:700;letter-spacing:-.015em;white-space:nowrap;line-height:1}
+#mu-nav .mu-bt span{margin-left:6px;font-size:14px;font-weight:500;color:var(--sub);letter-spacing:0}
+#mu-nav .mu-links{position:relative;display:flex;align-items:center;gap:2px;margin-left:auto;min-width:0}
+#mu-nav .mu-l{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 12px;border-radius:var(--r-pill);
+font-size:14px;font-weight:600;line-height:1;color:var(--sub);white-space:nowrap;transition:color var(--mu-t-hover) var(--mu-spring)}
+#mu-nav .mu-l i,#mu-sheet .mu-dot{display:block;flex:none;width:6px;height:6px;border-radius:50%;background:var(--t-accent);
+transition:transform var(--mu-t-hover) var(--mu-spring)}
+#mu-nav .mu-l[aria-current="page"]{color:var(--t-strong);background:var(--t-weak)}
+#mu-nav .mu-l.mu-hot{color:var(--t-strong)}
+#mu-nav .mu-pill-on .mu-l[aria-current="page"]{background:transparent}
+#mu-nav .mu-pill{position:absolute;left:0;top:50%;z-index:0;height:36px;margin-top:-18px;width:var(--pill-w,0);border-radius:var(--r-pill);
+background:var(--t-weak,transparent);opacity:0;transform:translate3d(var(--pill-x,0),0,0);pointer-events:none;
+transition:transform 460ms var(--mu-spring),width 460ms var(--mu-spring),background-color 260ms var(--mu-spring),opacity 200ms var(--mu-spring)}
+#mu-nav .mu-pill-on .mu-pill{opacity:1}
+#mu-nav .mu-pill.mu-still{transition:none}
+@media (hover:hover){
+#mu-nav .mu-l:hover{color:var(--t-strong)}
+#mu-nav .mu-l:hover i{transform:scale(1.35)}
+#mu-nav .mu-brand:hover .mu-mark{transform:rotate(-6deg)}
+}
+#mu-nav .mu-mark{transition:transform 320ms var(--mu-spring)}
+#mu-nav .mu-l:active{transform:scale(.98)}
+#mu-nav .mu-cur{display:none}
+#mu-nav .mu-menu{display:none;flex:none;width:44px;height:44px;margin-left:auto;margin-right:-8px;padding:0;border:0;border-radius:var(--r-md);
+background:transparent;color:var(--ink);cursor:pointer;align-items:center;justify-content:center;
+transition:background-color var(--mu-t-hover) var(--mu-spring),transform var(--t-fast) var(--ease)}
+#mu-nav .mu-menu:active{transform:scale(.94)}
+@media (hover:hover){#mu-nav .mu-menu:hover{background:var(--surface-2)}}
+#mu-nav .mu-prog{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);
+opacity:0;pointer-events:none}
+@supports (animation-timeline:scroll()){
+html.mu-long #mu-nav .mu-prog{opacity:1;animation:mu-prog linear both;animation-duration:auto;animation-timeline:scroll(root block)}
+}
+@keyframes mu-prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+body.sim-on #mu-nav .mu-prog{display:none}
+@media (max-width:1080px){
+#mu-nav .mu-bt span{display:none}
+#mu-nav .mu-l i{display:none}
+#mu-nav .mu-l{padding:0 10px}
+}
+@media (max-width:760px){
+#mu-nav .mu-in{padding:0 16px;gap:8px}
+#mu-nav .mu-links{display:none}
+#mu-nav .mu-menu{display:inline-flex}
+#mu-nav .mu-cur{display:inline-flex;align-items:center;gap:6px;min-width:0;height:28px;padding:0 10px;border-radius:var(--r-pill);
+background:var(--t-weak);color:var(--t-strong);font-size:13px;font-weight:600;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mu-nav .mu-cur i{display:block;flex:none;width:6px;height:6px;border-radius:50%;background:var(--t-accent)}
+#mu-nav .mu-cur:empty{display:none}
+#mu-nav .mu-in:has(.mu-cur:empty) .mu-bt span{display:inline}
+}
+@media (max-width:359px){#mu-nav .mu-bt{font-size:15px}#mu-nav .mu-cur{padding:0 8px}}
+/* 휴대폰 메뉴 시트 */
+#mu-sheet{position:fixed;inset:0;z-index:100000;visibility:hidden;pointer-events:none;font-family:var(--font);
+transition:visibility 0s linear var(--mu-t-sheet)}
+#mu-sheet.mu-open{visibility:visible;pointer-events:auto;transition:none}
+#mu-sheet .mu-scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity 320ms var(--mu-spring)}
+#mu-sheet .mu-panel{position:absolute;left:0;right:0;bottom:0;max-height:88vh;max-height:88dvh;overflow:auto;overscroll-behavior:contain;
+background:var(--surface);border-radius:var(--r-2xl) var(--r-2xl) 0 0;box-shadow:var(--sh-sheet);
+padding:8px 16px calc(16px + env(safe-area-inset-bottom));transform:translate3d(0,104%,0);transition:transform var(--mu-t-sheet) var(--mu-spring)}
+#mu-sheet.mu-open .mu-scrim{opacity:1}
+#mu-sheet.mu-open .mu-panel{transform:none}
+#mu-sheet .mu-grab{width:36px;height:4px;border-radius:2px;background:var(--line-strong);margin:0 auto 8px}
+#mu-sheet .mu-sh{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 0 8px}
+#mu-sheet .mu-sh b{font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+#mu-sheet .mu-x{margin-left:auto;margin-right:-6px;width:44px;height:44px;border:0;border-radius:var(--r-pill);background:transparent;color:var(--sub);
+display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+#mu-sheet .mu-x:active{background:var(--surface-2)}
+#mu-sheet ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+#mu-sheet .mu-si{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border-radius:var(--r-lg);color:var(--ink);text-decoration:none;
+transition:background-color var(--mu-t-hover) var(--mu-spring),transform var(--t-fast) var(--ease)}
+#mu-sheet .mu-si .mu-dot{width:10px;height:10px;box-shadow:0 0 0 4px var(--t-weak)}
+#mu-sheet .mu-si span{display:flex;flex-direction:column;gap:2px;min-width:0}
+#mu-sheet .mu-si b{font-size:16px;font-weight:600;line-height:1.3}
+#mu-sheet .mu-si small{font-size:13px;font-weight:500;line-height:1.3;color:var(--muted)}
+#mu-sheet .mu-si em{margin-left:auto;font-style:normal;font-size:12px;font-weight:600;height:22px;padding:0 8px;border-radius:var(--r-xs);display:none;align-items:center;
+background:var(--surface);color:var(--t-strong)}
+#mu-sheet .mu-si svg{margin-left:auto;flex:none;color:var(--faint)}
+#mu-sheet .mu-si[aria-current="page"]{background:var(--t-weak)}
+#mu-sheet .mu-si[aria-current="page"] b{color:var(--t-strong)}
+#mu-sheet .mu-si[aria-current="page"] em{display:inline-flex}
+#mu-sheet .mu-si[aria-current="page"] em + svg{margin-left:0}
+#mu-sheet .mu-si:active{transform:scale(.98);background:var(--surface-2)}
+#mu-sheet li{opacity:0;transform:translate3d(0,10px,0);transition:opacity 360ms var(--mu-spring),transform 520ms var(--mu-spring)}
+#mu-sheet.mu-open li{opacity:1;transform:none;transition-delay:calc(60ms + var(--i,0) * 35ms)}
+@media (min-width:761px){#mu-sheet{display:none}}
+/* 움직임 : 들어올 때(한 번) · 스크롤해 보일 때 · 마우스를 올릴 때
+html.mu-enter 는 <head> 의 작은 스크립트가 켜고 1.4초 뒤 끈다. 화면 밖 요소만 .mu-rv 로 숨겼다가 보일 때 올린다. */
+@keyframes mu-rise{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
+@keyframes mu-up{from{opacity:0;transform:translate3d(0,18px,0)}to{opacity:1;transform:none}}
+html.mu-enter body>:not(#mu-nav):not(#mu-sheet):not(#mu-amb):not(#mu-top):not(script):not(style):not(link):not(#simFrame):not(#meaiTabs):not(.mu-toast){
+animation:mu-rise var(--mu-t-in) var(--mu-spring) both}
+html.mu-js .mu-rv{opacity:0;transform:translate3d(0,18px,0)}
+html.mu-js .mu-rv.mu-in{animation:mu-up 640ms var(--mu-spring) both;animation-delay:var(--mu-d,0ms)}
+html[data-tool="home"] .cards>.card,html[data-tool="rara"] .p:not(.open),html[data-tool="indi"] .card,html[data-tool="merry"] button.card,.mu-lift{
+transition:transform var(--mu-t-hover) var(--mu-spring),box-shadow var(--mu-t-hover) var(--mu-spring),background-color var(--t) var(--ease),border-color var(--t) var(--ease)}
+@media (hover:hover){
+html[data-tool="home"] .cards>.card:hover,html[data-tool="rara"] .p:not(.open):hover,html[data-tool="indi"] .card:hover,html[data-tool="merry"] button.card:hover,.mu-lift:hover{
+transform:translate3d(0,-2px,0);
+box-shadow:0 14px 30px -16px color-mix(in srgb,var(--t-accent,var(--accent)) 45%,transparent),0 2px 6px -2px rgba(15,23,42,.06)}
+html[data-tool="home"] .cards>.card .go{transition:color var(--t) var(--ease),transform var(--mu-t-hover) var(--mu-spring)}
+html[data-tool="home"] .cards>.card:hover .go{transform:translate3d(3px,0,0);color:var(--t-strong,var(--ink))}
+}
+html[data-tool="home"] .cards>.card:active,html[data-tool="rara"] .p:not(.open):active,html[data-tool="indi"] .card:active,html[data-tool="merry"] button.card:active,.mu-lift:active{
+transform:scale(.98)}
+/* 모달 덮개 : 열 때 · 닫을 때 옅게 — display 를 바꿔 여닫는 화면 공통 고리(특약검색기 · 보상시뮬레이터 · 프롬프트 · 상품 라인업).
+안쪽 상자의 올라오는 움직임은 각 화면 것을 그대로 쓴다. 이 기능이 없는 브라우저에서는 예전처럼 바로 열리고 닫힌다. */
+.ov,#hov,#mapov,#oncoov,.modal-overlay,#ex-mask{
+transition:opacity 280ms var(--mu-spring),display 280ms allow-discrete,overlay 280ms allow-discrete}
+.ov:not(.show),#hov:not(.show),#mapov:not(.show),#oncoov:not(.show),.modal-overlay:not(.show),#ex-mask:not(.on){opacity:0;pointer-events:none}
+@starting-style{.ov.show,#hov.show,#mapov.show,#oncoov.show,.modal-overlay.show,#ex-mask.on{opacity:0}}
+/* 화면을 넘어갈 때 : 가볍게 겹쳐 사라지고, 머리 띠는 그대로 */
+@media (prefers-reduced-motion:no-preference){
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:240ms;animation-timing-function:var(--mu-spring)}
+::view-transition-group(mu-nav){animation-duration:0s}
+}
+@media (prefers-reduced-motion:reduce){
+html.mu-enter body>*{animation:none!important}
+html.mu-js .mu-rv{opacity:1;transform:none}
+#mu-sheet li{opacity:1;transform:none}
+}
+@media print{
+#mu-nav,#mu-sheet,#mu-amb,#mu-top{display:none!important}
+html:has(#mu-nav){--mu-nav-h:0px}
+html.mu-enter body>*,html.mu-js .mu-rv,html.mu-js .mu-rv.mu-in{animation:none!important;opacity:1!important;transform:none!important}
+}
+</style><script id="meai-boot">(function(h){h.classList.add("mu-js");try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");setTimeout(function(){h.classList.remove("mu-enter")},1400)})(document.documentElement)</script>
 <!-- 검색엔진 수집 거부 : 링크를 받은 사람만 들어오게 한다.
      URL 은 그대로 동작하며, 구글·네이버 등의 검색 결과에는 나오지 않는다. -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
@@ -94,7 +245,7 @@ padding:12px 18px;border-radius:var(--r-md);box-shadow:var(--sh-2);z-index:21474
   --meritz:var(--accent);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
+html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden;overflow-x:clip}
 body{background:var(--bg);color:var(--ink)}
 @media (max-width:640px){body{background:var(--surface)}}
 button{font-family:inherit;cursor:pointer;color:inherit;-webkit-appearance:none;appearance:none;border:0;background:none}
@@ -102,8 +253,10 @@ a{color:inherit;text-decoration:none}
 .num{font-variant-numeric:tabular-nums}
 h1,h2,h3,p{word-break:keep-all;overflow-wrap:anywhere}
 
-/* 앱바 */
-.appbar{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
+/* 앱바 (휴대폰은 사이트 머리 띠만 붙박이) */
+html:has(#mu-nav) .appbar .mark{display:none}   /* 브랜드 표지는 사이트 머리 띠에 있다 */
+@media (max-width:640px){.appbar{position:relative!important;top:auto!important}}
+.appbar{position:sticky;top:var(--mu-nav-h,0px);z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
 .appbar-in{max-width:1200px;margin:0 auto;height:56px;padding:0 32px;display:flex;align-items:center;gap:12px}
 .mark{flex:none;width:32px;height:32px;border-radius:var(--r-sm);background:var(--accent);color:var(--accent-on);display:grid;place-items:center;font-weight:700;font-size:15px;line-height:1}
 .appbar h1{margin:0;font-size:17px;line-height:1.45;font-weight:700;display:flex;align-items:baseline;gap:8px;min-width:0;white-space:nowrap}
@@ -254,12 +407,12 @@ footer{text-align:center;color:var(--muted);font-size:13px;line-height:1.6;paddi
 </style>
 </head>
 <body>
+<!--mu-nav--><div id="mu-amb" aria-hidden="true"></div><nav id="mu-nav" data-page="stats" aria-label="영업지원도구"><div class="mu-in"><a class="mu-brand" href="index.html" aria-label="MeAI 영업지원도구 대문"><span class="mu-mark" aria-hidden="true">M</span><span class="mu-bt">MeAI<span>영업지원도구</span></span></a><span class="mu-cur"></span><div class="mu-links"><span class="mu-pill" aria-hidden="true"></span><a class="mu-l mu-home" data-k="home" href="index.html"><i aria-hidden="true"></i>대문</a><a class="mu-l mu-merry" data-k="merry" href="tool.html#search"><i aria-hidden="true"></i>특약검색기</a><a class="mu-l mu-eco" data-k="eco" href="tool.html#sim"><i aria-hidden="true"></i>보상시뮬레이터</a><a class="mu-l mu-rara" data-k="rara" href="products.html"><i aria-hidden="true"></i>상품 라인업</a><a class="mu-l mu-zizi" data-k="zizi" href="통합치료비.html"><i aria-hidden="true"></i>통합치료비</a><a class="mu-l mu-indi" data-k="indi" href="prompts.html"><i aria-hidden="true"></i>프롬프트</a><a class="mu-l mu-tata" data-k="tata" href="명패생성기.html"><i aria-hidden="true"></i>명패</a></div><button type="button" class="mu-menu" aria-label="도구 메뉴 열기" aria-expanded="false" aria-controls="mu-sheet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button></div><div class="mu-prog" aria-hidden="true"></div></nav><div id="mu-sheet" aria-hidden="true"><div class="mu-scrim"></div><div class="mu-panel" role="dialog" aria-modal="true" aria-label="도구 메뉴"><div class="mu-grab"></div><div class="mu-sh"><span class="mu-mark" aria-hidden="true">M</span><b>영업지원도구</b><button type="button" class="mu-x" aria-label="메뉴 닫기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><ul><li style="--i:0"><a class="mu-si mu-home" data-k="home" href="index.html"><span class="mu-dot"></span><span><b>대문</b><small>영업지원 아이템 모아 보기</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:1"><a class="mu-si mu-merry" data-k="merry" href="tool.html#search"><span class="mu-dot"></span><span><b>특약검색기</b><small>with 메리</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:2"><a class="mu-si mu-eco" data-k="eco" href="tool.html#sim"><span class="mu-dot"></span><span><b>보상시뮬레이터</b><small>with 에코</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:3"><a class="mu-si mu-rara" data-k="rara" href="products.html"><span class="mu-dot"></span><span><b>상품 라인업</b><small>with 라라</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:4"><a class="mu-si mu-zizi" data-k="zizi" href="통합치료비.html"><span class="mu-dot"></span><span><b>통합치료비 시뮬레이터</b><small>with 찌지리</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:5"><a class="mu-si mu-indi" data-k="indi" href="prompts.html"><span class="mu-dot"></span><span><b>프롬프트 라이브러리</b><small>with 인디</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:6"><a class="mu-si mu-tata" data-k="tata" href="명패생성기.html"><span class="mu-dot"></span><span><b>명패 제작기</b><small>with 타타</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li></ul></div></div><!--/mu-nav-->
 <header class="appbar"><div class="appbar-in">
   <div class="mark" aria-hidden="true">M</div>
   <h1>영업지원 도구 사용 통계 <span class="sub">6개 도구 · 익명 집계</span></h1>
   <div class="sp"></div>
   <span class="pill live" id="livePill">실시간</span>
-  <a class="pill" href="index.html" title="영업지원 아이템 대문으로 이동">🏠 대문</a>
 </div></header>
 
 <div class="layout">
@@ -550,6 +703,206 @@ $('#refreshBtn').addEventListener('click',()=>{ load(); toast('새로 불러왔�
 $('#csvBtn').addEventListener('click',toCSV);
 $('#kpis').innerHTML=Array(6).fill('<div class="kpi"><div class="skel" style="width:60%"></div><div class="skel" style="width:40%;height:26px;margin-top:10px"></div></div>').join('');
 load();
+</script>
+<script id="meai-site">
+/* MeAI 사이트 셸 — 규칙 design/DESIGN-MeAI.md 「11. 사이트 셸 · 움직임」
+   이 파일이 원본이다. 화면에는 python3 scripts/apply_ui.py 가 script#meai-site 로 본문 끝에 끼워 넣는다.
+   하는 일 : 머리 띠(현재 도구 알약 · 마우스 따라 미끄러지는 알약 · 스크롤 그림자 · 긴 화면 진행 막대) · 휴대폰 메뉴 시트 ·
+            스크롤해 보일 때 올라오는 카드. 자료(DATA) · 검색 · 계산에는 손대지 않는다.
+   다른 화면 안(iframe)에 든 보상시뮬레이터처럼 이미 머리 띠가 있는 화면 안에서는 머리 띠를 지우고 움직임만 쓴다.
+   ES5 로 쓴다(구형 브라우저에서 문법 오류로 화면 전체가 멈추지 않게). */
+(function () {
+  'use strict';
+  var d = document, h = d.documentElement, w = window;
+  if (w.__meaiSite) return; w.__meaiSite = 1;
+  h.classList.add('mu-js');
+  var reduce = false;
+  try { reduce = w.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+  function $(id) { return d.getElementById(id); }
+  function drop(el) { if (el && el.parentNode) el.parentNode.removeChild(el); }
+  function each(list, fn) { for (var i = 0; i < list.length; i++) fn(list[i], i); }
+
+  /* ── 1) 다른 MeAI 화면 안에 들어 있으면 머리 띠를 쓰지 않는다 ── */
+  var framed = false;
+  try { framed = w.self !== w.top; } catch (e) { framed = true; }
+  var embedded = false;
+  if (framed) {
+    if (h.getAttribute('data-tool') === 'eco') embedded = true;          // 특약검색기 안의 보상시뮬레이터
+    try { if (w.parent.document.getElementById('mu-nav')) embedded = true; } catch (e) {}
+  }
+  var nav = $('mu-nav'), sheet = $('mu-sheet');
+  if (embedded) { drop(nav); drop(sheet); drop($('mu-amb')); nav = sheet = null; h.classList.add('mu-embed'); }
+
+  /* ── 2) 머리 띠 ── */
+  if (nav) {
+    var links = nav.querySelector('.mu-links'), pill = nav.querySelector('.mu-pill');
+    var curLabel = nav.querySelector('.mu-cur');
+    var page = nav.getAttribute('data-page') || '';
+    var hot = null;
+
+    var current = function () { return links ? links.querySelector('.mu-l[aria-current="page"]') : null; };
+    var place = function (a, still) {
+      if (!pill || !links) return;
+      if (!a || !a.offsetWidth) { links.classList.remove('mu-pill-on'); return; }
+      if (still) pill.classList.add('mu-still');
+      pill.className = pill.className.replace(/\bmu-(home|merry|eco|rara|indi|tata|zizi)\b/g, '').replace(/\s+/g, ' ');
+      pill.classList.add('mu-' + a.getAttribute('data-k'));
+      pill.style.setProperty('--pill-x', a.offsetLeft + 'px');
+      pill.style.setProperty('--pill-w', a.offsetWidth + 'px');
+      links.classList.add('mu-pill-on');
+      if (still) { void pill.offsetWidth; pill.classList.remove('mu-still'); }
+    };
+    var rest = function (still) {
+      if (hot) { hot.classList.remove('mu-hot'); hot = null; }
+      place(current(), still);
+    };
+
+    /* 특약검색기 ↔ 보상시뮬레이터 : 같은 화면 안의 탭이라 body.sim-on 을 보고 현재 표시를 바꾼다 */
+    var setCurrent = function (k) {
+      var all = d.querySelectorAll('#mu-nav .mu-l, #mu-sheet .mu-si');
+      each(all, function (a) {
+        if (a.getAttribute('data-k') === k) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+      if (curLabel) {
+        var src = nav.querySelector('.mu-l[data-k="' + k + '"]');
+        curLabel.className = 'mu-cur mu-' + k;
+        curLabel.innerHTML = src ? '<i></i>' + src.textContent.replace(/^\s+|\s+$/g, '') : '';
+      }
+      rest(false);
+    };
+    if (page === 'merry' && d.body) {
+      var simOn = null;
+      var syncSim = function () {
+        var on = d.body.classList.contains('sim-on');
+        if (on !== simOn) { simOn = on; setCurrent(on ? 'eco' : 'merry'); }
+      };
+      if (w.MutationObserver) new MutationObserver(syncSim).observe(d.body, { attributes: true, attributeFilter: ['class'] });
+      syncSim();
+    }
+
+    if (links) {
+      each(links.querySelectorAll('.mu-l'), function (a) {
+        var on = function () {
+          if (hot && hot !== a) hot.classList.remove('mu-hot');
+          hot = a; a.classList.add('mu-hot'); place(a, false);
+        };
+        a.addEventListener('mouseenter', on);
+        a.addEventListener('focus', on);
+      });
+      links.addEventListener('mouseleave', function () { rest(false); });
+      links.addEventListener('focusout', function (e) { if (!links.contains(e.relatedTarget)) rest(false); });
+      rest(true);
+      try { if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { rest(true); }); } catch (e) {}
+      if (w.ResizeObserver) new ResizeObserver(function () { rest(true); }).observe(links);
+      else w.addEventListener('resize', function () { rest(true); });
+    }
+
+    /* 스크롤 그림자 : 맨 위 1px 표지가 화면 밖으로 나가면 html.mu-scrolled */
+    var top = d.createElement('div');
+    top.id = 'mu-top'; top.setAttribute('aria-hidden', 'true');
+    top.style.cssText = 'position:absolute;left:0;top:0;width:1px;height:1px;pointer-events:none;visibility:hidden';
+    d.body.insertBefore(top, d.body.firstChild);
+    if (w.IntersectionObserver) {
+      new IntersectionObserver(function (es) {
+        h.classList.toggle('mu-scrolled', !es[es.length - 1].isIntersecting);
+      }).observe(top);
+    }
+
+    /* 진행 막대는 화면 높이의 2.5배가 넘는 긴 화면에서만 */
+    var longChk = function () { h.classList.toggle('mu-long', h.scrollHeight > w.innerHeight * 2.5); };
+    longChk();
+    if (w.ResizeObserver) new ResizeObserver(longChk).observe(d.body);
+    w.addEventListener('resize', longChk);
+  }
+
+  /* ── 3) 휴대폰 메뉴 시트 ── */
+  if (nav && sheet) {
+    var btn = nav.querySelector('.mu-menu'), lastFocus = null;
+    var isOpen = function () { return sheet.classList.contains('mu-open'); };
+    var open = function () {
+      lastFocus = d.activeElement;
+      sheet.classList.add('mu-open'); sheet.removeAttribute('aria-hidden');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+      var first = sheet.querySelector('.mu-si[aria-current="page"]') || sheet.querySelector('.mu-si');
+      setTimeout(function () { try { first && first.focus({ preventScroll: true }); } catch (e) {} }, 60);
+    };
+    var close = function (keepFocus) {
+      if (!isOpen()) return;
+      sheet.classList.remove('mu-open'); sheet.setAttribute('aria-hidden', 'true');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+      if (!keepFocus && lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
+    };
+    if (btn) btn.addEventListener('click', function () { if (isOpen()) close(); else open(); });
+    sheet.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.closest && (t.closest('.mu-scrim') || t.closest('.mu-x'))) close();
+    });
+    /* 링크를 누르면 닫는다. 올인원 판은 문서(document) 단계에서 링크를 가로채므로 그보다 앞선 창(window) 단계에서 닫는다 */
+    w.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest && e.target.closest('#mu-sheet a[href]');
+      if (a) close(true);
+    }, true);
+    d.addEventListener('keydown', function (e) {
+      if (!isOpen()) return;
+      if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); close(); return; }
+      if (e.key === 'Tab') {                              /* 시트 안에서만 초점이 돈다 */
+        var f = sheet.querySelectorAll('a[href],button');
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && d.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && d.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    w.addEventListener('resize', function () { if (w.innerWidth > 760) close(true); });
+    w.addEventListener('pageshow', function () { close(true); });
+  }
+
+  /* ── 4) 스크롤해 보일 때 올라오기 ──
+     처음 화면에 보이는 것은 건드리지 않는다(빈 화면이 생기지 않게). 화면 아래에 있는 카드만 숨겼다가 보일 때 올린다.
+     인쇄할 때와 움직임 줄이기 설정에서는 하지 않는다. */
+  var REVEAL = '[data-reveal], .cards > .card, .p, .card, .panel, .kpis > *';
+  var SKIP = '#mu-nav, #mu-sheet, .ov, #hov, #mapov, #oncoov, #scov, .modal-overlay, #ex-mask, .sheet, .dim, [role="dialog"], .sim-pick-wrap, .cmpbar';
+  function reveal() {
+    if (reduce || !w.IntersectionObserver) return;
+    var vh = w.innerHeight || h.clientHeight, list = [];
+    each(d.querySelectorAll(REVEAL), function (el) {
+      if (el.closest(SKIP)) return;
+      var p = el.parentNode && el.parentNode.closest ? el.parentNode.closest(REVEAL) : null;
+      if (p) return;                                      /* 바깥 카드만 움직인다 */
+      var r = el.getBoundingClientRect();
+      if (!r.height || r.top < vh + 8) return;            /* 첫 화면 · 이미 지나간 것은 그대로 */
+      list.push(el);
+    });
+    if (!list.length) return;
+    var io = new IntersectionObserver(function (es) {
+      var batch = [];
+      each(es, function (en) { if (en.isIntersecting) { batch.push(en.target); io.unobserve(en.target); } });
+      batch.sort(function (a, b) {
+        var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        return (ra.top - rb.top) || (ra.left - rb.left);
+      });
+      each(batch, function (el, i) {
+        el.style.setProperty('--mu-d', Math.min(i, 5) * 70 + 'ms');
+        el.classList.add('mu-in');
+      });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.01 });
+    each(list, function (el) {
+      el.classList.add('mu-rv');
+      el.addEventListener('animationend', function done(e) {
+        if (e.target !== el) return;
+        el.classList.remove('mu-rv', 'mu-in'); el.style.removeProperty('--mu-d');
+        el.removeEventListener('animationend', done);
+      });
+      io.observe(el);
+    });
+    var showAll = function () { each(list, function (el) { el.classList.remove('mu-rv', 'mu-in'); }); };
+    w.addEventListener('beforeprint', showAll);
+  }
+  var go = function () { (w.requestAnimationFrame || setTimeout)(function () { setTimeout(reveal, 0); }); };
+  if (d.readyState === 'complete') go(); else w.addEventListener('load', go);
+})();
 </script>
 </body>
 </html>
