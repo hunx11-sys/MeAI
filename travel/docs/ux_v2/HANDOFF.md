@@ -20,6 +20,7 @@
 - 틀(`template_japan.html`)을 v2 로 **다시 씀(아직 조립·점검 안 함)** : 화면 S1 며칠 → S2 출발(처음 한 번) → S3 큰 색 지도 + 지역 카드 3×3 → S4 지역 확대 + 도시 카드 → S5 도시(대표 그림 + 요약 알약 + 아래 탭 5개 : 일정·맛집·볼거리·숙소·준비) + 검색 화면 + 바텀 시트(박 수·출발 공항·식당 고르기·큰 지도·이 일정은·플랜 B·소개·항공편·장소/식당/숙소 자세히·직항 없음). 화면 글자 키 약 95개를 6개 언어로 `data/ui_strings.json` 에 넣음
 - 이전(v1.3) 틀 : 이 문서를 넣은 커밋의 바로 앞 커밋에 있다(`git log -- travel/docs/ux_v2/HANDOFF.md` 로 커밋을 찾고 `git show <그 커밋>~1:travel/template_japan.html`)
 - (2026-10-15 저녁) 한국어 `travel/japan.html` 과 다운로드 파일 `dist/visit_to_japan_ko_v1.4.html` 은 v1.4 로 다시 조립함. 다른 언어 `travel/japan_*.html` 은 손대지 않음
+- (2026-10-22) v1.5 포털 디자인 : 첫 화면 포털(`renderStart`·`homeStats`·`THEMES`·`homeMotion`), 화면이 그려질 때 차례로 떠오르기(`reveal`·`RV_SEL`, 아래쪽은 CSS 스크롤 타임라인), 떠 있는 유리 막대, 탄성 화면 넘김·시트. CSS 는 틀 끝의 '포털' 묶음. 다운로드 파일은 `dist/visit_to_japan_ko_v1.5.html` 로 이름을 바꿈(v1.4 는 git 기록에 있음). 점검 스크립트로 크기를 잴 때는 '동작 줄이기'(reducedMotion: 'reduce')로 열어야 떠오르는 도중의 작은 크기를 잘못 세지 않는다
 
 ## 다음에 할 것(순서대로)
 1. `python3 travel/build_japan.py --lang ko --out <작업폴더>/t/japan.html` 로 조립 → 헤드리스 크로미움(아이폰 13)으로 열어 자바스크립트 오류부터 잡는다. 새 틀은 아직 한 번도 실행하지 않았다.

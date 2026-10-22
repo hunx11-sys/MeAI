@@ -27,7 +27,7 @@ TPL = os.path.join(HERE, 'template_japan.html')
 VALID = os.path.join(HERE, 'tools', 'validate_guide.py')
 sys.path.insert(0, os.path.join(HERE, 'tools'))
 OUT_ART_DIR = os.environ.get('JAPAN_ARTIFACT_DIR', '')  # 아티팩트(claude.ai)용 본문만 뽑을 폴더. 비어 있으면 안 만든다
-VERSION = 'v1.4'
+VERSION = 'v1.5'
 
 REGIONS = ['홋카이도', '도호쿠', '간토', '주부', '간사이', '주고쿠', '시코쿠', '규슈', '오키나와']
 TAGS = ['온천', '미식', '자연', '도시', '쇼핑', '아이동반', '야경', '역사', '바다', '겨울', '벚꽃', '단풍', '테마파크', '드라이브', '섬', '예술', '커피', '애니', '휴양']
@@ -35,7 +35,7 @@ TAGS = ['온천', '미식', '자연', '도시', '쇼핑', '아이동반', '야�
 # 글꼴 : 전부 오픈 폰트 라이선스(OFL). Pretendard 는 jsDelivr, Noto 는 Google Fonts
 FONTS = {
     'pretendard': ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">\n'
-                   '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">',
+                   '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">',
                    "'Pretendard Variable',Pretendard,'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif"),
     'jp': ('<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp-dynamic-subset.min.css">\n'
            '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">',
