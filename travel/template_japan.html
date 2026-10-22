@@ -975,7 +975,7 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 .eyebrow em{font-family:var(--serif);font-size:15px;font-style:italic;font-weight:400;letter-spacing:.01em;color:var(--ink-2)}
 
 /* ═══ 첫 화면(포털) ═══ */
-.home{padding-top:0}
+main.home{padding-top:0}
 .phero{position:relative;isolation:isolate;overflow:hidden;margin-top:-66px;padding:88px 22px 34px;min-height:max(600px,100svh);display:flex;flex-direction:column;justify-content:flex-end;border-radius:0 0 36px 36px;background:#FCEDE6}
 .phero .mesh{position:absolute;inset:-25%;z-index:-3;animation:meshSpin 40s linear infinite;will-change:transform}
 .phero .mesh i{position:absolute;width:72%;aspect-ratio:1;border-radius:50%}
@@ -1009,7 +1009,8 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 .phero .lede{max-width:36ch;font-size:15.5px;line-height:1.65;color:var(--ink-2);text-wrap:pretty}
 .phero .ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
 .phero .quick{width:auto;margin:0;min-height:58px}
-.home .resume{position:relative;z-index:2;margin:-24px 16px 0;width:calc(100% - 32px);background:rgba(255,255,255,.92)}
+.phero .resume{margin:4px 0 0;width:100%;background:rgba(255,255,255,.88)}
+.vh{position:absolute!important;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* 숫자 */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:34px 16px 6px}
 .stats .st{position:relative;padding:16px 16px 14px;border-radius:22px;background:var(--surface);box-shadow:var(--amb-s),inset 0 0 0 1px rgba(120,62,48,.06);overflow:hidden}
@@ -1060,13 +1061,13 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 @media (prefers-reduced-motion:reduce){
   .rv,.rv.sv,.rmap .rl,.rmap .cp,.marq .mt,.phero .mesh,.phero .scene,.phero .scene *,.wordmark .w>span,.phero .rot b,.hero .bg,.hero .badge,.homebrand,.tabbar svg,.sheet .sh-b>*{animation:none!important}
   .homebrand{opacity:1}
-  .marq .mq{overflow-x:auto;scrollbar-width:none}.marq .mq::-webkit-scrollbar{display:none}.marq .mt [aria-hidden="true"]{display:none}
+  .marq .mq{overflow-x:auto;scrollbar-width:none}.marq .mq::-webkit-scrollbar{display:none}.marq .mt .dup{display:none}
   .marq .mt{padding-inline:16px}.marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 }
 /* 가벼운 모드(앱 안 브라우저) : 동작 줄이기와 같게 + 종이결·색 번짐 끔 */
 .lite .rv,.lite .rv.sv,.lite .rmap .rl,.lite .rmap .cp,.lite .marq .mt,.lite .phero .mesh,.lite .phero .scene,.lite .phero .scene *,.lite .wordmark .w>span,.lite .phero .rot b,.lite .hero .bg,.lite .hero .badge,.lite .homebrand,.lite .tabbar svg,.lite .sheet .sh-b>*,.lite .scr{animation:none!important}
 .lite .homebrand{opacity:1}
-.lite .marq .mq{overflow-x:auto;scrollbar-width:none}.lite .marq .mq::-webkit-scrollbar{display:none}.lite .marq .mt [aria-hidden="true"]{display:none}
+.lite .marq .mq{overflow-x:auto;scrollbar-width:none}.lite .marq .mq::-webkit-scrollbar{display:none}.lite .marq .mt .dup{display:none}
 .lite .marq .mt{padding-inline:16px}.lite .marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 .lite body::after,.lite .phero .mesh{display:none}
 /* 휴대폰·터치 기기 : 뒤 흐림(backdrop-filter)은 스크롤마다 다시 그려 끊기므로 끄고 거의 불투명한 판으로(컴퓨터는 그대로) */
@@ -1641,7 +1642,7 @@ function animateMap(from, to){
   cancelAnimationFrame(mapAnim);
   svg.classList.add('anim'); svg.setAttribute('viewBox', from.join(' '));
   const t0 = performance.now(), D = 450;
-  const step = now => { const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+  const step = now => { const k = Math.max(0, Math.min(1, (now - t0) / D)), e = 1 - Math.pow(1 - k, 3);
     svg.setAttribute('viewBox', from.map((a, i) => (a + (to[i] - a) * e).toFixed(2)).join(' '));
     if (k < 1) mapAnim = requestAnimationFrame(step); else { svg.setAttribute('viewBox', to.join(' ')); svg.classList.remove('anim'); } };
   mapAnim = requestAnimationFrame(step);
@@ -1730,7 +1731,7 @@ function homeStats(){
   const gs = Object.values(GUIDES);
   const routes = AIRPORTS.reduce((a, ap) => a + (ap.routes || []).filter(r => KRP[r.from_iata] && r.status !== '운휴' && r.status !== '확인필요').length, 0);
   return [
-    { n: gs.length, k: 'hs_city' },
+    (() => { const d = gs.filter(g => KR.some(k => isDirect(k.iata, g))).length; return { n: gs.length, k: d === gs.length ? 'hs_city' : 'hs_city_d', d }; })(),
     { n: routes, k: 'hs_route' },
     { n: gs.reduce((a, g) => a + (g.plans || []).length + (g.variants || []).length, 0), k: 'hs_plan' },
     { n: gs.reduce((a, g) => a + (g.restaurants || []).length, 0), k: 'hs_food' },
@@ -1747,7 +1748,7 @@ function renderStart(){
   const last = st.last && GUIDES[st.last.city] ? st.last : null;
   const lg = last && GUIDES[last.city];
   const gs = Object.values(GUIDES).sort((a, b) => rankOf(a) - rankOf(b)), half = Math.ceil(gs.length / 2);
-  const chips = (list, hide) => list.map(g => `<button class="mchip ${cCls(g)}" data-act="city" data-v="${esc(g.key)}"${hide ? ' tabindex="-1" aria-hidden="true"' : ''}><span class="ic">${icoImg(g)}</span>${esc(shortName(g))}</button>`).join('');
+  const chips = (list, dup) => list.map(g => `<button class="mchip${dup ? ' dup' : ''} ${cCls(g)}" data-act="city" data-v="${esc(g.key)}" tabindex="-1"><span class="ic">${icoImg(g)}</span>${esc(shortName(g))}</button>`).join('');
   const row = (list, cls) => `<div class="mq${cls}"><div class="mt">${chips(list)}${chips(list, true)}</div></div>`;
   const en = esc(T('brand_en')).split(' ');
   const word = (t, d, it) => `<span class="w"><span style="--d:${d}">${it ? `<em>${t}</em>` : t}</span></span>`;
@@ -1760,10 +1761,10 @@ function renderStart(){
         <p class="rotl">${esc(T('hs_rot_a'))} <span class="rot" id="rot"><b>${esc(shortName(gs[0]))}</b></span>${esc(T('hs_rot_b'))}</p>
         <p class="lede">${esc(T('hs_lede'))}</p>
         <div class="ctas"><button class="cta" data-act="start">${esc(T('hs_cta'))}<span class="ic">${svgNext}</span></button><button class="cta ghost quick" data-act="search" aria-label="${esc(T('hs_find'))}">${svgSearch}<span>${esc(T('hs_find'))}</span></button></div>
+        ${lg ? `<button class="resume ${cCls(lg)}" data-act="resume" data-v="${esc(lg.key)}">${illHtml(lg)}<span class="t"><small>${esc(T('resume'))}</small><b>${nmHtml(T('resume_v', { city: lg.name, nd: nd(last.n || (lg.plans[0] || {}).nights || 2), day: T('day_s', { n: (last.d || 0) + 1 }) }))}</b></span>${svgNext}</button>` : ''}
       </div></section>
-    ${lg ? `<button class="resume ${cCls(lg)}" data-act="resume" data-v="${esc(lg.key)}">${illHtml(lg)}<span class="t"><small>${esc(T('resume'))}</small><b>${nmHtml(T('resume_v', { city: lg.name, nd: nd(last.n || (lg.plans[0] || {}).nights || 2), day: T('day_s', { n: (last.d || 0) + 1 }) }))}</b></span>${svgNext}</button>` : ''}
-    <section class="stats" aria-label="${esc(T('hs_stats'))}">${homeStats().map(x => `<div class="st"><b data-count="${x.n}">${x.n.toLocaleString('ko-KR')}</b><span>${esc(T(x.k))}</span></div>`).join('')}</section>
-    <section class="marq" aria-label="${esc(T('hs_marq'))}">${row(gs.slice(0, half), '')}${row(gs.slice(half), ' r')}</section>
+    <section class="stats" aria-label="${esc(T('hs_stats'))}">${homeStats().map(x => `<div class="st"><b data-count="${x.n}" aria-hidden="true">${x.n.toLocaleString('ko-KR')}</b><span class="vh">${x.n.toLocaleString('ko-KR')}</span><span>${esc(T(x.k, { d: x.d }))}</span></div>`).join('')}</section>
+    <section class="marq" aria-hidden="true">${row(gs.slice(0, half), '')}${row(gs.slice(half), ' r')}</section>
     <section class="step" id="start">
       <div class="shd"><span class="eyebrow">STEP 1<em>of 4</em></span><h2>${esc(T('n_title'))}</h2><p>${esc(T('n_sub'))}</p></div>
       <div class="ncards">${nightsAvail().map(n => `<button class="ncard" data-act="pickn" data-v="${n}">${nightsArt(n)}<span class="t"><b>${esc(nd(n))}</b><small>${esc(glue(UI['n_off' + n] ? T('n_off' + n) : T('n_offx', { n })))}</small></span>${svgNext}</button>`).join('')}</div>
@@ -1793,18 +1794,20 @@ function homeMotion(gs){
   HOME_IO = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; HOME_IO.unobserve(e.target); const b = e.target, to = Number(b.dataset.count) || 0, t0 = performance.now(), D = 1400;
     /* 숫자 칸 폭을 최종값 폭으로 묶어 둔다(이 글꼴은 숫자 폭이 제각각이라 옆 글자가 흔들린다) */
     b.textContent = to.toLocaleString('ko-KR'); b.style.minWidth = Math.ceil(b.getBoundingClientRect().width) + 'px'; b.textContent = '0';
-    const step = now => { const x = Math.min(1, (now - t0) / D), v = Math.round(to * (1 - Math.pow(2, -10 * x))); b.textContent = (x >= 1 ? to : v).toLocaleString('ko-KR'); if (x < 1) requestAnimationFrame(step); };
+    const step = now => { const x = Math.max(0, Math.min(1, (now - t0) / D)), v = Math.round(to * (1 - Math.pow(2, -10 * x))); b.textContent = (x >= 1 ? to : v).toLocaleString('ko-KR'); if (x < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step); }), { threshold: 0.4 });
   nums.forEach(b => HOME_IO.observe(b));
 }
 function stopHome(){ clearInterval(HOME_T); HOME_T = 0; if (HOME_IO){ try { HOME_IO.disconnect(); } catch(e){} HOME_IO = null; } if (HOME_BAR){ try { HOME_BAR.disconnect(); } catch(e){} HOME_BAR = null; } }
 /* 화면이 그려진 뒤 : 보이는 것은 차례로 떠오르고, 아래쪽은 스크롤할 때 떠오른다 */
 const RV_SEL = '.resume,.stats .st,.marq,.shd,.ncard,.step>.txtbtn,.tile,.themes>.txtbtn,.qhead,.prog,.pills,.bigmap,.rgrid>*,.clist>*,.sec,.sepl,.cname,.spills,.vpills,.dhd,.notice,.tl>li,.dend,.alts>*,.subhd,.fchips,.grid2>*,.hlist>*,.prep>*,.ogrid>*,.sitem,.chips.allc,.wbox,.ybox,.vnote,.sex,.snone,main>footer';
-function reveal(){
+/* 같은 화면에서 칩·일차만 바꿀 때는 바뀐 목록만 다시 떠오른다(칩 줄·머리까지 깜빡이지 않게) */
+const RV_KEEP = '.clist>*,.grid2>*,.hlist>*,.tl>li,.dend,.alts>*,.sitem';
+function reveal(sel){
   if (REDUCED) return;
   document.body.dataset.anim = '1';
   /* 위치는 한 번에 다 재고(문서 기준) 나서 표시를 붙인다 : 하나씩 재면 그때마다 화면 계산을 다시 해 느려진다 */
-  const vh = window.innerHeight || 700, y0 = window.scrollY || 0, els = [...app.querySelectorAll(RV_SEL)], tops = els.map(el => el.getBoundingClientRect().top + y0); let i = 0;
+  const vh = window.innerHeight || 700, y0 = window.scrollY || 0, els = [...app.querySelectorAll(sel || RV_SEL)], tops = els.map(el => el.getBoundingClientRect().top + y0); let i = 0;
   /* 스크롤하며 떠오르기는 첫 화면(포털)에만. 목록 카드에 걸면 빨리 내릴 때 빈 카드가 번쩍인다(영업지원도구 휴대폰 제보) */
   const home = st.scr === 'home';
   els.forEach((el, k) => { if (tops[k] > vh + 20){ if (home) el.classList.add('rv', 'sv'); return; } el.classList.add('rv'); el.style.setProperty('--i', Math.min(i++, 12)); });
@@ -2239,6 +2242,7 @@ function parseRoute(h){
   h = String(h == null ? location.hash : h).replace(/^#/, ''); try { h = decodeURIComponent(h); } catch(e){}
   if (!h || h === 'home') return { scr: 'home' };
   if (h === 'from' || h === 'map' || h === 'all' || h === 'search') return { scr: h };
+  { const t = h.match(/^all\/(.+)$/); if (t) return { scr: 'all', tag: TAGS.includes(t[1]) ? t[1] : '' }; }
   const m = h.match(/^map\/([a-z]+)$/); if (m && own(RK_INV, m[1])) return { scr: 'region', region: RK_INV[m[1]] };
   const parts = h.split('/'), key = parts[0];
   if (own(GUIDES, key)){
@@ -2249,6 +2253,7 @@ function parseRoute(h){
   return { scr: 'home' };
 }
 function routeHash(r){
+  if (r.scr === 'all') return '#all' + (r.tag ? '/' + encodeURIComponent(r.tag) : '');
   if (r.scr === 'region') return '#map/' + (RK[r.region] || '');
   if (r.scr === 'city'){ const a = [r.city]; if (r.n) a.push('n' + r.n); if (r.v) a.push('v' + r.v); if (r.d) a.push('d' + (r.d + 1)); if (r.t && r.t !== 'plan') a.push(r.t); return '#' + a.join('/'); }
   return '#' + (r.scr || 'home');
@@ -2256,6 +2261,7 @@ function routeHash(r){
 function applyRoute(r){
   st.scr = r.scr; st.open = -1;
   if (r.scr === 'region') st.region = r.region;
+  if (r.scr === 'all') st.atag = r.tag || '';
   if (r.scr === 'city'){ if (st.city !== r.city){ st.ff = ''; st.sf = ''; } st.city = r.city; st.n = r.n || 0; st.v = r.v || 0; st.d = r.d || 0; st.t = r.t || 'plan'; }
 }
 const scrollMem = {};
@@ -2271,7 +2277,7 @@ function render(o){
   else if (s === 'search') renderSearch();
   else { st.scr = 'home'; renderStart(); }
   chipsIntoView();
-  if (!o.quiet) reveal();
+  if (!o.quiet) reveal(o.keep ? RV_KEEP : '');
   animIn(o.dir);
 }
 function chipsIntoView(){
@@ -2299,13 +2305,13 @@ function parentRoute(){
 }
 function goBack(){
   if (HI > 0){ st.backBtn = true; history.back(); }
-  else { const p = parentRoute(); const from = st.scr === 'region' ? st.region : ''; swap(p, { dir: 'back', fromRegion: from }); }
+  else { NAV_AT = performance.now(); const p = parentRoute(); const from = st.scr === 'region' ? st.region : ''; swap(p, { dir: 'back', fromRegion: from }); }
 }
 window.addEventListener('popstate', e => {
   const ni = e.state && typeof e.state.i === 'number' ? e.state.i : 0, fwd = ni > HI; HI = ni;
   if (st.backBtn) NAV_AT = performance.now();   /* 앱의 뒤로 단추를 두 번 눌러도 한 번만 */
   if (SH.ignorePop > 0){ SH.ignorePop--; const f = SH.after; SH.after = null; if (f) setTimeout(f, 0); return; }
-  if (SH.open){ closeSheet(true); const cur = st.scr === 'city' ? routeHash(cityRoute()) : routeHash({ scr: st.scr, region: st.region }); if (!location.hash || location.hash === cur || (e.state && e.state.sheet)) return; }
+  if (SH.open){ closeSheet(true); const cur = st.scr === 'city' ? routeHash(cityRoute()) : routeHash({ scr: st.scr, region: st.region, tag: st.atag }); if (!location.hash || location.hash === cur || (e.state && e.state.sheet)) return; }
   /* 앞으로 가기로 시트 기록에 왔을 때 : 시트는 다시 열지 않고 보통 기록으로 바꿔 둔다 */
   if (fwd && e.state && e.state.sheet){ try { history.replaceState({ v2: 1, i: HI }, '', location.hash); } catch(e2){} return; }
   if (st.tabPush > HI) st.tabPush = -1;
@@ -2331,14 +2337,14 @@ document.addEventListener('click', e => {
     case 'back': goBack(); return;
     case 'search': st.q = st.q || ''; nav({ scr: 'search' }); { const q = document.getElementById('q'); if (q) try { q.focus(); } catch(e2){} } return;
     case 'all': nav({ scr: 'all' }); return;
-    case 'start': { const t = document.getElementById('start'), tb = document.querySelector('.topbar'); if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - (tb ? tb.getBoundingClientRect().bottom + 8 : 0), behavior: REDUCED ? 'auto' : 'smooth' }); } return;
-    case 'theme': st.atag = v; nav({ scr: 'all' }); return;
+    case 'start': { const t = document.getElementById('start'), tb = document.querySelector('.topbar'); if (t){ window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - (tb ? tb.getBoundingClientRect().bottom + 8 : 0), behavior: REDUCED ? 'instant' : 'smooth' }); const h = t.querySelector('h2'); if (h){ h.setAttribute('tabindex', '-1'); try { h.focus({ preventScroll: true }); } catch(e2){} } } } return;
+    case 'theme': nav({ scr: 'all', tag: v }); return;
     case 'lang': e.stopPropagation(); { const m = document.getElementById('langmenu'); if (m.classList.contains('on')) closeLang(); else openLang(); } return;
     case 'share': share(); return;
     case 'pickn': if (el.classList.contains('pressed')) return; NAV_AT = performance.now(); st.nights = Number(v) || 0; S.set('nights', st.nights); el.classList.add('pressed'); setTimeout(() => nav(st.originSet ? { scr: 'map' } : { scr: 'from' }), REDUCED ? 0 : 120); return;
     case 'picko': st.origin = v; st.originSet = true; S.set('origin', v); S.set('originSet', true);
       if (inSheet){ SH.after = () => render({}); closeSheet(); } else nav({ scr: 'map' }); return;
-    case 'picko-here': st.origin = v; st.originSet = true; S.set('origin', v); S.set('originSet', true); refreshPlan(); toast(T('dep', { origin: krShort(v) })); return;
+    case 'picko-here': { st.origin = v; st.originSet = true; S.set('origin', v); S.set('originSet', true); const go = () => { refreshPlan(); toast(T('dep', { origin: krShort(v) })); }; if (inSheet){ SH.after = go; closeSheet(); } else go(); } return;
     case 'picko-r': st.origin = v; st.originSet = true; S.set('origin', v); S.set('originSet', true); { const r = st.pendingRegion; SH.after = () => { if (st.scr === 'map' && r) nav({ scr: 'region', region: r }, { zoomFrom: rmapView('', rmapAR(r)) }); else if (st.scr === 'region' && r) swap({ scr: 'region', region: r }, { zoomFrom: rmapView(st.region, rmapAR(st.region)) }); else render({}); }; closeSheet(); } return;
     case 'r0-go': SH.after = () => nav({ scr: 'region', region: v }, { zoomFrom: rmapView('', rmapAR(v)) }); closeSheet(); return;
     case 'sh-n': sheetNights(); return;
@@ -2362,7 +2368,7 @@ document.addEventListener('click', e => {
       return; }
     case 'resume': { const l = st.last; if (l && GUIDES[l.city]) nav({ scr: 'city', city: l.city, n: l.n || 0, v: l.v || 0, d: l.d || 0, t: 'plan' }); } return;
     case 'city': if (inSheet){ SH.after = () => nav({ scr: 'city', city: v }); closeSheet(); } else nav({ scr: 'city', city: v }); return;
-    case 'atag': st.atag = v; swap({ scr: 'all' }, { keep: true }); return;
+    case 'atag': swap({ scr: 'all', tag: v }, { keep: true }); return;
     case 'tab': { const go = () => { if (st.scr !== 'city' || st.t === v) return;
         if (st.t === 'plan'){ nav(cityRoute({ t: v }), { dir: '' }); st.tabPush = HI; return; }
         if (v === 'plan' && st.tabPush === HI){ st.tabPush = -1; history.back(); return; }
