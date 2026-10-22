@@ -1,6 +1,351 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-tool="tata">
 <head>
+<style id="meai-ui">
+/* MeAI 영업지원도구 공통 스타일 — 규칙 문서 design/DESIGN-MeAI.md
+이 파일이 원본이다. 화면(HTML)에는 python3 scripts/apply_ui.py 가 <style id="meai-ui"> 로 끼워 넣는다.
+도구마다 다른 것은 강조색(html[data-tool]) 하나뿐이다. */
+:root{
+--ink:#191F28;--ink-2:#333D4B;--sub:#4E5968;--muted:#6B7684;--faint:#8B95A1;--disabled:#B0B8C1;
+--line-strong:#D1D6DB;--line:#E5E8EB;--line-soft:#F2F4F6;
+--surface:#FFFFFF;--surface-1:#F9FAFB;--surface-2:#F2F4F6;--bg:#F2F4F6;
+--danger:#D22030;--danger-weak:#FDECEE;--warning:#B25E00;--warning-weak:#FFF3E0;
+--success:#0E7C4A;--success-weak:#E8F6EE;--info:#2B5BBF;--info-weak:#EBF1FC;
+--accent:#C8102E;--accent-on:#FFFFFF;--accent-strong:#A50D26;--accent-weak:#FDECEE;--accent-line:#F5C2CA;
+--font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;
+--mono:"SF Mono",Consolas,"D2Coding",ui-monospace,monospace;
+--r-xs:6px;--r-sm:10px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:24px;--r-pill:999px;
+--sh-1:0 1px 2px rgba(15,23,42,.04),0 1px 1px rgba(15,23,42,.04);
+--sh-2:0 4px 12px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+--sh-3:0 12px 32px rgba(15,23,42,.12),0 2px 6px rgba(15,23,42,.06);
+--sh-sheet:0 -2px 12px rgba(15,23,42,.06);
+--scrim:rgba(0,0,0,.5);
+--ease:cubic-bezier(.22,.61,.36,1);--t-fast:120ms;--t:200ms;--t-slow:240ms;
+}
+html[data-tool="merry"]{--accent:#C73D1C;--accent-on:#FFFFFF;--accent-strong:#B5361A;--accent-weak:#FDEEE9;--accent-line:#F6CBBD}
+html[data-tool="eco"]{--accent:#23874C;--accent-on:#FFFFFF;--accent-strong:#1A6B3C;--accent-weak:#E9F6EE;--accent-line:#BFE3CC}
+html[data-tool="rara"]{--accent:#F2B705;--accent-on:#3D2C00;--accent-strong:#8A6000;--accent-weak:#FFF6D6;--accent-line:#F3DD94}
+html[data-tool="indi"]{--accent:#A23A91;--accent-on:#FFFFFF;--accent-strong:#7E2C72;--accent-weak:#F8ECF5;--accent-line:#E8C3DF}
+html[data-tool="tata"]{--accent:#2563C9;--accent-on:#FFFFFF;--accent-strong:#1B4C9C;--accent-weak:#EAF1FC;--accent-line:#C3D6F4}
+html[data-tool="zizi"]{--accent:#6D5BD6;--accent-on:#FFFFFF;--accent-strong:#5242AE;--accent-weak:#F0EEFC;--accent-line:#D3CCF5}
+/* 대문 카드 · 도구 표지에서 다른 도구 색을 부를 때 */
+.mu-merry{--t-accent:#C73D1C;--t-strong:#B5361A;--t-weak:#FDEEE9}
+.mu-eco{--t-accent:#23874C;--t-strong:#1A6B3C;--t-weak:#E9F6EE}
+.mu-rara{--t-accent:#F2B705;--t-strong:#8A6000;--t-weak:#FFF6D6}
+.mu-indi{--t-accent:#A23A91;--t-strong:#7E2C72;--t-weak:#F8ECF5}
+.mu-tata{--t-accent:#2563C9;--t-strong:#1B4C9C;--t-weak:#EAF1FC}
+.mu-zizi{--t-accent:#6D5BD6;--t-strong:#5242AE;--t-weak:#F0EEFC}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6;letter-spacing:0;
+-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;word-break:keep-all;overflow-wrap:anywhere}
+button,input,select,textarea{font-family:inherit}
+::selection{background:var(--accent-weak);color:var(--ink)}
+table,.num,.tnum{font-variant-numeric:tabular-nums}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#D1D6DB;border-radius:999px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#B0B8C1;background-clip:padding-box;border:3px solid transparent}
+::-webkit-scrollbar-track{background:transparent}
+/* ── 공통 부품 (새로 쓰는 곳은 이 이름을 쓴다) ── */
+.mu-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;border:0;border-radius:var(--r-md);
+background:var(--surface-2);color:var(--ink);font-size:14px;font-weight:600;line-height:1.25;cursor:pointer;
+transition:background-color var(--t) var(--ease),transform var(--t-fast) var(--ease)}
+.mu-btn:active{transform:scale(.98)}
+.mu-btn.primary{background:var(--accent);color:var(--accent-on)}
+.mu-btn.ghost{background:transparent;color:var(--accent-strong)}
+.mu-btn.lg{height:48px;font-size:16px;padding:0 20px}
+.mu-btn.sm{height:32px;font-size:13px;padding:0 12px;border-radius:var(--r-sm)}
+@media (hover:hover){.mu-btn:hover{background:#E5E8EB}.mu-btn.primary:hover{filter:brightness(.94);background:var(--accent)}.mu-btn.ghost:hover{background:var(--accent-weak)}}
+.mu-chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r-pill);
+background:var(--surface);color:var(--sub);font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;
+transition:background-color var(--t) var(--ease),border-color var(--t) var(--ease),color var(--t) var(--ease)}
+.mu-chip.on,.mu-chip[aria-pressed="true"]{background:var(--accent-weak);border-color:var(--accent-line);color:var(--accent-strong);font-weight:600}
+.mu-badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--r-xs);font-size:12px;font-weight:600;
+background:var(--surface-2);color:var(--sub);white-space:nowrap}
+.mu-badge.accent{background:var(--accent-weak);color:var(--accent-strong)}
+.mu-badge.danger{background:var(--danger-weak);color:var(--danger)}
+.mu-badge.warning{background:var(--warning-weak);color:var(--warning)}
+.mu-badge.success{background:var(--success-weak);color:var(--success)}
+.mu-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.mu-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;font-weight:500;
+padding:12px 18px;border-radius:var(--r-md);box-shadow:var(--sh-2);z-index:2147483000}
+/* ══ 사이트 셸 · 움직임 — 규칙 design/DESIGN-MeAI.md 「11. 사이트 셸 · 움직임」 ══
+머리 띠(#mu-nav) · 휴대폰 메뉴 시트(#mu-sheet) · 바탕 빛(#mu-amb)은 apply_ui.py 가 본문 맨 앞에 넣고,
+움직임은 ui/meai-site.js(script#meai-site)가 붙인다. 자바스크립트가 없어도 화면은 다 보인다. */
+:root{--mu-nav-h:0px;--mu-spring:cubic-bezier(.16,1,.3,1);--mu-t-in:560ms;--mu-t-hover:200ms;--mu-t-sheet:520ms}
+html:has(#mu-nav){--mu-nav-h:56px;scroll-padding-top:calc(var(--mu-nav-h) + 12px)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+.mu-home{--t-accent:#C8102E;--t-strong:#A50D26;--t-weak:#FDECEE}
+/* 바탕 빛 : 맨 위에만 그 도구 색을 아주 옅게(알파 .05~.08) — 글씨 대비에 영향 없음 */
+#mu-amb{position:absolute;left:0;right:0;top:0;height:560px;z-index:-1;pointer-events:none;
+background:radial-gradient(60% 70% at 12% -10%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 70%),
+radial-gradient(50% 60% at 88% -20%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 70%),
+radial-gradient(40% 50% at 50% -30%,rgba(43,91,191,.04),transparent 70%)}
+/* 머리 띠 */
+/* 머리 띠는 자기 합성 층(translateZ)에 올려 스크롤 때 다시 그리지 않는다. 휴대폰(760px 이하 · 터치 화면)은 블러 없이 거의 불투명한 흰색 —
+블러는 PC 에서만. 스크롤 그림자는 상자 그림자를 움직이지 않고 ::after 의 opacity 만 바꾼다. */
+#mu-nav{position:sticky;top:0;z-index:45;height:var(--mu-nav-h);box-sizing:border-box;margin:0;font-family:var(--font);
+background:#fff;border-bottom:1px solid rgba(15,23,42,.07);view-transition-name:mu-nav;transform:translateZ(0)}
+#mu-nav::after{content:"";position:absolute;left:0;right:0;top:100%;height:18px;pointer-events:none;opacity:0;
+background:linear-gradient(to bottom,color-mix(in srgb,var(--accent) 7%,rgba(15,23,42,.06)),transparent);transition:opacity 320ms var(--mu-spring)}
+html.mu-scrolled #mu-nav::after{opacity:1}
+@media (min-width:761px) and (hover:hover){
+#mu-nav{background:rgba(255,255,255,.8);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px)}
+html.mu-scrolled #mu-nav{background:rgba(255,255,255,.88)}
+}
+#mu-nav *,#mu-sheet *{box-sizing:border-box}
+#mu-nav .mu-in{max-width:1248px;height:100%;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}
+#mu-nav a{text-decoration:none}
+#mu-nav .mu-brand{display:inline-flex;align-items:center;gap:10px;height:40px;flex:none;color:var(--ink);border-radius:var(--r-md)}
+#mu-nav .mu-mark,#mu-sheet .mu-mark{width:28px;height:28px;flex:none;border-radius:9px;background:#C8102E;color:#fff;display:grid;place-items:center;
+font:700 15px/1 var(--font);letter-spacing:-.02em;box-shadow:0 4px 10px -5px rgba(200,16,46,.45)}
+#mu-nav .mu-bt{font-size:16px;font-weight:700;letter-spacing:-.015em;white-space:nowrap;line-height:1}
+#mu-nav .mu-bt span{margin-left:6px;font-size:14px;font-weight:500;color:var(--sub);letter-spacing:0}
+#mu-nav .mu-links{position:relative;display:flex;align-items:center;gap:2px;margin-left:auto;min-width:0}
+#mu-nav .mu-l{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 12px;border-radius:var(--r-pill);
+font-size:14px;font-weight:600;line-height:1;color:var(--sub);white-space:nowrap;transition:color var(--mu-t-hover) var(--mu-spring)}
+#mu-nav .mu-l i,#mu-sheet .mu-dot{display:block;flex:none;width:6px;height:6px;border-radius:50%;background:var(--t-accent);
+transition:transform var(--mu-t-hover) var(--mu-spring)}
+#mu-nav .mu-l[aria-current="page"]{color:var(--t-strong);background:var(--t-weak)}
+#mu-nav .mu-l.mu-hot{color:var(--t-strong)}
+#mu-nav .mu-pill-on .mu-l[aria-current="page"]{background:transparent}
+#mu-nav .mu-pill{position:absolute;left:0;top:50%;z-index:0;height:36px;margin-top:-18px;width:var(--pill-w,0);border-radius:var(--r-pill);
+background:var(--t-weak,transparent);opacity:0;transform:translate3d(var(--pill-x,0),0,0);pointer-events:none;
+transition:transform 460ms var(--mu-spring),width 460ms var(--mu-spring),background-color 260ms var(--mu-spring),opacity 200ms var(--mu-spring)}
+#mu-nav .mu-pill-on .mu-pill{opacity:1}
+#mu-nav .mu-pill.mu-still{transition:none}
+@media (hover:hover){
+#mu-nav .mu-l:hover{color:var(--t-strong)}
+#mu-nav .mu-l:hover i{transform:scale(1.35)}
+#mu-nav .mu-brand:hover .mu-mark{transform:rotate(-6deg)}
+}
+#mu-nav .mu-mark{transition:transform 320ms var(--mu-spring)}
+#mu-nav .mu-l:active{transform:scale(.98)}
+#mu-nav .mu-cur{display:none}
+#mu-nav .mu-menu{display:none;flex:none;width:44px;height:44px;margin-left:auto;margin-right:-8px;padding:0;border:0;border-radius:var(--r-md);
+background:transparent;color:var(--ink);cursor:pointer;align-items:center;justify-content:center;
+transition:background-color var(--mu-t-hover) var(--mu-spring),transform var(--t-fast) var(--ease)}
+#mu-nav .mu-menu:active{transform:scale(.94)}
+@media (hover:hover){#mu-nav .mu-menu:hover{background:var(--surface-2)}}
+#mu-nav .mu-prog{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);
+opacity:0;pointer-events:none}
+@supports (animation-timeline:scroll()){
+html.mu-long #mu-nav .mu-prog{opacity:1;animation:mu-prog linear both;animation-duration:auto;animation-timeline:scroll(root block)}
+}
+@keyframes mu-prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+body.sim-on #mu-nav .mu-prog{display:none}
+@media (max-width:1080px){
+#mu-nav .mu-bt span{display:none}
+#mu-nav .mu-l i{display:none}
+#mu-nav .mu-l{padding:0 10px}
+}
+@media (max-width:760px){
+#mu-nav .mu-in{padding:0 16px;gap:8px}
+#mu-nav .mu-links{display:none}
+#mu-nav .mu-menu{display:inline-flex}
+#mu-nav .mu-cur{display:inline-flex;align-items:center;gap:6px;min-width:0;height:28px;padding:0 10px;border-radius:var(--r-pill);
+background:var(--t-weak);color:var(--t-strong);font-size:13px;font-weight:600;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mu-nav .mu-cur i{display:block;flex:none;width:6px;height:6px;border-radius:50%;background:var(--t-accent)}
+#mu-nav .mu-cur:empty{display:none}
+#mu-nav .mu-in:has(.mu-cur:empty) .mu-bt span{display:inline}
+}
+@media (max-width:359px){#mu-nav .mu-bt{font-size:15px}#mu-nav .mu-cur{padding:0 8px}}
+/* 휴대폰 메뉴 시트 */
+#mu-sheet{position:fixed;inset:0;z-index:100000;visibility:hidden;pointer-events:none;font-family:var(--font);
+transition:visibility 0s linear var(--mu-t-sheet)}
+#mu-sheet.mu-open{visibility:visible;pointer-events:auto;transition:none}
+#mu-sheet .mu-scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity 320ms var(--mu-spring)}
+#mu-sheet .mu-panel{position:absolute;left:0;right:0;bottom:0;max-height:88vh;max-height:88dvh;overflow:auto;overscroll-behavior:contain;
+background:var(--surface);border-radius:var(--r-2xl) var(--r-2xl) 0 0;box-shadow:var(--sh-sheet);
+padding:8px 16px calc(16px + env(safe-area-inset-bottom));transform:translate3d(0,104%,0);transition:transform var(--mu-t-sheet) var(--mu-spring)}
+#mu-sheet.mu-open .mu-scrim{opacity:1}
+#mu-sheet.mu-open .mu-panel{transform:none}
+#mu-sheet .mu-grab{width:36px;height:4px;border-radius:2px;background:var(--line-strong);margin:0 auto 8px}
+#mu-sheet .mu-sh{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 0 8px}
+#mu-sheet .mu-sh b{font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+#mu-sheet .mu-x{margin-left:auto;margin-right:-6px;width:44px;height:44px;border:0;border-radius:var(--r-pill);background:transparent;color:var(--sub);
+display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+#mu-sheet .mu-x:active{background:var(--surface-2)}
+#mu-sheet ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+#mu-sheet .mu-si{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border-radius:var(--r-lg);color:var(--ink);text-decoration:none;
+transition:background-color var(--mu-t-hover) var(--mu-spring),transform var(--t-fast) var(--ease)}
+#mu-sheet .mu-si .mu-dot{width:10px;height:10px;box-shadow:0 0 0 4px var(--t-weak)}
+#mu-sheet .mu-si span{display:flex;flex-direction:column;gap:2px;min-width:0}
+#mu-sheet .mu-si b{font-size:16px;font-weight:600;line-height:1.3}
+#mu-sheet .mu-si small{font-size:13px;font-weight:500;line-height:1.3;color:var(--muted)}
+#mu-sheet .mu-si em{margin-left:auto;font-style:normal;font-size:12px;font-weight:600;height:22px;padding:0 8px;border-radius:var(--r-xs);display:none;align-items:center;
+background:var(--surface);color:var(--t-strong)}
+#mu-sheet .mu-si svg{margin-left:auto;flex:none;color:var(--faint)}
+#mu-sheet .mu-si[aria-current="page"]{background:var(--t-weak)}
+#mu-sheet .mu-si[aria-current="page"] b{color:var(--t-strong)}
+#mu-sheet .mu-si[aria-current="page"] em{display:inline-flex}
+#mu-sheet .mu-si[aria-current="page"] em + svg{margin-left:0}
+#mu-sheet .mu-si:active{transform:scale(.98);background:var(--surface-2)}
+#mu-sheet li{opacity:0;transform:translate3d(0,10px,0);transition:opacity 360ms var(--mu-spring),transform 520ms var(--mu-spring)}
+#mu-sheet.mu-open li{opacity:1;transform:none;transition-delay:calc(60ms + var(--i,0) * 35ms)}
+@media (min-width:761px){#mu-sheet{display:none}}
+/* 움직임 : 들어올 때(한 번) · 스크롤해 보일 때 · 마우스를 올릴 때
+html.mu-enter 는 <head> 의 작은 스크립트가 켜고 1.4초 뒤 끈다. 화면 밖 요소만 .mu-rv 로 숨겼다가 보일 때 올린다. */
+@keyframes mu-rise{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
+@keyframes mu-up{from{opacity:0;transform:translate3d(0,18px,0)}to{opacity:1;transform:none}}
+@keyframes mu-fade{from{opacity:0}to{opacity:1}}
+html.mu-enter body>:not(#mu-nav):not(#mu-sheet):not(#mu-amb):not(#mu-top):not(script):not(style):not(link):not(#simFrame):not(#meaiTabs):not(.mu-toast){
+animation:mu-rise var(--mu-t-in) var(--mu-spring) both}
+@media (max-width:760px),(hover:none){
+html.mu-enter body>:not(#mu-nav):not(#mu-sheet):not(#mu-amb):not(#mu-top):not(script):not(style):not(link):not(#simFrame):not(#meaiTabs):not(.mu-toast){
+animation:mu-fade 240ms var(--mu-spring) both}
+}
+html.mu-js .mu-rv{opacity:0;transform:translate3d(0,18px,0)}
+html.mu-js .mu-rv.mu-in{animation:mu-up 640ms var(--mu-spring) both;animation-delay:var(--mu-d,0ms)}
+html[data-tool="home"] .cards>.card,html[data-tool="rara"] .p:not(.open),html[data-tool="indi"] .card,html[data-tool="merry"] button.card,.mu-lift{
+transition:transform var(--mu-t-hover) var(--mu-spring),background-color var(--t) var(--ease),border-color var(--t) var(--ease)}
+@media (hover:hover){
+html[data-tool="home"] .cards>.card:hover,html[data-tool="rara"] .p:not(.open):hover,html[data-tool="indi"] .card:hover,html[data-tool="merry"] button.card:hover,.mu-lift:hover{
+transform:translate3d(0,-2px,0);
+box-shadow:0 14px 30px -16px color-mix(in srgb,var(--t-accent,var(--accent)) 45%,transparent),0 2px 6px -2px rgba(15,23,42,.06)}
+html[data-tool="home"] .cards>.card .go{transition:color var(--t) var(--ease),transform var(--mu-t-hover) var(--mu-spring)}
+html[data-tool="home"] .cards>.card:hover .go{transform:translate3d(3px,0,0);color:var(--t-strong,var(--ink))}
+}
+html[data-tool="home"] .cards>.card:active,html[data-tool="rara"] .p:not(.open):active,html[data-tool="indi"] .card:active,html[data-tool="merry"] button.card:active,.mu-lift:active{
+transform:scale(.98)}
+/* 모달 덮개 : 열 때 · 닫을 때 옅게 — display 를 바꿔 여닫는 화면 공통 고리(특약검색기 · 보상시뮬레이터 · 프롬프트 · 상품 라인업).
+안쪽 상자의 올라오는 움직임은 각 화면 것을 그대로 쓴다. 이 기능이 없는 브라우저에서는 예전처럼 바로 열리고 닫힌다. */
+.ov,#hov,#mapov,#oncoov,.modal-overlay,#ex-mask{
+transition:opacity 280ms var(--mu-spring),display 280ms allow-discrete,overlay 280ms allow-discrete}
+.ov:not(.show),#hov:not(.show),#mapov:not(.show),#oncoov:not(.show),.modal-overlay:not(.show),#ex-mask:not(.on){opacity:0;pointer-events:none}
+@starting-style{.ov.show,#hov.show,#mapov.show,#oncoov.show,.modal-overlay.show,#ex-mask.on{opacity:0}}
+/* 화면을 넘어갈 때 : 가볍게 겹쳐 사라지고, 머리 띠는 그대로 */
+@media (prefers-reduced-motion:no-preference){
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:240ms;animation-timing-function:var(--mu-spring)}
+::view-transition-group(mu-nav){animation-duration:0s}
+}
+@media (prefers-reduced-motion:reduce){
+html.mu-enter body>*{animation:none!important}
+html.mu-js .mu-rv{opacity:1;transform:none}
+#mu-sheet li{opacity:1;transform:none}
+}
+@media print{
+#mu-nav,#mu-sheet,#mu-amb,#mu-top{display:none!important}
+html:has(#mu-nav){--mu-nav-h:0px}
+html.mu-enter body>*,html.mu-js .mu-rv,html.mu-js .mu-rv.mu-in{animation:none!important;opacity:1!important;transform:none!important}
+}
+/* ══ 다듬기 — 규칙 design/DESIGN-MeAI.md 「11. 사이트 셸 · 움직임」 다음 단계
+닫힘 움직임 · 누름 반응 · 미끄러지는 탭 표시 · 결과 차례로 나타나기 · 뼈대 반짝임 · 숫자 폭 맞춤 · 휴대폰 머리 합치기.
+움직임은 transform · opacity 로만(탭 표시 폭 · 접기 높이만 예외). 움직임 줄이기 설정 · 인쇄에서는 모두 꺼진다. ══ */
+:root{--mu-t-out:220ms;--mu-out:cubic-bezier(.4,0,.9,.35);--mu-t-press:180ms}
+/* 1) 모달 · 시트가 닫힐 때 : 덮개가 옅어지는 240ms 동안 안쪽 상자도 물러난다(PC 는 .98 로 작아지며 옅게, 휴대폰 시트는 아래로) */
+@keyframes mu-dlg-out{from{opacity:1;transform:none}to{opacity:0;transform:scale(.98)}}
+@keyframes mu-dlg-in{from{opacity:0;transform:translate3d(0,12px,0) scale(.985)}to{opacity:1;transform:none}}
+@keyframes mu-sheet-out{from{transform:none}to{transform:translate3d(0,100%,0)}}
+@keyframes mu-sheet-in{from{transform:translate3d(0,100%,0)}to{transform:none}}
+#scov{transition:opacity 280ms var(--mu-spring),display 280ms allow-discrete,overlay 280ms allow-discrete}
+#scov:not(.show){opacity:0;pointer-events:none}
+@starting-style{#scov.show{opacity:0}}
+.ov:not(.show),#hov:not(.show),#mapov:not(.show),#oncoov:not(.show),#scov:not(.show),.modal-overlay:not(.show),#ex-mask:not(.on){transition-duration:240ms}
+.ov:not(.show)>.modal,.ov:not(.show)>.cmodal,#hov:not(.show)>#hmodal,#mapov:not(.show) .mapmodal,#oncoov:not(.show) .ocmodal,#scov:not(.show) .scmodal,
+.modal-overlay:not(.show)>.modal,#ex-mask:not(.on)>.sheet,.sim-pick-wrap.mu-closing>.sim-pick{animation:mu-dlg-out var(--mu-t-out) var(--mu-out) both}
+#ex-mask.on>.sheet{animation:mu-dlg-in 420ms var(--mu-spring) both}
+.sim-pick-wrap{transition:opacity 280ms var(--mu-spring)}
+@starting-style{.sim-pick-wrap{opacity:0}}
+.sim-pick-wrap.mu-closing{opacity:0;pointer-events:none;transition-duration:240ms}
+@media (max-width:640px){
+.ov:not(.show)>.modal,.ov:not(.show)>.cmodal,#hov:not(.show)>#hmodal,#mapov:not(.show) .mapmodal,#oncoov:not(.show) .ocmodal,#scov:not(.show) .scmodal,
+.modal-overlay:not(.show)>.modal,#ex-mask:not(.on)>.sheet,.sim-pick-wrap.mu-closing>.sim-pick{animation-name:mu-sheet-out;animation-duration:240ms}
+#ex-mask.on>.sheet{animation:mu-sheet-in 480ms var(--mu-spring) both}
+}
+/* 2) 누름 반응 · 떠오름 — 화면마다 이름을 콕 집어 건다(button 전체에 걸면 transform 으로 자리 잡은 단추가 흔들린다).
+:not(#mu-z) 는 화면 자체 규칙보다 앞서게 하는 장치(그런 id 는 없다) */
+html[data-tool="merry"]:not(#mu-z) :is(.quick button,.catlist button,.seg button,.viewtabs button,.grp-toggle,.vr-pill,.cmp-btn,.tabs button,.fsz button,
+.sim-kw,.sim-code,.sug-rel-chip,.h-tab,.mm-tab,.sc-tab,.sc-qk,.sc-fbtn,#meaiTabs button,.cmp-chip,.cmpbar-act button),
+html[data-tool="eco"]:not(#mu-z) :is(.chip,.prod-tag,.toggle-all,.reset-btn,.mp-btn,.h-tab,.mm-tab),
+html[data-tool="rara"]:not(#mu-z) :is(.chip,.tab,.reset,.more,.ex-go,.dcard .plist span,#viewEx .ex-rule button,#ex-ptabs button,#ex-mask .sheet .sh button),
+html[data-tool="indi"]:not(#mu-z) :is(.chip,.htag,.modal-close,.copy-btn,.reset-btn),
+html[data-tool="zizi"]:not(#mu-z) :is(.chip,.kchip,.bchip,.tchip,.addbtn,.tbtn,.btn,.seg button,.pth,.tr-row,.sh-x),
+html[data-tool="tata"]:not(#mu-z) :is(.chip,.seg button,.btn),
+html[data-tool="home"]:not(#mu-z) .seg button{
+transition:transform var(--mu-t-press) var(--mu-spring),background-color var(--t) var(--ease),border-color var(--t) var(--ease),color var(--t) var(--ease)}
+html[data-tool="merry"]:not(#mu-z) :is(.quick button,.catlist button,.seg button,.viewtabs button,.grp-toggle,.vr-pill,.cmp-btn,.tabs button,.fsz button,
+.sim-kw,.sim-code,.sug-rel-chip,.h-tab,.mm-tab,.sc-tab,.sc-qk,.sc-fbtn,#meaiTabs button,.cmp-chip,.cmpbar-act button):active,
+html[data-tool="eco"]:not(#mu-z) :is(.chip,.prod-tag,.toggle-all,.reset-btn,.mp-btn,.h-tab,.mm-tab):active,
+html[data-tool="rara"]:not(#mu-z) :is(.chip,.tab,.reset,.more,.ex-go,.dcard .plist span,#viewEx .ex-rule button,#ex-ptabs button,#ex-mask .sheet .sh button):active,
+html[data-tool="indi"]:not(#mu-z) :is(.chip,.htag,.modal-close,.copy-btn,.reset-btn):active,
+html[data-tool="zizi"]:not(#mu-z) :is(.chip,.kchip,.bchip,.tchip,.addbtn,.tbtn,.btn,.seg button,.tr-row,.sh-x):active,
+html[data-tool="tata"]:not(#mu-z) :is(.chip,.seg button,.btn):active,
+html[data-tool="home"]:not(#mu-z) .seg button:active{transform:scale(.97)}
+/* 누르면 열리는 카드 : 통합치료비 치료 과정 카드 · 보상시뮬레이터 단계 머리 */
+html[data-tool="zizi"]:not(#mu-z) .pth:not(.on):active{transform:scale(.98)}
+@media (hover:hover){
+html[data-tool="zizi"]:not(#mu-z) .pth:not(.on):hover{transform:translate3d(0,-2px,0);
+box-shadow:0 14px 30px -16px color-mix(in srgb,var(--accent) 45%,transparent),0 2px 6px -2px rgba(15,23,42,.06)}
+}
+html[data-tool="eco"] .stage-head{transition:background-color var(--t) var(--ease)}
+html[data-tool="eco"] .stage-head:active{background:var(--surface-2)}
+html[data-tool="rara"] .ph:active{background:var(--surface-2)}
+/* 3) 미끄러지는 탭 · 세그먼트 표시 — meai-site.js 가 .mu-ind 를 넣고 자리를 transform 으로 옮긴다 */
+.mu-sl{position:relative;isolation:isolate}
+.mu-sl>.mu-ind{position:absolute;left:0;top:0;z-index:0;pointer-events:none;display:block;width:0;height:0;margin:0;padding:0;
+background:var(--surface);box-shadow:var(--sh-1);border-radius:var(--r-sm);
+transition:transform 440ms var(--mu-spring),width 440ms var(--mu-spring),height 440ms var(--mu-spring),opacity 200ms var(--mu-spring)}
+.mu-sl>.mu-ind.mu-still{transition:none}
+.mu-sl>:not(.mu-ind){position:relative;z-index:1}
+.mu-sl-pill>.on{background-color:transparent!important;box-shadow:none!important}
+.mu-sl-line>.mu-ind{background:var(--accent);box-shadow:none;border-radius:2px}
+.mu-sl-line>.on::after{opacity:0}
+/* 4) 검색 · 필터 바로 뒤 처음 보이는 8장만 160ms 옅게 나타난다(이동 없음 · 스크롤할 때는 절대 움직이지 않는다) */
+@keyframes mu-pop{from{opacity:0}to{opacity:1}}
+html.mu-js .mu-st{animation:mu-pop 160ms var(--ease) both}
+/* 5) 뼈대(불러오는 중) 반짝임 */
+@keyframes mu-shimmer{from{background-position:120% 0}to{background-position:-20% 0}}
+.mu-skel,html[data-tool="home"] .skel{background-color:var(--surface-2);
+background-image:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.65) 50%,transparent 70%);background-size:220% 100%;background-repeat:no-repeat;
+animation:mu-shimmer 1.3s cubic-bezier(.45,.05,.55,.95) infinite}
+/* 6) 숫자 폭 맞춤 — 금액 · 건수가 바뀌어도 글자가 흔들리지 않게 */
+html[data-tool="zizi"] body,.amt,.amt-badge,.count,.cnt,.summary,.tl-cnt,.stage-count,.kpi .v,.kpi,.ct,.n,.pg,.foot-bar b,.cmp-cnt,.sim-pick-n,
+.card-id,.shown,#shown,.countline{font-variant-numeric:tabular-nums}
+/* 7) 휴대폰 : 자기 머리(.appbar)가 있는 화면(통합치료비 · 사용 통계)은 머리 띠의 도구 칩을 빼고 두 줄을 한 머리로 붙인다 */
+@media (max-width:760px){
+html:has(#mu-nav):has(.appbar) #mu-nav .mu-cur{display:none}
+html:has(#mu-nav):has(.appbar) #mu-nav .mu-in .mu-bt span{display:inline}
+html:has(#mu-nav):has(.appbar):not(.mu-scrolled) #mu-nav{border-bottom-color:transparent}
+html:has(#mu-nav) .appbar{background:transparent;border-bottom:1px solid rgba(15,23,42,.06)}
+html:has(#mu-nav) .appbar .appbar-in{height:48px}
+}
+/* 8) 보상시뮬레이터 단계 접기 · 펴기 : 같은 0fr→1fr 를 스프링으로 */
+html[data-tool="eco"] .stage-body{transition:grid-template-rows 420ms var(--mu-spring)}
+html[data-tool="eco"] .chevron{transition:transform 420ms var(--mu-spring)}
+.p .arw,.fb-chev{transition:transform 420ms var(--mu-spring),background-color var(--t) var(--ease)}
+/* 9) 초점 고리 : 어디서나 같은 2px 강조색 + 2px 띄움(둥근 모서리를 따라간다) */
+:is(a,button,summary,[tabindex],[role="button"],[role="tab"],label):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mu-sl>:focus-visible{outline-offset:-2px}
+@media (prefers-reduced-motion:reduce){
+html.mu-js .mu-st{animation:none}
+.mu-sl>.mu-ind{transition:none}
+.mu-skel,html[data-tool="home"] .skel{animation:none}
+.ov:not(.show)>.modal,.ov:not(.show)>.cmodal,#hov:not(.show)>#hmodal,#mapov:not(.show) .mapmodal,#oncoov:not(.show) .ocmodal,#scov:not(.show) .scmodal,
+.modal-overlay:not(.show)>.modal,#ex-mask:not(.on)>.sheet,.sim-pick-wrap.mu-closing>.sim-pick,#ex-mask.on>.sheet{animation:none}
+}
+@media print{
+.mu-sl>.mu-ind{display:none!important}
+.mu-sl-pill>.on{background-color:var(--surface)!important}
+html.mu-js .mu-st{animation:none!important;opacity:1!important;transform:none!important}
+.mu-skel{animation:none!important}
+}
+/* 가벼운 모드(html.mu-lite — 카카오톡 등 앱 안 브라우저) : 「움직임 줄이기」와 같다. 장식 움직임 · 화면 넘김 효과 · 부드러운 스크롤을 끈다 */
+html.mu-lite *,html.mu-lite *::before,html.mu-lite *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}
+html.mu-lite{scroll-behavior:auto!important}
+html.mu-lite .mu-rv{opacity:1!important;transform:none!important}
+html.mu-lite::view-transition-group(*),html.mu-lite::view-transition-old(*),html.mu-lite::view-transition-new(*){animation:none!important}
+html.mu-lite #mu-amb,html.mu-lite .hero-mesh,html.mu-lite .hero-noise{display:none!important}
+#mu-kbar{display:flex;align-items:center;gap:10px;margin:0;padding:10px 16px;background:#FEE500;color:#191F28;font:600 14px/1.4 var(--font);position:relative;z-index:44}
+#mu-kbar span{flex:1;min-width:0}
+#mu-kbar a{flex:none;height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:var(--r-pill);background:#191F28;color:#fff;text-decoration:none;font-weight:700}
+#mu-kbar button{flex:none;width:36px;height:36px;border:0;background:transparent;font-size:16px;color:#3D2C00;cursor:pointer}
+@media print{#mu-kbar{display:none!important}}
+</style><link id="meai-font-pre" rel="preload" href="assets/pretendard-subset.woff2" as="font" type="font/woff2" crossorigin><style id="meai-font">@font-face{font-family:"Pretendard Variable";font-weight:45 930;font-style:normal;font-display:swap;src:url(assets/pretendard-subset.woff2) format("woff2-variations"),url(assets/pretendard-subset.woff2) format("woff2")}</style><script id="meai-boot">(function(h){h.classList.add("mu-js");var L=false;try{var q=location.search,u=navigator.userAgent||"",c=navigator.connection;L=/[?&]lite=1/.test(q)||(!/[?&]lite=0/.test(q)&&(/KAKAOTALK|NAVER\(inapp|; wv\)|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|BAND\//i.test(u)||!!(c&&c.saveData)))}catch(e){}if(L){h.classList.add("mu-lite");if(/KAKAOTALK/i.test(navigator.userAgent||"")){h.classList.add("mu-kakao");}var mm=window.matchMedia;window.matchMedia=function(x){if(/prefers-reduced-motion/.test(x)){var r=!/no-preference/.test(x);return{matches:r,media:x,onchange:null,addListener:function(){},removeListener:function(){},addEventListener:function(){},removeEventListener:function(){},dispatchEvent:function(){return false}}}return mm.call(window,x)};return}try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");setTimeout(function(){h.classList.remove("mu-enter")},1400)})(document.documentElement)</script>
 <!-- 검색엔진 수집 거부 : 링크를 받은 사람만 들어오게 한다.
      URL 은 그대로 동작하며, 구글·네이버 등의 검색 결과에는 나오지 않는다. -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
@@ -37,97 +382,115 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
 </script>
 <style>
+  /* 명패 제작기 화면 — design/DESIGN-MeAI.md 규칙 · 강조색 = 타타(파랑, data-tool="tata")
+     ※ 명패·라벨 디자인(.plate · .lplate)과 @media print 는 손대지 않는다 : 아래 --plate · --sans · --serif · --cutborder 는 명패 전용 값 */
   :root{
-    --meritz:#1D4ED8;--meritz-deep:#1E40AF;--plate:#F5451E;--plate-deep:#D8360F;
-    --ink:#16120d;--ink-soft:#6d6459;--line:#e6e1d8;--bg:#eceae5;--panel:#fff;
+    --plate:#F5451E;--plate-deep:#D8360F;
     --sans:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',-apple-system,sans-serif;
     --serif:'Noto Serif KR','Nanum Myeongjo','바탕',Batang,'궁서',Gungsuh,serif;
     --cutborder:1px dashed #cfcbc4;
+    --ink-soft:var(--muted);
   }
+  /* 명패·라벨은 예전 글씨색 · 글꼴을 그대로 쓴다(화면 토큰과 분리) */
+  .plates,.sheetwrap{font-family:var(--sans)}
+  .plate,.lplate{--ink:#16120d}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{font-family:var(--sans);background:radial-gradient(1200px 500px at 80% -10%,rgba(29,78,216,.06),transparent 60%),var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.6}
 
-  .chrome{max-width:1140px;margin:0 auto;padding:26px 22px 90px}
-  .contact{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:14px;padding:6px 12px;background:#fff;border:1px solid var(--line);border-radius:20px}
-  .contact .cd{width:7px;height:7px;background:var(--meritz);border-radius:50%}
-  header.top{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-bottom:8px}
-  header.top .dot{width:15px;height:15px;background:var(--meritz);border-radius:4px;box-shadow:0 3px 10px rgba(29,78,216,.4)}
-  .top .mascot-tata{width:44px;height:56px;flex:none;background:url(data:image/png;base64,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) center/contain no-repeat;filter:drop-shadow(0 4px 9px rgba(0,0,0,.18))}
-  /* ══ 대문 복귀 버튼 · 전 도구 공통 규격 ══ */
-  header.top{position:relative; padding-right:104px}
-  .top .home{position:fixed; top:14px; right:16px; z-index:50;
-    display:inline-flex; align-items:center; gap:5px; white-space:nowrap;
-    color:var(--meritz); text-decoration:none; font-size:12px; font-weight:800; line-height:1;
-    background:#fff; border:1px solid var(--line); padding:7px 14px; border-radius:999px;
-    box-shadow:0 3px 10px rgba(20,20,60,.12); transition:background .15s, border-color .15s, transform .12s}
-  .top .home:hover{background:#F5F8FF; border-color:var(--meritz); transform:translateY(-1px)}
-  .top .home:active{transform:translateY(0)}
-  @media(max-width:560px){ .top .home{top:11px; right:11px; font-size:11.5px; padding:6px 12px}
-    header.top{padding-right:96px} }
-  @media print{ .top .home{display:none} }
-  .top .home:hover{background:#F5F8FF;border-color:var(--meritz)}
-  header.top h1{font-size:23px;font-weight:900;letter-spacing:-.03em;margin:0}
-  header.top .sub{color:var(--ink-soft);font-size:13.5px;font-weight:500}
-  .lead{color:var(--ink-soft);font-size:14px;line-height:1.65;margin:2px 0 24px;max-width:660px}
-  .lead b{color:var(--ink)}
+  .chrome{max-width:1140px;margin:0 auto;padding:32px 32px 96px}
+  header.top{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;margin-bottom:8px}
+  .top .mascot-tata{width:48px;height:60px;flex:none;background:url(data:image/webp;base64,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) center bottom/contain no-repeat}
+  header.top{position:relative}
+  header.top h1{font-size:32px;line-height:1.3;font-weight:700;letter-spacing:-.02em;margin:0;color:var(--ink)}
+  header.top .sub{color:var(--muted);font-size:15px;font-weight:500;line-height:1.6}
+  .lead{color:var(--sub);font-size:15px;line-height:1.6;margin:4px 0 24px;max-width:720px}
+  .lead b{color:var(--ink);font-weight:600}
 
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 1px 3px rgba(20,18,13,.04)}
-  .panel h2{font-size:13px;font-weight:800;margin:0 0 4px;display:flex;align-items:center;gap:9px}
-  .panel h2 .step{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;background:var(--ink);color:#fff;border-radius:7px;font-size:11px;font-weight:800}
-  .panel .hint{color:var(--ink-soft);font-size:12.5px;margin:0 0 15px 30px;line-height:1.6}
-  .panel .hint b{color:var(--ink)}
+  /* 단계 카드 */
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;margin-bottom:16px}
+  .panel h2{font-size:17px;line-height:1.45;font-weight:600;letter-spacing:-.01em;margin:0 0 4px;display:flex;align-items:center;gap:8px;color:var(--ink)}
+  .panel h2 .step{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:none;background:var(--accent-weak);color:var(--accent-strong);border-radius:var(--r-xs);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+  .panel .hint{color:var(--muted);font-size:14px;margin:0 0 16px 32px;line-height:1.6}
+  .panel .hint b{color:var(--ink);font-weight:600}
 
-  .row{display:flex;gap:11px;flex-wrap:wrap;align-items:center;margin-left:30px}
-  .btn{border:0;border-radius:11px;padding:11px 16px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px}
-  .btn-primary{background:var(--meritz);color:#fff;box-shadow:0 5px 14px rgba(29,78,216,.28)}
-  .btn-primary:hover{background:var(--meritz-deep)}
-  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
-  .btn-ghost:hover{border-color:#c9c5bd}
-  .btn-big{background:var(--meritz);color:#fff;font-size:15px;padding:15px 28px;border-radius:12px;box-shadow:0 8px 22px rgba(29,78,216,.32)}
-  .btn-big:hover{background:var(--meritz-deep)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-left:32px}
+  .btn{border:0;border-radius:var(--r-md);height:44px;padding:0 16px;font-family:inherit;font-size:14px;line-height:1.25;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;
+    transition:background-color var(--t) var(--ease),filter var(--t) var(--ease),transform var(--t-fast) var(--ease)}
+  .btn:active{transform:scale(.98)}
+  /* 엑셀 올리기 : 연한 강조 버튼 · 채움 주 버튼은 「인쇄하기」 하나 */
+  .btn-primary{background:var(--accent-weak);color:var(--accent-strong)}
+  .btn-ghost{background:var(--surface-2);color:var(--ink)}
+  .btn-big{background:var(--accent);color:var(--accent-on);font-size:16px;height:48px;padding:0 24px}
+  @media(hover:hover){
+    .btn-primary:hover{background:var(--accent-line)}
+    .btn-ghost:hover{background:var(--line)}
+    .btn-big:hover{filter:brightness(.94)}
+  }
+  label.btn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
   input[type=file]{display:none}
-  .filename{font-size:12.5px;color:var(--ink-soft)}
+  .filename{font-size:13px;color:var(--muted);font-weight:500}
 
   /* 말풍선 툴팁 */
   .tip{position:relative;display:inline-flex}
-  .tip .bubble{position:absolute;bottom:calc(100% + 11px);left:50%;transform:translateX(-50%) translateY(5px);
-    background:var(--ink);color:#fff;padding:10px 13px;border-radius:10px;font-size:12px;font-weight:600;line-height:1.45;
-    width:max-content;max-width:240px;opacity:0;pointer-events:none;transition:.16s;box-shadow:0 10px 26px rgba(0,0,0,.22);z-index:20;text-align:left}
-  .tip .bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:var(--ink)}
-  .tip:hover .bubble{opacity:1;transform:translateX(-50%) translateY(0)}
+  .tip .bubble{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(4px);
+    background:var(--ink);color:#fff;padding:10px 12px;border-radius:var(--r-md);font-size:13px;font-weight:500;line-height:1.45;
+    width:max-content;max-width:240px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--t) var(--ease),transform var(--t) var(--ease),visibility var(--t);box-shadow:var(--sh-2);z-index:20;text-align:left}
+  .tip .bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink)}
+  @media(hover:hover){.tip:hover .bubble{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}}
+  @media screen and (hover:none){.tip .bubble{display:none}}   /* 터치 화면에서는 뜨지 않는 말풍선이 가로 넘침을 만들지 않게 */
 
-  .maptable{margin:4px 0 0 30px;border-collapse:collapse;font-size:13px}
-  .maptable td{padding:6px 10px 6px 0}
-  .maptable label{color:var(--ink-soft);font-weight:600;white-space:nowrap}
-  select,input.txt{font-family:inherit;font-size:13px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);min-width:150px}
-  input.txt{min-width:230px}
+  /* 항목 연결 */
+  .maptable{margin:4px 0 0 32px;border-collapse:collapse;font-size:14px}
+  .maptable td{padding:4px 12px 4px 0}
+  .maptable label{color:var(--sub);font-weight:600;white-space:nowrap}
+  select,input.txt{font-family:inherit;font-size:15px;line-height:1.25;height:44px;padding:0 14px;border:1.5px solid transparent;border-radius:var(--r-md);
+    background-color:var(--surface-2);color:var(--ink);min-width:180px;max-width:100%;
+    transition:background-color var(--t) var(--ease),border-color var(--t) var(--ease),box-shadow var(--t) var(--ease)}
+  select{appearance:none;-webkit-appearance:none;padding-right:40px;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7684' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat:no-repeat;background-position:right 14px center}
+  input.txt{min-width:320px}
+  input.txt::placeholder{color:var(--faint)}
+  select:focus,input.txt:focus,.fmtf input.num:focus{outline:none;background-color:var(--surface);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
 
-  .field{margin-left:30px;margin-bottom:14px}
-  .field>span.lbl{display:block;font-size:12.5px;color:var(--ink-soft);font-weight:700;margin-bottom:7px}
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:.15s}
-  .chip:hover{border-color:var(--meritz);color:var(--meritz)}
+  .field{margin-left:32px;margin-bottom:20px}
+  .field>span.lbl,.modewrap>.lbl{display:block;font-size:13px;line-height:1.45;color:var(--sub);font-weight:600;margin-bottom:8px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .chip{display:inline-flex;align-items:center;height:36px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r-pill);padding:0 14px;
+    font-family:inherit;font-size:14px;line-height:1.25;font-weight:500;color:var(--sub);cursor:pointer;white-space:nowrap;
+    transition:background-color var(--t) var(--ease),color var(--t) var(--ease)}
+  @media(hover:hover){.chip:hover{background:var(--surface-1);color:var(--ink)}}
+  .chip:active{transform:scale(.98)}
 
-  .opts{display:flex;gap:30px;flex-wrap:wrap;margin-left:30px;margin-top:6px}
-  .opt{display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:var(--ink-soft);font-weight:700}
-  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;width:fit-content}
-  .seg button{border:0;background:#fff;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink-soft)}
-  .seg button.on{background:var(--ink);color:#fff}
-  .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);font-weight:600;cursor:pointer}
-  .check input{width:16px;height:16px;accent-color:var(--meritz)}
+  .opts{display:flex;gap:20px 32px;flex-wrap:wrap;margin-left:32px;margin-top:4px}
+  .opt{display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:1.45;color:var(--sub);font-weight:600;min-width:0;max-width:100%}
+  .seg{display:inline-flex;background:var(--surface-2);border-radius:var(--r-md);padding:4px;gap:2px;width:fit-content;max-width:100%;overflow-x:auto;scrollbar-width:none}
+  .seg::-webkit-scrollbar{display:none}
+  .seg button{border:0;background:transparent;height:36px;padding:0 14px;border-radius:8px;font-family:inherit;font-size:14px;line-height:1.25;font-weight:500;
+    cursor:pointer;color:var(--muted);white-space:nowrap;flex:none;transition:background-color var(--t) var(--ease),color var(--t) var(--ease)}
+  @media(hover:hover){.seg button:hover{color:var(--ink)}}
+  .seg button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--sh-1)}
+  .check{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px;color:var(--ink);font-weight:500;cursor:pointer}
+  .check input{width:18px;height:18px;margin:0;accent-color:var(--accent);flex:none}
 
-  .countline{margin:16px 0 2px 30px;font-size:13px;font-weight:600}
-  .countline b{color:var(--meritz)}
+  .countline{margin:20px 0 0 32px;font-size:14px;line-height:1.6;font-weight:500;color:var(--sub)}
+  .countline b{color:var(--accent-strong);font-weight:700;font-variant-numeric:tabular-nums}
 
   .previewwrap{width:100%;overflow-x:auto;overflow-y:visible}
   .plates{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:22px;margin-top:10px}
   .page{display:flex;flex:0 0 150mm;width:150mm;height:70mm}
+  /* 화면이 명패(150mm)보다 좁으면 명패 묶음 전체를 같은 비율로 줄여 보여 준다(인쇄에는 영향 없음 — @media screen 안) */
+  @media screen{.plates{zoom:var(--np-fit,1)}}
 
   /* ============ 명패 150mm x 70mm ============ */
+  /* 안쪽 여백은 인쇄 결과에 고정한 값이다(2026-10-22). 예전 값 5.4cqw 8.5cqw 4.8cqw 는 명패 바깥에 기준 상자가 없어
+     「화면(창) 너비」를 기준으로 계산됐다 → 모니터 해상도마다 미리보기 글자 칸이 달라져 행사명이 이름에 겹쳤다.
+     인쇄할 때 기준은 A4 − 여백 5mm×2 = 인쇄 칸 755px 이므로 그 값으로 박아 두면 미리보기 = 인쇄, 해상도와 무관. */
   .plate{
     position:relative;width:150mm;height:70mm;flex:0 0 150mm;overflow:hidden;border-radius:10px;
-    container-type:inline-size;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5.4cqw 8.5cqw 4.8cqw;isolation:isolate;
+    container-type:inline-size;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(755px * .054) calc(755px * .085) calc(755px * .048);isolation:isolate;
   }
   .plate.light{background:linear-gradient(150deg,#ffffff 0%,#fbf7f0 46%,#f1e8d7 100%);color:var(--ink);box-shadow:0 8px 26px rgba(20,18,13,.11)}
   .plate.dark{background:radial-gradient(135% 165% at 50% -5%,#37302a 0%,#1c1712 55%,#110e0b 100%);color:#f7f2ea;box-shadow:0 9px 30px rgba(0,0,0,.32)}
@@ -187,31 +550,65 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   .plate .del{position:absolute;top:6px;right:6px;z-index:5;width:24px;height:24px;border-radius:50%;border:0;background:rgba(20,18,13,.55);color:#fff;font-size:13px;line-height:1;cursor:pointer;display:none}
   .page:hover .del{display:block}
 
-  .empty{margin:0 30px;padding:38px;border:1.6px dashed var(--line);border-radius:14px;text-align:center;color:var(--ink-soft);font-size:13.5px;line-height:1.65}
-  .demo-note{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:#eff5ff;border:1px solid #cfe0fb;border-radius:11px;padding:11px 15px;margin:0 0 16px}
-  .demo-note b{color:var(--meritz)}
-  .demo-note .cd{width:7px;height:7px;background:var(--meritz);border-radius:50%;flex:none}
-  .footer-note{margin:22px 30px 0;font-size:12px;color:#9c988f;line-height:1.65}
-  .footer-note b{color:#6d6459}
-  .warn-note{color:#D8232A;font-weight:700;font-size:12.5px;margin:12px 0 0;line-height:1.5}
+  .empty{margin:0;padding:40px 24px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);text-align:center;color:var(--muted);font-size:15px;line-height:1.6}
+  .demo-note{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.5;font-weight:500;color:var(--sub);background:var(--accent-weak);border:1px solid var(--accent-line);border-radius:var(--r-md);padding:12px 16px;margin:0 0 16px}
+  .demo-note b{color:var(--accent-strong);font-weight:600}
+  .demo-note .cd{width:8px;height:8px;background:var(--accent);border-radius:50%;flex:none}
+  .footer-note{margin:24px 0 0;font-size:13px;color:var(--muted);line-height:1.6}
+  .footer-note b{color:var(--sub);font-weight:600}
+  .warn-note{display:flex;gap:6px;align-items:flex-start;color:var(--warning);background:var(--warning-weak);font-weight:600;font-size:13px;margin:16px 0 0 32px;line-height:1.5;padding:10px 14px;border-radius:var(--r-md);width:fit-content;max-width:calc(100% - 32px)}
 
   /* ═══════════════ 폼텍 라벨 모드 ═══════════════ */
-  .modewrap{margin:0 0 18px 30px}
-  .seg.big button{padding:11px 20px;font-size:13.5px}
-  .fmtbox{margin:16px 0 0 30px;padding:16px 18px;border:1px solid var(--line);border-radius:13px;background:#fbfaf8}
-  .fmtbox h3{margin:0 0 4px;font-size:12.5px;font-weight:800;color:var(--ink)}
-  .fmtbox .sub{margin:0 0 13px;font-size:12px;color:var(--ink-soft);line-height:1.6}
-  .fmtgrid{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
-  .fmtf{display:flex;flex-direction:column;gap:6px}
-  .fmtf>span{font-size:11.5px;font-weight:700;color:var(--ink-soft)}
-  .fmtf input.num{font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;width:84px;background:#fff;color:var(--ink)}
-  .fmtf select.big{min-width:280px}
-  .specline{margin:13px 0 0;font-size:12.5px;font-weight:600;color:var(--ink-soft);line-height:1.7;
-    background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 14px}
-  .specline b{color:var(--meritz)}
-  .specline .warnfit{color:#D8232A}
-  .fmttip{margin:11px 0 0;font-size:12px;color:#8b8175;line-height:1.6}
-  .fmttip b{color:#6d6459}
+  .modewrap{margin:0 0 20px 32px}
+  .seg.big button{height:40px;padding:0 18px;font-size:14px}
+  .fmtbox{margin:20px 0 0 32px;padding:20px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface-1)}
+  .fmtbox h3{margin:0 0 4px;font-size:15px;line-height:1.45;font-weight:600;color:var(--ink)}
+  .fmtbox .sub{margin:0 0 16px;font-size:13px;color:var(--muted);line-height:1.6}
+  .fmtbox .sub b{color:var(--ink);font-weight:600}
+  .fmtgrid{display:flex;flex-wrap:wrap;gap:16px 20px;align-items:flex-end}
+  .fmtf{display:flex;flex-direction:column;gap:8px;min-width:0;max-width:100%}
+  .fmtf>span{font-size:13px;line-height:1.45;font-weight:600;color:var(--sub)}
+  .fmtf input.num{font-family:inherit;font-size:15px;height:44px;padding:0 12px;border:1.5px solid var(--line);border-radius:var(--r-md);width:104px;background:var(--surface);color:var(--ink);
+    font-variant-numeric:tabular-nums;transition:border-color var(--t) var(--ease),box-shadow var(--t) var(--ease)}
+  .fmtf select.big{min-width:360px;background-color:var(--surface);border-color:var(--line)}
+  .fmtf .check{height:44px}
+  .specline{margin:16px 0 0;font-size:13px;font-weight:500;color:var(--sub);line-height:1.7;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;font-variant-numeric:tabular-nums}
+  .specline b{color:var(--accent-strong);font-weight:600}
+  .specline .warnfit{color:var(--danger);font-weight:600}
+  .fmttip{margin:12px 0 0;font-size:13px;color:var(--muted);line-height:1.6}
+  .fmttip b{color:var(--sub);font-weight:600}
+
+  /* 휴대폰 */
+  @media(max-width:640px){
+    body{background:var(--surface)}
+    .chrome{padding:24px 16px 64px}
+    header.top{padding-right:0}
+    header.top h1{font-size:26px}
+    header.top .sub{font-size:14px;width:100%}
+    .panel{padding:20px 16px}
+    .panel .hint,.row,.maptable,.field,.opts,.modewrap,.fmtbox,.countline{margin-left:0}
+    .warn-note{margin-left:0;max-width:100%}
+    .row .tip,.row .tip .btn{flex:1 1 auto}
+    .row .tip .btn{width:100%}
+    input.txt,select{min-width:0;width:100%}
+    .fmtf select.big{min-width:0;width:100%}
+    .fmtgrid>.fmtf:has(select.big){width:100%}
+    .fmtbox{padding:16px}
+    .fmtf input.num{width:100%}
+    .fmtgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .fmtgrid>.fmtf:has(select.big),.fmtgrid>.fmtf:has(.check){grid-column:1/-1}
+    .maptable,.maptable tbody,.maptable tr{display:block;width:100%}
+    .maptable tr{display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;gap:8px;margin-bottom:8px}
+    .maptable td{padding:0}
+    .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:12px -16px 0;padding:0 16px}
+    .chips::-webkit-scrollbar{display:none}
+    .btn-big{width:100%}
+    .seg.big{display:flex;width:100%}
+    .seg.big button{flex:1 1 auto;padding:0 10px}
+  }
+  /* 인쇄할 때 페이지 바탕은 예전 그대로(명패 사이 여백 색 유지) — 아래 원래 인쇄 규칙은 손대지 않았다 */
+  @media print{ body{background:radial-gradient(1200px 500px at 80% -10%,rgba(29,78,216,.06),transparent 60%),#eceae5} }
 
   .sheetwrap{margin-top:10px}
   .lsheetbox{margin:0 auto 22px;position:relative}
@@ -357,10 +754,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <style id="pagestyle"></style>
 </head>
 <body>
+<!--mu-nav--><div id="mu-amb" aria-hidden="true"></div><nav id="mu-nav" data-page="tata" aria-label="영업지원도구"><div class="mu-in"><a class="mu-brand" href="index.html" aria-label="MeAI 영업지원도구 대문"><span class="mu-mark" aria-hidden="true">M</span><span class="mu-bt">MeAI<span>영업지원도구</span></span></a><span class="mu-cur mu-tata"><i></i>명패</span><div class="mu-links"><span class="mu-pill" aria-hidden="true"></span><a class="mu-l mu-home" data-k="home" href="index.html"><i aria-hidden="true"></i>대문</a><a class="mu-l mu-merry" data-k="merry" href="tool.html#search"><i aria-hidden="true"></i>특약검색기</a><a class="mu-l mu-eco" data-k="eco" href="tool.html#sim"><i aria-hidden="true"></i>보상시뮬레이터</a><a class="mu-l mu-rara" data-k="rara" href="products.html"><i aria-hidden="true"></i>상품 라인업</a><a class="mu-l mu-zizi" data-k="zizi" href="통합치료비.html"><i aria-hidden="true"></i>통합치료비</a><a class="mu-l mu-indi" data-k="indi" href="prompts.html"><i aria-hidden="true"></i>프롬프트</a><a class="mu-l mu-tata" data-k="tata" href="명패생성기.html" aria-current="page"><i aria-hidden="true"></i>명패</a></div><button type="button" class="mu-menu" aria-label="도구 메뉴 열기" aria-expanded="false" aria-controls="mu-sheet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button></div><div class="mu-prog" aria-hidden="true"></div></nav><div id="mu-sheet" aria-hidden="true"><div class="mu-scrim"></div><div class="mu-panel" role="dialog" aria-modal="true" aria-label="도구 메뉴"><div class="mu-grab"></div><div class="mu-sh"><span class="mu-mark" aria-hidden="true">M</span><b>영업지원도구</b><button type="button" class="mu-x" aria-label="메뉴 닫기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><ul><li style="--i:0"><a class="mu-si mu-home" data-k="home" href="index.html"><span class="mu-dot"></span><span><b>대문</b><small>영업지원 아이템 모아 보기</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:1"><a class="mu-si mu-merry" data-k="merry" href="tool.html#search"><span class="mu-dot"></span><span><b>특약검색기</b><small>with 메리</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:2"><a class="mu-si mu-eco" data-k="eco" href="tool.html#sim"><span class="mu-dot"></span><span><b>보상시뮬레이터</b><small>with 에코</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:3"><a class="mu-si mu-rara" data-k="rara" href="products.html"><span class="mu-dot"></span><span><b>상품 라인업</b><small>with 라라</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:4"><a class="mu-si mu-zizi" data-k="zizi" href="통합치료비.html"><span class="mu-dot"></span><span><b>통합치료비 시뮬레이터</b><small>with 찌지리</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:5"><a class="mu-si mu-indi" data-k="indi" href="prompts.html"><span class="mu-dot"></span><span><b>프롬프트 라이브러리</b><small>with 인디</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li><li style="--i:6"><a class="mu-si mu-tata" data-k="tata" href="명패생성기.html" aria-current="page"><span class="mu-dot"></span><span><b>명패 제작기</b><small>with 타타</small></span><em>지금 화면</em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li></ul></div></div><!--/mu-nav-->
 <div class="chrome">
 
   <header class="top no-print">
-    <a class="home" href="index.html" title="영업지원 아이템 대문으로 이동">🏠 대문</a>
     <span class="mascot-tata" aria-hidden="true"></span>
     <h1>명패 제작기</h1>
     <span class="sub">메리츠화재 · 엑셀 한 장이면 끝</span>
@@ -392,7 +789,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <p class="hint">행사명은 명패 정중앙 상단에 들어갑니다. 비워두면 표시되지 않아요.</p>
 
     <div class="modewrap">
-      <span class="lbl" style="display:block;font-size:12.5px;color:var(--ink-soft);font-weight:700;margin-bottom:7px">출력 방식</span>
+      <span class="lbl">출력 방식</span>
       <div class="seg big" id="modeSeg">
         <button data-m="plate" class="on">🪧 삼각대 명패 150×70</button>
         <button data-m="label">🏷 폼텍 라벨 스티커</button>
@@ -426,9 +823,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="opt">
         <span>회사 표시</span>
         <div class="row" style="margin:0">
-          <label class="btn btn-ghost" for="logo" style="padding:8px 13px">🖼 공식 로고 올리기</label>
+          <label class="btn btn-ghost" for="logo">🖼 공식 로고 올리기</label>
           <input type="file" id="logo" accept="image/*">
-          <button class="btn btn-ghost" id="logoClear" style="padding:8px 13px;display:none">기본 워드마크로</button>
+          <button class="btn btn-ghost" id="logoClear" style="display:none">기본 워드마크로</button>
         </div>
       </div>
       <div class="opt">
@@ -469,7 +866,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="fmtf"><span>시작 칸 번호</span><input class="num" type="number" id="fmtStart" step="1" min="1" value="1"></div>
         <div class="fmtf">
           <span>배경</span>
-          <label class="check" style="height:35px"><input type="checkbox" id="fmtPlain"> 흰 바탕(잉크 절약)</label>
+          <label class="check"><input type="checkbox" id="fmtPlain"> 흰 바탕(잉크 절약)</label>
         </div>
       </div>
 
@@ -497,7 +894,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   </section>
 
   <div class="previewwrap">
-    <div class="demo-note no-print" id="demoNote" style="display:none"><span class="cd"></span>지금은 <b>예시 데이터</b>로 미리보기 중이에요. 위에서 실제 엑셀을 올리면 이 명단으로 바뀝니다.</div>
+    <div class="demo-note no-print" id="demoNote" style="display:none"><span class="cd"></span><span>지금은 <b>예시 데이터</b>로 미리보기 중이에요. 위에서 실제 엑셀을 올리면 이 명단으로 바뀌어요.</span></div>
     <div class="empty no-print" id="empty">아직 올린 엑셀이 없어요. 위에서 파일을 선택하면 여기에 명패 미리보기가 나타납니다.</div>
     <div class="plates" id="plates"></div>
     <div class="sheetwrap" id="sheetwrap" style="display:none"><div id="sheets"></div></div>
@@ -899,6 +1296,457 @@ function loadSample(){
   setMode("plate");
 }
 loadSample();
+</script>
+<script id="np-fit">/* 명패 미리보기 맞춤 : 보이는 폭 ÷ 명패 폭(150mm)으로 축소 비율을 정한다. 1보다 크게 키우지 않는다. */(function(){var w=document.getElementById("plates");if(!w)return;var box=w.parentElement;function fit(){var mm=96/25.4,need=150*mm,cs=getComputedStyle(box),av=box.clientWidth-parseFloat(cs.paddingLeft||0)-parseFloat(cs.paddingRight||0);var z=Math.min(1,Math.max(.3,av/need));w.style.setProperty("--np-fit",z.toFixed(4));}fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(box);else window.addEventListener("resize",fit);})();</script>
+<script id="meai-site">
+/* MeAI 사이트 셸 — 규칙 design/DESIGN-MeAI.md 「11. 사이트 셸 · 움직임」
+   이 파일이 원본이다. 화면에는 python3 scripts/apply_ui.py 가 script#meai-site 로 본문 끝에 끼워 넣는다.
+   하는 일 : 머리 띠(현재 도구 알약 · 마우스 따라 미끄러지는 알약 · 스크롤 그림자 · 긴 화면 진행 막대) · 휴대폰 메뉴 시트 ·
+            스크롤해 보일 때 올라오는 카드. 자료(DATA) · 검색 · 계산에는 손대지 않는다.
+   다른 화면 안(iframe)에 든 보상시뮬레이터처럼 이미 머리 띠가 있는 화면 안에서는 머리 띠를 지우고 움직임만 쓴다.
+   ES5 로 쓴다(구형 브라우저에서 문법 오류로 화면 전체가 멈추지 않게). */
+(function () {
+  'use strict';
+  var d = document, h = d.documentElement, w = window;
+  if (w.__meaiSite) return; w.__meaiSite = 1;
+  h.classList.add('mu-js');
+  var reduce = false;
+  try { reduce = w.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+  function $(id) { return d.getElementById(id); }
+  function drop(el) { if (el && el.parentNode) el.parentNode.removeChild(el); }
+  function each(list, fn) { for (var i = 0; i < list.length; i++) fn(list[i], i); }
+
+  /* ── 1) 다른 MeAI 화면 안에 들어 있으면 머리 띠를 쓰지 않는다 ── */
+  var framed = false;
+  try { framed = w.self !== w.top; } catch (e) { framed = true; }
+  var embedded = false;
+  if (framed) {
+    if (h.getAttribute('data-tool') === 'eco') embedded = true;          // 특약검색기 안의 보상시뮬레이터
+    try { if (w.parent.document.getElementById('mu-nav')) embedded = true; } catch (e) {}
+  }
+  var nav = $('mu-nav'), sheet = $('mu-sheet');
+  if (embedded) { drop(nav); drop(sheet); drop($('mu-amb')); nav = sheet = null; h.classList.add('mu-embed'); }
+
+  /* ── 1-1) 카카오톡 안 브라우저 : 맨 위에 「브라우저로 열기」 한 줄 (BOOT 가 자동으로 넘기지 못했을 때 · 닫으면 이 탭에서는 다시 안 보임) ── */
+  if (!framed && h.classList.contains('mu-kakao') && /^https?:$/.test(location.protocol)) {
+    var extUrl = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href.replace(/[?&]inapp=1/, ''));
+    /* 처음 한 번 : 다 불러온 뒤 휴대폰 기본 브라우저로 넘긴다(카카오가 가로채 바깥 브라우저를 연다. 실패해도 이 화면은 그대로) */
+    var once = false; try { once = !!sessionStorage.getItem('mu-ext'); if (!once) sessionStorage.setItem('mu-ext', '1'); } catch (e) { once = true; }
+    if (!once && !/[?&](inapp|lite)=/.test(location.search)) {
+      var goExt = function () { setTimeout(function () { (w.__muExt || function (u) { location.href = u; })(extUrl); }, 250); };
+      if (d.readyState === 'complete') goExt(); else w.addEventListener('load', goExt);
+    }
+    var kk = false; try { kk = !!sessionStorage.getItem('mu-kbar'); } catch (e) {}
+    if (!kk) {
+      var kb = d.createElement('div'); kb.id = 'mu-kbar'; kb.setAttribute('role', 'note');
+      kb.innerHTML = '<span>카카오톡 안에서는 화면이 느릴 수 있어요</span>' +
+        '<a href="' + extUrl + '">브라우저로 열기</a>' +
+        '<button type="button" aria-label="안내 닫기">✕</button>';
+      kb.querySelector('button').onclick = function () { drop(kb); try { sessionStorage.setItem('mu-kbar', '1'); } catch (e) {} };
+      var anc = nav && nav.nextSibling ? nav.nextSibling : d.body.firstChild;
+      d.body.insertBefore(kb, anc);
+    }
+  }
+
+  /* ── 2) 머리 띠 ── */
+  if (nav) {
+    var links = nav.querySelector('.mu-links'), pill = nav.querySelector('.mu-pill');
+    var curLabel = nav.querySelector('.mu-cur');
+    var page = nav.getAttribute('data-page') || '';
+    var hot = null;
+
+    var current = function () { return links ? links.querySelector('.mu-l[aria-current="page"]') : null; };
+    var place = function (a, still) {
+      if (!pill || !links) return;
+      if (!a || !a.offsetWidth) { links.classList.remove('mu-pill-on'); return; }
+      if (still) pill.classList.add('mu-still');
+      pill.className = pill.className.replace(/\bmu-(home|merry|eco|rara|indi|tata|zizi)\b/g, '').replace(/\s+/g, ' ');
+      pill.classList.add('mu-' + a.getAttribute('data-k'));
+      pill.style.setProperty('--pill-x', a.offsetLeft + 'px');
+      pill.style.setProperty('--pill-w', a.offsetWidth + 'px');
+      links.classList.add('mu-pill-on');
+      if (still) { void pill.offsetWidth; pill.classList.remove('mu-still'); }
+    };
+    var rest = function (still) {
+      if (hot) { hot.classList.remove('mu-hot'); hot = null; }
+      place(current(), still);
+    };
+
+    /* 특약검색기 ↔ 보상시뮬레이터 : 같은 화면 안의 탭이라 body.sim-on 을 보고 현재 표시를 바꾼다 */
+    var setCurrent = function (k) {
+      var all = d.querySelectorAll('#mu-nav .mu-l, #mu-sheet .mu-si');
+      each(all, function (a) {
+        if (a.getAttribute('data-k') === k) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+      if (curLabel) {
+        var src = nav.querySelector('.mu-l[data-k="' + k + '"]');
+        curLabel.className = 'mu-cur mu-' + k;
+        curLabel.innerHTML = src ? '<i></i>' + src.textContent.replace(/^\s+|\s+$/g, '') : '';
+      }
+      rest(false);
+    };
+    if (page === 'merry' && d.body) {
+      var simOn = null;
+      var syncSim = function () {
+        var on = d.body.classList.contains('sim-on');
+        if (on !== simOn) { simOn = on; setCurrent(on ? 'eco' : 'merry'); }
+      };
+      if (w.MutationObserver) new MutationObserver(syncSim).observe(d.body, { attributes: true, attributeFilter: ['class'] });
+      syncSim();
+    }
+
+    if (links) {
+      each(links.querySelectorAll('.mu-l'), function (a) {
+        var on = function () {
+          if (hot && hot !== a) hot.classList.remove('mu-hot');
+          hot = a; a.classList.add('mu-hot'); place(a, false);
+        };
+        a.addEventListener('mouseenter', on);
+        a.addEventListener('focus', on);
+      });
+      links.addEventListener('mouseleave', function () { rest(false); });
+      links.addEventListener('focusout', function (e) { if (!links.contains(e.relatedTarget)) rest(false); });
+      rest(true);
+      try { if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { rest(true); }); } catch (e) {}
+      if (w.ResizeObserver) new ResizeObserver(function () { rest(true); }).observe(links);
+      else w.addEventListener('resize', function () { rest(true); });
+    }
+
+    /* 스크롤 그림자 : 맨 위 1px 표지가 화면 밖으로 나가면 html.mu-scrolled */
+    var top = d.createElement('div');
+    top.id = 'mu-top'; top.setAttribute('aria-hidden', 'true');
+    top.style.cssText = 'position:absolute;left:0;top:0;width:1px;height:1px;pointer-events:none;visibility:hidden';
+    d.body.insertBefore(top, d.body.firstChild);
+    if (w.IntersectionObserver) {
+      new IntersectionObserver(function (es) {
+        h.classList.toggle('mu-scrolled', !es[es.length - 1].isIntersecting);
+      }).observe(top);
+    }
+
+    /* 진행 막대는 화면 높이의 2.5배가 넘는 긴 화면에서만 */
+    var longChk = function () { h.classList.toggle('mu-long', h.scrollHeight > w.innerHeight * 2.5); };
+    longChk();
+    if (w.ResizeObserver) new ResizeObserver(longChk).observe(d.body);
+    w.addEventListener('resize', longChk);
+  }
+
+  /* ── 3) 휴대폰 메뉴 시트 ── */
+  if (nav && sheet) {
+    var btn = nav.querySelector('.mu-menu'), lastFocus = null;
+    var isOpen = function () { return sheet.classList.contains('mu-open'); };
+    var open = function () {
+      lastFocus = d.activeElement;
+      sheet.classList.add('mu-open'); sheet.removeAttribute('aria-hidden');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+      var first = sheet.querySelector('.mu-si[aria-current="page"]') || sheet.querySelector('.mu-si');
+      setTimeout(function () { try { first && first.focus({ preventScroll: true }); } catch (e) {} }, 60);
+    };
+    var close = function (keepFocus) {
+      if (!isOpen()) return;
+      sheet.classList.remove('mu-open'); sheet.setAttribute('aria-hidden', 'true');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+      if (!keepFocus && lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
+    };
+    if (btn) btn.addEventListener('click', function () { if (isOpen()) close(); else open(); });
+    sheet.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.closest && (t.closest('.mu-scrim') || t.closest('.mu-x'))) close();
+    });
+    /* 링크를 누르면 닫는다. 올인원 판은 문서(document) 단계에서 링크를 가로채므로 그보다 앞선 창(window) 단계에서 닫는다 */
+    w.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest && e.target.closest('#mu-sheet a[href]');
+      if (a) close(true);
+    }, true);
+    d.addEventListener('keydown', function (e) {
+      if (!isOpen()) return;
+      if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); close(); return; }
+      if (e.key === 'Tab') {                              /* 시트 안에서만 초점이 돈다 */
+        var f = sheet.querySelectorAll('a[href],button');
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && d.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && d.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    w.addEventListener('resize', function () { if (w.innerWidth > 760) close(true); });
+    w.addEventListener('pageshow', function () { close(true); });
+  }
+
+  /* ── 4) 스크롤해 보일 때 올라오기 ──
+     처음 화면에 보이는 것은 건드리지 않는다(빈 화면이 생기지 않게). 화면 아래에 있는 카드만 숨겼다가 보일 때 올린다.
+     인쇄할 때와 움직임 줄이기 설정에서는 하지 않는다. */
+  /* 대문 같은 꾸밈 구역에 [data-reveal] 을 붙인 것만 — 도구 화면의 목록 · 결과 · 상품 카드는 절대 숨기지 않는다
+     (빠르게 넘길 때 빈 카드가 번쩍이고, 카드마다 움직임이 겹쳐 스크롤이 끊기던 원인) */
+  var REVEAL = '[data-reveal]';
+  var SKIP = '#mu-nav, #mu-sheet, .ov, #hov, #mapov, #oncoov, #scov, .modal-overlay, #ex-mask, .sheet, .dim, [role="dialog"], .sim-pick-wrap, .cmpbar';
+  function reveal() {
+    if (reduce || !w.IntersectionObserver) return;
+    var vh = w.innerHeight || h.clientHeight, list = [];
+    each(d.querySelectorAll(REVEAL), function (el) {
+      if (el.closest(SKIP)) return;
+      var p = el.parentNode && el.parentNode.closest ? el.parentNode.closest(REVEAL) : null;
+      if (p) return;                                      /* 바깥 카드만 움직인다 */
+      var r = el.getBoundingClientRect();
+      if (!r.height || r.top < vh + 8) return;            /* 첫 화면 · 이미 지나간 것은 그대로 */
+      list.push(el);
+    });
+    if (!list.length) return;
+    var io = new IntersectionObserver(function (es) {
+      var batch = [];
+      each(es, function (en) { if (en.isIntersecting) { batch.push(en.target); io.unobserve(en.target); } });
+      batch.sort(function (a, b) {
+        var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        return (ra.top - rb.top) || (ra.left - rb.left);
+      });
+      each(batch, function (el, i) {
+        el.style.setProperty('--mu-d', Math.min(i, 5) * 70 + 'ms');
+        el.classList.add('mu-in');
+      });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.01 });
+    each(list, function (el) {
+      el.classList.add('mu-rv');
+      el.addEventListener('animationend', function done(e) {
+        if (e.target !== el) return;
+        el.classList.remove('mu-rv', 'mu-in'); el.style.removeProperty('--mu-d');
+        el.removeEventListener('animationend', done);
+      });
+      io.observe(el);
+    });
+    var showAll = function () { each(list, function (el) { el.classList.remove('mu-rv', 'mu-in'); }); };
+    w.addEventListener('beforeprint', showAll);
+  }
+
+  /* ── 5) 다듬기 : 미끄러지는 탭 표시 · 결과 차례로 나타나기 · 접기 높이 · 모달 초점 돌려주기 ──
+     화면별로 「어디에」만 아래 표에 적는다. 화면 코드(검색 · 계산)는 그대로 두고, 바뀐 결과(class · 자식 요소)를 보고 따라 움직인다. */
+  var tool = h.getAttribute('data-tool') || '';
+  var SPRING = 'cubic-bezier(.16,1,.3,1)';
+  var raf = w.requestAnimationFrame ? function (f) { return w.requestAnimationFrame(f); } : function (f) { return setTimeout(f, 16); };
+  var MO = w.MutationObserver;
+  function kids(box, sel) {
+    var out = [], c = box.children;
+    for (var i = 0; i < c.length; i++) if (c[i].className !== 'mu-ind' && c[i].matches && c[i].matches(sel)) out.push(c[i]);
+    return out;
+  }
+
+  /* 5-1) 미끄러지는 탭 · 세그먼트 표시 : root(늘 있는 요소) 안의 box 에서 .on 인 칸으로 표시가 미끄러진다.
+          carry : 화면이 box 를 통째로 다시 그리는 곳(통합치료비 시트) — 같은 자리에 다시 생기면 앞 자리에서 이어 미끄러진다 */
+  var SLIDE = {
+    merry: [{ root: '#modal', box: '.tabs', item: 'button' }, { root: '#seg', item: 'button' }],
+    rara: [{ root: '.tabs', item: '.tab', mode: 'line', inset: function () { return w.matchMedia && w.matchMedia('(max-width:640px)').matches ? 8 : 0; } },
+           { root: '#ex-rule', box: '.seg', item: 'button' }, { root: '#ex-ptabs', item: 'button' }],
+    zizi: [{ root: '#shB', box: '.seg', item: 'button', carry: 1 }],
+    home: [{ root: '#period', item: 'button' }, { root: '#gran', item: 'button' }, { root: '#dzmode', item: 'button' }],
+    tata: [{ root: '.seg', all: 1, item: 'button' }]
+  };
+  var MEM = {};
+  function slidePut(st, p, still) {
+    var ind = st.ind;
+    if (still) ind.classList.add('mu-still');
+    ind.style.transform = 'translate3d(' + p.x + 'px,' + p.y + 'px,0)';
+    ind.style.width = p.w + 'px'; ind.style.height = p.h + 'px'; ind.style.opacity = '1';
+    if (still) { void ind.offsetWidth; ind.classList.remove('mu-still'); }
+  }
+  function slideSync(box, cfg, key, root) {
+    var items = kids(box, cfg.item);
+    if (!items.length) return;
+    var on = null;
+    for (var i = 0; i < items.length; i++) if (items[i].classList.contains('on')) { on = items[i]; break; }
+    var st = box.__muSl, fresh = false;
+    if (!st) {
+      if (!box.offsetWidth) return;                 /* 아직 안 보이면 다음 기회에 */
+      var ind = d.createElement('span');
+      ind.className = 'mu-ind'; ind.setAttribute('aria-hidden', 'true');
+      if (cfg.mode !== 'line' && on) {              /* 선택된 칸의 바탕 · 그림자 · 모서리를 그대로 옮겨 입힌다 */
+        var cs = w.getComputedStyle(on);
+        ind.style.backgroundColor = cs.backgroundColor; ind.style.boxShadow = cs.boxShadow; ind.style.borderRadius = cs.borderRadius;
+      }
+      box.appendChild(ind);                          /* 맨 뒤에 둔다 — :first-child · nth-child 규칙과 화면 코드가 그대로 듣게 */
+      box.classList.add('mu-sl', cfg.mode === 'line' ? 'mu-sl-line' : 'mu-sl-pill');
+      st = box.__muSl = { ind: ind };
+      fresh = true;
+      if (w.ResizeObserver) new ResizeObserver(function () { slideSync(box, cfg, key, root); }).observe(box);
+    }
+    if (!on || !on.offsetWidth) { st.ind.style.opacity = '0'; return; }
+    var p = { x: on.offsetLeft, y: on.offsetTop, w: on.offsetWidth, h: on.offsetHeight };
+    if (cfg.mode === 'line') { var k = cfg.inset ? cfg.inset() : 0; p.x += k; p.w -= 2 * k; p.y = on.offsetTop + on.offsetHeight - 1; p.h = 2; }
+    if (st.p && st.p.x === p.x && st.p.y === p.y && st.p.w === p.w && st.p.h === p.h) return;
+    var r = box.getBoundingClientRect(), m = MEM[key];
+    if (root && root !== box) { var rr = root.getBoundingClientRect(); r = { left: r.left - rr.left, top: r.top - rr.top }; }   /* 시트가 움직여도 그 안 자리로 비교 */
+    if (fresh && cfg.carry && m && (Date.now() - m.t) < 1500 && Math.abs(r.left - m.bx) < 3 && Math.abs(r.top - m.by) < 3 && m.p) {
+      slidePut(st, m.p, true); fresh = false;       /* 다시 그려진 box : 앞 자리에서 출발 */
+    }
+    slidePut(st, p, fresh);
+    st.p = p; MEM[key] = { p: p, bx: r.left, by: r.top, t: Date.now() };
+  }
+  function slideScan() {
+    var list = SLIDE[tool]; if (!list) return;
+    each(list, function (cfg, n) {
+      var roots = cfg.all ? d.querySelectorAll(cfg.root) : [d.querySelector(cfg.root)];
+      each(roots, function (root, j) {
+        if (!root) return;
+        var key = tool + n + '-' + j;
+        var run = function () {
+          if (cfg.box) each(root.querySelectorAll(cfg.box), function (b) { slideSync(b, cfg, key, root); });
+          else slideSync(root, cfg, key, root);
+        };
+        if (!root.__muSlObs && MO) {
+          root.__muSlObs = 1;
+          var pend = false;
+          new MO(function () { if (!pend) { pend = true; raf(function () { pend = false; run(); }); } })
+            .observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+        }
+        run();
+      });
+    });
+  }
+
+  /* 5-2) 검색 · 필터 바로 뒤 화면에 보이는 앞 8장만 160ms 옅게 나타난다(이동 없음). 스크롤과는 무관(목록을 다시 그릴 때만),
+          연달아 다시 그리면(타자 중) 건너뛴다 */
+  var STAGGER = {
+    merry: [{ root: '#results', item: '.cards>.card, .empty' }],
+    eco: [{ root: '#timeline', item: '.stage, .no-result' }],
+    rara: [{ root: '#list', item: '.p, .empty' }, { root: '#viewDuty', item: '.dcard' }],
+    indi: [{ root: '#grid', item: '.card, .empty' }]
+  };
+  function stagger(root, cfg) {
+    var now = Date.now(), quick = now - (root.__muLast || 0) < 450;
+    root.__muLast = now;
+    if (reduce || quick || h.classList.contains('mu-enter') || d.hidden) return;
+    var list = root.querySelectorAll(cfg.item), vh = w.innerHeight || h.clientHeight, n = 0;
+    for (var i = 0; i < list.length && n < 8; i++) {
+      var el = list[i];
+      if (el.classList.contains('mu-rv')) continue;
+      var r = el.getBoundingClientRect();
+      if (!r.height || r.bottom < 0) continue;
+      if (r.top > vh) break;
+      el.classList.add('mu-st');
+      el.addEventListener('animationend', function fin(e) {
+        if (e.target !== this) return;
+        this.classList.remove('mu-st');
+        this.removeEventListener('animationend', fin);
+      });
+      n++;
+    }
+  }
+  function staggerInit() {
+    var list = STAGGER[tool]; if (!list || !MO) return;
+    each(list, function (cfg) {
+      var root = d.querySelector(cfg.root);
+      if (!root || root.__muSt) return;
+      root.__muSt = 1; root.__muLast = 0;
+      new MO(function (recs) {
+        for (var i = 0; i < recs.length; i++) if (recs[i].addedNodes.length) { stagger(root, cfg); return; }
+      }).observe(root, { childList: true });
+    });
+  }
+
+  /* 5-3) 접기 · 펴기 높이 : 화면 코드는 class(open)만 바꾸고, 여기서 높이를 부드럽게 잇는다(Web Animations) */
+  var EXPAND = {
+    merry: [{ root: '#modal', el: '.foot', body: '.foot-body', mode: 'foot' }, { root: '#modal', el: '.exp', body: '.exbody', mode: 'clamp' }],
+    rara: [{ root: '#list', el: '.p', body: '.pb', mode: 'body' }]
+  };
+  var EXP_MS = 420;
+  function anim(el, frames, done) {
+    var a;
+    try { a = el.animate(frames, { duration: EXP_MS, easing: SPRING }); } catch (e) { done(); return; }
+    a.onfinish = a.oncancel = done;
+  }
+  function expand(cfg, el, opening, obs) {
+    var body = el.querySelector(cfg.body);
+    if (!body || reduce || !body.animate) return;
+    if (body.getAnimations) each(body.getAnimations(), function (a) { a.cancel(); });
+    if (cfg.mode === 'body') {                       /* 상품 카드 : 닫힌 쪽은 display:none */
+      if (opening) {
+        var hO = body.offsetHeight; if (!hO) return;
+        body.style.overflow = 'hidden';
+        anim(body, [{ height: '0px', opacity: 0 }, { height: hO + 'px', opacity: 1 }], function () { body.style.overflow = ''; });
+      } else {
+        body.style.display = 'block'; body.style.overflow = 'hidden';
+        var hC = body.offsetHeight;
+        anim(body, [{ height: hC + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], function () { body.style.display = ''; body.style.overflow = ''; });
+      }
+    } else if (cfg.mode === 'foot') {                /* 특약 상세의 보장 코드 칸 : 칸 높이(max-height)를 잇는다 */
+      if (el.getAnimations) each(el.getAnimations(), function (a) { a.cancel(); });
+      var bar = el.firstElementChild ? el.firstElementChild.offsetHeight : 48;
+      if (opening) {
+        var to = el.offsetHeight;
+        anim(el, [{ maxHeight: bar + 'px' }, { maxHeight: to + 'px' }], function () {});
+      } else {
+        el.classList.add('open'); var from = el.offsetHeight; el.classList.remove('open');   /* 열려 있던 높이 */
+        if (obs) obs.takeRecords();
+        el.style.flex = '1 1 0'; body.style.display = 'block'; body.style.overflow = 'hidden';
+        anim(el, [{ maxHeight: from + 'px' }, { maxHeight: bar + 'px' }], function () { el.style.flex = ''; body.style.display = ''; body.style.overflow = ''; });
+      }
+    } else if (cfg.mode === 'clamp') {               /* 약관 · 코드 「전체 펼치기」 : 잘린 높이 ↔ 다 펼친 높이 */
+      var now = body.offsetHeight;
+      el.classList.toggle('open'); var before = body.offsetHeight; el.classList.toggle('open');
+      if (obs) obs.takeRecords();
+      if (before === now) return;
+      body.style.maxHeight = 'none'; body.style.overflow = 'hidden';
+      anim(body, [{ height: before + 'px' }, { height: now + 'px' }], function () { body.style.maxHeight = ''; body.style.overflow = ''; });
+    }
+  }
+  function expandInit() {
+    var list = EXPAND[tool]; if (!list || !MO) return;
+    each(list, function (cfg) {
+      var root = d.querySelector(cfg.root);
+      if (!root) return;
+      var obs = new MO(function (recs) {
+        each(recs, function (r) {
+          var t = r.target;
+          if (!t.matches || !t.matches(cfg.el)) return;
+          var was = /(^|\s)open(\s|$)/.test(r.oldValue || ''), is = t.classList.contains('open');
+          if (was !== is) expand(cfg, t, is, obs);
+        });
+      });
+      obs.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    });
+  }
+
+  /* 5-4) 모달 · 시트가 닫히면 초점을 연 단추로 돌려준다(Esc · 바깥 누름 · ✕ 모두) */
+  var OVSEL = '.ov, #hov, #mapov, #oncoov, #scov, .modal-overlay, #ex-mask, #sheet';
+  var lastPress = null, ovState = [];
+  d.addEventListener('pointerdown', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('a[href],button,[tabindex],input,select,textarea,summary') : null;
+    if (t) lastPress = t;
+  }, true);
+  function ovOpen(el) { return el.classList.contains('show') || el.classList.contains('on'); }
+  function ovWatch(recs) {
+    each(recs, function (r) {
+      var el = r.target;
+      if (!el.matches || !el.matches(OVSEL)) return;
+      var rec = null;
+      for (var i = 0; i < ovState.length; i++) if (ovState[i].el === el) rec = ovState[i];
+      if (!rec) { rec = { el: el, open: false, back: null }; ovState.push(rec); }
+      var now = ovOpen(el);
+      if (now === rec.open) return;
+      rec.open = now;
+      if (now) {
+        var a = d.activeElement;
+        rec.back = (a && a !== d.body && !el.contains(a)) ? a : (lastPress && !el.contains(lastPress) ? lastPress : null);
+      } else {
+        var b = rec.back, cur = d.activeElement; rec.back = null;
+        if (b && b.isConnected !== false && d.body.contains(b) && (!cur || cur === d.body || el.contains(cur))) {
+          try { b.focus({ preventScroll: true }); } catch (e) {}
+        }
+      }
+    });
+  }
+  if (MO) new MO(ovWatch).observe(d.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+  var polish = function () {
+    slideScan(); staggerInit(); expandInit();
+    try { if (d.fonts && d.fonts.ready) d.fonts.ready.then(slideScan); } catch (e) {}
+    /* 나중에 생기는 탭(시트 · 상세 창)을 위해 누를 때마다 한 번 더 살핀다 */
+    d.addEventListener('click', function () { raf(slideScan); }, true);
+  };
+  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', polish); else polish();
+
+  var go = function () { (w.requestAnimationFrame || setTimeout)(function () { setTimeout(reveal, 0); }); };
+  if (d.readyState === 'complete') go(); else w.addEventListener('load', go);
+})();
 </script>
 </body>
 </html>

@@ -42,6 +42,11 @@ SYN = json.load(open(os.path.join(BASE, 'product_data.json'), encoding='utf-8'))
 # 그룹표(g131.json · 소유자 정리 엑셀)에 없는 세부보장 라벨(유방의장애 · 편도염)은 특약 마스터의 세부보장 레코드(131대질병수술비[유방의장애] 등,
 # 약관 별표80·81 에서 추출)의 KCD 목록으로 채운다. 전에는 코드에 D24·J03 을 손으로 적어 두었는데 별표80(N60~N64)·별표81(J35)에 없는 코드였다 —
 # 유방 양성신생물(D24) 맘모톰에 [유방의장애] 수술비가 잘못 붙었다(the510 195 → 115만원). 질병코드는 코드에서 만들지 않는다(CLAUDE.md 1)(v8.62)
+# 다빈도61대(130대 · 통합간편 별표)·다빈도62대(131대 · 케어프리 별표)도 마스터 세부보장 레코드의 목록과 제외코드를 그대로 쓴다(v8.76).
+# 전에는 둘 다 그룹표의 '다빈도64대' 통합표로 판정해, 세부보장 레코드가 없는 간편31 갱신형130대질병수술비(다빈도61대질병)가
+# 130대에 없는 추간판장애(M50·M51 — 62대에만)와 다른 세부보장인 편도염(J35)·유방의장애(N60~N64)에도 지급됐다.
+# 61대와 62대의 차이는 추간판장애뿐이다(두 약관 별표 대조 · 소유자 확인 2026-10-20).
+G131X = {}          # 그룹 라벨 → 그 별표의 제외코드(예 : 다빈도61대 K23.0 · N39.3 · N39.4)
 def _g131_from_master():
     _p = os.path.join(BASE, 'db.json')
     if not os.path.exists(_p): return
@@ -50,8 +55,9 @@ def _g131_from_master():
         m = re.search(r'\[([^\[\]]+)\]$', r.get('n') or '')
         if m and re.match(r'^(갱신형)?13[01]대질병수술비', r['n'].replace(' ', '')) and r.get('k'):
             lab = re.sub(r'[\s․·,]', '', m.group(1))
-            if lab not in have and not re.search(r'다빈도\d+대', lab):
+            if lab not in have:
                 G131[lab] = list(r['k']); have.add(lab)
+                if r.get('x'): G131X[lab] = list(r['x'])
 _g131_from_master()
 
 # ══ 1-7종 수술분류표 (약관 별표3, extract_surg7.py 로 생성) — 수술코드 → 종 (v8.5) ═══════════
@@ -509,9 +515,9 @@ def c13_codes(name):
 
 def g131_key(label):
     l = re.sub(r'[\s․·,]', '', label or '')
-    l = re.sub(r'다빈도\d+대질병', '다빈도64대질병', l)
-    for k in G131:
-        if re.sub(r'[\s․·,]', '', k) == l: return k
+    for cand in (l, re.sub(r'다빈도\d+대질병', '다빈도64대질병', l)):   # 다빈도61대·62대는 그 별표 그대로, 없을 때만 64대 통합표(v8.76)
+        for k in G131:
+            if re.sub(r'[\s․·,]', '', k) == cand: return k
     return None
 
 def _pn(s): return re.sub(r'[\s․·,]', '', s or '')
@@ -585,10 +591,10 @@ def kcd_ok(mode, r, sc, nm, o=None):
     if mode == 'g131':
         # 세부보장 레코드(마스터 [○○] 자식 · 설계서가 (○○) 괄호로 적어 그 자식에 매칭된 담보)에 약관 KCD 목록이 있으면 그 목록이 우선(v8.62).
         # 전에는 라벨이 있으면 그룹표(g131.json · 소유자 정리 엑셀의 '다빈도64대' 통합표)로 판정해, 케어프리 131대(다빈도62대)·통합간편 130대(다빈도61대)
-        # 별표와 다른 코드(J35 편도염 · N60~N64 유방 은 다른 세부보장 · H19.1/H19.2/H22.0/H67.1/N37.0 은 62대에만)가 섞였다. 약관 별표(마스터)가 맞다.
+        # 별표와 다른 코드(J35 편도염 · N60~N64 유방 은 다른 세부보장 · M50·M51 추간판장애는 62대에만)가 섞였다. 약관 별표(마스터)가 맞다.
         if r.get('codes') and (r.get('sub_rec') or re.search(r'\[[^\]]+\]\s*$', r['name'])): return code_hit(r['codes'], kcd)
         key = g131_key(r.get('benefit') or r.get('sub') or '')
-        if key: return code_hit(G131[key], kcd)
+        if key: return code_hit(G131[key], kcd) and not (G131X.get(key) and code_hit(G131X[key], kcd))
         # 130대질병수술비[○○]처럼 세부급부 라벨 없이 담보명에 질병군이 붙은 담보는 특약 마스터의 약관 KCD 목록으로 판정한다.
         # 전에는 사례가 선언한 질병군(grp)으로만 맞춰서, 뇌경색·심근경색 사례에 [특정31대질병] 1,000만원이 붙고
         # 편도염·담석증 등에는 [다빈도61대질병]이 빠졌다(사례 grp 는 131대 이름 '다빈도62대')(v8.55).

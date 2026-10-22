@@ -1,0 +1,364 @@
+/* MeAI 영업지원도구 공통 스타일 — 규칙 문서 design/DESIGN-MeAI.md
+   이 파일이 원본이다. 화면(HTML)에는 python3 scripts/apply_ui.py 가 <style id="meai-ui"> 로 끼워 넣는다.
+   도구마다 다른 것은 강조색(html[data-tool]) 하나뿐이다. */
+:root{
+  --ink:#191F28;--ink-2:#333D4B;--sub:#4E5968;--muted:#6B7684;--faint:#8B95A1;--disabled:#B0B8C1;
+  --line-strong:#D1D6DB;--line:#E5E8EB;--line-soft:#F2F4F6;
+  --surface:#FFFFFF;--surface-1:#F9FAFB;--surface-2:#F2F4F6;--bg:#F2F4F6;
+  --danger:#D22030;--danger-weak:#FDECEE;--warning:#B25E00;--warning-weak:#FFF3E0;
+  --success:#0E7C4A;--success-weak:#E8F6EE;--info:#2B5BBF;--info-weak:#EBF1FC;
+  --accent:#C8102E;--accent-on:#FFFFFF;--accent-strong:#A50D26;--accent-weak:#FDECEE;--accent-line:#F5C2CA;
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif;
+  --mono:"SF Mono",Consolas,"D2Coding",ui-monospace,monospace;
+  --r-xs:6px;--r-sm:10px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:24px;--r-pill:999px;
+  --sh-1:0 1px 2px rgba(15,23,42,.04),0 1px 1px rgba(15,23,42,.04);
+  --sh-2:0 4px 12px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+  --sh-3:0 12px 32px rgba(15,23,42,.12),0 2px 6px rgba(15,23,42,.06);
+  --sh-sheet:0 -2px 12px rgba(15,23,42,.06);
+  --scrim:rgba(0,0,0,.5);
+  --ease:cubic-bezier(.22,.61,.36,1);--t-fast:120ms;--t:200ms;--t-slow:240ms;
+}
+html[data-tool="merry"]{--accent:#C73D1C;--accent-on:#FFFFFF;--accent-strong:#B5361A;--accent-weak:#FDEEE9;--accent-line:#F6CBBD}
+html[data-tool="eco"]{--accent:#23874C;--accent-on:#FFFFFF;--accent-strong:#1A6B3C;--accent-weak:#E9F6EE;--accent-line:#BFE3CC}
+html[data-tool="rara"]{--accent:#F2B705;--accent-on:#3D2C00;--accent-strong:#8A6000;--accent-weak:#FFF6D6;--accent-line:#F3DD94}
+html[data-tool="indi"]{--accent:#A23A91;--accent-on:#FFFFFF;--accent-strong:#7E2C72;--accent-weak:#F8ECF5;--accent-line:#E8C3DF}
+html[data-tool="tata"]{--accent:#2563C9;--accent-on:#FFFFFF;--accent-strong:#1B4C9C;--accent-weak:#EAF1FC;--accent-line:#C3D6F4}
+html[data-tool="zizi"]{--accent:#6D5BD6;--accent-on:#FFFFFF;--accent-strong:#5242AE;--accent-weak:#F0EEFC;--accent-line:#D3CCF5}
+/* 대문 카드 · 도구 표지에서 다른 도구 색을 부를 때 */
+.mu-merry{--t-accent:#C73D1C;--t-strong:#B5361A;--t-weak:#FDEEE9}
+.mu-eco{--t-accent:#23874C;--t-strong:#1A6B3C;--t-weak:#E9F6EE}
+.mu-rara{--t-accent:#F2B705;--t-strong:#8A6000;--t-weak:#FFF6D6}
+.mu-indi{--t-accent:#A23A91;--t-strong:#7E2C72;--t-weak:#F8ECF5}
+.mu-tata{--t-accent:#2563C9;--t-strong:#1B4C9C;--t-weak:#EAF1FC}
+.mu-zizi{--t-accent:#6D5BD6;--t-strong:#5242AE;--t-weak:#F0EEFC}
+
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6;letter-spacing:0;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;word-break:keep-all;overflow-wrap:anywhere}
+button,input,select,textarea{font-family:inherit}
+::selection{background:var(--accent-weak);color:var(--ink)}
+table,.num,.tnum{font-variant-numeric:tabular-nums}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#D1D6DB;border-radius:999px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#B0B8C1;background-clip:padding-box;border:3px solid transparent}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ── 공통 부품 (새로 쓰는 곳은 이 이름을 쓴다) ── */
+.mu-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;border:0;border-radius:var(--r-md);
+  background:var(--surface-2);color:var(--ink);font-size:14px;font-weight:600;line-height:1.25;cursor:pointer;
+  transition:background-color var(--t) var(--ease),transform var(--t-fast) var(--ease)}
+.mu-btn:active{transform:scale(.98)}
+.mu-btn.primary{background:var(--accent);color:var(--accent-on)}
+.mu-btn.ghost{background:transparent;color:var(--accent-strong)}
+.mu-btn.lg{height:48px;font-size:16px;padding:0 20px}
+.mu-btn.sm{height:32px;font-size:13px;padding:0 12px;border-radius:var(--r-sm)}
+@media (hover:hover){.mu-btn:hover{background:#E5E8EB}.mu-btn.primary:hover{filter:brightness(.94);background:var(--accent)}.mu-btn.ghost:hover{background:var(--accent-weak)}}
+.mu-chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r-pill);
+  background:var(--surface);color:var(--sub);font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;
+  transition:background-color var(--t) var(--ease),border-color var(--t) var(--ease),color var(--t) var(--ease)}
+.mu-chip.on,.mu-chip[aria-pressed="true"]{background:var(--accent-weak);border-color:var(--accent-line);color:var(--accent-strong);font-weight:600}
+.mu-badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--r-xs);font-size:12px;font-weight:600;
+  background:var(--surface-2);color:var(--sub);white-space:nowrap}
+.mu-badge.accent{background:var(--accent-weak);color:var(--accent-strong)}
+.mu-badge.danger{background:var(--danger-weak);color:var(--danger)}
+.mu-badge.warning{background:var(--warning-weak);color:var(--warning)}
+.mu-badge.success{background:var(--success-weak);color:var(--success)}
+.mu-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.mu-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;font-weight:500;
+  padding:12px 18px;border-radius:var(--r-md);box-shadow:var(--sh-2);z-index:2147483000}
+
+/* ══ 사이트 셸 · 움직임 — 규칙 design/DESIGN-MeAI.md 「11. 사이트 셸 · 움직임」 ══
+   머리 띠(#mu-nav) · 휴대폰 메뉴 시트(#mu-sheet) · 바탕 빛(#mu-amb)은 apply_ui.py 가 본문 맨 앞에 넣고,
+   움직임은 ui/meai-site.js(script#meai-site)가 붙인다. 자바스크립트가 없어도 화면은 다 보인다. */
+:root{--mu-nav-h:0px;--mu-spring:cubic-bezier(.16,1,.3,1);--mu-t-in:560ms;--mu-t-hover:200ms;--mu-t-sheet:520ms}
+html:has(#mu-nav){--mu-nav-h:56px;scroll-padding-top:calc(var(--mu-nav-h) + 12px)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+.mu-home{--t-accent:#C8102E;--t-strong:#A50D26;--t-weak:#FDECEE}
+
+/* 바탕 빛 : 맨 위에만 그 도구 색을 아주 옅게(알파 .05~.08) — 글씨 대비에 영향 없음 */
+#mu-amb{position:absolute;left:0;right:0;top:0;height:560px;z-index:-1;pointer-events:none;
+  background:radial-gradient(60% 70% at 12% -10%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 70%),
+    radial-gradient(50% 60% at 88% -20%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 70%),
+    radial-gradient(40% 50% at 50% -30%,rgba(43,91,191,.04),transparent 70%)}
+
+/* 머리 띠 */
+/* 머리 띠는 자기 합성 층(translateZ)에 올려 스크롤 때 다시 그리지 않는다. 휴대폰(760px 이하 · 터치 화면)은 블러 없이 거의 불투명한 흰색 —
+   블러는 PC 에서만. 스크롤 그림자는 상자 그림자를 움직이지 않고 ::after 의 opacity 만 바꾼다. */
+#mu-nav{position:sticky;top:0;z-index:45;height:var(--mu-nav-h);box-sizing:border-box;margin:0;font-family:var(--font);
+  background:#fff;border-bottom:1px solid rgba(15,23,42,.07);view-transition-name:mu-nav;transform:translateZ(0)}
+#mu-nav::after{content:"";position:absolute;left:0;right:0;top:100%;height:18px;pointer-events:none;opacity:0;
+  background:linear-gradient(to bottom,color-mix(in srgb,var(--accent) 7%,rgba(15,23,42,.06)),transparent);transition:opacity 320ms var(--mu-spring)}
+html.mu-scrolled #mu-nav::after{opacity:1}
+@media (min-width:761px) and (hover:hover){
+  #mu-nav{background:rgba(255,255,255,.8);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px)}
+  html.mu-scrolled #mu-nav{background:rgba(255,255,255,.88)}
+}
+#mu-nav *,#mu-sheet *{box-sizing:border-box}
+#mu-nav .mu-in{max-width:1248px;height:100%;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}
+#mu-nav a{text-decoration:none}
+#mu-nav .mu-brand{display:inline-flex;align-items:center;gap:10px;height:40px;flex:none;color:var(--ink);border-radius:var(--r-md)}
+#mu-nav .mu-mark,#mu-sheet .mu-mark{width:28px;height:28px;flex:none;border-radius:9px;background:#C8102E;color:#fff;display:grid;place-items:center;
+  font:700 15px/1 var(--font);letter-spacing:-.02em;box-shadow:0 4px 10px -5px rgba(200,16,46,.45)}
+#mu-nav .mu-bt{font-size:16px;font-weight:700;letter-spacing:-.015em;white-space:nowrap;line-height:1}
+#mu-nav .mu-bt span{margin-left:6px;font-size:14px;font-weight:500;color:var(--sub);letter-spacing:0}
+#mu-nav .mu-links{position:relative;display:flex;align-items:center;gap:2px;margin-left:auto;min-width:0}
+#mu-nav .mu-l{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 12px;border-radius:var(--r-pill);
+  font-size:14px;font-weight:600;line-height:1;color:var(--sub);white-space:nowrap;transition:color var(--mu-t-hover) var(--mu-spring)}
+#mu-nav .mu-l i,#mu-sheet .mu-dot{display:block;flex:none;width:6px;height:6px;border-radius:50%;background:var(--t-accent);
+  transition:transform var(--mu-t-hover) var(--mu-spring)}
+#mu-nav .mu-l[aria-current="page"]{color:var(--t-strong);background:var(--t-weak)}
+#mu-nav .mu-l.mu-hot{color:var(--t-strong)}
+#mu-nav .mu-pill-on .mu-l[aria-current="page"]{background:transparent}
+#mu-nav .mu-pill{position:absolute;left:0;top:50%;z-index:0;height:36px;margin-top:-18px;width:var(--pill-w,0);border-radius:var(--r-pill);
+  background:var(--t-weak,transparent);opacity:0;transform:translate3d(var(--pill-x,0),0,0);pointer-events:none;
+  transition:transform 460ms var(--mu-spring),width 460ms var(--mu-spring),background-color 260ms var(--mu-spring),opacity 200ms var(--mu-spring)}
+#mu-nav .mu-pill-on .mu-pill{opacity:1}
+#mu-nav .mu-pill.mu-still{transition:none}
+@media (hover:hover){
+  #mu-nav .mu-l:hover{color:var(--t-strong)}
+  #mu-nav .mu-l:hover i{transform:scale(1.35)}
+  #mu-nav .mu-brand:hover .mu-mark{transform:rotate(-6deg)}
+}
+#mu-nav .mu-mark{transition:transform 320ms var(--mu-spring)}
+#mu-nav .mu-l:active{transform:scale(.98)}
+#mu-nav .mu-cur{display:none}
+#mu-nav .mu-menu{display:none;flex:none;width:44px;height:44px;margin-left:auto;margin-right:-8px;padding:0;border:0;border-radius:var(--r-md);
+  background:transparent;color:var(--ink);cursor:pointer;align-items:center;justify-content:center;
+  transition:background-color var(--mu-t-hover) var(--mu-spring),transform var(--t-fast) var(--ease)}
+#mu-nav .mu-menu:active{transform:scale(.94)}
+@media (hover:hover){#mu-nav .mu-menu:hover{background:var(--surface-2)}}
+#mu-nav .mu-prog{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);
+  opacity:0;pointer-events:none}
+@supports (animation-timeline:scroll()){
+  html.mu-long #mu-nav .mu-prog{opacity:1;animation:mu-prog linear both;animation-duration:auto;animation-timeline:scroll(root block)}
+}
+@keyframes mu-prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+body.sim-on #mu-nav .mu-prog{display:none}
+@media (max-width:1080px){
+  #mu-nav .mu-bt span{display:none}
+  #mu-nav .mu-l i{display:none}
+  #mu-nav .mu-l{padding:0 10px}
+}
+@media (max-width:760px){
+  #mu-nav .mu-in{padding:0 16px;gap:8px}
+  #mu-nav .mu-links{display:none}
+  #mu-nav .mu-menu{display:inline-flex}
+  #mu-nav .mu-cur{display:inline-flex;align-items:center;gap:6px;min-width:0;height:28px;padding:0 10px;border-radius:var(--r-pill);
+    background:var(--t-weak);color:var(--t-strong);font-size:13px;font-weight:600;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #mu-nav .mu-cur i{display:block;flex:none;width:6px;height:6px;border-radius:50%;background:var(--t-accent)}
+  #mu-nav .mu-cur:empty{display:none}
+  #mu-nav .mu-in:has(.mu-cur:empty) .mu-bt span{display:inline}
+}
+@media (max-width:359px){#mu-nav .mu-bt{font-size:15px}#mu-nav .mu-cur{padding:0 8px}}
+
+/* 휴대폰 메뉴 시트 */
+#mu-sheet{position:fixed;inset:0;z-index:100000;visibility:hidden;pointer-events:none;font-family:var(--font);
+  transition:visibility 0s linear var(--mu-t-sheet)}
+#mu-sheet.mu-open{visibility:visible;pointer-events:auto;transition:none}
+#mu-sheet .mu-scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity 320ms var(--mu-spring)}
+#mu-sheet .mu-panel{position:absolute;left:0;right:0;bottom:0;max-height:88vh;max-height:88dvh;overflow:auto;overscroll-behavior:contain;
+  background:var(--surface);border-radius:var(--r-2xl) var(--r-2xl) 0 0;box-shadow:var(--sh-sheet);
+  padding:8px 16px calc(16px + env(safe-area-inset-bottom));transform:translate3d(0,104%,0);transition:transform var(--mu-t-sheet) var(--mu-spring)}
+#mu-sheet.mu-open .mu-scrim{opacity:1}
+#mu-sheet.mu-open .mu-panel{transform:none}
+#mu-sheet .mu-grab{width:36px;height:4px;border-radius:2px;background:var(--line-strong);margin:0 auto 8px}
+#mu-sheet .mu-sh{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 0 8px}
+#mu-sheet .mu-sh b{font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+#mu-sheet .mu-x{margin-left:auto;margin-right:-6px;width:44px;height:44px;border:0;border-radius:var(--r-pill);background:transparent;color:var(--sub);
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+#mu-sheet .mu-x:active{background:var(--surface-2)}
+#mu-sheet ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+#mu-sheet .mu-si{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border-radius:var(--r-lg);color:var(--ink);text-decoration:none;
+  transition:background-color var(--mu-t-hover) var(--mu-spring),transform var(--t-fast) var(--ease)}
+#mu-sheet .mu-si .mu-dot{width:10px;height:10px;box-shadow:0 0 0 4px var(--t-weak)}
+#mu-sheet .mu-si span{display:flex;flex-direction:column;gap:2px;min-width:0}
+#mu-sheet .mu-si b{font-size:16px;font-weight:600;line-height:1.3}
+#mu-sheet .mu-si small{font-size:13px;font-weight:500;line-height:1.3;color:var(--muted)}
+#mu-sheet .mu-si em{margin-left:auto;font-style:normal;font-size:12px;font-weight:600;height:22px;padding:0 8px;border-radius:var(--r-xs);display:none;align-items:center;
+  background:var(--surface);color:var(--t-strong)}
+#mu-sheet .mu-si svg{margin-left:auto;flex:none;color:var(--faint)}
+#mu-sheet .mu-si[aria-current="page"]{background:var(--t-weak)}
+#mu-sheet .mu-si[aria-current="page"] b{color:var(--t-strong)}
+#mu-sheet .mu-si[aria-current="page"] em{display:inline-flex}
+#mu-sheet .mu-si[aria-current="page"] em + svg{margin-left:0}
+#mu-sheet .mu-si:active{transform:scale(.98);background:var(--surface-2)}
+#mu-sheet li{opacity:0;transform:translate3d(0,10px,0);transition:opacity 360ms var(--mu-spring),transform 520ms var(--mu-spring)}
+#mu-sheet.mu-open li{opacity:1;transform:none;transition-delay:calc(60ms + var(--i,0) * 35ms)}
+@media (min-width:761px){#mu-sheet{display:none}}
+
+/* 움직임 : 들어올 때(한 번) · 스크롤해 보일 때 · 마우스를 올릴 때
+   html.mu-enter 는 <head> 의 작은 스크립트가 켜고 1.4초 뒤 끈다. 화면 밖 요소만 .mu-rv 로 숨겼다가 보일 때 올린다. */
+@keyframes mu-rise{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
+@keyframes mu-up{from{opacity:0;transform:translate3d(0,18px,0)}to{opacity:1;transform:none}}
+@keyframes mu-fade{from{opacity:0}to{opacity:1}}
+html.mu-enter body>:not(#mu-nav):not(#mu-sheet):not(#mu-amb):not(#mu-top):not(script):not(style):not(link):not(#simFrame):not(#meaiTabs):not(.mu-toast){
+  animation:mu-rise var(--mu-t-in) var(--mu-spring) both}
+@media (max-width:760px),(hover:none){
+  html.mu-enter body>:not(#mu-nav):not(#mu-sheet):not(#mu-amb):not(#mu-top):not(script):not(style):not(link):not(#simFrame):not(#meaiTabs):not(.mu-toast){
+    animation:mu-fade 240ms var(--mu-spring) both}
+}
+html.mu-js .mu-rv{opacity:0;transform:translate3d(0,18px,0)}
+html.mu-js .mu-rv.mu-in{animation:mu-up 640ms var(--mu-spring) both;animation-delay:var(--mu-d,0ms)}
+html[data-tool="home"] .cards>.card,html[data-tool="rara"] .p:not(.open),html[data-tool="indi"] .card,html[data-tool="merry"] button.card,.mu-lift{
+  transition:transform var(--mu-t-hover) var(--mu-spring),background-color var(--t) var(--ease),border-color var(--t) var(--ease)}
+@media (hover:hover){
+  html[data-tool="home"] .cards>.card:hover,html[data-tool="rara"] .p:not(.open):hover,html[data-tool="indi"] .card:hover,html[data-tool="merry"] button.card:hover,.mu-lift:hover{
+    transform:translate3d(0,-2px,0);
+    box-shadow:0 14px 30px -16px color-mix(in srgb,var(--t-accent,var(--accent)) 45%,transparent),0 2px 6px -2px rgba(15,23,42,.06)}
+  html[data-tool="home"] .cards>.card .go{transition:color var(--t) var(--ease),transform var(--mu-t-hover) var(--mu-spring)}
+  html[data-tool="home"] .cards>.card:hover .go{transform:translate3d(3px,0,0);color:var(--t-strong,var(--ink))}
+}
+html[data-tool="home"] .cards>.card:active,html[data-tool="rara"] .p:not(.open):active,html[data-tool="indi"] .card:active,html[data-tool="merry"] button.card:active,.mu-lift:active{
+  transform:scale(.98)}
+
+/* 모달 덮개 : 열 때 · 닫을 때 옅게 — display 를 바꿔 여닫는 화면 공통 고리(특약검색기 · 보상시뮬레이터 · 프롬프트 · 상품 라인업).
+   안쪽 상자의 올라오는 움직임은 각 화면 것을 그대로 쓴다. 이 기능이 없는 브라우저에서는 예전처럼 바로 열리고 닫힌다. */
+.ov,#hov,#mapov,#oncoov,.modal-overlay,#ex-mask{
+  transition:opacity 280ms var(--mu-spring),display 280ms allow-discrete,overlay 280ms allow-discrete}
+.ov:not(.show),#hov:not(.show),#mapov:not(.show),#oncoov:not(.show),.modal-overlay:not(.show),#ex-mask:not(.on){opacity:0;pointer-events:none}
+@starting-style{.ov.show,#hov.show,#mapov.show,#oncoov.show,.modal-overlay.show,#ex-mask.on{opacity:0}}
+
+/* 화면을 넘어갈 때 : 가볍게 겹쳐 사라지고, 머리 띠는 그대로 */
+@media (prefers-reduced-motion:no-preference){
+  @view-transition{navigation:auto}
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:240ms;animation-timing-function:var(--mu-spring)}
+  ::view-transition-group(mu-nav){animation-duration:0s}
+}
+@media (prefers-reduced-motion:reduce){
+  html.mu-enter body>*{animation:none!important}
+  html.mu-js .mu-rv{opacity:1;transform:none}
+  #mu-sheet li{opacity:1;transform:none}
+}
+@media print{
+  #mu-nav,#mu-sheet,#mu-amb,#mu-top{display:none!important}
+  html:has(#mu-nav){--mu-nav-h:0px}
+  html.mu-enter body>*,html.mu-js .mu-rv,html.mu-js .mu-rv.mu-in{animation:none!important;opacity:1!important;transform:none!important}
+}
+
+/* ══ 다듬기 — 규칙 design/DESIGN-MeAI.md 「11. 사이트 셸 · 움직임」 다음 단계
+   닫힘 움직임 · 누름 반응 · 미끄러지는 탭 표시 · 결과 차례로 나타나기 · 뼈대 반짝임 · 숫자 폭 맞춤 · 휴대폰 머리 합치기.
+   움직임은 transform · opacity 로만(탭 표시 폭 · 접기 높이만 예외). 움직임 줄이기 설정 · 인쇄에서는 모두 꺼진다. ══ */
+:root{--mu-t-out:220ms;--mu-out:cubic-bezier(.4,0,.9,.35);--mu-t-press:180ms}
+
+/* 1) 모달 · 시트가 닫힐 때 : 덮개가 옅어지는 240ms 동안 안쪽 상자도 물러난다(PC 는 .98 로 작아지며 옅게, 휴대폰 시트는 아래로) */
+@keyframes mu-dlg-out{from{opacity:1;transform:none}to{opacity:0;transform:scale(.98)}}
+@keyframes mu-dlg-in{from{opacity:0;transform:translate3d(0,12px,0) scale(.985)}to{opacity:1;transform:none}}
+@keyframes mu-sheet-out{from{transform:none}to{transform:translate3d(0,100%,0)}}
+@keyframes mu-sheet-in{from{transform:translate3d(0,100%,0)}to{transform:none}}
+#scov{transition:opacity 280ms var(--mu-spring),display 280ms allow-discrete,overlay 280ms allow-discrete}
+#scov:not(.show){opacity:0;pointer-events:none}
+@starting-style{#scov.show{opacity:0}}
+.ov:not(.show),#hov:not(.show),#mapov:not(.show),#oncoov:not(.show),#scov:not(.show),.modal-overlay:not(.show),#ex-mask:not(.on){transition-duration:240ms}
+.ov:not(.show)>.modal,.ov:not(.show)>.cmodal,#hov:not(.show)>#hmodal,#mapov:not(.show) .mapmodal,#oncoov:not(.show) .ocmodal,#scov:not(.show) .scmodal,
+.modal-overlay:not(.show)>.modal,#ex-mask:not(.on)>.sheet,.sim-pick-wrap.mu-closing>.sim-pick{animation:mu-dlg-out var(--mu-t-out) var(--mu-out) both}
+#ex-mask.on>.sheet{animation:mu-dlg-in 420ms var(--mu-spring) both}
+.sim-pick-wrap{transition:opacity 280ms var(--mu-spring)}
+@starting-style{.sim-pick-wrap{opacity:0}}
+.sim-pick-wrap.mu-closing{opacity:0;pointer-events:none;transition-duration:240ms}
+@media (max-width:640px){
+  .ov:not(.show)>.modal,.ov:not(.show)>.cmodal,#hov:not(.show)>#hmodal,#mapov:not(.show) .mapmodal,#oncoov:not(.show) .ocmodal,#scov:not(.show) .scmodal,
+  .modal-overlay:not(.show)>.modal,#ex-mask:not(.on)>.sheet,.sim-pick-wrap.mu-closing>.sim-pick{animation-name:mu-sheet-out;animation-duration:240ms}
+  #ex-mask.on>.sheet{animation:mu-sheet-in 480ms var(--mu-spring) both}
+}
+
+/* 2) 누름 반응 · 떠오름 — 화면마다 이름을 콕 집어 건다(button 전체에 걸면 transform 으로 자리 잡은 단추가 흔들린다).
+   :not(#mu-z) 는 화면 자체 규칙보다 앞서게 하는 장치(그런 id 는 없다) */
+html[data-tool="merry"]:not(#mu-z) :is(.quick button,.catlist button,.seg button,.viewtabs button,.grp-toggle,.vr-pill,.cmp-btn,.tabs button,.fsz button,
+  .sim-kw,.sim-code,.sug-rel-chip,.h-tab,.mm-tab,.sc-tab,.sc-qk,.sc-fbtn,#meaiTabs button,.cmp-chip,.cmpbar-act button),
+html[data-tool="eco"]:not(#mu-z) :is(.chip,.prod-tag,.toggle-all,.reset-btn,.mp-btn,.h-tab,.mm-tab),
+html[data-tool="rara"]:not(#mu-z) :is(.chip,.tab,.reset,.more,.ex-go,.dcard .plist span,#viewEx .ex-rule button,#ex-ptabs button,#ex-mask .sheet .sh button),
+html[data-tool="indi"]:not(#mu-z) :is(.chip,.htag,.modal-close,.copy-btn,.reset-btn),
+html[data-tool="zizi"]:not(#mu-z) :is(.chip,.kchip,.bchip,.tchip,.addbtn,.tbtn,.btn,.seg button,.pth,.tr-row,.sh-x),
+html[data-tool="tata"]:not(#mu-z) :is(.chip,.seg button,.btn),
+html[data-tool="home"]:not(#mu-z) .seg button{
+  transition:transform var(--mu-t-press) var(--mu-spring),background-color var(--t) var(--ease),border-color var(--t) var(--ease),color var(--t) var(--ease)}
+html[data-tool="merry"]:not(#mu-z) :is(.quick button,.catlist button,.seg button,.viewtabs button,.grp-toggle,.vr-pill,.cmp-btn,.tabs button,.fsz button,
+  .sim-kw,.sim-code,.sug-rel-chip,.h-tab,.mm-tab,.sc-tab,.sc-qk,.sc-fbtn,#meaiTabs button,.cmp-chip,.cmpbar-act button):active,
+html[data-tool="eco"]:not(#mu-z) :is(.chip,.prod-tag,.toggle-all,.reset-btn,.mp-btn,.h-tab,.mm-tab):active,
+html[data-tool="rara"]:not(#mu-z) :is(.chip,.tab,.reset,.more,.ex-go,.dcard .plist span,#viewEx .ex-rule button,#ex-ptabs button,#ex-mask .sheet .sh button):active,
+html[data-tool="indi"]:not(#mu-z) :is(.chip,.htag,.modal-close,.copy-btn,.reset-btn):active,
+html[data-tool="zizi"]:not(#mu-z) :is(.chip,.kchip,.bchip,.tchip,.addbtn,.tbtn,.btn,.seg button,.tr-row,.sh-x):active,
+html[data-tool="tata"]:not(#mu-z) :is(.chip,.seg button,.btn):active,
+html[data-tool="home"]:not(#mu-z) .seg button:active{transform:scale(.97)}
+/* 누르면 열리는 카드 : 통합치료비 치료 과정 카드 · 보상시뮬레이터 단계 머리 */
+html[data-tool="zizi"]:not(#mu-z) .pth:not(.on):active{transform:scale(.98)}
+@media (hover:hover){
+  html[data-tool="zizi"]:not(#mu-z) .pth:not(.on):hover{transform:translate3d(0,-2px,0);
+    box-shadow:0 14px 30px -16px color-mix(in srgb,var(--accent) 45%,transparent),0 2px 6px -2px rgba(15,23,42,.06)}
+}
+html[data-tool="eco"] .stage-head{transition:background-color var(--t) var(--ease)}
+html[data-tool="eco"] .stage-head:active{background:var(--surface-2)}
+html[data-tool="rara"] .ph:active{background:var(--surface-2)}
+
+/* 3) 미끄러지는 탭 · 세그먼트 표시 — meai-site.js 가 .mu-ind 를 넣고 자리를 transform 으로 옮긴다 */
+.mu-sl{position:relative;isolation:isolate}
+.mu-sl>.mu-ind{position:absolute;left:0;top:0;z-index:0;pointer-events:none;display:block;width:0;height:0;margin:0;padding:0;
+  background:var(--surface);box-shadow:var(--sh-1);border-radius:var(--r-sm);
+  transition:transform 440ms var(--mu-spring),width 440ms var(--mu-spring),height 440ms var(--mu-spring),opacity 200ms var(--mu-spring)}
+.mu-sl>.mu-ind.mu-still{transition:none}
+.mu-sl>:not(.mu-ind){position:relative;z-index:1}
+.mu-sl-pill>.on{background-color:transparent!important;box-shadow:none!important}
+.mu-sl-line>.mu-ind{background:var(--accent);box-shadow:none;border-radius:2px}
+.mu-sl-line>.on::after{opacity:0}
+
+/* 4) 검색 · 필터 바로 뒤 처음 보이는 8장만 160ms 옅게 나타난다(이동 없음 · 스크롤할 때는 절대 움직이지 않는다) */
+@keyframes mu-pop{from{opacity:0}to{opacity:1}}
+html.mu-js .mu-st{animation:mu-pop 160ms var(--ease) both}
+
+/* 5) 뼈대(불러오는 중) 반짝임 */
+@keyframes mu-shimmer{from{background-position:120% 0}to{background-position:-20% 0}}
+.mu-skel,html[data-tool="home"] .skel{background-color:var(--surface-2);
+  background-image:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.65) 50%,transparent 70%);background-size:220% 100%;background-repeat:no-repeat;
+  animation:mu-shimmer 1.3s cubic-bezier(.45,.05,.55,.95) infinite}
+
+/* 6) 숫자 폭 맞춤 — 금액 · 건수가 바뀌어도 글자가 흔들리지 않게 */
+html[data-tool="zizi"] body,.amt,.amt-badge,.count,.cnt,.summary,.tl-cnt,.stage-count,.kpi .v,.kpi,.ct,.n,.pg,.foot-bar b,.cmp-cnt,.sim-pick-n,
+.card-id,.shown,#shown,.countline{font-variant-numeric:tabular-nums}
+
+/* 7) 휴대폰 : 자기 머리(.appbar)가 있는 화면(통합치료비 · 사용 통계)은 머리 띠의 도구 칩을 빼고 두 줄을 한 머리로 붙인다 */
+@media (max-width:760px){
+  html:has(#mu-nav):has(.appbar) #mu-nav .mu-cur{display:none}
+  html:has(#mu-nav):has(.appbar) #mu-nav .mu-in .mu-bt span{display:inline}
+  html:has(#mu-nav):has(.appbar):not(.mu-scrolled) #mu-nav{border-bottom-color:transparent}
+  html:has(#mu-nav) .appbar{background:transparent;border-bottom:1px solid rgba(15,23,42,.06)}
+  html:has(#mu-nav) .appbar .appbar-in{height:48px}
+}
+
+/* 8) 보상시뮬레이터 단계 접기 · 펴기 : 같은 0fr→1fr 를 스프링으로 */
+html[data-tool="eco"] .stage-body{transition:grid-template-rows 420ms var(--mu-spring)}
+html[data-tool="eco"] .chevron{transition:transform 420ms var(--mu-spring)}
+.p .arw,.fb-chev{transition:transform 420ms var(--mu-spring),background-color var(--t) var(--ease)}
+
+/* 9) 초점 고리 : 어디서나 같은 2px 강조색 + 2px 띄움(둥근 모서리를 따라간다) */
+:is(a,button,summary,[tabindex],[role="button"],[role="tab"],label):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mu-sl>:focus-visible{outline-offset:-2px}
+
+@media (prefers-reduced-motion:reduce){
+  html.mu-js .mu-st{animation:none}
+  .mu-sl>.mu-ind{transition:none}
+  .mu-skel,html[data-tool="home"] .skel{animation:none}
+  .ov:not(.show)>.modal,.ov:not(.show)>.cmodal,#hov:not(.show)>#hmodal,#mapov:not(.show) .mapmodal,#oncoov:not(.show) .ocmodal,#scov:not(.show) .scmodal,
+  .modal-overlay:not(.show)>.modal,#ex-mask:not(.on)>.sheet,.sim-pick-wrap.mu-closing>.sim-pick,#ex-mask.on>.sheet{animation:none}
+}
+@media print{
+  .mu-sl>.mu-ind{display:none!important}
+  .mu-sl-pill>.on{background-color:var(--surface)!important}
+  html.mu-js .mu-st{animation:none!important;opacity:1!important;transform:none!important}
+  .mu-skel{animation:none!important}
+}
+
+/* 가벼운 모드(html.mu-lite — 카카오톡 등 앱 안 브라우저) : 「움직임 줄이기」와 같다. 장식 움직임 · 화면 넘김 효과 · 부드러운 스크롤을 끈다 */
+html.mu-lite *,html.mu-lite *::before,html.mu-lite *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important;transition-delay:0s!important}
+html.mu-lite{scroll-behavior:auto!important}
+html.mu-lite .mu-rv{opacity:1!important;transform:none!important}
+html.mu-lite::view-transition-group(*),html.mu-lite::view-transition-old(*),html.mu-lite::view-transition-new(*){animation:none!important}
+html.mu-lite #mu-amb,html.mu-lite .hero-mesh,html.mu-lite .hero-noise{display:none!important}
+#mu-kbar{display:flex;align-items:center;gap:10px;margin:0;padding:10px 16px;background:#FEE500;color:#191F28;font:600 14px/1.4 var(--font);position:relative;z-index:44}
+#mu-kbar span{flex:1;min-width:0}
+#mu-kbar a{flex:none;height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:var(--r-pill);background:#191F28;color:#fff;text-decoration:none;font-weight:700}
+#mu-kbar button{flex:none;width:36px;height:36px;border:0;background:transparent;font-size:16px;color:#3D2C00;cursor:pointer}
+@media print{#mu-kbar{display:none!important}}

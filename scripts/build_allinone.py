@@ -11,8 +11,8 @@
   2) 6개를 한 파일 안에 '보관'만 해 두고, 화면에는 한 번에 하나를 칸막이(iframe) 안에 띄운다.
      한 번 연 칸막이는 지우지 않고 숨겨 두었다가 다시 보여준다(다시 열 때 기다림 없음).
      도구끼리 디자인·기능 이름이 겹쳐도 칸막이가 달라 서로 망가뜨리지 않는다.
-  3) 대문 카드·🏠 버튼처럼 다른 파일로 가는 링크는 파일 안의 해당 도구로 바꿔 띄운다.
-     보상시뮬레이터(특약검색기 안의 또 한 겹)의 🏠 버튼도 같게 맞춘다.
+  3) 대문 카드·화면 맨 위 머리 띠(#mu-nav · 휴대폰 메뉴 시트)처럼 다른 파일로 가는 링크는 파일 안의 해당 도구로 바꿔 띄운다.
+     보상시뮬레이터(특약검색기 안의 또 한 겹)에도 같은 가로채기를 넣는다.
 """
 import base64, os, re, subprocess, sys
 
@@ -58,8 +58,14 @@ SHELL = """<!DOCTYPE html>
 <meta name="robots" content="noindex, nofollow">
 <title>메리츠 영업지원도구 (올인원)</title>
 <style>html,body{margin:0;height:100%;background:#fff}
-iframe.v{position:fixed;inset:0;width:100%;height:100%;border:0;display:none}
-iframe.v.on{display:block}
+iframe.v{position:fixed;inset:0;width:100%;height:100%;border:0;display:none;z-index:0}
+iframe.v.on{display:block;z-index:1}
+/* 도구를 바꿀 때 : 새 도구가 위에서 240ms 동안 옅게 나타나고, 앞 도구는 그동안 밑에 그대로 있다가 숨는다 */
+@media (prefers-reduced-motion:no-preference){
+  iframe.v{transition:display 240ms allow-discrete}
+  iframe.v.on{transition:opacity 240ms cubic-bezier(.16,1,.3,1)}
+  @starting-style{iframe.v.on{opacity:0}}
+}
 #w{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:15px/1.6 sans-serif;color:#666}</style>
 </head><body>
 <div id="w">여는 중입니다…</div>

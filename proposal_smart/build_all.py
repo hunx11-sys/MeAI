@@ -67,6 +67,9 @@ def guess_line(riders, pdf=None):
             if 'The건강한5.10.5' in head: return 'The건강한5.10.5'
             if 'The좋은내Mom대로' in head: return 'The좋은내Mom대로'
             if 'The가벼운간편355' in head: return 'The가벼운간편355'
+            # The좋은 M-Basket(약관명 The좋은 케어프리보험 M-Basket · GA 판매명 The좋은 알파Plus · 연만기 전 특약 갱신형)(v8.77) —
+            # 세만기·비갱신 기반 케어프리 M-Basket(GA 알파Plus)과 다른 상품이다. 두 판매명 약관은 본문이 같다. 이 줄이 없으면 아래에서 '케어프리' 로 떨어진다
+            if re.search(r'The좋은(케어프리보험|알파Plus)', head): return 'The좋은케어프리'
         except Exception:
             pass
     return '케어프리'

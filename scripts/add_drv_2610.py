@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'scripts'))
 from tooldata import inflate, deflate, PAT
 
-PDF = os.path.join(ROOT, '무배당 메리츠 운전자 상해 종합보험2608약관 (1).pdf')
+PDF = os.path.join(ROOT, '무배당 메리츠 운전자 상해 종합보험2608약관.pdf')
 TOOL = os.path.join(ROOT, 'tool.html')
 P = '운전자'
 RID = '운176'

@@ -9,12 +9,13 @@
 | **스마트 제안서 생성기** | `proposal_smart/` | 고객 설계서 PDF → 보장 지면(최대 9쪽)을 만들어 원본에 끼워 넣는다. 자세한 설명·변경 기록은 `proposal_smart/README.md` |
 | GA 스마트 제안서 생성기 | `proposal_smart/ga_proposal.py` · `ga_spec.py`(칸 정의 — 지면은 이 값을 그리기만 한다) · `ga_care.py`(간병인 칸) · `make_ga.bat` | 설계서 PDF → GA 양식 v5 PDF(테스트용) : **표지(탑재상품 13개 GA 명칭) · 1 보장요약 · 2 암보장 · 3 뇌·심보장 · 예상 보장금액 세부내역(= 합산 계산서 · 칸별 설계 특약·지급 조건·가입금액·지급액 · 최소 3쪽, 담보가 많으면 자동으로 늘어남)**. 세부내역은 반드시 붙는다(`CALC_PAGES`, GA 확정 2026-10-02 — 빼지 않는다. 못 만들면 생성 자체가 실패한다). 칸 구성은 GA 내부 회의 목업(2026-10-08)대로이며 변경 기록은 `proposal_smart/README.md` v8.74. 설계도(흐름·공식·판정 로직·칸별 매핑·특약 마스터) 최종본은 `dist/ga-blueprint-final.xlsx` · 칸별 특약 지도 `dist/ga-cell-map.html` · 다시 뽑는 순서는 `proposal_smart/ga_docs/README.md` |
 | 세일즈혁신 가이드북 생성기(프로토타입) | `docs/guidebook_proto.html` | 상품설명서 PDF 를 끌어다 놓으면 담보표·설명문·Key Point·면책감액표를 묶은 가이드북을 만들어 브라우저 인쇄로 PDF 저장. 오프라인 단일 HTML(pdf.js 내장). 글 상자 창고 `scripts/guidebook_kp.json` · 틀 `scripts/guidebook_proto_template.html` · 조립 `python scripts/build_guidebook_proto.py`(pdf.js 는 파일 안의 것을 재사용). 수작업 초판은 `docs/guide_naemom_5105_2609.pdf` |
-| 영업지원도구(특약검색·통합치료비 시뮬레이터) | `tool.html` · `통합치료비.html` · `index.html` 등 | 브라우저에서 바로 쓰는 단일 HTML |
+| 영업지원도구(특약검색·통합치료비 시뮬레이터) | `tool.html` · `통합치료비.html` · `index.html` 등 | 브라우저에서 바로 쓰는 단일 HTML. 디자인 규칙은 `design/DESIGN-MeAI.md`(도구별 걱정인형 강조색 하나 · 공통 토큰) — 공통 스타일 원본 `ui/meai-ui.css` 를 고치면 `python3 scripts/apply_ui.py` 로 7개 화면(+ 보상시뮬레이터 SIMSRC)에 다시 끼운다 |
 | 비짓투재팬 VISIT to JAPAN · 일본 직항 여행 플래너(보험과 별개 프로젝트) | `travel/` | 도시 검색·도시별 그림과 위치, 출발 공항·박 수를 고르면 직항편·일정·맛집·숙소·예산·대체 플랜을 보여 주는 단일 HTML(`travel/japan.html`, 6개 언어). 자료는 `travel/data/`, 조립은 `python3 travel/build_japan.py`, 설명·점검기는 `travel/README.md` |
 | 배포·보고 산출물 | `dist/` · `docs/` | 메일 발송용 묶음, 검수 보고서 |
+| 디자인 문서 보관함 | `design/` | 회사별 디자인 문서(DESIGN-*.md · 토스 등). PPT·HTML·화면을 만들 때 **먼저 여기서 회사 문서를 찾아 그대로 따른다**(`.claude/skills/design-md`). 올리는 법은 `design/README.md` |
 
 약관 원문은 **`tool_body.js`**(특약별 본문, 특약 하나가 한 줄)와 `tool.html`(분류표 `"name":"○○ 분류표"`)에 그대로 들어 있다. 약관 근거를 확인할 때는 이 두 파일을 읽는다.
-본문 속 지급금액표 등은 「[표:머리줄수]」+ `|` 줄로 들어 있다(합친 칸 `^` 위 · `<` 왼쪽) — 약관 PDF 에서 본문을 다시 뽑으면 `python3 scripts/fix_body_tables.py --write` 로 표를 되살린다(PDF 칸 선 기준, 본문 글자는 바꾸지 않음).
+본문 속 지급금액표 등은 「[표:머리줄수]」+ `|` 줄로 들어 있다(합친 칸 `^` 위 · `<` 왼쪽) — 약관 PDF 에서 본문을 다시 뽑으면 `python3 scripts/fix_body_tables.py --write --only <다시 뽑은 특약>` 로 표를 되살리고(PDF 칸 선 기준, 본문 글자는 바꾸지 않음 · 전체에 다시 돌리면 예시 도식에 빈 표가 겹친다), **이어서 `python3 scripts/fix_table_order.py --write` 로 표·「<보험가입금액 ○>」 제목을 PDF 읽는 순서(쪽 → 왼쪽 단 → 오른쪽 단)대로 옮긴다** — 두 단 조판 때문에 4,000만원 표가 8,000만원 제목 밑에 붙는 사고가 47개 특약에서 있었다(2026-10-21). `scripts/check_body_tables.py`(sync_all 0단계)가 가입금액표 자리 · 계산표(product_data.json) 대조 · 같은 이름 특약 금액을 점검한다. 또또암 · 또또암간편은 특약 `pg` 가 PDF 쪽보다 1 크다(인쇄 쪽 번호) — 쪽을 열 때는 `fix_body_tables.start_page()` 를 쓴다.
 본문을 옆 파일로 뗀 것은 인터넷판 속도 때문이다(2026.09). 파이썬에서 DATA 를 고칠 때는 `scripts/tooldata.py` 의 `inflate`/`deflate` 를 쓰면 두 파일이 함께 읽히고 쓰인다. 메일·올인원 배포판은 본문을 압축해 파일 안에 다시 넣는다.
 특약을 더하거나 고친 뒤에는 `python3 scripts/same_riders.py --write` 를 다시 돌린다 — 상품만 다른 같은 이름 특약을 한 카드로 묶는 표시(`sg`)·간편심사 감액 메모(`sv`)·띄어쓰기 통일을 다시 만든다. **이름이 같으면 약관 별표도 같다(소유자 확인).** 그래서 같은 이름인데 질병코드·수가코드가 다르면 그건 데이터 오류다 — 스크립트가 '확인 필요'로 출력하면 약관 별표로 바로잡는다(예 : `scripts/fix_same_terms.py`). 상품 간 실제 차이는 간편심사 감액(약관 지급표) 정도이며, 보장개시 문구 차이는 메모하지 않는다.
 
@@ -50,6 +51,7 @@ python3 scripts/sync_all.py --designs <설계서폴더>  # + 설계서 지면 �
 9. 커밋 메시지·PR·코드 주석에 **모델 식별자를 넣지 않는다.**
 10. 약관 PDF 는 **두 단 조판**이다. 글자를 뽑으면 둘째 단이 다음 별표 뒤에 섞인다 — 별표(분류표) 코드를 셀 때는 반드시 다음 쪽까지 보고, 자동 추출 숫자만으로 "없다"고 단정하지 않는다(2026-10-02 특정순환계질환 분류표 오판 사례).
 11. 치매간병통합케어보험은 스마트 제안서 제공 대상이 아니다(소유자 2026-10-02). 간병인 칸에는 「치매한정」 표시만 맞춰 두었다.
+12. **케어프리 M-Basket(GA 알파Plus) ≠ The좋은 M-Basket(GA The좋은 알파Plus).** 앞은 세만기·비갱신 기반(일부 특약 갱신형), 뒤는 연만기·전 특약 갱신형인 다른 상품이다(소유자 2026-10-20). 「The좋은」이 붙은 상품을 앞 상품의 개정판으로 보지 않는다 — 상품 관계는 상품 라인업(`products.html` DATA)에서 먼저 확인한다.
 
 ## 계산을 고칠 때 (순서를 지킨다)
 
@@ -72,7 +74,7 @@ python3 scripts/sync_all.py --designs <설계서폴더>  # + 설계서 지면 �
 
 ## 새 상품·신담보·새 약관을 넣을 때 (루프 — 전부 통과할 때까지 돈다)
 
-1. 약관 PDF 를 저장소 루트에 올린다. 스마트 제안서 전용이면 `python extract_terms_extra.py "../약관.pdf" 상품명 접두어`, 영업지원도구에도 들어가는 상품이면 `tool.html` 을 고치고 `python extract_db.py ../tool.html`.
+1. 약관 PDF 를 저장소 루트에 올린다. 소유자는 웹 업로드(파일당 25MB) 대신 GitHub 릴리스 「약관 올리는 곳」(태그 `terms-inbox`)에 여러 개를 한 번에 끌어다 놓는다 — 세션은 `python3 scripts/fetch_terms.py --write` 로 받아 온다(PDF 첫 쪽 상품명으로 같은 상품의 옛 판을 바꾸고 `db_terms_extra.json` 의 약관 이름도 고친다. 채팅 첨부 파일은 `--from <폴더>`). 스마트 제안서 전용이면 `python extract_terms_extra.py "../약관.pdf" 상품명 접두어`, 영업지원도구에도 들어가는 상품이면 `tool.html` 을 고치고 `python extract_db.py ../tool.html`.
 2. 첫 쪽 상품명으로 상품라인을 못 읽으면 `build_all.guess_line` 에 한 줄 추가한다(화이트리스트가 아니라 읽기 규칙).
 3. `cd proposal_smart && python harness.py --designs <설계서PDF폴더>` — H1~H6.
 4. 실패 항목만 고친다 : H1 → 약관 별표·마스터 / H2 → `rules.json` 에 규칙 추가(약관 근거) / H3 → `scen_engine.GOJI`·`matcher` / H4·H5 → 핸들러·규칙 / H6 → `ga_proposal.py`·`ga_spec.py`.

@@ -19,6 +19,9 @@
        python3 scripts/fix_body_tables.py --write    (tool.html · tool_body.js 에 반영)
        python3 scripts/fix_body_tables.py --write --only 통N269,통131   (특약 몇 개만)
 본문을 PDF 에서 다시 뽑은 뒤(recover_terms.py · import_terms.py)에는 이 스크립트를 다시 돌린다.
+※ 이미 표를 넣은 본문에 다시 돌리면 【예시】 날짜 도식에 빈 표가 한 겹 더 들어간다 — 다시 뽑은 특약만 --only 로 돌린다.
+※ 표를 넣은 뒤에는 반드시 scripts/fix_table_order.py --write(두 단 조판 때문에 표 · 가입금액 제목이 엉뚱한 자리에
+  붙은 것을 PDF 순서로 옮김) → scripts/check_body_tables.py(점검)를 돌린다(2026-10-21 통합치료비 47개 특약 사고).
 """
 import collections, glob, io, json, os, re, sys
 
@@ -47,6 +50,15 @@ def pdf_for(prod):
 
 def nk(s):
     return re.sub(r'\s+', '', s or '')
+
+
+def start_page(doc, r):
+    """특약 제목이 실제로 있는 쪽 — 또또암 · 또또암간편은 pg 가 PDF 쪽보다 하나 크다(인쇄 쪽 번호) (2026-10-21)"""
+    key = nk((r.get('b') or '').split('\n')[0])[:20]
+    for pi in (r['pg'], r['pg'] - 1, r['pg'] - 2, r['pg'] + 1):
+        if key and 0 <= pi < len(doc) and key in nk(doc[pi].get_text()):
+            return pi
+    return r['pg']
 
 
 # ── 표 하나 읽기 : 칸 격자 · 합친 칸 · 칸 글자 ──
@@ -284,7 +296,7 @@ def main():
                 continue                                    # 세부보장 : 부모 본문을 그대로 쓴다(아래에서 따라감)
             nxt = next((p for p in pgs if p > r['pg']), r['pg'] + 3)
             tabs = []
-            for pi in range(r['pg'], min(nxt, r['pg'] + 12) + 1):
+            for pi in range(start_page(doc, r), min(nxt, r['pg'] + 12) + 1):
                 tabs += tables_on(pi)
             stat['특약'] += 1
             if not tabs:

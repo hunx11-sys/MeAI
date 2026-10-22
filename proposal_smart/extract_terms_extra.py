@@ -24,7 +24,9 @@ OUT = os.path.join(BASE, 'db_terms_extra.json')
 
 HEAD = re.compile(r'\s*【\s*별\s*표\s*-?\s*([가-힣]*)\s*(\d+)\s*】\s*')
 REF = re.compile(r'【\s*별\s*표\s*-?\s*([가-힣]*)\s*(\d+)\s*(?:[(（]((?:[^()（）】]|[(（][^()（）】]*[)）])*)[)）])?\s*】')
-CODE = re.compile(r'(?<![A-Za-z0-9])([A-Z]\d{2}(?:\.\d{1,2})?)(?:\s*[~∼～]\s*([A-Z]?\d{2}(?:\.\d{1,2})?))?(?![0-9])')
+# 범위 기호 : 물결(~)과, 양쪽이 모두 질병코드인 하이픈('P00 - P04' · 'H15-H22')(v8.77 — 하이픈 범위를 두 코드로만 읽어
+# 내Mom같은어린이 출생전후기 주요병태 분류표 P00~P96 열 묶음이 양 끝 코드만 남았다)
+CODE = re.compile(r'(?<![A-Za-z0-9])([A-Z]\d{2}(?:\.\d{1,2})?)(?:(?:\s*[~∼～]\s*|\s*[-‐–]\s*(?=[A-Z]\d{2}))([A-Z]?\d{2}(?:\.\d{1,2})?))?(?![0-9])')
 HC = re.compile(r'\b([A-Z]{1,2}\d{3,4})\b(?:\s*[~∼]\s*([A-Z]{1,2}\d{3,4}))?')
 GOJI = re.compile(r'\([^()]{1,24}가입\)')                    # 담보명 꼬리표 — scen_engine.GOJI 와 같은 형태
 def tidy_goji(s):
@@ -34,7 +36,9 @@ def tidy_goji(s):
 CIRC = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳'
 
 def nz(s): return re.sub(r'[\s ]', '', s or '')
-JUNKSUB = re.compile(r'청구서|증명서|제출|회사양식|위생관리|성형수술|^\d+\.|[一-龥]|등의\s*조치|[「【“]|한다|이하|말한다|정한다')
+# '수술에서 제외하는 사항(① 흡인 ② 천자 ③ 신경차단 ④ 미용성형 목적의 수술 ⑤ 피임 목적의 수술 …)'도 세부보장이 아니다(2026-10-20 :
+# 간편31 · The좋은내Mom대로 32대질병관혈수술비에 [미용성형 목적의 수술] 세부 레코드가 생겼던 것)
+JUNKSUB = re.compile(r'청구서|증명서|제출|회사양식|위생관리|성형수술|미용\s*성형|목적의\s*수술|^\d+\.|[一-龥]|등의\s*조치|[「【“]|한다|이하|말한다|정한다')
 
 EXAMPLE = re.compile(r'【[^】]*예\s*시[^】]*】.*?(?=\n\s*\d+\.\s|\n\s*【|\n\s*제\s*\d+\s*조|\Z)', re.S)
 def strip_examples(t):
@@ -52,7 +56,7 @@ def join_split_ranges(t):
         m = re.search(r'([~∼～]\s*[A-Z]\d)\s*$', line)
         if not m:
             continue
-        for j in range(i + 1, min(i + 6, len(L))):
+        for j in range(i + 1, min(i + 16, len(L))):                           # 설명 글 줄이 9줄 끼는 쪽도 있다(The건강한내Mom대로5.10.5 p.1285 'C74~C7' … 9줄 … '5' · v8.77)
             if re.fullmatch(r'\s*\d\s*', L[j]):
                 L[i] = line.rstrip() + L[j].strip(); L[j] = ''
                 break

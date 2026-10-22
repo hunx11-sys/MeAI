@@ -62,6 +62,9 @@ def main():
     db_p, ex_p = os.path.join(PS, 'db.json'), os.path.join(PS, 'db_terms_extra.json')
     db0 = riders(db_p); ex0 = riders(ex_p) if os.path.exists(ex_p) else {}
 
+    # 0. 약관 본문 가입금액표 점검(표가 엉뚱한 가입금액 밑에 붙은 것 · 계산표와 다른 것) — 문제가 있으면 여기서 멈춘다
+    run('0. 약관 본문 가입금액표 점검', [PY, 'scripts/check_body_tables.py'], ROOT)
+
     # 1. tool.html → db.json
     run('1. 영업지원도구 데이터(tool.html) → 특약 마스터 db.json', [PY, 'extract_db.py', '../tool.html'], PS)
 
