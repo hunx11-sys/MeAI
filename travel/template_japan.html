@@ -1093,7 +1093,7 @@ main>footer{content-visibility:auto;contain-intrinsic-size:auto 200px}
 @media print{.rv,.rv.sv{animation:none!important}.phero{min-height:auto}.tabbar,.stillbtn{display:none}}
 @media (prefers-reduced-motion:reduce){
   .rv,.rv.sv,.rmap .rl,.rmap .cp,.marq .mt,.phero .mesh,.phero .scene,.phero .scene *,.wordmark .w>span,.phero .rot b,.hero .bg,.hero .badge,.homebrand,.tabbar svg,.sheet .sh-b>*{animation:none!important}
-  .homebrand{opacity:1}
+  .homebrand{opacity:0}.topbar.home.on .homebrand{opacity:1}
   .langmenu.on{animation:none!important}
   .phero .mesh{will-change:auto}
   .topbar.home::before{animation:none!important;opacity:0;transition:opacity .4s var(--glide)}.topbar.home.on::before{opacity:1}
@@ -1101,18 +1101,15 @@ main>footer{content-visibility:auto;contain-intrinsic-size:auto 200px}
   .marq .mq{overflow-x:auto;scrollbar-width:none}.marq .mq::-webkit-scrollbar{display:none}.marq .mt .dup{display:none}
   .marq .mt{padding-inline:16px}.marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 }
-/* 가벼운 모드(앱 안 브라우저) : 동작 줄이기와 같게 + 종이결·색 번짐 끔 */
-.lite .rv,.lite .rv.sv,.lite .rmap .rl,.lite .rmap .cp,.lite .marq .mt,.lite .phero .mesh,.lite .phero .scene,.lite .phero .scene *,.lite .wordmark .w>span,.lite .phero .rot b,.lite .hero .bg,.lite .hero .badge,.lite .homebrand,.lite .tabbar svg,.lite .sheet .sh-b>*,.lite .scr{animation:none!important}
-.lite .homebrand{opacity:1}
+/* 가벼운 모드(카카오톡 등 앱 안 브라우저·데이터 절약) : 무거운 효과만 끈다(종이결·색 번짐 회전·장면·스크롤 연동·떠오르기·화면 넘김).
+   가벼운 움직임(도시 띠·도시 이름 바뀜·영문 제목·숫자 올라가기)은 그대로 — 소유자 : 카톡에서도 도시 띠가 움직여야 함(2026-10-22) */
+.lite .rv,.lite .rv.sv,.lite .rmap .rl,.lite .rmap .cp,.lite .phero .scene,.lite .phero .scene *,.lite .hero .bg,.lite .hero .badge,.lite .sheet .sh-b>*,.lite .scr{animation:none!important}
 .lite .langmenu.on{animation:none!important}
-.lite .topbar.home::before{animation:none!important;opacity:0;transition:opacity .4s var(--glide)}.lite .topbar.home.on::before{opacity:1}
-.lite .stillbtn{display:none}
+.lite .topbar.home::before,.lite .homebrand{animation:none!important;opacity:0;transition:opacity .4s var(--glide)}.lite .topbar.home.on::before,.lite .topbar.home.on .homebrand{opacity:1}
 /* 움직임 멈춤(첫 화면 단추) : 흐르는 띠·장면·도시 이름 바뀜을 멈추고 띠는 손가락으로 민다 */
 .still .marq .mt,.still .phero .mesh,.still .phero .scene,.still .phero .scene *,.still .phero .rot b,.still .hero .badge{animation:none!important}
 .still .marq .mq{overflow-x:auto;scrollbar-width:none}.still .marq .mq::-webkit-scrollbar{display:none}.still .marq .mt .dup{display:none}
 .still .marq .mt{padding-inline:16px}.still .marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
-.lite .marq .mq{overflow-x:auto;scrollbar-width:none}.lite .marq .mq::-webkit-scrollbar{display:none}.lite .marq .mt .dup{display:none}
-.lite .marq .mt{padding-inline:16px}.lite .marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 .lite body::after,.lite .phero .mesh{display:none}
 /* 휴대폰·터치 기기 : 뒤 흐림(backdrop-filter)은 스크롤마다 다시 그려 끊기므로 끄고 거의 불투명한 판으로(컴퓨터는 그대로) */
 @media (hover:none),(pointer:coarse){
@@ -1180,6 +1177,8 @@ const KW = { '월요일': { en: 'Mon', es: 'lunes', ja: '月曜', zh: '周一', 
 function hText(s){ s = String(s || ''); if (LANG === 'ko' || !HANGUL.test(s)) return s; for (const k in KW) s = s.split(k).join(KW[k][LANG] || k); if (!HANGUL.test(s)) return s; const t = s.replace(/\([^)]*[가-힣][^)]*\)/g, '').replace(/[가-힣]+/g, '').replace(/[()（）]\s*[()（）]/g, '').replace(/\s{2,}/g, ' ').replace(/^[\s·,()（）]+|[\s·,()（）]+$/g, '').trim(); return /[0-9A-Za-z\u3040-\u30ff\u4e00-\u9fff]/.test(t) ? t : T('tbd'); }
 
 /* ───────── 저장 ───────── */
+/* 처음 보여 주는 환율 : 100엔=850원(소유자 지시 2026-10-22 '지금 850원 아래', 가정값). 자료 금액(900원 기준)을 이 값으로 다시 계산해 보여 준다 */
+const FX_DEFAULT = 850;
 const S = {
   get(k, d){ try { const v = localStorage.getItem('jptrip:' + k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
   set(k, v){ try { localStorage.setItem('jptrip:' + k, JSON.stringify(v)); } catch(e){} }
@@ -1189,7 +1188,7 @@ const st = {
   picks: S.get('picks', {}), checks: S.get('checks', {}), last: S.get('last', null),
   scr: 'home', region: '', city: null, n: 0, v: 0, d: 0, t: 'plan', open: -1, sel: -1,
   ff: '', sf: '', atag: '', pinSel: '', q: '', smax: 0, tabPush: -1, backBtn: false, pendingRegion: '',
-  fx: Math.min(1500, Math.max(500, Number(S.get('fx', 900)) || 900))
+  fx: Math.min(1500, Math.max(500, Number(S.get('fx', FX_DEFAULT)) || FX_DEFAULT))
 };
 if (!KRP[st.origin]) st.origin = 'ICN';
 
@@ -1204,7 +1203,7 @@ const manR = v => Array.isArray(v) ? (v[0] === v[1] ? man(v[0]) : (LANG === 'ko'
 const manA = v => { const r = x => Math.round((Number(x) || 0) / 10000); if (LANG !== 'ko') return manR(v); const a = Array.isArray(v) ? v : [v, v]; return a[0] === a[1] ? `약 ${r(a[0]).toLocaleString('ko-KR')}만원` : `약 ${r(a[0]).toLocaleString('ko-KR')}만\u2060~\u2060${r(a[1]).toLocaleString('ko-KR')}만원`; };
 const yen = n => T('yen', { n: Number(n).toLocaleString('en-US') });
 /* 환율 : 가이드 금액은 100엔=900원 기준 가정값. 바꾸면 엔화로 쓰는 돈(숙박·식비·교통·입장료·쇼핑)만 다시 계산하고 항공권(원화 결제)은 그대로 */
-const FX_BASE = 900;
+const FX_BASE = 900;   /* 가이드 자료의 금액이 계산된 환율(자료 기준) */
 const fxK = () => (st.fx || FX_BASE) / FX_BASE;
 /* 환율로 다시 계산한 값은 어림값이라 10만 원 넘으면 만 원 단위, 아래는 천 원 단위로 */
 const r1000 = x => x >= 100000 ? Math.round(x / 10000) * 10000 : Math.round(x / 1000) * 1000;
@@ -1685,7 +1684,7 @@ function rmapSvg(o){
 }
 let mapAnim = 0;
 function animateMap(from, to){
-  const svg = document.querySelector('#bigmap svg'); if (!svg || !from || from.join() === to.join() || REDUCED) return;
+  const svg = document.querySelector('#bigmap svg'); if (!svg || !from || from.join() === to.join() || CALM) return;
   cancelAnimationFrame(mapAnim);
   svg.classList.add('anim'); svg.setAttribute('viewBox', from.join(' '));
   const t0 = performance.now(), D = 450;
@@ -1709,7 +1708,8 @@ if (LITE) document.documentElement.classList.add('lite');
 /* 첫 화면 '움직임 멈추기' 단추로 고른 값(이 기기에만 저장) */
 let STILL = false; try { STILL = localStorage.getItem('jp_still') === '1'; } catch(e){}
 if (STILL) document.documentElement.classList.add('still');
-const REDUCED = LITE || (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){ return false; } })();
+const REDUCED = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){ return false; } })();
+const CALM = REDUCED || LITE;   /* 떠오르기·화면 넘김·지도 확대 움직임을 끄는 조건 */
 let lmap = null, markers = [];
 /* 이 앱이 쌓은 기록 번호(새로 고침해도 이어짐) · 마지막 화면 이동 시각(두 번 누름 막기) */
 let HI = (() => { try { return history.state && typeof history.state.i === 'number' ? history.state.i : 0; } catch(e){ return 0; } })(), NAV_AT = 0;
@@ -1832,7 +1832,7 @@ function renderStart(){
 function homeBar(){
   let ok = false; try { ok = CSS.supports('animation-timeline: scroll()'); } catch(e){}
   const tb = document.querySelector('.topbar.home'), wm = document.querySelector('.phero .wordmark');
-  if (ok || !tb || !wm) return;
+  if ((ok && !CALM) || !tb || !wm) return;   /* 동작 줄이기·가벼운 모드는 스크롤 연동을 끄므로 여기서 켠다 */
   if (typeof IntersectionObserver === 'undefined'){ tb.classList.add('on'); return; }
   HOME_BAR = new IntersectionObserver(es => es.forEach(e => tb.classList.toggle('on', !e.isIntersecting)), { rootMargin: '-72px 0px 0px 0px' });
   HOME_BAR.observe(wm);
@@ -1871,7 +1871,7 @@ function decoPause(){
 /* 같은 화면에서 칩·일차만 바꿀 때는 바뀐 목록만 다시 떠오른다(칩 줄·머리까지 깜빡이지 않게) */
 const RV_KEEP = '.clist>*,.grid2>*,.hlist>*,.tl>li,.dend,.alts>*,.sitem';
 function reveal(sel){
-  if (REDUCED) return;
+  if (CALM) return;
   document.body.dataset.anim = '1';
   /* 위치는 한 번에 다 재고(문서 기준) 나서 표시를 붙인다 : 하나씩 재면 그때마다 화면 계산을 다시 해 느려진다 */
   const vh = window.innerHeight || 700, y0 = window.scrollY || 0, els = [...app.querySelectorAll(sel || RV_SEL)], skip = st.scr === 'home' && !sel;
@@ -2213,7 +2213,7 @@ function fxPreview(){
   return b ? T('fx_prev', { nd: nd(plan.nights), amt: manA(b.total_krw) }) : '';
 }
 function sheetFx(){
-  const presets = [850, 900, 950, 1000];
+  const presets = [800, 850, 900, 950];
   openSheet(T('fx_sheet_t'), `<div class="fxrow"><span class="l">${esc(T('fx_100'))}</span><button class="fxs" data-act="fx" data-v="-10" aria-label="-10">−</button><label class="fxin"><input id="fxin" type="number" inputmode="numeric" min="500" max="1500" step="1" value="${st.fx}" aria-label="${esc(T('fx_sheet_t'))}"><span>${esc(T('won'))}</span></label><button class="fxs" data-act="fx" data-v="+10" aria-label="+10">+</button></div>
     <div class="fxpre">${presets.map(v => `<button class="chip" data-act="fx" data-v="=${v}" aria-pressed="${st.fx === v}">${v.toLocaleString('ko-KR')}</button>`).join('')}</div>
     <p class="fxprev" id="fxprev">${esc(fxPreview())}</p>
@@ -2337,7 +2337,7 @@ function applyRoute(r){
   if (r.scr === 'city'){ if (st.city !== r.city){ st.ff = ''; st.sf = ''; } st.city = r.city; st.n = r.n || 0; st.v = r.v || 0; st.d = r.d || 0; st.t = r.t || 'plan'; }
 }
 const scrollMem = {};
-function animIn(dir){ if (REDUCED || !dir) return; const s = app.querySelector('.scr'); if (!s) return; s.classList.remove('in-fwd', 'in-back', 'in-tab'); void s.offsetWidth; s.classList.add('in-' + dir); }
+function animIn(dir){ if (CALM || !dir) return; const s = app.querySelector('.scr'); if (!s) return; s.classList.remove('in-fwd', 'in-back', 'in-tab'); void s.offsetWidth; s.classList.add('in-' + dir); }
 function render(o){
   closeLang(); o = o || {}; stopHome();
   const s = st.scr;
@@ -2543,7 +2543,7 @@ function openSheet(title, html, after, size){
   const sh = document.getElementById('sheet'), sc = document.getElementById('shscrim');
   document.getElementById('sh-t').textContent = title || '';
   const b = document.getElementById('sh-b'); b.innerHTML = html; b.scrollTop = 0;
-  if (!REDUCED) [...b.children].forEach((el, k) => { el.classList.add('rv'); el.style.setProperty('--i', Math.min(k, 8)); });
+  if (!CALM) [...b.children].forEach((el, k) => { el.classList.add('rv'); el.style.setProperty('--i', Math.min(k, 8)); });
   document.getElementById('sh-x').setAttribute('aria-label', T('close'));
   NAV_AT = performance.now() - 100;   /* 시트는 0.25초만 막는다 */
   if (!SH.open){ SH.lastFocus = document.activeElement; try { history.pushState({ sheet: 1, city: st.city, i: HI + 1 }, '', location.hash); HI++; } catch(e){} }
