@@ -866,7 +866,6 @@ footer a{color:var(--ink-3)}
   --amb-s:0 10px 30px -14px rgba(120,62,48,.24);
   --glass:rgba(255,252,249,.8);
 }
-html{scroll-behavior:smooth}
 /* 종이결 : 아주 옅은 노이즈를 화면 맨 위에 고정(누르기에는 안 걸림) */
 body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
@@ -875,14 +874,19 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 .topbar .iconbtn{background:rgba(120,62,48,.06);transition:transform .5s var(--spring),background-color .3s var(--glide)}
 .topbar .iconbtn:active{transform:scale(.9)}
 .topbar .brand{padding-left:2px}
-.langmenu{top:calc(74px + env(safe-area-inset-top,0px));border-radius:20px;box-shadow:var(--amb);transform-origin:top right}
+.langmenu{right:max(14px,calc(50% - 306px));top:calc(74px + env(safe-area-inset-top,0px));border-radius:20px;box-shadow:var(--amb);transform-origin:top right}
 .langmenu.on{animation:popIn .45s var(--spring) backwards}
 /* 첫 화면 위 막대 : 큰 제목이 지나가면 작은 로고가 스며 나온다 */
 .homebrand{font-family:var(--serif);font-size:21px;letter-spacing:-.01em;color:var(--ink);opacity:0;white-space:nowrap}
 .homebrand em{color:var(--rose);font-style:italic}
 /* 첫 화면 위 막대는 처음엔 투명 · 내려가면 유리판이 서서히(불투명도만 움직임) */
-.topbar.home{background:transparent;border-color:transparent;box-shadow:none}
-.topbar.home::before{content:"";position:absolute;inset:-1px;z-index:-1;border-radius:inherit;background:var(--glass);border:1px solid rgba(255,255,255,.75);box-shadow:var(--amb-s),inset 0 1px 0 rgba(255,255,255,.9)}
+.topbar.home{background:transparent;border-color:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.topbar.home::before{content:"";position:absolute;inset:-1px;z-index:-1;border-radius:inherit;background:var(--glass);border:1px solid rgba(255,255,255,.75);box-shadow:var(--amb-s),inset 0 1px 0 rgba(255,255,255,.9);-webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7)}
+/* 스크롤 타임라인이 없는 브라우저(사파리 26 전·파이어폭스) : 큰 제목이 지나가면 JS(homeBar)가 .on 을 붙인다 */
+@supports not (animation-timeline:scroll()){
+  .topbar.home::before,.homebrand{opacity:0;transition:opacity .4s var(--glide)}
+  .topbar.home.on::before,.topbar.home.on .homebrand{opacity:1}
+}
 .topbar.home .iconbtn{background:rgba(255,255,255,.55)}
 @supports (animation-timeline:scroll()){
   .topbar.home::before{animation:tbGlass linear both;animation-timeline:scroll(root);animation-range:120px 300px}
@@ -900,7 +904,7 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 @keyframes tabPop{from{transform:scale(.6) translate3d(0,6px,0)}}
 
 /* ── 일차 탭 : 떠 있는 둘째 막대 ── */
-.dtabs{top:calc(74px + env(safe-area-inset-top,0px));margin:12px 10px 0;padding:6px;border:1px solid rgba(255,255,255,.75);border-radius:22px;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);box-shadow:var(--amb-s)}
+.dtabs{top:calc(74px + env(safe-area-inset-top,0px));margin:12px 10px 0;padding:6px;border:1px solid rgba(255,255,255,.75);border-radius:22px;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);box-shadow:var(--amb-s),0 -10px 0 0 var(--bg)}
 .dtab{transition:transform .5s var(--spring),background-color .4s var(--glide),color .3s,box-shadow .5s var(--spring)}
 .dtab[aria-pressed="true"]{box-shadow:0 10px 22px -12px rgba(217,81,110,.75)}
 
@@ -994,7 +998,7 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 }
 .phero .pinner{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
 .wordmark{font-family:var(--serif);font-weight:400;font-size:clamp(56px,17vw,92px);line-height:.9;letter-spacing:-.025em;color:var(--ink);margin:2px 0 0}
-.wordmark .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.06em}
+.wordmark .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding:0 .04em .24em;margin:0 -.04em -.18em}
 .wordmark .w>span{display:inline-block;animation:wordUp 1.1s var(--spring) backwards;animation-delay:calc(var(--d,0) * 110ms + 180ms)}
 .wordmark em{font-style:italic;color:var(--rose);font-size:.8em;margin:0 .06em}
 @keyframes wordUp{from{transform:translate3d(0,110%,0)}}
@@ -1017,7 +1021,7 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 .stats .st:first-child span{color:rgba(255,255,255,.78);font-size:15px}
 /* 흐르는 도시 띠 */
 .marq{padding:26px 0 4px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-.marq .mq{overflow:hidden;padding:5px 0}
+.marq .mq{overflow:hidden;padding:5px 0 20px;margin-bottom:-15px}
 .marq .mt{display:flex;gap:10px;width:max-content;animation:mq 70s linear infinite}
 .marq .mq.r .mt{animation-duration:80s;animation-direction:reverse}
 .marq:active .mt{animation-play-state:paused}
@@ -1039,35 +1043,40 @@ body::after{content:"";position:fixed;inset:0;z-index:95;pointer-events:none;opa
 .tile:nth-child(4){grid-column:1/-1}
 .tile .art{position:absolute;inset:0;z-index:-2;line-height:0;transition:transform .9s var(--spring)}
 .tile .art svg{width:100%;height:100%}
-.tile::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(43,35,32,0) 20%,rgba(43,35,32,.22) 48%,rgba(43,35,32,.74) 100%)}
-.tile .tt{position:absolute;left:16px;right:16px;bottom:14px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
-.tile b{font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.2;text-shadow:0 1px 10px rgba(0,0,0,.25)}
-.tile small{display:block;font-size:13px;font-weight:600;opacity:.9}
-.tile i{font-style:normal;flex:0 0 auto;min-width:44px;height:30px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;place-items:center;font-size:13px;font-weight:700}
+.tile::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(43,35,32,0) 0%,rgba(43,35,32,.12) 30%,rgba(43,35,32,.5) 60%,rgba(43,35,32,.82) 100%)}
+.tile .tt{position:absolute;left:16px;right:16px;bottom:14px;display:block}
+.tile b{display:block;font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.25;word-break:keep-all;overflow-wrap:normal;text-shadow:0 1px 12px rgba(0,0,0,.35)}
+.tile small{display:block;margin-top:2px;font-size:13px;font-weight:600;opacity:.92;word-break:keep-all}
+.tile i{position:absolute;top:12px;right:12px;font-style:normal;min-width:44px;height:30px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;place-items:center;font-size:13px;font-weight:700}
 @media (hover:hover){.tile:hover .art{transform:scale(1.06)}}
 .tile:active .art{transform:scale(1.04)}
-@media (min-width:560px){.bento{grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:170px}.tile:nth-child(1){grid-column:span 2;grid-row:span 2}.tile:nth-child(4){grid-column:span 2}}
+@media (min-width:560px){.bento{grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:170px}.tile:nth-child(1){grid-column:span 2;grid-row:span 2}.tile:nth-child(4),.tile:nth-child(5),.tile:nth-child(6){grid-column:span 2}}
 .home .txtbtn.sm{margin-top:16px}
 
-@media (max-width:359px){.phero .quick{width:58px;padding:0;justify-content:center}.phero .quick span{display:none}.phero{padding:84px 16px 26px}.phero .rotl{font-size:20px}.stats .st b{font-size:38px}.stats .st:first-child b{font-size:54px}.shd h2{font-size:24px}}
+@media (max-width:389px){.phero .quick{width:58px;padding:0;justify-content:center}.phero .quick span{display:none}}
+@media (max-width:359px){.topbar{margin:6px 6px 0;padding:5px 5px 5px 9px;gap:4px}}
+@media (max-height:700px){.hero{height:132px}}
+@media (max-width:359px){.phero{padding:84px 16px 26px}.phero .rotl{font-size:20px}.stats .st b{font-size:38px}.stats .st:first-child b{font-size:54px}.shd h2{font-size:24px}}
 @media (prefers-reduced-motion:reduce){
   .rv,.rv.sv,.rmap .rl,.rmap .cp,.marq .mt,.phero .mesh,.phero .scene,.phero .scene *,.wordmark .w>span,.phero .rot b,.hero .bg,.hero .badge,.homebrand,.tabbar svg,.sheet .sh-b>*{animation:none!important}
   .homebrand{opacity:1}
   .marq .mq{overflow-x:auto;scrollbar-width:none}.marq .mq::-webkit-scrollbar{display:none}.marq .mt [aria-hidden="true"]{display:none}
+  .marq .mt{padding-inline:16px}.marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 }
 /* 가벼운 모드(앱 안 브라우저) : 동작 줄이기와 같게 + 종이결·색 번짐 끔 */
 .lite .rv,.lite .rv.sv,.lite .rmap .rl,.lite .rmap .cp,.lite .marq .mt,.lite .phero .mesh,.lite .phero .scene,.lite .phero .scene *,.lite .wordmark .w>span,.lite .phero .rot b,.lite .hero .bg,.lite .hero .badge,.lite .homebrand,.lite .tabbar svg,.lite .sheet .sh-b>*,.lite .scr{animation:none!important}
 .lite .homebrand{opacity:1}
 .lite .marq .mq{overflow-x:auto;scrollbar-width:none}.lite .marq .mq::-webkit-scrollbar{display:none}.lite .marq .mt [aria-hidden="true"]{display:none}
+.lite .marq .mt{padding-inline:16px}.lite .marq{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
 .lite body::after,.lite .phero .mesh{display:none}
 /* 휴대폰·터치 기기 : 뒤 흐림(backdrop-filter)은 스크롤마다 다시 그려 끊기므로 끄고 거의 불투명한 판으로(컴퓨터는 그대로) */
 @media (hover:none),(pointer:coarse){
   :root{--glass:rgba(255,252,249,.96)}
-  .topbar,.tabbar,.dtabs,.introbtn,.cta.ghost,.tile i,.shscrim.on,.bottombar{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .topbar,.topbar.home::before,.tabbar,.dtabs,.introbtn,.cta.ghost,.tile i,.shscrim.on,.bottombar{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
   .cta.ghost{background:rgba(255,255,255,.92)}
   .tile i{background:rgba(43,35,32,.34)}
 }
-@media (min-width:640px){.app{padding-top:12px}}
+
 </style>
 </head>
 <body>
@@ -1730,7 +1739,7 @@ function homeStats(){
 /* 첫 화면 바둑판 테마 : 태그 · 그림 */
 const THEMES = [['온천', 'spots', 'onsen'], ['바다', 'spots', 'sea'], ['미식', 'dishes', 'ramen'], ['야경', 'spots', 'night'], ['아이동반', 'spots', 'kids'], ['역사', 'spots', 'temple']];
 const SCENE = `<svg class="scene" viewBox="0 0 400 300" aria-hidden="true"><g class="cl"><path d="M38 70h66a14 14 0 0 0-12-18 18 18 0 0 0-34-4 12 12 0 0 0-20 22z" fill="#fff" opacity=".85"/></g><g class="cl c2"><path d="M250 44h52a11 11 0 0 0-9-14 14 14 0 0 0-27-3 9 9 0 0 0-16 17z" fill="#fff" opacity=".7"/></g><circle class="sun" cx="292" cy="112" r="56" fill="#E8505B"/><path d="M40 268L172 120Q186 106 200 120L332 268Z" fill="#8FA0C6"/><path d="M146 150L172 120Q186 106 200 120L226 150L208 141L196 154L186 140L174 154L162 141Z" fill="#fff"/><path d="M0 268L70 214Q84 204 98 214L178 268Z" fill="#B7C3DD"/><path d="M230 268L300 222Q312 214 324 222L400 262V268Z" fill="#A9B7D6"/><g class="wv"><path d="M-30 262Q-15 254 0 262T30 262T60 262T90 262T120 262T150 262T180 262T210 262T240 262T270 262T300 262T330 262T360 262T390 262T420 262T450 262V300H-30Z" fill="#9FD3D8"/><path d="M-30 276Q-15 270 0 276T30 276T60 276T90 276T120 276T150 276T180 276T210 276T240 276T270 276T300 276T330 276T360 276T390 276T420 276T450 276V300H-30Z" fill="#7FC2C9"/></g></svg>`;
-let HOME_T = 0, HOME_IO = null;
+let HOME_T = 0, HOME_IO = null, HOME_BAR = null;
 /* 흐르는 띠의 도시 그림은 그림 파일(img)로 : 그림 68개를 화면 요소로 풀면 1,400개가 넘어 첫 화면이 무거워진다 */
 const ICO_URL = {};
 const icoImg = g => g.icon ? `<img src="${ICO_URL[g.key] || (ICO_URL[g.key] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(g.icon))}" alt="" decoding="async">` : '';
@@ -1742,7 +1751,7 @@ function renderStart(){
   const row = (list, cls) => `<div class="mq${cls}"><div class="mt">${chips(list)}${chips(list, true)}</div></div>`;
   const en = esc(T('brand_en')).split(' ');
   const word = (t, d, it) => `<span class="w"><span style="--d:${d}">${it ? `<em>${t}</em>` : t}</span></span>`;
-  const tiles = THEMES.filter(([t]) => gs.some(g => (g.tags || []).includes(t))).map(([t, grp, k]) => { const n = gs.filter(g => (g.tags || []).includes(t)).length; const a = grp === 'dishes' ? dishArt(k) : (ART.spots || {})[k] || ''; return `<button class="tile" data-act="theme" data-v="${esc(t)}"><span class="art">${svgFit(a)}</span><span class="tt"><span><b>${esc(T('th_' + t) !== 'th_' + t ? T('th_' + t) : tagName(t))}</b><small>${esc(tagName(t))}</small></span><i>${esc(T('hs_theme_n', { n }))}</i></span></button>`; }).join('');
+  const tiles = THEMES.filter(([t]) => gs.some(g => (g.tags || []).includes(t))).map(([t, grp, k]) => { const n = gs.filter(g => (g.tags || []).includes(t)).length; const a = grp === 'dishes' ? dishArt(k) : (ART.spots || {})[k] || ''; return `<button class="tile" data-act="theme" data-v="${esc(t)}"><span class="art">${svgFit(a)}</span><span class="tt"><b>${esc(T('th_' + t) !== 'th_' + t ? T('th_' + t) : tagName(t))}</b><small>${esc(tagName(t))}</small></span><i>${esc(T('hs_theme_n', { n }))}</i></button>`; }).join('');
   app.innerHTML = topbar({ home: true, lang: true }) + `<main class="scr home">
     <section class="phero"><div class="mesh" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>${SCENE}
       <div class="pinner">
@@ -1762,7 +1771,17 @@ function renderStart(){
     </section>
     ${tiles ? `<section class="themes"><div class="shd"><span class="eyebrow">THEME<em>pick a mood</em></span><h2>${esc(T('hs_theme_t'))}</h2><p>${esc(T('hs_theme_d'))}</p></div><div class="bento">${tiles}</div><button class="txtbtn sm" data-act="all">${esc(T('all_cities'))} ›</button></section>` : ''}
     ${footer()}</main>`;
+  homeBar();
   homeMotion(gs);
+}
+/* 스크롤 타임라인이 없는 브라우저 : 큰 제목이 위 막대 뒤로 지나가면 막대에 유리판과 작은 로고를 켠다 */
+function homeBar(){
+  let ok = false; try { ok = CSS.supports('animation-timeline: scroll()'); } catch(e){}
+  const tb = document.querySelector('.topbar.home'), wm = document.querySelector('.phero .wordmark');
+  if (ok || !tb || !wm) return;
+  if (typeof IntersectionObserver === 'undefined'){ tb.classList.add('on'); return; }
+  HOME_BAR = new IntersectionObserver(es => es.forEach(e => tb.classList.toggle('on', !e.isIntersecting)), { rootMargin: '-72px 0px 0px 0px' });
+  HOME_BAR.observe(wm);
 }
 /* 첫 화면 움직임 : 도시 이름이 차례로 바뀌고, 숫자는 화면에 보일 때 올라간다 */
 function homeMotion(gs){
@@ -1772,11 +1791,13 @@ function homeMotion(gs){
   const nums = [...document.querySelectorAll('.stats [data-count]')]; if (!nums.length || typeof IntersectionObserver === 'undefined') return;
   nums.forEach(b => { b.textContent = '0'; });
   HOME_IO = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; HOME_IO.unobserve(e.target); const b = e.target, to = Number(b.dataset.count) || 0, t0 = performance.now(), D = 1400;
+    /* 숫자 칸 폭을 최종값 폭으로 묶어 둔다(이 글꼴은 숫자 폭이 제각각이라 옆 글자가 흔들린다) */
+    b.textContent = to.toLocaleString('ko-KR'); b.style.minWidth = Math.ceil(b.getBoundingClientRect().width) + 'px'; b.textContent = '0';
     const step = now => { const x = Math.min(1, (now - t0) / D), v = Math.round(to * (1 - Math.pow(2, -10 * x))); b.textContent = (x >= 1 ? to : v).toLocaleString('ko-KR'); if (x < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step); }), { threshold: 0.4 });
   nums.forEach(b => HOME_IO.observe(b));
 }
-function stopHome(){ clearInterval(HOME_T); HOME_T = 0; if (HOME_IO){ try { HOME_IO.disconnect(); } catch(e){} HOME_IO = null; } }
+function stopHome(){ clearInterval(HOME_T); HOME_T = 0; if (HOME_IO){ try { HOME_IO.disconnect(); } catch(e){} HOME_IO = null; } if (HOME_BAR){ try { HOME_BAR.disconnect(); } catch(e){} HOME_BAR = null; } }
 /* 화면이 그려진 뒤 : 보이는 것은 차례로 떠오르고, 아래쪽은 스크롤할 때 떠오른다 */
 const RV_SEL = '.resume,.stats .st,.marq,.shd,.ncard,.step>.txtbtn,.tile,.themes>.txtbtn,.qhead,.prog,.pills,.bigmap,.rgrid>*,.clist>*,.sec,.sepl,.cname,.spills,.vpills,.dhd,.notice,.tl>li,.dend,.alts>*,.subhd,.fchips,.grid2>*,.hlist>*,.prep>*,.ogrid>*,.sitem,.chips.allc,.wbox,.ybox,.vnote,.sex,.snone,main>footer';
 function reveal(){
