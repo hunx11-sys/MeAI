@@ -356,3 +356,9 @@ html.mu-lite *,html.mu-lite *::before,html.mu-lite *::after{animation-duration:.
 html.mu-lite{scroll-behavior:auto!important}
 html.mu-lite .mu-rv{opacity:1!important;transform:none!important}
 html.mu-lite::view-transition-group(*),html.mu-lite::view-transition-old(*),html.mu-lite::view-transition-new(*){animation:none!important}
+html.mu-lite #mu-amb,html.mu-lite .hero-mesh,html.mu-lite .hero-noise{display:none!important}
+#mu-kbar{display:flex;align-items:center;gap:10px;margin:0;padding:10px 16px;background:#FEE500;color:#191F28;font:600 14px/1.4 var(--font);position:relative;z-index:44}
+#mu-kbar span{flex:1;min-width:0}
+#mu-kbar a{flex:none;height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:var(--r-pill);background:#191F28;color:#fff;text-decoration:none;font-weight:700}
+#mu-kbar button{flex:none;width:36px;height:36px;border:0;background:transparent;font-size:16px;color:#3D2C00;cursor:pointer}
+@media print{#mu-kbar{display:none!important}}

@@ -27,6 +27,27 @@
   var nav = $('mu-nav'), sheet = $('mu-sheet');
   if (embedded) { drop(nav); drop(sheet); drop($('mu-amb')); nav = sheet = null; h.classList.add('mu-embed'); }
 
+  /* ── 1-1) 카카오톡 안 브라우저 : 맨 위에 「브라우저로 열기」 한 줄 (BOOT 가 자동으로 넘기지 못했을 때 · 닫으면 이 탭에서는 다시 안 보임) ── */
+  if (!framed && h.classList.contains('mu-kakao') && /^https?:$/.test(location.protocol)) {
+    var extUrl = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href.replace(/[?&]inapp=1/, ''));
+    /* 처음 한 번 : 다 불러온 뒤 휴대폰 기본 브라우저로 넘긴다(카카오가 가로채 바깥 브라우저를 연다. 실패해도 이 화면은 그대로) */
+    var once = false; try { once = !!sessionStorage.getItem('mu-ext'); if (!once) sessionStorage.setItem('mu-ext', '1'); } catch (e) { once = true; }
+    if (!once && !/[?&](inapp|lite)=/.test(location.search)) {
+      var goExt = function () { setTimeout(function () { (w.__muExt || function (u) { location.href = u; })(extUrl); }, 250); };
+      if (d.readyState === 'complete') goExt(); else w.addEventListener('load', goExt);
+    }
+    var kk = false; try { kk = !!sessionStorage.getItem('mu-kbar'); } catch (e) {}
+    if (!kk) {
+      var kb = d.createElement('div'); kb.id = 'mu-kbar'; kb.setAttribute('role', 'note');
+      kb.innerHTML = '<span>카카오톡 안에서는 화면이 느릴 수 있어요</span>' +
+        '<a href="' + extUrl + '">브라우저로 열기</a>' +
+        '<button type="button" aria-label="안내 닫기">✕</button>';
+      kb.querySelector('button').onclick = function () { drop(kb); try { sessionStorage.setItem('mu-kbar', '1'); } catch (e) {} };
+      var anc = nav && nav.nextSibling ? nav.nextSibling : d.body.firstChild;
+      d.body.insertBefore(kb, anc);
+    }
+  }
+
   /* ── 2) 머리 띠 ── */
   if (nav) {
     var links = nav.querySelector('.mu-links'), pill = nav.querySelector('.mu-pill');

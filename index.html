@@ -339,7 +339,13 @@ html.mu-lite *,html.mu-lite *::before,html.mu-lite *::after{animation-duration:.
 html.mu-lite{scroll-behavior:auto!important}
 html.mu-lite .mu-rv{opacity:1!important;transform:none!important}
 html.mu-lite::view-transition-group(*),html.mu-lite::view-transition-old(*),html.mu-lite::view-transition-new(*){animation:none!important}
-</style><link id="meai-font-pre" rel="preload" href="assets/pretendard-subset.woff2" as="font" type="font/woff2" crossorigin><style id="meai-font">@font-face{font-family:"Pretendard Variable";font-weight:45 930;font-style:normal;font-display:swap;src:url(assets/pretendard-subset.woff2) format("woff2-variations"),url(assets/pretendard-subset.woff2) format("woff2")}</style><script id="meai-boot">(function(h){h.classList.add("mu-js");var L=false;try{var q=location.search,u=navigator.userAgent||"",c=navigator.connection;L=/[?&]lite=1/.test(q)||(!/[?&]lite=0/.test(q)&&(/KAKAOTALK|NAVER\(inapp|; wv\)|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|BAND\//i.test(u)||!!(c&&c.saveData)))}catch(e){}if(L){h.classList.add("mu-lite");var mm=window.matchMedia;window.matchMedia=function(x){if(/prefers-reduced-motion/.test(x)){var r=!/no-preference/.test(x);return{matches:r,media:x,onchange:null,addListener:function(){},removeListener:function(){},addEventListener:function(){},removeEventListener:function(){},dispatchEvent:function(){return false}}}return mm.call(window,x)};return}try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");setTimeout(function(){h.classList.remove("mu-enter")},1400)})(document.documentElement)</script>
+html.mu-lite #mu-amb,html.mu-lite .hero-mesh,html.mu-lite .hero-noise{display:none!important}
+#mu-kbar{display:flex;align-items:center;gap:10px;margin:0;padding:10px 16px;background:#FEE500;color:#191F28;font:600 14px/1.4 var(--font);position:relative;z-index:44}
+#mu-kbar span{flex:1;min-width:0}
+#mu-kbar a{flex:none;height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:var(--r-pill);background:#191F28;color:#fff;text-decoration:none;font-weight:700}
+#mu-kbar button{flex:none;width:36px;height:36px;border:0;background:transparent;font-size:16px;color:#3D2C00;cursor:pointer}
+@media print{#mu-kbar{display:none!important}}
+</style><link id="meai-font-pre" rel="preload" href="assets/pretendard-subset.woff2" as="font" type="font/woff2" crossorigin><style id="meai-font">@font-face{font-family:"Pretendard Variable";font-weight:45 930;font-style:normal;font-display:swap;src:url(assets/pretendard-subset.woff2) format("woff2-variations"),url(assets/pretendard-subset.woff2) format("woff2")}</style><script id="meai-boot">(function(h){h.classList.add("mu-js");var L=false;try{var q=location.search,u=navigator.userAgent||"",c=navigator.connection;L=/[?&]lite=1/.test(q)||(!/[?&]lite=0/.test(q)&&(/KAKAOTALK|NAVER\(inapp|; wv\)|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|BAND\//i.test(u)||!!(c&&c.saveData)))}catch(e){}if(L){h.classList.add("mu-lite");if(/KAKAOTALK/i.test(navigator.userAgent||"")){h.classList.add("mu-kakao");}var mm=window.matchMedia;window.matchMedia=function(x){if(/prefers-reduced-motion/.test(x)){var r=!/no-preference/.test(x);return{matches:r,media:x,onchange:null,addListener:function(){},removeListener:function(){},addEventListener:function(){},removeEventListener:function(){},dispatchEvent:function(){return false}}}return mm.call(window,x)};return}try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");setTimeout(function(){h.classList.remove("mu-enter")},1400)})(document.documentElement)</script>
 <!-- 검색엔진 수집 거부 : 링크를 받은 사람만 들어오게 한다.
      URL 은 그대로 동작하며, 구글·네이버 등의 검색 결과에는 나오지 않는다. -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
@@ -1043,6 +1049,27 @@ Array.prototype.forEach.call(document.querySelectorAll('main.hm a[href]'), funct
   }
   var nav = $('mu-nav'), sheet = $('mu-sheet');
   if (embedded) { drop(nav); drop(sheet); drop($('mu-amb')); nav = sheet = null; h.classList.add('mu-embed'); }
+
+  /* ── 1-1) 카카오톡 안 브라우저 : 맨 위에 「브라우저로 열기」 한 줄 (BOOT 가 자동으로 넘기지 못했을 때 · 닫으면 이 탭에서는 다시 안 보임) ── */
+  if (!framed && h.classList.contains('mu-kakao') && /^https?:$/.test(location.protocol)) {
+    var extUrl = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href.replace(/[?&]inapp=1/, ''));
+    /* 처음 한 번 : 다 불러온 뒤 휴대폰 기본 브라우저로 넘긴다(카카오가 가로채 바깥 브라우저를 연다. 실패해도 이 화면은 그대로) */
+    var once = false; try { once = !!sessionStorage.getItem('mu-ext'); if (!once) sessionStorage.setItem('mu-ext', '1'); } catch (e) { once = true; }
+    if (!once && !/[?&](inapp|lite)=/.test(location.search)) {
+      var goExt = function () { setTimeout(function () { (w.__muExt || function (u) { location.href = u; })(extUrl); }, 250); };
+      if (d.readyState === 'complete') goExt(); else w.addEventListener('load', goExt);
+    }
+    var kk = false; try { kk = !!sessionStorage.getItem('mu-kbar'); } catch (e) {}
+    if (!kk) {
+      var kb = d.createElement('div'); kb.id = 'mu-kbar'; kb.setAttribute('role', 'note');
+      kb.innerHTML = '<span>카카오톡 안에서는 화면이 느릴 수 있어요</span>' +
+        '<a href="' + extUrl + '">브라우저로 열기</a>' +
+        '<button type="button" aria-label="안내 닫기">✕</button>';
+      kb.querySelector('button').onclick = function () { drop(kb); try { sessionStorage.setItem('mu-kbar', '1'); } catch (e) {} };
+      var anc = nav && nav.nextSibling ? nav.nextSibling : d.body.firstChild;
+      d.body.insertBefore(kb, anc);
+    }
+  }
 
   /* ── 2) 머리 띠 ── */
   if (nav) {

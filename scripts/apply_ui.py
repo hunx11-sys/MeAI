@@ -30,11 +30,13 @@ SITE_JS = io.open(os.path.join(ROOT, 'ui', 'meai-site.js'), encoding='utf-8').re
 # 가벼운 모드(html.mu-lite) : 카카오톡 · 네이버 앱 · 인스타그램 등 앱 안 브라우저(안드로이드 WebView)와 데이터 절약 모드에서는
 # 「움직임 줄이기」와 똑같이 동작한다 — 앱 안 브라우저는 크롬보다 느리고 아래 도구 막대가 스크롤마다 숨었다 나타나
 # 장식 움직임이 있으면 뚝뚝 끊겼다(2026-10-22 소유자 제보 : 즐겨찾기로 연 크롬은 매끄럽고 카톡 링크로 열면 버벅임).
+# 카카오톡이면(mu-kakao) 사이트 스크립트가 다 불러온 뒤 처음 한 번 카카오 공식 주소(kakaotalk://web/openExternal)로 휴대폰 기본 브라우저(크롬 · 삼성 인터넷)에서 다시 연다.
+# 넘어가지 않거나 돌아오면 같은 탭(sessionStorage)에서는 다시 넘기지 않고 맨 위에 「브라우저로 열기」 한 줄을 보여 준다. ?inapp=1 이면 넘기지 않는다.
 # matchMedia 의 prefers-reduced-motion 답을 「줄이기」로 바꿔 두므로 각 화면 스크립트도 그대로 따른다. 주소에 ?lite=0 / ?lite=1 로 강제.
 BOOT = ('<script id="meai-boot">(function(h){h.classList.add("mu-js");var L=false;'
         'try{var q=location.search,u=navigator.userAgent||"",c=navigator.connection;'
         'L=/[?&]lite=1/.test(q)||(!/[?&]lite=0/.test(q)&&(/KAKAOTALK|NAVER\\(inapp|; wv\\)|Instagram|FBAN|FBAV|Line\\/|DaumApps|everytimeApp|BAND\\//i.test(u)||!!(c&&c.saveData)))}catch(e){}'
-        'if(L){h.classList.add("mu-lite");var mm=window.matchMedia;window.matchMedia=function(x){if(/prefers-reduced-motion/.test(x)){var r=!/no-preference/.test(x);'
+        'if(L){h.classList.add("mu-lite");if(/KAKAOTALK/i.test(navigator.userAgent||"")){h.classList.add("mu-kakao");}var mm=window.matchMedia;window.matchMedia=function(x){if(/prefers-reduced-motion/.test(x)){var r=!/no-preference/.test(x);'
         'return{matches:r,media:x,onchange:null,addListener:function(){},removeListener:function(){},addEventListener:function(){},removeEventListener:function(){},dispatchEvent:function(){return false}}}'
         'return mm.call(window,x)};return}'
         'try{if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}h.classList.add("mu-enter");'
