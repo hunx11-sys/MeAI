@@ -996,6 +996,12 @@ html:has(.dtabs){scroll-padding-top:calc(164px + env(safe-area-inset-top,0px))}
 .eyebrow .en{display:contents}
 .eyebrow em{font-family:var(--serif);font-size:15px;font-style:italic;font-weight:400;letter-spacing:.01em;color:var(--ink-2)}
 
+/* 카카오톡 안내 줄(맨 위, 스크롤하면 같이 올라감) */
+#kbar{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;padding-top:calc(6px + env(safe-area-inset-top,0px));background:#2B2320;color:#fff;font-size:13px;font-weight:600;line-height:1.35}
+#kbar span{flex:1;min-width:0;word-break:keep-all}
+#kbar .go{flex:0 0 auto;display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;background:var(--rose);color:#fff;font-weight:800;text-decoration:none}
+#kbar button{flex:0 0 auto;width:44px;height:44px;color:rgba(255,255,255,.8);font-size:16px}
+
 /* ═══ 첫 화면(포털) ═══ */
 main.home{padding-top:0}
 .phero{position:relative;isolation:isolate;overflow:hidden;margin-top:-66px;padding:88px 22px 34px;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;border-radius:0 0 36px 36px;background:#FCEDE6}
@@ -1705,6 +1711,23 @@ const TABS = ['plan', 'food', 'spot', 'hotel', 'prep'];
 const LITE = (() => { try { const q = (location.search.match(/[?&]lite=([01])/) || [])[1]; if (q) return q === '1';
   return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|FB_IAB|Line\/|DaumApps|; wv\)/i.test(navigator.userAgent || '') || !!(navigator.connection && navigator.connection.saveData); } catch(e){ return false; } })();
 if (LITE) document.documentElement.classList.add('lite');
+/* 카카오톡 안 브라우저 : 다 불러온 뒤 처음 한 번 카카오 공식 주소로 휴대폰 기본 브라우저(크롬·삼성 인터넷·사파리)에서 다시 연다
+   (영업지원도구와 같은 방식, 소유자 2026-10-22). 넘어가지 않거나 돌아오면 같은 탭에서는 다시 넘기지 않고 맨 위에
+   「브라우저로 열기」 한 줄을 보여 준다. 인터넷 주소(https)에서만 · 주소 끝 ?inapp=1 이면 넘기지 않음 */
+function kakaoOut(){
+  if (!/KAKAOTALK/i.test(navigator.userAgent || '') || !/^https?:$/.test(location.protocol)) return;
+  try { if (window.self !== window.top) return; } catch(e){ return; }
+  const ext = () => 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href.replace(/[?&]inapp=1/, ''));
+  let once = false; try { once = !!sessionStorage.getItem('jp-ext'); if (!once) sessionStorage.setItem('jp-ext', '1'); } catch(e){ once = true; }
+  if (!once && !/[?&](inapp|lite)=/.test(location.search)){ const go = () => setTimeout(() => { location.href = ext(); }, 250); if (document.readyState === 'complete') go(); else addEventListener('load', go); }
+  let closed = false; try { closed = !!sessionStorage.getItem('jp-kbar'); } catch(e){}
+  if (closed || document.getElementById('kbar')) return;
+  const kb = document.createElement('div'); kb.id = 'kbar'; kb.setAttribute('role', 'note');
+  kb.innerHTML = `<span>${esc(T('kk_slow'))}</span><a href="#" class="go">${esc(T('kk_open'))}</a><button type="button" aria-label="${esc(T('kk_close'))}">✕</button>`;
+  kb.querySelector('.go').addEventListener('click', e => { e.preventDefault(); location.href = ext(); });   /* 누를 때의 주소(보고 있던 도시)로 연다 */
+  kb.querySelector('button').addEventListener('click', () => { kb.remove(); try { sessionStorage.setItem('jp-kbar', '1'); } catch(e){} });
+  document.body.insertBefore(kb, document.body.firstChild);
+}
 /* 첫 화면 '움직임 멈추기' 단추로 고른 값(이 기기에만 저장) */
 let STILL = false; try { STILL = localStorage.getItem('jp_still') === '1'; } catch(e){}
 if (STILL) document.documentElement.classList.add('still');
@@ -2581,6 +2604,7 @@ silDefs();
 try { history.scrollRestoration = 'manual'; } catch(e){}
 try { window.__jp = { rmapSvg, searchRun, st, parseRoute, routeHash, applyRoute, render }; } catch(e){}
 { const r = parseRoute(); applyRoute(r); try { history.replaceState({ v2: 1, i: HI }, '', routeHash(r)); } catch(e){} render({}); }
+kakaoOut();
 
 })();
 </script>
