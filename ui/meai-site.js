@@ -155,7 +155,7 @@
   /* ── 4) 스크롤해 보일 때 올라오기 ──
      처음 화면에 보이는 것은 건드리지 않는다(빈 화면이 생기지 않게). 화면 아래에 있는 카드만 숨겼다가 보일 때 올린다.
      인쇄할 때와 움직임 줄이기 설정에서는 하지 않는다. */
-  var REVEAL = '[data-reveal], .cards > .card, .p, .card, .panel, .kpis > *';
+  var REVEAL = '[data-reveal]';   // 목록 · 결과 카드는 숨기지 않는다(휴대폰에서 빠르게 내릴 때 빈 카드가 번쩍이며 나타나던 문제, 2026-10-22)
   var SKIP = '#mu-nav, #mu-sheet, .ov, #hov, #mapov, #oncoov, #scov, .modal-overlay, #ex-mask, .sheet, .dim, [role="dialog"], .sim-pick-wrap, .cmpbar';
   function reveal() {
     if (reduce || !w.IntersectionObserver) return;
