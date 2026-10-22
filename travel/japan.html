@@ -1642,13 +1642,16 @@ html:has(.dtabs){scroll-padding-top:calc(164px + env(safe-area-inset-top,0px))}
 .mapmode button{min-height:44px;padding:0 18px;border-radius:999px;font-size:14px;font-weight:700;color:var(--ink-2);transition:background-color .35s var(--glide),color .3s var(--glide),box-shadow .45s var(--spring)}
 .mapmode [aria-pressed="true"]{background:var(--surface);color:var(--rose-deep);box-shadow:var(--amb-s)}
 .gframe{display:block;width:100%;height:100%;border:0}
+/* 전환 단추·안내 줄이 생긴 만큼 지도를 줄여 장소 카드가 첫 화면에 보이게(최소 200px) */
+.sheet.full .bmap{height:max(200px,min(56vh,calc(92vh - 320px)));height:max(200px,min(56dvh,calc(92dvh - 320px)))}
+.mapc .go{min-height:44px;margin-top:0;padding:0 12px}
 .mapnote{margin:8px 2px 0;font-size:13px;line-height:1.5;color:var(--ink-2)}
 .gdirs{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .gdir{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 16px;border-radius:16px;background:var(--ink);color:#fff;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 12px 26px -14px rgba(43,35,32,.6);transition:transform .5s var(--spring)}
 .gdir:active{transform:scale(.97)}
 .gdir svg{width:18px;height:18px;flex:0 0 auto}
 .pin{width:32px;height:32px;font-size:13px;font-weight:800;border-width:2.5px;box-shadow:0 3px 10px rgba(43,35,32,.3)}
-.leaflet-overlay-pane .rt-flow{animation:rtFlow 1.1s linear infinite}
+.leaflet-overlay-pane .rt-flow{animation:rtFlow 1.1s steps(14) infinite}
 @keyframes rtFlow{to{stroke-dashoffset:-14}}
 .rt-arr i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;color:var(--rose-deep);box-shadow:0 2px 6px rgba(43,35,32,.28)}
 .rt-arr svg{width:13px;height:13px}
@@ -1656,13 +1659,13 @@ html:has(.dtabs){scroll-padding-top:calc(164px + env(safe-area-inset-top,0px))}
 .rt-run svg{width:15px;height:15px}
 .sketch .lc{fill:none;stroke:#fff;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
 .sketch .ln{stroke-width:4.5;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:round}
-.sketch .lf{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:1 12;animation:skFlow 1.1s linear infinite}
+.sketch .lf{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:1 12;animation:skFlow 1.1s steps(13) infinite}
 @keyframes skFlow{to{stroke-dashoffset:-13}}
 .sketch .ar circle{fill:#fff;stroke:rgba(43,35,32,.12)}
 .sketch .ar path,.sketch .run path{fill:none;stroke:var(--rose-deep);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .sketch .run circle{fill:var(--rose);stroke:#fff;stroke-width:2.5}
 .sketch .run path{stroke:#fff}
-.mfl{animation:mfl 1s linear infinite}
+.mfl{animation:mfl 1s linear 3}   /* 일정 화면 작은 지도는 3번만 흐르고 멈춘다(계속 흐르면 약한 폰이 바빠짐) */
 @keyframes mfl{to{stroke-dashoffset:-6}}
 
 /* ── 도시 머리 : 스크롤하면 배경이 천천히(시차) · 도시 그림은 살짝 떠다님 ── */
@@ -1802,7 +1805,7 @@ main>footer{content-visibility:auto;contain-intrinsic-size:auto 200px}
    가벼운 움직임(도시 띠·도시 이름 바뀜·영문 제목·숫자 올라가기)은 그대로 — 소유자 : 카톡에서도 도시 띠가 움직여야 함(2026-10-22) */
 .lite .rv,.lite .rv.sv,.lite .rmap .rl,.lite .rmap .cp,.lite .phero .scene,.lite .phero .scene *,.lite .hero .bg,.lite .hero .badge,.lite .sheet .sh-b>*,.lite .scr{animation:none!important}
 .lite .langmenu.on{animation:none!important}
-.lite .rt-flow,.lite .sketch .lf{animation:none!important}
+.lite .rt-flow,.lite .sketch .lf,.lite .mfl,.still .rt-flow,.still .sketch .lf,.still .mfl{animation:none!important}
 .lite .topbar.home::before,.lite .homebrand{animation:none!important;opacity:0;transition:opacity .4s var(--glide)}.lite .topbar.home.on::before,.lite .topbar.home.on .homebrand{opacity:1}
 /* 움직임 멈춤(첫 화면 단추) : 흐르는 띠·장면·도시 이름 바뀜을 멈추고 띠는 손가락으로 민다 */
 .still .marq .mt,.still .phero .mesh,.still .phero .scene,.still .phero .scene *,.still .phero .rot b,.still .hero .badge{animation:none!important}
@@ -2989,9 +2992,9 @@ let MAP_PTS = [];
 function sheetBigMap(focusI){
   const g = GUIDES[st.city], plan = curPlan(g); if (!plan) return;
   const pts = dayPts(g, plan, st.d); MAP_PTS = pts;
-  const v = pts.map((p, k) => p ? { p, k } : null).filter(Boolean);
+  const v = pts.map((p, k) => p ? { p, k } : null).filter(Boolean).filter((x, j, a) => !j || gq(x.p) !== gq(a[j - 1].p));
   const prevOf = k => { for (let j = k - 1; j >= 0; j--) if (pts[j]) return pts[j]; return null; };
-  const cards = pts.map((p, k) => { if (!p) return ''; const pv = prevOf(k);
+  const cards = pts.map((p, k) => { if (!p) return ''; const pv0 = prevOf(k), pv = pv0 && gq(pv0) !== gq(p) ? pv0 : null;
     return `<button class="mapc" data-act="mapc" data-v="${k}" id="mapc-${k}"><span class="no">${k + 1}</span><span class="tx"><b>${esc(p.name)}</b><small>${esc(p.t || '')}</small></span><a class="go" href="${pv ? gdir(pv, p) : gmap(p.q || p.name, p.ll)}" target="_blank" rel="noopener">${esc(T(pv ? 'route_go' : 'map_place'))}</a></button>`; }).join('');
   /* 구글 지도 길찾기는 휴대폰에서 한 번에 5곳(경유 3곳)까지라 길면 끝 점이 겹치게 나눈다 */
   const legs = []; for (let a = 0; a < v.length - 1; a += 4) legs.push(v.slice(a, Math.min(a + 5, v.length)));
@@ -3001,24 +3004,31 @@ function sheetBigMap(focusI){
   openSheet(T('map_day', { n: st.d + 1 }), `${tog}<div class="bmap" id="daymap"><div class="lmap" id="lmap"></div></div><p class="mapnote" id="mapnote">${esc(T(mode === 'google' ? 'map_gnote' : 'map_rnote'))}</p><div class="mapcs" id="mapcs">${cards}</div>${gbtns ? `<div class="gdirs">${gbtns}</div>` : ''}`, () => {
     const sh = document.getElementById('sheet'); let done = false;
     st.sel = focusI != null ? focusI : -1;
-    const go2 = () => { if (done) return; done = true; mountMode(); if (focusI != null) focusStop(focusI, true); };
+    const go2 = () => { if (done) return; done = true; if (!SH.open) return; mountMode(); if (focusI != null) focusStop(focusI, true); };
     sh.addEventListener('transitionend', go2, { once: true }); setTimeout(go2, 380);
   }, 'full');
 }
+function dropMap(){
+  stopRoute();
+  if (lmap){ try { lmap._animatingZoom = false; lmap.remove(); } catch(e){} lmap = null; }
+  markers = [];
+}
 function mountMode(){
   const el = document.getElementById('daymap'); if (!el) return;
-  stopRoute(); if (lmap){ try { lmap.remove(); } catch(e){} lmap = null; } markers = [];
+  dropMap();
   if (st.mapMode === 'google'){
     const p = MAP_PTS[st.sel] || MAP_PTS.find(Boolean);
     el.innerHTML = p ? `<iframe class="gframe" id="gframe" title="${esc(T('map_google'))}" src="${gembed(p)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>` : `<div class="empty" style="margin:0;border:0">${esc(T('no_map_pts'))}</div>`;
+    const i0 = MAP_PTS.indexOf(p); document.querySelectorAll('.mapc').forEach(c => c.classList.toggle('on', c.id === 'mapc-' + i0));
     return;
   }
   el.innerHTML = '<div class="lmap" id="lmap"></div>';
+  document.querySelectorAll('.mapc').forEach(c => c.classList.toggle('on', c.id === 'mapc-' + st.sel));
   mountMap(MAP_PTS);
 }
 /* 동선 움직임 : 화살표 하나가 1번부터 끝까지 계속 따라간다(동작 줄이기·가벼운 모드에서는 멈춘 화살표만) */
-const RT = { raf: 0 };
-function stopRoute(){ cancelAnimationFrame(RT.raf); RT.raf = 0; }
+const RT = { anim: null, off: null };
+function stopRoute(){ if (RT.anim){ try { RT.anim.cancel(); } catch(e){} RT.anim = null; } if (RT.off){ RT.off(); RT.off = null; } }
 function drawRoute(line){
   if (!lmap || line.length < 2) return;
   const o = { lineCap: 'round', lineJoin: 'round', interactive: false };
@@ -3026,34 +3036,49 @@ function drawRoute(line){
   L.polyline(line, Object.assign({ color: '#D9516E', weight: 5.5, opacity: .95 }, o)).addTo(lmap);
   L.polyline(line, Object.assign({ color: '#fff', weight: 2.8, opacity: .95, dashArray: '1 13', className: 'rt-flow' }, o)).addTo(lmap);
   /* 구간 가운데 방향 화살표 : 화면에서 46px 넘는 구간만(메르카토르 지도라 확대해도 각도는 같다) */
-  const z = lmap.getZoom(), P = line.map(ll => lmap.project(ll, z));
+  const z = lmap.getZoom(), P = line.map(ll => lmap.project(ll, z)), AP = [];
   for (let k = 0; k < P.length - 1; k++){
     const a = P[k], b = P[k + 1], dx = b.x - a.x, dy = b.y - a.y; if (Math.hypot(dx, dy) < 46) continue;
-    const mid = lmap.unproject(L.point((a.x + b.x) / 2, (a.y + b.y) / 2), z);
+    /* 갔다 오는 길은 화살표가 겹치므로 0.5 → 0.3 → 0.7 자리 중 다른 화살표·핀과 안 겹치는 곳에 */
+    const t = [0.5, 0.3, 0.7].find(t => { const m = L.point(a.x + dx * t, a.y + dy * t); return !AP.some(q => q.distanceTo(m) < 24) && !P.some(q => q.distanceTo(m) < 26); });
+    if (t == null) continue;
+    const mp = L.point(a.x + dx * t, a.y + dy * t); AP.push(mp);
+    const mid = lmap.unproject(mp, z);
     L.marker(mid, { icon: L.divIcon({ className: 'rt-arr', html: `<i style="transform:rotate(${(Math.atan2(dy, dx) * 180 / Math.PI).toFixed(1)}deg)">${svgArr}</i>`, iconSize: [22, 22], iconAnchor: [11, 11] }), interactive: false, keyboard: false }).addTo(lmap);
   }
-  if (!CALM) runRoute(line);
+  if (!CALM && !STILL) runRoute(line);
 }
 function runRoute(line){
   stopRoute();
-  const z0 = 18, P = line.map(ll => lmap.project(ll, z0)), seg = []; let tot = 0;
-  for (let k = 0; k < P.length - 1; k++){ const d = P[k].distanceTo(P[k + 1]); seg.push(d); tot += d; }
-  if (!tot) return;
   const mk = L.marker(line[0], { icon: L.divIcon({ className: 'rt-run', html: `<i>${svgArr}</i>`, iconSize: [28, 28], iconAnchor: [14, 14] }), interactive: false, keyboard: false, zIndexOffset: 500 }).addTo(lmap);
-  const D = Math.min(16000, Math.max(6000, line.length * 1400)); let t0 = 0, lastK = -1;
-  const step = now => {
-    const el = mk.getElement(); if (!lmap || !el || !document.body.contains(el)) { RT.raf = 0; return; }
-    if (!t0) t0 = now;
-    let d = ((now - t0) % D) / D * tot, k = 0; while (k < seg.length - 1 && d > seg[k]){ d -= seg[k]; k++; }
-    const a = P[k], b = P[k + 1], r = seg[k] ? Math.min(1, d / seg[k]) : 0;
-    mk.setLatLng(lmap.unproject(L.point(a.x + (b.x - a.x) * r, a.y + (b.y - a.y) * r), z0));
-    if (k !== lastK && el.firstChild){ lastK = k; el.firstChild.style.transform = `rotate(${(Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI).toFixed(1)}deg)`; }
-    RT.raf = requestAnimationFrame(step);
+  const D = Math.min(16000, Math.max(6000, line.length * 1400));
+  /* 화살표 길은 한 번 계산해 두고 브라우저가 알아서 움직이게(매 화면 그리기마다 계산하지 않음). 확대하면 다시 계산하고 같은 자리에서 잇는다 */
+  const build = () => {
+    const el = mk.getElement(), i = el && el.firstChild; if (!i || !lmap) return;
+    const z = lmap.getZoom(), P = line.map(ll => lmap.project(ll, z)), o = P[0], sz = lmap.getSize(), cap = Math.hypot(sz.x, sz.y) / 2;
+    const seg = P.slice(1).map((b, k) => Math.min(P[k].distanceTo(b), cap)), tot = seg.reduce((a, b) => a + b, 0); if (!tot) return;
+    const kf = []; let acc = 0;
+    seg.forEach((sg, k) => { const a = P[k], b = P[k + 1], r = Math.atan2(b.y - a.y, b.x - a.x).toFixed(3);
+      kf.push({ offset: acc / tot, transform: `translate(${(a.x - o.x).toFixed(1)}px,${(a.y - o.y).toFixed(1)}px) rotate(${r}rad)` }); acc += sg;
+      kf.push({ offset: Math.min(1, acc / tot), transform: `translate(${(b.x - o.x).toFixed(1)}px,${(b.y - o.y).toFixed(1)}px) rotate(${r}rad)` }); });
+    const t = RT.anim ? RT.anim.currentTime : 0; if (RT.anim) RT.anim.cancel();
+    try { RT.anim = i.animate(kf, { duration: D, iterations: Infinity }); RT.anim.currentTime = t || 0; } catch(e){ RT.anim = null; }
   };
-  RT.raf = requestAnimationFrame(step);
+  build(); lmap.on('zoomend', build); const m0 = lmap; RT.off = () => { try { m0.off('zoomend', build); } catch(e){} };
+}
+/* 겹친 번호 핀을 28px 넘게 벌린다(약도와 같은 방식). 번호 딱지만 옮기고 동선은 실제 자리 그대로 */
+function spreadPins(){
+  if (!lmap) return;
+  const q = markers.map((m, i) => { if (!m) return null; const p = lmap.latLngToLayerPoint(m.getLatLng()); return { i, p, x: p.x, y: p.y }; }).filter(Boolean);
+  for (let k = 0; k < 40; k++){ let moved = false;
+    for (let a = 0; a < q.length; a++) for (let b = 0; b < a; b++){ let dx = q[a].x - q[b].x, dy = q[a].y - q[b].y; const d = Math.hypot(dx, dy); if (d >= 28) continue;
+      if (d < 0.01){ dx = Math.cos(a * 2.4); dy = Math.sin(a * 2.4); } const l = Math.hypot(dx, dy), push = (28 - d) / 2 + 0.5;
+      q[a].x += dx / l * push; q[a].y += dy / l * push; q[b].x -= dx / l * push; q[b].y -= dy / l * push; moved = true; }
+    if (!moved) break; }
+  q.forEach(o => { const el = markers[o.i].getElement(), pn = el && el.querySelector('.pin'); if (pn) pn.style.translate = `${(o.x - o.p.x).toFixed(1)}px ${(o.y - o.p.y).toFixed(1)}px`; });
 }
 function mountMap(pts){
-  stopRoute(); if (lmap){ try { lmap.remove(); } catch(e){} lmap = null; } markers = [];
+  dropMap();
   const el = document.getElementById('lmap'); if (!el) return;
   const valid = pts.filter(Boolean);
   if (!HAS_L || !valid.length){ sketch(pts); return; }
@@ -3077,13 +3102,13 @@ function mountMap(pts){
       const mk = L.marker(p.ll, { icon: L.divIcon({ className: '', html: `<div class="pin">${i + 1}</div>`, iconSize: [32, 32], iconAnchor: [16, 16] }), zIndexOffset: 1000 }).addTo(lmap);
       mk.on('click', () => focusStop(i, true)); markers[i] = mk; });
     lmap.fitBounds(L.latLngBounds(corePts(pts).map(p => p.ll)), { padding: [34, 34], maxZoom: 15 });
-    drawRoute(line);
+    drawRoute(line); spreadPins(); lmap.on('zoomend', spreadPins);
     setTimeout(() => { if (lmap) lmap.invalidateSize(); }, 60);
   } catch(e){ sketch(pts); }
 }
 function focusStop(i, fromMap){
   st.sel = i;
-  markers.forEach((m, k) => { const el = m && m.getElement && m.getElement(); const pn = el && el.querySelector('.pin'); if (pn) pn.classList.toggle('on', k === i); });
+  markers.forEach((m, k) => { const el = m && m.getElement && m.getElement(); const pn = el && el.querySelector('.pin'); if (pn) pn.classList.toggle('on', k === i); if (m && m.setZIndexOffset) m.setZIndexOffset(k === i ? 2000 : 1000); });
   document.querySelectorAll('#daymap .pt').forEach(p => p.classList.toggle('on', p.dataset.v === String(i)));
   document.querySelectorAll('.mapc').forEach(c => c.classList.toggle('on', c.id === `mapc-${i}`));
   const mk = markers[i]; if (lmap && mk) lmap.setView(mk.getLatLng(), Math.max(lmap.getZoom(), 15), { animate: true });
@@ -3283,7 +3308,7 @@ function share(){
 
 function sketch(pts){
   const el = document.getElementById('daymap'); if (!el) return;
-  stopRoute(); if (lmap){ try { lmap.remove(); } catch(e){} lmap = null; }
+  dropMap();
   const v = pts.map((p, i) => p ? { p, i } : null).filter(Boolean);
   if (!v.length){ el.innerHTML = `<div class="empty" style="margin:0;border:0">${esc(T('no_map_pts'))}</div>`; return; }
   /* 시트 지도 칸 크기에 꼭 맞게(위아래 빈 띠 없이) */
@@ -3319,12 +3344,16 @@ function sketch(pts){
     return `<text class="nm" x="${c.x.toFixed(1)}" y="${c.y.toFixed(1)}" text-anchor="${c.a}">${esc(t)}</text>`;
   });
   const poly = q.map(o => `${o.x.toFixed(1)},${o.y.toFixed(1)}`).join(' ');
+  const AQ = [];
   const arrs = q.slice(0, -1).map((a, k) => { const b = q[k + 1], dx = b.x - a.x, dy = b.y - a.y; if (Math.hypot(dx, dy) < 46) return '';
-    return `<g class="ar" transform="translate(${((a.x + b.x) / 2).toFixed(1)} ${((a.y + b.y) / 2).toFixed(1)}) rotate(${(Math.atan2(dy, dx) * 180 / Math.PI).toFixed(1)})"><circle r="10"/><path d="M-3 -5L3 0L-3 5"/></g>`; }).join('');
-  const run = q.length > 1 && !CALM ? `<path id="rtp" d="M${q.map(o => `${o.x.toFixed(1)} ${o.y.toFixed(1)}`).join('L')}" fill="none" stroke="none"/><g class="run"><circle r="12"/><path d="M-3.5 -6L3.5 0L-3.5 6"/><animateMotion dur="${Math.min(16, Math.max(6, q.length * 1.4)).toFixed(1)}s" repeatCount="indefinite" rotate="auto"><mpath href="#rtp"/></animateMotion></g>` : '';
+    const t = [0.5, 0.3, 0.7].find(t => { const mx = a.x + dx * t, my = a.y + dy * t; return !AQ.some(o => Math.hypot(o.x - mx, o.y - my) < 22) && !q.some(o => Math.hypot(o.x - mx, o.y - my) < 21); });
+    if (t == null) return '';
+    const m = { x: a.x + dx * t, y: a.y + dy * t }; AQ.push(m);
+    return `<g class="ar" transform="translate(${m.x.toFixed(1)} ${m.y.toFixed(1)}) rotate(${(Math.atan2(dy, dx) * 180 / Math.PI).toFixed(1)})"><circle r="10"/><path d="M-3 -5L3 0L-3 5"/></g>`; }).join('');
+  const run = q.length > 1 && !CALM && !STILL ? `<path id="rtp" d="M${q.map(o => `${o.x.toFixed(1)} ${o.y.toFixed(1)}`).join('L')}" fill="none" stroke="none"/><g class="run"><circle r="12"/><path d="M-3.5 -6L3.5 0L-3.5 6"/><animateMotion dur="${Math.min(16, Math.max(6, q.length * 1.4)).toFixed(1)}s" repeatCount="indefinite" rotate="auto"><mpath href="#rtp"/></animateMotion></g>` : '';
   const dots = q.map((o, k) => `<g class="pt" data-act="focus" data-v="${o.i}"><circle cx="${o.x.toFixed(1)}" cy="${o.y.toFixed(1)}" r="10"/><text x="${o.x.toFixed(1)}" y="${(o.y + 3.3).toFixed(1)}">${o.i + 1}</text></g>`).join('');
   setTimeout(() => { if (st.sel >= 0) focusStop(st.sel, true); }, 0);
-  el.innerHTML = `<svg class="sketch" viewBox="0 0 ${W} ${H}" role="img"><rect x="0" y="0" width="${W}" height="${H}" fill="var(--surface)"/><polyline class="lc" points="${poly}"/><polyline class="ln" points="${poly}"/><polyline class="lf" points="${poly}"/>${arrs}${labels.join('')}${run}${dots}</svg><p class="sknote">${esc(T('sketch_note'))}</p>`;
+  el.innerHTML = `<svg class="sketch" viewBox="0 0 ${W} ${H}" role="img"><rect x="0" y="0" width="${W}" height="${H}" fill="var(--surface)"/><polyline class="lc" points="${poly}"/><polyline class="ln" points="${poly}"/><polyline class="lf" points="${poly}"/>${arrs}${run}${labels.join('')}${dots}</svg><p class="sknote">${esc(T('sketch_note'))}</p>`;
 }
 
 /* ───────── 바텀 시트 : 뒤로 가기(스와이프)로 닫힌다 ───────── */
@@ -3346,6 +3375,8 @@ function openSheet(title, html, after, size){
 function closeSheet(fromPop){
   if (!SH.open) return;
   SH.open = false; NAV_AT = performance.now() - 100; stopRoute();
+  /* 닫힌 시트 안의 지도(흐르는 점·약도 화살표·구글 지도 칸)는 내려간 뒤 치운다. 다시 열면 새로 그린다 */
+  setTimeout(() => { if (SH.open) return; if (lmap) dropMap(); const d = document.getElementById('daymap'); if (d) d.innerHTML = ''; }, 600);
   if (Math.abs(window.innerWidth - RZW) >= 2) setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
   const sh = document.getElementById('sheet');
   /* 닫히는 동안에도 시트 안 입력 칸이 선택된 채 남으면, 다음 첫 터치가 먹힌다 → 먼저 놓아 준다 */
