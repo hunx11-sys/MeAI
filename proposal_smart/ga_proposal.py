@@ -142,10 +142,10 @@ def info_table(cover=False):
     """상품명 · 피보험자 · (가계약 번호 | 월 보험료) 표 — 표지는 3줄(가계약 번호 포함), 1쪽은 2줄(설계번호는 표 위 오른쪽)"""
     prem = '<b class="prem">%s<i>원</i></b>' % PREMIUM.replace('원', '') if PREMIUM else '-'
     if cover:
-        return ('<table class="info"><tr><th>상 품 명</th><td colspan="3">%s</td></tr>'
+        return ('<table class="info"><tr><th>상 품 명</th><td colspan="3" class="pn">%s</td></tr>'
                 '<tr><th>피보험자</th><td>%s</td><th>가계약 번호</th><td>%s</td></tr>'
                 '<tr><th>월 보험료</th><td colspan="3">%s</td></tr></table>' % (PRODUCT or '-', who_line(), HEAD.get('no') or '-', prem))
-    return ('<div class="dno">설계번호 : %s</div><table class="info p1"><tr><th>상 품 명</th><td colspan="3">%s</td></tr>'
+    return ('<div class="dno">설계번호 : %s</div><table class="info p1"><tr><th>상 품 명</th><td colspan="3" class="pn">%s</td></tr>'
             '<tr><th>피보험자</th><td>%s</td><th>월 보험료</th><td>%s</td></tr></table>' % (HEAD.get('no') or '-', PRODUCT or '-', who_line(), prem))
 def kv(cols, red_first=False):
     """cols : (머리, [(표시이름, 칸 key), ...]) — 줄 i 마다 열을 가로지르며 그린다(ga_spec 칸 순서와 같다)"""
@@ -346,7 +346,7 @@ img.logo{height:7.5mm} .ph .sp{font-size:15pt;font-weight:800;color:RED;margin-l
 /* 정보표 */
 .dno{text-align:right;font-size:7.5pt;color:#444;margin:0 0 2pt} .info{width:100%;border-collapse:collapse;border-top:1.5px solid RED;margin-bottom:4mm} .info th,.info td{height:9.5mm;border-bottom:1px solid #E6E6E6;padding:0 9pt;font-size:10.5pt;text-align:left;white-space:nowrap}
 .info th{background:#F4F4F4;color:#555;font-weight:500;width:18%;letter-spacing:.3pt} .info td{font-weight:500} .info td b.prem{color:RED;font-size:14.5pt;font-weight:700} .info td b.prem i{font-style:normal;font-size:9pt;color:#111;font-weight:500;margin-left:1pt}
-.info.p1 th,.info.p1 td{height:9mm;font-size:10pt}
+.info.p1 th,.info.p1 td{height:9mm;font-size:10pt} .info td.pn{white-space:normal;word-break:keep-all;line-height:1.2;font-size:9.6pt;padding-top:2pt;padding-bottom:2pt} .cover .info td.pn{font-size:10.5pt}
 /* 제목 탭 */
 .sec{border-bottom:2px solid #DADADA;margin:5.5mm 0 0;height:8.6mm;position:relative} .sec .tab{position:absolute;left:0;bottom:-2px;background:RED;color:#fff;border-radius:3.5pt 3.5pt 0 0;padding:0 11pt;height:8.6mm;line-height:8.6mm;font-size:12.5pt;font-weight:500;letter-spacing:-.4pt;white-space:nowrap}
 .sec .tab b{font-weight:800} .sec .tab small{font-size:8.5pt;font-weight:500;margin-left:2pt} .roomy .sec{margin-top:7mm}
