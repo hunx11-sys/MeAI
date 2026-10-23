@@ -15,7 +15,7 @@
 import os, sys, re, base64, glob, json, time
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
-import pipeline, build_all as BA, scen_engine as S, ga_spec as GS, ga_care as CARE          # noqa: E402
+import pipeline, build_all as BA, scen_engine as S, ga_spec as GS, ga_care as CARE, ga_overlay as OV   # noqa: E402
 
 VERSION = (re.search(r"VERSION\s*=\s*'([^']+)'", open(os.path.join(BASE, 'api.py'), encoding='utf-8').read()) or [None, ''])[1]
 BRAND = '메리츠 스마트 제안서'          # 「당사만의 고유명칭」 자리 — GA 가 정하면 여기만 바꾼다(미정 2026-10-08)
@@ -439,6 +439,52 @@ def _font_css():
             css += "@font-face{font-family:GANG;src:url('%s');font-weight:%d}" % ((a / f).as_uri(), w)
     return css
 
+# ───────── 가안 합성 모드(2026-10-23 소유자 지시) : GA 디자인 가안 그림을 배경으로 깔고 값 글자만 얹는다 — ga_overlay ─────────
+def _ov_cells(page):
+    """그 쪽의 칸 값들을 사양 순서(ga_spec.CELLS)대로 얹는다 — 지면 대조(TOKEN_RE)가 칸 순서로 세므로 순서가 중요하다"""
+    sp = OV.spec(page)['fields']; out = []
+    for c in GS.CELLS:
+        if c['page'] != {'p1': 1, 'p2': 2, 'p3': 3}[page]: continue
+        f = sp.get(c['key'])
+        if not f: out.append('<!-- 자리 없음 %s -->' % c['key']); continue
+        out.append(OV.field_html(f, M(V(c['key'])), 'val'))
+    return ''.join(out)
+def _ov_text(sp, key, text, unit=None, shrink_over=None):
+    f = sp.get(key)
+    return OV.text_html(text, f, unit, shrink_over) if (f and text) else ''
+def _ov_footer(sp):
+    return (_ov_text(sp, 'ft.org', HEAD.get('org') or '-') + _ov_text(sp, 'ft.code', HEAD.get('code') or '-') + _ov_text(sp, 'ft.consultant', HEAD.get('agent_name') or '-'))
+def p0_mock():
+    page = 'cover2' if COVER == 2 else 'cover1'
+    sp = OV.spec(page)['fields']
+    prem = (PREMIUM or '').replace('원', '')
+    body = (_ov_text(sp, 'cv.product', PRODUCT or '-', shrink_over=44) + _ov_text(sp, 'cv.insured', who_line()) + _ov_text(sp, 'cv.contract_no', HEAD.get('no') or '-')
+            + _ov_text(sp, 'cv.premium', prem or '-', '원' if prem else None) + _ov_text(sp, 'cv.org', HEAD.get('org') or '-')
+            + _ov_text(sp, 'cv.consultant', (HEAD.get('agent_name') + '님') if HEAD.get('agent_name') else '-') + _ov_text(sp, 'cv.mobile', HEAD.get('mobile') or '-') + _ov_text(sp, 'cv.tel', HEAD.get('tel') or '-'))
+    return OV.page_open(page, 'cover') + body + '</div>'
+def p1_mock():
+    sp = OV.spec('p1')['fields']; prem = (PREMIUM or '').replace('원', '')
+    body = (_ov_text(sp, 'hdr.dno', '설계번호 : ' + (HEAD.get('no') or '-')) + _ov_text(sp, 'hdr.product', PRODUCT or '-', shrink_over=52) + _ov_text(sp, 'hdr.insured', who_line())
+            + _ov_text(sp, 'hdr.premium', prem or '-', '원' if prem else None) + _ov_cells('p1') + _ov_footer(sp))
+    return OV.page_open('p1') + body + '</div>'
+def p2_mock():
+    sp = OV.spec('p2')['fields']; return OV.page_open('p2', 'roomy') + _ov_cells('p2') + _ov_footer(sp) + '</div>'
+def p3_mock():
+    sp = OV.spec('p3')['fields']; return OV.page_open('p3', 'roomy') + _ov_cells('p3') + _ov_footer(sp) + '</div>'
+P4_BAND = (160, 1922)     # 가안 세부내역 쪽에서 머리 아래 ~ 꼬리 위(px) — 이 사이를 지우고 HTML 표를 그린다
+def calc_mock_pages():
+    pages = calc_paginate(calc_sections())      # 기존 쪽 나눔(class="page calcpg")을 그대로 쓰되 배경·머리·꼬리만 가안으로
+    sp = OV.spec('p1')['fields']                # 꼬리 자리는 1쪽과 같다
+    import pathlib
+    tpl = OV.template('p4', extra_erase=[[0, P4_BAND[0], OV.W, P4_BAND[1]]])
+    out = []
+    for i, pg in enumerate(pages):
+        body = pg[pg.index('<div class="sec'):pg.rindex('<div class="ft">')]
+        out.append('<div class="page calcpg mockpg" style="background-image:url(\'%s\')"><div class="calcbody">%s</div>%s%s</div>'
+                   % (pathlib.Path(tpl).as_uri(), body, _ov_footer(sp), ('<div class="ov r pno" style="left:150mm;top:%.2fmm;width:48mm;height:6mm;font-size:8pt;color:#777">%d / %d</div>' % (118 * OV.MM_Y, i + 1, len(pages))) if len(pages) > 1 else ''))
+    return out
+MOCK_MODE = OV.available() and os.environ.get('GA_MOCK', '1') != '0'     # 가안 그림·측정 좌표가 있으면 합성 모드(GA_MOCK=0 이면 전부 HTML 로 그리는 예전 방식)
+
 def html(design_pdf, age=''):
     load(design_pdf, age)
     return html_loaded()
@@ -448,8 +494,15 @@ def html_loaded():
     # 세부내역(계산서)은 선택이 아니다 — 못 만들면 지면 전체를 내지 않는다(금액의 근거가 빠진 제안서가 나가지 않게)
     if len(calc) < CALC_PAGES or any('class="page calcpg"' not in c for c in calc):
         raise RuntimeError('보장금액 세부내역(합산 계산서)이 %d쪽 이상 만들어지지 않았습니다(%d쪽)' % (CALC_PAGES, len(calc)))
+    if MOCK_MODE:
+        calc = calc_mock_pages()
+        pages = [p0_mock(), p1_mock(), p2_mock(), p3_mock()] + calc
+        return '<!doctype html><html><head><meta charset="utf-8"><style>%s%s%s</style></head><body>%s</body></html>' % (_font_css(), CSS, OV.page_css() + MOCK_CSS, ''.join(pages))
     pages = [p0(), p1(), p2(), p3()] + calc
     return '<!doctype html><html><head><meta charset="utf-8"><style>%s%s</style></head><body>%s</body></html>' % (_font_css(), CSS, ''.join(pages))
+MOCK_CSS = ('.mockpg{padding:0} .ov b.v{font-size:inherit;color:inherit;font-weight:inherit;letter-spacing:-.4pt} .ov b.v i{font-size:var(--u);color:var(--uc);font-weight:500;margin-left:1px}'
+            '.ov .na{color:var(--na,#C4C4C4);font-weight:500;font-size:inherit} .ov .txt{color:#F23A2B;font-weight:800;font-size:inherit} .ov b.v.z{color:#9A9A9A}'
+            '.calcpg.mockpg .calcbody{position:absolute;left:12mm;top:%.2fmm;width:186mm} .calcpg.mockpg .calcbody .sec:first-child{margin-top:0}' % (P4_BAND[0] * OV.MM_Y + 2))
 FIXED_PAGES = 4     # 표지 · 보장요약 · 암보장 · 뇌·심보장 (그 뒤에 세부내역 CALC_PAGES 쪽 이상)
 
 CHECK = """()=>{const o=[];document.querySelectorAll('.page').forEach((p,i)=>{const B=p.getBoundingClientRect();const ft=p.querySelector('.ft');const F=ft?ft.getBoundingClientRect():null;
