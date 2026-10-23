@@ -14,3 +14,14 @@ node build.js                        # → ../../dist/inpatient_adequacy_lecture
 
 글꼴은 Pretendard 를 쓴다. 보는 PC 에 Pretendard 가 없으면 맑은 고딕으로 대체되어 글자 폭이 조금 달라진다(`npm pack pretendard@1.3.9` 로 받을 수 있다).
 수치의 출처는 각 장 아래 「출처」 줄과 마지막 장 「출처와 한계」에 있다. 별점(5부)과 상담 세 갈래(4부)는 교안의 가정값이다.
+
+## 그림판(통이미지) 다시 뽑기
+
+글꼴이 없는 PC 에서도 똑같이 보이게 슬라이드마다 그림 한 장을 깐 `dist/inpatient_adequacy_lecture_img.pptx`. 리브레오피스가 한글과 숫자·쉼표 사이에 자동으로 넣는 간격을 끄고 찍는다.
+
+```
+soffice --headless --convert-to odp dist/inpatient_adequacy_lecture.pptx   # ODP 로 변환
+# ODP 안의 styles.xml : text-autospace="ideograph-alpha" → "none", content.xml 문단 속성에도 같은 값 추가 후 다시 zip
+soffice --headless --convert-to pdf d2.odp && pdftoppm -png -r 192 d2.pdf png/s
+node mkimg.js                                                               # png/ 40장을 슬라이드로
+```
