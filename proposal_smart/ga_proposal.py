@@ -175,13 +175,36 @@ def p0():
         art = '<img class="art2" src="%s">' % u if u else ('<div class="art2css"><div class="shield"><div class="heart"></div></div><div class="cross"><i></i><i></i></div>'
                                                              '<div class="doc"><i></i><i></i><i></i></div><div class="ball r1"></div><div class="ball r2"></div><div class="ball w1"></div><div class="ball w2"></div><div class="ball w3"></div></div>')
     else:
-        art = '<div class="art1"><div class="s a"></div><div class="s b"></div><div class="s c"></div><div class="s d"></div></div>'
+        u = asset_uri('cover_art1.png')
+        art = '<img class="art1img" src="%s">' % u if u else ART1_SVG
     contact = ('<div class="cv-contact"><div><em>소　　속</em><b>%s</b></div><div><em>휴대전화</em><b>%s</b></div>'
                '<div><em>컨설턴트</em><b>%s</b></div><div><em>전화번호</em><b>%s</b></div></div>'
                % (HEAD.get('org') or '-', HEAD.get('mobile') or '-', (HEAD.get('agent_name') + '님') if HEAD.get('agent_name') else '-', HEAD.get('tel') or '-'))
     body = ('%s<div class="cv-tag">내 보험의 가치를 한눈에 보는</div><h1 class="cv-title">메리츠 <span>스마트 제안서</span></h1>%s%s%s%s%s'
             % (art, info_table(True), notice, warn, contact, logo('cv-logo')))
     return '<div class="page cover">%s</div>' % body
+
+# 표지1 배경 도형 — GA 가안(표지1)의 연한 붉은 「M」 띠를 벡터로 옮긴 것. 원본 그림(ga_assets/cover_art1.png)이 오면 그 그림을 쓴다.
+# 좌표는 가안 그림(1414×2000px)을 A4(210×297mm)에 맞춘 값. 띠는 둥근 모서리의 평행사변형 4개, 반투명 겹침(multiply)으로 겹치는 곳이 진해진다.
+ART1_SVG = '''<svg class="art1" viewBox="0 0 1414 2000" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+<defs>
+ <linearGradient id="gA" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFF1F0"/><stop offset=".55" stop-color="#FDD7D4"/><stop offset="1" stop-color="#F9B9B4"/></linearGradient>
+ <linearGradient id="gB" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FFEAE8"/><stop offset="1" stop-color="#F8B4AE"/></linearGradient>
+ <linearGradient id="gC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4F3"/><stop offset="1" stop-color="#FBD0CC"/></linearGradient>
+ <filter id="sf" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="2.5"/></filter>
+</defs>
+<!-- GA 가안 표지1 : 오른쪽 아래에 메리츠 「M」 모양의 연한 붉은 띠 4개(비스듬히 오른쪽 위로 올라감 · 둥근 모서리 · 반투명 겹침) -->
+<g filter="url(#sf)" style="mix-blend-mode:multiply" opacity=".72">
+ <!-- 오른쪽 위 세로 띠(M 의 오른 기둥 · 지면 밖으로 이어짐) -->
+ <path d="M1232 605 Q1232 560 1278 560 L1500 560 L1500 1060 L1300 1060 Q1232 1060 1232 992 Z" fill="url(#gC)" opacity=".75"/>
+ <!-- 큰 띠 : 왼쪽 아래(500,1480) → 오른쪽 위 -->
+ <path d="M482 1446 Q452 1414 484 1384 L1226 760 Q1262 730 1292 762 L1500 980 L1500 1210 L740 1690 Q708 1716 680 1686 Z" fill="url(#gA)" opacity=".85"/>
+ <!-- 아래 띠 : (820,1720) → 오른쪽 위 -->
+ <path d="M814 1726 Q784 1696 814 1666 L1420 1150 L1500 1150 L1500 1420 L954 1890 Q922 1916 894 1886 Z" fill="url(#gB)" opacity=".8"/>
+ <!-- M 가운데 사선(큰 띠에서 오른쪽 아래로 꺾여 내려오는 짧은 띠) -->
+ <path d="M1040 1012 L1226 860 Q1258 836 1286 866 L1330 918 Q1356 950 1324 976 L1136 1130 Q1104 1156 1076 1126 L1030 1070 Q1008 1040 1040 1012 Z" fill="url(#gA)" opacity=".7"/>
+</g>
+</svg>'''
 
 # ───────── 1쪽 보장요약 ─────────
 LBL = {'표적(면역) 2가지 약물': '표적(면역)<br>2가지약물', '혈전용해+혈전제거': '<small>혈전용해+혈전제거</small>', '복강경/흉강경': '복강경, 흉강경', '개복/개흉': '개복, 개흉',
@@ -385,7 +408,7 @@ small{font-size:7.5pt;color:#777} .na{color:#C4C4C4;font-size:9.6pt;font-weight:
 /* 표지1 : 연한 붉은 도형(GA 가안을 CSS 로 옮긴 것) */
 .art1{position:absolute;inset:0;overflow:hidden;z-index:0} .art1 .s{position:absolute;border-radius:16mm;background:linear-gradient(135deg,rgba(255,225,222,.55),rgba(255,150,140,.28));filter:blur(.3mm);mix-blend-mode:multiply}
 .art1 .a{width:150mm;height:60mm;left:70mm;top:170mm;transform:rotate(-32deg)} .art1 .b{width:140mm;height:55mm;left:95mm;top:120mm;transform:rotate(-32deg);opacity:.8} .art1 .c{width:120mm;height:48mm;left:120mm;top:222mm;transform:rotate(-32deg);opacity:.7} .art1 .d{width:90mm;height:36mm;left:140mm;top:88mm;transform:rotate(-32deg);opacity:.55}
-.cover>*:not(.art1):not(.art2):not(.art2css){z-index:1}
+.cover>*:not(.art1):not(.art1img):not(.art2):not(.art2css){z-index:1} svg.art1{position:absolute;left:0;top:0;width:210mm;height:297mm;z-index:0;overflow:visible} img.art1img{position:absolute;left:0;top:0;width:210mm;height:297mm;z-index:0}
 /* 표지2 : 방패·하트 일러스트 — 원본 그림(ga_assets/cover_art2.png)이 없으면 CSS 로 비슷하게 */
 img.art2{position:absolute;left:55mm;top:130mm;width:140mm} .art2css{position:absolute;left:0;top:0;width:210mm;height:297mm;z-index:0}
 .art2css .shield{position:absolute;left:100mm;top:150mm;width:72mm;height:84mm;background:linear-gradient(160deg,#fff,#EDEDED);border-radius:36mm 36mm 50% 50%/30mm 30mm 60% 60%;box-shadow:0 8mm 14mm rgba(0,0,0,.08),inset 0 -3mm 6mm rgba(0,0,0,.05);transform:rotate(-8deg)}
@@ -430,7 +453,7 @@ def html_loaded():
 FIXED_PAGES = 4     # 표지 · 보장요약 · 암보장 · 뇌·심보장 (그 뒤에 세부내역 CALC_PAGES 쪽 이상)
 
 CHECK = """()=>{const o=[];document.querySelectorAll('.page').forEach((p,i)=>{const B=p.getBoundingClientRect();const ft=p.querySelector('.ft');const F=ft?ft.getBoundingClientRect():null;
- p.querySelectorAll('*').forEach(e=>{if(e.closest('.art1,.art2css'))return; const r=e.getBoundingClientRect(); if(!r.width||!r.height)return;
+ p.querySelectorAll('*').forEach(e=>{if(e.closest('.art1,.art1img,.art2css'))return; const r=e.getBoundingClientRect(); if(!r.width||!r.height)return;
   if(r.bottom>B.bottom+0.5||r.right>B.right+0.5) o.push('p'+(i+1)+' 이탈 '+(e.innerText||'').slice(0,20));
   else if(F&&!ft.contains(e)&&e!==ft&&!e.querySelector('.ft')&&r.bottom>F.top-1&&r.top<F.top) o.push('p'+(i+1)+' 겹침(하단 주석) '+(e.innerText||'').slice(0,20));});});
  return o.slice(0,20);}"""
