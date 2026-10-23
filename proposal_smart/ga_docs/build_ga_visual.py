@@ -22,7 +22,7 @@ order = []
 for c in CELLS:
     for _ in D['cells'][c['id']]['tokens']: order.append(c['id'])
 h = open(HTML, encoding='utf-8').read()
-PAT = re.compile(r'<b class="v[^"]*">([^<]+)<i>만원</i></b>|<span class="na">(미가입|면책)</span>|<span class="txt">(보내줌|지원가능)</span>')
+PAT = re.compile(r'<b class="v[^"]*">([^<]+)<i>만원</i></b>|<span class="na">(미가입|면책)</span>|<span class="txt">(간병인 보내줌|보내줌|지원가능)</span>')
 ms = list(PAT.finditer(h))
 assert len(ms) == len(order), (len(ms), len(order))
 out, last, seen = [], 0, set()
@@ -48,7 +48,8 @@ async def render():
         await pg.pdf(path=apdf, prefer_css_page_size=True, print_background=True); await b.close()
 asyncio.run(render())
 doc = pymupdf.open(apdf); PNG = {}; CALC = []; COVER = None
-kinds = re.findall(r'<div class="page( [a-z]+)?">', h)          # 지면 순서(v5) : 표지(cover) → 보장요약 → 암 → 뇌심(roomy) → 세부내역(calcpg)
+# 지면 순서(v5) : 표지(cover) → 보장요약 → 암 → 뇌심(roomy) → 세부내역(calcpg). 가안 합성 모드(v8.82)는 class 에 mockpg 가 더 붙는다
+kinds = [' ' + ' '.join(t for t in m.split() if t not in ('page', 'mockpg')) if any(t not in ('page', 'mockpg') for t in m.split()) else '' for m in re.findall(r'<div class="(page[^"]*)"', h)]
 assert len(kinds) == doc.page_count, (len(kinds), doc.page_count)
 pno = 0
 for i, k in enumerate(kinds):
