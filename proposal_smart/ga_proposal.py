@@ -445,15 +445,26 @@ def _ov_cells(page):
     sp = OV.spec(page)['fields']; out = []
     for c in GS.CELLS:
         if c['page'] != {'p1': 1, 'p2': 2, 'p3': 3}[page]: continue
-        f = sp.get(c['key'])
-        if not f: out.append('<!-- 자리 없음 %s -->' % c['key']); continue
-        out.append(OV.field_html(f, M(V(c['key'])), 'val'))
+        if c['key'] not in sp: out.append('<!-- 자리 없음 %s -->' % c['key']); continue
+        v = V(c['key']); f = OV.style_for(sp, c['key'], v)
+        if isinstance(v, (int, float)): f = OV.fit(f, won(v), '만원')
+        elif isinstance(v, str): f = OV.fit(f, v)
+        out.append(OV.field_html(f, M(v), 'val'))
     return ''.join(out)
 def _ov_text(sp, key, text, unit=None, shrink_over=None):
     f = sp.get(key)
     return OV.text_html(text, f, unit, shrink_over) if (f and text) else ''
-def _ov_footer(sp):
-    return (_ov_text(sp, 'ft.org', HEAD.get('org') or '-') + _ov_text(sp, 'ft.code', HEAD.get('code') or '-') + _ov_text(sp, 'ft.consultant', HEAD.get('agent_name') or '-'))
+def _ov_footer(sp, page='p1'):
+    """꼬리 「소속 : ○ | 코드 : ○ | 컨설턴트 : ○」 — 가안의 그 블록을 지우고(ga_overlay.footer_box) 한 줄로 다시 쓴다(값이 길어도 겹치지 않게 · 셋째 이름표는 가안의 「소속」 오타 대신 「컨설턴트」)"""
+    fb = OV.footer_box(page, sp)
+    if not fb: return ''
+    f0 = sp.get('ft.org') or {}
+    f = dict(box=fb, align='right', font_px=f0.get('font_px', 19), weight=500, color=f0.get('color', '#111111'))
+    sep = '<i style="display:inline-block;width:1px;height:.9em;background:#C9C9C9;margin:0 10px;vertical-align:-1px"></i>'
+    inner = ('<span style="font-weight:500;color:#333">소속 : </span><b style="font-weight:700">%s</b>%s<span style="font-weight:500;color:#333">코드 : </span><b style="font-weight:700">%s</b>%s<span style="font-weight:500;color:#333">컨설턴트 : </span><b style="font-weight:700">%s</b>'
+             % (HEAD.get('org') or '-', sep, HEAD.get('code') or '-', sep, HEAD.get('agent_name') or '-'))
+    txt = '소속 : %s  코드 : %s  컨설턴트 : %s' % (HEAD.get('org') or '-', HEAD.get('code') or '-', HEAD.get('agent_name') or '-')
+    return OV.field_html(OV.fit(f, txt + '      '), inner)
 def p0_mock():
     page = 'cover2' if COVER == 2 else 'cover1'
     sp = OV.spec(page)['fields']
@@ -468,20 +479,21 @@ def p1_mock():
             + _ov_text(sp, 'hdr.premium', prem or '-', '원' if prem else None) + _ov_cells('p1') + _ov_footer(sp))
     return OV.page_open('p1') + body + '</div>'
 def p2_mock():
-    sp = OV.spec('p2')['fields']; return OV.page_open('p2', 'roomy') + _ov_cells('p2') + _ov_footer(sp) + '</div>'
+    sp = OV.spec('p2')['fields']; return OV.page_open('p2', 'roomy') + _ov_cells('p2') + _ov_footer(sp, 'p2') + '</div>'
 def p3_mock():
-    sp = OV.spec('p3')['fields']; return OV.page_open('p3', 'roomy') + _ov_cells('p3') + _ov_footer(sp) + '</div>'
-P4_BAND = (160, 1922)     # 가안 세부내역 쪽에서 머리 아래 ~ 꼬리 위(px) — 이 사이를 지우고 HTML 표를 그린다
+    sp = OV.spec('p3')['fields']; return OV.page_open('p3', 'roomy') + _ov_cells('p3') + _ov_footer(sp, 'p3') + '</div>'
+P4_BAND = (160, 1838)     # 가안 세부내역 쪽에서 머리 아래 ~ 꼬리 줄 위(px · 꼬리 글자는 1864~1904) — 이 사이를 지우고 HTML 표를 그린다
 def calc_mock_pages():
     pages = calc_paginate(calc_sections())      # 기존 쪽 나눔(class="page calcpg")을 그대로 쓰되 배경·머리·꼬리만 가안으로
     sp = OV.spec('p1')['fields']                # 꼬리 자리는 1쪽과 같다
     import pathlib
-    tpl = OV.template('p4', extra_erase=[[0, P4_BAND[0], OV.W, P4_BAND[1]]])
+    sp4 = dict(sp); 
+    tpl = OV.template('p4', extra_erase=[[0, P4_BAND[0], OV.W, P4_BAND[1]]] + ([OV.footer_box('p4', sp)] if OV.footer_box('p4', sp) else []))
     out = []
     for i, pg in enumerate(pages):
         body = pg[pg.index('<div class="sec'):pg.rindex('<div class="ft">')]
         out.append('<div class="page calcpg mockpg" style="background-image:url(\'%s\')"><div class="calcbody">%s</div>%s%s</div>'
-                   % (pathlib.Path(tpl).as_uri(), body, _ov_footer(sp), ('<div class="ov r pno" style="left:150mm;top:%.2fmm;width:48mm;height:6mm;font-size:8pt;color:#777">%d / %d</div>' % (118 * OV.MM_Y, i + 1, len(pages))) if len(pages) > 1 else ''))
+                   % (pathlib.Path(tpl).as_uri(), body, _ov_footer(sp, 'p4'), ('<div class="ov r pno" style="left:150mm;top:%.2fmm;width:48mm;height:6mm;font-size:8pt;color:#777">%d / %d</div>' % (118 * OV.MM_Y, i + 1, len(pages))) if len(pages) > 1 else ''))
     return out
 MOCK_MODE = OV.available() and os.environ.get('GA_MOCK', '1') != '0'     # 가안 그림·측정 좌표가 있으면 합성 모드(GA_MOCK=0 이면 전부 HTML 로 그리는 예전 방식)
 
@@ -501,7 +513,7 @@ def html_loaded():
     pages = [p0(), p1(), p2(), p3()] + calc
     return '<!doctype html><html><head><meta charset="utf-8"><style>%s%s</style></head><body>%s</body></html>' % (_font_css(), CSS, ''.join(pages))
 MOCK_CSS = ('.mockpg{padding:0} .ov b.v{font-size:inherit;color:inherit;font-weight:inherit;letter-spacing:-.4pt} .ov b.v i{font-size:var(--u);color:var(--uc);font-weight:500;margin-left:1px}'
-            '.ov .na{color:var(--na,#C4C4C4);font-weight:500;font-size:inherit} .ov .txt{color:#F23A2B;font-weight:800;font-size:inherit} .ov b.v.z{color:#9A9A9A}'
+            '.ov .na{color:var(--na,#C4C4C4);font-weight:500;font-size:var(--naf,inherit)} .ov .txt{color:#F23A2B;font-weight:800;font-size:inherit} .ov b.v.z{color:#9A9A9A}'
             '.calcpg.mockpg .calcbody{position:absolute;left:12mm;top:%.2fmm;width:186mm} .calcpg.mockpg .calcbody .sec:first-child{margin-top:0}' % (P4_BAND[0] * OV.MM_Y + 2))
 FIXED_PAGES = 4     # 표지 · 보장요약 · 암보장 · 뇌·심보장 (그 뒤에 세부내역 CALC_PAGES 쪽 이상)
 

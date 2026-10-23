@@ -1,0 +1,633 @@
+{
+ "page": "p2",
+ "size": [
+  1414,
+  2000
+ ],
+ "fields": {
+  "p2.ex.x_endo": {
+   "box": [
+    84,
+    329,
+    231,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.ex.x_mri": {
+   "box": [
+    239,
+    329,
+    387,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.ex.x_pet": {
+   "box": [
+    395,
+    329,
+    544,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.ex.x_gene": {
+   "box": [
+    552,
+    329,
+    700,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.ex.x_us": {
+   "box": [
+    708,
+    329,
+    857,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.ex.x_ct": {
+   "box": [
+    865,
+    329,
+    1013,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.ex.x_bio": {
+   "box": [
+    1021,
+    329,
+    1170,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.ex.x_ngs": {
+   "box": [
+    1178,
+    329,
+    1327,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.dx.일반암": {
+   "box": [
+    230,
+    530,
+    468,
+    575
+   ],
+   "align": "right",
+   "font_px": 46,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.dx.유사암": {
+   "box": [
+    640,
+    530,
+    879,
+    575
+   ],
+   "align": "right",
+   "font_px": 46,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.dx.전이암": {
+   "box": [
+    1050,
+    530,
+    1311,
+    575
+   ],
+   "align": "right",
+   "font_px": 24,
+   "weight": 700,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.endo.first": {
+   "box": [
+    310,
+    804,
+    543,
+    858
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.endo.year": {
+   "box": [
+    310,
+    865,
+    543,
+    918
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.endo.each": {
+   "box": [
+    310,
+    925,
+    543,
+    979
+   ],
+   "align": "right",
+   "font_px": 24,
+   "weight": 700,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.open.first": {
+   "box": [
+    567,
+    804,
+    799,
+    858
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.open.year": {
+   "box": [
+    567,
+    865,
+    799,
+    918
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.open.each": {
+   "box": [
+    567,
+    925,
+    799,
+    979
+   ],
+   "align": "right",
+   "font_px": 24,
+   "weight": 700,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.lap.first": {
+   "box": [
+    823,
+    804,
+    1055,
+    858
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.lap.year": {
+   "box": [
+    823,
+    865,
+    1055,
+    918
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.lap.each": {
+   "box": [
+    823,
+    925,
+    1055,
+    979
+   ],
+   "align": "right",
+   "font_px": 24,
+   "weight": 700,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.robot.first": {
+   "box": [
+    1079,
+    804,
+    1312,
+    858
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.robot.year": {
+   "box": [
+    1079,
+    865,
+    1312,
+    918
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.sg.robot.each": {
+   "box": [
+    1079,
+    925,
+    1312,
+    979
+   ],
+   "align": "right",
+   "font_px": 24,
+   "weight": 700,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.cm.chemo.first": {
+   "box": [
+    310,
+    1159,
+    543,
+    1213
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.cm.chemo.year": {
+   "box": [
+    310,
+    1220,
+    543,
+    1273
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.cm.target1.first": {
+   "box": [
+    567,
+    1159,
+    799,
+    1213
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.cm.target1.year": {
+   "box": [
+    567,
+    1220,
+    799,
+    1273
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.cm.immune1.first": {
+   "box": [
+    823,
+    1159,
+    1055,
+    1213
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.cm.immune1.year": {
+   "box": [
+    823,
+    1220,
+    1055,
+    1273
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.cm.two": {
+   "box": [
+    1181,
+    1159,
+    1324,
+    1213
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.cm.two3": {
+   "box": [
+    1181,
+    1220,
+    1324,
+    1273
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rd.rad.first": {
+   "box": [
+    310,
+    1454,
+    543,
+    1508
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rd.rad.year": {
+   "box": [
+    310,
+    1515,
+    543,
+    1568
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rd.imrt.first": {
+   "box": [
+    567,
+    1454,
+    799,
+    1508
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rd.imrt.year": {
+   "box": [
+    567,
+    1515,
+    799,
+    1568
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rd.proton.first": {
+   "box": [
+    823,
+    1454,
+    1055,
+    1508
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rd.proton.year": {
+   "box": [
+    823,
+    1515,
+    1055,
+    1568
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rd.carbon.first": {
+   "box": [
+    1079,
+    1454,
+    1312,
+    1508
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rd.carbon.year": {
+   "box": [
+    1079,
+    1515,
+    1312,
+    1568
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rh.in": {
+   "box": [
+    310,
+    1753,
+    543,
+    1807
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.rh.out": {
+   "box": [
+    567,
+    1753,
+    799,
+    1807
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p2.dis": {
+   "box": [
+    840,
+    1753,
+    1311,
+    1807
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "ft.org": {
+   "box": [
+    895,
+    1871,
+    1009,
+    1898
+   ],
+   "align": "left",
+   "font_px": 19,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "ft.code": {
+   "box": [
+    1085,
+    1871,
+    1205,
+    1898
+   ],
+   "align": "left",
+   "font_px": 19,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "ft.consultant": {
+   "box": [
+    1282,
+    1871,
+    1338,
+    1898
+   ],
+   "align": "left",
+   "font_px": 19,
+   "weight": 500,
+   "color": "#111111"
+  }
+ }
+}

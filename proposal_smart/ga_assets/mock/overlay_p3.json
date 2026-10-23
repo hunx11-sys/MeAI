@@ -1,0 +1,563 @@
+{
+ "page": "p3",
+ "size": [
+  1414,
+  2000
+ ],
+ "fields": {
+  "p3.ex.x_mri": {
+   "box": [
+    86,
+    331,
+    489,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.ex.x_pet": {
+   "box": [
+    501,
+    331,
+    907,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.ex.x_ct": {
+   "box": [
+    919,
+    331,
+    1324,
+    383
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.dx.뇌혈관": {
+   "box": [
+    214,
+    514,
+    467,
+    576
+   ],
+   "align": "right",
+   "font_px": 46,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.dx.뇌졸중": {
+   "box": [
+    627,
+    514,
+    879,
+    576
+   ],
+   "align": "right",
+   "font_px": 46,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.dx.허혈성심장": {
+   "box": [
+    1097,
+    514,
+    1291,
+    576
+   ],
+   "align": "right",
+   "font_px": 40,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b0.first": {
+   "box": [
+    310,
+    804,
+    543,
+    858
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b1.first": {
+   "box": [
+    567,
+    804,
+    799,
+    858
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b2.first": {
+   "box": [
+    823,
+    804,
+    1055,
+    858
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b3.first": {
+   "box": [
+    1079,
+    804,
+    1312,
+    858
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b0.year": {
+   "box": [
+    310,
+    865,
+    543,
+    918
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b1.year": {
+   "box": [
+    567,
+    865,
+    799,
+    918
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b2.year": {
+   "box": [
+    823,
+    865,
+    1055,
+    918
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b3.year": {
+   "box": [
+    1079,
+    865,
+    1313,
+    918
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b0.each": {
+   "box": [
+    310,
+    925,
+    542,
+    979
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b1.each": {
+   "box": [
+    567,
+    925,
+    798,
+    979
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b2.each": {
+   "box": [
+    823,
+    925,
+    1054,
+    979
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.b3.each": {
+   "box": [
+    1079,
+    925,
+    1312,
+    979
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h0.first": {
+   "box": [
+    310,
+    1163,
+    543,
+    1216
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h1.first": {
+   "box": [
+    567,
+    1163,
+    799,
+    1216
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h2.first": {
+   "box": [
+    823,
+    1163,
+    1055,
+    1216
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h3.first": {
+   "box": [
+    1079,
+    1163,
+    1312,
+    1216
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h0.year": {
+   "box": [
+    310,
+    1223,
+    543,
+    1277
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h1.year": {
+   "box": [
+    567,
+    1223,
+    799,
+    1277
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h2.year": {
+   "box": [
+    823,
+    1223,
+    1055,
+    1277
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h3.year": {
+   "box": [
+    1079,
+    1223,
+    1312,
+    1277
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h0.each": {
+   "box": [
+    310,
+    1284,
+    542,
+    1337
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h1.each": {
+   "box": [
+    567,
+    1284,
+    798,
+    1337
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h2.each": {
+   "box": [
+    823,
+    1284,
+    1054,
+    1337
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.h3.each": {
+   "box": [
+    1079,
+    1284,
+    1312,
+    1337
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#C4C4C4",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.sev.icu": {
+   "box": [
+    310,
+    1521,
+    498,
+    1575
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.sev.ecmo": {
+   "box": [
+    516,
+    1521,
+    703,
+    1575
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.sev.crrt": {
+   "box": [
+    721,
+    1521,
+    909,
+    1575
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.sev.vent": {
+   "box": [
+    925,
+    1521,
+    1113,
+    1575
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.sev.hypo": {
+   "box": [
+    1131,
+    1521,
+    1317,
+    1575
+   ],
+   "align": "right",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.rh.in": {
+   "box": [
+    310,
+    1758,
+    811,
+    1812
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "p3.rh.out": {
+   "box": [
+    823,
+    1758,
+    1324,
+    1812
+   ],
+   "align": "center",
+   "font_px": 34,
+   "weight": 700,
+   "color": "#F23A2B",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "ft.org": {
+   "box": [
+    895,
+    1871,
+    1009,
+    1898
+   ],
+   "align": "left",
+   "font_px": 18,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "ft.code": {
+   "box": [
+    1086,
+    1871,
+    1205,
+    1898
+   ],
+   "align": "left",
+   "font_px": 18,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "ft.consultant": {
+   "box": [
+    1282,
+    1871,
+    1338,
+    1898
+   ],
+   "align": "left",
+   "font_px": 18,
+   "weight": 500,
+   "color": "#111111"
+  }
+ }
+}

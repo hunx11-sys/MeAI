@@ -1,0 +1,109 @@
+{
+ "page": "cover1",
+ "size": [
+  1414,
+  2000
+ ],
+ "fields": {
+  "cv.product": {
+   "box": [
+    344,
+    500,
+    1324,
+    573
+   ],
+   "align": "left",
+   "font_px": 30,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "cv.insured": {
+   "box": [
+    344,
+    579,
+    685,
+    654
+   ],
+   "align": "left",
+   "font_px": 30,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "cv.contract_no": {
+   "box": [
+    952,
+    579,
+    1320,
+    654
+   ],
+   "align": "left",
+   "font_px": 27,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "cv.premium": {
+   "box": [
+    343,
+    660,
+    740,
+    735
+   ],
+   "align": "left",
+   "font_px": 42,
+   "weight": 700,
+   "color": "#EC3925",
+   "unit_font_px": 24,
+   "unit_color": "#111111"
+  },
+  "cv.org": {
+   "box": [
+    199,
+    1800,
+    522,
+    1838
+   ],
+   "align": "left",
+   "font_px": 27,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "cv.consultant": {
+   "box": [
+    199,
+    1850,
+    522,
+    1884
+   ],
+   "align": "left",
+   "font_px": 27,
+   "weight": 500,
+   "color": "#111111",
+   "unit_font_px": 24,
+   "unit_color": "#444444"
+  },
+  "cv.mobile": {
+   "box": [
+    657,
+    1800,
+    930,
+    1838
+   ],
+   "align": "left",
+   "font_px": 30,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "cv.tel": {
+   "box": [
+    657,
+    1850,
+    930,
+    1884
+   ],
+   "align": "left",
+   "font_px": 30,
+   "weight": 500,
+   "color": "#111111"
+  }
+ }
+}

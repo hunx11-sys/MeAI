@@ -105,7 +105,9 @@ if A.designs:
             d = GS.run_design(p, hp); c = d['cmp'] or {}
             unm = [r['name'] for r in d['riders'] if not r['matched']]
             ok = bool(c.get('equal'))
-            pg = re.findall(r'<div class="page( [a-z]+)?">', h)                        # 쪽 순서(v5) : 표지 → 보장요약 → 암보장 → 뇌·심보장 → 세부내역(calcpg) CALC_PAGES 쪽 이상(2026-10-22 부터 보장요약 칸만 적어 1쪽 이상)
+            # 쪽 순서(v5) : 표지 → 보장요약 → 암보장 → 뇌·심보장 → 세부내역(calcpg) CALC_PAGES 쪽 이상(2026-10-22 부터 보장요약 칸만 적어 1쪽 이상).
+            # 가안 합성 모드(v8.82)는 class 에 mockpg 가 더 붙고 style 이 따라오므로 class 토큰에서 page·mockpg 를 뺀 나머지로 본다
+            pg = [' ' + ' '.join(t for t in m.split() if t not in ('page', 'mockpg')) if any(t not in ('page', 'mockpg') for t in m.split()) else '' for m in re.findall(r'<div class="(page[^"]*)"', h)]
             nc = sum(1 for x in pg if x == ' calcpg')
             if nc < G.CALC_PAGES or pg != [' cover', '', ' roomy', ' roomy'] + [' calcpg'] * nc:
                 ok = False; bad6.append('%s 쪽 구성이 표지·보장요약·암·뇌심 + 세부내역 %d쪽 이상이 아님 (%s)' % (f, G.CALC_PAGES, [x.strip() or 'p' for x in pg]))
