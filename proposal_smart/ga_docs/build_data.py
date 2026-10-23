@@ -53,6 +53,7 @@ for c in R['cells']:
     cid=c['id']
     vals=[]; dls=[]; iss=[]
     for p in order:
+        if p not in D: continue
         dc=D[p]['cells'].get(cid) or {}
         vals.append(' / '.join(dc.get('tokens') or []))
         ls=[l for l in dc.get('lines') or [] if l.get('counted') and l.get('in_row') is not False and l.get('amt')]

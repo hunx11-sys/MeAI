@@ -420,8 +420,8 @@ img.art2{position:absolute;left:55mm;top:130mm;width:140mm} .art2css{position:ab
 /* 세부내역 */
 .calcpg .sec{margin-top:4.5mm;height:7.6mm} .calcpg .sec .tab{height:7.6mm;line-height:7.6mm;font-size:11.5pt;font-weight:800} .calcpg .sec .tab b{font-weight:800}
 .calc th{font-size:8pt;height:7mm;padding:0 4pt;background:#F4F4F4;color:#444} .calc td{font-size:7.2pt;height:auto;padding:2.2pt 5pt;white-space:normal;vertical-align:middle;border-bottom:1px solid #E6E6E6;line-height:1.3}
-.calc th:nth-child(1){width:22%} .calc th:nth-child(2){width:10%} .calc th:nth-child(3){width:46%} .calc th:nth-child(4){width:9%} .calc th:nth-child(5){width:13%}
-.calc td.lab{text-align:left;font-size:8.4pt;font-weight:500;color:#222;padding-left:8pt;white-space:normal;word-break:keep-all;line-height:1.2} .calc td.sum{text-align:center;white-space:nowrap} .calc .cn{font-weight:700;font-size:10pt;color:#111} .calc .cn i{font-style:normal;font-size:7pt;font-weight:500;margin-left:1pt} .calc .cna{color:#C4C4C4;font-size:8.6pt;font-weight:500}
+.calc th:nth-child(1){width:20%} .calc th:nth-child(2){width:13.5%} .calc th:nth-child(3){width:44.5%} .calc th:nth-child(4){width:9%} .calc th:nth-child(5){width:13%}
+.calc td.lab{text-align:left;font-size:8.4pt;font-weight:500;color:#222;padding-left:8pt;white-space:normal;word-break:keep-all;line-height:1.2} .calc td.sum{text-align:center;white-space:normal;word-break:keep-all;line-height:1.15;padding-left:2pt;padding-right:2pt} .calc .cn{font-weight:700;font-size:10pt;color:#111} .calc .cn i{font-style:normal;font-size:7pt;font-weight:500;margin-left:1pt} .calc .cna{color:#C4C4C4;font-size:8.6pt;font-weight:500}
 .calc td.nm{text-align:left;color:#222} .calc td.nm b{font-weight:600} .calc td.nm em{font-style:normal;color:#999;font-size:6.8pt} .calc td.mn{text-align:right;color:#999;white-space:nowrap} .calc td.am{text-align:right;color:#222;font-weight:600;white-space:nowrap}
 '''.replace('RED', RED)
 

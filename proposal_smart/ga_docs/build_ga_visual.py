@@ -43,7 +43,8 @@ apdf = os.path.join(WORK, 'annotated.pdf')
 
 async def render():
     async with async_playwright() as pw:
-        b = await pw.chromium.launch(); pg = await b.new_page(viewport={'width': 794, 'height': 1123})
+        exe = os.environ.get('GA_CHROMIUM') or ('/opt/pw-browsers/chromium' if os.path.exists('/opt/pw-browsers/chromium') and not os.path.isdir('/opt/pw-browsers/chromium') else None)   # ga_proposal.render 와 같다
+        b = await (pw.chromium.launch(executable_path=exe) if exe else pw.chromium.launch()); pg = await b.new_page(viewport={'width': 794, 'height': 1123})
         await pg.goto(pathlib.Path(ah).resolve().as_uri()); await pg.evaluate('document.fonts.ready'); await pg.wait_for_timeout(500); await pg.evaluate('window.__badge()')
         await pg.pdf(path=apdf, prefer_css_page_size=True, print_background=True); await b.close()
 asyncio.run(render())
