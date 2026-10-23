@@ -61,12 +61,16 @@ def ga_head(design_pdf, age=''):
     ag = age or g(r'보험나이\s*[:：]?\s*(\d{1,3})\s*세') or g(r'피보험자\s*\S+\s*\(\s*(?:남|여)\s*[,·]\s*(\d{1,3})\s*세')
     if ag and not ag.endswith('세'): ag += '세'
     no = g(r'가계약번호\s*[:：]?\s*([A-Za-z0-9][A-Za-z0-9-]{4,})')
-    agent = re.sub(r'\s+', ' ', META.get('agent') or '').strip()          # 설계서 「영업담당자 … 발행정보」 사이 글자 그대로
-    mobile = g(r'(01[016789]-?\d{3,4}-?\d{4})'); tel = g(r'(?<!\d)(0(?:2|[3-6]\d)-?\d{3,4}-?\d{4})(?!\d)')
-    code = g(r'(?:설계사|모집인|컨설턴트|대리점)\s*코드\s*[:：]?\s*(\d{5,})')
-    rest = re.sub(r'0\d{1,2}-?\d{3,4}-?\d{4}', ' ', agent).split()
-    org = next((w for w in rest if re.search(r'대리점|지점|본부|사업단|지사|센터|보험|GA', w)), rest[0] if rest else '')
-    agent_name = next((w for w in rest if w != org and re.fullmatch(r'[가-힣]{2,5}', w)), '')
+    agent = re.sub(r'\s+', ' ', META.get('agent') or '').strip()          # 설계서 「영업담당자 … 발행정보」 사이 글자 그대로(예비)
+    # 설계서 표지(1쪽)에 「소속 ○○ / 컨설턴트 ○○ / 휴대전화 / 전화번호 / 가계약번호」 가 글자로 적혀 있다(2026-10-23 설계서 5건 확인) — 그 글자를 그대로 읽는다
+    org = g(r'소\s*속\s+(\S+)'); agent_name = g(r'컨설턴트\s+([가-힣]{2,6})')
+    mobile = g(r'휴대전화\s*[:：]?\s*(01[016789]-?\d{3,4}-?\d{4})') or g(r'(01[016789]-?\d{3,4}-?\d{4})')
+    tel = g(r'전화번호\s*[:：]?\s*(0\d{1,2}-?\d{3,4}-?\d{4})') or g(r'(?<!\d)(0(?:2|[3-6]\d)-?\d{3,4}-?\d{4})(?!\d)')
+    code = g(r'(?:설계사|모집인|컨설턴트|대리점)\s*코드\s*[:：]?\s*(\d{5,})')          # 「코드」가 가계약번호 앞 9자리인지는 GA 확인 전 — 글자로 적힌 것만
+    if not (org and agent_name) and agent:                                        # 1쪽에 없으면 「영업담당자」 줄에서 어림(소속 글자 · 2~5자 이름)
+        rest = re.sub(r'0\d{1,2}-?\d{3,4}-?\d{4}', ' ', agent).split()
+        org = org or next((w for w in rest if re.search(r'대리점|지점|본부|사업단|지사|센터|보험|GA', w)), rest[0] if rest else '')
+        agent_name = agent_name or next((w for w in rest if w != org and re.fullmatch(r'[가-힣]{2,5}', w)), '')
     missing = [k for k, v in (('피보험자 이름', name), ('성별', sex), ('보험나이', ag), ('가계약번호', no), ('컨설턴트 소속', org), ('컨설턴트 이름', agent_name), ('휴대전화', mobile), ('코드', code)) if not v]
     if missing: S.ISSUES.append({'구분': '표지', '담보': '-', '사유': '설계서에서 읽지 못한 표지 항목 : ' + ' · '.join(missing) + ' (빈칸 「-」으로 둠)'})
     return dict(name=name, sex=sex, age=ag, no=no, agent=agent, org=org, agent_name=agent_name, mobile=mobile, tel=tel, code=code)

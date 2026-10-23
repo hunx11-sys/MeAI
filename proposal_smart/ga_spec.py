@@ -152,10 +152,11 @@ ROWS3 = (('최초 지급시', 'first'), ('반복(연 1회)', 'year'), ('수술�
 for rl, md in ROWS3:
     for n, k in SG: add('p2.sg.%s.%s' % (k, md), 2, '암수술', rl, n, 'engine', CS[k], md, sc_name='위암 %s' % n)
 CM = [('화학항암', 'chemo'), ('표적항암', 'target1'), ('면역항암(카티포함)', 'immune1')]   # 「약물」 표기 삭제(GA 2026-10-22)
+# 항암약물치료 표 : 화학 · 표적 · 면역 + 넷째 열 「표적(면역) 개수별」(첫째 줄 2가지약물 · 둘째 줄 3가지약물 — GA 디자인 가안 2026-10-23). 칸 순서 = 지면 그리는 순서
 for rl, md in ROWS3[:2]:
     for n, k in CM: add('p2.cm.%s.%s' % (k, md), 2, '항암약물치료', rl, n, 'engine', CS[k], md, sc_name='위암 %s(약물 1종)' % n)
-add('p2.cm.two',  2, '항암약물치료', '표적(면역) 개수별', '2가지약물', 'engine', CS['two'],  'first', sc_name='위암 표적+면역항암(비급여) 약물 2종 — 보장요약 「표적(면역) 2가지 약물」 칸과 같은 사례')
-add('p2.cm.two3', 2, '항암약물치료', '표적(면역) 개수별', '3가지약물', 'engine', CS['two3'], 'first', sc_name='위암 표적+면역항암(비급여) 약물 3종 — (3종이상)·(2종및3종이상 3종 구분) 담보까지')
+    if md == 'first': add('p2.cm.two',  2, '항암약물치료', '표적(면역) 개수별', '2가지약물', 'engine', CS['two'],  'first', sc_name='위암 표적+면역항암(비급여) 약물 2종 — 보장요약 「표적(면역) 2가지 약물」 칸과 같은 사례')
+    else:             add('p2.cm.two3', 2, '항암약물치료', '표적(면역) 개수별', '3가지약물', 'engine', CS['two3'], 'first', sc_name='위암 표적+면역항암(비급여) 약물 3종 — (3종이상)·(2종및3종이상 3종 구분) 담보까지')
 RD = [('항암방사선', 'rad'), ('세기조절', 'imrt'), ('양성자', 'proton'), ('중입자', 'carbon')]   # 「방사선」 표기는 항암방사선에만(GA 2026-10-22)
 for rl, md in ROWS3[:2]:
     for n, k in RD: add('p2.rd.%s.%s' % (k, md), 2, '항암방사선치료', rl, n, 'engine', CS[k], md, sc_name='위암 %s' % n)
