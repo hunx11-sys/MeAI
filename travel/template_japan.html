@@ -743,7 +743,6 @@ footer a{color:var(--ink-3)}
 .phpill{position:absolute;right:10px;bottom:10px;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;background:rgba(43,35,32,.82);color:#fff;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 6px 16px rgba(43,35,32,.3)}
 .phpill svg{width:17px;height:17px}
 .btn2.photo{background:var(--ink);border-color:var(--ink);color:#fff}
-.btns .trip~.photo{background:var(--surface);border-color:var(--line-2);color:var(--ink)}
 .btn2 svg{width:17px;height:17px;flex:0 0 auto}
 .btn2{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);font-size:14px;font-weight:700;color:var(--ink);text-decoration:none}
 .btn2 svg{width:16px;height:16px;color:var(--rose)}
@@ -2268,16 +2267,13 @@ function metsP(p){
 const svgCam = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 const photoUrl = x => { const g0 = GUIDES[st.city] || {}; const q = `${x.name_ja || x.maps_q || x.name} ${g0.name_ja || g0.name || ''}`.trim(); return `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`; };
 const phPill = x => `<a class="phpill" href="${photoUrl(x)}" target="_blank" rel="noopener">${svgCam}${esc(T('see_photos'))}</a>`;
-/* 숙소 : 트립닷컴에서 그 호텔을 찾아 실제 객실 사진·가격을 본다(사진을 앱에 가져오지 않고 링크만) */
-const tripUrl = h => `https://kr.trip.com/hotels/list?keyword=${encodeURIComponent(h.name_ja || h.maps_q || h.name)}`;
-const tripBtn = h => `<a class="btn2 photo trip" href="${tripUrl(h)}" target="_blank" rel="noopener">${svgCam}${esc(T('trip_see'))}</a>`;
 const photoBtn = x => `<a class="btn2 photo" href="${photoUrl(x)}" target="_blank" rel="noopener">${svgCam}${esc(T('see_photos'))}</a>`;
 function rowDetailP(g, p, isHotel, ii){
   /* 일정에서 펼치면(ii 있음) 볼거리는 예시 사진을 크게 */
   const big = ii != null && !isHotel ? lpSlot(p, 960, true) : '';
   return `<div class="rx">${big ? `<div class="rxph"><span class="art">${spotArt(p)}${big}</span></div>` : ''}${p.name_ja && LANG !== 'ja' ? `<div class="ja">${esc(p.name_ja)}</div>` : ''}${p.desc ? `<p class="clamp">${rich(p.desc)}</p>` : ''}${isHotel ? `${(p.pts || []).length ? `<div class="mets">${p.pts.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<p class="pr">${esc(T('per_room'))} · ${esc(T('per_night'))} <b>${manR(yenK(p.price_krw_night))}</b> ${esc(T('approx'))}</p>` : ''}` : metsP(p)}
     ${p.tip ? `<div class="box tip">${rich(p.tip)}</div>` : ''}${p.kid_tip ? `<div class="box kid"><b>${esc(T('with_kids'))}</b> ${rich(p.kid_tip)}</div>` : ''}
-    <div class="btns">${isHotel ? tripBtn(p) : ''}${photoBtn(p)}<a class="btn2" href="${gmap(p.maps_q || p.name_ja || p.name, [p.lat, p.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a>${ii != null ? `<button class="btn2" data-act="bigmap" data-v="${ii}">${esc(T('map_on'))}</button>` : ''}${isHotel ? `<button class="btn2" data-act="tab" data-v="hotel">${esc(T('hotel_more'))}</button>` : ''}</div></div>`;
+    <div class="btns">${photoBtn(p)}<a class="btn2" href="${gmap(p.maps_q || p.name_ja || p.name, [p.lat, p.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a>${ii != null ? `<button class="btn2" data-act="bigmap" data-v="${ii}">${esc(T('map_on'))}</button>` : ''}${isHotel ? `<button class="btn2" data-act="tab" data-v="hotel">${esc(T('hotel_more'))}</button>` : ''}</div></div>`;
 }
 function rowDetailR(r){
   return `<div class="rx">${r.name_ja && LANG !== 'ja' ? `<div class="ja">${esc(r.name_ja)}</div>` : ''}${r.signature ? `<p><b>${esc(r.signature)}</b></p>` : ''}${r.desc ? `<p class="clamp">${rich(r.desc)}</p>` : ''}
@@ -2398,7 +2394,7 @@ function sheetPlace(id){ const g = GUIDES[st.city], p = findP(g, id); if (!p) re
 function sheetRest(id){ const g = GUIDES[st.city], r = findR(g, id); if (!r) return;
   openSheet(r.name, `<div class="shart">${svgFit(dishArt(r.dish))}${phPill(r)}</div>${rowDetailR(r)}`); }
 function sheetHotel(id){ const g = GUIDES[st.city], h = (g.hotels || []).find(x => x.id === id); if (!h) return;
-  openSheet(h.name, `<div class="shart">${hotelArt(h)}<a class="phpill" href="${tripUrl(h)}" target="_blank" rel="noopener">${svgCam}${esc(T('trip_see'))}</a></div>${rowDetailP(g, h, true, null)}`); }
+  openSheet(h.name, `<div class="shart">${hotelArt(h)}${phPill(h)}</div>${rowDetailP(g, h, true, null)}`); }
 function sheetIntro(){
   const g = GUIDES[st.city], pf = PF(g);
   openSheet(g.name, `${glanceHtml(g)}${htsHtml(g, 6)}${g.intro ? `<p class="intro clamp">${rich(g.intro)}</p><button class="btn2 sm" data-act="unclamp">${esc(T('more'))}</button>` : ''}<div class="tags">${(g.tags || []).map(tagHtml).join('')}</div>`);
