@@ -1708,6 +1708,9 @@ html:has(.dtabs){scroll-padding-top:calc(164px + env(safe-area-inset-top,0px))}
 .lp .lptag span{padding:5px 10px;border-radius:999px;background:rgba(43,35,32,.62);color:#fff;font-size:12px;font-weight:700;line-height:1.3}
 .th,.gcard .art,.shart,.dcover .art{position:relative}
 .gcard .art .inp{z-index:2}
+.rxph{margin:2px 0 12px}
+.rxph .art{position:relative;display:block;aspect-ratio:16/10;border-radius:18px;overflow:hidden;line-height:0;background:var(--fill)}
+.rxph .art>svg{width:100%;height:100%}
 .hero .bg .lp .lpimg.on,.dcover .lp .lpimg.on{animation:kenB 18s cubic-bezier(.45,0,.55,1) 1.2s infinite alternate}
 @keyframes kenB{from{transform:scale(1)}to{transform:scale(1.08) translate3d(-1.5%,-1%,0)}}
 .hero .bg .lp{z-index:0}
@@ -2933,7 +2936,9 @@ const photoUrl = x => { const g0 = GUIDES[st.city] || {}; const q = `${x.name_ja
 const phPill = x => `<a class="phpill" href="${photoUrl(x)}" target="_blank" rel="noopener">${svgCam}${esc(T('see_photos'))}</a>`;
 const photoBtn = x => `<a class="btn2 photo" href="${photoUrl(x)}" target="_blank" rel="noopener">${svgCam}${esc(T('see_photos'))}</a>`;
 function rowDetailP(g, p, isHotel, ii){
-  return `<div class="rx">${p.name_ja && LANG !== 'ja' ? `<div class="ja">${esc(p.name_ja)}</div>` : ''}${p.desc ? `<p class="clamp">${rich(p.desc)}</p>` : ''}${isHotel ? `${(p.pts || []).length ? `<div class="mets">${p.pts.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<p class="pr">${esc(T('per_room'))} · ${esc(T('per_night'))} <b>${manR(yenK(p.price_krw_night))}</b> ${esc(T('approx'))}</p>` : ''}` : metsP(p)}
+  /* 일정에서 펼치면(ii 있음) 볼거리는 예시 사진을 크게 */
+  const big = ii != null && !isHotel ? lpSlot(p, 960, true) : '';
+  return `<div class="rx">${big ? `<div class="rxph"><span class="art">${spotArt(p)}${big}</span></div>` : ''}${p.name_ja && LANG !== 'ja' ? `<div class="ja">${esc(p.name_ja)}</div>` : ''}${p.desc ? `<p class="clamp">${rich(p.desc)}</p>` : ''}${isHotel ? `${(p.pts || []).length ? `<div class="mets">${p.pts.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}${p.price_krw_night && p.price_krw_night[1] ? `<p class="pr">${esc(T('per_room'))} · ${esc(T('per_night'))} <b>${manR(yenK(p.price_krw_night))}</b> ${esc(T('approx'))}</p>` : ''}` : metsP(p)}
     ${p.tip ? `<div class="box tip">${rich(p.tip)}</div>` : ''}${p.kid_tip ? `<div class="box kid"><b>${esc(T('with_kids'))}</b> ${rich(p.kid_tip)}</div>` : ''}
     <div class="btns">${photoBtn(p)}<a class="btn2" href="${gmap(p.maps_q || p.name_ja || p.name, [p.lat, p.lng])}" target="_blank" rel="noopener">${svgPin}${esc(T('open_gmap'))}</a>${ii != null ? `<button class="btn2" data-act="bigmap" data-v="${ii}">${esc(T('map_on'))}</button>` : ''}${isHotel ? `<button class="btn2" data-act="tab" data-v="hotel">${esc(T('hotel_more'))}</button>` : ''}</div></div>`;
 }
