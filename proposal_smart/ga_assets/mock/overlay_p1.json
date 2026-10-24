@@ -1,0 +1,843 @@
+{
+ "page": "p1",
+ "size": [
+  1414,
+  2000
+ ],
+ "fields": {
+  "p1.ca.dx.일반암": {
+   "box": [
+    158,
+    520,
+    350,
+    575
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.sg.endo": {
+   "box": [
+    440,
+    520,
+    660,
+    575
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.cm.chemo": {
+   "box": [
+    772,
+    520,
+    988,
+    575
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.rd.rad": {
+   "box": [
+    1120,
+    520,
+    1319,
+    575
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.dx.유사암": {
+   "box": [
+    158,
+    581,
+    350,
+    636
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.sg.open": {
+   "box": [
+    471,
+    581,
+    660,
+    636
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.cm.target1": {
+   "box": [
+    772,
+    581,
+    988,
+    636
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.rd.imrt": {
+   "box": [
+    1100,
+    581,
+    1319,
+    636
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.dx.전이암": {
+   "box": [
+    158,
+    642,
+    350,
+    696
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111",
+   "na_color": "#CCCCCC"
+  },
+  "p1.ca.sg.lap": {
+   "box": [
+    510,
+    642,
+    660,
+    696
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.cm.immune1": {
+   "box": [
+    772,
+    642,
+    988,
+    696
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.rd.proton": {
+   "box": [
+    1081,
+    642,
+    1319,
+    696
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.sg.robot": {
+   "box": [
+    482,
+    702,
+    660,
+    756
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.cm.two": {
+   "box": [
+    786,
+    702,
+    988,
+    756
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.ca.rd.carbon": {
+   "box": [
+    1081,
+    702,
+    1319,
+    756
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.dx.뇌졸중": {
+   "box": [
+    158,
+    927,
+    350,
+    982
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txb.혈전용해": {
+   "box": [
+    460,
+    927,
+    660,
+    982
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txh.혈전용해": {
+   "box": [
+    770,
+    927,
+    988,
+    982
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.sev.icu": {
+   "box": [
+    1100,
+    927,
+    1319,
+    982
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.dx.뇌혈관": {
+   "box": [
+    158,
+    988,
+    350,
+    1043
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txb.혈전제거": {
+   "box": [
+    460,
+    988,
+    660,
+    1043
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txh.혈전제거": {
+   "box": [
+    769,
+    988,
+    988,
+    1043
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.sev.ecmo": {
+   "box": [
+    1141,
+    988,
+    1319,
+    1043
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.dx.급성심근경색": {
+   "box": [
+    216,
+    1049,
+    350,
+    1103
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111",
+   "na_color": "#CCCCCC"
+  },
+  "p1.bh.txb.혈전용해+혈전제거": {
+   "box": [
+    516,
+    1049,
+    660,
+    1103
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txh.혈전용해+혈전제거": {
+   "box": [
+    825,
+    1049,
+    988,
+    1103
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.sev.crrt": {
+   "box": [
+    1157,
+    1049,
+    1319,
+    1103
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.dx.허혈성심장": {
+   "box": [
+    198,
+    1109,
+    350,
+    1163
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txb.코일색전술": {
+   "box": [
+    482,
+    1109,
+    660,
+    1163
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txh.스텐트삽입술": {
+   "box": [
+    811,
+    1109,
+    988,
+    1163
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.sev.vent": {
+   "box": [
+    1119,
+    1109,
+    1319,
+    1163
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txb.개두수술": {
+   "box": [
+    462,
+    1169,
+    660,
+    1223
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.txh.개흉수술": {
+   "box": [
+    771,
+    1169,
+    988,
+    1223
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.bh.sev.hypo": {
+   "box": [
+    1119,
+    1169,
+    1319,
+    1223
+   ],
+   "align": "right",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.백내장": {
+   "box": [
+    132,
+    1404,
+    233,
+    1489
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.디스크": {
+   "box": [
+    266,
+    1404,
+    444,
+    1489
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.무릎관절질환": {
+   "box": [
+    457,
+    1404,
+    629,
+    1489
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.담석증": {
+   "box": [
+    646,
+    1404,
+    812,
+    1489
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.맹장염": {
+   "box": [
+    83,
+    1563,
+    260,
+    1648
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.갑상선결절": {
+   "box": [
+    266,
+    1563,
+    444,
+    1648
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.유방양성종양": {
+   "box": [
+    457,
+    1563,
+    629,
+    1648
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.자궁근종": {
+   "box": [
+    646,
+    1563,
+    812,
+    1648
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.전립선비대증": {
+   "box": [
+    457,
+    1723,
+    629,
+    1808
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.치질": {
+   "box": [
+    83,
+    1723,
+    260,
+    1808
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.요로결석": {
+   "box": [
+    266,
+    1723,
+    444,
+    1808
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.dz.골절진단": {
+   "box": [
+    646,
+    1723,
+    812,
+    1808
+   ],
+   "align": "center",
+   "font_px": 32,
+   "weight": 700,
+   "color": "#111111",
+   "unit_font_px": 25,
+   "unit_color": "#111111"
+  },
+  "p1.care.hosp": {
+   "box": [
+    1070,
+    1406,
+    1332,
+    1445
+   ],
+   "align": "right",
+   "font_px": 27,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 26,
+   "unit_color": "#111111"
+  },
+  "p1.care.nh": {
+   "box": [
+    1070,
+    1454,
+    1332,
+    1493
+   ],
+   "align": "right",
+   "font_px": 27,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 26,
+   "unit_color": "#111111"
+  },
+  "p1.care.nurse": {
+   "box": [
+    1070,
+    1501,
+    1332,
+    1541
+   ],
+   "align": "right",
+   "font_px": 27,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 26,
+   "unit_color": "#111111",
+   "na_color": "#CCCCCC"
+  },
+  "p1.care.unused": {
+   "box": [
+    1070,
+    1549,
+    1332,
+    1591
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#111111",
+   "unit_font_px": 26,
+   "unit_color": "#111111"
+  },
+  "p1.care.use_gen": {
+   "box": [
+    1070,
+    1671,
+    1332,
+    1711
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#111111",
+   "unit_font_px": 26,
+   "unit_color": "#111111",
+   "na_color": "#CCCCCC"
+  },
+  "p1.care.use_nh": {
+   "box": [
+    1070,
+    1719,
+    1332,
+    1759
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#111111",
+   "unit_font_px": 26,
+   "unit_color": "#111111",
+   "na_color": "#CCCCCC"
+  },
+  "p1.care.use_nurse": {
+   "box": [
+    1070,
+    1767,
+    1332,
+    1806
+   ],
+   "align": "right",
+   "font_px": 26,
+   "weight": 500,
+   "color": "#111111",
+   "unit_font_px": 26,
+   "unit_color": "#111111",
+   "na_color": "#CCCCCC"
+  },
+  "hdr.dno": {
+   "box": [
+    880,
+    162,
+    1331,
+    194
+   ],
+   "align": "right",
+   "font_px": 19,
+   "weight": 500,
+   "color": "#222222"
+  },
+  "hdr.product": {
+   "box": [
+    344,
+    207,
+    1326,
+    274
+   ],
+   "align": "left",
+   "font_px": 30,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "hdr.insured": {
+   "box": [
+    344,
+    281,
+    686,
+    349
+   ],
+   "align": "left",
+   "font_px": 30,
+   "weight": 500,
+   "color": "#111111"
+  },
+  "hdr.premium": {
+   "box": [
+    952,
+    281,
+    1326,
+    349
+   ],
+   "align": "left",
+   "font_px": 40,
+   "weight": 700,
+   "color": "#EE3823",
+   "unit_font_px": 27,
+   "unit_color": "#111111"
+  },
+  "ft.org": {
+   "box": [
+    895,
+    1864,
+    1008,
+    1904
+   ],
+   "align": "left",
+   "font_px": 20,
+   "weight": 700,
+   "color": "#111111"
+  },
+  "ft.code": {
+   "box": [
+    1085,
+    1864,
+    1204,
+    1904
+   ],
+   "align": "left",
+   "font_px": 20,
+   "weight": 700,
+   "color": "#111111"
+  },
+  "ft.consultant": {
+   "box": [
+    1282,
+    1864,
+    1332,
+    1904
+   ],
+   "align": "left",
+   "font_px": 20,
+   "weight": 700,
+   "color": "#111111"
+  }
+ }
+}

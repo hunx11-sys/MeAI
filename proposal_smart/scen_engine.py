@@ -124,6 +124,9 @@ def nname(n):
 # ══ 통합치료비 식별 (v8.3 : 약관 지급금액표 RIDERS 에서 자동 생성 + 보조 별칭) ═══════════
 ITC_MAP = {r['nm']: r['id'] for r in itc.RIDERS}
 ITC_MAP.update({'암 통합치료비(주요치료)(비급여(전액본인부담 포함))': 'ca_ncm'})
+# 특정순환계질환 통합치료비Ⅱ(2026-10-31 개정안 별첨7 §5) — 통합치료항목·연간 지급횟수·금액표가 기존 특정순환계질환 통합치료비(CV)와 같다(개정안 v6.0 대조 2026-10-23 · 정식 약관으로 재확인).
+# 세부보장 ①「특정순환계질환 통합치료비(통합간편가입)」은 고지 꼬리표가 떨어져 그대로 circ 에 맞고, 부모 「…Ⅱ」 는 별칭으로 잇는다. ②③ 「(연간 주요치료Ⅱ N회이상)」 은 규칙 tx_life_circ2.
+ITC_MAP.update({'특정순환계질환 통합치료비Ⅱ': 'circ'})
 _ITC_NORM = {nname(k): v for k, v in ITC_MAP.items()}
 def noren(n):
     """설계서의 '갱신형' 접두어를 뗀 이름 — 약관 지급금액표는 갱신 여부를 구분하지 않는다(v8.20)"""
@@ -588,6 +591,9 @@ def kcd_ok(mode, r, sc, nm, o=None):
     if mode == 'major_or_sim': return bool(itc.cancer_cls(kcd))
     # 암(유사암제외)·기타피부암·갑상선암 — 세기조절·양성자·중입자·표적·면역·암재활 약관의 대상(제자리암 D00~D09·경계성종양 D37~D48 은 아님)(v8.63)
     if mode == 'major_thy_skin': return itc.cancer_cls(kcd) in ('major', 'thy', 'skin')
+    if mode == 'by_name_cancer':                            # 세부보장명이 대상 암을 정하는 담보(항암방사선·약물치료비Ⅱ · 2026-10-31 개정안) : 기타피부암 → skin · 갑상선암 → thy · 그 밖(암(유사암제외)) → major
+        want = 'skin' if '기타피부암' in nm else ('thy' if '갑상선암' in nm else 'major')
+        return itc.cancer_cls(kcd) == want
     if mode == 'g131':
         # 세부보장 레코드(마스터 [○○] 자식 · 설계서가 (○○) 괄호로 적어 그 자식에 매칭된 담보)에 약관 KCD 목록이 있으면 그 목록이 우선(v8.62).
         # 전에는 라벨이 있으면 그룹표(g131.json · 소유자 정리 엑셀의 '다빈도64대' 통합표)로 판정해, 케어프리 131대(다빈도62대)·통합간편 130대(다빈도61대)
@@ -806,6 +812,8 @@ def h_tx(r, o, sc, nm, t):
         n = (1 if 'thromb' in _acts(sc, True) else 0)                                                       # 혈전용해치료 연간 1회한
         n += sum(1 for e in ev if len(e) > 3 and 'surg' in e[3]) or (1 if tg.get('surg') else 0)             # 수술 1회당
         n += 1 if (tg.get('icu') or 0) >= 4 and hosp_ok('종합', tg.get('hosp')) else 0                       # 종합병원 중환자실 4일이상 연간 1회한
+        if o['circ_cnt'] == 'II':                       # 특정순환계질환 통합치료비Ⅱ(연간 주요치료Ⅱ N회이상) — 주요치료Ⅱ 7항목 : 위 셋 + CRRT · 인공호흡기(12시간초과) · 저체온요법 · 부분체외순환(각 연간 1회) (개정안 2026-10-31 별첨7 §5)
+            n += sum(1 for k in ('crrt', 'vent', 'hypo', 'ecmo') if k in _acts(sc, True))
         if n < int(m.group(1)): return []
     nd = o.get('need_drug')
     m2 = re.search(r'[\[(](\d)종(?:및\d종)?이상', nm)                       # [1종이상]·(2종및3종이상) 담보명 표기 우선
