@@ -1,0 +1,21 @@
+const { chromium, devices } = require('/opt/node22/lib/node_modules/playwright');
+const path = require('path');
+const [,, html] = process.argv;
+(async () => {
+  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+  const p = await (await b.newContext({ ...devices['iPhone 13'] })).newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.goto('file://' + path.resolve(html) + '#home'); await p.waitForTimeout(800);
+  const R = {};
+  await p.click('.cta[data-act="start"]'); await p.waitForTimeout(900);
+  R.startTop = await p.evaluate(() => [Math.round(document.getElementById('start').getBoundingClientRect().top), Math.round(document.querySelector('.topbar').getBoundingClientRect().bottom), scrollY]);
+  const t = await p.$('.tile[data-v="온천"]'); await t.scrollIntoViewIfNeeded(); await p.waitForTimeout(700);
+  R.tileN = await p.$eval('.tile[data-v="온천"] i', e => e.textContent);
+  await t.click(); await p.waitForTimeout(700);
+  R.hash = await p.evaluate(() => location.hash);
+  R.pressed = await p.$$eval('[aria-pressed="true"]', es => es.map(e => e.textContent.trim()));
+  R.cards = await p.$$eval('.ccard', es => es.length);
+  await p.goBack(); await p.waitForTimeout(600); R.back = await p.evaluate(() => [location.hash, scrollY]);
+  await p.click('.mchip >> nth=2', { force: true }); await p.waitForTimeout(700); R.chip = await p.evaluate(() => location.hash);
+  console.log(JSON.stringify({ R, errs }));
+  await b.close();
+})();
