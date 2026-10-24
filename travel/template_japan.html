@@ -1827,51 +1827,75 @@ function spreadSame(list, key){
 }
 /* 이름 줄바꿈 : '·' 는 앞말에 붙이고, 끝의 한 글자 낱말은 앞 낱말과 함께 넘긴다 */
 const nmHtml = t => esc(t).replace(/\s*·\s*/g, '\u2060·\u200B').replace(/ (\S)$/, '\u00A0$1');
-/* ── 예시 사진(위키미디어 공용) ──
-   보는 사람의 기기가 장소 좌표 근처에서 찍힌 '사용 허가가 분명한' 사진(CC0·퍼블릭 도메인·CC BY·CC BY-SA, JPG 가로 사진)을 찾아
-   그림 위에 겹친다. 못 찾거나 인터넷이 없으면 그림 그대로. 사진마다 '예시 사진'과 촬영자·허가 표시. 찾은 결과는 이 기기에 7일 저장.
+/* ── 예시 사진(위키백과·위키미디어 공용) ──
+   1순위 : 장소 일본어 이름으로 일본어 위키백과 문서를 찾아, 그 문서의 대표 사진(자유 이용 사진만)을 쓴다.
+           문서 좌표가 장소에서 5km 넘게 떨어져 있으면 같은 이름의 다른 곳이라 쓰지 않는다. 동음이의 문서도 쓰지 않는다.
+   2순위 : 장소 근처에서 찍힌 공용 사진 중 파일 이름에 장소 이름이 들어 있는 것만 쓴다(근처의 엉뚱한 사진을 막기 위해).
+   둘 다 없으면 그림 그대로. 사용 허가가 분명한 사진(CC0·퍼블릭 도메인·CC BY·CC BY-SA, JPG)만, 촬영자·허가 표시. 찾은 결과는 이 기기에 7일 저장.
    식당·숙소는 근처 사진이 다른 가게일 수 있어 쓰지 않는다(대신 '실제 사진 보기' 단추). */
 const LP = { mem: {}, wait: {}, q: [], busy: 0, fails: 0, down: false, io: null };
-const LP_BAD = /(map|karte|logo|sign|plan\b|diagram|chart|ticket|menu|timetable|flag|emblem|coat.of.arms|stamp|poster|\bbus\b|train|地図|看板|案内|路線|時刻|切符)/i;
+const LP_BAD = /(map|karte|logo|sign|plan\b|diagram|chart|ticket|menu|timetable|flag|emblem|coat.of.arms|stamp|poster|\bbus\b|train|地図|看板|案内|路線|時刻|切符|紋)/i;
 const LP_WIDE = ['nature', 'park', 'view', 'sea', 'lookout', 'forest', 'onsen'];
 const lpTxt = h => String(h || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
 const lpSize = (u, w) => String(u || '').replace(/\/(\d+)px-([^/]+)$/, `/${w}px-$2`);
-function lpOk(pg){
+const lpDist = (a, b, c, d) => { const r = Math.PI / 180, x = (d - b) * r * Math.cos((a + c) / 2 * r), y = (c - a) * r; return Math.sqrt(x * x + y * y) * 6371e3; };
+const lpNorm = t => String(t || '').replace(/^File:/i, '').replace(/\.[a-z]+$/i, '').replace(/[\s_・･·\-()（）「」]/g, '').toLowerCase();
+function lpOk(pg, lead){
   const ii = (pg.imageinfo || [])[0]; if (!ii) return null; const m = ii.extmetadata || {}, lic = lpTxt((m.LicenseShortName || {}).value);
-  if (ii.mime !== 'image/jpeg' || ii.width < 900 || ii.width < ii.height * 1.15 || LP_BAD.test(pg.title || '')) return null;
+  /* 대표 사진은 세로도 받아 준다(칸에 맞춰 가운데를 자름). 근처 사진은 가로만 */
+  if (ii.mime !== 'image/jpeg' || ii.width < (lead ? 640 : 900) || ii.width < ii.height * (lead ? 0.75 : 1.15) || LP_BAD.test(pg.title || '')) return null;
   if (!/^(cc0|public domain|pd\b|cc[ -]by(-sa)?\b)/i.test(lic) || /\b(nc|nd)\b/i.test(lic)) return null;
   return { src: ii.thumburl || ii.url, page: ii.descriptionurl || '', lic, by: lpTxt((m.Artist || {}).value) || '?' };
 }
-async function lpFind(lat, lng, r){
-  const u = `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=geosearch&ggscoord=${lat}%7C${lng}&ggsradius=${r}&ggslimit=30&ggsnamespace=6&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=960&iiextmetadatafilter=LicenseShortName%7CArtist`;
-  const res = await fetch(u); if (!res.ok) throw new Error('http');
-  const j = await res.json(); const pages = Object.values((j.query || {}).pages || {}).sort((a, b) => (a.index || 0) - (b.index || 0));
-  for (const pg of pages){ const x = lpOk(pg); if (x) return x; }
+const LP_II = 'prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=960&iiextmetadatafilter=LicenseShortName%7CArtist';
+async function lpJson(u){ const res = await fetch(u); if (!res.ok) throw new Error('http'); return res.json(); }
+/* '伏見稲荷大社・千本鳥居' · '金閣寺（鹿苑寺）' 처럼 이름이 여럿이면 통째로, 괄호를 뺀 이름, 그다음 앞 이름부터 차례로 찾는다 */
+const lpNames = nj => [nj, String(nj || '').replace(/[（(][^）)]*[）)]/g, ''), ...String(nj || '').split(/[・、（）()\s]/)].map(x => String(x || '').trim()).filter((x, i, a) => x.length >= 2 && a.indexOf(x) === i).slice(0, 5);
+async function lpWiki(lat, lng, nj){
+  const ns = lpNames(nj); if (!ns.length) return null;
+  const j = await lpJson(`https://ja.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&titles=${encodeURIComponent(ns.join('|'))}&prop=pageprops%7Ccoordinates&ppprop=page_image_free%7Cdisambiguation`);
+  const q = j.query || {}, to = t => { for (const m of [...(q.normalized || []), ...(q.redirects || [])]) if (m.from === t) t = m.to; return t; };
+  const byT = {}; Object.values(q.pages || {}).forEach(pg => { byT[pg.title] = pg; });
+  for (const n of ns){
+    const pg = byT[to(n)]; if (!pg || pg.missing != null) continue;
+    const pp = pg.pageprops || {}, co = (pg.coordinates || [])[0];
+    if (pp.disambiguation != null || !pp.page_image_free || !co || lpDist(+lat, +lng, co.lat, co.lon) > 5000) continue;
+    const k = await lpJson(`https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&titles=${encodeURIComponent('File:' + pp.page_image_free)}&${LP_II}`);
+    const f = Object.values((k.query || {}).pages || {})[0], x = f && lpOk(f, true); if (x) return x;
+  }
   return null;
 }
-function lpGet(lat, lng, cat){
-  const k = `${(+lat).toFixed(4)},${(+lng).toFixed(4)}`;
+async function lpNear(lat, lng, r, nj){
+  const keys = lpNames(nj).map(lpNorm).filter((x, i, a) => x.length >= 3 && a.indexOf(x) === i); if (!keys.length) return null;
+  const j = await lpJson(`https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=geosearch&ggscoord=${lat}%7C${lng}&ggsradius=${r}&ggslimit=50&ggsnamespace=6&${LP_II}`);
+  const pages = Object.values((j.query || {}).pages || {}).sort((a, b) => (a.index || 0) - (b.index || 0));
+  for (const pg of pages){ const t = lpNorm(pg.title); if (!keys.some(x => t.includes(x))) continue; const x = lpOk(pg, false); if (x) return x; }
+  return null;
+}
+async function lpFind(lat, lng, r, nj){ return (nj && await lpWiki(lat, lng, nj)) || await lpNear(lat, lng, r, nj); }
+function lpGet(lat, lng, cat, nj){
+  const k = `${(+lat).toFixed(4)},${(+lng).toFixed(4)},${nj || ''}`;
   if (k in LP.mem) return Promise.resolve(LP.mem[k]);
-  try { const c = JSON.parse(localStorage.getItem('jp_lp:' + k) || 'null'); if (c && Date.now() - c.t < 7 * 864e5){ LP.mem[k] = c.v; return Promise.resolve(c.v); } } catch(e){}
+  try { const c = JSON.parse(localStorage.getItem('jp_lp2:' + k) || 'null'); if (c && Date.now() - c.t < 7 * 864e5){ LP.mem[k] = c.v; return Promise.resolve(c.v); } } catch(e){}
   if (LP.down) return Promise.resolve(null);
   if (LP.wait[k]) return LP.wait[k];
-  return LP.wait[k] = new Promise(done => { LP.q.push({ k, lat, lng, r: LP_WIDE.includes(cat) ? 600 : 250, done }); lpPump(); });
+  return LP.wait[k] = new Promise(done => { LP.q.push({ k, lat, lng, nj, r: LP_WIDE.includes(cat) ? 600 : 250, done }); lpPump(); });
 }
 function lpPump(){
   while (LP.busy < 2 && LP.q.length){
     const t = LP.q.shift(); LP.busy++;
-    lpFind(t.lat, t.lng, t.r).then(v => { LP.fails = 0; LP.mem[t.k] = v; try { localStorage.setItem('jp_lp:' + t.k, JSON.stringify({ v, t: Date.now() })); } catch(e){} t.done(v); })
+    lpFind(t.lat, t.lng, t.r, t.nj).then(v => { LP.fails = 0; LP.mem[t.k] = v; try { localStorage.setItem('jp_lp2:' + t.k, JSON.stringify({ v, t: Date.now() })); } catch(e){} t.done(v); })
       .catch(() => { if (++LP.fails >= 3){ LP.down = true; LP.q.splice(0).forEach(x => x.done(null)); } t.done(null); })
       .finally(() => { LP.busy--; delete LP.wait[t.k]; lpPump(); });
   }
 }
-/* 사진 자리 표시 : 그림 칸 안에 <i class="lp" data-lp="위도,경도,종류,크기,큰사진"> 를 넣어 두면 화면에 보일 때 채운다 */
-const lpSlot = (p, w, big) => p && p.lat && p.lng && !['airport', 'station'].includes(p.cat) ? `<i class="lp" data-lp="${(+p.lat).toFixed(5)},${(+p.lng).toFixed(5)},${esc(p.cat || '')},${w || 500},${big ? 1 : 0}" aria-hidden="true"></i>` : '';
+/* 사진 자리 표시 : 그림 칸 안에 <i class="lp" data-lp="위도,경도,종류,크기,큰사진,일본어이름"> 를 넣어 두면 화면에 보일 때 채운다 */
+const lpSlot = (p, w, big) => p && p.lat && p.lng && !['airport', 'station'].includes(p.cat) ? `<i class="lp" data-lp="${(+p.lat).toFixed(5)},${(+p.lng).toFixed(5)},${esc(p.cat || '')},${w || 500},${big ? 1 : 0},${esc(encodeURIComponent(p.name_ja || ''))}" aria-hidden="true"></i>` : '';
 function lpScan(){
   if (LP.io){ try { LP.io.disconnect(); } catch(e){} LP.io = null; }
   const els = document.querySelectorAll('.lp[data-lp]:not(.done)'); if (!els.length || LP.down) return;
-  const fill = el => { el.classList.add('done'); const [la, lo, cat, w, big] = el.dataset.lp.split(',');
-    lpGet(la, lo, cat).then(v => { if (!v || !el.isConnected) return; const box = el.parentElement;
+  const fill = el => { el.classList.add('done'); const [la, lo, cat, w, big, nj] = el.dataset.lp.split(',');
+    lpGet(la, lo, cat, decodeURIComponent(nj || '')).then(v => { if (!v || !el.isConnected) return; const box = el.parentElement;
       const im = new Image(); im.alt = ''; im.decoding = 'async'; im.referrerPolicy = 'no-referrer'; im.className = 'lpimg';
       im.onload = () => { if (!el.isConnected) return; box.classList.add('haslp'); el.appendChild(im); requestAnimationFrame(() => im.classList.add('on'));
         if (big === '1') el.insertAdjacentHTML('beforeend', `<button class="lptag" data-act="credit" data-v="${esc(T('lp_cr', { by: v.by, lic: v.lic }))}" aria-label="${esc(T('photo_src'))}"><span>${esc(T('lp_tag'))} ⓘ</span></button>`); };
