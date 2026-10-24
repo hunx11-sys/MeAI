@@ -1256,7 +1256,7 @@ const S = {
 };
 const st = {
   origin: S.get('origin', 'ICN'), originSet: !!S.get('originSet', false), nights: S.get('nights', 0),
-  picks: S.get('picks', {}), checks: S.get('checks', {}), last: S.get('last', null), mapMode: S.get('mapMode', 'route') === 'google' ? 'google' : 'route',
+  picks: S.get('picks', {}), checks: S.get('checks', {}), last: S.get('last', null), mapMode: S.get('mapMode2', 'google') === 'route' ? 'route' : 'google',
   scr: 'home', region: '', city: null, n: 0, v: 0, d: 0, t: 'plan', open: -1, sel: -1,
   ff: '', sf: '', atag: '', pinSel: '', q: '', smax: 0, tabPush: -1, backBtn: false, pendingRegion: '',
   fx: Math.min(1500, Math.max(500, Number(S.get('fx', FX_DEFAULT)) || FX_DEFAULT))
@@ -2432,7 +2432,7 @@ function sheetBigMap(focusI){
   const legs = []; for (let a = 0; a < v.length - 1; a += 4) legs.push(v.slice(a, Math.min(a + 5, v.length)));
   const gbtns = legs.map(L0 => `<a class="gdir" href="${gdir(L0[0].p, L0[L0.length - 1].p, L0.slice(1, -1).map(x => x.p))}" target="_blank" rel="noopener">${svgPin}<span>${esc(legs.length > 1 ? T('map_gdir_n', { a: L0[0].k + 1, b: L0[L0.length - 1].k + 1 }) : T('map_gdir'))}</span></a>`).join('');
   const mode = st.mapMode;
-  const tog = `<div class="mapmode" role="group" aria-label="${esc(T('map_mode'))}"><button type="button" data-act="mapmode" data-v="route" aria-pressed="${mode === 'route'}">${esc(T('map_route'))}</button><button type="button" data-act="mapmode" data-v="google" aria-pressed="${mode === 'google'}">${esc(T('map_google'))}</button></div>`;
+  const tog = `<div class="mapmode" role="group" aria-label="${esc(T('map_mode'))}"><button type="button" data-act="mapmode" data-v="google" aria-pressed="${mode === 'google'}">${esc(T('map_google'))}</button><button type="button" data-act="mapmode" data-v="route" aria-pressed="${mode === 'route'}">${esc(T('map_route'))}</button></div>`;
   openSheet(T('map_day', { n: st.d + 1 }), `${tog}<div class="bmap" id="daymap"><div class="lmap" id="lmap"></div></div><p class="mapnote" id="mapnote">${esc(T(mode === 'google' ? 'map_gnote' : 'map_rnote'))}</p><div class="mapcs" id="mapcs">${cards}</div>${gbtns ? `<div class="gdirs">${gbtns}</div>` : ''}`, () => {
     const sh = document.getElementById('sheet'); let done = false;
     st.sel = focusI != null ? focusI : -1;
@@ -2694,14 +2694,18 @@ document.addEventListener('click', e => {
     case 'variant': swap(cityRoute({ v: Number(v), d: 0 }), { keep: true }); return;
     case 'day': { st.open = -1; swap(cityRoute({ d: Number(v) }), { keep: true, quiet: true }); const a = document.getElementById('dt-anchor'), tb = document.querySelector('.topbar'); if (a){ const top = a.getBoundingClientRect().top + window.scrollY - (tb ? tb.getBoundingClientRect().bottom : 0); if (window.scrollY > top + 1) window.scrollTo(0, top); } reveal(RV_KEEP); } return;
     case 'row': { if (e.target.closest('.cand')) return; const i = Number(v); const g = GUIDES[st.city], plan = curPlan(g); st.open = st.open === i ? -1 : i;
-      const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, plan); lpScan(); window.scrollTo(0, y); return; }
+      const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, plan); lpScan(); window.scrollTo(0, y);
+      /* 펼친 장소는 위 막대·일차 탭 바로 아래로 올려 이름부터 보이게 */
+      if (st.open === i){ const row = document.getElementById('row-' + i), bar = document.querySelector('.dtabs') || document.querySelector('.topbar');
+        if (row){ const top = row.getBoundingClientRect().top - (bar ? bar.getBoundingClientRect().bottom + 8 : 80); if (Math.abs(top) > 4) window.scrollTo({ top: window.scrollY + top, behavior: CALM ? 'instant' : 'smooth' }); } }
+      return; }
     case 'meal': sheetMeal(Number(v)); return;
     case 'pick': { const at = v.lastIndexOf('|'); st.picks[v.slice(0, at)] = v.slice(at + 1); S.set('picks', st.picks); SH.after = () => { const g = GUIDES[st.city]; const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, curPlan(g)); window.scrollTo(0, y); }; setTimeout(() => closeSheet(), REDUCED ? 0 : 180); el.closest('.mcards') && el.closest('.mcards').querySelectorAll('.mcard').forEach(c => c.classList.toggle('on', c.contains(el))); return; }
     case 'mv': el.classList.toggle('open'); return;
     case 'notice': el.classList.toggle('open'); return;
     case 'bigmap': { let fi = null; if (v){ const g = GUIDES[st.city], plan = curPlan(g); const pts = dayPts(g, plan, st.d); fi = pts.findIndex(p => p && p.i === Number(v)); if (fi < 0) fi = null; } sheetBigMap(fi); return; }
     case 'mapc': if (e.target.closest('a')) return; focusStop(Number(v), false); return;
-    case 'mapmode': { if (v !== 'route' && v !== 'google') return; st.mapMode = v; S.set('mapMode', v);
+    case 'mapmode': { if (v !== 'route' && v !== 'google') return; st.mapMode = v; S.set('mapMode2', v);
       document.querySelectorAll('.mapmode button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
       const nt = document.getElementById('mapnote'); if (nt) nt.textContent = T(v === 'google' ? 'map_gnote' : 'map_rnote');
       mountMode(); if (st.sel >= 0) focusStop(st.sel, true); } return;
