@@ -1038,6 +1038,28 @@ html:has(.dtabs){scroll-padding-top:calc(164px + env(safe-area-inset-top,0px))}
 #kbar .go{flex:0 0 auto;display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;background:var(--rose);color:#fff;font-weight:800;text-decoration:none}
 #kbar button{flex:0 0 auto;width:44px;height:44px;color:rgba(255,255,255,.8);font-size:16px}
 
+/* ── 예시 사진 : 그림 위에 겹쳐 부드럽게 떠오름 · 큰 사진은 아주 천천히 확대 ── */
+.lp{position:absolute;inset:0;z-index:1;display:block;line-height:0;pointer-events:none;overflow:hidden;border-radius:inherit}
+.lp .lpimg{width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06);transition:opacity .9s var(--glide),transform 1.4s var(--spring)}
+.lp .lpimg.on{opacity:1;transform:none}
+.lp .lptag{pointer-events:auto;position:absolute;right:4px;top:4px;min-height:44px;padding:0 6px;display:flex;align-items:center;line-height:1}
+.lp .lptag span{padding:5px 10px;border-radius:999px;background:rgba(43,35,32,.62);color:#fff;font-size:12px;font-weight:700;line-height:1.3}
+.th,.gcard .art,.shart,.dcover .art{position:relative}
+.gcard .art .inp{z-index:2}
+.hero .bg .lp .lpimg.on,.dcover .lp .lpimg.on{animation:kenB 18s cubic-bezier(.45,0,.55,1) 1.2s infinite alternate}
+@keyframes kenB{from{transform:scale(1)}to{transform:scale(1.08) translate3d(-1.5%,-1%,0)}}
+.hero .bg .lp{z-index:0}
+.hero .bg.haslp::after{background:linear-gradient(180deg,rgba(43,35,32,.18) 0%,rgba(43,35,32,0) 40%,rgba(255,252,250,.5) 100%)}
+.hero .bg .lp .lptag{top:72px}
+.dcover{position:relative;display:block;width:calc(100% - 32px);margin:14px 16px 0;border-radius:22px;overflow:hidden;text-align:left;box-shadow:var(--amb-s)}
+.dcover .art{display:block;aspect-ratio:2/1;line-height:0;background:var(--fill)}
+.dcover .art>svg{width:100%;height:100%}
+
+.dcover .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:28px 16px 12px;background:linear-gradient(180deg,rgba(43,35,32,0),rgba(43,35,32,.7));color:#fff;display:flex;flex-direction:column;pointer-events:none}
+.dcover .cap small{font-size:12px;font-weight:700;opacity:.85}
+.dcover .cap b{font-size:18px;font-weight:800;letter-spacing:-.02em;line-height:1.3}
+.dcover:active{transform:scale(.985)}
+
 /* ═══ 첫 화면(포털) ═══ */
 main.home{padding-top:0}
 .phero{position:relative;isolation:isolate;overflow:hidden;margin-top:-66px;padding:88px 22px 34px;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;border-radius:0 0 36px 36px;background:#FCEDE6}
@@ -1138,6 +1160,7 @@ main>footer{content-visibility:auto;contain-intrinsic-size:auto 200px}
   .homebrand{opacity:0}.topbar.home.on .homebrand{opacity:1}
   .langmenu.on{animation:none!important}
   .rt-flow,.sketch .lf,.mfl{animation:none!important}
+  .lp .lpimg{transition:none;transform:none}.lp .lpimg.on{animation:none!important}
   .phero .mesh{will-change:auto}
   .topbar.home::before{animation:none!important;opacity:0;transition:opacity .4s var(--glide)}.topbar.home.on::before{opacity:1}
   .stillbtn{display:none}
@@ -1149,6 +1172,7 @@ main>footer{content-visibility:auto;contain-intrinsic-size:auto 200px}
 .lite .rv,.lite .rv.sv,.lite .rmap .rl,.lite .rmap .cp,.lite .phero .scene,.lite .phero .scene *,.lite .hero .bg,.lite .hero .badge,.lite .sheet .sh-b>*,.lite .scr{animation:none!important}
 .lite .langmenu.on{animation:none!important}
 .lite .rt-flow,.lite .sketch .lf,.lite .mfl,.still .rt-flow,.still .sketch .lf,.still .mfl{animation:none!important}
+.lite .lp .lpimg.on,.still .lp .lpimg.on{animation:none!important}
 .lite .topbar.home::before,.lite .homebrand{animation:none!important;opacity:0;transition:opacity .4s var(--glide)}.lite .topbar.home.on::before,.lite .topbar.home.on .homebrand{opacity:1}
 /* 움직임 멈춤(첫 화면 단추) : 흐르는 띠·장면·도시 이름 바뀜을 멈추고 띠는 손가락으로 민다 */
 .still .marq .mt,.still .phero .mesh,.still .phero .scene,.still .phero .scene *,.still .phero .rot b,.still .hero .badge{animation:none!important}
@@ -1800,6 +1824,60 @@ function spreadSame(list, key){
 }
 /* 이름 줄바꿈 : '·' 는 앞말에 붙이고, 끝의 한 글자 낱말은 앞 낱말과 함께 넘긴다 */
 const nmHtml = t => esc(t).replace(/\s*·\s*/g, '\u2060·\u200B').replace(/ (\S)$/, '\u00A0$1');
+/* ── 예시 사진(위키미디어 공용) ──
+   보는 사람의 기기가 장소 좌표 근처에서 찍힌 '사용 허가가 분명한' 사진(CC0·퍼블릭 도메인·CC BY·CC BY-SA, JPG 가로 사진)을 찾아
+   그림 위에 겹친다. 못 찾거나 인터넷이 없으면 그림 그대로. 사진마다 '예시 사진'과 촬영자·허가 표시. 찾은 결과는 이 기기에 7일 저장.
+   식당·숙소는 근처 사진이 다른 가게일 수 있어 쓰지 않는다(대신 '실제 사진 보기' 단추). */
+const LP = { mem: {}, wait: {}, q: [], busy: 0, fails: 0, down: false, io: null };
+const LP_BAD = /(map|karte|logo|sign|plan\b|diagram|chart|ticket|menu|timetable|flag|emblem|coat.of.arms|stamp|poster|\bbus\b|train|地図|看板|案内|路線|時刻|切符)/i;
+const LP_WIDE = ['nature', 'park', 'view', 'sea', 'lookout', 'forest', 'onsen'];
+const lpTxt = h => String(h || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
+const lpSize = (u, w) => String(u || '').replace(/\/(\d+)px-([^/]+)$/, `/${w}px-$2`);
+function lpOk(pg){
+  const ii = (pg.imageinfo || [])[0]; if (!ii) return null; const m = ii.extmetadata || {}, lic = lpTxt((m.LicenseShortName || {}).value);
+  if (ii.mime !== 'image/jpeg' || ii.width < 900 || ii.width < ii.height * 1.15 || LP_BAD.test(pg.title || '')) return null;
+  if (!/^(cc0|public domain|pd\b|cc[ -]by(-sa)?\b)/i.test(lic) || /\b(nc|nd)\b/i.test(lic)) return null;
+  return { src: ii.thumburl || ii.url, page: ii.descriptionurl || '', lic, by: lpTxt((m.Artist || {}).value) || '?' };
+}
+async function lpFind(lat, lng, r){
+  const u = `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=geosearch&ggscoord=${lat}%7C${lng}&ggsradius=${r}&ggslimit=30&ggsnamespace=6&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=960&iiextmetadatafilter=LicenseShortName%7CArtist`;
+  const res = await fetch(u); if (!res.ok) throw new Error('http');
+  const j = await res.json(); const pages = Object.values((j.query || {}).pages || {}).sort((a, b) => (a.index || 0) - (b.index || 0));
+  for (const pg of pages){ const x = lpOk(pg); if (x) return x; }
+  return null;
+}
+function lpGet(lat, lng, cat){
+  const k = `${(+lat).toFixed(4)},${(+lng).toFixed(4)}`;
+  if (k in LP.mem) return Promise.resolve(LP.mem[k]);
+  try { const c = JSON.parse(localStorage.getItem('jp_lp:' + k) || 'null'); if (c && Date.now() - c.t < 7 * 864e5){ LP.mem[k] = c.v; return Promise.resolve(c.v); } } catch(e){}
+  if (LP.down) return Promise.resolve(null);
+  if (LP.wait[k]) return LP.wait[k];
+  return LP.wait[k] = new Promise(done => { LP.q.push({ k, lat, lng, r: LP_WIDE.includes(cat) ? 600 : 250, done }); lpPump(); });
+}
+function lpPump(){
+  while (LP.busy < 2 && LP.q.length){
+    const t = LP.q.shift(); LP.busy++;
+    lpFind(t.lat, t.lng, t.r).then(v => { LP.fails = 0; LP.mem[t.k] = v; try { localStorage.setItem('jp_lp:' + t.k, JSON.stringify({ v, t: Date.now() })); } catch(e){} t.done(v); })
+      .catch(() => { if (++LP.fails >= 3){ LP.down = true; LP.q.splice(0).forEach(x => x.done(null)); } t.done(null); })
+      .finally(() => { LP.busy--; delete LP.wait[t.k]; lpPump(); });
+  }
+}
+/* 사진 자리 표시 : 그림 칸 안에 <i class="lp" data-lp="위도,경도,종류,크기,큰사진"> 를 넣어 두면 화면에 보일 때 채운다 */
+const lpSlot = (p, w, big) => p && p.lat && p.lng && !['airport', 'station'].includes(p.cat) ? `<i class="lp" data-lp="${(+p.lat).toFixed(5)},${(+p.lng).toFixed(5)},${esc(p.cat || '')},${w || 500},${big ? 1 : 0}" aria-hidden="true"></i>` : '';
+function lpScan(){
+  if (LP.io){ try { LP.io.disconnect(); } catch(e){} LP.io = null; }
+  const els = document.querySelectorAll('.lp[data-lp]:not(.done)'); if (!els.length || LP.down) return;
+  const fill = el => { el.classList.add('done'); const [la, lo, cat, w, big] = el.dataset.lp.split(',');
+    lpGet(la, lo, cat).then(v => { if (!v || !el.isConnected) return; const box = el.parentElement;
+      const im = new Image(); im.alt = ''; im.decoding = 'async'; im.referrerPolicy = 'no-referrer'; im.className = 'lpimg';
+      im.onload = () => { if (!el.isConnected) return; box.classList.add('haslp'); el.appendChild(im); requestAnimationFrame(() => im.classList.add('on'));
+        if (big === '1') el.insertAdjacentHTML('beforeend', `<button class="lptag" data-act="credit" data-v="${esc(T('lp_cr', { by: v.by, lic: v.lic }))}" aria-label="${esc(T('photo_src'))}"><span>${esc(T('lp_tag'))} ⓘ</span></button>`); };
+      im.src = lpSize(v.src, w); }); };
+  if (typeof IntersectionObserver === 'undefined'){ els.forEach(fill); return; }
+  LP.io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ LP.io.unobserve(e.target); fill(e.target); } }), { rootMargin: '300px 0px' });
+  els.forEach(el => LP.io.observe(el));
+}
+const lpMain = g => { const v = (g.spots || []).filter(p => p.lat && !['airport', 'station', 'street'].includes(p.cat)); return v.find(p => p.must) || v[0] || null; };
 function photoOf(group, key){ const a = (PHOTOS[group] || {})[key]; return a && a[0] ? a[0] : null; }
 function photoImg(p, alt){ return p ? `<img class="ph" src="${esc(p.src)}" alt="${esc(alt || p.alt || '')}" loading="lazy" decoding="async"><button class="cr" data-act="credit" data-v="${esc(T('photo_cr', { by: p.credit || '?', lic: p.license }))}" aria-label="${esc(T('photo_src'))}">i</button>` : ''; }
 function catArt(cat){ return `<span class="catart c-${esc(cat)}">${ico(cat)}</span>`; }
@@ -1920,7 +1998,7 @@ function homeMotion(gs){
 }
 function stopHome(){ clearInterval(HOME_T); HOME_T = 0; if (HOME_IO){ try { HOME_IO.disconnect(); } catch(e){} HOME_IO = null; } if (HOME_BAR){ try { HOME_BAR.disconnect(); } catch(e){} HOME_BAR = null; } }
 /* 화면이 그려진 뒤 : 보이는 것은 차례로 떠오르고, 아래쪽은 스크롤할 때 떠오른다 */
-const RV_SEL = '.resume,.stats .st,.marq,.shd,.ncard,.step>.txtbtn,.tile,.themes>.txtbtn,.qhead,.prog,.pills,.bigmap,.rgrid>*,.clist>*,.sec,.sepl,.cname,.spills,.vpills,.dhd,.notice,.tl>li,.dend,.alts>*,.subhd,.fchips,.grid2>*,.hlist>*,.prep>*,.ogrid>*,.sitem,.chips.allc,.wbox,.ybox,.vnote,.sex,.snone,main>footer';
+const RV_SEL = '.dcover,.resume,.stats .st,.marq,.shd,.ncard,.step>.txtbtn,.tile,.themes>.txtbtn,.qhead,.prog,.pills,.bigmap,.rgrid>*,.clist>*,.sec,.sepl,.cname,.spills,.vpills,.dhd,.notice,.tl>li,.dend,.alts>*,.subhd,.fchips,.grid2>*,.hlist>*,.prep>*,.ogrid>*,.sitem,.chips.allc,.wbox,.ybox,.vnote,.sex,.snone,main>footer';
 /* 화면 밖 장식 움직임 멈춤 : 첫 화면 머리·도시 띠·도시 머리 그림이 안 보이면 .oos */
 let DECO_IO = null;
 function decoPause(){
@@ -2066,7 +2144,7 @@ function renderCity(){
   const rec = (S.get('recent', []) || []).filter(k => k !== g.key); rec.unshift(g.key); S.set('recent', rec.slice(0, 6));
   const pf = PF(g), b = bestRoute(st.origin, g), budget = plan && budgetFx(plan.budget);
   const ph = photoOf('cities', g.key);
-  const hero = `<div class="hero ${cCls(g)}">${ph ? `<div class="bg photo">${photoImg(ph, g.name)}</div>` : `<div class="bg">${svgFit(regionArt(g.region))}</div><span class="badge" style="animation-delay:-${((performance.now() % 6000) / 1000).toFixed(2)}s">${g.icon || ''}</span>`}<button class="introbtn" data-act="intro">${svgInfo}${esc(T('intro'))}</button></div>`;
+  const hero = `<div class="hero ${cCls(g)}">${ph ? `<div class="bg photo">${photoImg(ph, g.name)}</div>` : `<div class="bg">${svgFit(regionArt(g.region))}${lpSlot(lpMain(g), 960, true)}</div><span class="badge" style="animation-delay:-${((performance.now() % 6000) / 1000).toFixed(2)}s">${g.icon || ''}</span>`}<button class="introbtn" data-act="intro">${svgInfo}${esc(T('intro'))}</button></div>`;
   const pills = `<div class="spills">
     <button class="pill" data-act="sh-fly">${svgPlane}${b ? esc(fmtMin(b.r.flight_minutes)) + (b.via ? `<span class="ed">${esc(T('via_pill'))}</span>` : '') + (b.r.status !== '정기' ? `<span class="ed">· ${esc(stName(b.r.status))}</span>` : '') : `<span class="no">${esc(T('f_none'))}</span>`}</button>
     ${plan ? `<button class="pill" data-act="sh-n">${svgCal}${esc(nd(plan.nights))}<span class="ed">▾</span></button>` : ''}
@@ -2133,6 +2211,12 @@ function closeBadge(p, t){
 function firstSentence(s){ s = String(s || ''); const m = s.match(/^.+?(다\.|요\.|[。．.!?！？])(\s|$)/); const f = m ? m[0].trim() : s; return f.length > 70 ? f.slice(0, 66) + '…' : f; }
 /* '무료' 표는 보통 입장료가 있는 곳에만(역·거리·공항·시장은 원래 무료라 뺌) */
 const FREE_CATS = ['shrine', 'castle', 'museum', 'park', 'view', 'nature', 'sea', 'onsen', 'kids', 'theme', 'night'];
+/* 그날 표지 : 그날 꼭 볼 곳(없으면 첫 볼거리)의 예시 사진, 사진이 없으면 그 장소 그림 */
+function dayCover(g, d){
+  const ps = (d.items || []).filter(it => it.k === 'spot').map(it => findP(g, it.ref)).filter(p => p && p.lat && !['airport', 'station', 'street'].includes(p.cat));
+  const p = ps.find(x => x.must) || ps[0]; if (!p) return '';
+  return `<button class="dcover" data-act="spot" data-v="${esc(p.id)}"><span class="art">${spotArt(p)}${lpSlot(p, 960, true)}</span><span class="cap"><small>${esc(T('lp_today'))}</small><b>${nmHtml(p.name)}</b></span></button>`;
+}
 function planTab(g, plan){
   if (!plan) return `<div class="empty"><b>${esc(T('no_plan_t'))}</b>${esc(T('no_plan_d'))}</div>`;
   const vs = (g.variants || []).filter(v => v.for_nights === plan.nights);
@@ -2161,14 +2245,14 @@ function planTab(g, plan){
     if (p && !isHotel){ const cb = closeBadge(p, it.t); bd = cb || (p.fee_yen > 0 ? `<span class="bs">${esc(yen(p.fee_yen))}</span>` : p.fee_yen === 0 && FREE_CATS.includes(p.cat) ? `<span class="bs sage">${esc(T('free'))}</span>` : ''); }
     if (isHotel && p) bd = `<span class="bs plum">${esc(tierName(p.tier))}</span>`;
     const must = p && !isHotel && p.must ? `<i class="mst">${esc(T('must'))}</i>` : '';
-    return `<li class="row${open ? ' open' : ''}" id="row-${i}"><div class="rw" data-act="row" data-v="${i}" role="button" tabindex="0" aria-expanded="${open}"><span class="tm">${esc(it.t)}</span><span class="no">${no}</span><span class="th">${ph ? `<img src="${esc(ph.src)}" alt="">` : p ? (isHotel ? hotelArt(p) : spotArt(p)) : catArt(cat)}</span><span class="tx"><b>${must}${nmHtml(p ? p.name : it.ref || '')}</b><small>${esc(it.note || (p && p.area) || '')}</small></span>${bd ? `<span class="bd">${bd}</span>` : ''}</div>${open && p ? rowDetailP(g, p, isHotel, i) : ''}</li>`;
+    return `<li class="row${open ? ' open' : ''}" id="row-${i}"><div class="rw" data-act="row" data-v="${i}" role="button" tabindex="0" aria-expanded="${open}"><span class="tm">${esc(it.t)}</span><span class="no">${no}</span><span class="th">${ph ? `<img src="${esc(ph.src)}" alt="">` : p ? (isHotel ? hotelArt(p) : spotArt(p) + lpSlot(p, 250)) : catArt(cat)}</span><span class="tx"><b>${must}${nmHtml(p ? p.name : it.ref || '')}</b><small>${esc(it.note || (p && p.area) || '')}</small></span>${bd ? `<span class="bd">${bd}</span>` : ''}</div>${open && p ? rowDetailP(g, p, isHotel, i) : ''}</li>`;
   }).join('');
   const notice = d.notice && d.notice.t ? `<button class="notice ${d.notice.k === 'warn' ? 'warn' : ''}" data-act="notice">${svgInfo}<span class="f">${esc(firstSentence(d.notice.t))}</span><span class="all">${rich(d.notice.t)}</span></button>` : '';
   const last = di === plan.days.length - 1;
   const alts = last ? (g.nearby_alternatives || []).filter(x => own(GUIDES, x.key)) : [];
   return `${vrow}${tabs}
     <div class="dhd"><div class="t"><h2>${esc(d.title || d.label || '')}</h2>${d.note ? `<p class="dn">${rich(d.note)}</p>` : ''}${vs.length ? '' : `<button class="pinfo" data-act="planinfo">${svgInfo}${esc(T('plan_what'))}</button>`}</div><button class="mmap" data-act="bigmap" aria-label="${esc(T('d_map'))}">${miniSketch(pts)}<span>${esc(T('d_map'))}</span></button></div>
-    ${notice}
+    ${dayCover(g, d)}${notice}
     <ol class="tl">${rows}</ol>
     <div class="dend"><button class="btn2 wide" data-act="planb">☔ ${esc(T('planb'))}</button><div class="dnav">${di > 0 ? `<button class="btn2" data-act="day" data-v="${di - 1}">‹ ${esc(T('day_s', { n: di }))}</button>` : '<span></span>'}${!last ? `<button class="btn2" data-act="day" data-v="${di + 1}">${esc(T('day_s', { n: di + 2 }))} ›</button>` : '<span></span>'}</div></div>
     ${alts.length ? `<h2 class="sec">${esc(T('alt_t'))}</h2><div class="alts">${alts.map(x => { const ag = GUIDES[x.key]; return `<button class="altc ${cCls(ag)}" data-act="city" data-v="${esc(ag.key)}"><span class="art">${svgFit(regionArt(ag.region))}<span class="badge">${ag.icon || ''}</span></span><span class="tx"><b>${esc(ag.name)}</b><small>${esc(firstSentence(kText(x.reason) || x.reason || ''))}</small><small class="fl">${svgPlane}${esc(flyText(ag))}</small></span></button>`; }).join('')}</div>` : ''}`;
@@ -2211,7 +2295,7 @@ function spotTab(g, plan){
   const f = grp.includes(st.sf) ? st.sf : '';
   const list = spreadSame(ss.filter(s => !f || SPOT_GROUPS[f].includes(s.cat)).sort((a, b) => (b.must ? 1 : 0) - (a.must ? 1 : 0) || used.has(b.id) - used.has(a.id)), s => s.art || s.cat), seen = {};
   return `<div class="fchips"><button class="fchip" data-act="sf" data-v="" aria-pressed="${!f}">${esc(T('f_all'))}</button>${grp.map(k => `<button class="fchip" data-act="sf" data-v="${k}" aria-pressed="${f === k}">${esc(T('sg_' + k))}</button>`).join('')}</div>
-    <div class="grid2">${list.map(s => { const ph = photoOf('spots', `${g.key}:${s.id}`), k = s.art || s.cat, n = seen[k] = (seen[k] || 0) + 1; return `<button class="gcard" data-act="spot" data-v="${esc(s.id)}"><span class="art${!ph && n > 1 ? ' v' + ((n - 2) % 3 + 1) : ''}">${ph ? `<img src="${esc(ph.src)}" alt="">` : spotArt(s, n - 1)}${s.must ? `<span class="inp">${esc(T('must'))}</span>` : used.has(s.id) ? `<span class="inp">${esc(T('in_plan'))}</span>` : ''}</span><span class="tx"><b>${nmHtml(s.name)}</b><small>${esc(s.area || '')}${s.fee_yen === 0 ? ` · ${esc(T('free'))}` : ''}</small></span></button>`; }).join('')}</div>`;
+    <div class="grid2">${list.map(s => { const ph = photoOf('spots', `${g.key}:${s.id}`), k = s.art || s.cat, n = seen[k] = (seen[k] || 0) + 1; return `<button class="gcard" data-act="spot" data-v="${esc(s.id)}"><span class="art${!ph && n > 1 ? ' v' + ((n - 2) % 3 + 1) : ''}">${ph ? `<img src="${esc(ph.src)}" alt="">` : spotArt(s, n - 1)}${ph ? '' : lpSlot(s, 500)}${s.must ? `<span class="inp">${esc(T('must'))}</span>` : used.has(s.id) ? `<span class="inp">${esc(T('in_plan'))}</span>` : ''}</span><span class="tx"><b>${nmHtml(s.name)}</b><small>${esc(s.area || '')}${s.fee_yen === 0 ? ` · ${esc(T('free'))}` : ''}</small></span></button>`; }).join('')}</div>`;
 }
 function hotelTab(g, plan){
   const used = inPlanIds(g, plan);
@@ -2301,7 +2385,7 @@ function sheetMeal(i){
   openSheet(T('meal_q', { meal: it.label || T('meal_w') }), `${it.note ? `<p class="shnote">${rich(it.note)}</p>` : ''}<div class="mcards">${opts.map((x, j) => `<div class="mcard${r && r.id === x.id ? ' on' : ''}"><button class="mpick" data-act="pick" data-v="${esc(pk)}|${esc(x.id)}"><span class="art">${svgFit(dishArtV(x.dish, opts.slice(0, j).filter(y => y.dish === x.dish).length))}</span><span class="tx">${r && r.id === x.id ? `<span class="ok">✓ ${esc(T('picked'))}</span>` : ''}<b>${esc(x.name)}</b><small>${esc(x.cuisine || '')}${x.signature ? ` · ${esc(x.signature)}` : ''}</small><span class="mets"><span>${yenMark(x.price_level)}</span>${x.hours ? `<span>${esc(hText(x.hours))}</span>` : ''}${x.closed && x.closed !== '없음' ? `<span>${esc(T('closed'))} ${esc(hText(x.closed))}</span>` : ''}</span></span></button><details class="more"><summary>${esc(T('more'))}</summary><div class="body">${rowDetailR(x)}</div></details></div>`).join('')}</div><p class="basis">${esc(T('meal_note'))}</p>`);
 }
 function sheetPlace(id){ const g = GUIDES[st.city], p = findP(g, id); if (!p) return; const ph = photoOf('spots', `${g.key}:${p.id}`);
-  openSheet(p.name, `<div class="shart">${ph ? photoImg(ph, p.name) : spotArt(p)}${ph ? '' : phPill(p)}</div>${rowDetailP(g, p, false, null)}`); }
+  openSheet(p.name, `<div class="shart">${ph ? photoImg(ph, p.name) : spotArt(p) + lpSlot(p, 960, true)}${ph ? '' : phPill(p)}</div>${rowDetailP(g, p, false, null)}`); }
 function sheetRest(id){ const g = GUIDES[st.city], r = findR(g, id); if (!r) return;
   openSheet(r.name, `<div class="shart">${svgFit(dishArt(r.dish))}${phPill(r)}</div>${rowDetailR(r)}`); }
 function sheetHotel(id){ const g = GUIDES[st.city], h = (g.hotels || []).find(x => x.id === id); if (!h) return;
@@ -2500,6 +2584,7 @@ function render(o){
   else if (s === 'search') renderSearch();
   else { st.scr = 'home'; renderStart(); }
   chipsIntoView();
+  setTimeout(lpScan, 0);
   if (s !== 'city') TAB_LAST = '';
   decoPause();
   if (!o.quiet) reveal(o.keep ? RV_KEEP : '');
@@ -2604,7 +2689,7 @@ document.addEventListener('click', e => {
     case 'variant': swap(cityRoute({ v: Number(v), d: 0 }), { keep: true }); return;
     case 'day': { st.open = -1; swap(cityRoute({ d: Number(v) }), { keep: true, quiet: true }); const a = document.getElementById('dt-anchor'), tb = document.querySelector('.topbar'); if (a){ const top = a.getBoundingClientRect().top + window.scrollY - (tb ? tb.getBoundingClientRect().bottom : 0); if (window.scrollY > top + 1) window.scrollTo(0, top); } reveal(RV_KEEP); } return;
     case 'row': { if (e.target.closest('.cand')) return; const i = Number(v); const g = GUIDES[st.city], plan = curPlan(g); st.open = st.open === i ? -1 : i;
-      const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, plan); window.scrollTo(0, y); return; }
+      const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, plan); lpScan(); window.scrollTo(0, y); return; }
     case 'meal': sheetMeal(Number(v)); return;
     case 'pick': { const at = v.lastIndexOf('|'); st.picks[v.slice(0, at)] = v.slice(at + 1); S.set('picks', st.picks); SH.after = () => { const g = GUIDES[st.city]; const y = window.scrollY; document.getElementById('planarea').innerHTML = planTab(g, curPlan(g)); window.scrollTo(0, y); }; setTimeout(() => closeSheet(), REDUCED ? 0 : 180); el.closest('.mcards') && el.closest('.mcards').querySelectorAll('.mcard').forEach(c => c.classList.toggle('on', c.contains(el))); return; }
     case 'mv': el.classList.toggle('open'); return;
@@ -2702,6 +2787,7 @@ function sketch(pts){
 /* ───────── 바텀 시트 : 뒤로 가기(스와이프)로 닫힌다 ───────── */
 const SH = { open: false, ignorePop: 0, lastFocus: null };
 function openSheet(title, html, after, size){
+  setTimeout(lpScan, 60);
   const sh = document.getElementById('sheet'), sc = document.getElementById('shscrim');
   document.getElementById('sh-t').textContent = title || '';
   const b = document.getElementById('sh-b'); b.innerHTML = html; b.scrollTop = 0;
