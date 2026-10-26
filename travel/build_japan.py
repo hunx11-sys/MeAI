@@ -8,8 +8,8 @@
    + travel/vendor/leaflet.css · leaflet.js(지도 엔진, BSD 라이선스)
    →  travel/japan.html(한국어) · japan_en.html · japan_es.html · japan_zh.html · japan_yue.html · japan_ja.html
 
-   사용 :  python3 travel/build_japan.py              (저장소 루트에서. 언어 6개 전부)
-          python3 travel/build_japan.py --lang ko,en  (일부 언어만)
+   사용 :  python3 travel/build_japan.py              (저장소 루트에서. 한국어만, 언어 버튼 숨김 : 지금은 한국어만 서비스)
+          python3 travel/build_japan.py --lang ko,en  (다른 언어도 : 서비스를 다시 열 때만)
           python3 travel/build_japan.py --strict      (가이드 점검 오류가 하나라도 있으면 중단)
           python3 travel/build_japan.py --lang ko --no-lang-menu   (한국어 미리보기 : 언어 버튼 숨김)
           python3 travel/build_japan.py --lang ko --no-lang-menu --out dist/visit_to_japan_ko.html   (다운로드용 한 파일)
@@ -259,10 +259,11 @@ def main():
     for i, a in enumerate(sys.argv):
         if a == '--out' and i + 1 < len(sys.argv):  # 한 언어만 다른 경로·이름으로 내보낼 때 (예: --lang ko --out dist/x.html)
             out_dir, out_name = os.path.split(os.path.abspath(sys.argv[i + 1]))
-    want = None
+    want = ['ko']  # 다른 언어는 서비스하지 않음(소유자 2026-10-26). 다시 열 때는 --lang 으로 고른다
     for i, a in enumerate(sys.argv):
         if a == '--lang' and i + 1 < len(sys.argv):
             want = sys.argv[i + 1].split(',')
+    hide_lang = hide_lang or want == ['ko']  # 한국어만 만들면 언어 버튼도 숨김
     ui_all = json.load(open(os.path.join(DATA, 'ui_strings.json'), encoding='utf-8'))
     langs = [l for l in ui_all['langs'] if not want or l['code'] in want]
     kr = json.load(open(os.path.join(DATA, 'kr_airports.json'), encoding='utf-8'))
