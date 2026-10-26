@@ -55,7 +55,7 @@ def ga_head(design_pdf, age=''):
         t = '\n'.join((pg.extract_text() or '') for pg in pdf.pages[:3])
     def g(pat, d=''):
         m = re.search(pat, t); return m.group(1).strip() if m else d
-    name = META.get('insured') or ''
+    name = re.sub(r'\(.*$', '', META.get('insured') or '').strip()      # 「황원준(상령일:매년03월17일)」 → 이름만
     if name in ('', '고객'): name = ''
     sex = {'F': '여자', 'M': '남자'}.get(META.get('sex') or '', '')      # 가안 표기 「민메리 (여자, 20세)」
     ag = age or g(r'보험나이\s*[:：]?\s*(\d{1,3})\s*세') or g(r'피보험자\s*\S+\s*\(\s*(?:남|여)\s*[,·]\s*(\d{1,3})\s*세')
@@ -275,7 +275,7 @@ def _man_of(name):
 def _wn(v):
     """계산서용 숫자 — 1쪽 값 표시(b.v)와 다른 표기를 써서 지면 대조(ga_spec)가 칸 수를 잘못 세지 않게 한다"""
     if v is None: return '<span class="cna">미가입</span>'
-    return '<span class="cn">%s<i>만원</i></span>' % won(v) if not isinstance(v, str) else '<span class="cn txt">%s</span>' % v
+    return '<span class="cn">%s<i>만원</i></span>' % won(v) if not isinstance(v, str) else '<span class="cn txt" style="font-size:7.4pt;white-space:nowrap;letter-spacing:-.4pt">%s</span>' % v   # 「간병인 보내줌」 은 칸 폭에 맞게 작게(잘림 방지 · 2026-10-26)
 def disp_name(name):
     """세부내역 특약명 — 26종 항암방사선및약물치료비의 꼬리 [세부급부명]은 뗀다(특정 암만 보장되는 듯한 오해 · GA 2026-10-22)"""
     n = re.sub(r'\s+', ' ', name).strip()
@@ -323,7 +323,7 @@ def calc_sections():
     return [('암 보장 세부 내역', keys(ca)), ('뇌,심 보장 세부 내역', keys(bh)), ('주요수술 보장 세부 내역', keys(dz)), ('간병인 보장 세부 내역', keys(care))]
 
 CALC_PAGES = 1      # 세부내역(합산 계산서) 최소 쪽수 — 반드시 붙는다(GA 확정 2026-10-02). 2026-10-22 부터 보장요약 칸만 적으므로 1쪽 이상(담보가 많으면 늘어난다)
-CALC_BUDGET = 54    # 한 쪽에 들어가는 분량(단위 : 특약 한 줄 ≈ 4.3mm · 쪽 본문 약 245mm). 넘치면 render 의 '이탈·겹침' 경고로 잡힌다
+CALC_BUDGET = 50    # 한 쪽에 들어가는 분량(단위 : 특약 한 줄 ≈ 4.3mm · 쪽 본문 약 245mm). 넘치면 render 의 '이탈·겹침' 경고로 잡힌다
 _LINE_CH = 46       # 세부내역 특약명 칸 한 줄 글자 수(가정 · 7pt Pretendard · 칸 폭 약 88mm)
 def calc_units(row):
     import math

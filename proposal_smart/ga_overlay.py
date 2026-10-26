@@ -48,8 +48,12 @@ def footer_box(page, sp=None):
     from PIL import Image
     im = Image.open(os.path.join(MOCK, page + '.jpg')).convert('L'); px = im.load()
     xs = min(b[0] for b in bs)
-    for x in range(600, int(xs)):
-        if any(px[x, y] < 150 for y in range(int(y1), int(y2))): xs = x; break
+    gap = 0                                     # ft 상자 왼쪽으로 가며 빈 칸이 40px 이어지는 곳 = 왼쪽 안내 문구와의 경계(안내 문구는 지우지 않는다)
+    for x in range(int(xs) - 1, 600, -1):
+        if any(px[x, y] < 150 for y in range(int(y1), int(y2))): xs = x; gap = 0
+        else:
+            gap += 1
+            if gap >= 40: break
     return [xs - 8, y1 - 2, min(W, x2 + 4), y2 + 2]
 
 def template(page, extra_erase=None, force=False):
