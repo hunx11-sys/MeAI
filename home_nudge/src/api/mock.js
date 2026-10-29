@@ -51,8 +51,23 @@
       items.forEach(function (x) { if (x.date === day) q = x; });
       if (quizSwap && day === today()) q = items.filter(function (x) { return x.type === 'choice'; })[0];
       if (q) return q;
-      q = clone(items[mod(R.diffDays('2026-10-01', day), items.length)]); q.id = q.id + '@' + day; q.date = day; // 날짜별 문항이 없을 때 돌려 쓰되 id 는 그날 것으로
+      // 날짜별 문항이 없는 날 : OX 문제 은행에서 갈래를 번갈아 하루 한 문항 (id 는 그날 것으로)
+      var ox = data.ox && data.ox.items, cats = data.ox && data.ox.cats;
+      if (ox && ox.length) {
+        var x = interleaveOx()[mod(R.diffDays('2026-10-01', day), ox.length)];
+        return { id: 'q-' + x.id + '@' + day, date: day, type: 'ox', category: cats[x.cat].label, question: x.q, answer: x.a, explain: [x.why].concat(x.more || []), source: x.src, ask: x.q + ' 이 내용을 고객에게 쉽게 설명해 줘' };
+      }
+      q = clone(items[mod(R.diffDays('2026-10-01', day), items.length)]); q.id = q.id + '@' + day; q.date = day;
       return q;
+    }
+    var oxOrder = null;
+    function interleaveOx() {
+      if (oxOrder) return oxOrder;
+      var by = {}, keys = [];
+      data.ox.items.forEach(function (x) { if (!by[x.cat]) { by[x.cat] = []; keys.push(x.cat); } by[x.cat].push(x); });
+      oxOrder = [];
+      for (var i = 0; oxOrder.length < data.ox.items.length; i++) keys.forEach(function (k) { if (by[k][i]) oxOrder.push(by[k][i]); });
+      return oxOrder;
     }
     function today() { return R.kst(clock.now).ymd; }
     // 데모 시계 : 정한 시각부터 실제 시간처럼 흐른다 (opts.frozen 이면 멈춘 시계)
@@ -65,7 +80,7 @@
 
     function ctx(now, extra) {
       var c = { cfg: cfg, cal: cal, now: now, rand: R.rng(Math.floor(now / 1000)), user: user, recoToday: recoToday(),
-        quiz: quizOfDay(R.kst(now).ymd), talk: null, league: { me: user, peers: peers } };
+        quiz: quizOfDay(R.kst(now).ymd), talk: null, league: { me: user, peers: peers }, crm: seed.crm || [], oxBank: (data.ox && data.ox.items) || [] };
       for (var k in extra) c[k] = extra[k];
       return c;
     }
@@ -110,9 +125,15 @@
           if (r() < 0.14) evs.push(['15:30', { kind: 'consent.request', customerId: ids[0] }]);
         }
         evs.sort(function (a, b) { return a[0] < b[0] ? -1 : 1; }).forEach(function (e) { c.now = at(e[0]); c.rand = R.rng(++n * 131); R.evaluate(st, e[1], c); });
+        if (d >= wkMon && lit) { // 이번 주 : 고객 룰렛을 돌리고 한 명을 챙김 (행운 존 · 빙고 예시)
+          c.crm = seed.crm || []; c.now = at('10:40'); c.rand = R.rng(++n * 131);
+          var sp = R.evaluate(st, { kind: 'roulette.spin' }, c);
+          if (sp.ok && sp.data.customers[0]) { c.now = at('10:48'); R.evaluate(st, { kind: 'crm.done', ref: 'r:' + sp.data.spinId, customerId: sp.data.customers[0] }, c); }
+        }
       }
       // 이번 주 패스 2단계 보상(보호권)을 다시 반영하고 10월 보호권 상태를 맞춘다
       st.wallet.shields = 1; st.wallet.shieldMonth = R.kst(clock.now).ymd.slice(0, 7);
+      st.fun.scratch.forEach(function (x, i, all) { if (i < all.length - 1) x.revealed = R.toMs(x.day, '18:00'); });   // 지난 스크래치는 긁은 것으로 · 어제 받은 1장만 남김
       st.preparedDay = '';
       st.ledger = st.ledger.filter(function (g) { return g.amount; });
     }
@@ -185,11 +206,37 @@
         goldCut: cfg.league.goldCut, list: list, xp: w.xp, pass: pass, nextPass: nextPass, frame: w.frame || '',
         cheersLeft: cfg.cheer.dailyMax - Object.keys(cheersToday).length, cheersReceived: seed.cheersReceived.map(function (c) { return { from: R.maskName(c.from), at: c.at }; }) };
     }
+    // ── 행운 존 요약 (룰렛 · 슬롯 · 스크래치 · OX 챌린지 · 타로 · 빙고 · 피버)
+    function funView(now) {
+      var day = R.kst(now).ymd, f = st.fun, fd = R.funDay(st, day), F = cfg.fun, pl = R.funPlays(st, day, cfg);
+      var bg = R.bingoState(st, day, cfg), wb = (st.weeks[R.weekId(day)] || {}).bingo || {}, crmById = {};
+      (seed.crm || []).forEach(function (c) { crmById[c.id] = c; });
+      function cust(id, doneMap) { var c = crmById[id]; return c ? { id: id, name: R.maskName(c.name), age: c.age, sym: c.sym, note: c.note, done: !!(doneMap && doneMap[id]) } : null; }
+      function pct(list) { var sum = list.reduce(function (a, x) { return a + x.weight; }, 0); return list.map(function (x) { return Math.round(x.weight / sum * 1000) / 10; }); }
+      var segs = F.roulette.segments, sp = pct(segs), tp = pct(F.cslot.tiers), zp = pct(F.scratch.prizes);
+      return {
+        plays: pl, fever: R.feverInfo(st, now, cfg, cal), capLeft: Math.max(0, F.ticketCapDaily - fd.tickets), cap: F.ticketCapDaily,
+        roulette: { segments: segs.map(function (x, i) { return { id: x.id, label: x.label, color: x.color, pct: sp[i], bonus: !!x.prize, xp: x.xp || 0 }; }),
+          spins: fd.spins.map(function (x) { var g = segs[x.seg]; return { id: x.id, seg: x.seg, segId: g.id, label: g.label, tpl: g.tpl || '', xp: g.xp || 0, bonus: !!g.prize, fallback: x.fallback,
+            customers: x.customers.map(function (c) { return cust(c, x.done); }).filter(Boolean) }; }) },
+        cslot: { symbols: F.cslot.symbols, odds: F.cslot.tiers.map(function (x, i) { return { id: x.id, label: x.label, pct: tp[i] }; }), prizes: F.cslot.prizes, xpContact: F.cslot.xpContact, clearXp: F.cslot.clearXp,
+          pulls: fd.pulls.map(function (x) { return { id: x.id, tier: x.tier, reels: x.reels, cleared: !!x.cleared, customers: x.customers.map(function (c) { return cust(c, x.done); }).filter(Boolean) }; }) },
+        scratch: { cards: f.scratch.filter(function (x) { return !x.revealed && R.diffDays(x.day, day) <= F.scratch.validDays; }).map(function (x) { return { id: x.id, from: x.from, day: x.day }; }),
+          today: f.scratch.filter(function (x) { return x.revealed && R.kst(x.revealed).ymd === day; }).map(function (x) { return { id: x.id, label: F.scratch.prizes[x.prize].label }; }),
+          odds: F.scratch.prizes.map(function (x, i) { return { label: x.label, pct: zp[i] }; }), issueOn: F.scratch.issueOn },
+        challenge: { best: f.best || 0, runsToday: fd.runs, perfectToday: !!fd.perfect, n: F.challenge.n, sec: F.challenge.sec, bank: ((data.ox && data.ox.items) || []).length,
+          cats: data.ox ? data.ox.cats : {}, max: F.challenge.n * (F.challenge.base + F.challenge.sec * F.challenge.speed) + F.challenge.combo * (F.challenge.n - 1) * F.challenge.n / 2 },
+        tarot: { today: fd.tarot ? { card: fd.tarot.card, pick: fd.tarot.pick, three: fd.tarot.three } : null, cards: F.tarot.cards },
+        bingo: { week: bg.week, cells: bg.cells, lines: bg.lines, count: bg.count, filled: bg.filled,
+          rewards: cfg.bingo.rewards.map(function (m, i) { return { lines: m.lines, ticket: m.ticket, label: m.label, got: !!wb[i] }; }) },
+        fortune: { example: seed.fortuneExample || null, sentToday: !!(st.days[day] && st.days[day].kinds['fortune.send']) }
+      };
+    }
     function buddyView(now, s, q, lotto) {
       if (!st.settings.buddy) return null;
       var t = R.kst(now), r = st.days[t.ymd] || {}, d = dismissed[t.ymd] || {};
       var facts = { attended: !!r.attend, quizDone: !!r.quizDone, talkCopied: !!r.talkCopied, lit: !!r.lit,
-        drawSeen: lotto.drawSeen, questLeft: q.total - q.done, nextStreak: s.nextStreak };
+        drawSeen: lotto.drawSeen, questLeft: q.total - q.done, nextStreak: s.nextStreak, bizDay: R.isBizDay(t.ymd, cal), rouletteLeft: R.funPlays(st, t.ymd, cfg).roulette.left };
       if (!R.isBizDay(t.ymd, cal) && !(t.dow === 5)) return null;
       var b = R.pickBuddy(cfg.buddy, facts, t.hm, t.dow, d);
       if (!b) return null;
@@ -240,7 +287,8 @@
         notices: { unread: seed.notices.filter(function (n) { return n.unread && !(st.seen.notice && st.seen.notice[n.id]); }).length },
         onboarding: ob,
         recap: { available: recapForce || (t.dow === 5 && t.hm >= cfg.lotto.drawAt) || t.dow === 6 || t.dow === 0, week: wid, seen: !!(st.seen.recap && st.seen.recap[wid]) },
-        myCustomers: seed.myCustomers
+        myCustomers: seed.myCustomers,
+        fun: funView(now)
       };
     }
     function talkLite(t) { return { id: t.id, cat: t.cat, catName: data.talks.cats[t.cat].name, head: t.head, review: t.review }; }
@@ -255,7 +303,7 @@
     // ── 공통 : 행동 하나를 규칙 엔진에 넣고 새 요약을 돌려준다 ──────────
     function act(ev, extra) {
       var out = R.evaluate(st, ev, ctx(clock.now, extra || {}));
-      return reply({ ok: out.ok, reason: out.reason, grants: out.grants, fx: out.fx, home: home() });
+      return reply({ ok: out.ok, reason: out.reason, grants: out.grants, fx: out.fx, data: out.data || null, home: home() });
     }
     function reply(v) { return new Promise(function (res) { setTimeout(function () { res(clone(v)); }, latency); }); }
 
@@ -359,6 +407,14 @@
         return act(ev);
       },
       answerQuiz: function (id, choice) { return act({ kind: 'quiz.answer', quizId: id, choice: choice }); },
+      // 행운 존
+      spinRoulette: function () { return act({ kind: 'roulette.spin' }); },
+      pullSlot: function () { return act({ kind: 'cslot.pull' }); },
+      crmDone: function (ref, customerId) { return act({ kind: 'crm.done', ref: ref, customerId: customerId }); },
+      revealScratch: function (id) { return act({ kind: 'scratch.reveal', ref: id }); },
+      startChallenge: function () { return act({ kind: 'challenge.start' }); },
+      answerChallenge: function (runId, idx, choice, ms) { return act({ kind: 'challenge.answer', ref: runId, idx: idx, choice: choice, ms: ms }); },
+      drawTarot: function (pick) { return act({ kind: 'tarot.draw', choice: pick }); },
       explainQuiz: function (id) { return act({ kind: 'quiz.explained', quizId: id }); },
       listTalks: function (p) {
         p = p || {};
@@ -429,6 +485,11 @@
         setAltName: function (b) { cfg.labels.useAltLottoName = !!b; opts.altName = !!b; return reply(home()); },
         swapQuiz: function () { quizSwap = !quizSwap; return reply(home()); },
         forceRecap: function (b) { recapForce = b !== false; return reply(home()); },
+        refillFun: function () { // 데모 : 오늘의 행운 존 기회를 다시 채우고 스크래치 1장을 준다
+          var d = today(); st.fun.days[d] = null; delete st.fun.days[d]; R.funDay(st, d);
+          st.fun.scratch.push({ id: 'sc-demo-' + (st.fun.scratch.length + 1), day: d, from: 'demo', prize: R.pickWeighted(R.rng(clock.now % 9973), cfg.fun.scratch.prizes), at: clock.now, revealed: 0 });
+          return reply(home());
+        },
         state: function () { return st; },
         logs: function () { return logs; },
         cfg: function () { return cfg; }

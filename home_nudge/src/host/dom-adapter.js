@@ -56,7 +56,11 @@
         if (target === 'custom') { const c = byText('#root [class*="cursor-pointer"]', '맞춤대화'); if (c) c.click(); return; }
         if (target === 'general') { const c = byText('#root [class*="cursor-pointer"]', '일반대화'); if (c) c.click(); return; }
         if (target === 'find') { const b = byText('#root button', 'MeAI 고객찾기'); if (b) b.click(); return; }
-        if (target === 'fortune') { const w = G.open(opt.fortuneUrl || 'unse_saju_tarot.html', '_blank'); if (!w && W) W.toast('운세 화면은 dist/unse_saju_tarot.html 이에요'); return; }
+        if (target === 'fortune') { // 목업 : 옆 파일(unse_saju_tarot.html)을 홈 위 덮개 안에 띄운다 (새 창으로도 열 수 있음)
+          const url = opt.fortuneUrl || 'unse_saju_tarot.html';
+          if (W && W.fun && W.fun.openFrame) { W.fun.openFrame(url, '오늘의 운세 · 사주 + 타로'); return; }
+          const w = G.open(url, '_blank'); if (!w && W) W.toast('운세 화면은 dist/unse_saju_tarot.html 이에요'); return;
+        }
       },
       // 일반대화 입력칸에 질문을 넣어 둔다 (보내기는 사람이 누른다)
       ask(text) {

@@ -55,7 +55,7 @@ img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radiu
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1000, height: 1200 } });
   await p.setContent(`<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><style>${CSS}</style></head>` +
-    `<body><main class="page"><header class="cover"><div class="k">MeAI 홈 · 세일즈혁신TF</div><h1>${title}</h1><p>사내 개발 설계도 · 2026-10-29 · 내부 검토용 · 화면 · 수치는 확정 전 예시</p></header><article id="doc"></article>` +
+    `<body><main class="page"><header class="cover"><div class="k">MeAI 홈 · 세일즈혁신TF</div><h1>${title}</h1><p>사내 개발 설계도 · 2026-10-29 (v5.1 행운 존) · 내부 검토용 · 화면 · 수치는 확정 전 예시</p></header><article id="doc"></article>` +
     `<p class="foot">MeAI 홈 넛지 플레이 v5 · 보상 · 경품 · 명칭은 준법 · 재무 확인 전 예시입니다.</p></main></body></html>`);
   await p.addScriptTag({ path: path.join(MARKED, 'marked.min.js') });
   await p.addScriptTag({ path: path.join(MERMAID, 'dist', 'mermaid.min.js') });

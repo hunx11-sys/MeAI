@@ -184,8 +184,10 @@
   function emptyState(userId) {
     return { userId: userId, days: {}, weeks: {}, wallet: { shields: 0, shieldMonth: '', badges: {} },
       streak: { best: 0 }, ledger: [], quizHist: {}, combo: 0,
-      talks: { liked: {}, saved: {}, used: {}, copied: {} }, cheers: {}, firsts: {}, seen: {}, settings: {}, counters: {} };
+      talks: { liked: {}, saved: {}, used: {}, copied: {} }, cheers: {}, firsts: {}, seen: {}, settings: {}, counters: {},
+      fun: emptyFun() };
   }
+  function emptyFun() { return { days: {}, best: 0, scratch: [], feverUntil: 0, runs: {}, seenOx: {} }; }
   function dayRec(st, ymd) {
     return st.days[ymd] || (st.days[ymd] = { lit: false, attend: false, shield: false, kinds: {}, tags: {}, xp: 0, xpCount: {},
       reco: {}, lotto: 0, quizDone: false, talkCopied: false, quests: {}, mission: false, allclear: false });
@@ -252,6 +254,82 @@
       atRisk: isBizDay(today, cal) && !todayLit && hmGE(t.hm, cfg.streak.riskFrom), shields: st.wallet.shields, last10: last };
   }
 
+  // ───────────────────────────── 행운 존 (v5.1) ─────────────────────────────
+  // 룰렛 · 슬롯 · 스크래치 · OX 챌린지 · 타로 · 빙고 · 피버 타임. 결과는 모두 서버(이 엔진)가 정하고 화면은 보여 주기만 한다.
+  // 확률은 설정(cfg.fun)의 가중치 그대로이고 화면에 공개한다. 운에 따른 응모권은 하루 한도(cfg.fun.ticketCapDaily)가 있다.
+  function pickWeighted(rand, list) {
+    var sum = 0, i;
+    for (i = 0; i < list.length; i++) sum += list[i].weight;
+    var x = rand() * sum;
+    for (i = 0; i < list.length; i++) { x -= list[i].weight; if (x < 0) return i; }
+    return list.length - 1;
+  }
+  function shuffle(rand, arr) { var a = arr.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(rand() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function funOf(st) { return st.fun || (st.fun = emptyFun()); }
+  function funDay(st, ymd) {
+    var f = funOf(st);
+    return f.days[ymd] || (f.days[ymd] = { spins: [], pulls: [], runs: 0, tarot: null, tickets: 0, contacted: {}, perfect: false });
+  }
+  // 오늘 남은 기회 : 기본 횟수 + 조건 보너스(일일 미션 · 올클리어 등을 하면 한 번 더)
+  function funPlays(st, today, cfg) {
+    var f = cfg.fun, r = dayRec(st, today), d = funDay(st, today), out = {};
+    ['roulette', 'cslot', 'challenge', 'tarot'].forEach(function (g) {
+      var total = f.plays[g] || 0;
+      (f.playsBonus || []).forEach(function (b) { if (b.game === g && r[b.when]) total += b.n; });
+      var used = g === 'roulette' ? d.spins.length : g === 'cslot' ? d.pulls.length : g === 'challenge' ? d.runs : (d.tarot ? 1 : 0);
+      out[g] = { total: total, used: used, left: Math.max(0, total - used) };
+    });
+    return out;
+  }
+  // 피버 타임 : 영업일의 정한 시간대(모두) 또는 스크래치 · 룰렛으로 받은 나만의 피버. 두 개가 겹치면 큰 배수 하나만.
+  function feverInfo(st, now, cfg, cal) {
+    var fv = cfg.fever, t = kst(now), res = { on: false, mult: 1, until: 0, label: '', kind: '', next: null };
+    if (!fv) return res;
+    var f = funOf(st);
+    if (f.feverUntil > now) res = { on: true, mult: fv.personalMult, until: f.feverUntil, label: '나만의 피버', kind: 'personal', next: null };
+    if (isBizDay(t.ymd, cal)) (fv.daily || []).forEach(function (w) {
+      var a = toMs(t.ymd, w.from), b = toMs(t.ymd, w.to);
+      if (now >= a && now < b) { if (w.mult >= res.mult) res = { on: true, mult: w.mult, until: Math.max(b, res.until), label: w.label, kind: 'daily', next: null }; }
+      else if (now < a && !res.next) res.next = { at: a, until: b, label: w.label, mult: w.mult };
+    });
+    return res;
+  }
+  // 영업 빙고 : 이번 주(ISO 주) 행동을 칸마다 세어 3×3 판을 채운다. 줄 = 가로 3 · 세로 3 · 대각선 2.
+  var BINGO_LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+  function bingoState(st, ymd, cfg) {
+    var wid = weekId(ymd), sums = {};
+    Object.keys(st.days).forEach(function (d) {
+      if (weekId(d) !== wid) return;
+      var r = st.days[d];
+      Object.keys(r.kinds).forEach(function (k) { sums[k] = (sums[k] || 0) + r.kinds[k]; });
+      if (r.quizDone) sums.quiz = (sums.quiz || 0) + 1;
+    });
+    var cells = cfg.bingo.cells.map(function (c) { var v = sums[c.kind] || 0; return { id: c.id, label: c.label, kind: c.kind, go: c.go || '', n: c.n, progress: Math.min(v, c.n), done: v >= c.n }; });
+    var lines = [];
+    BINGO_LINES.forEach(function (l, i) { if (l.every(function (x) { return cells[x] && cells[x].done; })) lines.push(i); });
+    return { week: wid, cells: cells, lines: lines, count: lines.length, filled: cells.filter(function (c) { return c.done; }).length };
+  }
+  // 오늘의 타로 : 사람 · 날짜마다 정해진 세 장 중 하나를 고른다(다시 뽑아도 같음). 카드 번호 0~(n-1) = 메이저 아르카나.
+  function tarotOfDay(userId, ymd, n) {
+    var h = sha256hex('tarot|' + userId + '|' + ymd), rand = rng(parseInt(h.slice(0, 8), 16));
+    var a = [], i; for (i = 0; i < n; i++) a.push(i);
+    return shuffle(rand, a).slice(0, 3);
+  }
+  // OX 챌린지 문제 고르기 : 갈래를 번갈아, 최근에 푼 문제는 뒤로
+  function pickChallenge(bank, rand, n, seen) {
+    var by = {}, cats = [];
+    shuffle(rand, bank).sort(function (a, b) { return (seen[a.id] || '') < (seen[b.id] || '') ? -1 : (seen[a.id] || '') > (seen[b.id] || '') ? 1 : 0; })
+      .forEach(function (q) { if (!by[q.cat]) { by[q.cat] = []; cats.push(q.cat); } by[q.cat].push(q); });
+    var out = [];
+    for (var i = 0; out.length < n && i < bank.length; i++) cats.forEach(function (c) { if (out.length < n && by[c][i]) out.push(by[c][i].id); });
+    return out;
+  }
+  function challengePoints(ok, ms, combo, cc) {
+    if (!ok) return 0;
+    var left = Math.max(0, Math.floor((cc.sec * 1000 - Math.max(0, ms || 0)) / 1000));
+    return cc.base + left * cc.speed + (combo > 1 ? (combo - 1) * cc.combo : 0);
+  }
+
   // ───────────────────────────── 퀘스트 ─────────────────────────────
   function questIds(today, cfg) { return (cfg.questSchedule[today] || cfg.questSchedule['default']).slice(0, 5); }
   function questProgress(id, r, cfg) {
@@ -291,6 +369,7 @@
     var beforeQuest = questSummary(st, today, cfg);
     var beforeStreak = streakInfo(st, today, now, cal, cfg);
     var beforeRank = ctx.league ? leagueRank(st, wid, ctx) : null;
+    var beforeBingo = cfg.bingo ? bingoState(st, today, cfg) : null;
 
     function grant(type, amount, rule, label, ref) {
       if (!amount) return;
@@ -318,10 +397,35 @@
       var cap = cfg.xpDailyCount[k];
       r.xpCount[k] = (r.xpCount[k] || 0) + 1;
       if (cap && r.xpCount[k] > cap) return 0;
+      if (cfg.fever && cfg.fever.kinds.indexOf(k) >= 0) amount = amount * feverInfo(st, now, cfg, cal).mult;   // 피버 타임 : 영업 행동 XP 배수
       r.xp += amount; w.xp += amount;
       return amount;
     }
     function fail(reason) { out.ok = false; out.reason = reason; return out; }
+    // 운으로 받는 응모권(룰렛 · 슬롯 · 스크래치 · OX 만점)은 하루 한도까지만. 넘친 만큼은 XP 로 바꿔 준다.
+    function funTicket(n, rule, label, ref) {
+      var fd = funDay(st, today), cap = cfg.fun.ticketCapDaily, okN = Math.max(0, Math.min(n, cap - fd.tickets));
+      if (okN) { fd.tickets += okN; grant('ticket', okN, rule, label, ref); }
+      if (okN < n) { var xp = addXp('fun.capXp', cfg.fun.capXp * (n - okN)); out.fx.push({ type: 'capped', xp: xp, cap: cap }); }
+      return okN;
+    }
+    function applyPrize(pz, rule, ref) {
+      if (pz.type === 'xp') return { xp: addXp('fun.prize', pz.n) };
+      if (pz.type === 'ticket') return { ticket: funTicket(pz.n, rule, pz.label, ref) };
+      if (pz.type === 'shield') { grant('shield', pz.n, rule, pz.label, ref); return { shield: pz.n }; }
+      if (pz.type === 'fever') {
+        var f = funOf(st); f.feverUntil = Math.max(now, f.feverUntil || 0) + pz.min * 60000;
+        out.fx.push({ type: 'fever', until: f.feverUntil, min: pz.min, mult: cfg.fever.personalMult });
+        return { fever: f.feverUntil };
+      }
+      return {};
+    }
+    function issueScratch(from) {
+      var sc = cfg.fun.scratch, f = funOf(st), id = 'sc-' + today.replace(/-/g, '') + '-' + (f.scratch.length + 1);
+      f.scratch.push({ id: id, day: today, from: from, prize: pickWeighted(ctx.rand, sc.prizes), at: now, revealed: 0 });
+      out.fx.push({ type: 'scratchNew', id: id, from: from });
+    }
+
 
     // 1) 행동별 처리 ------------------------------------------------------
     if (kind === 'attend') {
@@ -373,7 +477,123 @@
       out.fx.push({ type: 'cheer', to: ev.to });
       var chb = badgeCheck('counter', count('cheer.send'), 'cheer.send');
       if (chb) out.fx.push({ type: 'badge', id: chb.id, label: chb.label, desc: chb.desc });
-    } else if (['reco.open', 'chat.custom', 'chat.general', 'notice.read', 'consent.request', 'fortune.send', 'dash.open'].indexOf(kind) >= 0) {
+    } else if (kind === 'roulette.spin') {
+      // CRM 룰렛 : 칸(고객 활동)을 가중치로 고르고, 그 활동이 어울리는 내 고객을 붙여 준다. 보너스 칸은 바로 보상.
+      if (!isBizDay(today, cal)) return fail('not_bizday');
+      if (!funPlays(st, today, cfg).roulette.left) return fail('no_plays');
+      var rc0 = cfg.fun.roulette, si = pickWeighted(ctx.rand, rc0.segments), sg = rc0.segments[si], fdr = funDay(st, today);
+      var free = (ctx.crm || []).filter(function (c) { return !fdr.contacted[c.id]; });
+      var fit = sg.tag ? shuffle(ctx.rand, free.filter(function (c) { return (c.tags || []).indexOf(sg.tag) >= 0; })) : [];
+      var spin = { id: 'r' + (fdr.spins.length + 1), seg: si, at: now, customers: [], fallback: false, done: {} };
+      if (sg.tag) {
+        spin.customers = fit.slice(0, rc0.pick).map(function (c) { return c.id; });
+        if (!spin.customers.length) { spin.fallback = true; spin.customers = shuffle(ctx.rand, free).slice(0, rc0.pick).map(function (c) { return c.id; }); }
+      }
+      fdr.spins.push(spin);
+      var bonus = sg.prize ? applyPrize(sg.prize, 'roulette.bonus', spin.id) : null;
+      out.data = { spinId: spin.id, seg: si, segId: sg.id, customers: spin.customers, fallback: spin.fallback, bonus: bonus };
+      out.fx.push({ type: 'roulette', seg: si, id: sg.id, label: sg.label, bonus: !!sg.prize });
+    } else if (kind === 'cslot.pull') {
+      // 추천 고객 슬롯 : 결과 단계(잭팟 · 짝 · 보통)를 가중치로 먼저 정하고, 그 단계에 맞게 고객 3명을 고른다.
+      if (!isBizDay(today, cal)) return fail('not_bizday');
+      if (!funPlays(st, today, cfg).cslot.left) return fail('no_plays');
+      var cs = cfg.fun.cslot, fds = funDay(st, today);
+      var avail = shuffle(ctx.rand, (ctx.crm || []).filter(function (c) { return !fds.contacted[c.id]; }));
+      if (avail.length < 3) return fail('no_customers');
+      var bySym = {}; avail.forEach(function (c) { (bySym[c.sym] = bySym[c.sym] || []).push(c); });
+      var syms = Object.keys(bySym), ti = pickWeighted(ctx.rand, cs.tiers), tier = cs.tiers[ti].id, pickC = null;
+      var big = syms.filter(function (k) { return bySym[k].length >= 3; }), two = syms.filter(function (k) { return bySym[k].length >= 2; });
+      if (tier === 'jackpot' && !big.length) tier = 'pair';
+      if (tier === 'pair' && (!two.length || syms.length < 2)) tier = 'mix';
+      if (tier === 'mix' && syms.length < 3) tier = two.length && syms.length >= 2 ? 'pair' : 'jackpot';
+      if (tier === 'jackpot') { var k0 = big[Math.floor(ctx.rand() * big.length)]; pickC = bySym[k0].slice(0, 3); }
+      else if (tier === 'pair') { var k1 = two[Math.floor(ctx.rand() * two.length)], oth = avail.filter(function (c) { return c.sym !== k1; }); pickC = shuffle(ctx.rand, bySym[k1].slice(0, 2).concat([oth[0]])); }
+      else { pickC = shuffle(ctx.rand, syms).slice(0, 3).map(function (k) { return bySym[k][0]; }); }
+      var pull = { id: 's' + (fds.pulls.length + 1), tier: tier, at: now, reels: pickC.map(function (c) { return c.sym; }), customers: pickC.map(function (c) { return c.id; }), done: {}, cleared: 0 };
+      fds.pulls.push(pull);
+      var won = cs.prizes[tier] || {}, got = { xp: 0, ticket: 0 };
+      if (won.xp) got.xp = addXp('cslot.bonus', won.xp);
+      if (won.ticket) got.ticket = funTicket(won.ticket, 'cslot.' + tier, won.label, pull.id);
+      out.data = { pullId: pull.id, tier: tier, reels: pull.reels, customers: pull.customers, prize: got };
+      out.fx.push({ type: 'cslot', tier: tier, reels: pull.reels });
+    } else if (kind === 'crm.done') {
+      // 룰렛 · 슬롯이 골라 준 고객에게 연락했다고 표시 (화면 신고 → XP 만. 응모권은 주지 않는다)
+      var fdc = funDay(st, today), m = String(ev.ref || '').split(':'), src = m[0] === 'r' ? fdc.spins : m[0] === 's' ? fdc.pulls : null;
+      var it = src && src.filter(function (x) { return x.id === m[1]; })[0];
+      if (!it || it.customers.indexOf(ev.customerId) < 0) return fail('no_target');
+      if (it.done[ev.customerId] || fdc.contacted[ev.customerId]) return fail('already');
+      it.done[ev.customerId] = now; fdc.contacted[ev.customerId] = now;
+      r.kinds['crm.done'] = (r.kinds['crm.done'] || 0) + 1;
+      var base = m[0] === 'r' ? (cfg.fun.roulette.segments[it.seg].xp || cfg.xp['crm.done']) : cfg.fun.cslot.xpContact;
+      var gx = addXp('crm.done', base), fm = feverInfo(st, now, cfg, cal);
+      out.data = { ref: ev.ref, customerId: ev.customerId, xp: gx, mult: fm.mult };
+      out.fx.push({ type: 'crm', xp: gx, mult: fm.mult });
+      var cb2 = badgeCheck('counter', count('crm.done'), 'crm.done');
+      if (cb2) out.fx.push({ type: 'badge', id: cb2.id, label: cb2.label, desc: cb2.desc });
+      if (m[0] === 's' && !it.cleared && it.customers.every(function (c) { return it.done[c]; })) {
+        it.cleared = now;
+        var cx = addXp('cslot.clear', cfg.fun.cslot.clearXp);
+        out.fx.push({ type: 'cslotClear', xp: cx });
+      }
+    } else if (kind === 'scratch.reveal') {
+      var fs0 = funOf(st), sc0 = fs0.scratch.filter(function (x) { return x.id === ev.ref; })[0];
+      if (!sc0) return fail('no_scratch');
+      if (sc0.revealed) return fail('already');
+      if (diffDays(sc0.day, today) > cfg.fun.scratch.validDays) return fail('expired');   // 받은 날부터 n일 안에 긁는다
+      sc0.revealed = now;
+      var pz = cfg.fun.scratch.prizes[sc0.prize], res = applyPrize(pz, 'scratch', sc0.id);
+      out.data = { id: sc0.id, prize: { id: pz.id, label: pz.label, type: pz.type }, result: res };
+      out.fx.push({ type: 'scratch', id: sc0.id, label: pz.label, prize: pz.type });
+    } else if (kind === 'challenge.start') {
+      var cc0 = cfg.fun.challenge, bank = ctx.oxBank || [];
+      if (!funPlays(st, today, cfg).challenge.left) return fail('no_plays');
+      if (bank.length < cc0.n) return fail('no_bank');
+      var fdq = funDay(st, today), fq = funOf(st), ids = pickChallenge(bank, ctx.rand, cc0.n, fq.seenOx), runId = 'c' + today.replace(/-/g, '') + '-' + (fdq.runs + 1);
+      fdq.runs++;
+      fq.runs[runId] = { ids: ids, ans: [], start: now, day: today, combo: 0, score: 0, ok: 0, done: 0 };
+      var keys = Object.keys(fq.runs); if (keys.length > 20) delete fq.runs[keys[0]];     // 지난 판은 20개까지만 둔다
+      var byId = {}; bank.forEach(function (q) { byId[q.id] = q; });
+      out.data = { runId: runId, sec: cc0.sec, items: ids.map(function (id) { return { id: id, cat: byId[id].cat, q: byId[id].q }; }) };
+    } else if (kind === 'challenge.answer') {
+      var cc1 = cfg.fun.challenge, fr = funOf(st), run = fr.runs[ev.ref];
+      if (!run || run.day !== today) return fail('no_run');
+      if (run.done) return fail('already');
+      var idx = run.ans.length;
+      if (ev.idx != null && +ev.idx !== idx) return fail('order');
+      var qq = (ctx.oxBank || []).filter(function (q) { return q.id === run.ids[idx]; })[0];
+      if (!qq) return fail('no_bank');
+      var okA = ev.choice === qq.a, ms = Math.max(0, Math.min(cc1.sec * 1000, +ev.ms || 0));
+      run.combo = okA ? run.combo + 1 : 0;
+      var pts = challengePoints(okA, ms, run.combo, cc1);
+      run.score += pts; if (okA) run.ok++;
+      run.ans.push({ choice: ev.choice == null ? null : ev.choice, ok: okA, ms: ms, pts: pts });
+      fr.seenOx[qq.id] = today;
+      var last = run.ans.length === run.ids.length;
+      out.data = { idx: idx, correct: okA, a: qq.a, why: qq.why, src: qq.src, pts: pts, score: run.score, combo: run.combo, last: last };
+      if (last) {
+        run.done = now;
+        var fdz = funDay(st, today), newBest = run.score > (fr.best || 0);
+        if (newBest) fr.best = run.score;
+        r.kinds['challenge.finish'] = (r.kinds['challenge.finish'] || 0) + 1;
+        var cxp = addXp('challenge.finish', Math.round(run.score / cc1.xpDiv)), perfect = run.ok === run.ids.length, tk = 0;
+        if (perfect && !fdz.perfect) {
+          fdz.perfect = true; tk = funTicket(cc1.perfectTicket, 'challenge.perfect', 'OX 챌린지 만점', ev.ref);
+          var pb2 = badgeCheck('counter', count('challenge.perfect'), 'challenge.perfect');
+          if (pb2) out.fx.push({ type: 'badge', id: pb2.id, label: pb2.label, desc: pb2.desc });
+        }
+        out.data.summary = { score: run.score, ok: run.ok, n: run.ids.length, best: fr.best, newBest: newBest, xp: cxp, ticket: tk, perfect: perfect };
+        out.fx.push({ type: 'challenge', score: run.score, ok: run.ok, n: run.ids.length, newBest: newBest, perfect: perfect });
+      }
+    } else if (kind === 'tarot.draw') {
+      var fdt = funDay(st, today);
+      if (fdt.tarot) return fail('already');
+      var three = tarotOfDay(st.userId, today, cfg.fun.tarot.cards), pk = Math.max(0, Math.min(2, Math.floor(+ev.choice) || 0));
+      fdt.tarot = { card: three[pk], pick: pk, three: three, at: now };
+      r.kinds['tarot.draw'] = 1;
+      addXp('tarot.draw', cfg.xp['tarot.draw']);
+      out.data = { card: three[pk], pick: pk, three: three };
+      out.fx.push({ type: 'tarot', card: three[pk] });
+    } else if (['reco.open', 'chat.custom', 'chat.general', 'notice.read', 'consent.request', 'fortune.send', 'fortune.open', 'dash.open'].indexOf(kind) >= 0) {
       // 같은 고객을 하루에 여러 번 열면 한 번만 센다
       if (kind === 'reco.open' && ev.customerId) {
         if (r.reco[ev.customerId]) { out.reason = 'same_customer'; }
@@ -429,10 +649,26 @@
     if (after.done >= cfg.rewards.dailyMission.need && !r.mission) {
       r.mission = true; grant('ticket', cfg.rewards.dailyMission.ticket, 'quest.mission', '일일 미션 달성', today);
       out.fx.push({ type: 'mission' });
+      if (cfg.fun && cfg.fun.scratch.issueOn.indexOf('mission') >= 0) issueScratch('mission');
     }
     if (after.done >= cfg.rewards.allClear.need && after.done === after.total && !r.allclear) {
       r.allclear = true; grant('ticket', cfg.rewards.allClear.ticket, 'quest.allclear', '퀘스트 올클리어', today);
       out.fx.push({ type: 'allclear' });
+      if (cfg.fun && cfg.fun.scratch.issueOn.indexOf('allclear') >= 0) issueScratch('allclear');
+    }
+
+    // 3-2) 영업 빙고 (이번 주) ---------------------------------------------
+    if (beforeBingo) {
+      var bg = bingoState(st, today, cfg), wbg = w.bingo || (w.bingo = {});
+      var fresh = bg.lines.filter(function (l) { return beforeBingo.lines.indexOf(l) < 0; });
+      if (fresh.length) out.fx.push({ type: 'bingo', lines: bg.lines, fresh: fresh, count: bg.count, filled: bg.filled });
+      cfg.bingo.rewards.forEach(function (m, i) {
+        if (bg.count >= m.lines && !wbg[i]) {
+          wbg[i] = now;
+          grant('ticket', m.ticket, 'bingo.' + i, m.label, wid);
+          if (m.lines >= BINGO_LINES.length) { var bb = badgeCheck('counter', count('bingo.blackout'), 'bingo.blackout'); if (bb) out.fx.push({ type: 'badge', id: bb.id, label: bb.label, desc: bb.desc }); }
+        }
+      });
     }
 
     // 4) 주간 패스 ---------------------------------------------------------
@@ -535,6 +771,8 @@
     sigChars: sigChars, copyScore: copyScore, maskName: maskName,
     emptyState: emptyState, dayRec: dayRec, weekRec: weekRec, refillShields: refillShields, settleMissed: settleMissed, prepareDay: prepareDay,
     streakInfo: streakInfo, questIds: questIds, questSummary: questSummary, evaluate: evaluate,
-    leagueRank: leagueRank, catchUpHint: catchUpHint, recap: recap, pickBuddy: pickBuddy, testWhen: testWhen
+    leagueRank: leagueRank, catchUpHint: catchUpHint, recap: recap, pickBuddy: pickBuddy, testWhen: testWhen,
+    pickWeighted: pickWeighted, shuffle: shuffle, funDay: funDay, funPlays: funPlays, feverInfo: feverInfo, bingoState: bingoState, BINGO_LINES: BINGO_LINES,
+    tarotOfDay: tarotOfDay, pickChallenge: pickChallenge, challengePoints: challengePoints
   };
 });

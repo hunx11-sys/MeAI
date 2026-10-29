@@ -47,7 +47,8 @@
   // ── 그림 · 걱정인형 ────────────────────────────────────────
   // 목업(한 파일)은 window.NZ_ASSETS 에 data: 주소가 들어 있고, 사내 서버판은 assetBase + 파일 이름을 쓴다.
   NZ.assetBase = '';
-  NZ.asset = (name) => (G.NZ_ASSETS && G.NZ_ASSETS[name]) || (NZ.assetBase + name);
+  NZ.tarotBase = null; // 타로 그림 자리가 따로 있으면(예 : 저장소의 fortune/assets/tarot/) mount({ tarotBase }) 로 준다
+  NZ.asset = (name) => (G.NZ_ASSETS && G.NZ_ASSETS[name]) || (NZ.tarotBase && name.indexOf('tarot/') === 0 ? NZ.tarotBase + name.slice(6) : NZ.assetBase + name);
   NZ.mascot = (id) => NZ.asset('mascots/' + id + '.webp');
 
   const P = (d, extra) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (extra || '') + '>' + d + '</svg>';
@@ -91,7 +92,19 @@
     search: P('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
     refresh: P('<path d="M20 11a8 8 0 0 0-14.7-4.3L4 8M4 4v4h4M4 13a8 8 0 0 0 14.7 4.3L20 16M20 20v-4h-4"/>'),
     dash: P('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'),
-    wand: P('<path d="M15 4V2M15 10V8M11 6h2M17 6h2M4 20l9-9M12 12l1-1"/>')
+    wand: P('<path d="M15 4V2M15 10V8M11 6h2M17 6h2M4 20l9-9M12 12l1-1"/>'),
+    // 행운 존
+    clover: '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="8.6" cy="8.4" r="3.7"/><circle cx="15.4" cy="8.4" r="3.7"/><circle cx="8.6" cy="15.2" r="3.7"/><circle cx="15.4" cy="15.2" r="3.7"/></g><path d="M13.4 13.4l5.6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="11.8" r="1.7" fill="#fff" opacity=".75"/></svg>',
+    wheel: P('<circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/>'),
+    slot: P('<rect x="2.5" y="5" width="15.5" height="14" rx="2.5"/><path d="M7.7 5v14M12.9 5v14"/><path d="M21 9.5v5"/><circle cx="21" cy="7.5" r="1.6"/>'),
+    ox: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="6.8" cy="12" r="4.3"/><path d="M14 7.6l7.6 8.8M21.6 7.6L14 16.4"/></svg>',
+    cards: P('<rect x="8.5" y="3" width="11" height="16" rx="2" transform="rotate(12 14 11)"/><rect x="4" y="5" width="11" height="16" rx="2" fill="currentColor" fill-opacity=".12"/><path d="M9.5 9.6l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z"/>'),
+    scratch: P('<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 13c1.4-2.2 2.9-2.2 4.3 0s2.9 2.2 4.3 0 2.2-1.6 2.9-1.2"/><path d="M17 3.5l2.5 2.5"/>'),
+    grid: P('<rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/>'),
+    cake: P('<path d="M4 20h16M5 20v-6.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2V20"/><path d="M5 15.6c1.4 1 2.8 1 4.2 0 1.4 1 2.8 1 4.2 0 1.4 1 2.8 1 4.2 0"/><path d="M12 11.5V8"/><path d="M12 3.8c1 1.1 1 2.2 0 2.9-1-.7-1-1.8 0-2.9z" fill="currentColor"/>'),
+    clock: P('<circle cx="12" cy="13" r="8"/><path d="M12 9v4.2l2.8 1.8"/><path d="M4.8 4.8l2 1.5M19.2 4.8l-2 1.5"/>'),
+    mail: P('<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.6 7.2l8.4 6 8.4-6"/>'),
+    bolt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.4 2.5L4.8 13.6h6l-1.2 7.9 8.6-11.1h-6z"/></svg>'
   };
 
   // ── 소리 (파일 없이 Web Audio 로 합성 · 기본 꺼짐) ──────────
@@ -140,20 +153,33 @@
   const subs = [];
   NZ.home = null;
   NZ.onChange = (fn) => subs.push(fn);
-  NZ.setHome = (h) => { NZ.home = h; subs.forEach((fn) => { try { fn(h); } catch (e) { console.error('[넛지]', e); } }); };
+  NZ.setHome = (h) => { NZ.home = h; NZ.homeAt = Date.now(); subs.forEach((fn) => { try { fn(h); } catch (e) { console.error('[넛지]', e); } }); };
   NZ.load = async () => { NZ.setHome(await NZ.api.getHome()); return NZ.home; };
   const REASON = {
     already: '오늘은 이미 했어요', not_bizday: '오늘은 쉬는 날이에요. 연속 기록은 그대로 이어져요', limit: '오늘 응원은 모두 보냈어요',
-    lotto_daily_max: '오늘 받을 수 있는 세트(5세트)를 모두 받았어요', not_done: '조금만 더 맞게 써 보세요', no_quiz: '오늘의 퀴즈가 아직 열리지 않았어요'
+    lotto_daily_max: '오늘 받을 수 있는 세트(5세트)를 모두 받았어요', not_done: '조금만 더 맞게 써 보세요', no_quiz: '오늘의 퀴즈가 아직 열리지 않았어요',
+    no_plays: '오늘 기회를 모두 썼어요. 일일 미션 · 올클리어를 하면 한 번 더 생겨요', no_customers: '지금 고를 고객이 부족해요. 내일 다시 해 보세요',
+    no_target: '이 고객은 오늘 룰렛 · 슬롯 결과에 없어요', expired: '받은 지 7일이 지나 쓸 수 없는 복권이에요', no_scratch: '복권을 찾지 못했어요'
   };
   // 행동 하나 : 서버 응답을 받아 화면 · 연출 · 사용 기록까지 한 번에
   NZ.run = async (promise, ctx) => {
-    let r;
-    try { r = await promise; } catch (e) { NZ.toast('지금은 연결이 원활하지 않아요. 잠시 뒤 다시 해 주세요'); console.error('[넛지]', e); return null; }
+    const r = await NZ.ask(promise);
+    return r ? NZ.settle(r, ctx) : null;
+  };
+  // 응답만 먼저 받기 (게임처럼 연출이 끝난 뒤에 반영할 때) → 나중에 NZ.settle(r)
+  NZ.ask = async (promise) => {
+    try { return await promise; } catch (e) { NZ.toast('지금은 연결이 원활하지 않아요. 잠시 뒤 다시 해 주세요'); console.error('[넛지]', e); return null; }
+  };
+  NZ.settle = (r, ctx) => {
     if (r.home) NZ.setHome(r.home);
     if (!r.ok && r.reason && REASON[r.reason] && !(ctx && ctx.quiet)) NZ.toast(REASON[r.reason]);
     if ((r.fx && r.fx.length) || (r.grants && r.grants.length)) NZ.fx.play(r.fx || [], r.grants || [], ctx || {});
     return r;
+  };
+  // 이 기기에만 두는 값(예 : 내 생년월일). 사생활 보호 모드 등으로 막혀 있으면 조용히 없는 것으로 본다.
+  NZ.local = {
+    get(k) { try { return G.localStorage.getItem('meai.nudge.' + k); } catch (e) { return null; } },
+    set(k, v) { try { if (v == null) G.localStorage.removeItem('meai.nudge.' + k); else G.localStorage.setItem('meai.nudge.' + k, v); return true; } catch (e) { return false; } }
   };
 
   // ── 사용 기록(대시보드 원천) : 화면에서 일어난 일을 모아 한꺼번에 보낸다 ──

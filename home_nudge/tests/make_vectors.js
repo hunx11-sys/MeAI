@@ -70,5 +70,52 @@ function shieldCase(missDays) {
 }
 V.shield = [1, 2, 3].map(shieldCase);
 
+// 행운 존 (v5.1) : 고정 고객 목록 · 작은 문제 은행으로 하루 동안의 룰렛 · 슬롯 · 고객 챙기기 · 피버 · OX 챌린지 · 타로 · 스크래치
+const FUN_CRM = [
+  { id: 'k1', sym: 'birthday', tags: ['birthday', 'thanks'] }, { id: 'k2', sym: 'age_up', tags: ['age_up', 'gap'] }, { id: 'k3', sym: 'age_up', tags: ['age_up'] },
+  { id: 'k4', sym: 'renew', tags: ['renew', 'health'] }, { id: 'k5', sym: 'gap', tags: ['gap', 'health'] }, { id: 'k6', sym: 'consent', tags: ['thanks'] },
+  { id: 'k7', sym: 'age_up', tags: ['age_up', 'birthday'] }, { id: 'k8', sym: 'renew', tags: ['renew'] }, { id: 'k9', sym: 'gap', tags: ['gap', 'thanks'] }];
+const FUN_BANK = [
+  { id: 'x1', cat: 'terms', a: 'O' }, { id: 'x2', cat: 'terms', a: 'X' }, { id: 'x3', cat: 'medical', a: 'O' },
+  { id: 'x4', cat: 'medical', a: 'X' }, { id: 'x5', cat: 'system', a: 'O' }, { id: 'x6', cat: 'comply', a: 'X' }, { id: 'x7', cat: 'meai', a: 'O' }].map(q => Object.assign({ q: q.id + ' 문제', why: q.id + ' 해설', src: '시험' }, q));
+function funScenario() {
+  const st = R.emptyState('u-fun'), user = { id: 'u-fun', name: '시험', joinMonth: 20 }, quiz = { id: 'q-f', answer: 'O' };
+  const d = '2026-11-03', steps = [];
+  let n = 0;
+  const bankById = {}; FUN_BANK.forEach(q => { bankById[q.id] = q; });
+  function go(hm, ev) {
+    const out = R.evaluate(st, ev, { cfg, cal, now: R.toMs(d, hm), rand: R.rng(5000 + (++n)), user, recoToday: ['c1'], quiz, talk: null, league: null, crm: FUN_CRM, oxBank: FUN_BANK });
+    steps.push({ at: hm, ev, ok: out.ok, reason: out.reason, grants: out.grants.map(g => [g.type, g.amount, g.rule]), fx: out.fx.map(f => f.type), data: out.data || null,
+      after: { weekXp: (st.weeks[R.weekId(d)] || {}).xp, tickets: (st.weeks[R.weekId(d)] || {}).tickets, best: st.fun.best } });
+    return out;
+  }
+  const s1 = go('10:00', { kind: 'roulette.spin' });
+  go('10:01', { kind: 'roulette.spin' });                                              // 기회 없음
+  if (s1.data && s1.data.customers[0]) go('10:05', { kind: 'crm.done', ref: 'r:' + s1.data.spinId, customerId: s1.data.customers[0] });
+  if (s1.data && s1.data.customers[1]) go('14:10', { kind: 'crm.done', ref: 'r:' + s1.data.spinId, customerId: s1.data.customers[1] });   // 오후 피버 ×2
+  go('14:11', { kind: 'crm.done', ref: 'r:' + (s1.data && s1.data.spinId), customerId: 'nobody' });        // 룰렛이 고르지 않은 고객
+  const p1 = go('14:20', { kind: 'cslot.pull' });
+  (p1.data ? p1.data.customers : []).forEach((c, i) => go('14:2' + (1 + i), { kind: 'crm.done', ref: 's:' + p1.data.pullId, customerId: c }));
+  const c1 = go('15:10', { kind: 'challenge.start' });
+  (c1.data ? c1.data.items : []).forEach((it, i) => go('15:1' + (1 + i), { kind: 'challenge.answer', ref: c1.data.runId, idx: i, choice: i === 2 ? (bankById[it.id].a === 'O' ? 'X' : 'O') : bankById[it.id].a, ms: 1500 + i * 700 }));
+  const c2 = go('15:20', { kind: 'challenge.start' });
+  (c2.data ? c2.data.items : []).forEach((it, i) => go('15:2' + (1 + i), { kind: 'challenge.answer', ref: c2.data.runId, idx: i, choice: bankById[it.id].a, ms: 900 }));
+  go('16:00', { kind: 'tarot.draw', choice: 1 });
+  go('16:01', { kind: 'tarot.draw', choice: 2 });                                      // 하루 한 장
+  go('16:10', { kind: 'attend' }); go('16:11', { kind: 'quiz.answer', quizId: 'q-f', choice: 'O' }); go('16:12', { kind: 'reco.open', customerId: 'c1' });   // 일일 미션 → 스크래치
+  const sc = st.fun.scratch[0];
+  if (sc) { go('16:20', { kind: 'scratch.reveal', ref: sc.id }); go('16:21', { kind: 'scratch.reveal', ref: sc.id }); }
+  go('16:30', { kind: 'roulette.spin' });                                              // 일일 미션 보너스 기회
+  return { crm: FUN_CRM, bank: FUN_BANK.map(q => ({ id: q.id, cat: q.cat, a: q.a })), day: d, rand: 'mulberry32(5000 + 단계 번호)', steps,
+    bingo: R.bingoState(st, d, cfg), plays: R.funPlays(st, d, cfg) };
+}
+V.fun = {
+  weighted: (() => { const r = R.rng(42), c = cfg.fun.roulette.segments.map(() => 0); for (let i = 0; i < 10000; i++) c[R.pickWeighted(r, cfg.fun.roulette.segments)]++; return { seed: 42, n: 10000, counts: c }; })(),
+  tarot: ['2026-11-03', '2026-11-04'].map(dd => ({ in: ['u-fun', dd, 22], out: R.tarotOfDay('u-fun', dd, 22) })),
+  points: [[true, 1500, 1], [true, 900, 3], [false, 500, 0], [true, 12000, 2]].map(a => ({ in: a, out: R.challengePoints(a[0], a[1], a[2], cfg.fun.challenge) })),
+  fever: [['2026-11-03', '13:59'], ['2026-11-03', '14:00'], ['2026-11-03', '14:59'], ['2026-11-03', '15:00'], ['2026-11-07', '14:30']].map(a => ({ in: a, out: R.feverInfo(R.emptyState('u'), R.toMs(a[0], a[1]), cfg, cal) })),
+  scenario: funScenario()
+};
+
 fs.writeFileSync(path.join(__dirname, 'vectors.json'), JSON.stringify(V, null, 1));
-console.log('vectors.json 만듦 · 시나리오', V.scenario.steps.length, '단계');
+console.log('vectors.json 만듦 · 시나리오', V.scenario.steps.length, '단계 · 행운 존', V.fun.scenario.steps.length, '단계');

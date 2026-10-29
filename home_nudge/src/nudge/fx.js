@@ -1,4 +1,4 @@
-/* MeAI 홈 넛지 v5 · 연출 (색종이 · 알림 · 날아가기 · 슬롯머신 · 미션 달성 · 추첨 발표 · 주간 리캡)
+/* MeAI 홈 넛지 v5 · 연출 (색종이 · 알림 · 날아가기 · 슬롯머신 · 미션 달성 · 추첨 발표 · 주간 리캡 · 행운 존 알림)
  * 원칙 : 화면을 오래 막지 않는다(누르면 바로 닫힘 · Esc · 자동 닫힘), 겹치지 않고 하나씩, 설정에 따라 줄이거나 끈다.
  *   설정 fx = 'full'(화려하게) · 'simple'(알림만) · 'off'(숫자만 바뀜)
  */
@@ -277,12 +277,24 @@
           NZ.toast('<b>보호권 ' + f.days.length + '장</b>으로 연속 기록을 지켰어요 (' + f.days.map((d) => NZ.fmt.md(d)).join(', ') + ')', { icon: 'shield', ms: 3600 }); break;
         case 'cheer':
           NZ.toast('응원을 보냈어요. 오늘 남은 응원 ' + Math.max(0, (NZ.home && NZ.home.league.cheersLeft) || 0) + '번', { icon: 'clap' }); break;
+        // 행운 존 : 게임 화면이 직접 보여 주는 결과(roulette · cslot · challenge · tarot · scratch · crm)는 여기서 다시 그리지 않는다
+        case 'scratchNew':
+          NZ.toast('<b>스크래치 복권 1장</b>이 생겼어요 · 행운 존에서 긁어 보세요', { icon: 'gift', ms: 3600 }); NZ.ui && NZ.ui.bump('fun'); break;
+        case 'fever':
+          if (NZ.fun) await NZ.fun.fx.fever(f); break;
+        case 'bingo':
+          if (simple || !NZ.fun) NZ.toast('영업 빙고 <b>' + f.count + '줄</b> 완성', { icon: 'star' }); else await NZ.fun.fx.bingo(f);
+          break;
+        case 'cslotClear':
+          NZ.toast('슬롯 고객 3명을 모두 챙겼어요 · <b>XP +' + f.xp + '</b>', { icon: 'check' }); break;
+        case 'capped':
+          NZ.toast('오늘 행운 존 응모권 ' + f.cap + '장을 모두 받았어요 · 대신 <b>XP +' + f.xp + '</b>', { icon: 'info', ms: 3600 }); break;
         default: break;
       }
     }
     // 연출과 짝이 없는 응모권은 한꺼번에 날린다
     for (const g of tickets.filter((x) => !x._flown)) { if (m === 'full') await NZ.fly(fromOf('any'), NZ.ui && NZ.ui.anchor('cap-ticket'), 'ticket'); else NZ.ui && NZ.ui.bump('ticket'); }
-    if (fx.length) NZ.say(fx.map((f) => ({ stamp: '출석 도장 완료', quest: '미션 달성 ' + (f.title || ''), mission: '일일 미션 달성', allclear: '퀘스트 올클리어', slot: '로또 1세트 응모', streak: f.days + '영업일 연속' }[f.type] || '')).filter(Boolean).join(' · '));
+    if (fx.length) NZ.say(fx.map((f) => ({ stamp: '출석 도장 완료', quest: '미션 달성 ' + (f.title || ''), mission: '일일 미션 달성', allclear: '퀘스트 올클리어', slot: '로또 1세트 응모', streak: f.days + '영업일 연속', bingo: '영업 빙고 ' + f.count + '줄', scratchNew: '스크래치 복권 1장', fever: '피버 타임' }[f.type] || '')).filter(Boolean).join(' · '));
   }
 
   // ── 금요일 17시 추첨 발표 ──────────────────────────────────

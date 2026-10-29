@@ -1,4 +1,4 @@
-/* MeAI 홈 넛지 v5 · 펼침 카드 (오늘의 루틴 · 출석 · 퀴즈 · 화법 · 로또 · 리그 · 첫 7일 여정 · 지갑 · 더보기)
+/* MeAI 홈 넛지 v5 · 펼침 카드 (오늘의 루틴 · 출석 · 퀴즈 · 화법 · 로또 · 리그 · 첫 7일 여정 · 지갑 · 넛지 설정). 행운 존 카드는 fun.js
  * 카드 = { title, wide, render(home) → HTML, mount(box, home), update(box, home), act(name, el) }
  * 카드는 서버 요약(home)만 보고 그린다. 행동은 NZ.run(NZ.api.○○()) 으로 보내고 결과(새 home)로 다시 그린다.
  */
@@ -293,20 +293,20 @@
         '<div class="nz-rowinfo">' + I.gift + '<span>금요일 17:00 커피 추첨 · 응모권 1장 = 1번 응모 · 당첨 ' + co.winners + '명</span><span class="r">내 기대 확률 <b>' + F.pct(chance) + '</b></span></div>' +
         '<p class="nz-note">기대 확률은 이번 주 전체 응모권 약 ' + F.n(co.poolAssumed) + '장을 가정한 계산값이에요 <span class="nz-ex">가정값</span></p>' +
         '<div class="nz-kicker">오늘 받은 보상</div><ul class="nz-feed">' + feed + '</ul></div>' +
-        '<div class="nz-cf"><button type="button" class="nz-btn dark wide" data-act="dash">' + I.dash + '내 기록 전체 보기 · 배지 ' + W.badges + '개</button></div>';
+        '<div class="nz-cf"><button type="button" class="nz-btn dark wide" data-act="dash">' + I.dash + '내 기록 전체 보기 · 배지 ' + W.badges + '개</button><button type="button" class="nz-btn ghost" data-open="more">' + I.gear + '설정</button></div>';
     }
   };
 
-  // ═════ 더보기 : 오늘의 운세 보내기 · 넛지 설정 ═════
+  // ═════ 넛지 설정 (행운 존 · 지갑 카드에서 연다) · 오늘의 운세 보내기 ═════
   const FORTUNE_MSG = '고객님, 오늘 운세 한번 보실래요? 이름과 생년월일만 넣으면 사주와 타로로 오늘 하루를 알려 줘요. 재미로 가볍게 보세요.';
   C.more = {
-    title: '더보기',
+    title: '넛지 설정',
     render(h) {
       const s = h.settings;
-      return head(I.dots, '더보기', '') +
-        '<div class="nz-cb"><div class="nz-fort"><span class="moon" aria-hidden="true"></span><div><b>오늘의 운세로 안부 건네기</b><p>사주 · 타로를 고객에게 보내 대화를 가볍게 열어요. 입력한 정보는 고객 휴대폰 밖으로 나가지 않아요.</p></div></div>' +
-        '<div class="nz-tpl">' + esc(FORTUNE_MSG) + '</div><div class="nz-row2"><button type="button" class="nz-btn sec" data-act="fortune-copy">' + I.copy + '안부 문구 복사</button><button type="button" class="nz-btn dark" data-go="fortune">' + I.moon + '운세 열어 보기</button></div>' +
-        '<div class="nz-kicker">넛지 설정 · 나에게만 적용</div><div class="nz-set">' +
+      return head(I.gear, '넛지 설정', '나에게만 적용') +
+        '<div class="nz-cb"><div class="nz-fort"><span class="moon" aria-hidden="true"></span><div><b>오늘의 운세로 안부 건네기</b><p>사주 · 타로를 고객에게 보내 대화를 가볍게 열어요. 나의 오늘 운세 · 타로 한 장은 행운 존에 있어요.</p></div></div>' +
+        '<div class="nz-row2"><button type="button" class="nz-btn sec" data-act="fortune-copy">' + I.copy + '안부 문구 복사</button><button type="button" class="nz-btn dark" data-go="fortune-card">' + I.moon + '나의 오늘 운세</button></div>' +
+        '<div class="nz-kicker">화면 · 연출</div><div class="nz-set">' +
         '<div class="row"><div><b>축하 연출</b><small>도장 · 슬롯 · 미션 달성 화면</small></div>' + seg('fx', s.fx, [['full', '화려하게'], ['simple', '간단히'], ['off', '끄기']]) + '</div>' +
         '<div class="row"><div><b>소리</b><small>도장 · 슬롯 · 정답 효과음</small></div>' + sw('sound', s.sound, '소리') + '</div>' +
         '<div class="row"><div><b>버디 말풍선</b><small>인사말 옆 한 줄 안내</small></div>' + sw('buddy', s.buddy, '버디 말풍선') + '</div>' +

@@ -1,4 +1,4 @@
-# 사용 기록 정의 (MeAI 홈 넛지 v5)
+# 사용 기록 정의 (MeAI 홈 넛지 v5 · v5.1 행운 존 포함)
 
 두 갈래로 모은다.
 
@@ -21,7 +21,7 @@
 | el | action | meta | 뜻 |
 |---|---|---|---|
 | `home` | `view` | – | 넛지가 붙은 홈을 봄 |
-| `dock_<칸>` | `open_hover` · `open_pin` | – | 막대 칸(quest · attend · quiz · talk · lotto · league · journey · wallet · more)의 카드를 엿봄 · 고정해 엶 |
+| `dock_<칸>` | `open_hover` · `open_pin` | – | 막대 칸(quest · attend · quiz · talk · lotto · league · journey · wallet · fun · more)의 카드를 엿봄 · 고정해 엶 |
 | `header_dash` | `click` | – | 머리 띠 MeAI 대시보드 |
 | `go` | `<target>` | – | 「하러 가기」 · 버디 단추 등으로 원래 기능 이동 (attend · quiz · reco · board · custom · consent · fortune · dash · draw · recap …) |
 | `buddy` | `show` · `cta` · `dismiss` | `{id}` | 버디 말풍선 보임 · 단추 누름 · 닫음 |
@@ -33,7 +33,8 @@
 | `lotto` | `draw_view` | – | 당첨번호 발표 봄 |
 | `league` | `scope` · `cheer` | `{s}` | 리그 범위 전환 · 응원 |
 | `settings` | `<키>` | `{v}` | 넛지 설정 바꿈 (fx · sound · buddy · hideRank · tickerSec …) |
-| `fortune` | `copy` | – | 운세 안부 문구 복사 |
+| `fortune` | `copy` · `birth_set` | – | 운세 · 타로 안부 문구 복사 · 내 생년월일 저장(값은 보내지 않음 · 이 기기에만) |
+| `fun` | `open` · `roulette_spin` · `cslot_pull` · `challenge_start` · `tpl_copy` · `chat` | `{g}` · `{run}` · `{cid 있음}` | 행운 존 : 게임 열기 · 돌리기 · 당기기 · 챌린지 시작 · 안부 문구 복사 · 맞춤대화로 |
 | `dash` | `open` · `tab` · `csv` | `{tab}` | 대시보드 |
 | `host_<kind>` | `event` | `{c}` | 홈에서 report 한 행동(reco.open · chat.custom …). 고객 id 는 보내지 않고 있음/없음만 |
 
@@ -52,6 +53,12 @@
 | `fortune.send` | 넛지 모듈 | | fortune_send | |
 | `cheer.send` | 넛지 모듈 | | | |
 | `dash.open` | 넛지 모듈 | | (첫 7일 여정) | |
+| `roulette.spin` · `cslot.pull` (v5.1) | 넛지 모듈 | | | |
+| `crm.done` (v5.1) | 넛지 모듈(화면 신고) · 문자 · 알림톡 발송 서버 간 이벤트(확정) | ✓ | crm_done | |
+| `scratch.reveal` · `tarot.draw` · `fortune.open` (v5.1) | 넛지 모듈 | | | |
+| `challenge.start` · `challenge.answer` (v5.1) | 넛지 모듈 (마지막 답 = `challenge.finish` 횟수 +1) | | ox_run | |
+
+행운 존 결과는 원장(`nz_ledger`, rule = `roulette.bonus` · `cslot.jackpot` · `scratch` · `challenge.perfect` · `bingo.n` · `fun.capXp` …)과 `nz_fun_*` · `nz_ox_*` · `nz_scratch` · `nz_tarot_draw` 표에 남는다. 대시보드 집계에 더할 것 : 룰렛 · 슬롯 결과 고객 중 「연락했어요」 비율 · OX 챌린지 참여 · 갈래별 정답률(오늘의 약관 · 메디컬 · 제도 · 준법) · 피버 시간대 영업 행동 수(평소 같은 시간대 대비).
 
 ## 4. 대시보드가 쓰는 집계 (`nz_agg_daily`)
 

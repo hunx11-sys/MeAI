@@ -1,6 +1,6 @@
 {
  "$comment": "MeAI 홈 넛지 규칙 엔진 테스트 벡터. 만든 곳 : tests/make_vectors.js · 확인 : node tests/rules.test.js",
- "version": "5.0.0",
+ "version": "5.1.0",
  "dates": [
   {
    "in": "2026-10-29",
@@ -357,6 +357,7 @@
     "fx": [
      "quest",
      "mission",
+     "scratchNew",
      "first"
     ],
     "after": {
@@ -473,6 +474,7 @@
      "talk",
      "quest",
      "allclear",
+     "scratchNew",
      "first"
     ],
     "after": {
@@ -732,5 +734,1198 @@
    "shieldsLeft": 2,
    "streak": 1
   }
- ]
+ ],
+ "fun": {
+  "weighted": {
+   "seed": 42,
+   "n": 10000,
+   "counts": [
+    1614,
+    1401,
+    1375,
+    1610,
+    1260,
+    1328,
+    616,
+    796
+   ]
+  },
+  "tarot": [
+   {
+    "in": [
+     "u-fun",
+     "2026-11-03",
+     22
+    ],
+    "out": [
+     5,
+     10,
+     21
+    ]
+   },
+   {
+    "in": [
+     "u-fun",
+     "2026-11-04",
+     22
+    ],
+    "out": [
+     17,
+     21,
+     18
+    ]
+   }
+  ],
+  "points": [
+   {
+    "in": [
+     true,
+     1500,
+     1
+    ],
+    "out": 28
+   },
+   {
+    "in": [
+     true,
+     900,
+     3
+    ],
+    "out": 39
+   },
+   {
+    "in": [
+     false,
+     500,
+     0
+    ],
+    "out": 0
+   },
+   {
+    "in": [
+     true,
+     12000,
+     2
+    ],
+    "out": 25
+   }
+  ],
+  "fever": [
+   {
+    "in": [
+     "2026-11-03",
+     "13:59"
+    ],
+    "out": {
+     "on": false,
+     "mult": 1,
+     "until": 0,
+     "label": "",
+     "kind": "",
+     "next": {
+      "at": 1793682000000,
+      "until": 1793685600000,
+      "label": "오후 영업 피버",
+      "mult": 2
+     }
+    }
+   },
+   {
+    "in": [
+     "2026-11-03",
+     "14:00"
+    ],
+    "out": {
+     "on": true,
+     "mult": 2,
+     "until": 1793685600000,
+     "label": "오후 영업 피버",
+     "kind": "daily",
+     "next": null
+    }
+   },
+   {
+    "in": [
+     "2026-11-03",
+     "14:59"
+    ],
+    "out": {
+     "on": true,
+     "mult": 2,
+     "until": 1793685600000,
+     "label": "오후 영업 피버",
+     "kind": "daily",
+     "next": null
+    }
+   },
+   {
+    "in": [
+     "2026-11-03",
+     "15:00"
+    ],
+    "out": {
+     "on": false,
+     "mult": 1,
+     "until": 0,
+     "label": "",
+     "kind": "",
+     "next": null
+    }
+   },
+   {
+    "in": [
+     "2026-11-07",
+     "14:30"
+    ],
+    "out": {
+     "on": false,
+     "mult": 1,
+     "until": 0,
+     "label": "",
+     "kind": "",
+     "next": null
+    }
+   }
+  ],
+  "scenario": {
+   "crm": [
+    {
+     "id": "k1",
+     "sym": "birthday",
+     "tags": [
+      "birthday",
+      "thanks"
+     ]
+    },
+    {
+     "id": "k2",
+     "sym": "age_up",
+     "tags": [
+      "age_up",
+      "gap"
+     ]
+    },
+    {
+     "id": "k3",
+     "sym": "age_up",
+     "tags": [
+      "age_up"
+     ]
+    },
+    {
+     "id": "k4",
+     "sym": "renew",
+     "tags": [
+      "renew",
+      "health"
+     ]
+    },
+    {
+     "id": "k5",
+     "sym": "gap",
+     "tags": [
+      "gap",
+      "health"
+     ]
+    },
+    {
+     "id": "k6",
+     "sym": "consent",
+     "tags": [
+      "thanks"
+     ]
+    },
+    {
+     "id": "k7",
+     "sym": "age_up",
+     "tags": [
+      "age_up",
+      "birthday"
+     ]
+    },
+    {
+     "id": "k8",
+     "sym": "renew",
+     "tags": [
+      "renew"
+     ]
+    },
+    {
+     "id": "k9",
+     "sym": "gap",
+     "tags": [
+      "gap",
+      "thanks"
+     ]
+    }
+   ],
+   "bank": [
+    {
+     "id": "x1",
+     "cat": "terms",
+     "a": "O"
+    },
+    {
+     "id": "x2",
+     "cat": "terms",
+     "a": "X"
+    },
+    {
+     "id": "x3",
+     "cat": "medical",
+     "a": "O"
+    },
+    {
+     "id": "x4",
+     "cat": "medical",
+     "a": "X"
+    },
+    {
+     "id": "x5",
+     "cat": "system",
+     "a": "O"
+    },
+    {
+     "id": "x6",
+     "cat": "comply",
+     "a": "X"
+    },
+    {
+     "id": "x7",
+     "cat": "meai",
+     "a": "O"
+    }
+   ],
+   "day": "2026-11-03",
+   "rand": "mulberry32(5000 + 단계 번호)",
+   "steps": [
+    {
+     "at": "10:00",
+     "ev": {
+      "kind": "roulette.spin"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [
+      [
+       "shield",
+       2,
+       "shield.monthly"
+      ],
+      [
+       "ticket",
+       1,
+       "roulette.bonus"
+      ]
+     ],
+     "fx": [
+      "roulette"
+     ],
+     "data": {
+      "spinId": "r1",
+      "seg": 6,
+      "segId": "bonus_ticket",
+      "customers": [],
+      "fallback": false,
+      "bonus": {
+       "ticket": 1
+      }
+     },
+     "after": {
+      "weekXp": 0,
+      "tickets": 1,
+      "best": 0
+     }
+    },
+    {
+     "at": "10:01",
+     "ev": {
+      "kind": "roulette.spin"
+     },
+     "ok": false,
+     "reason": "no_plays",
+     "grants": [],
+     "fx": [],
+     "data": null,
+     "after": {
+      "weekXp": 0,
+      "tickets": 1,
+      "best": 0
+     }
+    },
+    {
+     "at": "14:11",
+     "ev": {
+      "kind": "crm.done",
+      "ref": "r:r1",
+      "customerId": "nobody"
+     },
+     "ok": false,
+     "reason": "no_target",
+     "grants": [],
+     "fx": [],
+     "data": null,
+     "after": {
+      "weekXp": 0,
+      "tickets": 1,
+      "best": 0
+     }
+    },
+    {
+     "at": "14:20",
+     "ev": {
+      "kind": "cslot.pull"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [
+      "cslot"
+     ],
+     "data": {
+      "pullId": "s1",
+      "tier": "mix",
+      "reels": [
+       "age_up",
+       "consent",
+       "gap"
+      ],
+      "customers": [
+       "k2",
+       "k6",
+       "k5"
+      ],
+      "prize": {
+       "xp": 0,
+       "ticket": 0
+      }
+     },
+     "after": {
+      "weekXp": 0,
+      "tickets": 1,
+      "best": 0
+     }
+    },
+    {
+     "at": "14:21",
+     "ev": {
+      "kind": "crm.done",
+      "ref": "s:s1",
+      "customerId": "k2"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [
+      "crm",
+      "flame"
+     ],
+     "data": {
+      "ref": "s:s1",
+      "customerId": "k2",
+      "xp": 30,
+      "mult": 2
+     },
+     "after": {
+      "weekXp": 30,
+      "tickets": 1,
+      "best": 0
+     }
+    },
+    {
+     "at": "14:22",
+     "ev": {
+      "kind": "crm.done",
+      "ref": "s:s1",
+      "customerId": "k6"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [
+      "crm"
+     ],
+     "data": {
+      "ref": "s:s1",
+      "customerId": "k6",
+      "xp": 30,
+      "mult": 2
+     },
+     "after": {
+      "weekXp": 60,
+      "tickets": 1,
+      "best": 0
+     }
+    },
+    {
+     "at": "14:23",
+     "ev": {
+      "kind": "crm.done",
+      "ref": "s:s1",
+      "customerId": "k5"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [
+      [
+       "ticket",
+       1,
+       "pass.0"
+      ]
+     ],
+     "fx": [
+      "crm",
+      "cslotClear",
+      "pass"
+     ],
+     "data": {
+      "ref": "s:s1",
+      "customerId": "k5",
+      "xp": 30,
+      "mult": 2
+     },
+     "after": {
+      "weekXp": 110,
+      "tickets": 2,
+      "best": 0
+     }
+    },
+    {
+     "at": "15:10",
+     "ev": {
+      "kind": "challenge.start"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "runId": "c20261103-1",
+      "sec": 10,
+      "items": [
+       {
+        "id": "x7",
+        "cat": "meai",
+        "q": "x7 문제"
+       },
+       {
+        "id": "x1",
+        "cat": "terms",
+        "q": "x1 문제"
+       },
+       {
+        "id": "x4",
+        "cat": "medical",
+        "q": "x4 문제"
+       },
+       {
+        "id": "x6",
+        "cat": "comply",
+        "q": "x6 문제"
+       },
+       {
+        "id": "x5",
+        "cat": "system",
+        "q": "x5 문제"
+       }
+      ]
+     },
+     "after": {
+      "weekXp": 110,
+      "tickets": 2,
+      "best": 0
+     }
+    },
+    {
+     "at": "15:11",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-1",
+      "idx": 0,
+      "choice": "O",
+      "ms": 1500
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "idx": 0,
+      "correct": true,
+      "a": "O",
+      "why": "x7 해설",
+      "src": "시험",
+      "pts": 28,
+      "score": 28,
+      "combo": 1,
+      "last": false
+     },
+     "after": {
+      "weekXp": 110,
+      "tickets": 2,
+      "best": 0
+     }
+    },
+    {
+     "at": "15:12",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-1",
+      "idx": 1,
+      "choice": "O",
+      "ms": 2200
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "idx": 1,
+      "correct": true,
+      "a": "O",
+      "why": "x1 해설",
+      "src": "시험",
+      "pts": 32,
+      "score": 60,
+      "combo": 2,
+      "last": false
+     },
+     "after": {
+      "weekXp": 110,
+      "tickets": 2,
+      "best": 0
+     }
+    },
+    {
+     "at": "15:13",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-1",
+      "idx": 2,
+      "choice": "O",
+      "ms": 2900
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "idx": 2,
+      "correct": false,
+      "a": "X",
+      "why": "x4 해설",
+      "src": "시험",
+      "pts": 0,
+      "score": 60,
+      "combo": 0,
+      "last": false
+     },
+     "after": {
+      "weekXp": 110,
+      "tickets": 2,
+      "best": 0
+     }
+    },
+    {
+     "at": "15:14",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-1",
+      "idx": 3,
+      "choice": "X",
+      "ms": 3600
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "idx": 3,
+      "correct": true,
+      "a": "X",
+      "why": "x6 해설",
+      "src": "시험",
+      "pts": 26,
+      "score": 86,
+      "combo": 1,
+      "last": false
+     },
+     "after": {
+      "weekXp": 110,
+      "tickets": 2,
+      "best": 0
+     }
+    },
+    {
+     "at": "15:15",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-1",
+      "idx": 4,
+      "choice": "O",
+      "ms": 4300
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [
+      "challenge"
+     ],
+     "data": {
+      "idx": 4,
+      "correct": true,
+      "a": "O",
+      "why": "x5 해설",
+      "src": "시험",
+      "pts": 30,
+      "score": 116,
+      "combo": 2,
+      "last": true,
+      "summary": {
+       "score": 116,
+       "ok": 4,
+       "n": 5,
+       "best": 116,
+       "newBest": true,
+       "xp": 12,
+       "ticket": 0,
+       "perfect": false
+      }
+     },
+     "after": {
+      "weekXp": 122,
+      "tickets": 2,
+      "best": 116
+     }
+    },
+    {
+     "at": "15:20",
+     "ev": {
+      "kind": "challenge.start"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "runId": "c20261103-2",
+      "sec": 10,
+      "items": [
+       {
+        "id": "x2",
+        "cat": "terms",
+        "q": "x2 문제"
+       },
+       {
+        "id": "x3",
+        "cat": "medical",
+        "q": "x3 문제"
+       },
+       {
+        "id": "x5",
+        "cat": "system",
+        "q": "x5 문제"
+       },
+       {
+        "id": "x7",
+        "cat": "meai",
+        "q": "x7 문제"
+       },
+       {
+        "id": "x6",
+        "cat": "comply",
+        "q": "x6 문제"
+       }
+      ]
+     },
+     "after": {
+      "weekXp": 122,
+      "tickets": 2,
+      "best": 116
+     }
+    },
+    {
+     "at": "15:21",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-2",
+      "idx": 0,
+      "choice": "X",
+      "ms": 900
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "idx": 0,
+      "correct": true,
+      "a": "X",
+      "why": "x2 해설",
+      "src": "시험",
+      "pts": 29,
+      "score": 29,
+      "combo": 1,
+      "last": false
+     },
+     "after": {
+      "weekXp": 122,
+      "tickets": 2,
+      "best": 116
+     }
+    },
+    {
+     "at": "15:22",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-2",
+      "idx": 1,
+      "choice": "O",
+      "ms": 900
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "idx": 1,
+      "correct": true,
+      "a": "O",
+      "why": "x3 해설",
+      "src": "시험",
+      "pts": 34,
+      "score": 63,
+      "combo": 2,
+      "last": false
+     },
+     "after": {
+      "weekXp": 122,
+      "tickets": 2,
+      "best": 116
+     }
+    },
+    {
+     "at": "15:23",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-2",
+      "idx": 2,
+      "choice": "O",
+      "ms": 900
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "idx": 2,
+      "correct": true,
+      "a": "O",
+      "why": "x5 해설",
+      "src": "시험",
+      "pts": 39,
+      "score": 102,
+      "combo": 3,
+      "last": false
+     },
+     "after": {
+      "weekXp": 122,
+      "tickets": 2,
+      "best": 116
+     }
+    },
+    {
+     "at": "15:24",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-2",
+      "idx": 3,
+      "choice": "O",
+      "ms": 900
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [],
+     "data": {
+      "idx": 3,
+      "correct": true,
+      "a": "O",
+      "why": "x7 해설",
+      "src": "시험",
+      "pts": 44,
+      "score": 146,
+      "combo": 4,
+      "last": false
+     },
+     "after": {
+      "weekXp": 122,
+      "tickets": 2,
+      "best": 116
+     }
+    },
+    {
+     "at": "15:25",
+     "ev": {
+      "kind": "challenge.answer",
+      "ref": "c20261103-2",
+      "idx": 4,
+      "choice": "X",
+      "ms": 900
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [
+      [
+       "ticket",
+       1,
+       "challenge.perfect"
+      ],
+      [
+       "badge",
+       1,
+       "badge.ox_perfect"
+      ]
+     ],
+     "fx": [
+      "badge",
+      "challenge"
+     ],
+     "data": {
+      "idx": 4,
+      "correct": true,
+      "a": "X",
+      "why": "x6 해설",
+      "src": "시험",
+      "pts": 49,
+      "score": 195,
+      "combo": 5,
+      "last": true,
+      "summary": {
+       "score": 195,
+       "ok": 5,
+       "n": 5,
+       "best": 195,
+       "newBest": true,
+       "xp": 20,
+       "ticket": 1,
+       "perfect": true
+      }
+     },
+     "after": {
+      "weekXp": 142,
+      "tickets": 3,
+      "best": 195
+     }
+    },
+    {
+     "at": "16:00",
+     "ev": {
+      "kind": "tarot.draw",
+      "choice": 1
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [
+      "tarot"
+     ],
+     "data": {
+      "card": 10,
+      "pick": 1,
+      "three": [
+       5,
+       10,
+       21
+      ]
+     },
+     "after": {
+      "weekXp": 145,
+      "tickets": 3,
+      "best": 195
+     }
+    },
+    {
+     "at": "16:01",
+     "ev": {
+      "kind": "tarot.draw",
+      "choice": 2
+     },
+     "ok": false,
+     "reason": "already",
+     "grants": [],
+     "fx": [],
+     "data": null,
+     "after": {
+      "weekXp": 145,
+      "tickets": 3,
+      "best": 195
+     }
+    },
+    {
+     "at": "16:10",
+     "ev": {
+      "kind": "attend"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [
+      [
+       "ticket",
+       1,
+       "attend"
+      ]
+     ],
+     "fx": [
+      "stamp",
+      "quest"
+     ],
+     "data": null,
+     "after": {
+      "weekXp": 160,
+      "tickets": 4,
+      "best": 195
+     }
+    },
+    {
+     "at": "16:11",
+     "ev": {
+      "kind": "quiz.answer",
+      "quizId": "q-f",
+      "choice": "O"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [
+      [
+       "ticket",
+       1,
+       "quiz.correct"
+      ]
+     ],
+     "fx": [
+      "quiz",
+      "quest"
+     ],
+     "data": null,
+     "after": {
+      "weekXp": 180,
+      "tickets": 5,
+      "best": 195
+     }
+    },
+    {
+     "at": "16:12",
+     "ev": {
+      "kind": "reco.open",
+      "customerId": "c1"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [
+      [
+       "ticket",
+       1,
+       "quest.mission"
+      ]
+     ],
+     "fx": [
+      "quest",
+      "mission",
+      "scratchNew"
+     ],
+     "data": null,
+     "after": {
+      "weekXp": 205,
+      "tickets": 6,
+      "best": 195
+     }
+    },
+    {
+     "at": "16:20",
+     "ev": {
+      "kind": "scratch.reveal",
+      "ref": "sc-20261103-1"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [
+      "scratch"
+     ],
+     "data": {
+      "id": "sc-20261103-1",
+      "prize": {
+       "id": "xp10",
+       "label": "XP +10",
+       "type": "xp"
+      },
+      "result": {
+       "xp": 10
+      }
+     },
+     "after": {
+      "weekXp": 215,
+      "tickets": 6,
+      "best": 195
+     }
+    },
+    {
+     "at": "16:21",
+     "ev": {
+      "kind": "scratch.reveal",
+      "ref": "sc-20261103-1"
+     },
+     "ok": false,
+     "reason": "already",
+     "grants": [],
+     "fx": [],
+     "data": null,
+     "after": {
+      "weekXp": 215,
+      "tickets": 6,
+      "best": 195
+     }
+    },
+    {
+     "at": "16:30",
+     "ev": {
+      "kind": "roulette.spin"
+     },
+     "ok": true,
+     "reason": "",
+     "grants": [],
+     "fx": [
+      "roulette"
+     ],
+     "data": {
+      "spinId": "r2",
+      "seg": 3,
+      "segId": "checkup",
+      "customers": [
+       "k9"
+      ],
+      "fallback": false,
+      "bonus": null
+     },
+     "after": {
+      "weekXp": 215,
+      "tickets": 6,
+      "best": 195
+     }
+    }
+   ],
+   "bingo": {
+    "week": "2026-W45",
+    "cells": [
+     {
+      "id": "b1",
+      "label": "출석 도장 5일",
+      "kind": "attend",
+      "go": "attend",
+      "n": 5,
+      "progress": 1,
+      "done": false
+     },
+     {
+      "id": "b2",
+      "label": "오늘의 퀴즈 4번",
+      "kind": "quiz",
+      "go": "quiz",
+      "n": 4,
+      "progress": 1,
+      "done": false
+     },
+     {
+      "id": "b3",
+      "label": "추천 고객 8명 열기",
+      "kind": "reco.open",
+      "go": "reco",
+      "n": 8,
+      "progress": 1,
+      "done": false
+     },
+     {
+      "id": "b4",
+      "label": "맞춤대화 5번",
+      "kind": "chat.custom",
+      "go": "custom",
+      "n": 5,
+      "progress": 0,
+      "done": false
+     },
+     {
+      "id": "b5",
+      "label": "룰렛 · 슬롯 고객 5명 챙기기",
+      "kind": "crm.done",
+      "go": "roulette",
+      "n": 5,
+      "progress": 3,
+      "done": false
+     },
+     {
+      "id": "b6",
+      "label": "화법 따라 쓰기 3번",
+      "kind": "talk.copy",
+      "go": "talk",
+      "n": 3,
+      "progress": 0,
+      "done": false
+     },
+     {
+      "id": "b7",
+      "label": "사전조회동의 요청 1건",
+      "kind": "consent.request",
+      "go": "consent",
+      "n": 1,
+      "progress": 0,
+      "done": false
+     },
+     {
+      "id": "b8",
+      "label": "OX 챌린지 2판",
+      "kind": "challenge.finish",
+      "go": "challenge",
+      "n": 2,
+      "progress": 2,
+      "done": true
+     },
+     {
+      "id": "b9",
+      "label": "운세로 안부 1번",
+      "kind": "fortune.send",
+      "go": "fortune-card",
+      "n": 1,
+      "progress": 0,
+      "done": false
+     }
+    ],
+    "lines": [],
+    "count": 0,
+    "filled": 1
+   },
+   "plays": {
+    "roulette": {
+     "total": 2,
+     "used": 2,
+     "left": 0
+    },
+    "cslot": {
+     "total": 1,
+     "used": 1,
+     "left": 0
+    },
+    "challenge": {
+     "total": 3,
+     "used": 2,
+     "left": 1
+    },
+    "tarot": {
+     "total": 1,
+     "used": 1,
+     "left": 0
+    }
+   }
+  }
+ }
 }

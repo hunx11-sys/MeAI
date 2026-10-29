@@ -23,7 +23,7 @@ let fail = 0; const ok = (c, m) => { console.log((c ? '✓ ' : '✗ ') + m); if 
     const h2 = secs[1] && secs[1].querySelector('h2'), card = secs[1] && secs[1].querySelector('.grid > div');
     return { dock: r('.nz-dock'), cap: r('.nz-cap'), reco: h2 ? Math.round(h2.getBoundingClientRect().top) : null, card: card ? Math.round(card.getBoundingClientRect().top) : null,
       items: [...document.querySelectorAll('.nz-dock .nz-di')].map((e) => e.dataset.k), sw: document.documentElement.scrollWidth,
-      dockFit: (() => { const d = document.querySelector('.nz-dock'), m = document.querySelector('.nz-di-more'); return m.getBoundingClientRect().right <= d.getBoundingClientRect().right + 0.5; })() };
+      dockFit: (() => { const d = document.querySelector('.nz-dock'), m = d.lastElementChild; return m.getBoundingClientRect().right <= d.getBoundingClientRect().right + 0.5; })() };
   });
   console.log(JSON.stringify(geo));
   ok(geo.dock && geo.dock.y < 220, '막대가 인사말 아래 첫 화면 위쪽에 있음 (y=' + (geo.dock && geo.dock.y) + ')');
@@ -74,6 +74,63 @@ let fail = 0; const ok = (c, m) => { console.log((c ? '✓ ' : '✗ ') + m); if 
   await p.keyboard.press('Escape'); await p.waitForTimeout(400);
   await p.evaluate(() => MeAINudge._nz.talks.open()); await p.waitForTimeout(800); await shot('17_talks');
   await p.keyboard.press('Escape'); await p.waitForTimeout(400);
+  // 행운 존 : 허브 → 룰렛 → 고객 슬롯 → OX 챌린지 → 타로 → 스크래치 → 운세 → 피버
+  const esc = async () => { for (let i = 0; i < 8 && await p.$('.nz-scrim'); i++) { await p.keyboard.press('Escape'); await p.waitForTimeout(350); } };
+  await p.click('.nz-di[data-k="fun"]'); await p.waitForTimeout(500); await shot('22_fun');
+  ok(await p.$$eval('.nz-ftile', (x) => x.length) === 6, '행운 존 카드 : 게임 6칸 · 빙고판');
+  await p.click('[data-g="roulette"]'); await p.waitForTimeout(700); await shot('23_roulette');
+  await p.click('[data-spin]'); await p.waitForTimeout(1800); await shot('24_roulette_spin'); await p.waitForTimeout(3600); await shot('25_roulette_result');
+  h = await p.evaluate(() => MeAINudge.home());
+  ok(h.fun.roulette.spins.length === 1 && h.fun.plays.roulette.left >= 0, '룰렛 1회 · 결과 칸 「' + (h.fun.roulette.spins[0] || {}).label + '」');
+  if (await p.$('.nz-roul [data-gact="done"]')) {
+    await p.click('.nz-roul [data-gact="copy"]'); await p.waitForTimeout(300);
+    await p.click('.nz-roul [data-gact="done"]'); await p.waitForTimeout(800); await shot('26_roulette_done');
+    h = await p.evaluate(() => MeAINudge.home());
+    ok(h.fun.roulette.spins[0].customers.some((c) => c.done), '룰렛 고객 「연락했어요」 → 챙김 표시 · XP');
+  }
+  await esc();
+  await p.evaluate(() => MeAINudge._nz.fun.go('cslot')); await p.waitForTimeout(600);
+  await p.click('[data-pull]'); await p.waitForTimeout(900); await shot('27_cslot_spin'); await p.waitForTimeout(2600); await shot('28_cslot_result');
+  h = await p.evaluate(() => MeAINudge.home());
+  ok(h.fun.cslot.pulls.length === 1 && h.fun.cslot.pulls[0].customers.length === 3, '고객 슬롯 : 3명 · ' + (h.fun.cslot.pulls[0] || {}).tier);
+  await esc();
+  await p.evaluate(() => MeAINudge._nz.fun.go('challenge')); await p.waitForTimeout(600); await shot('29_ox_intro');
+  await p.click('[data-start]'); await p.waitForTimeout(2300); await shot('30_ox_q');
+  for (let i = 0; i < 5; i++) {
+    const a = await p.evaluate(() => { const q = document.querySelector('.nz-oxc .q').textContent; const it = window.NZ_DATA.ox.items.filter((x) => x.q === q)[0]; return it ? it.a : 'O'; });
+    await p.click('.nz-oxc [data-ans="' + a + '"]'); await p.waitForTimeout(500);
+    if (i === 0) await shot('31_ox_answer');
+    await p.click('.nz-oxc [data-next]'); await p.waitForTimeout(i === 4 ? 1400 : 300);
+  }
+  await shot('32_ox_result');
+  h = await p.evaluate(() => MeAINudge.home());
+  ok(h.fun.challenge.runsToday === 1 && h.fun.challenge.best >= 100 && h.fun.challenge.perfectToday, 'OX 챌린지 5문제 만점 · 최고 ' + h.fun.challenge.best + '점');
+  await esc();
+  await p.evaluate(() => MeAINudge._nz.fun.go('tarot')); await p.waitForTimeout(600); await shot('33_tarot');
+  await p.click('.nz-tarot [data-pick="1"]'); await p.waitForTimeout(2200); await shot('34_tarot_card');
+  const tw = await p.evaluate(() => { const i = document.querySelector('.nz-tarot .tc.me img'); return i ? i.naturalWidth : -1; });
+  ok(tw > 0, '오늘의 타로 : 원판 그림 · 풀이 (' + tw + 'px)');
+  await esc();
+  await p.evaluate(() => MeAINudge._nz.fun.go('scratch')); await p.waitForTimeout(600); await shot('35_scratch');
+  const cv = await p.$('.nz-scr canvas');
+  if (cv) {
+    const bb = await cv.boundingBox();
+    await p.mouse.move(bb.x + 20, bb.y + 30); await p.mouse.down();
+    for (let k = 0; k < 6; k++) { await p.mouse.move(bb.x + bb.width - 20, bb.y + 30 + k * 36, { steps: 8 }); await p.mouse.move(bb.x + 20, bb.y + 48 + k * 36, { steps: 8 }); }
+    await p.mouse.up(); await p.waitForTimeout(400); await shot('36_scratching');
+    if (await p.$('.nz-scr [data-all]')) await p.click('.nz-scr [data-all]');
+    await p.waitForTimeout(1200); await shot('37_scratch_win');
+  }
+  h = await p.evaluate(() => MeAINudge.home());
+  ok(h.fun.scratch.today.length === 1, '스크래치 복권 긁기 → ' + ((h.fun.scratch.today[0] || {}).label || '없음'));
+  await esc();
+  await p.evaluate(() => MeAINudge._nz.fun.go('fortune-card')); await p.waitForTimeout(700); await shot('38_fortune');
+  ok(await p.evaluate(() => /오늘의 대화 한마디/.test(document.querySelector('.nz-fort2').textContent)), '오늘의 운세 : 사주 점수 · 대화 한마디');
+  await esc();
+  await p.evaluate(() => MeAINudge._nz.api.demo.setTime('2026-10-29', '14:05').then((x) => MeAINudge._nz.setHome(x))); await p.waitForTimeout(800);
+  ok(await p.$('.nz-di-fun.fever') !== null, '14시 오후 피버 : 막대에 피버 ×2 표시');
+  await p.click('.nz-di[data-k="fun"]'); await p.waitForTimeout(500); await shot('39_fever_fun');
+  await p.keyboard.press('Escape');
   // 금요일 17시 : 추첨 · 리캡
   await p.evaluate(() => MeAINudge._nz.api.demo.setTime('2026-10-30', '17:05').then((x) => MeAINudge._nz.setHome(x))); await p.waitForTimeout(800); await shot('18_friday');
   await p.click('.nz-di[data-k="lotto"]'); await p.waitForTimeout(400); await p.click('[data-act="lotto-draw"]'); await p.waitForTimeout(4800); await shot('19_draw');

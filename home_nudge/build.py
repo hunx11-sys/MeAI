@@ -8,7 +8,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 DIST = os.path.join(REPO, 'dist')
 MASCOTS = ['hello_wave', 'group_hello', 'tata_board', 'tata_ok', 'indi_idea', 'eco_think', 'rara_present', 'ziziri_stars', 'ziziri_cheer', 'success_thumbs', 'merry_ok']
-NUDGE = ['src/nudge/core.js', 'src/nudge/fx.js', 'src/nudge/ui.js', 'src/nudge/cards.js', 'src/nudge/talks.js', 'src/nudge/dash.js', 'src/nudge/index.js']
+NUDGE = ['src/nudge/core.js', 'src/nudge/fx.js', 'src/nudge/ui.js', 'src/nudge/cards.js', 'src/nudge/fun.js', 'src/nudge/talks.js', 'src/nudge/dash.js', 'src/nudge/index.js']
+UNSE_ENGINE = os.path.join(REPO, 'fortune', 'src', 'engine.js')   # 오늘의 운세 엔진(사주 · 타로 풀이) : 원본 그대로 읽기만 한다
+TAROT = os.path.join(REPO, 'fortune', 'assets', 'tarot')            # 1909 라이더-웨이트-스미스 원판 · 행운 존은 메이저 아르카나 0~21 만 쓴다
+TAROT_MAJOR = ['%02d.webp' % i for i in range(22)]
 
 def rd(p): return open(os.path.join(HERE, p), encoding='utf-8').read()
 def js_safe(s): return s.replace('</script', '<\\/script').replace('<!--', '<\\!--')
@@ -16,7 +19,7 @@ def js_safe(s): return s.replace('</script', '<\\/script').replace('<!--', '<\\!
 def data_bundle(names=None):
     talks = json.load(open(names, encoding='utf-8')) if names else json.loads(rd('data/talks798.json'))
     d = { 'cfg': json.loads(rd('config/nudge.config.json')), 'cal': json.loads(rd('data/calendar.json')), 'quiz': json.loads(rd('data/quiz.json')),
-          'talks': talks, 'seed': json.loads(rd('data/seed.json')) }
+          'talks': talks, 'seed': json.loads(rd('data/seed.json')), 'ox': json.loads(rd('data/ox_bank.json')) }
     return json.dumps(d, ensure_ascii=False, separators=(',', ':'))
 
 def assets_bundle():
@@ -24,6 +27,8 @@ def assets_bundle():
     for m in MASCOTS:
         p = os.path.join(REPO, 'ui', 'mascots', m + '.webp')
         out['mascots/' + m + '.webp'] = 'data:image/webp;base64,' + base64.b64encode(open(p, 'rb').read()).decode()
+    for t in TAROT_MAJOR:
+        out['tarot/' + t] = 'data:image/webp;base64,' + base64.b64encode(open(os.path.join(TAROT, t), 'rb').read()).decode()
     return json.dumps(out, separators=(',', ':'))
 
 BOOT = r"""
@@ -39,7 +44,7 @@ def build_mockup(names=None, out=None):
     base = rd('vendor/meai_home_base_260929.html')
     assert base.count('</body>') == 1
     css = rd('src/nudge/nudge.css')
-    js = [rd('src/core/rules.js'), rd('src/api/mock.js')] + [rd(p) for p in NUDGE] + [rd('src/host/dom-adapter.js'), rd('src/demo/demo.js')]
+    js = [open(UNSE_ENGINE, encoding='utf-8').read(), rd('src/core/rules.js'), rd('src/api/mock.js')] + [rd(p) for p in NUDGE] + [rd('src/host/dom-adapter.js'), rd('src/demo/demo.js')]
     inject = ('<!-- ===== MeAI 홈 넛지 v5 (목업) : 원본 홈 빌드 260929 위에 넛지 · 모의 서버 · 데모 메뉴를 얹음 ===== -->\n'
               '<style id="nz-style">\n' + css + '\n</style>\n'
               '<script id="nz-data">window.NZ_DATA=' + js_safe(data_bundle(names)) + ';window.NZ_ASSETS=' + assets_bundle() + ';</script>\n'
@@ -52,11 +57,11 @@ def build_mockup(names=None, out=None):
     return out
 
 PKG_FILES = [
-    'config/nudge.config.json', 'data/calendar.json', 'data/quiz.json', 'data/seed.json', 'data/talks798.json', 'data/talks_meta.json',
+    'config/nudge.config.json', 'data/calendar.json', 'data/quiz.json', 'data/ox_bank.json', 'data/seed.json', 'data/talks798.json', 'data/talks_meta.json',
     'src/core/rules.js', 'src/api/client.js', 'src/api/mock.js', 'src/nudge/nudge.css'] + NUDGE + [
     'src/host/dom-adapter.js', 'src/host/simple-host.js', 'src/demo/demo.js', 'examples/sandbox.html', 'examples/sandbox.css', 'examples/sandbox-boot.js',
     'tests/rules.test.js', 'tests/make_vectors.js', 'tests/vectors.json',
-    'tools/check_mockup.js', 'tools/check_sandbox.js', 'tools/check_a11y.js', 'tools/check_contract.py', 'tools/dump_mock.js', 'tools/shoot_docs.js', 'tools/import_talks.py', 'tools/render_doc.js']
+    'tools/check_mockup.js', 'tools/check_sandbox.js', 'tools/check_a11y.js', 'tools/check_contract.py', 'tools/check_quiz_terms.py', 'tools/dump_mock.js', 'tools/shoot_docs.js', 'tools/import_talks.py', 'tools/render_doc.js']
 DOCS = ['docs/BLUEPRINT.md', 'docs/BLUEPRINT.html', 'docs/BLUEPRINT.pdf', 'docs/INTEGRATION.md', 'docs/openapi.yaml', 'docs/schema.sql', 'docs/EVENTS.md', 'docs/README_PACKAGE.md'] + \
     ['docs/img/' + f for f in sorted(os.listdir(os.path.join(HERE, 'docs', 'img'))) if f.endswith('.png')]
 
@@ -72,6 +77,8 @@ def build_package(mock):
         files.append((os.path.join(REPO, 'ui', 'mascots', m + '.webp'), 'meai_home_nudge_v5/assets/mascots/' + m + '.webp'))
         files.append((os.path.join(REPO, 'ui', 'mascots', m + '@2x.webp'), 'meai_home_nudge_v5/assets/mascots/' + m + '@2x.webp')) if os.path.exists(os.path.join(REPO, 'ui', 'mascots', m + '@2x.webp')) else None
     files.append((os.path.join(REPO, 'ui', 'mascots', 'RULES.md'), 'meai_home_nudge_v5/assets/mascots/RULES.md'))
+    files.append((UNSE_ENGINE, 'meai_home_nudge_v5/src/vendor/unse-engine.js'))      # 오늘의 운세 엔진 원본 그대로 (고치지 않는다)
+    for t in TAROT_MAJOR: files.append((os.path.join(TAROT, t), 'meai_home_nudge_v5/assets/tarot/' + t))
     files.append((mock, 'meai_home_nudge_v5/mockup/meai_home_nudge_v5.html'))
     fortune = os.path.join(DIST, 'unse_saju_tarot.html')
     if os.path.exists(fortune): files.append((fortune, 'meai_home_nudge_v5/mockup/unse_saju_tarot.html'))
@@ -80,7 +87,9 @@ def build_package(mock):
         for fp, arc in files:
             data = open(fp, 'rb').read()
             if arc.endswith('docs/README_PACKAGE.md'): arc = 'meai_home_nudge_v5/README_FIRST.md'
-            if arc.endswith('examples/sandbox.html'): data = data.replace(b'data-asset-base="../../ui/"', b'data-asset-base="../assets/"')
+            if arc.endswith('examples/sandbox.html'):
+                data = data.replace(b'data-asset-base="../../ui/"', b'data-asset-base="../assets/"').replace(b'data-tarot-base="../../fortune/assets/tarot/"', b'data-tarot-base="../assets/tarot/"')
+                data = data.replace(b'<script src="../../fortune/src/engine.js"></script>', b'<script src="../src/vendor/unse-engine.js"></script>')
             z.writestr(arc, data)
             man.append('%s  %8d  %s' % (hashlib.sha256(data).hexdigest()[:16], len(data), arc))
         z.writestr('meai_home_nudge_v5/MANIFEST.txt', 'MeAI 홈 넛지 v5 개발 패키지 · ' + datetime.date.today().isoformat() + '\n파일 ' + str(len(man)) + '개 · sha256 앞 16자리 · 바이트 · 경로\n\n' + '\n'.join(man) + '\n')

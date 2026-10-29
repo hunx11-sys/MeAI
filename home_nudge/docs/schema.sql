@@ -1,4 +1,4 @@
--- MeAI 홈 넛지 v5 · DB 표 정의 (PostgreSQL 14 기준)
+-- MeAI 홈 넛지 v5 · DB 표 정의 (PostgreSQL 14 기준) · v5.1 행운 존 표 9개 포함
 -- 오라클로 옮길 때 : TEXT → VARCHAR2(4000)/CLOB, JSONB → CLOB(IS JSON), BOOLEAN → NUMBER(1), BIGSERIAL → IDENTITY, TIMESTAMPTZ → TIMESTAMP WITH TIME ZONE
 -- 약속 : 날짜(biz_day)는 한국 시간 'YYYY-MM-DD' 의 DATE, 시각은 TIMESTAMPTZ. 주(week_id)는 ISO 주 'YYYY-Www'. 사용자 id 는 사내 사번 체계(user_id).
 -- 보상 계산 규칙은 src/core/rules.js 가 기준이다. 이 표들은 그 상태를 나눠 담은 것이다.
@@ -291,5 +291,106 @@ CREATE TABLE nz_agg_daily (                                -- 대시보드 집�
   dock_views     JSONB,                                    -- 막대 칸별 열람
   PRIMARY KEY (day, org_level, org_code)
 );
--- 표 26개 : user_state · day · day_reco · quest_done · week · ledger · idem · badge · counter · first · seen · buddy_dismiss · cheer ·
---           lotto_round · lotto_set · lotto_win · coffee_draw · quiz · quiz_answer · quest_schedule · talk · talk_reaction · talk_copy · config · event_log · agg_daily
+
+-- ───────────────────────────── 행운 존 (v5.1) ─────────────────────────────
+-- 결과(룰렛 칸 · 슬롯 단계 · 문제 · 타로 카드 · 스크래치 경품)는 규칙 엔진(rules.js)이 정하고 여기에 적는다. 확률은 nz_config 의 가중치.
+CREATE TABLE nz_crm_customer (                             -- 행운 존이 고르는 내 고객 후보 (매일 05:00 CRM 에서 받음 · crm_sync)
+  user_id        VARCHAR(20) NOT NULL,                     -- 담당 FP
+  customer_id    VARCHAR(30) NOT NULL,                     -- CRM 고객 id (이름은 화면에 보낼 때 서버가 가린다)
+  sym            VARCHAR(10) NOT NULL CHECK (sym IN ('birthday', 'age_up', 'renew', 'gap', 'consent')),   -- 슬롯 릴 그림 = 대표 사유
+  tags           VARCHAR(80) NOT NULL DEFAULT '',          -- 룰렛 칸 태그 쉼표 목록 : birthday · age_up · renew · gap · health · thanks · checkup
+  note           VARCHAR(80),                              -- 한 줄 메모 (예 : 상령일 D-9 · 실손 갱신 D-21). 질병 · 금액 원문은 넣지 않는다
+  synced_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, customer_id)
+);
+CREATE TABLE nz_fun_day (                                  -- 하루 행운 존 기록 (rules.funDay)
+  user_id        VARCHAR(20) NOT NULL,
+  biz_day        DATE        NOT NULL,
+  luck_tickets   SMALLINT    NOT NULL DEFAULT 0,           -- 운으로 받은 응모권 (하루 한도 fun.ticketCapDaily 비교)
+  runs           SMALLINT    NOT NULL DEFAULT 0,           -- OX 챌린지 판 수
+  perfect        BOOLEAN     NOT NULL DEFAULT FALSE,       -- 오늘 만점 응모권 받음
+  fever_until    TIMESTAMPTZ,                              -- 나만의 피버가 끝나는 때
+  PRIMARY KEY (user_id, biz_day)
+);
+CREATE TABLE nz_fun_spin (                                 -- CRM 룰렛(r) · 추천 고객 슬롯(s) 결과
+  user_id        VARCHAR(20) NOT NULL,
+  biz_day        DATE        NOT NULL,
+  spin_id        VARCHAR(8)  NOT NULL,                     -- 'r1' · 's1' … (그날 안에서 유일)
+  game           CHAR(1)     NOT NULL CHECK (game IN ('r', 's')),
+  seg            SMALLINT,                                 -- 룰렛 칸 번호 (cfg.fun.roulette.segments)
+  tier           VARCHAR(8)  CHECK (tier IN ('jackpot', 'pair', 'mix')),
+  reels          VARCHAR(40),                              -- 슬롯 릴 3개 sym 쉼표 목록
+  customers      VARCHAR(100) NOT NULL DEFAULT '',         -- 고른 고객 id 쉼표 목록 (최대 3)
+  fallback       BOOLEAN     NOT NULL DEFAULT FALSE,
+  cleared_at     TIMESTAMPTZ,                              -- 슬롯 고객 3명 모두 챙긴 때
+  at             TIMESTAMPTZ NOT NULL,
+  idem           UUID        NOT NULL,
+  PRIMARY KEY (user_id, biz_day, spin_id)
+);
+CREATE TABLE nz_fun_contact (                              -- 고객 챙기기 「연락했어요」 (화면 신고 · XP 만)
+  user_id        VARCHAR(20) NOT NULL,
+  biz_day        DATE        NOT NULL,
+  customer_id    VARCHAR(30) NOT NULL,
+  spin_id        VARCHAR(8)  NOT NULL,
+  xp             SMALLINT    NOT NULL,                     -- 피버 배수 반영값
+  confirmed_by   VARCHAR(20),                              -- 발송 이벤트로 확정되면 그 출처 (예 : alimtalk)
+  at             TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (user_id, biz_day, customer_id)               -- 같은 고객 하루 1번
+);
+CREATE TABLE nz_scratch (                                  -- 스크래치 복권 (발급 때 경품을 정해 둔다 · 서버만 앎)
+  scratch_id     VARCHAR(24) PRIMARY KEY,
+  user_id        VARCHAR(20) NOT NULL,
+  issued_day     DATE        NOT NULL,
+  issued_from    VARCHAR(10) NOT NULL CHECK (issued_from IN ('mission', 'allclear', 'event')),
+  prize          VARCHAR(10) NOT NULL,                     -- cfg.fun.scratch.prizes[].id (xp10 · xp30 · ticket1 · fever30 · shield1)
+  revealed_at    TIMESTAMPTZ,
+  expires_day    DATE        NOT NULL                      -- issued_day + validDays
+);
+CREATE INDEX nz_scratch_user ON nz_scratch (user_id, revealed_at);
+CREATE TABLE nz_ox_item (                                  -- OX 문제 은행 (data/ox_bank.json 과 같은 모양)
+  ox_id          VARCHAR(20) PRIMARY KEY,
+  cat            VARCHAR(10) NOT NULL CHECK (cat IN ('terms', 'medical', 'system', 'comply', 'meai')),
+  question       TEXT        NOT NULL,
+  answer         CHAR(1)     NOT NULL CHECK (answer IN ('O', 'X')),
+  why            TEXT        NOT NULL,
+  more           JSONB       NOT NULL DEFAULT '[]',
+  source         TEXT        NOT NULL,                     -- 출처 (약관 문항은 상품 · 특약 · 조항)
+  check_rule     JSONB,                                    -- 약관 대조 근거 { p, n, quote } 또는 { table, codes, notCodes }
+  review         VARCHAR(10) NOT NULL DEFAULT 'draft' CHECK (review IN ('draft', 'approved', 'rejected', 'retired')),
+  reviewed_by    VARCHAR(20), reviewed_at TIMESTAMPTZ,
+  last_checked   TIMESTAMPTZ                               -- 약관 원문 대조를 마지막으로 통과한 때 (ox_bank_check)
+);
+CREATE TABLE nz_ox_run (                                   -- OX 스피드 챌린지 한 판
+  run_id         VARCHAR(24) PRIMARY KEY,
+  user_id        VARCHAR(20) NOT NULL,
+  biz_day        DATE        NOT NULL,
+  items          VARCHAR(120) NOT NULL,                    -- 문제 id 쉼표 목록 (5개)
+  score          SMALLINT    NOT NULL DEFAULT 0,
+  ok_cnt         SMALLINT    NOT NULL DEFAULT 0,
+  started_at     TIMESTAMPTZ NOT NULL,
+  done_at        TIMESTAMPTZ
+);
+CREATE INDEX nz_ox_run_best ON nz_ox_run (user_id, score DESC);
+CREATE TABLE nz_ox_answer (
+  run_id         VARCHAR(24) NOT NULL REFERENCES nz_ox_run,
+  idx            SMALLINT    NOT NULL,
+  ox_id          VARCHAR(20) NOT NULL REFERENCES nz_ox_item,
+  choice         CHAR(1),                                  -- 시간 초과면 NULL
+  correct        BOOLEAN     NOT NULL,
+  ms             INTEGER     NOT NULL,
+  pts            SMALLINT    NOT NULL,
+  PRIMARY KEY (run_id, idx)
+);
+CREATE TABLE nz_tarot_draw (                               -- 오늘의 타로 (하루 1장 · 메이저 아르카나 0~21)
+  user_id        VARCHAR(20) NOT NULL,
+  biz_day        DATE        NOT NULL,
+  card           SMALLINT    NOT NULL CHECK (card BETWEEN 0 AND 21),
+  pick           SMALLINT    NOT NULL CHECK (pick BETWEEN 0 AND 2),
+  at             TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (user_id, biz_day)
+);
+-- 영업 빙고는 nz_day 행동 횟수(nz_counter · 원장)로 계산하고, 줄 보상은 nz_ledger(rule = 'bingo.0' ~ 'bingo.2', ref = 주)로 주 1번씩만 남긴다.
+
+-- 표 35개 : user_state · day · day_reco · quest_done · week · ledger · idem · badge · counter · first · seen · buddy_dismiss · cheer ·
+--           lotto_round · lotto_set · lotto_win · coffee_draw · quiz · quiz_answer · quest_schedule · talk · talk_reaction · talk_copy · config · event_log · agg_daily ·
+--           (v5.1 행운 존) crm_customer · fun_day · fun_spin · fun_contact · scratch · ox_item · ox_run · ox_answer · tarot_draw

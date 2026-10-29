@@ -1,4 +1,4 @@
-/* MeAI 홈 넛지 v5 · 홈 위의 부품 (오늘의 MeAI 막대 · 머리 띠 캡슐 · 버디 말풍선 · 추천 고객 배지 · 펼침 카드)
+/* MeAI 홈 넛지 v5 · 홈 위의 부품 (오늘의 MeAI 막대 · 머리 띠 캡슐 · 버디 말풍선 · 추천 고객 배지 · 펼침 카드 · 행운 존 칸)
  * 홈의 기본 구성(대화 카드 · 내 고객 찾기 · 오늘의 추천 고객)은 건드리지 않는다. 막대 한 줄만 더하고, 카드는 그 위에 뜬다.
  */
 (function (G) {
@@ -72,7 +72,7 @@
       '오늘의 화법', !tk.copiedToday));
     // ⑤ 로또(행운번호)
     const left = lo.phase === 'collect' ? lo.cutoffAt - h.serverTime : lo.drawAt - h.serverTime;
-    const lsub = lo.phase === 'drawn' ? (lo.drawSeen ? '이번 주 결과 보기' : '<em>당첨번호 발표</em>') : lo.phase === 'closed' ? '17시 추첨 · ' + F.left(left) + ' 뒤' : '금 17시 추첨 · 마감 ' + F.left(left);
+    const lsub = lo.phase === 'drawn' ? (lo.drawSeen ? '이번 주 결과 보기' : '<em>당첨번호 발표</em>') : lo.phase === 'closed' ? '17시 추첨 · ' + F.left(left) + ' 뒤' : '응모 마감 ' + F.left(left) + ' 전';
     order.push(setItem('lotto', 'nz-di-lotto', '<span class="nz-ic">' + I.lotto + (lo.phase === 'drawn' && !lo.drawSeen ? '<i class="nz-new"></i>' : '') + '</span>' +
       '<span class="nz-tx"><b>' + esc(lo.name.replace('MeAI ', '')) + ' ' + lo.sets.length + '세트</b><small>' + lsub + '</small></span>',
       lo.name + ' ' + lo.sets.length + '세트', lo.phase === 'drawn' && !lo.drawSeen, true));
@@ -87,8 +87,15 @@
     }
     // ⑦ 주간 리캡 (금요일 17시 뒤)
     if (h.recap.available) order.push(setItem('recap', 'nz-di-recap', '<span class="nz-ic">' + I.play + (h.recap.seen ? '' : '<i class="nz-new"></i>') + '</span><span class="nz-tx"><b>이번 주 리캡</b><small>' + esc(h.week.label) + '</small></span>', '이번 주 리캡', !h.recap.seen));
-    // ⑧ 더보기 (운세 보내기 · 넛지 설정)
-    order.push(setItem('more', 'nz-di-more', I.dots, '더보기 · 오늘의 운세 · 넛지 설정', false));
+    // ⑧ 행운 존 (룰렛 · 슬롯 · OX 챌린지 · 타로 · 스크래치 · 운세 · 빙고 · 피버). 넛지 설정은 행운 존 · 지갑 카드 아래로 옮김
+    const fz = h.fun;
+    if (fz) {
+      const left = fz.plays.roulette.left + fz.plays.cslot.left + fz.plays.challenge.left + fz.plays.tarot.left + fz.scratch.cards.length, fv = fz.fever;
+      order.push(setItem('fun', 'nz-di-fun', '<span class="nz-ic">' + (fv.on ? I.flame : I.clover) + (left ? '<i class="nz-cnt">' + left + '</i>' : '') + '</span>' +
+        '<span class="nz-tx"><b>' + (fv.on ? '피버 ×' + fv.mult : '행운 존') + '</b><small>' + (fv.on ? '<em data-fever-left="' + fv.until + '">' + F.clock(fv.until - h.serverTime) + '</em> 남음' : left ? '남은 기회 ' + left + '번' : '빙고 ' + fz.bingo.count + '줄 · ' + fz.bingo.filled + '/9칸') + '</small></span>',
+        '행운 존 : 남은 기회 ' + left + '번' + (fv.on ? ', 피버 타임 진행 중' : ''), left > 0 || fv.on, true));
+      items.fun.classList.toggle('fever', !!fv.on);
+    } else order.push(setItem('more', 'nz-di-more', I.dots, '넛지 설정', false));
 
     // 순서대로 꽂기 (이미 있는 것은 옮기지 않는다)
     let i = 0;
@@ -273,7 +280,12 @@
   // ── 「하러 가기」 : 넛지 → 원래 기능으로 ───────────────────────
   ui.go = (target, from) => {
     NZ.log('go', target);
-    const inside = { attend: 1, quiz: 1, talk: 1, quest: 1, lotto: 1, league: 1, journey: 1, wallet: 1, more: 1 };
+    const inside = { attend: 1, quiz: 1, talk: 1, quest: 1, lotto: 1, league: 1, journey: 1, wallet: 1, more: 1, fun: 1 };
+    const game = { roulette: 1, cslot: 1, challenge: 1, tarot: 1, scratch: 1, 'fortune-card': 1, bingo: 1 };
+    if (game[target] && NZ.fun) {
+      if (host && host.isHome && !host.isHome()) { host.go('home'); setTimeout(() => ui.go(target, from), 600); return; }
+      closePop(true); NZ.fun.go(target); return;
+    }
     if (inside[target]) {
       if (host && host.isHome && !host.isHome()) { host.go('home'); setTimeout(() => ui.go(target, from), 600); return; }
       const d = dock.getBoundingClientRect();

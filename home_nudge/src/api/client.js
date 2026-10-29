@@ -5,7 +5,7 @@
  *
  * 약속 (자세한 것은 docs/openapi.yaml)
  *  - 모든 쓰기 요청에 idem(멱등 키)을 붙인다. 같은 키가 두 번 오면 서버는 첫 결과를 그대로 돌려준다(두 번 누름 · 재전송 방지).
- *  - 쓰기 응답 = { ok, reason, grants[], fx[], home }. home 은 새 홈 요약. 화면은 이것만 보고 다시 그린다.
+ *  - 쓰기 응답 = { ok, reason, grants[], fx[], data, home }. data 는 행운 존 게임 결과(룰렛 칸 · 슬롯 릴 · 문제 등). home 은 새 홈 요약. 화면은 이것만 보고 다시 그린다.
  *  - 사용자 · 조직은 서버가 로그인 세션으로 안다. 화면이 사용자 id 를 보내지 않는다(남의 기록을 쓸 수 없게).
  */
 (function (root, factory) {
@@ -37,6 +37,14 @@
       event: (kind, p) => post('/events', Object.assign({ kind: kind }, p || {})),
       answerQuiz: (id, choice) => post('/quiz/' + enc(id) + '/answer', { choice: choice }),
       explainQuiz: (id) => post('/quiz/' + enc(id) + '/explained'),
+      // 행운 존 (결과는 서버가 정한다 · 응답 data 에 게임 결과)
+      spinRoulette: () => post('/fun/roulette/spin'),
+      pullSlot: () => post('/fun/cslot/pull'),
+      crmDone: (ref, customerId) => post('/fun/crm/done', { ref: ref, customerId: customerId }),
+      revealScratch: (id) => post('/fun/scratch/' + enc(id) + '/reveal'),
+      startChallenge: () => post('/fun/challenge/start'),
+      answerChallenge: (runId, idx, choice, ms) => post('/fun/challenge/' + enc(runId) + '/answer', { idx: idx, choice: choice, ms: ms }),
+      drawTarot: (pick) => post('/fun/tarot/draw', { pick: pick }),
       listTalks: (p) => req('GET', '/talks?' + qs(p)),
       getTalk: (id) => req('GET', '/talks/' + enc(id)),
       copyTalk: (id, typed) => post('/talks/' + enc(id) + '/copy', { typed: typed }),

@@ -58,5 +58,39 @@ eq('빈 영업일 2일 = 보호권 2장으로 메움', V.shield[1].shieldsLeft =
 eq('빈 영업일 3일 = 보호권을 쓰지 않고 새로 시작', V.shield[2].shieldsLeft === 2 && V.shield[2].streak === 1, true);
 eq('올클리어 = 하루 5개', V.scenario.steps.some(s => s.fx.indexOf('allclear') >= 0), true);
 
+// 3) 행운 존 (v5.1)
+(function () {
+  const F = V.fun, segs = cfg.fun.roulette.segments, wsum = segs.reduce((a, x) => a + x.weight, 0);
+  eq('룰렛 가중치 그대로 나옴(1만 번 · 칸마다 ±1.5%p)', F.weighted.counts.every((c, i) => Math.abs(c / F.weighted.n - segs[i].weight / wsum) < 0.015), true);
+  { const r = R.rng(F.weighted.seed), c = segs.map(() => 0); for (let i = 0; i < F.weighted.n; i++) c[R.pickWeighted(r, segs)]++; eq('룰렛 벡터', c, F.weighted.counts); }
+  F.tarot.forEach(t => eq('오늘의 타로 ' + t.in[1], R.tarotOfDay.apply(null, t.in), t.out));
+  eq('타로 세 장은 0~21 서로 다른 카드', F.tarot.every(t => t.out.length === 3 && new Set(t.out).size === 3 && t.out.every(x => x >= 0 && x < 22)), true);
+  F.points.forEach(t => eq('OX 점수 ' + t.in.join(' '), R.challengePoints(t.in[0], t.in[1], t.in[2], cfg.fun.challenge), t.out));
+  F.fever.forEach(t => eq('피버 ' + t.in.join(' '), R.feverInfo(R.emptyState('u'), R.toMs(t.in[0], t.in[1]), cfg, cal), t.out));
+  eq('피버는 14:00~14:59 만, 주말은 없음', F.fever.map(t => t.out.on), [false, true, true, false, false]);
+  eq('슬롯 · 스크래치 가중치 합 100', [cfg.fun.cslot.tiers, cfg.fun.scratch.prizes, segs].map(l => l.reduce((a, x) => a + x.weight, 0)), [100, 100, 100]);
+  eq('빙고 9칸 · 줄 8개', [cfg.bingo.cells.length, R.BINGO_LINES.length], [9, 8]);
+  const S = F.scenario, st = R.emptyState('u-fun'), user = { id: 'u-fun', name: '시험', joinMonth: 20 }, quiz = { id: 'q-f', answer: 'O' };
+  const bank = S.bank.map(q => Object.assign({ q: q.id + ' 문제', why: q.id + ' 해설', src: '시험' }, q));
+  let n = 0;
+  S.steps.forEach(s => {
+    const out = R.evaluate(st, s.ev, { cfg, cal, now: R.toMs(S.day, s.at), rand: R.rng(5000 + (++n)), user, recoToday: ['c1'], quiz, talk: null, league: null, crm: S.crm, oxBank: bank });
+    eq('행운 존 ' + s.at + ' ' + s.ev.kind, { ok: out.ok, reason: out.reason, grants: out.grants.map(g => [g.type, g.amount, g.rule]), fx: out.fx.map(f => f.type), data: out.data || null,
+      after: { weekXp: (st.weeks[R.weekId(S.day)] || {}).xp, tickets: (st.weeks[R.weekId(S.day)] || {}).tickets, best: st.fun.best } },
+      { ok: s.ok, reason: s.reason, grants: s.grants, fx: s.fx, data: s.data, after: s.after });
+  });
+  eq('행운 존 빙고 상태', R.bingoState(st, S.day, cfg), S.bingo);
+  eq('행운 존 남은 기회', R.funPlays(st, S.day, cfg), S.plays);
+  eq('룰렛은 하루 1번 + 일일 미션 보너스 1번', S.steps.filter(s => s.ev.kind === 'roulette.spin').map(s => s.ok), [true, false, true]);
+  eq('OX 만점은 응모권 +1 (하루 한 번)', S.steps.filter(s => s.grants.some(g => g[2] === 'challenge.perfect')).length, 1);
+  eq('오후 피버에 고객 챙기기 XP 2배', S.steps.filter(s => s.ev.kind === 'crm.done' && s.ok && s.at >= '14:00' && s.at < '15:00').every(s => s.data.mult === 2), true);
+  eq('스크래치는 일일 미션 때 발급 · 한 번만 긁힘', S.steps.filter(s => s.ev.kind === 'scratch.reveal').map(s => s.ok), [true, false]);
+  // 운으로 받는 응모권 하루 한도 : 넘치면 XP 로
+  const st2 = R.emptyState('u-cap'), c2 = (hm, i) => ({ cfg, cal, now: R.toMs('2026-11-03', hm), rand: () => 0.99, user, recoToday: [], quiz: null, talk: null, league: null, crm: S.crm, oxBank: bank });
+  const capCfg = JSON.parse(JSON.stringify(cfg)); capCfg.fun.plays.roulette = 5; capCfg.fun.roulette.segments.forEach(x => { x.weight = x.id === 'bonus_ticket' ? 1 : 0; });
+  const spins = [1, 2, 3, 4].map(i => R.evaluate(st2, { kind: 'roulette.spin' }, Object.assign(c2('10:0' + i), { cfg: capCfg })));
+  eq('운 응모권 하루 3장까지 · 4번째는 XP', spins.map(o => o.grants.filter(g => g.type === 'ticket').length + (o.fx.some(f => f.type === 'capped') ? 'x' : '')), ['1', '1', '1', '0x']);
+})();
+
 console.log('\n통과 ' + pass + ' / 실패 ' + fail);
 process.exit(fail ? 1 : 0);

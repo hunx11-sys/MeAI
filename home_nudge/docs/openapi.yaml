@@ -1,9 +1,9 @@
 openapi: 3.0.3
 info:
   title: MeAI 홈 넛지 API
-  version: 5.0.0
+  version: 5.1.0
   description: |
-    MeAI 홈 「오늘의 MeAI」 넛지(출석 · 퀴즈 · 화법 · 퀘스트 · 로또 · 리그 · 대시보드)용 API.
+    MeAI 홈 「오늘의 MeAI」 넛지(출석 · 퀴즈 · 화법 · 퀘스트 · 로또 · 리그 · 대시보드 · 행운 존)용 API.
     화면 구현 `src/api/client.js`, 같은 모양의 모의 서버 `src/api/mock.js`, 보상 규칙 기준 `src/core/rules.js`.
 
     약속
@@ -13,6 +13,7 @@ info:
     - `ok=false` 는 오류가 아니라 「보상 없음」(reason 참고). HTTP 4xx/5xx 만 오류다.
     - 날짜는 한국 시간 'YYYY-MM-DD', 시각은 epoch ms. 동료 이름은 서버에서 가려서 보낸다(나만 실명).
     - 보상 · 한도 숫자는 운영 설정(nz_config)에서 온다. 이 명세의 예시 숫자는 예시다.
+    - 행운 존(v5.1) 게임 결과(룰렛 칸 · 슬롯 릴 · 문제 · 타로 카드 · 스크래치 경품)는 서버가 정해 `data` 로 돌려준다. 화면은 응답을 받은 뒤 그 자리에 멈추는 연출만 한다.
 servers:
   - url: /api/nudge/v1
 security:
@@ -23,6 +24,7 @@ tags:
   - { name: talk, description: 오늘의 화법 · 화법 마트 }
   - { name: lotto, description: 로또(행운번호) · 리캡 }
   - { name: league, description: 리그 · 응원 }
+  - { name: fun, description: 행운 존 (CRM 룰렛 · 추천 고객 슬롯 · 고객 챙기기 · 스크래치 · OX 챌린지 · 오늘의 타로) }
   - { name: dash, description: 대시보드 (권한) }
   - { name: internal, description: 서버 간 이벤트 (내부망 · 서버 인증) }
   - { name: admin, description: 운영 화면 }
@@ -56,7 +58,7 @@ paths:
               required: [idem, kind]
               properties:
                 idem: { type: string, format: uuid }
-                kind: { type: string, enum: [reco.open, chat.custom, chat.general, notice.read, consent.request, fortune.send, dash.open] }
+                kind: { type: string, enum: [reco.open, chat.custom, chat.general, notice.read, consent.request, fortune.send, fortune.open, dash.open] }
                 customerId: { type: string, description: 추천 서비스의 고객 id }
                 ref: { type: string, description: 공지 id 등 }
       responses: { '200': { $ref: '#/components/responses/Action' } }
@@ -197,6 +199,73 @@ paths:
       parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
       requestBody: { $ref: '#/components/requestBodies/Idem' }
       responses: { '200': { $ref: '#/components/responses/HomeOnly' } }
+  /fun/roulette/spin:
+    post:
+      tags: [fun]
+      summary: CRM 룰렛 돌리기 (하루 1번 + 일일 미션 보너스 1번)
+      description: |
+        칸(고객 활동)을 설정 가중치로 고르고, 그 활동 태그가 붙은 내 고객을 최대 3명 붙인다(없으면 연락이 뜸한 고객 · fallback=true).
+        보너스 칸(응모권 +1 · 나만의 피버 30분)은 바로 보상. 운 응모권은 하루 한도(fun.ticketCapDaily) 안에서만, 넘치면 XP 로.
+        data = { spinId, seg, segId, customers[], fallback, bonus }
+      requestBody: { $ref: '#/components/requestBodies/Idem' }
+      responses: { '200': { $ref: '#/components/responses/Action' } }
+  /fun/cslot/pull:
+    post:
+      tags: [fun]
+      summary: 추천 고객 슬롯 당기기 (하루 1번 + 올클리어 보너스 1번)
+      description: |
+        결과 단계(jackpot 트리플 · pair 더블 · mix 보통)를 가중치로 먼저 정하고, 그 단계에 맞게 오늘 아직 안 챙긴 내 고객 3명을 고른다.
+        고객이 모자라 그 단계를 만들 수 없으면 낮은 단계로 바뀐다. data = { pullId, tier, reels[3], customers[3], prize { xp, ticket } }
+      requestBody: { $ref: '#/components/requestBodies/Idem' }
+      responses: { '200': { $ref: '#/components/responses/Action' } }
+  /fun/crm/done:
+    post:
+      tags: [fun]
+      summary: 룰렛 · 슬롯이 고른 고객에게 연락했어요 (화면 신고 → XP 만, 응모권 없음)
+      description: |
+        ref = 'r:<spinId>' 또는 's:<pullId>'. 그 결과에 있는 고객만 · 하루 같은 고객 1번. 피버 타임이면 XP 배수.
+        슬롯 고객 3명을 모두 챙기면 cslotClear XP. 운영에서는 문자 · 알림톡 발송 이벤트(/internal/events)로 확정할 수 있다.
+        data = { ref, customerId, xp, mult }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [idem, ref, customerId], properties: { idem: { type: string }, ref: { type: string, example: 'r:r1' }, customerId: { type: string } } } } }
+      responses: { '200': { $ref: '#/components/responses/Action' } }
+  /fun/scratch/{scratchId}/reveal:
+    post:
+      tags: [fun]
+      summary: 스크래치 복권 긁기 (일일 미션 · 올클리어 때 1장씩 발급 · 받은 날부터 7일)
+      description: 경품은 발급 때 이미 정해져 있다(서버만 앎). data = { id, prize { id, label, type }, result }
+      parameters: [ { name: scratchId, in: path, required: true, schema: { type: string } } ]
+      requestBody: { $ref: '#/components/requestBodies/Idem' }
+      responses: { '200': { $ref: '#/components/responses/Action' } }
+  /fun/challenge/start:
+    post:
+      tags: [fun]
+      summary: OX 스피드 챌린지 시작 (하루 3판 · 5문제 · 10초)
+      description: 문제 은행에서 갈래를 번갈아 5문제를 고른다(최근에 푼 문제는 뒤로). 답은 보내지 않는다. data = { runId, sec, items[{ id, cat, q }] }
+      requestBody: { $ref: '#/components/requestBodies/Idem' }
+      responses: { '200': { $ref: '#/components/responses/Action' } }
+  /fun/challenge/{runId}/answer:
+    post:
+      tags: [fun]
+      summary: OX 챌린지 한 문제 답 (순서대로 · 시간 초과는 choice 없이)
+      description: |
+        점수 = 정답 base + 남은 초 × speed + (연속 정답 - 1) × combo. 마지막 문제 응답에 summary(점수 · 최고 기록 · XP · 만점 응모권)가 붙는다.
+        data = { idx, correct, a, why, src, pts, score, combo, last, summary? }
+      parameters: [ { name: runId, in: path, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [idem, idx], properties: { idem: { type: string }, idx: { type: integer }, choice: { type: string, nullable: true, enum: [O, X, null] }, ms: { type: integer, description: 문제를 본 뒤 답까지 걸린 시간 } } } } }
+      responses: { '200': { $ref: '#/components/responses/Action' } }
+  /fun/tarot/draw:
+    post:
+      tags: [fun]
+      summary: 오늘의 타로 한 장 (하루 1번 · 메이저 아르카나 22장)
+      description: 사람 · 날짜마다 정해진 세 장 중 고른 자리의 카드. 풀이 문구는 화면의 오늘의 운세 엔진(unse-engine.js)에 있다. data = { card, pick, three[3] }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [idem, pick], properties: { idem: { type: string }, pick: { type: integer, minimum: 0, maximum: 2 } } } } }
+      responses: { '200': { $ref: '#/components/responses/Action' } }
   /logs:
     post:
       tags: [home]
@@ -287,9 +356,11 @@ components:
       required: [ok, grants, fx, home]
       properties:
         ok: { type: boolean }
-        reason: { type: string, enum: ['', already, not_bizday, limit, lotto_daily_max, not_done, no_quiz, no_talk, not_answered, same_customer, unknown_kind] }
+        reason: { type: string, enum: ['', already, not_bizday, limit, lotto_daily_max, not_done, no_quiz, no_talk, not_answered, same_customer, unknown_kind,
+          no_plays, no_customers, no_target, no_scratch, expired, no_bank, no_run, order] }
         grants: { type: array, items: { $ref: '#/components/schemas/Grant' } }
         fx: { type: array, items: { $ref: '#/components/schemas/Fx' } }
+        data: { $ref: '#/components/schemas/FunData' }
         home: { $ref: '#/components/schemas/Home' }
     Grant:
       type: object
@@ -307,7 +378,8 @@ components:
       description: 화면 연출 하나. type 별로 붙는 값이 다르다.
       required: [type]
       properties:
-        type: { type: string, enum: [stamp, perfect, flame, quiz, talk, quest, mission, allclear, slot, streak, pass, rankup, badge, first, shield, cheer] }
+        type: { type: string, enum: [stamp, perfect, flame, quiz, talk, quest, mission, allclear, slot, streak, pass, rankup, badge, first, shield, cheer,
+          roulette, cslot, crm, cslotClear, scratch, scratchNew, challenge, tarot, fever, bingo, capped] }
         day: { type: string }
         from: { type: integer }
         to: { description: 'flame · rankup : 숫자, cheer : 동료 id' }
@@ -464,6 +536,83 @@ components:
         onboarding: { type: object, nullable: true, properties: { joinMonth: { type: integer }, steps: { type: array, items: { type: object, properties: { kind: { type: string }, title: { type: string }, text: { type: string }, done: { type: boolean } } } } } }
         recap: { type: object, properties: { available: { type: boolean }, week: { type: string }, seen: { type: boolean } } }
         myCustomers: { type: object }
+        fun: { $ref: '#/components/schemas/Fun' }
+    FunData:
+      type: object
+      nullable: true
+      description: 행운 존 게임 결과 (행동마다 붙는 값이 다르다 · 각 경로 설명 참고). 다른 행동은 null.
+      properties:
+        spinId: { type: string }
+        seg: { type: integer }
+        segId: { type: string }
+        customers: { type: array, items: { type: string } }
+        fallback: { type: boolean }
+        bonus: { type: object, nullable: true }
+        pullId: { type: string }
+        tier: { type: string, enum: [jackpot, pair, mix] }
+        reels: { type: array, items: { type: string } }
+        prize: { type: object }
+        ref: { type: string }
+        customerId: { type: string }
+        xp: { type: integer }
+        mult: { type: number }
+        id: { type: string }
+        result: { type: object }
+        runId: { type: string }
+        sec: { type: integer }
+        items: { type: array, items: { type: object, required: [id, cat, q], properties: { id: { type: string }, cat: { type: string }, q: { type: string } } } }
+        idx: { type: integer }
+        correct: { type: boolean }
+        a: { type: string, enum: [O, X] }
+        why: { type: string }
+        src: { type: string }
+        pts: { type: integer }
+        score: { type: integer }
+        combo: { type: integer }
+        last: { type: boolean }
+        summary: { type: object, properties: { score: { type: integer }, ok: { type: integer }, n: { type: integer }, best: { type: integer }, newBest: { type: boolean }, xp: { type: integer }, ticket: { type: integer }, perfect: { type: boolean } } }
+        card: { type: integer, minimum: 0, maximum: 21 }
+        pick: { type: integer }
+        three: { type: array, items: { type: integer } }
+    FunCustomer:
+      type: object
+      description: 룰렛 · 슬롯이 고른 내 고객 (이름은 가려서)
+      properties: { id: { type: string }, name: { type: string }, age: { type: integer }, sym: { type: string }, note: { type: string }, done: { type: boolean } }
+    Fun:
+      type: object
+      description: 행운 존 요약 (막대 칸 · 허브 카드 · 게임 화면)
+      properties:
+        plays: { type: object, additionalProperties: { type: object, properties: { total: { type: integer }, used: { type: integer }, left: { type: integer } } } }
+        fever: { type: object, properties: { on: { type: boolean }, mult: { type: number }, until: { type: integer }, label: { type: string }, kind: { type: string }, next: { type: object, nullable: true } } }
+        capLeft: { type: integer }
+        cap: { type: integer }
+        roulette:
+          type: object
+          properties:
+            segments: { type: array, items: { type: object, properties: { id: { type: string }, label: { type: string }, color: { type: string }, pct: { type: number }, bonus: { type: boolean }, xp: { type: integer } } } }
+            spins: { type: array, items: { type: object, properties: { id: { type: string }, seg: { type: integer }, segId: { type: string }, label: { type: string }, tpl: { type: string }, xp: { type: integer }, bonus: { type: boolean }, fallback: { type: boolean }, customers: { type: array, items: { $ref: '#/components/schemas/FunCustomer' } } } } }
+        cslot:
+          type: object
+          properties:
+            symbols: { type: array, items: { type: object } }
+            odds: { type: array, items: { type: object, properties: { id: { type: string }, label: { type: string }, pct: { type: number } } } }
+            prizes: { type: object }
+            xpContact: { type: integer }
+            clearXp: { type: integer }
+            pulls: { type: array, items: { type: object, properties: { id: { type: string }, tier: { type: string }, reels: { type: array, items: { type: string } }, cleared: { type: boolean }, customers: { type: array, items: { $ref: '#/components/schemas/FunCustomer' } } } } }
+        scratch: { type: object, properties: { cards: { type: array, items: { type: object, properties: { id: { type: string }, from: { type: string }, day: { type: string } } } }, today: { type: array, items: { type: object } }, odds: { type: array, items: { type: object } }, issueOn: { type: array, items: { type: string } } } }
+        challenge: { type: object, properties: { best: { type: integer }, runsToday: { type: integer }, perfectToday: { type: boolean }, n: { type: integer }, sec: { type: integer }, bank: { type: integer }, cats: { type: object }, max: { type: integer } } }
+        tarot: { type: object, properties: { today: { type: object, nullable: true, properties: { card: { type: integer }, pick: { type: integer }, three: { type: array, items: { type: integer } } } }, cards: { type: integer } } }
+        bingo:
+          type: object
+          properties:
+            week: { type: string }
+            cells: { type: array, minItems: 9, maxItems: 9, items: { type: object, properties: { id: { type: string }, label: { type: string }, kind: { type: string }, go: { type: string }, n: { type: integer }, progress: { type: integer }, done: { type: boolean } } } }
+            lines: { type: array, items: { type: integer, minimum: 0, maximum: 7 } }
+            count: { type: integer }
+            filled: { type: integer }
+            rewards: { type: array, items: { type: object, properties: { lines: { type: integer }, ticket: { type: integer }, label: { type: string }, got: { type: boolean } } } }
+        fortune: { type: object, properties: { example: { type: object, nullable: true }, sentToday: { type: boolean } } }
     Lotto:
       type: object
       properties:

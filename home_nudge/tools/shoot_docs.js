@@ -26,7 +26,26 @@ const OUT = path.join(__dirname, '..', 'docs', 'img');
     await p.keyboard.press('Escape'); await p.waitForTimeout(300);
   };
   await card('quest', 'card_quest'); await card('attend', 'card_attend'); await card('quiz', 'card_quiz'); await card('talk', 'card_talk');
-  await card('lotto', 'card_lotto'); await card('league', 'card_league'); await card('wallet', 'card_wallet'); await card('more', 'card_more');
+  await card('lotto', 'card_lotto'); await card('league', 'card_league'); await card('wallet', 'card_wallet'); await card('fun', 'card_fun');
+  // 넛지 설정 (행운 존 카드 아래 → 설정)
+  await p.click('.nz-di[data-k="fun"]'); await p.waitForTimeout(500); await p.click('.nz-pop [data-open="more"]'); await p.waitForTimeout(600);
+  { const r = await p.evaluate(() => { const e = document.querySelector('.nz-pop.on .nz-card'); const b = e.getBoundingClientRect(); return { x: b.left - 8, y: b.top - 8, width: b.width + 16, height: b.height + 16 }; }); await p.screenshot({ path: path.join(OUT, 'card_more.png'), clip: r }); }
+  await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+  // 행운 존 게임 화면
+  const esc = async () => { for (let i = 0; i < 6 && await p.$('.nz-scrim'); i++) { await p.keyboard.press('Escape'); await p.waitForTimeout(350); } };
+  const game = async (g, name, act) => {
+    await p.evaluate((g) => MeAINudge._nz.fun.go(g), g); await p.waitForTimeout(700); if (act) await act();
+    const r = await p.evaluate(() => { const e = document.querySelector('.nz-scrim .nz-game'); e.scrollTop = 0; const b = e.getBoundingClientRect(); return { x: Math.max(0, b.left - 8), y: Math.max(0, b.top - 8), width: b.width + 16, height: Math.min(b.height + 16, 900 - Math.max(0, b.top - 8)) }; });
+    await p.screenshot({ path: path.join(OUT, name + '.png'), clip: r }); await esc();
+  };
+  await game('roulette', 'fun_roulette', async () => { await p.click('[data-spin]'); await p.waitForTimeout(5600); });
+  await game('cslot', 'fun_cslot', async () => { await p.click('[data-pull]'); await p.waitForTimeout(3600); });
+  await game('challenge', 'fun_ox', async () => { await p.click('[data-start]'); await p.waitForTimeout(2300); const a = await p.evaluate(() => { const q = document.querySelector('.nz-oxc .q').textContent; const it = window.NZ_DATA.ox.items.filter((x) => x.q === q)[0]; return it ? it.a : 'O'; }); await p.click('.nz-oxc [data-ans="' + a + '"]'); await p.waitForTimeout(700); });
+  await game('tarot', 'fun_tarot', async () => { await p.click('.nz-tarot [data-pick="1"]'); await p.waitForTimeout(2400); });
+  await game('scratch', 'fun_scratch', async () => { if (await p.$('.nz-scr [data-all]')) { await p.click('.nz-scr [data-all]'); await p.waitForTimeout(1500); } });
+  await game('fortune-card', 'fun_fortune', null);
+  await p.evaluate(() => { MeAINudge.fx([{ type: 'bingo', lines: [0], fresh: [0], count: 1, filled: 4 }]); }); await p.waitForTimeout(1100);
+  await p.screenshot({ path: path.join(OUT, 'fx_bingo.png'), clip: { x: 420, y: 250, width: 600, height: 360 } }); await esc();
   // 연출 : 슬롯 · 일일 미션
   await p.evaluate(() => { MeAINudge._nz.fx.slot({ nums: [3, 11, 19, 27, 34, 42], nth: 5 }); }); await p.waitForTimeout(3300);
   await p.screenshot({ path: path.join(OUT, 'fx_slot.png'), clip: { x: 420, y: 150, width: 600, height: 520 } }); await p.keyboard.press('Escape'); await p.waitForTimeout(600);

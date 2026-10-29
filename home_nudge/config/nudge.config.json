@@ -1,20 +1,14 @@
 {
-  "$comment": "MeAI 홈 넛지 v5 운영 설정. 서버가 이 값을 읽어 규칙 엔진(src/core/rules.js)에 넘긴다. 보상 · 한도 · 경품은 확정 전 예시(가정값)이며, 바꿀 때 코드 수정 없이 이 파일만 고친다.",
-  "version": "5.0.0",
-  "labels": {
-    "lotto": "MeAI 로또",
-    "lottoAlt": "MeAI 행운번호",
-    "useAltLottoName": false,
-    "ticket": "커피 응모권",
-    "shield": "보호권"
-  },
+  "$comment": "MeAI 홈 넛지 v5 운영 설정. 서버가 이 값을 읽어 규칙 엔진(src/core/rules.js)에 넘긴다. 보상 · 한도 · 경품은 확정 전 예시(가정값)이며, 바꿀 때 코드 수정 없이 이 파일만 고친다. v5.1 : 행운 존(fun · fever · bingo) 추가. 룰렛 · 슬롯 · 스크래치 확률은 아래 weight 그대로이며 화면에 공개한다.",
+  "version": "5.1.0",
+  "labels": {"lotto": "MeAI 로또", "lottoAlt": "MeAI 행운번호", "useAltLottoName": false, "ticket": "커피 응모권", "shield": "보호권"},
   "rewards": {
-    "attend": { "ticket": 1 },
-    "perfectWeek": { "ticket": 3 },
-    "quizCorrect": { "ticket": 1 },
-    "talkCopy": { "ticket": 1 },
-    "dailyMission": { "need": 3, "ticket": 1 },
-    "allClear": { "need": 5, "ticket": 2 }
+    "attend": {"ticket": 1},
+    "perfectWeek": {"ticket": 3},
+    "quizCorrect": {"ticket": 1},
+    "talkCopy": {"ticket": 1},
+    "dailyMission": {"need": 3, "ticket": 1},
+    "allClear": {"need": 5, "ticket": 2}
   },
   "xp": {
     "attend": 10,
@@ -30,7 +24,10 @@
     "cheer.send": 2,
     "fortune.send": 5,
     "dash.open": 0,
-    "questClear": 5
+    "questClear": 5,
+    "crm.done": 15,
+    "tarot.draw": 3,
+    "fortune.open": 0
   },
   "xpDailyCount": {
     "reco.open": 10,
@@ -39,41 +36,46 @@
     "notice.read": 3,
     "consent.request": 5,
     "cheer.send": 3,
-    "fortune.send": 3
+    "fortune.send": 3,
+    "crm.done": 8,
+    "challenge.finish": 3,
+    "tarot.draw": 1
   },
   "pass": [
-    { "xp": 100, "reward": { "ticket": 1 }, "label": "응모권 +1" },
-    { "xp": 250, "reward": { "shield": 1 }, "label": "보호권 +1" },
-    { "xp": 450, "reward": { "ticket": 2 }, "label": "응모권 +2" },
-    { "xp": 700, "reward": { "frame": "gold" }, "label": "골드 테두리" },
-    { "xp": 1000, "reward": { "ticket": 3, "frame": "mvp" }, "label": "응모권 +3 · 이번 주 MVP" }
+    {"xp": 100, "reward": {"ticket": 1}, "label": "응모권 +1"},
+    {"xp": 250, "reward": {"shield": 1}, "label": "보호권 +1"},
+    {"xp": 450, "reward": {"ticket": 2}, "label": "응모권 +2"},
+    {"xp": 700, "reward": {"frame": "gold"}, "label": "골드 테두리"},
+    {"xp": 1000, "reward": {"ticket": 3, "frame": "mvp"}, "label": "응모권 +3 · 이번 주 MVP"}
   ],
   "streak": {
-    "litBy": ["attend", "reco.open", "chat.custom", "chat.general"],
+    "litBy": ["attend", "reco.open", "chat.custom", "chat.general", "crm.done"],
     "milestones": [5, 10, 20, 30, 50, 100],
     "shieldsPerMonth": 2,
     "shieldMax": 3,
     "riskFrom": "16:00"
   },
   "quests": {
-    "attend":      { "title": "출석 도장 찍기",            "ring": "come",  "on": ["attend"],          "target": 1, "go": "attend" },
-    "quiz":        { "title": "오늘의 퀴즈 풀기",          "ring": "learn", "on": ["quiz"],            "target": 1, "go": "quiz", "note": "틀려도 해설을 읽으면 인정" },
-    "reco_open":   { "title": "추천 고객 1명 열기",        "ring": "sell",  "on": ["reco.open"],       "target": 1, "go": "reco" },
-    "notice_read": { "title": "새 공지 1건 읽기",          "ring": "learn", "on": ["notice.read"],     "target": 1, "go": "board" },
-    "talk_copy":   { "title": "오늘의 화법 따라 쓰기",     "ring": "learn", "on": ["talk.copy"],       "target": 1, "go": "talk" },
-    "chat_custom": { "title": "맞춤대화 1회 하기",         "ring": "sell",  "on": ["chat.custom"],     "target": 1, "go": "custom" },
-    "age_up_3":    { "title": "상령일 임박 고객 3명 열기", "ring": "sell",  "on": ["reco.open"],       "target": 3, "tag": "age_up", "go": "reco" },
-    "consent_req": { "title": "사전조회동의 요청 1건",     "ring": "sell",  "on": ["consent.request"], "target": 1, "go": "consent" },
-    "fortune_send":{ "title": "고객에게 운세 링크 보내기", "ring": "sell",  "on": ["fortune.send"],    "target": 1, "go": "fortune" }
+    "attend": {"title": "출석 도장 찍기", "ring": "come", "on": ["attend"], "target": 1, "go": "attend"},
+    "quiz": {"title": "오늘의 퀴즈 풀기", "ring": "learn", "on": ["quiz"], "target": 1, "go": "quiz", "note": "틀려도 해설을 읽으면 인정"},
+    "reco_open": {"title": "추천 고객 1명 열기", "ring": "sell", "on": ["reco.open"], "target": 1, "go": "reco"},
+    "notice_read": {"title": "새 공지 1건 읽기", "ring": "learn", "on": ["notice.read"], "target": 1, "go": "board"},
+    "talk_copy": {"title": "오늘의 화법 따라 쓰기", "ring": "learn", "on": ["talk.copy"], "target": 1, "go": "talk"},
+    "chat_custom": {"title": "맞춤대화 1회 하기", "ring": "sell", "on": ["chat.custom"], "target": 1, "go": "custom"},
+    "age_up_3": {"title": "상령일 임박 고객 3명 열기", "ring": "sell", "on": ["reco.open"], "target": 3, "tag": "age_up", "go": "reco"},
+    "consent_req": {"title": "사전조회동의 요청 1건", "ring": "sell", "on": ["consent.request"], "target": 1, "go": "consent"},
+    "fortune_send": {"title": "고객에게 운세 링크 보내기", "ring": "sell", "on": ["fortune.send"], "target": 1, "go": "fortune"},
+    "crm_done": {"title": "룰렛 · 슬롯 고객 1명 챙기기", "ring": "sell", "on": ["crm.done"], "target": 1, "go": "fun"},
+    "ox_run": {"title": "OX 스피드 챌린지 1판", "ring": "learn", "on": ["challenge.finish"], "target": 1, "go": "fun"}
   },
   "questSchedule": {
     "default": ["attend", "quiz", "reco_open", "notice_read", "talk_copy"],
     "2026-10-30": ["attend", "quiz", "chat_custom", "consent_req", "talk_copy"]
   },
   "rings": {
-    "come":  { "label": "오기",     "color": "#E1262C" },
-    "learn": { "label": "배우기",   "color": "#3B66E0" },
-    "sell":  { "label": "영업하기", "color": "#119C6B" }
+    "come": {"label": "오기", "color": "#E1262C"},
+    "learn": {"label": "배우기", "color": "#3B66E0"},
+    "sell": {"label": "영업하기", "color": "#119C6B"}
   },
   "lotto": {
     "pool": 45,
@@ -84,48 +86,160 @@
     "onlyTodayReco": true,
     "cutoff": "16:00",
     "drawAt": "17:00",
-    "tiers": [
-      { "match": 3, "prize": "커피 쿠폰",       "cap": 300 },
-      { "match": 4, "prize": "치킨 세트 쿠폰",  "cap": 20 },
-      { "match": 5, "prize": "모바일 상품권",   "cap": 3 }
-    ]
+    "tiers": [{"match": 3, "prize": "커피 쿠폰", "cap": 300}, {"match": 4, "prize": "치킨 세트 쿠폰", "cap": 20}, {"match": 5, "prize": "모바일 상품권", "cap": 3}]
   },
   "badges": [
-    { "id": "streak_5",     "label": "불씨",        "desc": "5영업일 연속",          "type": "streak",  "n": 5 },
-    { "id": "streak_10",    "label": "불꽃",        "desc": "10영업일 연속",         "type": "streak",  "n": 10 },
-    { "id": "streak_20",    "label": "횃불",        "desc": "20영업일 연속",         "type": "streak",  "n": 20 },
-    { "id": "streak_50",    "label": "등대",        "desc": "50영업일 연속",         "type": "streak",  "n": 50 },
-    { "id": "streak_100",   "label": "태양",        "desc": "100영업일 연속",        "type": "streak",  "n": 100 },
-    { "id": "quiz_combo_5", "label": "척척박사",    "desc": "퀴즈 5번 연속 정답",    "type": "combo",   "n": 5 },
-    { "id": "talk_10",      "label": "화법 장인",   "desc": "화법 따라 쓰기 10번",   "type": "counter", "key": "talk.copy", "n": 10 },
-    { "id": "reco_50",      "label": "고객 탐험가", "desc": "추천 고객 50명 열기",   "type": "counter", "key": "reco.open", "n": 50 },
-    { "id": "cheer_10",     "label": "응원단장",    "desc": "동료 응원 10번",        "type": "counter", "key": "cheer.send", "n": 10 },
-    { "id": "pass_mvp",     "label": "이번 주 MVP", "desc": "주간 패스 5단계 완주",  "type": "pass",    "n": 5 }
+    {"id": "streak_5", "label": "불씨", "desc": "5영업일 연속", "type": "streak", "n": 5},
+    {"id": "streak_10", "label": "불꽃", "desc": "10영업일 연속", "type": "streak", "n": 10},
+    {"id": "streak_20", "label": "횃불", "desc": "20영업일 연속", "type": "streak", "n": 20},
+    {"id": "streak_50", "label": "등대", "desc": "50영업일 연속", "type": "streak", "n": 50},
+    {"id": "streak_100", "label": "태양", "desc": "100영업일 연속", "type": "streak", "n": 100},
+    {"id": "quiz_combo_5", "label": "척척박사", "desc": "퀴즈 5번 연속 정답", "type": "combo", "n": 5},
+    {"id": "talk_10", "label": "화법 장인", "desc": "화법 따라 쓰기 10번", "type": "counter", "key": "talk.copy", "n": 10},
+    {"id": "reco_50", "label": "고객 탐험가", "desc": "추천 고객 50명 열기", "type": "counter", "key": "reco.open", "n": 50},
+    {"id": "cheer_10", "label": "응원단장", "desc": "동료 응원 10번", "type": "counter", "key": "cheer.send", "n": 10},
+    {"id": "pass_mvp", "label": "이번 주 MVP", "desc": "주간 패스 5단계 완주", "type": "pass", "n": 5},
+    {"id": "crm_20", "label": "고객 챙김이", "desc": "룰렛 · 슬롯 고객 20명 챙기기", "type": "counter", "key": "crm.done", "n": 20},
+    {"id": "ox_perfect", "label": "OX 백점", "desc": "OX 스피드 챌린지 첫 만점", "type": "counter", "key": "challenge.perfect", "n": 1},
+    {"id": "bingo_master", "label": "빙고 마스터", "desc": "영업 빙고 9칸 모두 채우기", "type": "counter", "key": "bingo.blackout", "n": 1}
   ],
-  "coffeeDraw": { "winners": 100, "prize": "커피 쿠폰" },
-  "cheer": { "dailyMax": 3, "perPeerPerDay": 1 },
-  "league": { "goldCut": 3, "resetDow": 1 },
+  "coffeeDraw": {"winners": 100, "prize": "커피 쿠폰"},
+  "cheer": {"dailyMax": 3, "perPeerPerDay": 1},
+  "league": {"goldCut": 3, "resetDow": 1},
   "onboarding": {
     "maxJoinMonth": 3,
     "steps": [
-      { "kind": "attend",          "title": "첫 출석 도장",        "text": "MeAI 홈과 첫인사를 나눴어요." },
-      { "kind": "quiz",            "title": "첫 퀴즈",             "text": "매일 9시에 새 문제가 열려요." },
-      { "kind": "reco.open",       "title": "첫 추천 고객 열기",   "text": "MeAI가 고른 오늘의 고객을 처음 열었어요." },
-      { "kind": "chat.custom",     "title": "첫 맞춤대화",         "text": "고객 한 명의 보장을 MeAI와 함께 봤어요." },
-      { "kind": "talk.copy",       "title": "첫 화법 따라 쓰기",   "text": "동료의 화법이 내 화법이 되기 시작했어요." },
-      { "kind": "consent.request", "title": "첫 사전조회동의 요청", "text": "동의를 받으면 맞춤대화가 열려요." },
-      { "kind": "dash.open",       "title": "첫 내 기록 보기",     "text": "쌓인 기록은 대시보드에서 언제든 볼 수 있어요." }
+      {"kind": "attend", "title": "첫 출석 도장", "text": "MeAI 홈과 첫인사를 나눴어요."},
+      {"kind": "quiz", "title": "첫 퀴즈", "text": "매일 9시에 새 문제가 열려요."},
+      {"kind": "reco.open", "title": "첫 추천 고객 열기", "text": "MeAI가 고른 오늘의 고객을 처음 열었어요."},
+      {"kind": "chat.custom", "title": "첫 맞춤대화", "text": "고객 한 명의 보장을 MeAI와 함께 봤어요."},
+      {"kind": "talk.copy", "title": "첫 화법 따라 쓰기", "text": "동료의 화법이 내 화법이 되기 시작했어요."},
+      {"kind": "consent.request", "title": "첫 사전조회동의 요청", "text": "동의를 받으면 맞춤대화가 열려요."},
+      {"kind": "dash.open", "title": "첫 내 기록 보기", "text": "쌓인 기록은 대시보드에서 언제든 볼 수 있어요."}
     ]
   },
   "buddy": [
-    { "id": "draw_res", "from": "17:00", "to": "23:59", "dow": 5, "when": "!drawSeen",  "mascot": "ziziri_stars",   "text": "이번 주 당첨번호가 나왔어요.",                          "cta": { "label": "결과 보기", "go": "draw" } },
-    { "id": "risk",     "from": "16:00", "to": "23:59", "when": "!lit",                 "mascot": "eco_think",      "text": "아직 오늘 불이 꺼져 있어요. 추천 고객 1명만 열어도 {nextStreak}영업일째로 이어져요.", "cta": { "label": "추천 고객 보기", "go": "reco" } },
-    { "id": "draw_d0",  "from": "12:00", "to": "15:59", "dow": 5, "when": "true",       "mascot": "rara_present",   "text": "오늘 17시에 이번 주 추첨이 있어요. 응모 마감은 16시예요.", "cta": { "label": "내 번호 보기", "go": "lotto" } },
-    { "id": "monday",   "from": "07:00", "to": "11:30", "dow": 1, "when": "!attended",  "mascot": "group_hello",    "text": "새 회차가 시작됐어요. 첫 도장으로 이번 주를 열어요.",   "cta": { "label": "도장 찍기", "go": "attend" } },
-    { "id": "morning",  "from": "07:00", "to": "11:30", "when": "!attended",            "mascot": "hello_wave",     "text": "좋은 아침이에요. 도장 찍으면 {nextStreak}영업일째예요.", "cta": { "label": "도장 찍기", "go": "attend" } },
-    { "id": "quiz",     "from": "09:00", "to": "18:00", "when": "attended&!quizDone",   "mascot": "tata_board",     "text": "오늘의 퀴즈가 열렸어요. 30초면 풀어요.",              "cta": { "label": "퀴즈 풀기", "go": "quiz" } },
-    { "id": "mission",  "from": "09:00", "to": "18:00", "when": "questLeft==1",         "mascot": "success_thumbs", "text": "올클리어까지 하나 남았어요.",                           "cta": { "label": "남은 미션", "go": "quest" } },
-    { "id": "lunch",    "from": "11:30", "to": "14:00", "when": "!talkCopied",          "mascot": "indi_idea",      "text": "점심 전에 동료 화법 한 줄 따라 써 볼까요?",           "cta": { "label": "화법 보기", "go": "talk" } }
+    {"id": "draw_res", "from": "17:00", "to": "23:59", "dow": 5, "when": "!drawSeen", "mascot": "ziziri_stars", "text": "이번 주 당첨번호가 나왔어요.", "cta": {"label": "결과 보기", "go": "draw"}},
+    {
+      "id": "risk",
+      "from": "16:00",
+      "to": "23:59",
+      "when": "!lit",
+      "mascot": "eco_think",
+      "text": "아직 오늘 불이 꺼져 있어요. 추천 고객 1명만 열어도 {nextStreak}영업일째로 이어져요.",
+      "cta": {"label": "추천 고객 보기", "go": "reco"}
+    },
+    {
+      "id": "draw_d0",
+      "from": "12:00",
+      "to": "15:59",
+      "dow": 5,
+      "when": "true",
+      "mascot": "rara_present",
+      "text": "오늘 17시에 이번 주 추첨이 있어요. 응모 마감은 16시예요.",
+      "cta": {"label": "내 번호 보기", "go": "lotto"}
+    },
+    {
+      "id": "fever",
+      "from": "14:00",
+      "to": "14:59",
+      "when": "bizDay",
+      "mascot": "ziziri_cheer",
+      "text": "오후 피버 타임이에요. 지금 추천 고객 · 맞춤대화 · 고객 챙기기 XP가 2배예요.",
+      "cta": {"label": "행운 존", "go": "fun"}
+    },
+    {
+      "id": "monday",
+      "from": "07:00",
+      "to": "11:30",
+      "dow": 1,
+      "when": "!attended",
+      "mascot": "group_hello",
+      "text": "새 회차가 시작됐어요. 첫 도장으로 이번 주를 열어요.",
+      "cta": {"label": "도장 찍기", "go": "attend"}
+    },
+    {"id": "morning", "from": "07:00", "to": "11:30", "when": "!attended", "mascot": "hello_wave", "text": "좋은 아침이에요. 도장 찍으면 {nextStreak}영업일째예요.", "cta": {"label": "도장 찍기", "go": "attend"}},
+    {"id": "quiz", "from": "09:00", "to": "18:00", "when": "attended&!quizDone", "mascot": "tata_board", "text": "오늘의 퀴즈가 열렸어요. 30초면 풀어요.", "cta": {"label": "퀴즈 풀기", "go": "quiz"}},
+    {"id": "mission", "from": "09:00", "to": "18:00", "when": "questLeft==1", "mascot": "success_thumbs", "text": "올클리어까지 하나 남았어요.", "cta": {"label": "남은 미션", "go": "quest"}},
+    {
+      "id": "roulette",
+      "from": "10:00",
+      "to": "16:00",
+      "when": "attended&rouletteLeft",
+      "mascot": "rara_present",
+      "text": "오늘의 고객 룰렛을 아직 안 돌렸어요. 누구에게 연락할지 룰렛이 골라 줘요.",
+      "cta": {"label": "룰렛 돌리기", "go": "roulette"}
+    },
+    {"id": "lunch", "from": "11:30", "to": "14:00", "when": "!talkCopied", "mascot": "indi_idea", "text": "점심 전에 동료 화법 한 줄 따라 써 볼까요?", "cta": {"label": "화법 보기", "go": "talk"}}
   ],
-  "fx": { "defaultMode": "full", "soundDefault": false }
+  "fx": {"defaultMode": "full", "soundDefault": false},
+  "fun": {
+    "$comment": "행운 존. plays = 하루 기본 기회, playsBonus = 그날 조건을 채우면 더 주는 기회. ticketCapDaily = 운으로 받는 응모권 하루 한도(넘치면 capXp XP 로). 경품 · 확률 · 문구는 확정 전 예시(가정값).",
+    "plays": {"roulette": 1, "cslot": 1, "challenge": 3, "tarot": 1},
+    "playsBonus": [{"when": "mission", "game": "roulette", "n": 1}, {"when": "allclear", "game": "cslot", "n": 1}],
+    "ticketCapDaily": 3,
+    "capXp": 10,
+    "roulette": {
+      "pick": 3,
+      "segments": [
+        {"id": "birthday", "label": "생일 축하", "tag": "birthday", "weight": 16, "xp": 20, "color": "#E0282F", "tpl": "{name}님, 생일 축하드려요! 늘 건강하고 웃는 일 가득한 한 해 되세요. 필요한 일 있으면 언제든 편하게 연락 주세요."},
+        {
+          "id": "age_up",
+          "label": "상령일 안내",
+          "tag": "age_up",
+          "weight": 14,
+          "xp": 25,
+          "color": "#F5B301",
+          "tpl": "{name}님, 곧 보험 나이가 바뀌는 시기예요. 지금 보장이 생활에 잘 맞는지 10분이면 함께 살펴볼 수 있어요. 편한 시간 알려 주세요."
+        },
+        {"id": "renew", "label": "갱신 안내", "tag": "renew", "weight": 14, "xp": 25, "color": "#3B66E0", "tpl": "{name}님, 가입하신 보장 중 갱신 시기가 다가온 것이 있어요. 갱신 전에 확인하실 내용을 짧게 정리해 드릴게요."},
+        {"id": "checkup", "label": "보장 점검 안부", "tag": "gap", "weight": 16, "xp": 20, "color": "#119C6B", "tpl": "{name}님, 잘 지내시죠? 올해는 아직 보장 점검을 못 해 드렸더라고요. 바뀐 생활에 맞는지 가볍게 같이 봐요."},
+        {"id": "health", "label": "건강검진 챙기기", "tag": "health", "weight": 12, "xp": 15, "color": "#0495AE", "tpl": "{name}님, 올해 국가건강검진은 받으셨어요? 연말에는 예약이 몰리니 미리 챙기시라고 연락드려요."},
+        {"id": "thanks", "label": "감사 인사", "tag": "thanks", "weight": 14, "xp": 15, "color": "#8A3FB0", "tpl": "{name}님, 늘 믿고 맡겨 주셔서 감사해요. 날이 쌀쌀해졌어요. 감기 조심하시고 좋은 하루 보내세요."},
+        {"id": "bonus_ticket", "label": "응모권 +1", "weight": 6, "color": "#1E1F20", "prize": {"type": "ticket", "n": 1, "label": "룰렛 보너스 응모권"}},
+        {"id": "bonus_fever", "label": "피버 30분", "weight": 8, "color": "#FF6A3D", "prize": {"type": "fever", "min": 30, "label": "나만의 피버 30분"}}
+      ]
+    },
+    "cslot": {
+      "xpContact": 15,
+      "clearXp": 20,
+      "symbols": [{"id": "birthday", "label": "생일"}, {"id": "age_up", "label": "상령일"}, {"id": "renew", "label": "갱신"}, {"id": "gap", "label": "보장 공백"}, {"id": "consent", "label": "동의 필요"}],
+      "tiers": [{"id": "jackpot", "label": "트리플", "weight": 8}, {"id": "pair", "label": "더블", "weight": 37}, {"id": "mix", "label": "보통", "weight": 55}],
+      "prizes": {"jackpot": {"xp": 30, "ticket": 1, "label": "고객 슬롯 트리플"}, "pair": {"xp": 10}, "mix": {}}
+    },
+    "scratch": {
+      "issueOn": ["mission", "allclear"],
+      "validDays": 7,
+      "prizes": [
+        {"id": "xp10", "type": "xp", "n": 10, "label": "XP +10", "weight": 40},
+        {"id": "xp30", "type": "xp", "n": 30, "label": "XP +30", "weight": 25},
+        {"id": "ticket1", "type": "ticket", "n": 1, "label": "커피 응모권 +1", "weight": 20},
+        {"id": "fever30", "type": "fever", "min": 30, "label": "나만의 피버 30분", "weight": 10},
+        {"id": "shield1", "type": "shield", "n": 1, "label": "보호권 +1", "weight": 5}
+      ]
+    },
+    "challenge": {"n": 5, "sec": 10, "base": 20, "speed": 1, "combo": 5, "xpDiv": 10, "perfectTicket": 1},
+    "tarot": {"cards": 22, "$comment": "오늘의 타로 한 장 = 메이저 아르카나 22장(1909 라이더-웨이트-스미스 원판). 풀이 문구는 오늘의 운세 엔진(fortune/src/engine.js)을 그대로 쓴다."}
+  },
+  "fever": {
+    "$comment": "피버 타임 : 영업 행동 XP 배수. 응모권 · 로또에는 영향이 없다. 시간대는 운영 예시(가정값).",
+    "daily": [{"from": "14:00", "to": "15:00", "mult": 2, "label": "오후 영업 피버"}],
+    "personalMult": 2,
+    "kinds": ["reco.open", "chat.custom", "consent.request", "crm.done"]
+  },
+  "bingo": {
+    "$comment": "영업 빙고 (주간 3×3). 칸 = 이번 주 행동 누적. 줄 = 가로 · 세로 · 대각선 8줄. 8줄 = 9칸 모두.",
+    "cells": [
+      {"id": "b1", "label": "출석 도장 5일", "kind": "attend", "n": 5, "go": "attend"},
+      {"id": "b2", "label": "오늘의 퀴즈 4번", "kind": "quiz", "n": 4, "go": "quiz"},
+      {"id": "b3", "label": "추천 고객 8명 열기", "kind": "reco.open", "n": 8, "go": "reco"},
+      {"id": "b4", "label": "맞춤대화 5번", "kind": "chat.custom", "n": 5, "go": "custom"},
+      {"id": "b5", "label": "룰렛 · 슬롯 고객 5명 챙기기", "kind": "crm.done", "n": 5, "go": "roulette"},
+      {"id": "b6", "label": "화법 따라 쓰기 3번", "kind": "talk.copy", "n": 3, "go": "talk"},
+      {"id": "b7", "label": "사전조회동의 요청 1건", "kind": "consent.request", "n": 1, "go": "consent"},
+      {"id": "b8", "label": "OX 챌린지 2판", "kind": "challenge.finish", "n": 2, "go": "challenge"},
+      {"id": "b9", "label": "운세로 안부 1번", "kind": "fortune.send", "n": 1, "go": "fortune-card"}
+    ],
+    "rewards": [{"lines": 1, "ticket": 1, "label": "첫 빙고"}, {"lines": 3, "ticket": 1, "label": "빙고 3줄"}, {"lines": 8, "ticket": 3, "label": "빙고 9칸 모두"}]
+  }
 }

@@ -9,11 +9,13 @@
 
 ```
 meai-nudge.css   = src/nudge/nudge.css
-meai-nudge.js    = src/api/client.js + src/nudge/core.js + fx.js + ui.js + cards.js + talks.js + dash.js + index.js + src/host/simple-host.js
+unse-engine.js   = src/vendor/unse-engine.js  (오늘의 운세 엔진 · 사주 · 타로 풀이 원본 그대로 · meai-nudge.js 보다 먼저)
+meai-nudge.js    = src/api/client.js + src/nudge/core.js + fx.js + ui.js + cards.js + fun.js + talks.js + dash.js + index.js + src/host/simple-host.js
 assets/mascots/  = 걱정인형 그림 (hello_wave · tata_board · …)
+assets/tarot/    = 타로 메이저 아르카나 22장 00~21.webp (1909 원판 · 오늘의 타로)
 ```
 
-- 홈 `index.html` 에 `<link rel="stylesheet" href="/static/nudge/meai-nudge.css">` 와 `<script src="/static/nudge/meai-nudge.js" defer></script>`. 인라인 코드가 없어 지금 CSP 그대로 쓸 수 있다(`script-src 'self'`).
+- 홈 `index.html` 에 `<link rel="stylesheet" href="/static/nudge/meai-nudge.css">` 와 `<script src="/static/nudge/unse-engine.js" defer></script><script src="/static/nudge/meai-nudge.js" defer></script>`. 인라인 코드가 없어 지금 CSP 그대로 쓸 수 있다(`script-src 'self'`).
 - 모의 서버(`src/api/mock.js` + `src/core/rules.js`)는 **개발 · 시연에서만** 넣는다. 운영 묶음에는 넣지 않는다.
 
 ## 2. 자리 만들기 (홈 컴포넌트)
@@ -59,7 +61,7 @@ useEffect(() => {
     onGo: (target) => nudgeGo(target),          // 아래 4장
     onAsk: (text, mode) => openGeneralChat({ prefill: text })   // MeAI에게 더 묻기 · MeAI로 다듬기
   });
-  MeAINudge.mount({ api, host, assetBase: '/static/nudge/assets/' });
+  MeAINudge.mount({ api, host, assetBase: '/static/nudge/assets/' });   // 타로 그림은 assetBase + 'tarot/00.webp' (따로 두면 tarotBase)
 }, []);
 ```
 
@@ -76,7 +78,8 @@ useEffect(() => {
 | `board` | 게시판 열기 |
 | `consent` | 고객 동의(사전조회동의 알림톡) 팝업 |
 | `find` | MeAI 고객찾기 |
-| `fortune` | 오늘의 운세 페이지(사내 웹서버 `unse/`) 새 창 |
+| `fortune` | 오늘의 운세 전체 페이지(사내 웹서버 `unse/`). 권장 : `MeAINudge._nz.fun.openFrame('/unse/', '오늘의 운세')` 로 홈 위 덮개 안에 띄우기(같은 출처면 CSP `frame-src 'self'`) · 또는 새 창 |
+| (v5.1) `roulette` · `cslot` · `challenge` · `tarot` · `scratch` · `fortune-card` · `fun` | 넛지 모듈이 스스로 처리(행운 존 게임 덮개). 홈은 할 일 없음 |
 | `home` | 홈으로 |
 
 `host.ask(text)` : 일반대화를 열고 입력칸에 `text` 를 **넣기만** 한다(보내기는 사람이 누른다).
@@ -91,6 +94,7 @@ useEffect(() => {
 | 게시판 공지를 열었을 때 | `MeAINudge.report('notice.read', { ref: noticeId })` | 새 공지 1건 읽기 퀘스트 |
 | 사전조회동의 알림톡을 보냈을 때 | `MeAINudge.report('consent.request', { customerId })` | 교체용 퀘스트 |
 
+- (v5.1) 행운 존 : 홈이 따로 report 할 것은 없다. 룰렛 · 슬롯 고객 후보는 넛지 서버가 CRM 에서 받는다(`crm_sync`). 문자 · 알림톡 발송 시스템이 있으면 발송 사실을 서버 간 이벤트 `{ kind: 'crm.done', customerId, ref }` 로 보내 화면 신고를 확정한다.
 - 서버 간 이벤트(확정) : 대화 서버 · 게시판 · 알림톡이 넛지 서버 `POST /api/nudge/v1/internal/events` 로 `{ userId, kind, customerId, ref, idem, ts }` 를 보낸다(서버 인증서 · 내부망). 화면 `report` 와 `idem` 이 같으면 한 번만 센다. 화면 `report` 만 오고 서버 간 이벤트가 끝내 안 오면(10분) 로또 세트는 「확인 대기」로 두고 추첨에서 뺀다(운영 정책으로 선택).
 
 ## 6. 확인
