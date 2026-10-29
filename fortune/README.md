@@ -62,6 +62,6 @@ node fortune/tools/regress_saju.js $PWD/fortune/legacy/unse_v1_261016.html $PWD/
   사후 70년이 지난 공개 저작물이다. 1909년 원판 색을 쓴 npm 꾸러미 `@cometpisces/tarot-kit-images@0.2.0` 에서 받았다.
   **1971년 U.S. Games 재채색판(카드 아래 ⓒ 표시가 있는 판)은 쓰지 않는다.**
 - 원판 그대로라 「죽음」(해골) · 「소드 10」 · 「소드 3」 · 「탑」 · 「악마」, 몇몇 카드의 맨몸 인물 그림이 들어 있다.
-  고객에게 보내기 부담스러우면 그 카드만 다른 그림으로 바꿀 수 있다(`assets/tarot/번호.webp` 교체 후 조립).
+  **소유자 결정(2026-10-29) : 원판 그대로 쓴다.** 순한 그림으로 바꾸거나 가리지 않는다.
 - 카드 뒷면 · 일월오봉 · 달 문장 : 직접 그린 SVG.
 - 글꼴 : 고운바탕 · Noto Serif KR · Cinzel (모두 SIL Open Font License 1.1, `assets/fonts/OFL.txt`).
