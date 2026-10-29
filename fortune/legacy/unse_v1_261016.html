@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#140b33" id="themeColor">
+<title>오늘의 운세</title>
+<script>
+/* 익스플로러로 열리면 같은 주소를 엣지로 다시 열기 (익스플로러도 읽을 수 있는 옛 문법으로 작성)
+   - 엣지로 넘길 때 주소에 ?from=ie 를 붙임 → 회사 설정(IE 모드 목록) 때문에 엣지에서도 다시 익스플로러 방식으로 열리면
+     그 표시를 보고 더 넘기지 않고(무한 반복 방지) 크롬용 주소 복사 안내를 보여 줌
+   - 정상 브라우저로 넘어오면 주소창의 ?from=ie 는 지움 */
+(function () {
+  var ua = navigator.userAgent || '';
+  var isIE = !!document.documentMode || ua.indexOf('MSIE ') > -1 || ua.indexOf('Trident/') > -1;
+  var href = location.href, hash = location.hash || '', base = hash ? href.substring(0, href.length - hash.length) : href;
+  var flag = /[?&]from=ie(?=&|$)/, plain = base.replace(flag, '').replace(/^([^?]*)&/, '$1?');
+  if (!isIE) { if (flag.test(base) && window.history && history.replaceState) { try { history.replaceState(null, '', plain + hash); } catch (e) {} } return; }
+  var loop = flag.test(base);
+  window.__IE_LOOP = loop;
+  window.__PLAIN_URL = plain + hash;
+  window.__EDGE_URL = 'microsoft-edge:' + plain + (plain.indexOf('?') > -1 ? '&' : '?') + 'from=ie' + hash;
+  document.documentElement.className += ' is-ie' + (loop ? ' ie-loop' : '');
+})();
+</script>
+
+<style>
+:root { --ink: #1e1f20; --sub: #4a4c50; --mute: #8a8f98; --line: #ebe7f4; --bg: #f6f3fc; --pur: #6c3fd1; --pur2: #3b1f8a; --pur5: #f3eefe; --red: #e0282f;
+  --e0: #2f9e62; --e0b: #e8f6ee; --e1: #e0402f; --e1b: #fdecea; --e2: #b67d00; --e2b: #fff4d6; --e3: #5f6873; --e3b: #eef0f3; --e4: #2b4a8b; --e4b: #e8eef9;
+  --night: #120a2e; --night2: #1d1247; --gold: #e8c77a; --gold2: #b8913f; --moon: #f6ecd0;
+  --serif: "AppleMyungjo", "Noto Serif KR", "Nanum Myeongjo", "Batang", serif; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", sans-serif; font-size: 15px; line-height: 1.5; word-break: keep-all; }
+body.v-gate, body.v-tarot { background: var(--night); color: #efeaff; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; padding: 0; }
+.wrap { max-width: 560px; margin: 0 auto; padding: calc(14px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom)); }
+
+/* 화면 전환: 한 번에 한 화면만 */
+.view { display: none; }
+body.v-gate #gate, body.v-saju #saju, body.v-tarot #tarot { display: block; animation: viewIn .45s ease both; }
+@keyframes viewIn { from { opacity: 0; } to { opacity: 1; } }
+.back { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 12px 0 8px; margin-bottom: 10px; border-radius: 999px; font-size: 14px; font-weight: 700; }
+.back svg { width: 18px; height: 18px; }
+#saju .back { color: var(--pur2); background: #fff; box-shadow: 0 1px 6px rgba(40,20,90,.08); }
+#tarot .back { color: #e9e1ff; background: rgba(255,255,255,.08); }
+
+/* ================= 대문 ================= */
+#gate { min-height: 100vh; min-height: 100dvh; position: relative; overflow: hidden; background: radial-gradient(130% 70% at 50% 0%, #3a1f86 0%, #1d1247 45%, var(--night) 100%); }
+#gate::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .9;
+  background-image: radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 28% 8%, #fffa, transparent), radial-gradient(1.2px 1.2px at 46% 22%, #fff9, transparent), radial-gradient(1px 1px at 64% 12%, #fff, transparent), radial-gradient(1.6px 1.6px at 82% 26%, #fffc, transparent), radial-gradient(1px 1px at 92% 6%, #fff9, transparent), radial-gradient(1.2px 1.2px at 8% 46%, #fff8, transparent), radial-gradient(1px 1px at 90% 52%, #fff9, transparent), radial-gradient(1.3px 1.3px at 20% 70%, #fff6, transparent), radial-gradient(1px 1px at 75% 80%, #fff7, transparent), radial-gradient(1px 1px at 50% 92%, #fff5, transparent);
+  animation: twinkle 4s ease-in-out infinite alternate; }
+@keyframes twinkle { from { opacity: .55; } to { opacity: 1; } }
+.g-in { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: calc(28px + env(safe-area-inset-top)) 20px calc(26px + env(safe-area-inset-bottom)); text-align: center; }
+.g-moon { position: relative; width: 92px; height: 92px; margin: 0 auto 26px; border-radius: 50%; box-shadow: -18px 10px 0 4px var(--moon); transform: rotate(-18deg); filter: drop-shadow(0 0 18px rgba(246,236,208,.55)); animation: moonIn 1.1s cubic-bezier(.2,.9,.3,1) both; }
+@keyframes moonIn { from { opacity: 0; transform: rotate(-60deg) scale(.6); } to { opacity: 1; transform: rotate(-18deg); } }
+.g-k { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .22em; color: #cbb8ff; }
+#gate h1 { margin: 6px 0 0; font-size: 34px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
+.g-sub { margin: 6px 0 0; font-size: 15px; color: #d6caff; }
+.g-today { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 6px 13px; border-radius: 999px; background: rgba(255,255,255,.1); font-size: 13px; font-weight: 700; color: #f1ebff; }
+.g-today b { font-family: var(--serif); font-size: 15px; color: var(--gold); }
+.g-doors { display: grid; gap: 14px; margin-top: 26px; text-align: left; }
+@media (min-width: 520px) { .g-doors { grid-template-columns: 1fr 1fr; } }
+.door { position: relative; display: flex; flex-direction: column; min-height: 210px; padding: 20px 18px 18px; border-radius: 24px; overflow: hidden; color: #fff; text-align: left;
+  transition: transform .25s cubic-bezier(.3,1.4,.5,1), box-shadow .25s; animation: doorIn .7s cubic-bezier(.2,.9,.3,1) both; }
+.door:nth-child(1) { animation-delay: .25s; } .door:nth-child(2) { animation-delay: .4s; }
+@keyframes doorIn { from { opacity: 0; transform: translateY(28px) scale(.96); } to { opacity: 1; transform: none; } }
+.door:hover { transform: translateY(-4px); }
+.door:active { transform: scale(.98); }
+.door.d-saju { background: radial-gradient(120% 100% at 100% 0%, #9b6cf5 0%, #5a2fc0 45%, #2c1470 100%); box-shadow: 0 16px 36px rgba(90,47,192,.38), inset 0 0 0 1px rgba(255,255,255,.12); }
+.door.d-tarot { background: radial-gradient(120% 100% at 100% 0%, #3d4fa8 0%, #22205e 50%, #120c35 100%); box-shadow: 0 16px 36px rgba(18,12,53,.6), inset 0 0 0 1px rgba(232,199,122,.35); }
+.d-art { height: 86px; display: flex; align-items: center; }
+.d-saju .d-art b { font-family: var(--serif); font-size: 46px; font-weight: 800; letter-spacing: .04em; color: #fff; text-shadow: 0 4px 18px rgba(0,0,0,.25); }
+.d-dots { display: flex; gap: 5px; margin-left: 12px; }
+.d-dots i { width: 10px; height: 10px; border-radius: 50%; background: #5fd39a; }
+.d-dots i:nth-child(2) { background: #ff7a66; } .d-dots i:nth-child(3) { background: #ffd166; } .d-dots i:nth-child(4) { background: #e6e9ee; } .d-dots i:nth-child(5) { background: #7fa2ff; }
+.d-fan { position: relative; width: 120px; height: 86px; }
+.d-fan i { position: absolute; left: 44px; top: 8px; width: 42px; height: 68px; border-radius: 7px; transform-origin: 50% 120%; background: var(--night2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 68'%3E%3Crect x='3' y='3' width='36' height='62' rx='4' fill='none' stroke='%23e8c77a' stroke-width='1.2'/%3E%3Cpath d='M24 26a8 8 0 1 0 0 16a10 10 0 1 1 0-16z' fill='%23e8c77a'/%3E%3C/svg%3E") center/100% 100%; box-shadow: 0 4px 12px rgba(0,0,0,.4); transition: transform .35s cubic-bezier(.3,1.4,.5,1); }
+.d-fan i:nth-child(1) { transform: rotate(-18deg); } .d-fan i:nth-child(2) { transform: rotate(0); } .d-fan i:nth-child(3) { transform: rotate(18deg); }
+.door:hover .d-fan i:nth-child(1) { transform: rotate(-28deg); } .door:hover .d-fan i:nth-child(3) { transform: rotate(28deg); }
+.d-tt { margin-top: 10px; font-size: 22px; font-weight: 800; letter-spacing: -.01em; }
+.d-ds { margin-top: 4px; font-size: 13.5px; color: rgba(255,255,255,.78); line-height: 1.5; }
+.d-go { margin-top: auto; padding-top: 14px; font-size: 14px; font-weight: 800; color: #fff; }
+.d-tarot .d-go { color: var(--gold); }
+.door.chosen { transform: scale(1.04); box-shadow: 0 0 0 3px rgba(255,255,255,.5), 0 24px 50px rgba(0,0,0,.45); }
+#gate.leaving .door:not(.chosen) { opacity: 0; transform: scale(.94); transition: all .3s; }
+.g-foot { margin-top: 26px; font-size: 12px; color: rgba(214,202,255,.6); line-height: 1.7; }
+
+/* ================= 사주 ================= */
+.hero { position: relative; overflow: hidden; border-radius: 22px; padding: 22px 20px 20px; color: #fff; background: radial-gradient(120% 90% at 85% 0%, #8a5cf0 0%, #4b25a8 45%, #24104f 100%); box-shadow: 0 14px 34px rgba(59,31,138,.28); }
+.hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(1.5px 1.5px at 20% 30%, #fff8, transparent), radial-gradient(1px 1px at 70% 20%, #fff9, transparent), radial-gradient(1.5px 1.5px at 85% 70%, #fff6, transparent), radial-gradient(1px 1px at 40% 80%, #fff7, transparent), radial-gradient(1px 1px at 60% 55%, #fff5, transparent); pointer-events: none; }
+.hero .topline { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.hero .maker { font-size: 11.5px; font-weight: 600; color: #e4dbff; background: rgba(255,255,255,.14); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.hero .k { font-size: 12px; font-weight: 700; letter-spacing: .18em; color: #d9c8ff; }
+.hero h1 { margin: 4px 0 0; font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+.hero p { margin: 6px 0 0; font-size: 13.5px; color: #e4dbff; }
+.hero .today { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: 13px; font-weight: 700; }
+.hero .today b { font-family: var(--serif); font-size: 15px; }
+
+.card { margin-top: 14px; padding: 18px 16px; border-radius: 20px; background: #fff; box-shadow: 0 2px 10px rgba(40,20,90,.06); }
+.field { margin-top: 14px; } .field:first-child { margin-top: 0; }
+.field > label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: var(--sub); }
+.field > label small { font-weight: 500; color: var(--mute); }
+.inp { display: block; width: 100%; height: 50px; padding: 0 14px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; font-size: 17px; font-weight: 600; outline: 0; -webkit-appearance: none; appearance: none; }
+.inp:focus { border-color: var(--pur); box-shadow: 0 0 0 4px rgba(108,63,209,.12); }
+/* 생년월일: 칸을 누르면 숫자 키패드, 오른쪽 달력 아이콘을 누르면 달력 (투명한 날짜 칸을 아이콘 위에 겹침) */
+.dwrap { position: relative; }
+.dwrap .inp { padding-right: 54px; letter-spacing: .02em; }
+.dpick { position: absolute; right: 6px; top: 50%; width: 40px; height: 38px; margin-top: -19px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--pur); background: var(--pur5); overflow: hidden; }
+.dpick svg { width: 20px; height: 20px; pointer-events: none; }
+.dpick input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
+.dpick input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: #f1eef8; }
+.seg button { flex: 1; height: 42px; border-radius: 11px; font-size: 16px; font-weight: 700; color: var(--mute); transition: background .2s, color .2s; }
+.seg button.on { background: #fff; color: var(--pur2); box-shadow: 0 2px 6px rgba(40,20,90,.12); }
+.hint { margin: 8px 2px 0; font-size: 12.5px; color: var(--mute); }
+
+#result { display: none; }
+#result.on { display: block; animation: up .5s ease both; }
+@keyframes up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.who { display: flex; align-items: center; gap: 14px; }
+.who .tti { width: 64px; height: 64px; flex-shrink: 0; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 38px; background: linear-gradient(150deg, #fff6e0, #ffe2a8); box-shadow: inset 0 0 0 1px #ffd98a; }
+.who .nm { font-size: 19px; font-weight: 800; }
+.who .nm small { font-size: 13px; font-weight: 600; color: var(--mute); margin-left: 4px; }
+.who .nm small.due { color: #c25a00; font-weight: 800; }
+.who .bd { font-size: 14.5px; font-weight: 600; }
+.who .bd em { font-style: normal; color: #c25a00; font-weight: 800; }
+.who .gz { font-size: 13px; color: var(--sub); margin-top: 1px; }
+
+.sec { margin-top: 18px; }
+.sec.first { margin-top: 0; }
+.sec h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 15px; font-weight: 800; }
+.sec h3 .tg { font-size: 11.5px; font-weight: 700; color: var(--pur); background: var(--pur5); padding: 2px 8px; border-radius: 999px; }
+.pls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pl { border-radius: 16px; background: #fff; border: 1.5px solid #eeeaf6; padding: 9px 4px 10px; text-align: center; }
+.pl.me { border-color: #c9b2f6; background: linear-gradient(180deg, #faf7ff, #fff); }
+.pl .lb { font-size: 12px; font-weight: 700; color: var(--mute); }
+.pl .god { display: block; height: 17px; font-size: 11px; font-weight: 700; color: var(--pur); }
+.pl .c { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 60px; aspect-ratio: 1; margin: 4px auto 0; border-radius: 13px; font-family: var(--serif); font-size: 31px; font-weight: 800; }
+.pl .k { display: block; margin-top: 5px; font-size: 12.5px; font-weight: 600; color: var(--sub); }
+.e0 { color: var(--e0); background: var(--e0b); } .e1 { color: var(--e1); background: var(--e1b); } .e2 { color: var(--e2); background: var(--e2b); }
+.e3 { color: var(--e3); background: var(--e3b); } .e4 { color: var(--e4); background: var(--e4b); }
+.ohs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.oh { text-align: center; padding: 10px 0 8px; border-radius: 14px; }
+.oh b { display: block; font-size: 22px; font-weight: 800; line-height: 1.1; }
+.oh span { font-size: 12.5px; font-weight: 700; }
+.oh.zero { opacity: .45; }
+.me-desc { margin-top: 10px; padding: 12px 14px; border-radius: 14px; background: var(--pur5); font-size: 14px; color: var(--pur2); }
+.me-desc b { font-weight: 800; }
+
+.score { display: flex; align-items: center; gap: 16px; }
+.ring { position: relative; width: 104px; height: 104px; flex-shrink: 0; }
+.ring svg { width: 104px; height: 104px; transform: rotate(-90deg); }
+.ring .bg { fill: none; stroke: #eee8fa; stroke-width: 9; }
+.ring .fg { fill: none; stroke: url(#gr); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 1.1s cubic-bezier(.3,1,.4,1); }
+.ring .n { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+.ring .n b { font-size: 32px; font-weight: 900; color: var(--pur2); line-height: 1; letter-spacing: -.03em; }
+.ring .n span { font-size: 12px; font-weight: 700; color: var(--mute); }
+.stars { font-size: 18px; letter-spacing: 1px; color: #e3e5e9; }
+.stars i { font-style: normal; } .stars i.on { color: #f2b825; }
+.head { margin: 4px 0 0; font-size: 16.5px; font-weight: 800; line-height: 1.45; }
+.keys { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.keys span { font-size: 12px; font-weight: 700; color: var(--pur); background: var(--pur5); padding: 3px 9px; border-radius: 999px; }
+.keys .god { color: #fff; background: var(--pur2); }
+.lines { list-style: none; margin: 14px 0 0; padding: 0; }
+.lines li { position: relative; padding: 0 0 8px 16px; font-size: 14px; color: var(--sub); }
+.lines li::before { content: ''; position: absolute; left: 3px; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: #b9a3ee; }
+.meters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 8px; }
+.m { display: grid; grid-template-columns: 52px 1fr 26px; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: var(--sub); }
+.m .tr { height: 8px; border-radius: 8px; background: #f0ecf8; overflow: hidden; }
+.m .tr i { display: block; height: 100%; width: 0; border-radius: 8px; background: linear-gradient(90deg, #b59af2, #6c3fd1); transition: width 1s cubic-bezier(.3,1,.4,1); }
+.m b { text-align: right; color: var(--ink); }
+.lucky { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.lucky div { padding: 10px 6px; border-radius: 14px; background: #faf9fc; text-align: center; font-size: 12px; color: var(--mute); font-weight: 600; }
+.lucky b { display: block; margin-top: 2px; font-size: 15px; color: var(--ink); }
+.lucky .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+.unborn { display: none; padding: 14px; border-radius: 16px; background: linear-gradient(135deg, #fff7e6, #fdf0ff); color: #6b3d00; font-size: 14px; line-height: 1.6; }
+.unborn b { color: #c25a00; }
+.unborn .dd { display: block; margin-bottom: 4px; font-size: 26px; font-weight: 900; color: var(--pur2); letter-spacing: -.02em; }
+.is-unborn #fortuneBox { display: none; } .is-unborn .unborn { display: block; }
+.du { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; scrollbar-width: none; }
+.du::-webkit-scrollbar { display: none; }
+.du div { flex: 0 0 auto; min-width: 58px; padding: 8px 6px; border-radius: 12px; background: #faf9fc; text-align: center; font-size: 12px; color: var(--mute); font-weight: 600; }
+.du div b { display: block; font-family: var(--serif); font-size: 18px; color: var(--ink); }
+.du div.cur { background: var(--pur2); color: #d9c8ff; }
+.du div.cur b { color: #fff; }
+.warn { margin-top: 10px; padding: 9px 12px; border-radius: 12px; background: #fff4e5; color: #a85200; font-size: 13px; }
+
+.send .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.btn { height: 52px; border-radius: 14px; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.kakao { background: #fee500; color: #191600; }
+.btn.pdf { background: var(--pur2); color: #fff; }
+.btn.sms { background: #fff; color: var(--ink); border: 1.5px solid var(--line); }
+.btn.copy { background: #fff; color: var(--ink); border: 1.5px solid var(--line); }
+.btn svg { width: 20px; height: 20px; }
+.btn:active { transform: scale(.98); }
+.phone { display: flex; gap: 8px; }
+.phone .inp { flex: 1; }
+.cross { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 14px; padding: 14px 16px; border-radius: 18px; text-align: left; }
+.cross .ic { width: 42px; height: 42px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.cross b { display: block; font-size: 15px; font-weight: 800; }
+.cross small { font-size: 12.5px; opacity: .75; }
+.cross .ar { margin-left: auto; font-size: 18px; font-weight: 800; }
+#saju .cross { background: linear-gradient(120deg, #1d1247, #2c2378); color: #fff; }
+#saju .cross .ic { background: rgba(232,199,122,.15); color: var(--gold); }
+#tarot .cross { background: rgba(255,255,255,.07); color: #f1ebff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+#tarot .cross .ic { background: rgba(155,108,245,.25); font-family: var(--serif); font-weight: 800; font-size: 17px; }
+.foot { margin: 18px 4px 0; font-size: 12px; color: var(--mute); text-align: center; line-height: 1.6; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; padding: 12px 18px; border-radius: 999px; background: rgba(20,16,40,.92); color: #fff; font-size: 14px; font-weight: 600; transition: all .3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+.noscript { margin: 14px auto; max-width: 528px; padding: 16px; border-radius: 16px; background: #fff4e5; color: #8a4500; font-size: 14.5px; line-height: 1.6; }
+
+.anim .pl { animation: flip .6s cubic-bezier(.2,1.3,.4,1) both; }
+.anim .pl:nth-child(3) { animation-delay: .05s; } .anim .pl:nth-child(2) { animation-delay: .17s; } .anim .pl:nth-child(1) { animation-delay: .29s; }
+@keyframes flip { from { opacity: 0; transform: perspective(400px) rotateY(90deg); } to { opacity: 1; transform: none; } }
+.anim .stars i.on { animation: pop .45s cubic-bezier(.3,1.8,.5,1) .6s both; }
+.anim .stars i:nth-child(2) { animation-delay: .68s; } .anim .stars i:nth-child(3) { animation-delay: .76s; } .anim .stars i:nth-child(4) { animation-delay: .84s; } .anim .stars i:nth-child(5) { animation-delay: .92s; }
+@keyframes pop { from { transform: scale(0); } 70% { transform: scale(1.35); } to { transform: none; } }
+
+/* ================= 타로 ================= */
+#tarot { background: radial-gradient(120% 50% at 50% 0%, #2a1a6b 0%, var(--night) 70%); min-height: 100vh; min-height: 100dvh; }
+.t-hero { text-align: center; padding: 6px 0 4px; }
+.t-hero .k { font-size: 12px; font-weight: 700; letter-spacing: .22em; color: var(--gold); }
+.t-hero h1 { margin: 4px 0 0; font-family: var(--serif); font-size: 28px; font-weight: 800; color: #fff; }
+.t-hero p { margin: 6px 0 0; font-size: 13.5px; color: #cfc4f5; }
+.t-form { margin-top: 14px; padding: 16px; border-radius: 20px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.t-form .row { display: grid; grid-template-columns: 1fr 1.25fr; gap: 10px; }
+.t-form label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #cfc4f5; }
+.t-form .inp { height: 48px; border-color: rgba(255,255,255,.14); background: rgba(10,6,30,.55); color: #fff; font-size: 16px; color-scheme: dark; }
+.t-form .inp:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(232,199,122,.15); }
+.t-form .inp::placeholder { color: #8f86b8; }
+.t-form .dpick { color: var(--gold); background: rgba(232,199,122,.14); }
+.t-form .dwrap .inp { padding-right: 50px; }
+.t-form .dpick input { color-scheme: dark; }
+.t-birth { display: none; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(232,199,122,.1); font-size: 13.5px; color: #f3e6c4; }
+.t-birth.on { display: flex; animation: up .4s ease both; }
+.t-birth .bc { flex-shrink: 0; width: 34px; height: 52px; border-radius: 5px; background: #fbf5e6; color: #4a3712; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; line-height: 1.1; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+.t-birth .bc small { font-family: var(--serif); font-size: 9px; font-weight: 800; color: var(--gold2); }
+.t-birth b { color: var(--gold); }
+.t-go { width: 100%; height: 52px; margin-top: 12px; border-radius: 14px; font-size: 16.5px; font-weight: 800; color: #2a1d00; background: linear-gradient(180deg, #f3d891, #d9ae52); box-shadow: 0 6px 18px rgba(217,174,82,.28); transition: opacity .2s, transform .1s; }
+.t-go:disabled { opacity: .35; cursor: default; box-shadow: none; }
+.t-go:active:not(:disabled) { transform: scale(.98); }
+
+.t-stage { position: relative; margin: 18px -6px 0; height: 340px; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.t-stage::before { content: ''; position: absolute; left: 50%; top: 0; width: 120%; height: 80%; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(155,108,245,.22), transparent); pointer-events: none; }
+.t-msg { position: absolute; left: 0; right: 0; text-align: center; pointer-events: none; transition: opacity .3s; }
+.t-msg b { display: block; font-family: var(--serif); font-size: 17px; color: #fff; }
+.t-msg span { display: block; margin-top: 3px; font-size: 12.5px; color: #bdb2e6; }
+.t-msg .cnt { display: inline-block; margin-top: 8px; padding: 3px 12px; border-radius: 999px; background: rgba(232,199,122,.14); color: var(--gold); font-size: 13px; font-weight: 800; letter-spacing: .05em; }
+.t-slot { position: absolute; border-radius: 9px; border: 1.5px dashed rgba(232,199,122,.35); background: rgba(255,255,255,.03); }
+.t-slot .no { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: var(--serif); font-size: 22px; font-weight: 800; color: rgba(232,199,122,.35); }
+.t-slab { position: absolute; text-align: center; font-size: 11.5px; font-weight: 700; color: #bdb2e6; line-height: 1.3; white-space: nowrap; }
+.t-slab em { display: block; font-style: normal; font-size: 11px; font-weight: 800; opacity: 0; transition: opacity .3s; }
+.t-slab em.up { color: #8fe0b0; } .t-slab em.rv { color: #ff9e9e; }
+.t-slab.on em { opacity: 1; }
+
+.tc { position: absolute; left: 0; top: 0; transform-origin: 50% 50%; transition: transform .5s cubic-bezier(.25,.9,.3,1), opacity .5s; will-change: transform; }
+.tc .in { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform .6s cubic-bezier(.4,.1,.2,1); }
+.tc .bk, .tc .fc { position: absolute; inset: 0; border-radius: 9px; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.tc .bk { background: #1b1446 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 116'%3E%3Cdefs%3E%3Cpattern id='p' width='10' height='10' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='5' cy='5' r='.8' fill='%23e8c77a' opacity='.35'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='70' height='116' fill='%231b1446'/%3E%3Crect x='4' y='4' width='62' height='108' rx='5' fill='url(%23p)' stroke='%23e8c77a' stroke-width='1.3'/%3E%3Crect x='8' y='8' width='54' height='100' rx='3' fill='none' stroke='%23e8c77a' stroke-width='.5' opacity='.6'/%3E%3Ccircle cx='35' cy='58' r='17' fill='%231b1446' stroke='%23e8c77a' stroke-width='.8'/%3E%3Cpath d='M39 46a12 12 0 1 0 0 24a14 14 0 1 1 0-24z' fill='%23e8c77a'/%3E%3Cpath d='M35 20l1.2 3 3 .2-2.3 2 .8 3-2.7-1.7-2.7 1.7.8-3-2.3-2 3-.2zM35 88l1.2 3 3 .2-2.3 2 .8 3-2.7-1.7-2.7 1.7.8-3-2.3-2 3-.2z' fill='%23e8c77a'/%3E%3C/svg%3E") center/100% 100%; box-shadow: 0 1px 4px rgba(0,0,0,.45); }
+.tc .fc { transform: rotateY(180deg); background: linear-gradient(180deg, #fffaf0, #f4e9cf); color: #3b2a10; box-shadow: 0 6px 18px rgba(0,0,0,.45); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 7% 6% 8%; font-size: calc(var(--sw, 70px) * .14); }
+.tc .fc::before { content: ''; position: absolute; inset: 4%; border-radius: 6px; border: 1.2px solid var(--gold2); pointer-events: none; opacity: .7; }
+.tc .fc.rv { transform: rotateY(180deg) rotate(180deg); }
+.tc.flip .in { transform: rotateY(180deg); }
+.tc.sp { cursor: pointer; }
+.tc.sp .in { transition: transform .18s ease; }
+@media (hover: hover) { .tc.sp:hover .in { transform: translateY(-16%); } .tc.sp:hover .bk { box-shadow: 0 0 0 1.5px var(--gold), 0 0 14px rgba(232,199,122,.7); } }
+.tc.picked .bk { box-shadow: 0 0 0 1.5px var(--gold), 0 0 22px rgba(232,199,122,.8); }
+.tc.dim { opacity: .18; pointer-events: none; }
+.tc.glow .fc { box-shadow: 0 0 0 2px var(--gold), 0 0 26px rgba(232,199,122,.85); }
+.fc .fn { font-family: var(--serif); font-weight: 800; font-size: 1em; color: var(--gold2); letter-spacing: .04em; z-index: 1; }
+.fc .fs { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 3em; line-height: 1; z-index: 1; }
+.fc .fk { font-size: .82em; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; z-index: 1; }
+.fc .pips, .fc .court { font-size: .385em; }
+.fc .pips { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: .1em; width: 86%; }
+.fc .pips svg { width: 1.45em; height: 1.45em; }
+.fc .pips.n1 svg { width: 3.4em; height: 3.4em; }
+.fc .pips.many svg { width: 1.2em; height: 1.2em; }
+.fc .court { position: relative; display: flex; align-items: center; justify-content: center; }
+.fc .court svg { width: 3em; height: 3em; }
+.fc .court i { position: absolute; right: -.7em; bottom: -.4em; font-style: normal; font-size: 1.5em; }
+.s0 { color: #d4572a; } .s1 { color: #2f6bd1; } .s2 { color: #56637a; } .s3 { color: #a8820f; }
+
+.t-reads { margin-top: 6px; }
+.trd { margin-top: 10px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); animation: readIn .55s cubic-bezier(.2,.9,.3,1) both; transition: box-shadow .3s; }
+.trd.hl { box-shadow: inset 0 0 0 1.5px var(--gold); }
+@keyframes readIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.trd-h { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #bdb2e6; }
+.trd-h .n { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--gold); color: #2a1d00; font-size: 12px; font-weight: 900; }
+.trd-h b { color: #fff; font-size: 14px; }
+.trd-b { display: flex; gap: 12px; margin-top: 10px; }
+.trd-mini { flex-shrink: 0; width: 46px; height: 76px; border-radius: 6px; background: linear-gradient(180deg, #fffaf0, #f4e9cf); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 3px 10px rgba(0,0,0,.35); }
+.trd-mini.rv { transform: rotate(180deg); }
+.trd-mini svg { width: 26px; height: 26px; }
+.trd-nm { font-size: 16px; font-weight: 800; color: #fff; }
+.trd-nm small { margin-left: 4px; font-size: 12px; font-weight: 600; color: #a79ccf; }
+.ori { display: inline-block; margin-left: 4px; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 800; vertical-align: 1px; }
+.ori.up { background: rgba(143,224,176,.15); color: #8fe0b0; } .ori.rv { background: rgba(255,158,158,.15); color: #ff9e9e; }
+.trd-kw { margin-top: 4px; font-size: 12.5px; font-weight: 700; color: var(--gold); }
+.trd p { margin: 6px 0 0; font-size: 14.5px; line-height: 1.6; color: #e6e0fa; }
+.t-sum { display: none; margin-top: 16px; padding: 18px 16px; border-radius: 20px; background: linear-gradient(160deg, #3a2391, #1d1247 70%); box-shadow: 0 14px 34px rgba(0,0,0,.35), inset 0 0 0 1px rgba(232,199,122,.3); animation: up .6s ease both; }
+.t-sum.on { display: block; }
+.t-sum h3 { margin: 0; font-family: var(--serif); font-size: 19px; color: #fff; }
+.t-sum .one { margin: 10px 0 0; font-size: 16px; font-weight: 800; line-height: 1.5; color: var(--gold); }
+.t-sum ul { list-style: none; margin: 12px 0 0; padding: 0; }
+.t-sum li { position: relative; padding: 0 0 8px 16px; font-size: 14px; line-height: 1.6; color: #e6e0fa; }
+.t-sum li::before { content: '✦'; position: absolute; left: 0; top: 0; font-size: 11px; color: var(--gold); }
+.t-sum .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.t-sum .tags span { padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.1); font-size: 12px; font-weight: 700; color: #f1ebff; }
+.t-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.t-btns .btn.again { background: linear-gradient(180deg, #f3d891, #d9ae52); color: #2a1d00; }
+.t-btns .btn.timg { grid-column: 1 / -1; height: 46px; background: rgba(255,255,255,.08); color: #f1ebff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); font-size: 15px; }
+.t-hint { margin: 8px 2px 0; font-size: 12.5px; color: #a79ccf; }
+.t-foot { margin: 18px 4px 0; font-size: 12px; color: #8f86b8; text-align: center; line-height: 1.6; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+
+/* 인쇄 · PDF (사주 결과 A4 한 장) */
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body, body.v-saju { background: #fff; font-size: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #gate, #tarot, .back, .cross { display: none !important; }
+  .wrap { max-width: none; padding: 0; }
+  .no-print, .send, .toast, #form { display: none !important; }
+  .hero { box-shadow: none; padding: 14px 18px; border-radius: 14px; }
+  .hero h1 { font-size: 20px; }
+  .card { box-shadow: none; border: 1px solid #e6e1f2; margin-top: 8px; padding: 12px 14px; }
+  #result, #result.on { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0 10px; align-items: start; animation: none; }
+  #result > .foot { grid-column: 1 / -1; }
+  .sec { margin-top: 10px; break-inside: avoid; }
+  .anim .pl, .anim .stars i.on { animation: none; }
+  .m .tr i { transition: none; }
+  .pl .c { max-width: 44px; font-size: 23px; border-radius: 9px; }
+  .pl { padding: 5px 4px 6px; } .pls { gap: 6px; }
+  .who .tti { width: 48px; height: 48px; font-size: 28px; border-radius: 14px; }
+  .oh { padding: 6px 0 5px; } .oh b { font-size: 17px; }
+  .me-desc { padding: 8px 12px; font-size: 12px; }
+  .ring, .ring svg { width: 84px; height: 84px; } .ring .n b { font-size: 26px; }
+  .head { font-size: 14.5px; } .lines { margin-top: 8px; } .lines li { font-size: 12px; padding-bottom: 4px; }
+  .lucky { margin-top: 8px; } .lucky div { padding: 6px; }
+  .du { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; } .du div { min-width: 0; padding: 4px 2px; font-size: 10.5px; } .du div b { font-size: 14px; }
+  .foot { margin-top: 8px; font-size: 10px; }
+}
+
+.ie-box { display: none; }
+.is-ie .ie-box { display: block; max-width: 520px; margin: 60px auto; padding: 28px 26px; border-radius: 18px; background: #ffffff; border: 1px solid #e5e8eb; font-family: "Malgun Gothic", sans-serif; color: #191f28; text-align: center; }
+.is-ie .ie-box h2 { margin: 0 0 10px; font-size: 22px; }
+.is-ie .ie-box p { margin: 0 0 18px; font-size: 15px; line-height: 1.6; color: #4e5968; }
+.is-ie .ie-box a { display: inline-block; padding: 14px 26px; border-radius: 12px; background: #3182f6; color: #ffffff; font-size: 16px; font-weight: bold; text-decoration: none; }
+.is-ie .ie-box small { display: block; margin-top: 14px; font-size: 13px; color: #8b95a1; }
+.ie-box .ie-l { display: none; }
+.ie-loop .ie-box .ie-l { display: block; } .ie-loop .ie-box .ie-n { display: none; }
+.is-ie .ie-box input { display: block; width: 100%; height: 44px; margin: 0 0 10px; padding: 0 12px; border: 1px solid #d1d6db; border-radius: 10px; font-size: 13px; color: #333d4b; background: #f9fafb; }
+.ie-box #ie-url, .ie-box #ie-copy { display: none; }
+.ie-loop .ie-box #ie-url, .ie-loop .ie-box #ie-copy { display: block; }
+.is-ie .ie-box button { width: 100%; height: 50px; border: 0; border-radius: 12px; background: #191f28; color: #ffffff; font-size: 16px; font-weight: bold; cursor: pointer; }
+.is-ie .view, .is-ie .toast { display: none !important; }
+</style>
+</head>
+<body class="v-gate">
+<div class="ie-box">
+  <h2 class="ie-n">엣지에서 열어 주세요</h2>
+  <h2 class="ie-l">크롬이나 엣지에서 열어 주세요</h2>
+  <p class="ie-n">인터넷 익스플로러에서는 오늘의 운세가 동작하지 않아요.<br>잠시 뒤 엣지로 자동으로 넘어가요. 넘어가지 않으면 아래 버튼을 눌러 주세요.</p>
+  <p class="ie-l">회사 설정 때문에 엣지에서도 옛 방식(IE 모드)으로 열렸어요.<br>아래 주소를 복사해 <b>크롬</b> 주소창에 붙여 넣어 주세요.<br>자주 쓰신다면 IT 담당자에게 이 주소를 <b>IE 모드 목록에서 빼 달라고</b> 요청하세요.</p>
+  <a id="ie-go" class="ie-n" href="#">엣지로 열기</a>
+  <input id="ie-url" type="text" readonly aria-label="이 페이지 주소">
+  <button id="ie-copy" type="button">주소 복사 (크롬에 붙여 넣기)</button>
+  <small>파일로 받으셨다면: 파일 오른쪽 클릭 → 연결 프로그램 → Microsoft Edge 또는 Chrome</small>
+</div>
+<script>
+(function () {
+  if (!window.__EDGE_URL) return;
+  var a = document.getElementById('ie-go'), u = document.getElementById('ie-url'), c = document.getElementById('ie-copy');
+  if (a) a.href = window.__EDGE_URL;
+  if (u) { u.value = window.__PLAIN_URL; u.onclick = function () { u.select(); }; }
+  if (c) c.onclick = function () {
+    var ok = false;
+    try { if (window.clipboardData) ok = window.clipboardData.setData('Text', window.__PLAIN_URL); } catch (e) {}
+    if (!ok && u) { u.select(); try { ok = document.execCommand('copy'); } catch (e2) {} }
+    c.innerHTML = ok ? '복사했어요 · 크롬 주소창에 붙여 넣으세요' : '위 주소를 선택해 Ctrl+C 로 복사해 주세요';
+  };
+  /* 안내 화면을 먼저 그린 뒤 엣지로 넘김. 이미 엣지에서 넘어왔는데도 IE 방식이면(IE 모드) 넘기지 않음 */
+  if (!window.__IE_LOOP) setTimeout(function () { try { window.location.href = window.__EDGE_URL; } catch (e) {} }, 400);
+})();
+</script>
+<noscript><div class="noscript"><b>이 화면은 미리보기에서 열려 있어 동작하지 않아요.</b><br>카카오톡에서 받으셨다면 오른쪽 위 메뉴(⋯ 또는 공유) → <b>Safari로 열기</b> 또는 <b>다른 앱으로 열기 → Safari</b>를 눌러 주세요.</div></noscript>
+
+<!-- ============ 대문 ============ -->
+<section class="view" id="gate">
+  <div class="g-in">
+    <div class="g-moon"></div>
+    <p class="g-k">MeAI · TODAY'S FORTUNE</p>
+    <h1>오늘의 운세</h1>
+    <p class="g-sub">어떤 방법으로 오늘을 볼까요?</p>
+    <div class="g-today" id="gToday">오늘</div>
+    <div class="g-doors">
+      <button type="button" class="door d-saju" data-go="saju">
+        <span class="d-art"><b>四柱</b><span class="d-dots"><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="d-tt">사주팔자</span>
+        <span class="d-ds">생년월일로 타고난 기운과 오늘의 운세, 대운까지 봐요</span>
+        <span class="d-go">사주 보러 가기 →</span>
+      </button>
+      <button type="button" class="door d-tarot" data-go="tarot">
+        <span class="d-art"><span class="d-fan"><i></i><i></i><i></i></span></span>
+        <span class="d-tt">타로점</span>
+        <span class="d-ds">78장 카드 중 4장을 직접 골라 오늘의 메시지를 들어요</span>
+        <span class="d-go">카드 뽑으러 가기 →</span>
+      </button>
+    </div>
+    <p class="g-foot">제작자 : 세일즈혁신TF 이헌수<br>재미로 보는 운세예요 · 입력한 정보는 이 휴대폰 밖으로 나가지 않아요</p>
+  </div>
+</section>
+
+<!-- ============ 사주 ============ -->
+<section class="view" id="saju">
+<div class="wrap">
+  <button type="button" class="back" data-go="gate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>처음으로</button>
+  <header class="hero">
+    <div class="topline"><span class="k">MeAI · TODAY'S SAJU</span><span class="maker">제작자 : 세일즈혁신TF 이헌수</span></div>
+    <h1>오늘의 사주</h1>
+    <p>이름과 생년월일을 넣으면 사주팔자와 오늘의 운세가 바로 나와요</p>
+    <div class="today" id="today">오늘</div>
+  </header>
+
+  <section class="card" id="form">
+    <div class="field"><label for="nm">이름</label><input class="inp" id="nm" type="text" placeholder="예: 정재민" autocomplete="off" enterkeyhint="next" maxlength="20"></div>
+    <div class="field"><label>성별</label><div class="seg" id="gender"><button type="button" data-v="M" class="on">남</button><button type="button" data-v="F">여</button></div></div>
+    <div class="field"><label for="bd">생년월일 <small>(양력 숫자 8자리 · 1936~2046년, 출산 예정일도 돼요)</small></label><div class="dwrap"><input class="inp" id="bd" type="text" inputmode="numeric" enterkeyhint="done" autocomplete="off" maxlength="10" placeholder="예: 19900928"><span class="dpick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><input type="date" id="bdPick" min="1936-01-01" max="2046-12-31" tabindex="-1" aria-label="달력에서 고르기"></span></div></div>
+    <p class="hint">생년월일 숫자 8자리를 넣으면 바로 결과가 나와요 (달력 아이콘으로 골라도 돼요) · 입력한 정보는 이 휴대폰 밖으로 나가지 않아요</p>
+  </section>
+
+  <section id="result">
+    <div class="card">
+      <div class="who" id="who"></div>
+      <div class="sec"><h3>사주팔자 <span class="tg">년·월·일 여섯 글자</span></h3><div class="pls" id="pls"></div><div id="warn"></div></div>
+      <div class="sec"><h3>오행 분포</h3><div class="ohs" id="ohs"></div><div class="me-desc" id="meDesc"></div></div>
+    </div>
+    <div class="card">
+      <div class="sec first"><h3><span id="fTitle">오늘의 운세</span> <span class="tg" id="tgDay"></span></h3>
+        <div id="fortuneBox">
+          <div class="score"><div class="ring"><svg viewBox="0 0 104 104"><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b59af2"/><stop offset="1" stop-color="#4b25a8"/></linearGradient></defs><circle class="bg" cx="52" cy="52" r="44"/><circle class="fg" id="ringFg" cx="52" cy="52" r="44"/></svg><div class="n"><b id="scoreN">0</b><span>점</span></div></div>
+            <div><div class="stars" id="stars"></div><p class="head" id="head"></p><div class="keys" id="keys"></div></div></div>
+          <ul class="lines" id="lines"></ul>
+          <div class="meters" id="meters"></div>
+          <div class="lucky" id="lucky"></div>
+        </div>
+        <div class="unborn" id="unborn"></div>
+      </div>
+      <div class="sec"><h3>대운 <span class="tg" id="tgDu"></span></h3><div class="du" id="du"></div></div>
+    </div>
+    <div class="card send no-print">
+      <div class="sec first"><h3>저장 · 보내기</h3>
+        <div class="phone"><input class="inp" id="ph" type="tel" inputmode="numeric" placeholder="받는 분 휴대폰 번호 (선택)" maxlength="13" autocomplete="off"></div>
+        <div class="btns">
+          <button type="button" class="btn kakao" id="bKakao"><svg viewBox="0 0 24 24"><path fill="#191600" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.6c-.1.3.3.6.6.4l4.3-2.8c.5.1.9.1 1.4.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg>카톡으로 보내기</button>
+          <button type="button" class="btn pdf" id="bPdf"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14h6M9 17h4"/></svg>PDF로 저장</button>
+          <button type="button" class="btn sms" id="bSms">문자로 보내기</button>
+          <button type="button" class="btn copy" id="bImg">이미지로 저장</button>
+        </div>
+        <p class="hint">카톡으로 보내기 → 공유 창에서 <b>카카오톡</b>을 고르고 받는 분을 선택하세요. 번호를 넣으면 문자로 바로 보낼 수 있어요.</p>
+      </div>
+    </div>
+    <button type="button" class="cross no-print" data-go="tarot"><span class="ic">🌙</span><span><b>타로점도 볼까요?</b><small>같은 생년월일로 카드 4장을 뽑아 봐요</small></span><span class="ar">→</span></button>
+    <p class="foot">재미로 보는 사주예요 · 결정의 근거로 쓰지 마세요<br>양력 생년월일 · 한국 표준시 기준 · 년주는 입춘, 월주는 절기 기준 · 시간 없이 정오 출생으로 계산</p>
+  </section>
+</div>
+</section>
+
+<!-- ============ 타로 ============ -->
+<section class="view" id="tarot">
+<div class="wrap">
+  <button type="button" class="back" data-go="gate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>처음으로</button>
+  <header class="t-hero">
+    <div class="k">MeAI · TAROT</div>
+    <h1>오늘의 타로</h1>
+    <p>78장 카드 중 마음이 가는 4장을 골라 보세요</p>
+  </header>
+  <section class="t-form">
+    <div class="row">
+      <div><label for="tnm">이름</label><input class="inp" id="tnm" type="text" placeholder="예: 정재민" autocomplete="off" maxlength="20"></div>
+      <div><label for="tbd">생년월일</label><div class="dwrap"><input class="inp" id="tbd" type="text" inputmode="numeric" enterkeyhint="done" autocomplete="off" maxlength="10" placeholder="19900928"><span class="dpick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><input type="date" id="tbdPick" min="1936-01-01" max="2046-12-31" tabindex="-1" aria-label="달력에서 고르기"></span></div></div>
+    </div>
+    <div class="t-birth" id="tBirth"></div>
+    <button type="button" class="t-go" id="tGo" disabled>생년월일을 넣어 주세요</button>
+  </section>
+
+  <div class="t-stage" id="stage"></div>
+  <div class="t-reads" id="reads"></div>
+  <section class="t-sum" id="tsum"></section>
+  <button type="button" class="cross" data-go="saju"><span class="ic">四柱</span><span><b>사주팔자도 볼까요?</b><small>같은 생년월일로 타고난 기운을 봐요</small></span><span class="ar">→</span></button>
+  <p class="t-foot">재미로 보는 타로예요 · 카드는 뽑을 때마다 새로 섞여요<br>메이저 아르카나 22장 + 마이너 아르카나 56장 · 정방향·역방향 반반 확률</p>
+</div>
+</section>
+<div class="toast" id="toast"></div>
+
+<script>window.NZ_FTEXT = {"head": {"비견": ["어깨를 나란히 할 동료가 나타나는 날, 함께하면 두 배로 가벼워져요", "내 페이스대로 밀고 가도 좋은 날, 뚝심이 빛나요", "닮은 사람과 마음이 통하는 날, 먼저 손 내밀어 보세요"], "겁재": ["승부욕이 살아나는 날, 오늘 목표는 평소보다 한 칸 높게", "에너지가 넘치는 날, 혼자 다 하려 말고 나눠 들면 더 멀리 가요", "속도가 붙는 날, 결정은 빠르게 · 지갑은 천천히"], "식신": ["말 한마디에 복이 붙는 날, 맛있는 대화가 술술 풀려요", "여유와 웃음이 따라오는 날, 좋아하는 일에 시간을 써 보세요", "손대는 일마다 결과물이 보이는 날, 작은 성과를 즐기세요"], "상관": ["아이디어가 반짝이는 날, 떠오른 생각은 바로 메모!", "표현력이 최고조인 날, 하고 싶던 말을 부드럽게 꺼내 보세요", "틀을 살짝 벗어나면 길이 보이는 날, 새로운 방식이 통해요"], "편재": ["뜻밖의 기회가 굴러오는 날, 넓게 연락할수록 운이 커져요", "발이 넓어지는 날, 오랜만의 연락이 반가운 소식으로 돌아와요", "움직이는 만큼 열매가 맺히는 날, 바깥 일정이 행운의 열쇠"], "정재": ["차곡차곡 쌓이는 날, 꾸준히 해 온 일이 보답받아요", "계산이 딱딱 맞아떨어지는 날, 꼼꼼함이 최고의 무기", "알뜰한 선택이 빛나는 날, 작은 약속을 지키면 큰 신뢰로"], "편관": ["도전 과제가 찾아오는 날, 피하지 않으면 실력이 한 뼘 자라요", "긴장감이 집중력으로 바뀌는 날, 어려운 일부터 먼저!", "책임감이 돋보이는 날, 끝까지 해내는 모습에 박수가 쏟아져요"], "정관": ["인정받는 날, 원칙대로 한 일이 좋은 평가로 돌아와요", "신뢰가 쌓이는 날, 단정한 태도가 최고의 명함", "질서가 잡히는 날, 미뤄 둔 정리를 끝내기 딱 좋아요"], "편인": ["직감이 날카로운 날, 첫 느낌을 믿어 보세요", "배우는 재미가 큰 날, 새로운 정보가 쏙쏙 들어와요", "혼자만의 시간이 보약인 날, 잠깐의 산책이 아이디어를 줘요"], "정인": ["도움의 손길이 닿는 날, 귀인이 가까이 있어요", "마음이 든든한 날, 배려가 배려로 돌아와요", "공부운이 좋은 날, 오늘 익힌 것은 오래 남아요"]}, "day_rel": {"육합": ["오늘의 기운과 손을 맞잡은 날, 만남이 술술 풀려요", "궁합이 딱 맞는 하루, 부탁하기도 받기도 좋아요"], "반합": ["좋은 기운이 한편이 되어 주는 날, 팀플레이가 잘 맞아요", "흐름을 타기 좋은 날, 주변과 박자를 맞춰 보세요"], "같음": ["익숙한 기운이 반겨 주는 날, 평소 하던 대로가 정답", "편안한 하루, 내 스타일 그대로 가도 좋아요"], "무난": ["잔잔하고 무난한 흐름, 계획한 대로 차근차근", "특별한 굴곡 없는 하루, 기본기가 빛나요"], "파": ["작은 변경이 생길 수 있는 날, 일정은 한 번 더 확인", "계획이 살짝 바뀌어도 괜찮아요, 플랜 B가 더 좋을 수도"], "해": ["말의 온도에 신경 쓰면 좋은 날, 부드럽게가 정답", "오해는 웃으며 풀기, 한 박자 쉬고 대답해요"], "원진": ["괜히 서운할 수 있는 날, 먼저 웃으면 분위기가 바뀌어요", "감정보다 사실을 먼저, 그러면 술술 풀려요"], "형": ["꼼꼼함이 필요한 날, 서류와 숫자는 두 번 확인", "급할수록 돌아가는 날, 천천히 가면 오히려 빨라요"], "충": ["기운이 활발하게 움직이는 날, 새 길이 열리기도 해요", "변화가 많은 날, 서두르기보다 한 번 더 확인하면 기회로"]}, "tti_rel": {"육합": "{a}띠와 오늘 {b}날은 찰떡궁합, 만남운이 좋아요", "반합": "{a}띠에게 {b}날은 든든한 지원군 같은 날", "같음": "{a}띠의 날! 오늘은 내가 주인공", "무난": "{a}띠와 {b}날은 무난한 사이, 편안하게 흘러가요", "파": "{a}띠에게 {b}날은 변수가 있는 날, 유연하게", "해": "{a}띠는 오늘 말을 아끼면 더 좋아요", "원진": "{a}띠는 오늘 마음의 여유가 행운의 열쇠", "형": "{a}띠는 오늘 꼼꼼함이 행운을 불러요", "충": "{a}띠와 {b}날은 정반대 기운, 활동적으로 움직이면 오히려 길해요"}, "bal": {"채움": "내 사주에 없던 {e}의 기운이 들어오는 날, 빈칸이 채워져요", "보통": "{e}의 기운이 알맞게 더해지는 날, 균형이 좋아요", "넘침": "{e}의 기운이 넘치는 날, 과유불급만 기억하세요"}, "tip": {"비견": ["요즘 같이 운동하거나 취미 함께하시는 분 계세요?", "고객님 같은 분이 주변에 많으면 든든하시겠어요"], "겁재": ["요즘 가장 의욕 나는 일이 뭐예요?", "올해 꼭 이루고 싶은 목표 하나만 꼽으면요?"], "식신": ["요즘 맛있게 드신 거 있으세요? 추천 받고 싶어요", "주말에 제일 즐거운 시간은 언제세요?"], "상관": ["요즘 새로 시작하신 거 있으세요?", "고객님 아이디어 듣는 게 늘 재미있어요"], "편재": ["요즘 다녀오신 곳 중에 좋았던 데 있으세요?", "새로 알게 된 분들 많으셨죠? 바쁘셨겠어요"], "정재": ["요즘 꾸준히 하고 계신 습관 있으세요?", "가계부나 계획 세우시는 편이세요? 비결 궁금해요"], "편관": ["요즘 제일 신경 쓰이는 일 있으세요? 들어 드릴게요", "바쁜 시기 잘 버티고 계신 비결이 뭐예요?"], "정관": ["요즘 일은 어떠세요? 인정받으실 일 많으시죠", "가족분들은 다들 잘 지내시죠?"], "편인": ["요즘 관심 가는 분야 있으세요?", "혼자만의 시간은 어떻게 보내세요?"], "정인": ["요즘 고마웠던 분 있으세요?", "부모님은 건강하시죠? 안부 여쭤요"]}, "keys": {"비견": ["동료", "뚝심", "협력"], "겁재": ["도전", "속도", "승부"], "식신": ["여유", "미식", "결과물"], "상관": ["아이디어", "표현", "변화"], "편재": ["기회", "인맥", "외출"], "정재": ["꾸준함", "신뢰", "절약"], "편관": ["도전", "집중", "책임"], "정관": ["인정", "원칙", "정리"], "편인": ["직감", "배움", "휴식"], "정인": ["귀인", "배려", "공부"]}};
+
+/* =====================================================================
+   사주(년·월·일주) + 오늘의 운세 엔진 — saju_engine.py 와 같은 규칙 (verify_saju.py 로 전 기간 일치 검사)
+   한국 표준시 · 정오 출생 가정 · 년주=입춘 · 월주=12절 · 일주=율리우스일 · 시주는 받지 않음
+   문구: window.NZ_FTEXT (fortune_text.py 에서 생성)
+   ===================================================================== */
+(function () {
+  'use strict';
+  var STEM = '甲乙丙丁戊己庚辛壬癸', STEM_K = '갑을병정무기경신임계', BR = '子丑寅卯辰巳午未申酉戌亥', BR_K = '자축인묘진사오미신유술해';
+  var ANIMAL = ['쥐', '소', '호랑이', '토끼', '용', '뱀', '말', '양', '원숭이', '닭', '개', '돼지'];
+  var ANIMAL_E = ['🐭', '🐮', '🐯', '🐰', '🐲', '🐍', '🐴', '🐑', '🐵', '🐔', '🐶', '🐷'];
+  var EL = ['목', '화', '토', '금', '수'], EL_H = ['木', '火', '土', '金', '水'];
+  var BR_EL = [4, 2, 0, 0, 2, 1, 1, 2, 3, 3, 2, 4];
+  var JIE = [[315, 2, '입춘'], [345, 3, '경칩'], [15, 4, '청명'], [45, 5, '입하'], [75, 6, '망종'], [105, 7, '소서'],
+             [135, 8, '입추'], [165, 9, '백로'], [195, 10, '한로'], [225, 11, '입동'], [255, 0, '대설'], [285, 1, '소한']];
+  var KST = 9 / 24;
+  function rnd(x) { return Math.floor(x + 0.5); }
+  function mod(a, n) { return ((a % n) + n) % n; }
+  function stemEl(s) { return Math.floor(s / 2); }
+  function gzIndex(s, b) { for (var i = 0; i < 60; i++) if (i % 10 === s && i % 12 === b) return i; }
+  function gz(i) { return STEM[i % 10] + BR[i % 12]; }
+  function gzK(i) { return STEM_K[i % 10] + BR_K[i % 12]; }
+
+  function jdFromDate(y, m, d, frac) {
+    if (m <= 2) { y -= 1; m += 12; }
+    var a = Math.floor(y / 100), b = 2 - a + Math.floor(a / 4);
+    return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + b - 1524.5 + (frac == null ? 0.5 : frac);
+  }
+  function sunLon(jd) {
+    var T = (jd - 2451545.0) / 36525, R = Math.PI / 180;
+    var L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+    var M = (357.52911 + 35999.05029 * T - 0.0001537 * T * T) * R;
+    var C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M) + (0.019993 - 0.000101 * T) * Math.sin(2 * M) + 0.000289 * Math.sin(3 * M);
+    var om = (125.04 - 1934.136 * T) * R;
+    return mod(L0 + C - 0.00569 - 0.00478 * Math.sin(om), 360);
+  }
+  function termJd(year, lon) {
+    var days = mod(lon, 360) * 365.2422 / 360, jd = jdFromDate(year, 3, 20, 0.5) + days;
+    if (lon >= 285) jd -= 365.2422;
+    for (var k = 0; k < 50; k++) {
+      var diff = mod(lon - sunLon(jd) + 180, 360) - 180;
+      jd += diff * 365.2422 / 360;
+      if (Math.abs(diff) < 1e-7) break;
+    }
+    return jd;
+  }
+  /* JD(UT) → 한국시 {y,m,d,hh,mm} */
+  function jdToKst(jd) {
+    var j = jd + 0.5 + KST, Z = Math.floor(j), F = j - Z;
+    var a = Math.floor((Z - 1867216.25) / 36524.25), A = Z + 1 + a - Math.floor(a / 4);
+    var B = A + 1524, C = Math.floor((B - 122.1) / 365.25), D = Math.floor(365.25 * C), E = Math.floor((B - D) / 30.6001);
+    var day = B - D - Math.floor(30.6001 * E) + F, m = E < 14 ? E - 1 : E - 13, y = m > 2 ? C - 4716 : C - 4715, d = Math.floor(day);
+    var mins = Math.round((day - d) * 1440);
+    return { y: y, m: m, d: d, hh: Math.floor(mins / 60), mm: mins % 60 };
+  }
+  var cache = {};
+  function jieList(year) {
+    if (cache[year]) return cache[year];
+    var out = [];
+    [year - 1, year, year + 1].forEach(function (y) { JIE.forEach(function (j) { var jd = termJd(y, j[0]); out.push({ jd: jd, b: j[1], name: j[2], y: y, kst: jdToKst(jd) }); }); });
+    out.sort(function (a, b) { return a.jd - b.jd; });
+    return (cache[year] = out);
+  }
+  /* mins: 출생 시각(분, 한국시). 생략하면 정오(720) 가정 */
+  function pillars(y, m, d, mins) {
+    var noon = jdFromDate(y, m, d, 0) + (mins == null ? 720 : mins) / 1440 - KST, js = jieList(y), prev = null, next = null, ip = null, today = null;
+    js.forEach(function (t) {
+      if (t.jd <= noon) prev = t; else if (!next) next = t;
+      if (t.name === '입춘' && t.y === y) ip = t;
+      if (t.kst.y === y && t.kst.m === m && t.kst.d === d) today = t;
+    });
+    var sy = noon >= ip.jd ? y : y - 1, ys = mod(sy - 4, 10), yb = mod(sy - 4, 12), mb = prev.b, mi = mod(mb - 2, 12);
+    var ms = mod((ys % 5) * 2 + 2 + mi, 10), di = mod(Math.floor(jdFromDate(y, m, d, 0.5) + 49), 60);
+    return { y: y, m: m, d: d, sy: sy, ys: ys, yb: yb, ms: ms, mb: mb, ds: di % 10, db: di % 12, di: di, prev: prev, next: next, jieToday: today, noon: noon };
+  }
+  function daeun(p, male) {
+    var yangYear = p.ys % 2 === 0, fwd = (yangYear && male) || (!yangYear && !male);
+    var days = fwd ? p.next.jd - p.noon : p.noon - p.prev.jd;
+    var n = Math.max(1, Math.min(10, rnd(days / 3)));
+    var mi = gzIndex(p.ms, p.mb), list = [];
+    for (var k = 1; k <= 10; k++) list.push({ age: n + (k - 1) * 10, i: mod(mi + (fwd ? k : -k), 60) });
+    return { fwd: fwd, n: n, list: list };
+  }
+  function counts(p) {
+    var c = [0, 0, 0, 0, 0];
+    [p.ys, p.ms, p.ds].forEach(function (s) { c[stemEl(s)]++; });
+    [p.yb, p.mb, p.db].forEach(function (b) { c[BR_EL[b]]++; });
+    return c;
+  }
+  var TEN = [['비견', '겁재'], ['식신', '상관'], ['편재', '정재'], ['편관', '정관'], ['편인', '정인']];
+  function tenGod(d, o) { return TEN[mod(stemEl(o) - stemEl(d), 5)][(d % 2) === (o % 2) ? 0 : 1]; }
+  function pairIn(list, a, b) { return list.some(function (x) { return (x[0] === a && x[1] === b) || (x[0] === b && x[1] === a); }); }
+  var SIX = [[0, 1], [2, 11], [3, 10], [4, 9], [5, 8], [6, 7]], SAM = [[8, 0, 4], [2, 6, 10], [5, 9, 1], [11, 3, 7]];
+  var HY = [[2, 5], [5, 8], [8, 2], [1, 10], [10, 7], [7, 1], [0, 3]], SELF_HY = [4, 6, 9, 11];
+  var HAE = [[0, 7], [1, 6], [2, 5], [3, 4], [8, 11], [9, 10]], WJ = [[0, 7], [1, 6], [2, 9], [3, 8], [4, 11], [5, 10]], PA = [[0, 9], [1, 4], [2, 11], [3, 6], [5, 8], [7, 10]];
+  var REL = { '충': -6, '육합': 8, '반합': 6, '형': -4, '원진': -3, '해': -3, '파': -2, '같음': 3, '무난': 0 };
+  function brRel(t, p) {
+    if (Math.abs(t - p) === 6) return '충';
+    if (t !== p && pairIn(SIX, t, p)) return '육합';
+    if (t !== p && SAM.some(function (g) { return g.indexOf(t) >= 0 && g.indexOf(p) >= 0; })) return '반합';
+    if ((t !== p && pairIn(HY, t, p)) || (t === p && SELF_HY.indexOf(t) >= 0)) return '형';
+    if (t !== p && pairIn(WJ, t, p)) return '원진';
+    if (t !== p && pairIn(HAE, t, p)) return '해';
+    if (t !== p && pairIn(PA, t, p)) return '파';
+    if (t === p) return '같음';
+    return '무난';
+  }
+  var TEN_MOD = { '비견': [-2, 6, 4, 6], '겁재': [-5, 3, 6, 4], '식신': [6, 8, 4, 8], '상관': [4, 10, 2, 0], '편재': [10, 5, 6, 2],
+    '정재': [12, 3, 5, 4], '편관': [2, -2, 8, -3], '정관': [4, 4, 10, 2], '편인': [-2, 0, 4, 5], '정인': [2, 6, 6, 8] };
+  var WEIGHT = [0.3, 0.25, 0.25, 0.2], BASE = 70, LO = 55, HI = 98;
+  var COLORS = ['초록', '빨강', '노랑', '흰색', '남색'], COLOR_HEX = ['#2f9e62', '#e0402f', '#e0a800', '#9aa3ad', '#2b4a8b'];
+  var NUMBERS = ['3, 8', '2, 7', '5, 10', '4, 9', '1, 6'], DIRS = ['동쪽', '남쪽', '가운데', '서쪽', '북쪽'];
+  function fnv(s) { var h = 0x811C9DC5; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h >>> 0; }
+  function luckyEl(c, ds) {
+    var me = stemEl(ds), order = [mod(me + 4, 5), me, mod(me + 1, 5), mod(me + 2, 5), mod(me + 3, 5)], mn = Math.min.apply(null, c);
+    return order.filter(function (e) { return c[e] === mn; })[0];
+  }
+  function pad(n, w) { n = String(n); while (n.length < w) n = '0' + n; return n; }
+  function fmt(s, a, b) { return s.replace('{a}', a).replace('{b}', b); }
+  function fortune(y, m, d, male, ty, tm, td) {
+    var T = window.NZ_FTEXT, p = pillars(y, m, d), t = pillars(ty, tm, td), c = counts(p), god = tenGod(p.ds, t.ds);
+    var rDay = brRel(t.db, p.db), rYear = brRel(t.db, p.yb), te = stemEl(t.ds);
+    var bal = c[te] === 0 ? 6 : (c[te] >= 3 ? -4 : 2), balK = c[te] === 0 ? '채움' : (c[te] >= 3 ? '넘침' : '보통');
+    var key = pad(y, 4) + pad(m, 2) + pad(d, 2) + '|' + (male ? 'M' : 'F') + '|' + pad(ty, 4) + pad(tm, 2) + pad(td, 2), h = fnv(key);
+    var sc = [0, 1, 2, 3].map(function (i) {
+      var jit = ((h >>> (i * 5)) % 9) - 4;
+      return Math.max(LO, Math.min(HI, BASE + TEN_MOD[god][i] + REL[rDay] + rnd(REL[rYear] * 0.6) + bal + jit));
+    });
+    var total = Math.floor((30 * sc[0] + 25 * sc[1] + 25 * sc[2] + 20 * sc[3] + 50) / 100);  // 가중 평균 반올림을 정수로 (소수 오차 방지)
+    var stars = total >= 90 ? 5 : total >= 82 ? 4 : total >= 72 ? 3 : 2, le = luckyEl(c, p.ds);
+    function pick(arr, salt) { return arr[(h >>> salt) % arr.length]; }
+    return { p: p, t: t, counts: c, god: god, rDay: rDay, rYear: rYear, bal: balK, scores: sc, total: total, stars: stars,
+      luckyEl: le, color: COLORS[le], colorHex: COLOR_HEX[le], number: NUMBERS[le], direction: DIRS[le],
+      head: pick(T.head[god], 3), dayLine: pick(T.day_rel[rDay], 7), ttiLine: fmt(T.tti_rel[rYear], ANIMAL[p.yb], ANIMAL[t.db]),
+      balLine: T.bal[balK].replace('{e}', EL[te]), tip: pick(T.tip[god], 11), keys: T.keys[god], hash: h };
+  }
+  window.NZ_SAJU = { pillars: pillars, fortune: fortune, daeun: daeun, counts: counts, tenGod: tenGod, brRel: brRel, termJd: termJd, jdToKst: jdToKst,
+    gz: gz, gzK: gzK, gzIndex: gzIndex, stemEl: stemEl, STEM: STEM, STEM_K: STEM_K, BR: BR, BR_K: BR_K, ANIMAL: ANIMAL, ANIMAL_E: ANIMAL_E, EL: EL, EL_H: EL_H, BR_EL: BR_EL, COLOR_HEX: COLOR_HEX };
+})();
+
+/* =====================================================================
+   타로 78장 (라이더-웨이트 순서: 메이저 0~21, 마이너 4수트 × 14)
+   카드 한 장 = [한글 이름, 영어 이름, 그림(메이저만), 정방향 키워드, 정방향 풀이, 역방향 키워드, 역방향 풀이]
+   ===================================================================== */
+(function () {
+  'use strict';
+  var MAJOR = [
+    ['바보', 'The Fool', '🎒', '새 출발·자유·모험', '계산보다 설렘이 앞서는 때예요. 처음 해 보는 일에 가볍게 발을 내디뎌 보세요.', '무모함·준비 부족', '들뜬 마음에 준비가 덜 됐을 수 있어요. 출발 전에 짐을 한 번만 더 챙겨 보세요.'],
+    ['마법사', 'The Magician', '✨', '능력·시작·실행력', '필요한 재료는 이미 손에 있어요. 생각만 하던 일을 오늘 바로 시작해도 좋아요.', '말뿐·재능 낭비', '말이 행동보다 앞서기 쉬워요. 약속은 작게, 실행은 확실하게 해 보세요.'],
+    ['여사제', 'The High Priestess', '📖', '직관·지혜·침묵', '답은 바깥보다 내 안에 있어요. 서두르지 말고 조용히 느낌을 믿어 보세요.', '숨김·혼란', '중요한 정보가 아직 다 드러나지 않았어요. 확인되지 않은 말에는 귀를 덜 기울이세요.'],
+    ['여황제', 'The Empress', '🌾', '풍요·돌봄·결실', '정성 들인 일이 풍성하게 자라는 때예요. 나와 주변을 넉넉히 돌봐 주세요.', '과잉·의존', '남을 챙기느라 나를 놓치고 있진 않나요? 돌봄의 방향을 나에게도 돌려 보세요.'],
+    ['황제', 'The Emperor', '👑', '안정·책임·리더십', '질서와 원칙이 힘이 되는 날이에요. 계획을 세우고 앞장서 이끌어 보세요.', '고집·통제', '내 방식만 고집하면 사람이 멀어져요. 한 걸음 물러서 의견을 들어 보세요.'],
+    ['교황', 'The Hierophant', '🔑', '가르침·신뢰·전통', '검증된 방법과 좋은 조언자가 길을 열어 줘요. 배우는 자세가 행운을 불러요.', '틀에 갇힘·반발', '익숙한 규칙이 오히려 발목을 잡을 수 있어요. 나에게 맞는 방식을 찾아보세요.'],
+    ['연인', 'The Lovers', '💞', '사랑·조화·선택', '마음이 통하는 인연과 좋은 선택이 함께해요. 진심을 담아 표현해 보세요.', '엇갈림·망설임', '마음과 행동이 엇갈리기 쉬워요. 정말 원하는 것이 무엇인지 먼저 정해 보세요.'],
+    ['전차', 'The Chariot', '🏇', '전진·승리·의지', '목표를 향해 힘차게 나아갈 때예요. 흔들리지 않는 의지가 승리를 가져와요.', '방향 상실·과속', '속도에 비해 방향이 흐릿해요. 잠시 멈춰 목적지를 다시 확인해 보세요.'],
+    ['힘', 'Strength', '🦁', '용기·인내·부드러운 힘', '부드러움이 거친 상황을 다스려요. 조급해하지 않는 인내가 가장 큰 힘이에요.', '자신감 하락·감정 폭발', '스스로를 믿는 마음이 약해졌어요. 감정을 다그치기보다 다독여 주세요.'],
+    ['은둔자', 'The Hermit', '🏮', '성찰·탐구·홀로서기', '혼자만의 시간이 답을 비춰 줘요. 소음에서 잠시 떨어져 생각을 정리해 보세요.', '고립·외로움', '너무 오래 혼자 버티고 있어요. 믿을 만한 사람에게 먼저 손을 내밀어 보세요.'],
+    ['운명의 수레바퀴', 'Wheel of Fortune', '☸️', '전환점·행운·흐름', '흐름이 바뀌는 순간이 찾아와요. 들어오는 기회를 놓치지 말고 올라타세요.', '엇박자·지연', '타이밍이 살짝 어긋나 있어요. 억지로 돌리기보다 다음 흐름을 기다려 보세요.'],
+    ['정의', 'Justice', '⚖️', '공정·균형·책임', '뿌린 만큼 거두는 때예요. 원칙대로 판단하면 결과도 정직하게 돌아와요.', '불공정·편향', '한쪽 말만 듣고 판단하기 쉬워요. 결정 전에 양쪽 사정을 모두 살펴보세요.'],
+    ['매달린 사람', 'The Hanged Man', '🙃', '관점 전환·기다림·내려놓음', '거꾸로 보면 새 답이 보여요. 지금의 멈춤은 손해가 아니라 준비 시간이에요.', '헛된 희생·정체', '의미 없는 기다림이 길어지고 있어요. 붙잡고 있던 것을 놓아줄 때일 수 있어요.'],
+    ['죽음', 'Death', '🥀', '끝과 시작·변화·정리', '한 장이 끝나야 다음 장이 열려요. 낡은 것을 정리하면 새 자리가 생겨요.', '변화 거부·미련', '끝난 일을 붙잡고 있어 다음이 오지 않아요. 아쉬움은 인사로 마무리해 보세요.'],
+    ['절제', 'Temperance', '🏺', '조화·중용·회복', '서로 다른 것이 섞여 좋은 결과를 내요. 적당한 속도와 균형이 가장 좋아요.', '불균형·과함', '한쪽으로 지나치게 쏠려 있어요. 일·휴식·관계의 비율을 다시 맞춰 보세요.'],
+    ['악마', 'The Devil', '⛓️', '유혹·집착·욕망', '달콤한 유혹이 가까이 있어요. 원하는 것을 솔직히 인정하되 끌려가지는 마세요.', '해방·끊어냄', '나를 묶던 습관이나 관계에서 벗어날 힘이 생겨요. 끊어낼 것은 지금 끊으세요.'],
+    ['탑', 'The Tower', '⚡', '급변·깨달음·무너짐', '예상 밖 일이 낡은 틀을 흔들어요. 놀라더라도 그 덕에 진짜가 드러나요.', '위기 모면·불안', '큰 충격은 피했지만 불씨가 남아 있어요. 미뤄 둔 문제를 지금 손봐 두세요.'],
+    ['별', 'The Star', '⭐', '희망·치유·영감', '어두운 뒤에 빛이 들어요. 바라는 것을 마음에 품고 꾸준히 걸어가세요.', '실망·의욕 저하', '기대가 꺾여 기운이 빠졌어요. 작은 목표 하나부터 다시 반짝이게 해 보세요.'],
+    ['달', 'The Moon', '🌙', '불안·상상·직감', '보이는 것이 전부가 아니에요. 막연한 걱정은 줄이고 직감은 메모해 두세요.', '오해 풀림·안개 걷힘', '헷갈리던 상황이 서서히 선명해져요. 숨은 사실이 드러나며 마음이 가벼워져요.'],
+    ['태양', 'The Sun', '☀️', '성공·기쁨·활력', '밝은 기운이 가득한 최고의 카드예요. 자신 있게 드러내면 좋은 일이 따라와요.', '잠깐의 흐림·과신', '좋은 흐름이지만 조금 늦게 와요. 자만만 조심하면 결국 해가 떠요.'],
+    ['심판', 'Judgement', '📯', '부활·결단·소식', '다시 일어설 신호가 울려요. 미뤄 둔 결정을 내리면 새 기회가 열려요.', '자책·미루기', '지난 일로 자신을 너무 탓하고 있어요. 교훈만 남기고 다음으로 넘어가세요.'],
+    ['세계', 'The World', '🌍', '완성·성취·통합', '한 바퀴를 멋지게 마무리하는 때예요. 이룬 것을 축하하고 다음 무대를 준비하세요.', '마무리 부족·미완', '거의 다 왔는데 마지막 한 조각이 남았어요. 끝맺음까지 챙기면 완성돼요.']
+  ];
+  /* 수트: 이름, 원소, 다루는 영역 */
+  var SUITS = [
+    { k: 'Wands', ko: '완드', el: '불', area: '열정·일·도전' },
+    { k: 'Cups', ko: '컵', el: '물', area: '감정·사랑·관계' },
+    { k: 'Swords', ko: '소드', el: '공기', area: '생각·판단·갈등' },
+    { k: 'Pentacles', ko: '펜타클', el: '흙', area: '돈·현실·건강' }
+  ];
+  var RANK = ['에이스', '2', '3', '4', '5', '6', '7', '8', '9', '10', '시종', '기사', '여왕', '왕'];
+  var RANK_E = ['Ace', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Page', 'Knight', 'Queen', 'King'];
+  /* [정방향 키워드, 정방향 풀이, 역방향 키워드, 역방향 풀이] 수트별 14장 */
+  var MINOR = [
+    [ // 완드 (불)
+      ['열정의 불씨·새 계획', '가슴 뛰는 아이디어가 생겨요. 망설이지 말고 첫 불을 붙여 보세요.', '의욕 부족·지연', '시작하려는 마음이 자꾸 식어요. 작게라도 오늘 한 걸음을 떼 보세요.'],
+      ['계획·넓은 시야', '더 큰 그림을 그릴 때예요. 지금 자리에서 다음 목표를 설계해 보세요.', '두려움·우물쭈물', '익숙한 곳을 떠나기가 두려워요. 계획을 종이에 적으면 용기가 생겨요.'],
+      ['확장·기다리던 소식', '뿌려 둔 노력이 멀리서 돌아와요. 시야를 넓히면 기회가 보여요.', '지연·기대 어긋남', '기다리던 일이 늦어지고 있어요. 다른 길도 함께 열어 두세요.'],
+      ['축하·안정된 기반', '함께 웃을 일이 생겨요. 이룬 것을 사람들과 나누면 기쁨이 커져요.', '불안정·어수선함', '기반이 살짝 흔들려요. 가까운 사람과의 관계부터 챙겨 보세요.'],
+      ['경쟁·의견 충돌', '의견이 부딪히지만 그 덕에 더 좋은 답이 나와요. 건강한 경쟁을 즐겨 보세요.', '갈등 회피·소모전', '피하기만 하면 다툼이 길어져요. 핵심만 짚어 짧게 정리해 보세요.'],
+      ['승리·인정', '노력이 인정받고 박수받는 날이에요. 자신감 있게 앞에 서 보세요.', '자만·인정 부족', '기대만큼 알아주지 않아 서운할 수 있어요. 결과로 차분히 보여 주세요.'],
+      ['지켜냄·소신', '내 자리를 지킬 힘이 있어요. 흔들려도 소신을 지키면 이겨요.', '지침·포기 직전', '혼자 막느라 지쳤어요. 다 지키려 하지 말고 중요한 것만 남기세요.'],
+      ['빠른 진행·소식', '일이 빠르게 풀리고 연락이 몰려와요. 흐름이 왔을 때 속도를 내세요.', '지연·성급함', '서두를수록 엉켜요. 순서를 정해 하나씩 처리해 보세요.'],
+      ['끈기·마지막 고비', '거의 다 왔어요. 지친 만큼 끝이 가까우니 조금만 더 버텨 보세요.', '방어적·의심', '상처가 남아 마음을 닫고 있어요. 모두가 적은 아니니 경계를 조금 풀어 보세요.'],
+      ['책임감·무거운 짐', '맡은 일이 많아 어깨가 무거워요. 해낼 수 있지만 나눌 줄도 알아야 해요.', '과부하·내려놓기', '짐이 한계를 넘었어요. 꼭 내가 해야 할 일만 남기고 덜어내세요.'],
+      ['호기심·좋은 소식', '새로운 배움과 반가운 소식이 와요. 궁금한 건 바로 물어보세요.', '산만함·소식 지연', '관심이 여기저기 흩어져요. 하나를 골라 끝까지 파 보세요.'],
+      ['추진력·모험', '거침없이 달려갈 기운이에요. 새로운 도전에 몸을 던져 보세요.', '충동·조급함', '앞뒤 재지 않고 뛰어들기 쉬워요. 한 번 숨 고르고 출발하세요.'],
+      ['자신감·매력', '밝은 에너지로 사람을 끌어당겨요. 당당한 태도가 좋은 기회를 불러요.', '질투·예민함', '작은 일에 마음이 날카로워져요. 나를 다른 사람과 비교하지 마세요.'],
+      ['비전·리더십', '큰 그림을 보고 사람을 이끄는 날이에요. 결정을 미루지 말고 방향을 제시하세요.', '독단·성급한 결정', '혼자 정하고 밀어붙이기 쉬워요. 결정 전 한 사람에게만 더 물어보세요.']
+    ],
+    [ // 컵 (물)
+      ['새 감정·사랑의 시작', '마음이 차오르는 새로운 감정이 시작돼요. 따뜻한 마음을 숨기지 마세요.', '감정 억누름·공허', '마음을 꾹 누르고 있어요. 솔직한 감정을 한 사람에게라도 털어놓아 보세요.'],
+      ['교감·좋은 짝', '마음이 통하는 사람과 연결돼요. 서로 주고받는 관계가 힘이 돼요.', '엇갈림·불균형', '주는 마음과 받는 마음의 무게가 달라요. 서운함은 쌓기 전에 말해 보세요.'],
+      ['축하·우정', '함께 웃을 일이 생기는 날이에요. 친구와 기쁨을 나누면 두 배가 돼요.', '과한 즐거움·뒷말', '즐거움이 지나치거나 뒷말이 생길 수 있어요. 적당한 선을 지켜 주세요.'],
+      ['권태·무관심', '지금 가진 것에 시큰둥해요. 이미 곁에 있는 기회를 다시 들여다보세요.', '새 의욕·관심 회복', '멈춰 있던 마음이 다시 움직여요. 새로운 제안에 귀를 열어 보세요.'],
+      ['상실감·아쉬움', '잃은 것에 마음이 머물러요. 뒤돌아보면 아직 남은 잔이 있어요.', '회복·용서', '아픔이 서서히 아물어요. 지난 일을 용서하면 새 잔을 채울 수 있어요.'],
+      ['추억·순수한 마음', '따뜻한 옛 인연이나 추억이 힘이 돼요. 순수한 마음으로 다가가 보세요.', '과거 집착', '지난날에 너무 머물러 있어요. 추억은 간직하고 시선은 앞으로 두세요.'],
+      ['선택지·상상', '여러 가능성이 눈앞에 펼쳐져요. 꿈과 현실을 구분해 하나를 골라 보세요.', '환상 깨짐·현실 직시', '막연한 기대가 걷히고 현실이 보여요. 오히려 선택이 쉬워져요.'],
+      ['떠남·더 깊은 것 찾기', '채워지지 않는 마음을 따라 새 길을 찾아요. 떠나는 용기도 성장이에요.', '망설임·회피', '떠날지 머물지 정하지 못해요. 마음이 진짜 원하는 쪽을 물어보세요.'],
+      ['소원 성취·만족', '바라던 일이 이뤄지는 소원 카드예요. 오늘의 만족을 마음껏 누리세요.', '욕심·허전함', '가져도 채워지지 않는 느낌이에요. 진짜 바라는 것이 무엇인지 돌아보세요.'],
+      ['가족·행복한 관계', '사랑하는 사람들과 행복이 가득해요. 가족과 함께하는 시간이 큰 복이에요.', '관계 갈등·가치 차이', '가까운 사이에서 생각 차이가 보여요. 정답보다 공감부터 건네 보세요.'],
+      ['다정한 소식·감수성', '설레는 연락이나 다정한 제안이 와요. 순수한 호기심으로 받아 보세요.', '감정 기복·미성숙', '기분에 따라 말이 앞서기 쉬워요. 하룻밤 자고 답해도 늦지 않아요.'],
+      ['로맨스·제안', '마음을 담은 제안이 찾아와요. 진심을 행동으로 보여 주면 통해요.', '변덕·과장', '달콤한 말에 비해 행동이 부족할 수 있어요. 말보다 실천을 지켜보세요.'],
+      ['공감·따뜻한 직관', '상대의 마음을 잘 읽는 날이에요. 들어 주는 것만으로도 큰 힘이 돼요.', '감정 소진·지나친 이입', '남의 감정까지 떠안아 지쳤어요. 내 마음부터 먼저 돌봐 주세요.'],
+      ['감정 조절·포용', '흔들림 없이 상황을 감싸 안아요. 침착한 태도가 신뢰를 얻어요.', '감정 억압·변덕', '참아 온 감정이 엉뚱한 곳에서 터질 수 있어요. 적당히 풀어 주세요.']
+    ],
+    [ // 소드 (공기)
+      ['명쾌함·돌파', '머릿속이 맑아지고 핵심이 보여요. 결단이 필요한 일을 오늘 정리하세요.', '혼란·날 선 말', '생각이 엉키고 말이 날카로워져요. 결론은 하루 미뤄도 괜찮아요.'],
+      ['고민·보류', '두 선택 사이에서 눈을 가리고 있어요. 정보를 더 모으면 답이 보여요.', '결정 압박·정보 공개', '더는 미루기 어려워요. 드러난 사실을 바탕으로 마음을 정하세요.'],
+      ['마음의 상처·이별', '아픈 말이나 서운함이 남아요. 감정을 인정해야 회복이 시작돼요.', '회복·용서', '상처가 아물어 가요. 털어놓고 정리하면 한결 가벼워져요.'],
+      ['휴식·재충전', '잠시 멈추고 쉬어야 할 때예요. 충분히 쉬어야 다음 판단이 정확해요.', '복귀·조바심', '쉬는 동안 조바심이 났어요. 천천히 일상의 속도를 되찾으세요.'],
+      ['갈등·이기고도 손해', '이겨도 남는 게 없는 다툼이 보여요. 꼭 이겨야 하는 싸움인지 따져 보세요.', '화해·후회', '다툼 뒤에 후회가 남아요. 먼저 사과하면 관계가 회복돼요.'],
+      ['이동·나아짐', '힘든 곳을 떠나 잔잔한 곳으로 가요. 상황은 천천히 나아지고 있어요.', '정체·미련', '떠나야 하는데 발이 떨어지지 않아요. 짐을 줄이면 움직일 수 있어요.'],
+      ['전략·눈치', '정면보다 꾀가 통하는 날이에요. 내 패를 다 보여 주지 마세요.', '들통·양심', '숨긴 것이 드러날 수 있어요. 솔직하게 털어놓는 편이 오히려 나아요.'],
+      ['제약·스스로 묶임', '답답한 상황에 갇힌 느낌이에요. 생각보다 매듭은 느슨하니 한 가지만 풀어 보세요.', '해방·새 관점', '스스로 묶었던 생각에서 벗어나요. 관점을 바꾸니 길이 보여요.'],
+      ['걱정·불면', '걱정이 꼬리를 물어요. 머릿속 걱정을 종이에 적으면 크기가 줄어들어요.', '불안 완화·희망', '가장 어두운 밤이 지나가요. 걱정했던 일은 생각보다 작게 끝나요.'],
+      ['바닥·완전한 끝', '더 내려갈 곳이 없는 끝이에요. 끝은 곧 새벽의 시작이에요.', '회복의 시작', '바닥을 찍고 올라오기 시작해요. 천천히 다시 일어나면 돼요.'],
+      ['관찰·호기심', '눈과 귀를 열고 정보를 모으는 날이에요. 질문이 많을수록 유리해요.', '험담·경솔함', '확인 안 된 말이 퍼지기 쉬워요. 말하기 전에 사실부터 확인하세요.'],
+      ['돌진·추진', '목표를 향해 단숨에 달려가요. 빠른 판단이 성과를 만들어요.', '무모함·충돌', '속도가 앞서 사람과 부딪혀요. 상대의 속도도 살펴 주세요.'],
+      ['냉철·독립', '감정에 휘둘리지 않는 판단력이 빛나요. 할 말은 분명하게 하세요.', '차가움·냉소', '말이 너무 차갑게 전해질 수 있어요. 한마디의 온기를 더해 보세요.'],
+      ['권위·논리', '논리와 원칙으로 문제를 풀어요. 공정한 판단이 신뢰를 얻어요.', '독선·권위 남용', '옳다는 확신이 고집이 될 수 있어요. 반대 의견에도 기회를 주세요.']
+    ],
+    [ // 펜타클 (흙)
+      ['새 기회·재물의 씨앗', '돈이나 일과 관련된 좋은 기회가 와요. 현실적인 첫 투자를 해 보세요.', '놓친 기회·낭비', '눈앞의 기회를 놓치기 쉬워요. 지출 계획부터 꼼꼼히 세우세요.'],
+      ['균형·저글링', '여러 일을 동시에 굴리는 솜씨가 좋아요. 유연하게 우선순위를 바꿔 보세요.', '과부하·우왕좌왕', '벌려 놓은 일이 많아 손이 모자라요. 하나를 내려놓아야 균형이 잡혀요.'],
+      ['협업·실력 인정', '함께 일하면 결과가 좋아요. 내 실력이 제대로 인정받는 날이에요.', '손발 안 맞음', '역할이 겹쳐 엇박자가 나요. 누가 무엇을 맡을지 먼저 정하세요.'],
+      ['저축·지킴', '모으고 지키는 힘이 강해요. 알뜰함이 안정감을 줘요.', '인색함·집착', '너무 움켜쥐면 흐름이 막혀요. 필요한 곳에는 기꺼이 쓰세요.'],
+      ['어려움·도움 요청', '형편이 빠듯하게 느껴져요. 혼자 버티지 말고 도움을 청하면 길이 있어요.', '회복·도움의 손길', '힘든 시기가 끝나 가요. 주변에서 내민 손을 잡아 보세요.'],
+      ['나눔·주고받음', '베푼 만큼 돌아오는 흐름이에요. 기분 좋게 나누면 복이 돌아와요.', '불공정한 거래', '주고받는 균형이 맞지 않아요. 조건을 분명히 하고 거래하세요.'],
+      ['인내·성장 대기', '심어 둔 것이 자라는 중이에요. 조급해하지 말고 결실을 기다리세요.', '조바심·헛수고', '결과가 안 보여 지쳤어요. 방법을 점검하고 다시 가꿔 보세요.'],
+      ['성실·기술 연마', '꾸준히 갈고닦는 노력이 실력이 돼요. 반복이 곧 경쟁력이에요.', '지루함·대충', '같은 일이 지겨워 대충하기 쉬워요. 작은 목표로 재미를 더해 보세요.'],
+      ['여유·자립', '스스로 일군 결실을 누리는 때예요. 나를 위한 작은 사치도 괜찮아요.', '과소비·의존', '보여 주기 위한 지출을 조심하세요. 자립의 기반을 먼저 다지세요.'],
+      ['부·가족의 안정', '오래 이어질 재물과 가족의 안정이 보여요. 장기적인 계획이 빛나요.', '재산 갈등', '돈 문제로 가까운 사이에 금이 갈 수 있어요. 문서와 약속을 명확히 하세요.'],
+      ['배움·성실한 시작', '새로운 공부나 실무를 배우기 좋은 날이에요. 기초부터 차근차근 쌓으세요.', '게으름·계획만', '계획만 세우고 시작을 미뤄요. 오늘 10분이라도 손을 대 보세요.'],
+      ['꾸준함·책임', '느리지만 확실하게 해내요. 맡은 일을 끝까지 책임지면 신뢰가 쌓여요.', '정체·지나친 신중', '너무 조심스러워 진도가 안 나가요. 완벽보다 완료를 목표로 하세요.'],
+      ['실속·살림', '실속 있게 챙기고 돌보는 힘이 커요. 생활의 작은 정리가 운을 높여요.', '일과 삶의 불균형', '일이나 살림 한쪽에 치우쳐 있어요. 나를 위한 시간도 챙기세요.'],
+      ['성공·풍요', '안정된 성취와 재물운이 함께해요. 쌓아 온 경험이 든든한 자산이에요.', '물질 집착·고집', '돈과 성과에만 마음이 쏠려요. 사람과의 관계도 함께 챙기세요.']
+    ]
+  ];
+  var deck = [];
+  MAJOR.forEach(function (c, i) { deck.push({ id: i, major: true, no: i, ko: c[0], en: c[1], sym: c[2], up: [c[3], c[4]], rv: [c[5], c[6]] }); });
+  SUITS.forEach(function (s, si) {
+    MINOR[si].forEach(function (c, r) {
+      deck.push({ id: deck.length, major: false, suit: si, rank: r, ko: s.ko + ' ' + RANK[r], en: RANK_E[r] + ' of ' + s.k, up: [c[0], c[1]], rv: [c[2], c[3]] });
+    });
+  });
+  window.NZ_TAROT = {
+    deck: deck, SUITS: SUITS, RANK: RANK,
+    ROMAN: ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'],
+    /* 4장 스프레드 자리 */
+    POS: [
+      { k: '지금의 나', d: '지금 내 마음과 상황' },
+      { k: '걸림돌', d: '조심하거나 넘어야 할 것' },
+      { k: '도움의 열쇠', d: '힘이 되는 태도·사람' },
+      { k: '다가올 흐름', d: '이대로 가면 펼쳐질 모습' }
+    ],
+    /* 수트별 요약 문장 (가장 많이 나온 수트) */
+    SUIT_SUM: [
+      '불의 기운(완드)이 강해요. 일과 도전에 에너지가 몰리는 시기라 먼저 움직이는 쪽이 유리해요.',
+      '물의 기운(컵)이 강해요. 마음과 관계가 중심이 되는 시기라 진심 어린 대화가 운을 열어요.',
+      '공기의 기운(소드)이 강해요. 생각이 많아지는 시기라 말과 판단을 한 번 더 다듬으면 좋아요.',
+      '흙의 기운(펜타클)이 강해요. 돈과 현실 문제가 중심이라 꼼꼼한 계획이 결실로 이어져요.'
+    ],
+    /* 생년월일 숫자를 모두 더해 1~21(22는 0 바보)로 줄인 '탄생 카드' */
+    birthCard: function (y, m, d) {
+      var s = String(y) + String(m) + String(d), n = 0, i;
+      for (i = 0; i < s.length; i++) n += +s.charAt(i);
+      while (n > 22) { var t = 0, q = String(n); for (i = 0; i < q.length; i++) t += +q.charAt(i); n = t; }
+      return n === 22 ? 0 : n;
+    }
+  };
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+  var S = window.NZ_SAJU, TA = window.NZ_TAROT, $ = function (id) { return document.getElementById(id); };
+  var WEEK = ['일', '월', '화', '수', '목', '금', '토'], MIN_D = 19360101, MAX_D = 20461231;
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function kstNow() { var k = new Date(Date.now() + 9 * 3600e3); return { y: k.getUTCFullYear(), m: k.getUTCMonth() + 1, d: k.getUTCDate(), w: WEEK[k.getUTCDay()] }; }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function toast(t) { var e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(e._t); e._t = setTimeout(function () { e.classList.remove('on'); }, 2200); }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, RM ? Math.min(ms, 30) : ms); }); }
+  function copy(t) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
+    return new Promise(function (res) { var ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, t.length); try { document.execCommand('copy'); } catch (e) {} ta.remove(); res(); });
+  }
+  function shareOrCopy(text, title) {
+    if (navigator.share) return navigator.share({ text: text, title: title }).catch(function (e) { if (e && e.name !== 'AbortError') copy(text).then(function () { toast('공유가 안 돼서 내용을 복사했어요'); }); });
+    return copy(text).then(function () { toast('내용을 복사했어요 · 카카오톡 대화창에 붙여 넣으세요'); });
+  }
+  /* 'YYYY-MM-DD' → {y,m,d} (1936-01-01 ~ 2046-12-31) */
+  function parseD(v, quiet) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v || '')) return null;
+    var a = v.split('-').map(Number), n = a[0] * 1e4 + a[1] * 100 + a[2];
+    var t = new Date(Date.UTC(a[0], a[1] - 1, a[2]));
+    if (t.getUTCMonth() !== a[1] - 1 || t.getUTCDate() !== a[2]) { if (!quiet) toast('없는 날짜예요 · 다시 확인해 주세요'); return null; }
+    if (n < MIN_D || n > MAX_D) { if (!quiet) toast('1936년 1월 1일부터 2046년 12월 31일까지 고를 수 있어요'); return null; }
+    return { y: a[0], m: a[1], d: a[2], n: n };
+  }
+
+  /* 생년월일 칸: 숫자만 쳐도 '1990-09-28' 꼴로 자동 하이픈, 8자리가 맞으면 키보드 내림. 달력 아이콘(투명 date 칸)으로 고르면 칸에 채움.
+     다른 'input' 리스너보다 먼저 등록해야 정리된 값이 넘어감 */
+  function bindDate(id) {
+    var t = $(id), p = $(id + 'Pick');
+    t.addEventListener('input', function () {
+      var d = this.value.replace(/[^0-9]/g, '').slice(0, 8);
+      var v = d.length > 6 ? d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6) : d.length > 4 ? d.slice(0, 4) + '-' + d.slice(4) : d;
+      if (v !== this.value) this.value = v;
+      if (d.length === 8 && parseD(v, true)) { p.value = v; if (!this._fromPick) this.blur(); }
+    });
+    t.addEventListener('blur', function () { var n = this.value.replace(/[^0-9]/g, '').length; if (n && n < 8) toast('생년월일 숫자 8자리로 넣어 주세요 (예: 19900928)'); });
+    t.addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); });
+    p.addEventListener('click', function () { try { if (this.showPicker) this.showPicker(); } catch (e) {} });
+    p.addEventListener('change', function () {
+      if (!this.value) return;
+      t.value = this.value; t._fromPick = true; t.dispatchEvent(new Event('input')); t.dispatchEvent(new Event('change')); t._fromPick = false;
+    });
+  }
+  bindDate('bd'); bindDate('tbd');
+
+  var T = kstNow(), TN = T.y * 1e4 + T.m * 100 + T.d, tp = S.pillars(T.y, T.m, T.d);
+  var todayHtml = T.m + '월 ' + T.d + '일 (' + T.w + ') · <b>' + S.gz(tp.di) + '</b>일 ' + S.gzK(tp.di) + '일';
+  $('gToday').innerHTML = todayHtml; $('today').innerHTML = todayHtml;
+
+  /* ================= 화면 이동 (#saju · #tarot · 대문) ================= */
+  var THEME = { gate: '#140b33', saju: '#2a1460', tarot: '#140b33' };
+  function route() {
+    var v = (location.hash || '').replace('#', '');
+    if (v !== 'saju' && v !== 'tarot') v = 'gate';
+    document.body.className = 'v-' + v; $('themeColor').setAttribute('content', THEME[v]);
+    $('gate').classList.remove('leaving'); [].forEach.call(document.querySelectorAll('.door'), function (d) { d.classList.remove('chosen'); });
+    window.scrollTo(0, 0);
+    if (v !== 'gate') carry(v);   // 주소(#saju·#tarot)로 바로 들어와도 이름·생년월일 이어받기
+    if (v === 'tarot') tarotEnter();
+    if (v === 'saju') sajuEnter();
+  }
+  /* 생년월일·이름은 두 화면이 같이 씀 */
+  function carry(to) {
+    var nm = to === 'saju' ? ['tnm', 'nm'] : ['nm', 'tnm'], bd = to === 'saju' ? ['tbd', 'bd'] : ['bd', 'tbd'];
+    if (!$(nm[1]).value && $(nm[0]).value) $(nm[1]).value = $(nm[0]).value;
+    if (!$(bd[1]).value && $(bd[0]).value) { $(bd[1]).value = $(bd[0]).value; if (parseD($(bd[1]).value, true)) $(bd[1] + 'Pick').value = $(bd[1]).value; }
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-go]'); if (!b) return;
+    var to = b.getAttribute('data-go');
+    if (b.classList.contains('door') && !RM) {
+      b.classList.add('chosen'); $('gate').classList.add('leaving');
+      setTimeout(function () { location.hash = to; }, 320);
+    } else location.hash = to === 'gate' ? '' : to;
+  });
+  window.addEventListener('hashchange', route);
+
+  /* ================= 사주 ================= */
+  var DM = ['큰 나무처럼 곧고 시작을 잘하는 사람', '풀꽃처럼 유연하고 어디서든 잘 어울리는 사람', '태양처럼 밝고 열정이 넘치는 사람', '촛불처럼 섬세하고 따뜻한 사람', '큰 산처럼 듬직하고 믿음직한 사람',
+            '너른 들처럼 포용력 있고 실속 있는 사람', '바위처럼 결단력 있고 의리 있는 사람', '보석처럼 예리하고 깔끔한 사람', '바다처럼 지혜롭고 마음이 넓은 사람', '이슬비처럼 총명하고 감성이 풍부한 사람'];
+  var st = { g: 'M', last: null };
+  function sajuEnter() { if ($('bd').value && (!st.last || st.lastDate !== $('bd').value)) run(true); }
+  $('gender').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    st.g = b.getAttribute('data-v'); [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); run(false);
+  });
+  ['input', 'change'].forEach(function (ev) { $('bd').addEventListener(ev, function () { run(true); }); });
+  $('nm').addEventListener('input', function () { if (st.last) renderWho(); });
+  $('ph').addEventListener('input', function () { var v = this.value.replace(/[^0-9]/g, '').slice(0, 11); this.value = v.length > 7 ? v.slice(0, 3) + '-' + v.slice(3, v.length - 4) + '-' + v.slice(-4) : v.length > 3 ? v.slice(0, 3) + '-' + v.slice(3) : v; });
+  function name() { return $('nm').value.trim(); }
+  function daysBetween(a, b) { return Math.round((Date.UTC(b.y, b.m - 1, b.d) - Date.UTC(a.y, a.m - 1, a.d)) / 864e5); }
+
+  function run(anim) {
+    var b = parseD($('bd').value); if (!b) return;
+    if (anim && st.lastDate === $('bd').value) anim = false;   // 사파리는 날짜 칸을 벗어날 때도 change 를 보내므로 같은 날짜면 연출 생략
+    st.lastDate = $('bd').value;
+    var p = S.pillars(b.y, b.m, b.d), f = S.fortune(b.y, b.m, b.d, st.g === 'M', T.y, T.m, T.d), du = S.daeun(p, st.g === 'M');
+    st.last = { b: b, p: p, f: f, du: du, unborn: b.n > TN, dday: daysBetween(T, b) };
+    render(anim);
+  }
+  function age(b) { return T.y - b.y - ((T.m * 100 + T.d) < (b.m * 100 + b.d) ? 1 : 0); }
+  function renderWho() {
+    var L = st.last, p = L.p, b = L.b, nm = name();
+    var tag = L.unborn ? '<small class="due">출생 예정 D-' + L.dday + '</small>' : '<small>' + (st.g === 'M' ? '남' : '여') + ' · 만 ' + age(b) + '세</small>';
+    $('who').innerHTML = '<div class="tti">' + S.ANIMAL_E[p.yb] + '</div><div><div class="nm">' + (nm ? esc(nm) : (L.unborn ? '아기' : '이름 없음')) + tag + '</div>' +
+      '<div class="bd">' + b.y + '년 ' + b.m + '월 ' + b.d + '일' + (L.unborn ? ' 출생 예정' : '생') + ' (양력) · <em>' + S.ANIMAL[p.yb] + '띠</em></div>' +
+      '<div class="gz">' + S.gz(S.gzIndex(p.ys, p.yb)) + '년 ' + S.gz(S.gzIndex(p.ms, p.mb)) + '월 ' + S.gz(p.di) + '일</div></div>';
+  }
+  function tile(lb, s, b, god, me) {
+    return '<div class="pl' + (me ? ' me' : '') + '"><span class="lb">' + lb + '</span><span class="god">' + god + '</span>' +
+      '<span class="c e' + S.stemEl(s) + '">' + S.STEM[s] + '</span><span class="c e' + S.BR_EL[b] + '">' + S.BR[b] + '</span><span class="k">' + S.STEM_K[s] + S.BR_K[b] + '</span></div>';
+  }
+  function render(anim) {
+    var L = st.last, p = L.p, f = L.f, d = p.ds;
+    renderWho();
+    $('pls').innerHTML = tile('일주', p.ds, p.db, '나 (일간)', true) + tile('월주', p.ms, p.mb, S.tenGod(d, p.ms)) + tile('년주', p.ys, p.yb, S.tenGod(d, p.ys));
+    var j = p.jieToday, bef = j && j.kst.hh * 60 + j.kst.mm <= 720, ip = j && j.name === '입춘';
+    $('warn').innerHTML = j ? '<div class="warn">' + j.name + ' 당일' + (L.unborn ? ' 출생 예정' : ' 출생') + '이에요. ' + j.name + ' 시각(' + pad(j.kst.hh) + ':' + pad(j.kst.mm) + ') ' +
+      (bef ? '전에' : '뒤에') + ' 태어나면 ' + (ip ? '띠·년주·월주' : '월주') + '가 ' + (bef ? (ip ? '앞 해' : '앞 달') : (ip ? '다음 해' : '다음 달')) + ' 기준으로 바뀌어요 (지금은 정오 출생으로 계산).</div>' : '';
+    var c = S.counts(p);
+    $('ohs').innerHTML = c.map(function (v, k) { return '<div class="oh e' + k + (v ? '' : ' zero') + '"><b>' + v + '</b><span>' + S.EL[k] + S.EL_H[k] + '</span></div>'; }).join('');
+    var mx = Math.max.apply(null, c), mn = Math.min.apply(null, c);
+    $('meDesc').innerHTML = '나를 나타내는 일간은 <b>' + S.STEM[d] + S.EL_H[S.stemEl(d)] + '</b> — ' + DM[d] + '. ' +
+      '<b>' + c.map(function (v, k) { return v === mx ? S.EL[k] : null; }).filter(Boolean).join('·') + '</b> 기운이 많고, ' +
+      (mn === 0 ? '<b>' + c.map(function (v, k) { return v === 0 ? S.EL[k] : null; }).filter(Boolean).join('·') + '</b> 기운이 비어 있어요.' : '오행이 고루 있는 편이에요.');
+    $('result').classList.toggle('is-unborn', L.unborn);
+    $('fTitle').textContent = L.unborn ? '태어날 아기의 기운' : '오늘의 운세';
+    $('tgDay').textContent = L.unborn ? 'D-' + L.dday : T.m + '/' + T.d + ' ' + S.gz(tp.di) + '일';
+    if (L.unborn) {
+      var le = c.indexOf(Math.min.apply(null, c));
+      $('unborn').innerHTML = '<span class="dd">D-' + L.dday + '</span>' + L.b.y + '년 ' + L.b.m + '월 ' + L.b.d + '일에 태어나면 <b>' + S.ANIMAL[p.yb] + '띠</b>, 일간 <b>' + S.STEM[d] + S.EL_H[S.stemEl(d)] + '</b>의 아이예요. ' +
+        DM[d] + '으로 자랄 기운이에요.<br>아직 태어나기 전이라 오늘의 운세 대신 타고난 기운을 보여 드려요. 채워 주면 좋은 기운은 <b>' + S.EL[le] + '(' + S.EL_H[le] + ')</b>이에요.';
+    }
+    var stars = ''; for (var i = 0; i < 5; i++) stars += '<i class="' + (i < f.stars ? 'on' : '') + '">★</i>';
+    $('stars').innerHTML = stars; $('head').textContent = '“' + f.head + '”';
+    $('keys').innerHTML = '<span class="god">' + f.god + '의 날</span>' + f.keys.map(function (k) { return '<span>#' + k + '</span>'; }).join('');
+    $('lines').innerHTML = [f.dayLine, f.ttiLine, f.balLine].map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+    $('meters').innerHTML = [['재물', 0], ['대화', 1], ['일', 2], ['컨디션', 3]].map(function (k) { return '<div class="m"><span>' + k[0] + '</span><span class="tr"><i data-w="' + f.scores[k[1]] + '"></i></span><b>' + f.scores[k[1]] + '</b></div>'; }).join('');
+    $('lucky').innerHTML = '<div>행운 색<b><i class="dot"></i>' + f.color + '</b></div><div>행운 숫자<b>' + f.number + '</b></div><div>행운 방향<b>' + f.direction + '</b></div>';
+    $('lucky').querySelector('.dot').style.background = f.colorHex;   // style 속성 대신 CSSOM (보안정책 CSP 대응)
+    var a = L.unborn ? -1 : age(L.b), cur = null; L.du.list.forEach(function (x) { if (x.age <= a) cur = x; });
+    $('tgDu').textContent = L.du.n + '세 시작 · ' + (L.du.fwd ? '순행' : '역행');
+    $('du').innerHTML = L.du.list.map(function (x) { return '<div class="' + (cur === x ? 'cur' : '') + '"><b>' + S.gz(x.i) + '</b>' + x.age + '세~</div>'; }).join('');
+    var R = 44, C = 2 * Math.PI * R, fg = $('ringFg');
+    fg.style.strokeDasharray = C.toFixed(1);
+    var res = $('result'), first = !res.classList.contains('on');
+    res.classList.add('on'); res.classList.toggle('anim', !!anim);
+    if (anim || first) { fg.style.transition = 'none'; fg.style.strokeDashoffset = C; void fg.getBoundingClientRect(); fg.style.transition = ''; }
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      fg.style.strokeDashoffset = (C * (1 - f.total / 100)).toFixed(1);
+      [].forEach.call(document.querySelectorAll('#meters i'), function (x) { x.style.width = x.getAttribute('data-w') + '%'; });
+    }); });
+    var n = $('scoreN'), to = f.total, t0 = performance.now();
+    if (anim || first) (function step(now) { var k = Math.min(1, (now - t0) / 900); n.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); })(t0); else n.textContent = to;
+    if (anim && first) setTimeout(function () { res.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250);
+  }
+
+  function shareText() {
+    var L = st.last, p = L.p, f = L.f, b = L.b, nm = name() || (L.unborn ? '아기' : '고객');
+    var head = '[오늘의 사주] ' + nm + '님\n' + b.y + '년 ' + b.m + '월 ' + b.d + '일' + (L.unborn ? ' 출생 예정' : '생') + '(양력) · ' + S.ANIMAL[p.yb] + '띠\n' +
+      '사주: ' + S.gz(p.di) + '일 ' + S.gz(S.gzIndex(p.ms, p.mb)) + '월 ' + S.gz(S.gzIndex(p.ys, p.yb)) + '년\n\n';
+    if (L.unborn) return head + '출생까지 D-' + L.dday + ' · 일간 ' + S.STEM[p.ds] + S.EL_H[S.stemEl(p.ds)] + ' — ' + DM[p.ds] + '\n\n재미로 보는 사주예요 :)';
+    return head + T.m + '월 ' + T.d + '일 오늘의 운세 ' + f.total + '점 ' + '★★★★★'.slice(0, f.stars) + '\n“' + f.head + '”\n· ' + f.dayLine + '\n· ' + f.ttiLine +
+      '\n행운 색 ' + f.color + ' · 숫자 ' + f.number + ' · 방향 ' + f.direction + '\n\n재미로 보는 사주예요 :)';
+  }
+  function wrapText(ctx, text, x, y, maxW, lh, maxLines) {
+    var line = '', lines = [];
+    text.split(' ').forEach(function (w) { var t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; });
+    if (line) lines.push(line);
+    lines.slice(0, maxLines).forEach(function (l, i) { ctx.fillText(l, x, y + i * lh); });
+    return Math.min(lines.length, maxLines) * lh;
+  }
+  function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  var ECOL = [['#2f9e62', '#e8f6ee'], ['#e0402f', '#fdecea'], ['#b67d00', '#fff4d6'], ['#5f6873', '#eef0f3'], ['#2b4a8b', '#e8eef9']];
+  function makeImage() {
+    var L = st.last, p = L.p, f = L.f, b = L.b, nm = name() || (L.unborn ? '아기' : '고객');
+    var W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var x = cv.getContext('2d'), SANS = '-apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif', SERIF = '"AppleMyungjo", "Noto Serif KR", "Batang", serif';
+    var g = x.createRadialGradient(W * 0.85, 0, 50, W * 0.6, H * 0.2, W); g.addColorStop(0, '#8a5cf0'); g.addColorStop(0.45, '#4b25a8'); g.addColorStop(1, '#1d0c44');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    for (var i = 0; i < 60; i++) { x.fillStyle = 'rgba(255,255,255,' + (0.2 + (i * 37 % 50) / 100) + ')'; x.beginPath(); x.arc((i * 173) % W, (i * 97) % 420, (i % 3) + 1, 0, 7); x.fill(); }
+    x.fillStyle = '#d9c8ff'; x.font = '700 30px ' + SANS; x.fillText("MeAI · TODAY'S SAJU", 72, 110);
+    x.fillStyle = '#fff'; x.font = '800 68px ' + SANS; x.fillText(nm + '님의 ' + (L.unborn ? '사주' : '오늘의 사주'), 72, 196);
+    x.fillStyle = '#e4dbff'; x.font = '600 34px ' + SANS; x.fillText(b.y + '년 ' + b.m + '월 ' + b.d + '일' + (L.unborn ? ' 출생 예정' : '생') + '(양력) · ' + S.ANIMAL[p.yb] + '띠 ' + S.ANIMAL_E[p.yb], 72, 258);
+    var cols = [['일주', p.ds, p.db], ['월주', p.ms, p.mb], ['년주', p.ys, p.yb]], cw = 260, gap = 30, sx = (W - (cw * 3 + gap * 2)) / 2;
+    cols.forEach(function (c, k) {
+      var cx = sx + k * (cw + gap); x.fillStyle = k === 0 ? '#ffffff' : 'rgba(255,255,255,.93)'; rr(x, cx, 310, cw, 330, 28); x.fill();
+      x.fillStyle = '#8a8f98'; x.font = '700 28px ' + SANS; x.textAlign = 'center'; x.fillText(c[0], cx + cw / 2, 358);
+      [[c[1], S.stemEl(c[1]), S.STEM], [c[2], S.BR_EL[c[2]], S.BR]].forEach(function (q, j) {
+        var col = ECOL[q[1]]; x.fillStyle = col[1]; rr(x, cx + 50, 380 + j * 112, cw - 100, 100, 20); x.fill();
+        x.fillStyle = col[0]; x.font = '800 70px ' + SERIF; x.fillText(q[2][q[0]], cx + cw / 2, 455 + j * 112);
+      });
+      x.fillStyle = '#4a4c50'; x.font = '700 26px ' + SANS; x.fillText(S.STEM_K[c[1]] + S.BR_K[c[2]], cx + cw / 2, 625);
+      x.textAlign = 'left';
+    });
+    x.fillStyle = '#fff'; rr(x, 60, 680, W - 120, 590, 36); x.fill();
+    if (L.unborn) {
+      x.fillStyle = '#3b1f8a'; x.font = '900 110px ' + SANS; x.fillText('D-' + L.dday, 110, 820);
+      x.fillStyle = '#1e1f20'; x.font = '800 44px ' + SANS; var h2 = wrapText(x, '일간 ' + S.STEM[p.ds] + S.EL_H[S.stemEl(p.ds)] + ' — ' + DM[p.ds], 110, 920, W - 220, 62, 3);
+      x.fillStyle = '#4a4c50'; x.font = '500 32px ' + SANS; wrapText(x, '아직 태어나기 전이라 오늘의 운세 대신 타고난 기운을 담았어요.', 110, 940 + h2, W - 220, 46, 3);
+    } else {
+      x.fillStyle = '#3b1f8a'; x.font = '900 120px ' + SANS; x.fillText(String(f.total), 110, 830);
+      var tw = x.measureText(String(f.total)).width; x.fillStyle = '#8a8f98'; x.font = '700 36px ' + SANS; x.fillText('점', 120 + tw, 830);
+      x.fillStyle = '#f2b825'; x.font = '40px ' + SANS; x.fillText('★★★★★'.slice(0, f.stars), 360, 790); x.fillStyle = '#e3e5e9'; x.fillText('★★★★★'.slice(f.stars), 360 + x.measureText('★★★★★'.slice(0, f.stars)).width, 790);
+      x.fillStyle = '#6c3fd1'; x.font = '700 30px ' + SANS; x.fillText(T.m + '월 ' + T.d + '일 ' + S.gz(tp.di) + '일 · ' + f.god + '의 날', 360, 836);
+      x.fillStyle = '#1e1f20'; x.font = '800 44px ' + SANS; var hh = wrapText(x, '“' + f.head + '”', 110, 930, W - 220, 62, 3);
+      x.fillStyle = '#4a4c50'; x.font = '500 32px ' + SANS; var yy = 930 + hh + 20;
+      yy += wrapText(x, '· ' + f.dayLine, 110, yy, W - 220, 46, 2) + 8;
+      yy += wrapText(x, '· ' + f.ttiLine, 110, yy, W - 220, 46, 2) + 16;
+      x.fillStyle = '#f3eefe'; rr(x, 110, yy, W - 220, 74, 22); x.fill();
+      x.fillStyle = f.colorHex; x.beginPath(); x.arc(150, yy + 37, 14, 0, 7); x.fill();
+      x.fillStyle = '#3b1f8a'; x.font = '700 32px ' + SANS; x.fillText('행운 색 ' + f.color + '  ·  숫자 ' + f.number + '  ·  ' + f.direction, 178, yy + 48);
+    }
+    x.fillStyle = 'rgba(255,255,255,.7)'; x.font = '500 26px ' + SANS; x.textAlign = 'center'; x.fillText('재미로 보는 사주예요 · 양력 · 한국 표준시 기준', W / 2, H - 34); x.textAlign = 'left';
+    return cv;
+  }
+  function toBlob(cv) { return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, 'image/png'); }); }
+  function ready() { if (!st.last) { toast('먼저 생년월일을 골라 주세요'); $('bd').focus(); return false; } return true; }
+  function fileName() { var b = st.last.b; return '오늘의사주_' + (name() || '고객') + '_' + b.y + pad(b.m) + pad(b.d) + '.png'; }
+  $('bKakao').addEventListener('click', function () {
+    if (!ready()) return;
+    var text = shareText();
+    toBlob(makeImage()).then(function (blob) {
+      var file = new File([blob], fileName(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) return navigator.share({ files: [file], text: text, title: '오늘의 사주' });
+      if (navigator.share) return navigator.share({ text: text, title: '오늘의 사주' });
+      return copy(text).then(function () { toast('내용을 복사했어요 · 카카오톡 대화창에 붙여 넣으세요'); });
+    }).catch(function (e) { if (e && e.name !== 'AbortError') copy(text).then(function () { toast('공유가 안 돼서 내용을 복사했어요'); }); });
+  });
+  $('bPdf').addEventListener('click', function () {
+    if (!ready()) return;
+    var nm = name() || '고객', b = st.last.b, old = document.title;
+    document.title = '오늘의사주_' + nm + '_' + b.y + pad(b.m) + pad(b.d);
+    $('result').classList.remove('anim');
+    setTimeout(function () { window.print(); setTimeout(function () { document.title = old; }, 800); }, 60);
+  });
+  $('bSms').addEventListener('click', function () {
+    if (!ready()) return;
+    var num = $('ph').value.replace(/[^0-9]/g, '');
+    if (num && !/^01[016789]\d{7,8}$/.test(num)) { toast('휴대폰 번호를 다시 확인해 주세요'); $('ph').focus(); return; }
+    var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    location.href = 'sms:' + num + (ios ? '&' : '?') + 'body=' + encodeURIComponent(shareText());
+  });
+  $('bImg').addEventListener('click', function () {
+    if (!ready()) return;
+    toBlob(makeImage()).then(function (blob) {
+      var file = new File([blob], fileName(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) return navigator.share({ files: [file] }).catch(function () {});
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
+      toast('이미지를 저장했어요');
+    });
+  });
+
+  /* ================= 타로 =================
+     흐름: 생년월일 → [카드 섞기] (가운데 더미에서 좌우로 3번 섞음) → 78장이 초승달 모양으로 펼쳐짐
+           → 한 장 누를 때마다: 바깥으로 들림 → 아래 자리(1~4)로 날아감 → 뒤집힘(역방향이면 거꾸로) → 풀이 등장
+           → 남은 카드는 빈자리를 메우며 다시 정렬 → 4장째에 종합 메시지
+     카드 배정: 섞을 때 78장 순서를 crypto 난수로 정하고, 고른 순서대로 그 순서의 카드를 엶 (매번 새로) */
+  var SUIT_SVG = [
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 21L17 3"/><path d="M15.2 6.2l2.6.8M13 10.2l2.5.9M10.8 14.2l2.4.9M14.4 5.6l-1.8-1.6M12.2 9.6l-1.9-1.5" stroke-width="1.6"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 3.5h13v3.5a6.5 6.5 0 0 1-13 0z" fill="currentColor" fill-opacity=".18"/><path d="M12 13.5v5M8 20.5h8"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l1.6 2.5v10.5h-3.2V5z" fill="currentColor" fill-opacity=".18"/><path d="M7.5 15.5h9M12 15.5v5"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5" fill="currentColor" fill-opacity=".12"/><path d="M12 4.6L16.4 18 5 9.7h14L7.6 18z" stroke-width="1.4"/></svg>'
+  ];
+  var COURT_E = ['📜', '🐎', '👸', '🤴'], RANK_S = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'P', 'Kn', 'Q', 'K'];
+  function faceHtml(c) {
+    if (c.major) return '<div class="fn">' + TA.ROMAN[c.no] + '</div><div class="fs">' + c.sym + '</div><div class="fk">' + c.ko + '</div>';
+    var s = c.suit, r = c.rank, mid;
+    if (r === 0) mid = '<div class="pips n1 s' + s + '">' + SUIT_SVG[s] + '</div>';
+    else if (r <= 9) { var n = r + 1, h = ''; for (var i = 0; i < n; i++) h += SUIT_SVG[s]; mid = '<div class="pips s' + s + (n > 6 ? ' many' : '') + '">' + h + '</div>'; }
+    else mid = '<div class="court s' + s + '">' + SUIT_SVG[s] + '<i>' + COURT_E[r - 10] + '</i></div>';
+    return '<div class="fn">' + RANK_S[r] + '</div><div class="fs">' + mid + '</div><div class="fk">' + c.ko + '</div>';
+  }
+  function miniHtml(c) { return c.major ? c.sym : '<span class="s' + c.suit + '">' + SUIT_SVG[c.suit] + '</span>'; }
+  function yeyo(w) { var c = w.charCodeAt(w.length - 1); return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 ? '이에요' : '예요'; }
+  function rnd(n) {
+    var cr = window.crypto || window.msCrypto;
+    if (cr && cr.getRandomValues) { var a = new Uint32Array(1), lim = Math.floor(4294967296 / n) * n; do { cr.getRandomValues(a); } while (a[0] >= lim); return a[0] % n; }
+    return Math.floor(Math.random() * n);
+  }
+  function shuffledOrder() { var o = [], i; for (i = 0; i < 78; i++) o.push(i); for (i = 77; i > 0; i--) { var j = rnd(i + 1), t = o[i]; o[i] = o[j]; o[j] = t; } return o; }
+
+  var TT = { phase: 'idle', cards: [], spread: [], picks: [], order: null, lock: false, G: null, built: false, birth: null };
+  var stage = $('stage');
+  function tname() { return $('tnm').value.trim(); }
+
+  function buildStage() {
+    var h = '', i;
+    for (i = 0; i < 4; i++) h += '<div class="t-slot" id="slot' + i + '"><span class="no">' + (i + 1) + '</span></div><div class="t-slab" id="slab' + i + '">' + TA.POS[i].k + '<em></em></div>';
+    h += '<div class="t-msg" id="tmsg"></div>';
+    for (i = 0; i < 78; i++) h += '<div class="tc" data-i="' + i + '"><div class="in"><div class="bk"></div><div class="fc"></div></div></div>';
+    stage.innerHTML = h;
+    TT.cards = [].slice.call(stage.querySelectorAll('.tc'));
+    TT.built = true;
+  }
+  /* 무대 크기에 맞춰 초승달·자리 좌표 계산 */
+  function geom() {
+    var W = stage.clientWidth, sw = Math.min(92, Math.floor((W - 24 - 30) / 4)), sh = Math.round(sw * 1.66);
+    var k0 = 0.54, smin = 0.4, amax = 74 * Math.PI / 180, Lt = sh * k0 * smin;
+    var R = Math.max(90, (W / 2 - 8) / Math.sin(amax) - Lt);
+    var cy = R + sh * k0 + 16, slotsY = Math.round(cy - R * Math.cos(amax) + 24), gap = Math.round((W - 24 - sw * 4) / 3);
+    var G = { W: W, sw: sw, sh: sh, k0: k0, smin: smin, amax: amax, R: R, cy: cy, slotsY: slotsY, gap: gap, H: slotsY + sh + 36 };
+    stage.style.height = G.H + 'px'; stage.style.setProperty('--sw', sw + 'px');
+    TT.cards.forEach(function (el) { el.style.width = sw + 'px'; el.style.height = sh + 'px'; });
+    for (var i = 0; i < 4; i++) {
+      var sx = 12 + i * (sw + gap), s = $('slot' + i), l = $('slab' + i);
+      s.style.cssText = 'left:' + sx + 'px;top:' + slotsY + 'px;width:' + sw + 'px;height:' + sh + 'px';
+      l.style.cssText = 'left:' + (sx - 10) + 'px;width:' + (sw + 20) + 'px;top:' + (slotsY + sh + 6) + 'px';
+    }
+    var m = $('tmsg'); m.style.top = Math.round(cy - R + sh * 0.22) + 'px';
+    TT.G = G; return G;
+  }
+  function setT(el, p) { el._p = p; el.style.transform = 'translate(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px) rotate(' + p.r.toFixed(2) + 'deg) scale(' + p.s.toFixed(3) + ')'; }
+  /* 초승달: 원호를 따라 놓되 가운데는 크고 양 끝은 작게 → 바깥 테두리가 가늘어지는 초승달 실루엣 */
+  function spreadPos(i, n) {
+    var G = TT.G, t = n <= 1 ? 0.5 : i / (n - 1), a = -G.amax + 2 * G.amax * t, s = G.smin + (1 - G.smin) * Math.sin(Math.PI * t);
+    var L = G.sh * G.k0 * s, r = G.R + L / 2;
+    return { x: G.W / 2 + r * Math.sin(a) - G.sw / 2, y: G.cy - r * Math.cos(a) - G.sh / 2, r: a * 180 / Math.PI, s: G.k0 * s };
+  }
+  function stackPos(i) { var G = TT.G; return { x: G.W / 2 - G.sw / 2, y: G.cy - G.R * 0.62 - G.sh / 2 - i * 0.18, r: (i % 5 - 2) * 0.6, s: G.k0 * 1.35 }; }
+  function slotPos(k) { var G = TT.G; return { x: 12 + k * (G.sw + G.gap), y: G.slotsY, r: 0, s: 1 }; }
+  function msg(html, top) { var m = $('tmsg'); m.innerHTML = html; m.style.opacity = html ? 1 : 0; }
+  function counter() { return '<span class="cnt">' + TT.picks.length + ' / 4</span>'; }
+
+  function tarotEnter() {
+    if (!TT.built) { buildStage(); geom(); TT.cards.forEach(function (el, i) { el.style.transition = 'none'; setT(el, stackPos(i)); }); void stage.offsetWidth; TT.cards.forEach(function (el) { el.style.transition = ''; }); idleMsg(); }
+    else relayout();
+    tBirthUpdate();
+  }
+  function idleMsg() { msg(''); }
+  function relayout() {
+    if (!TT.built) return;
+    geom();
+    TT.cards.forEach(function (el) { el.style.transition = 'none'; });
+    if (TT.phase === 'idle' || TT.phase === 'shuffling') TT.cards.forEach(function (el, i) { setT(el, stackPos(i)); });
+    else { TT.spread.forEach(function (el, i) { setT(el, spreadPos(i, TT.spread.length)); }); TT.picks.forEach(function (p, k) { setT(p.el, slotPos(k)); }); }
+    void stage.offsetWidth; TT.cards.forEach(function (el) { el.style.transition = ''; });
+  }
+  var rzT; window.addEventListener('resize', function () { clearTimeout(rzT); rzT = setTimeout(function () { if (document.body.className === 'v-tarot' && TT.G && stage.clientWidth !== TT.G.W) relayout(); }, 120); });
+
+  function tBirthUpdate() {
+    var b = parseD($('tbd').value, true), go = $('tGo');
+    if (!b) { $('tBirth').classList.remove('on'); TT.birth = null; if (TT.phase === 'idle') { go.disabled = true; go.textContent = '생년월일을 넣어 주세요'; } return; }
+    var n = TA.birthCard(b.y, b.m, b.d), c = TA.deck[n]; TT.birth = n;
+    $('tBirth').innerHTML = '<span class="bc"><small>' + TA.ROMAN[n] + '</small>' + c.sym + '</span><span>나의 탄생 카드는 <b>' + TA.ROMAN[n] + ' ' + c.ko + '</b>' + yeyo(c.ko) + ' · ' + c.up[0] + '</span>';
+    $('tBirth').classList.add('on');
+    if (TT.phase === 'idle') { go.disabled = false; go.textContent = '카드 섞기'; }
+  }
+  ['input', 'change'].forEach(function (ev) { $('tbd').addEventListener(ev, function () { if (/^\d{4}-\d{2}-\d{2}$/.test(this.value)) parseD(this.value); tBirthUpdate(); }); });
+
+  $('tGo').addEventListener('click', function () {
+    if (!TT.birth && TT.birth !== 0) { toast('먼저 생년월일을 넣어 주세요'); return; }
+    if (TT.phase === 'idle') shuffle();
+    else if (TT.phase === 'done' || TT.phase === 'spread') resetAndShuffle();
+  });
+
+  async function shuffle() {
+    if (TT.lock) return; TT.lock = true; TT.phase = 'shuffling';
+    var go = $('tGo'); go.disabled = true; go.textContent = '카드를 섞는 중…';
+    msg('');
+    stage.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' });
+    TT.order = shuffledOrder(); TT.picks = [];
+    var G = TT.G, cards = TT.cards;
+    for (var round = 0; round < 3; round++) {
+      cards.forEach(function (el, i) {
+        var side = ((i + round) % 2) ? 1 : -1, b = stackPos(i);
+        el.style.transitionDuration = '.24s'; el.style.transitionDelay = (i % 13) * 6 + 'ms';
+        setT(el, { x: b.x + side * G.sw * 0.62, y: b.y - (i % 9) * 1.2, r: side * 9, s: b.s });
+      });
+      await wait(320);
+      cards.forEach(function (el, i) { setT(el, stackPos(i)); });
+      await wait(300);
+    }
+    /* 초승달로 펼치기 (왼쪽 끝부터 차례로) */
+    TT.spread = cards.slice();
+    cards.forEach(function (el, i) { el.style.transitionDuration = '.7s'; el.style.transitionDelay = (i * 9) + 'ms'; setT(el, spreadPos(i, 78)); });
+    await wait(720 + 78 * 9);
+    cards.forEach(function (el) { el.style.transitionDuration = ''; el.style.transitionDelay = ''; el.classList.add('sp'); });
+    TT.phase = 'spread'; TT.lock = false;
+    go.disabled = false; go.textContent = '다시 섞기';
+    msg('<b>마음속 질문을 떠올리고</b><span>끌리는 카드 4장을 차례로 눌러 주세요</span>' + counter());
+  }
+
+  stage.addEventListener('click', function (e) {
+    var el = e.target.closest('.tc'); if (!el) return;
+    if (el.classList.contains('picked')) { var k = +el.getAttribute('data-k'), r = $('trd' + k); if (r) { r.scrollIntoView({ behavior: 'smooth', block: 'center' }); r.classList.add('hl'); setTimeout(function () { r.classList.remove('hl'); }, 1200); } return; }
+    if (TT.phase === 'spread' && el.classList.contains('sp')) pick(el);
+    else if (TT.phase === 'idle' && !TT.lock) { if (TT.birth == null) { toast('먼저 생년월일을 넣어 주세요'); $('tbd').focus(); } else shuffle(); }
+  });
+
+  async function pick(el) {
+    if (TT.lock || TT.picks.length >= 4) return;
+    TT.lock = true;
+    var k = TT.picks.length, card = TA.deck[TT.order[k]], rev = rnd(2) === 1;
+    TT.spread.splice(TT.spread.indexOf(el), 1);
+    el.classList.remove('sp'); el.classList.add('picked'); el.setAttribute('data-k', k); el.style.zIndex = 300 + k;
+    var fc = el.querySelector('.fc'); fc.innerHTML = faceHtml(card); fc.classList.toggle('rv', rev);
+    /* ① 바깥으로 쏙 들림 */
+    var p = el._p, a = p.r * Math.PI / 180;
+    el.style.transitionDuration = '.22s';
+    setT(el, { x: p.x + 34 * Math.sin(a), y: p.y - 34 * Math.cos(a), r: p.r, s: p.s * 1.3 });
+    await wait(230);
+    /* ② 남은 카드가 빈자리를 메우고, 고른 카드는 자리로 날아감 */
+    TT.spread.forEach(function (c, i) { setT(c, spreadPos(i, TT.spread.length)); });
+    el.style.transitionDuration = '.62s';
+    setT(el, slotPos(k));
+    await wait(640);
+    /* ③ 뒤집기 */
+    el.classList.add('flip');
+    await wait(560);
+    el.style.transitionDuration = '';
+    el.classList.add('glow'); setTimeout(function () { el.classList.remove('glow'); }, 900);
+    var sl = $('slab' + k); sl.querySelector('em').textContent = rev ? '역방향' : '정방향'; sl.querySelector('em').className = rev ? 'rv' : 'up'; sl.classList.add('on');
+    TT.picks.push({ el: el, card: card, rev: rev });
+    addReading(k);
+    TT.lock = false;
+    if (TT.picks.length === 4) finish();
+    else msg('<b>' + ['', '좋아요, 두 번째 카드를', '세 번째 카드를', '마지막 한 장을'][TT.picks.length] + '</b><span>' + TA.POS[TT.picks.length].k + ' · ' + TA.POS[TT.picks.length].d + '</span>' + counter());
+  }
+
+  function addReading(k) {
+    var P = TT.picks[k], c = P.card, txt = P.rev ? c.rv : c.up, pos = TA.POS[k];
+    var nm = (c.major ? TA.ROMAN[c.no] + ' ' : '') + c.ko;
+    var div = document.createElement('article'); div.className = 'trd'; div.id = 'trd' + k;
+    div.innerHTML = '<div class="trd-h"><span class="n">' + (k + 1) + '</span><b>' + pos.k + '</b> · ' + pos.d + '</div>' +
+      '<div class="trd-b"><div class="trd-mini' + (P.rev ? ' rv' : '') + '">' + miniHtml(c) + '</div><div>' +
+      '<div class="trd-nm">' + nm + '<small>' + c.en + '</small><span class="ori ' + (P.rev ? 'rv' : 'up') + '">' + (P.rev ? '역방향' : '정방향') + '</span></div>' +
+      '<div class="trd-kw">' + txt[0].split('·').map(function (w) { return '#' + w; }).join(' ') + '</div><p>' + txt[1] + '</p></div></div>';
+    $('reads').appendChild(div);
+  }
+
+  function summary() {
+    var P = TT.picks, majors = P.filter(function (p) { return p.card.major; }), revs = P.filter(function (p) { return p.rev; }).length;
+    var sc = [0, 0, 0, 0]; P.forEach(function (p) { if (!p.card.major) sc[p.card.suit]++; });
+    var top = sc.indexOf(Math.max.apply(null, sc)), lines = [];
+    if (majors.length >= 2) lines.push('메이저 카드가 ' + majors.length + '장이나 나왔어요. 오늘 일어나는 일은 생각보다 오래, 크게 영향을 줄 수 있어요.');
+    else if (majors.length === 1) { var mj = majors[0]; lines.push('오늘의 중심은 메이저 카드 <b>「' + mj.card.ko + '」</b>. ' + (mj.rev ? '「' + mj.card.rv[0].split('·')[0] + '」 쪽으로 기울지 않게 조심하세요.' : '「' + mj.card.up[0].split('·')[0] + '」의 기운을 믿고 움직이세요.')); }
+    else lines.push('모두 마이너 카드예요. 큰 사건보다 일상의 작은 선택이 쌓여 흐름을 만드는 날이에요.');
+    if (sc[top] >= 2) lines.push(TA.SUIT_SUM[top]);
+    lines.push(revs === 0 ? '모든 카드가 정방향이에요. 막힘 없이 흐르는 기운이니 망설이지 말고 움직이세요.' : revs <= 2 ? '역방향이 ' + revs + '장 있어요. 살짝 엇박자가 나는 부분만 점검하면 충분해요.' : '역방향이 ' + revs + '장이에요. 속도를 늦추고 한 번 돌아보면 오히려 길이 보여요.');
+    var bc = TA.deck[TT.birth], hit = P.some(function (p) { return p.card.id === TT.birth; });
+    lines.push(hit ? '<b>탄생 카드 ' + bc.ko + '</b>가 직접 나왔어요! 오늘은 나다움이 가장 큰 무기예요.' : '나의 탄생 카드 <b>' + TA.ROMAN[TT.birth] + ' ' + bc.ko + '</b>의 힘(' + bc.up[0] + ')을 떠올리면 도움이 돼요.');
+    var key = P[2].rev ? P[2].card.rv[0] : P[2].card.up[0], flow = P[3].rev ? P[3].card.rv[0] : P[3].card.up[0];
+    var one = (P[2].rev ? '「' + key.split('·')[0] + '」에 귀 기울이면, ' : '「' + key.split('·')[0] + '」의 힘을 빌리면, ') +
+      (P[3].rev ? '「' + flow.split('·')[0] + '」의 신호를 살필수록 흐름이 풀려요.' : '「' + flow.split('·')[0] + '」의 흐름이 다가와요.');
+    var tags = P.map(function (p) { return (p.rev ? p.card.rv[0] : p.card.up[0]).split('·')[0]; });
+    return { lines: lines, one: one, tags: tags };
+  }
+  function finish() {
+    TT.phase = 'done';
+    TT.spread.forEach(function (el) { el.classList.remove('sp'); el.classList.add('dim'); });
+    msg('<b>오늘의 카드 4장이 모두 열렸어요</b><span>카드를 누르면 풀이로 이동해요</span>');
+    var S2 = summary(), nm = tname();
+    $('tsum').innerHTML = '<h3>' + (nm ? esc(nm) + '님의 ' : '') + '오늘의 타로 메시지</h3><p class="one">' + S2.one + '</p><div class="tags">' + S2.tags.map(function (t) { return '<span>#' + t + '</span>'; }).join('') + '</div>' +
+      '<ul>' + S2.lines.map(function (l) { return '<li>' + l + '</li>'; }).join('') + '</ul>' +
+      '<div class="t-btns"><button type="button" class="btn again" id="tAgain">다시 뽑기</button><button type="button" class="btn kakao" id="tShare">카톡으로 보내기</button><button type="button" class="btn timg" id="tImg">이미지로 저장</button></div>' +
+      '<p class="t-hint">카톡으로 보내기 → 공유 창에서 <b>카카오톡</b>을 고르면 카드 4장과 점괘가 담긴 이미지가 함께 가요.</p>';
+    $('tsum').classList.add('on');
+    $('tAgain').addEventListener('click', resetAndShuffle);
+    $('tShare').addEventListener('click', function () { shareTarot(S2, true); });
+    $('tImg').addEventListener('click', function () { shareTarot(S2, false); });
+    $('tGo').textContent = '다시 뽑기';
+    setTimeout(function () { $('tsum').scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'start' }); }, 500);
+  }
+  /* ---------- 타로 결과 이미지 (카드 4장 + 점괘) ----------
+     그림 파일을 불러오지 않고 캔버스에 직접 그림 → 오프라인·보안정책(CSP)에서도 동작, 캔버스 오염 없음 */
+  var SUIT_PATH = [   // [SVG path(24칸 기준), 채움 투명도(null=안 채움), 선 굵기]
+    [['M7 21L17 3', null, 2.2], ['M15.2 6.2l2.6.8M13 10.2l2.5.9M10.8 14.2l2.4.9M14.4 5.6l-1.8-1.6M12.2 9.6l-1.9-1.5', null, 1.6]],
+    [['M5.5 3.5h13v3.5a6.5 6.5 0 0 1-13 0z', .18, 2], ['M12 13.5v5M8 20.5h8', null, 2]],
+    [['M12 2.5l1.6 2.5v10.5h-3.2V5z', .18, 2], ['M7.5 15.5h9M12 15.5v5', null, 2]],
+    [['M21.5 12a9.5 9.5 0 1 1-19 0a9.5 9.5 0 1 1 19 0z', .12, 1.8], ['M12 4.6L16.4 18 5 9.7h14L7.6 18z', null, 1.4]]
+  ];
+  var SUIT_HEX = ['#d4572a', '#2f6bd1', '#56637a', '#a8820f'];
+  var EMOJI = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+  function drawSuit(x, suit, cx, cy, size) {
+    var k = size / 24; x.save(); x.translate(cx - size / 2, cy - size / 2); x.scale(k, k);
+    x.strokeStyle = SUIT_HEX[suit]; x.fillStyle = SUIT_HEX[suit]; x.lineCap = 'round'; x.lineJoin = 'round';
+    SUIT_PATH[suit].forEach(function (q) {
+      var path = new Path2D(q[0]);
+      if (q[1] != null) { x.globalAlpha = q[1]; x.fill(path); x.globalAlpha = 1; }
+      x.lineWidth = q[2]; x.stroke(path);
+    });
+    x.restore();
+  }
+  function drawFace(x, c, rev, X, Y, w, h) {
+    var SANS = '-apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif', SERIF = '"AppleMyungjo", "Noto Serif KR", "Batang", serif';
+    x.save(); x.translate(X + w / 2, Y + h / 2); if (rev) x.rotate(Math.PI); x.translate(-w / 2, -h / 2);
+    x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 24; x.shadowOffsetY = 8;
+    var g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#f4e9cf');
+    x.fillStyle = g; rr(x, 0, 0, w, h, 18); x.fill(); x.shadowColor = 'transparent';
+    x.strokeStyle = 'rgba(184,145,63,.75)'; x.lineWidth = 2.5; rr(x, 9, 9, w - 18, h - 18, 12); x.stroke();
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillStyle = '#b8913f'; x.font = '800 30px ' + SERIF; x.fillText(c.major ? TA.ROMAN[c.no] : RANK_S[c.rank], w / 2, 40);
+    x.fillStyle = '#3b2a10'; x.font = '800 25px ' + SANS; x.fillText(c.ko, w / 2, h - 36);
+    var top = 66, bot = h - 62, mh = bot - top, cy = top + mh / 2;
+    if (c.major) { x.font = '104px ' + EMOJI; x.fillText(c.sym, w / 2, cy + 4); }
+    else if (c.rank === 0) drawSuit(x, c.suit, w / 2, cy, 120);
+    else if (c.rank <= 9) {
+      var n = c.rank + 1, cols = n <= 4 ? 2 : 3, rows = Math.ceil(n / cols), sz = Math.min(54, (mh - 10) / rows, (w - 40) / cols), i = 0;
+      for (var r = 0; r < rows; r++) {
+        var inRow = Math.min(cols, n - r * cols), ry = cy - (rows - 1) * sz / 2 + r * sz;
+        for (var j = 0; j < inRow; j++, i++) drawSuit(x, c.suit, w / 2 - (inRow - 1) * sz / 2 + j * sz, ry, sz * 0.9);
+      }
+    } else { drawSuit(x, c.suit, w / 2, cy - 6, 112); x.font = '46px ' + EMOJI; x.fillText(COURT_E[c.rank - 10], w / 2 + 52, cy + 44); }
+    x.restore(); x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  }
+  function makeTarotImage(S2, H) {   // H 없이 부르면 한 번 그려 본 뒤 내용 길이에 맞춰 다시 그림
+    if (!H) H = makeTarotImage(S2, 2400).end + 96;
+    var W = 1080, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var x = cv.getContext('2d'), SANS = '-apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif', SERIF = '"AppleMyungjo", "Noto Serif KR", "Batang", serif';
+    var nm = tname() || '고객', i;
+    var g = x.createRadialGradient(W / 2, 0, 40, W / 2, H * 0.3, H); g.addColorStop(0, '#3a2391'); g.addColorStop(0.45, '#1d1247'); g.addColorStop(1, '#0e0826');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    for (i = 0; i < 70; i++) { x.fillStyle = 'rgba(255,255,255,' + (0.15 + (i * 37 % 50) / 100) + ')'; x.beginPath(); x.arc((i * 173) % W, (i * 97) % 300 + (i % 4) * 140, (i % 3) * 0.8 + 0.8, 0, 7); x.fill(); }
+    x.textAlign = 'center';
+    x.fillStyle = '#e8c77a'; x.font = '700 28px ' + SANS; x.fillText('MeAI · TAROT', W / 2, 88);
+    x.fillStyle = '#fff'; x.font = '800 58px ' + SERIF; x.fillText(nm + '님의 오늘의 타로', W / 2, 164);
+    var bc = TA.deck[TT.birth];
+    x.fillStyle = '#cfc4f5'; x.font = '600 28px ' + SANS; x.fillText(T.y + '년 ' + T.m + '월 ' + T.d + '일 (' + T.w + ') · 탄생 카드 ' + TA.ROMAN[TT.birth] + ' ' + bc.ko, W / 2, 214);
+    /* 카드 4장 */
+    var cw = 216, ch = 358, gap = 26, sx = (W - cw * 4 - gap * 3) / 2, cyTop = 262;
+    TT.picks.forEach(function (P, k) {
+      var X = sx + k * (cw + gap);
+      drawFace(x, P.card, P.rev, X, cyTop, cw, ch);
+      x.textAlign = 'center'; x.fillStyle = '#e8e1ff'; x.font = '700 26px ' + SANS; x.fillText((k + 1) + ' ' + TA.POS[k].k, X + cw / 2, cyTop + ch + 44);
+      x.fillStyle = P.rev ? '#ff9e9e' : '#8fe0b0'; x.font = '800 24px ' + SANS; x.fillText(P.rev ? '역방향' : '정방향', X + cw / 2, cyTop + ch + 78);
+    });
+    /* 점괘 */
+    var py = cyTop + ch + 112;
+    x.fillStyle = 'rgba(255,255,255,.07)'; rr(x, 50, py, W - 100, H - py - 96, 32); x.fill();
+    x.strokeStyle = 'rgba(232,199,122,.35)'; x.lineWidth = 2; rr(x, 50, py, W - 100, H - py - 96, 32); x.stroke();
+    x.textAlign = 'left'; x.fillStyle = '#e8c77a'; x.font = '800 36px ' + SANS;
+    var y = py + 66; y += wrapText(x, '✦ ' + S2.one, 92, y, W - 184, 50, 2) + 18;
+    TT.picks.forEach(function (P, k) {
+      var c = P.card, txt = P.rev ? c.rv : c.up;
+      x.fillStyle = '#e8c77a'; x.beginPath(); x.arc(108, y - 10, 19, 0, 7); x.fill();
+      x.fillStyle = '#2a1d00'; x.font = '900 24px ' + SANS; x.textAlign = 'center'; x.fillText(String(k + 1), 108, y - 1); x.textAlign = 'left';
+      x.fillStyle = '#fff'; x.font = '800 31px ' + SANS; x.fillText(TA.POS[k].k + ' · ' + (c.major ? TA.ROMAN[c.no] + ' ' : '') + c.ko + (P.rev ? ' (역)' : ''), 142, y);
+      x.fillStyle = '#d8d0f5'; x.font = '500 28px ' + SANS;
+      y += 44 + wrapText(x, txt[1], 142, y + 44, W - 234, 40, 2) + 18;
+    });
+    x.textAlign = 'center'; x.fillStyle = 'rgba(214,202,255,.6)'; x.font = '500 24px ' + SANS;
+    x.fillText('재미로 보는 타로예요 · 메이저 22장 + 마이너 56장 · 매번 새로 섞어요', W / 2, H - 40);
+    cv.end = y + 4; return cv;
+  }
+  function shareTarot(S2, kakao) {
+    var text = tarotText(S2), fname = '오늘의타로_' + (tname() || '고객') + '_' + T.y + pad(T.m) + pad(T.d) + '.png';
+    toBlob(makeTarotImage(S2)).then(function (blob) {
+      var file = new File([blob], fname, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) return navigator.share(kakao ? { files: [file], text: text, title: '오늘의 타로' } : { files: [file] });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; document.body.appendChild(a); a.click(); a.remove();
+      if (kakao) return copy(text).then(function () { toast('이미지를 저장하고 글을 복사했어요 · 카톡에 이미지와 함께 붙여 넣으세요'); });
+      toast('이미지를 저장했어요');
+    }).catch(function (e) { if (e && e.name !== 'AbortError') copy(text).then(function () { toast('공유가 안 돼서 내용을 복사했어요'); }); });
+  }
+  function tarotText(S2) {
+    var nm = tname() || '고객', t = '[오늘의 타로] ' + nm + '님 · ' + T.m + '월 ' + T.d + '일\n\n';
+    TT.picks.forEach(function (p, k) { var c = p.card; t += (k + 1) + '. ' + TA.POS[k].k + ' — ' + (c.major ? TA.ROMAN[c.no] + ' ' : '') + c.ko + ' (' + (p.rev ? '역방향' : '정방향') + ')\n   ' + (p.rev ? c.rv[1] : c.up[1]) + '\n'; });
+    return t + '\n✦ ' + S2.one + '\n\n재미로 보는 타로예요 :)';
+  }
+  async function resetAndShuffle() {
+    if (TT.lock) return; TT.lock = true;
+    $('tsum').classList.remove('on'); $('reads').innerHTML = '';
+    for (var i = 0; i < 4; i++) { $('slab' + i).classList.remove('on'); }
+    TT.picks.forEach(function (p) { p.el.classList.remove('flip'); });
+    await wait(TT.picks.length ? 450 : 0);
+    TT.cards.forEach(function (el, i) { el.classList.remove('sp', 'picked', 'dim', 'glow'); el.style.zIndex = ''; el.removeAttribute('data-k'); el.style.transitionDuration = '.5s'; setT(el, stackPos(i)); });
+    await wait(520);
+    TT.cards.forEach(function (el) { el.style.transitionDuration = ''; el.querySelector('.fc').innerHTML = ''; });
+    TT.picks = []; TT.phase = 'idle'; TT.lock = false;
+    shuffle();
+  }
+
+  route();
+})();
+</script>
+</body>
+</html>
