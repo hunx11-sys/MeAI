@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:P;font-weight:900;src:url(../promo_15s/Pretendard-Black.woff2) format('woff2')}
+@font-face{font-family:P;font-weight:800;src:url(../promo_shared/Pretendard-ExtraBold.woff2) format('woff2')}
+html,body{margin:0;background:#000}
+canvas{display:block}
+</style></head><body>
+<canvas id="v" width="1920" height="1080"></canvas>
+<script>
+// 운전자보험 「변호사 현물지원」 액션 광고 18초 (1920×1080) — render(t) 한 번에 한 장면을 그린다.
+// 장면 : 1 출발 준비(0~4) · 2 첫 증서 벽 돌파(4~8) · 3 두 번째 벽 돌파(8~12) · 4 최종 증서 앞 주차 + 따봉(12~18)
+// 운전자는 실존 인물이 아닌 가상 인물(각진 턱 · 올백 머리 · 왼쪽 눈썹 흉터 · 선글라스)이다.
+const W=1920,H=1080,GROUND=905,END=18;
+const WALLS=[
+  {lines:['변호사를','직접 찾아야 하는','운전자보험'],gold:false},
+  {lines:['변호사를','서울에서만 보내주는','운전자보험'],gold:false},
+  {lines:['변호사를','전국 어디든 지원해주는','메리츠화재 운전자보험'],gold:true},
+];
+const cv=document.getElementById('v'),c=cv.getContext('2d');
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const eo=k=>1-Math.pow(1-cl(k),3), ei=k=>Math.pow(cl(k),2), eio=k=>{k=cl(k);return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2};
+const back=k=>{k=cl(k);const s=1.9;return 1+(s+1)*Math.pow(k-1,3)+s*Math.pow(k-1,2)};
+function rnd(i){const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)}
+
+// ---------- 증서 벽 (미리 그려 둔다) ----------
+function makeWall(spec){
+  const w=760,h=860,o=document.createElement('canvas');o.width=w;o.height=h;const g=o.getContext('2d');
+  const bg=g.createLinearGradient(0,0,w,h);
+  if(spec.gold){bg.addColorStop(0,'#fff6d8');bg.addColorStop(.5,'#ffe9a8');bg.addColorStop(1,'#f6d27a')}
+  else{bg.addColorStop(0,'#f4efe4');bg.addColorStop(1,'#ddd5c4')}
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  for(let i=0;i<2600;i++){g.fillStyle=`rgba(90,70,40,${rnd(i)*.06})`;g.fillRect(rnd(i+9)*w,rnd(i+77)*h,2,2)}
+  const bc=spec.gold?'#b8860b':'#6b7a8f';
+  g.strokeStyle=bc;g.lineWidth=14;g.strokeRect(22,22,w-44,h-44);
+  g.lineWidth=3;g.strokeRect(46,46,w-92,h-92);
+  for(let i=0;i<40;i++){const x=60+i*(w-120)/39;g.beginPath();g.arc(x,46,6,0,Math.PI);g.stroke();g.beginPath();g.arc(x,h-46,6,Math.PI,0);g.stroke()}
+  g.textAlign='center';g.textBaseline='middle';
+  g.fillStyle=spec.gold?'#7a4f00':'#3b4656';g.font='900 64px P';g.fillText('보  험  증  서',w/2,140);
+  g.fillRect(170,190,w-340,4);
+  const col=spec.gold?'#0b2a5b':'#2a2f38';
+  const sz=[96,spec.lines[1].length>9?68:80,spec.gold?66:92];
+  let y=330;
+  spec.lines.forEach((t,i)=>{g.font=`900 ${sz[i]}px P`;
+    if(spec.gold&&i===2){g.fillStyle='#d0021b'}else g.fillStyle=col;
+    g.fillText(t,w/2,y);y+=sz[i]*1.35});
+  // 아래 칸 줄
+  g.fillStyle=spec.gold?'rgba(122,79,0,.35)':'rgba(60,70,86,.3)';
+  for(let i=0;i<3;i++)g.fillRect(110,620+i*44,w-360,6);
+  // 도장
+  g.save();g.translate(w-150,h-160);g.rotate(-.2);
+  g.strokeStyle='#d0021b';g.lineWidth=10;g.beginPath();g.arc(0,0,78,0,7);g.stroke();
+  g.lineWidth=4;g.beginPath();g.arc(0,0,62,0,7);g.stroke();
+  g.fillStyle='#d0021b';g.font='900 40px P';g.fillText(spec.gold?'보장':'확인',0,-14);g.font='900 30px P';g.fillText(spec.gold?'전국':'필',0,26);g.restore();
+  return o;
+}
+let WALLC=[];
+// 조각 (돌파 때 날아가는 종잇조각)
+function pieces(seed){const P=[],cols=7,rows=8;
+  for(let r=0;r<rows;r++)for(let q=0;q<cols;q++){const i=seed*1000+r*cols+q;
+    P.push({sx:q*760/cols,sy:r*860/rows,sw:760/cols,sh:860/rows,
+      vx:500+rnd(i)*1500,vy:-700+rnd(i+1)*900-(rows-r)*40,vr:(rnd(i+2)-.5)*14,cx:rnd(i+3)})}
+  return P}
+const PIECES=[pieces(1),pieces(2)];
+
+// ---------- 배경 ----------
+function sky(){
+  const g=c.createLinearGradient(0,0,0,GROUND);
+  g.addColorStop(0,'#26333f');g.addColorStop(.45,'#55606a');g.addColorStop(.8,'#a0704a');g.addColorStop(1,'#c9763c');
+  c.fillStyle=g;c.fillRect(-400,-400,W+800,GROUND+400);
+}
+function clouds(t,scroll){
+  for(let i=0;i<14;i++){const x=((rnd(i)*2400-scroll*.15+t*20)%2600+2600)%2600-400,y=rnd(i+30)*300-60,r=120+rnd(i+60)*180;
+    const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(30,38,48,.55)');g.addColorStop(1,'rgba(30,38,48,0)');
+    c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill()}
+}
+function smoke(t,scroll,side){ // 붉은 연기 · 불길
+  const bx=side*W*.8+W*.1;
+  for(let i=0;i<26;i++){const ph=(t*.08+rnd(i))%1,x=bx+(rnd(i+5)-.5)*900-scroll*.3+ph*120,y=GROUND-60-ph*620-rnd(i+8)*80,r=140+ph*260;
+    const g=c.createRadialGradient(x,y,0,x,y,r);const a=.55*(1-ph)+.1;
+    g.addColorStop(0,`rgba(225,40,35,${a})`);g.addColorStop(.6,`rgba(170,20,25,${a*.6})`);g.addColorStop(1,'rgba(150,10,20,0)');
+    c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill()}
+  const fl=.75+.25*Math.sin(t*23)*Math.sin(t*7.3);
+  const fx=bx-260-scroll*.3,g=c.createRadialGradient(fx,GROUND-120,0,fx,GROUND-120,520*fl);
+  g.addColorStop(0,'rgba(255,230,150,.95)');g.addColorStop(.25,'rgba(255,150,40,.8)');g.addColorStop(.6,'rgba(220,70,20,.35)');g.addColorStop(1,'rgba(200,40,10,0)');
+  c.fillStyle=g;c.beginPath();c.arc(fx,GROUND-120,520*fl,0,7);c.fill();
+}
+function ground(scroll){
+  const g=c.createLinearGradient(0,GROUND-10,0,H);g.addColorStop(0,'#6e5a46');g.addColorStop(1,'#2e241c');
+  c.fillStyle=g;c.fillRect(-400,GROUND-12,W+800,H-GROUND+412);
+  c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=3;
+  for(let i=0;i<30;i++){const x=((i*140-scroll)%4200+4200)%4200-300;c.beginPath();c.moveTo(x,GROUND+40);c.lineTo(x-90,GROUND+46);c.stroke()}
+  c.fillStyle='rgba(0,0,0,.12)';
+  for(let i=0;i<60;i++){const x=((rnd(i)*4200-scroll)%4200+4200)%4200-300;c.fillRect(x,GROUND+20+rnd(i+3)*150,6+rnd(i+4)*20,3)}
+}
+function crowd(t,scroll){ // 멀리서 달려오는 정장 무리
+  for(let i=0;i<16;i++){const x=((rnd(i+90)*1900-scroll*.5-t*30)%2200+2200)%2200-150,y=GROUND-30+rnd(i+91)*14,s=.55+rnd(i+92)*.2,ph=t*9+i;
+    c.save();c.translate(x,y);c.scale(s,s);c.fillStyle='#14161b';
+    c.fillRect(-14,-110,28,62);c.beginPath();c.arc(0,-124,13,0,7);c.fill();
+    c.save();c.translate(-6,-50);c.rotate(Math.sin(ph)*.5);c.fillRect(-5,0,10,50);c.restore();
+    c.save();c.translate(6,-50);c.rotate(-Math.sin(ph)*.5);c.fillRect(-5,0,10,50);c.restore();
+    c.fillStyle='#e9e9e9';c.fillRect(-4,-108,8,20);c.restore()}
+  for(let i=0;i<3;i++){const x=((300+i*720-scroll*.5)%2400+2400)%2400-200,y=GROUND-18; // 경찰차 실루엣
+    c.fillStyle='#1d2430';c.beginPath();c.roundRect(x,y-60,190,46,10);c.fill();c.beginPath();c.roundRect(x+40,y-92,100,40,10);c.fill();
+    const bl=Math.sin(t*14+i)>0;c.fillStyle=bl?'#ff2a2a':'#2a6bff';c.shadowColor=c.fillStyle;c.shadowBlur=30;c.fillRect(x+75,y-102,30,10);c.shadowBlur=0}
+}
+function sparks(t,n=70){
+  for(let i=0;i<n;i++){const ph=(t*(.25+rnd(i)*.35)+rnd(i+1))%1,x=rnd(i+2)*W+Math.sin(t+i)*30,y=H-ph*H*1.1;
+    c.fillStyle=`rgba(255,${150+rnd(i+3)*90|0},60,${(1-ph)*.9})`;c.fillRect(x,y,3+rnd(i+4)*4,8+rnd(i+5)*14)}
+}
+function backdrop(t,scroll){sky();clouds(t,scroll);smoke(t,scroll,1);crowd(t,scroll);ground(scroll)}
+
+// ---------- 자동차 + 운전자 ----------
+function bodyPath(){c.beginPath();
+  c.moveTo(-385,-62);c.lineTo(-392,-150);c.quadraticCurveTo(-380,-190,-330,-196);c.lineTo(-170,-208);
+  c.quadraticCurveTo(-120,-292,-70,-300);c.lineTo(70,-302);c.quadraticCurveTo(110,-298,190,-218);
+  c.lineTo(350,-196);c.quadraticCurveTo(392,-186,398,-150);c.lineTo(400,-78);c.quadraticCurveTo(398,-60,380,-58);c.closePath()}
+function winPath(nb){if(!nb)c.beginPath();c.moveTo(-150,-212);c.quadraticCurveTo(-110,-280,-68,-286);c.lineTo(62,-288);c.quadraticCurveTo(98,-284,168,-216);c.closePath()}
+function wheel(x,spin){
+  c.save();c.translate(x,-72);
+  c.fillStyle='#111';c.beginPath();c.arc(0,0,74,0,7);c.fill();
+  c.fillStyle='#9aa3ad';c.beginPath();c.arc(0,0,44,0,7);c.fill();
+  c.rotate(spin);c.strokeStyle='#4b525a';c.lineWidth=7;
+  for(let i=0;i<6;i++){c.rotate(Math.PI/3);c.beginPath();c.moveTo(0,0);c.lineTo(40,0);c.stroke()}
+  c.fillStyle='#2b2f34';c.beginPath();c.arc(0,0,12,0,7);c.fill();c.restore();
+}
+function driverSide(){ // 옆모습(오른쪽을 본다)
+  c.fillStyle='#0d0f12';c.beginPath();c.moveTo(-40,-200);c.quadraticCurveTo(-30,-238,10,-240);c.quadraticCurveTo(52,-236,58,-200);c.fill(); // 어깨
+  c.fillStyle='#fff';c.beginPath();c.moveTo(22,-236);c.lineTo(36,-214);c.lineTo(46,-236);c.fill();
+  c.fillStyle='#c98d6a';c.fillRect(14,-256,26,22); // 목
+  c.beginPath();c.ellipse(28,-282,30,36,0,0,7);c.fill(); // 머리
+  c.beginPath();c.moveTo(52,-290);c.lineTo(66,-272);c.lineTo(54,-266);c.fill(); // 코
+  c.fillStyle='#b77a58';c.beginPath();c.moveTo(10,-252);c.quadraticCurveTo(40,-244,60,-260);c.lineTo(56,-252);c.quadraticCurveTo(36,-238,10,-246);c.fill(); // 턱선
+  c.fillStyle='#0b0b0c';c.beginPath();c.moveTo(-4,-280);c.quadraticCurveTo(-6,-322,30,-320);c.quadraticCurveTo(58,-318,56,-298);c.quadraticCurveTo(30,-306,6,-292);c.fill(); // 올백 머리
+  c.fillStyle='#16191d';c.fillRect(24,-292,36,14);c.fillStyle='#3a4450';c.fillRect(30,-290,26,4); // 선글라스
+  c.fillStyle='#16191d';c.fillRect(0,-289,26,4);
+  c.fillStyle='#a8714f';c.beginPath();c.ellipse(10,-282,7,11,0,0,7);c.fill(); // 귀
+}
+function passenger(){ // 조수석 여성(뒤쪽, 어둡게) — 운전자 쪽으로 기대어 손을 잡는다
+  c.fillStyle='#1d1416';c.beginPath();c.ellipse(-62,-262,30,36,0,0,7);c.fill();
+  c.beginPath();c.moveTo(-92,-262);c.quadraticCurveTo(-100,-212,-80,-200);c.lineTo(-40,-200);c.quadraticCurveTo(-30,-230,-36,-262);c.fill();
+  c.fillStyle='#8c5a46';c.beginPath();c.ellipse(-48,-262,16,24,0,0,7);c.fill();
+  c.fillStyle='#5a1f2c';c.beginPath();c.moveTo(-100,-200);c.quadraticCurveTo(-70,-226,-30,-210);c.lineTo(-20,-200);c.fill();
+}
+function hands(){ // 맞잡은 두 손(대시보드 위)
+  c.fillStyle='#c98d6a';c.beginPath();c.ellipse(-14,-220,20,11,.2,0,7);c.fill();
+  c.fillStyle='#e0a98a';c.beginPath();c.ellipse(-26,-224,16,9,-.3,0,7);c.fill();
+}
+function driverTurn(k){ // 몸을 돌려 카메라를 보고 따봉
+  c.save();c.translate(20,0);
+  c.fillStyle='#0d0f12';c.beginPath();c.moveTo(-60,-196);c.quadraticCurveTo(-50,-246,0,-248);c.quadraticCurveTo(50,-246,60,-196);c.fill();
+  c.fillStyle='#fff';c.beginPath();c.moveTo(-16,-246);c.lineTo(0,-212);c.lineTo(16,-246);c.fill();
+  c.fillStyle='#111';c.beginPath();c.moveTo(-6,-244);c.lineTo(6,-244);c.lineTo(8,-206);c.lineTo(0,-198);c.lineTo(-8,-206);c.fill();
+  c.fillStyle='#c98d6a';c.fillRect(-14,-262,28,20);
+  c.beginPath();c.moveTo(-32,-300);c.quadraticCurveTo(-34,-262,-16,-250);c.lineTo(16,-250);c.quadraticCurveTo(34,-262,32,-300);c.quadraticCurveTo(32,-330,0,-332);c.quadraticCurveTo(-32,-330,-32,-300);c.fill();
+  c.fillStyle='#b77a58';c.beginPath();c.ellipse(-33,-292,6,10,0,0,7);c.ellipse(33,-292,6,10,0,0,7);c.fill();
+  c.fillStyle='#0b0b0c';c.beginPath();c.moveTo(-33,-302);c.quadraticCurveTo(-36,-344,0,-344);c.quadraticCurveTo(36,-344,33,-302);c.quadraticCurveTo(10,-326,-33,-302);c.fill();
+  c.fillStyle='#15181c';c.beginPath();c.ellipse(-14,-298,13,9,0,0,7);c.ellipse(14,-298,13,9,0,0,7);c.fill();c.fillRect(-4,-301,8,3);
+  c.fillStyle='rgba(255,255,255,.5)';c.fillRect(-20,-302,6,3);c.fillRect(8,-302,6,3);
+  c.fillStyle='#6b2a22';c.beginPath();c.moveTo(-10,-268);c.quadraticCurveTo(0,-262,12,-270);c.quadraticCurveTo(2,-264,-10,-268);c.fill(); // 씩 웃음
+  c.strokeStyle='#8a5a40';c.lineWidth=2;c.beginPath();c.moveTo(-24,-310);c.lineTo(-16,-306);c.stroke(); // 눈썹 흉터
+  c.restore();
+}
+function thumbArm(k){ // 창밖으로 내민 팔 + 엄지
+  const a=eo(k);c.save();c.translate(60,-232);c.rotate(lerp(.9,-.25,back(k)));
+  c.fillStyle='#0d0f12';c.beginPath();c.roundRect(0,-22,lerp(40,190,a),44,18);c.fill();
+  const L=lerp(40,190,a);c.fillStyle='#fff';c.fillRect(L-14,-22,14,44);
+  c.translate(L+6,0);c.rotate(.25);
+  c.fillStyle='#c98d6a';c.beginPath();c.roundRect(0,-34,58,66,18);c.fill();
+  c.beginPath();c.roundRect(14,-92,24,70,12);c.fill();
+  c.strokeStyle='#9c6a4d';c.lineWidth=3;for(let i=0;i<3;i++){c.beginPath();c.moveTo(40,-18+i*17);c.lineTo(58,-18+i*17);c.stroke()}
+  c.restore();
+}
+function car(o){ // o : x, y, s(배율), spin, blur, turn(0~1 따봉), pass(조수석)
+  c.save();c.translate(o.x,o.y);c.scale(o.s,o.s);
+  c.fillStyle='rgba(0,0,0,.45)';c.beginPath();c.ellipse(0,-6,430,26,0,0,7);c.fill();
+  const g=c.createLinearGradient(0,-300,0,-60);g.addColorStop(0,'#5aa6ff');g.addColorStop(.35,'#1f6fe0');g.addColorStop(.75,'#134c9e');g.addColorStop(1,'#0b2c5c');
+  // 실내(창 안)
+  winPath();c.fillStyle='#232a33';c.fill();
+  c.save();winPath();c.clip();
+  if(o.pass)passenger();
+  if(o.turn>0)driverTurn(o.turn);else driverSide();
+  if(o.pass&&o.hold)hands();
+  c.fillStyle='#111';c.save();c.translate(96,-232);c.rotate(.5);c.fillRect(-4,-30,8,60);c.restore(); // 핸들
+  c.fillStyle='rgba(160,200,255,.12)';c.fill();c.restore();
+  // 차체
+  c.save();bodyPath();c.clip();
+  c.beginPath();c.rect(-420,-320,840,330);winPath(true);c.clip('evenodd');
+  c.fillStyle=g;c.fillRect(-420,-320,840,330);
+  c.fillStyle='rgba(255,255,255,.22)';c.beginPath();c.moveTo(-370,-175);c.lineTo(370,-170);c.lineTo(370,-160);c.lineTo(-370,-165);c.fill(); // 반사광
+  c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=3;c.beginPath();c.moveTo(-160,-205);c.lineTo(-150,-80);c.moveTo(150,-210);c.lineTo(160,-80);c.stroke(); // 문 선
+  c.fillStyle='#c0c7cf';c.fillRect(110,-160,30,6); // 손잡이
+  c.fillStyle='#0b1a33';c.beginPath();c.arc(-240,-60,92,Math.PI,0);c.arc(250,-60,92,Math.PI,0);c.fill(); // 휠 아치
+  c.fillStyle='#ff8a00';c.fillRect(352,-150,40,18); // 방향등
+  c.fillStyle='#fff6c8';c.beginPath();c.ellipse(388,-168,10,14,0,0,7);c.fill(); // 전조등
+  c.fillStyle='#d0021b';c.fillRect(-392,-160,16,26); // 미등
+  c.restore();
+  c.strokeStyle='#08214a';c.lineWidth=4;bodyPath();c.stroke();
+  // 창틀 · 범퍼
+  c.strokeStyle='#c9d1da';c.lineWidth=6;winPath();c.stroke();
+  c.fillStyle='#c9d1da';c.fillRect(-400,-82,90,12);c.fillRect(320,-82,86,12);
+  // 사이드미러
+  c.fillStyle='#134c9e';c.beginPath();c.roundRect(170,-238,46,26,8);c.fill();
+  wheel(-240,o.spin);wheel(250,o.spin);
+  if(o.turn>0)thumbArm(o.turn);
+  c.restore();
+}
+function exhaust(x,y,s,t,amt){for(let i=0;i<8;i++){const ph=(t*2.2+i/8)%1,px=x-ph*260*s,py=y-ph*60*s,r=(20+ph*70)*s;
+  c.fillStyle=`rgba(200,200,205,${(1-ph)*.35*amt})`;c.beginPath();c.arc(px,py,r,0,7);c.fill()}}
+function speedLines(t,amt,dir=1){if(amt<=0)return;c.strokeStyle=`rgba(255,255,255,${.35*amt})`;c.lineWidth=3;
+  for(let i=0;i<40;i++){const y=rnd(i)*H*.9,x=((rnd(i+1)*W-dir*t*3200)%(W+600)+W+600)%(W+600)-300,l=200+rnd(i+2)*400;
+    c.beginPath();c.moveTo(x,y);c.lineTo(x+l*dir,y);c.stroke()}}
+
+// ---------- 썸네일 글씨 ----------
+function brush(x,y,w,h,seed){c.save();c.fillStyle='rgba(200,10,20,.9)';c.beginPath();c.moveTo(x-w/2,y);
+  for(let i=0;i<=20;i++){c.lineTo(x-w/2+w*i/20,y-h/2+rnd(seed+i)*h*.25)}
+  for(let i=20;i>=0;i--){c.lineTo(x-w/2+w*i/20+(rnd(seed+i+40)-.5)*40,y+h/2-rnd(seed+i+60)*h*.25)}c.fill();
+  c.fillStyle='rgba(255,60,30,.55)';for(let i=0;i<14;i++){c.fillRect(x-w/2+rnd(seed+i+80)*w,y-h/2-10+rnd(seed+i+90)*h,40+rnd(seed+i)*120,4)}c.restore()}
+function title(str,x,y,size,kind,a=1,sc=1,rot=-.04){
+  c.save();c.globalAlpha=a;c.translate(x,y);c.rotate(rot);c.scale(sc,sc);c.font=`900 ${size}px P`;c.textAlign='center';c.textBaseline='middle';
+  c.lineJoin='round';c.strokeStyle='#1a0505';c.lineWidth=size*.22;c.strokeText(str,0,0);
+  c.strokeStyle='#ff2a1a';c.lineWidth=size*.1;c.strokeText(str,0,0);
+  let f;if(kind==='y'){f=c.createLinearGradient(0,-size/2,0,size/2);f.addColorStop(0,'#fff59a');f.addColorStop(.45,'#ffd21a');f.addColorStop(1,'#ff7a00')}
+  else{f=c.createLinearGradient(0,-size/2,0,size/2);f.addColorStop(0,'#ffffff');f.addColorStop(1,'#cfd6dd')}
+  c.fillStyle=f;c.fillText(str,0,0);c.restore()}
+function flash(a){if(a<=0)return;c.fillStyle=`rgba(255,250,235,${a})`;c.fillRect(0,0,W,H)}
+function vignette(){const g=c.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,H*1.05);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.6)');c.fillStyle=g;c.fillRect(0,0,W,H)}
+function grade(){c.fillStyle='rgba(0,60,90,.08)';c.globalCompositeOperation='multiply';c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over'}
+function letterbox(){c.fillStyle='#000';c.fillRect(0,0,W,46);c.fillRect(0,H-46,W,46)}
+
+// ---------- 장면 ----------
+function scene1(u){ // 0~4초 : 손 잡고 탑승, 엔진 공회전, 카메라 밀고 들어가기
+  const z=lerp(1,1.22,eio(u/3.6)),rev=u>1.4?1:0,sh=rev*(u>2.6?6:3);
+  c.save();c.translate(W/2,H*.62);c.scale(z,z);c.translate(-W/2+Math.sin(u*60)*sh,-H*.62+Math.cos(u*53)*sh*.6);
+  backdrop(u,0);
+  const launch=ei((u-3.3)/.7);
+  speedLines(u,launch);
+  exhaust(W/2-430*1.05+launch*1400,GROUND-60,1.05,u,rev?1:.4);
+  car({x:W/2+launch*1500,y:GROUND+4,s:1.05,spin:launch*30,turn:0,pass:true,hold:u<3.2});
+  c.restore();
+  sparks(u,50);grade();vignette();
+  title('변호사 현물지원담보',W/2,170,118,'w',cl(u/.25),lerp(1.6,1,back(u/.35)));
+  if(u>.45){brush(W/2,330,1180,150,7);title('조기 판매종료 예상',W/2,330,128,'y',cl((u-.45)/.2),lerp(1.8,1,back((u-.45)/.35)),-.03)}
+  flash(cl(1-(u/.15))*.8);
+}
+function crashScene(u,idx){ // 4~8초 · 8~12초 : 증서 벽 돌파
+  const Ti=idx===0?2.4:2.2,warp=u<Ti?u:u<Ti+.6?Ti+.25*(u-Ti):Ti+.15+(u-Ti-.6);
+  const x0=idx===0?300:150,xi=740,acc=idx===0?1.3:1.05;
+  const k=(warp-acc)/(Ti-acc);
+  let cx=warp<acc?x0+Math.sin(warp*30)*2:warp<Ti?x0+(xi-x0)*ei(k):xi+(2*(xi-x0)/(Ti-acc))*(warp-Ti);
+  const s=.9,wallX=xi+390*s+10,since=warp-Ti;
+  const tilt=idx===1?-.035:0,zoom=idx===1?1.08:1;
+  const shake=since>0?Math.max(0,1-since*1.2)*(idx===1?26:18):(warp>acc?4:1);
+  const scroll=warp>acc?(cx-x0)*.2:0;
+  c.save();c.translate(W/2,H/2);c.rotate(tilt);c.scale(zoom,zoom);c.translate(-W/2+Math.sin(u*71)*shake,-H/2+Math.cos(u*67)*shake);
+  backdrop(u+idx*4,scroll);
+  // 벽
+  const img=WALLC[idx],wy=GROUND-860;
+  if(since<0){
+    const app=eo(u/.45);c.save();c.translate(wallX+380,GROUND);c.scale(1,lerp(.02,1,app));c.translate(-380,-860);
+    c.fillStyle='rgba(0,0,0,.4)';c.fillRect(20,840,760,30);c.drawImage(img,0,0);c.restore();
+    // 벽 앞 흙먼지
+    if(warp>acc){c.fillStyle='rgba(200,170,130,.25)';c.beginPath();c.ellipse(cx-300,GROUND-10,200*(warp-acc),40,0,0,7);c.fill()}
+  }else{
+    const P=PIECES[idx],dt=since*(idx===1?1.25:1);
+    for(const p of P){const px=wallX+p.sx+p.vx*dt*(.6+p.cx*.6),py=wy+p.sy+p.vy*dt+900*dt*dt,r=p.vr*dt;
+      c.save();c.translate(px+p.sw/2,py+p.sh/2);c.rotate(r);c.globalAlpha=cl(1.6-dt*.5);
+      c.drawImage(img,p.sx,p.sy,p.sw,p.sh,-p.sw/2,-p.sh/2,p.sw,p.sh);c.restore()}
+    // 종이 부스러기 · 불꽃
+    for(let i=0;i<140;i++){const a=rnd(i+idx*500)*Math.PI*1.4-Math.PI*.9,v=300+rnd(i+7)*1600,px=wallX+60+Math.cos(a)*v*dt,py=GROUND-300+Math.sin(a)*v*dt+700*dt*dt;
+      c.globalAlpha=cl(1-dt*.6);c.fillStyle=i%3?'#f2ead8':'#ffb030';c.save();c.translate(px,py);c.rotate(dt*10+i);c.fillRect(-6,-4,12+rnd(i)*10,8);c.restore()}
+    c.globalAlpha=1;
+    const dg=c.createRadialGradient(wallX,GROUND-200,0,wallX,GROUND-200,600*cl(dt*2));dg.addColorStop(0,'rgba(230,210,180,.5)');dg.addColorStop(1,'rgba(230,210,180,0)');
+    c.fillStyle=dg;c.fillRect(0,0,W,H);
+  }
+  const mv=warp>acc;
+  if(mv){for(let g=3;g>0;g--){c.globalAlpha=.12;car({x:cx-g*40,y:GROUND+4,s,spin:warp*30,turn:0,pass:true});}c.globalAlpha=1}
+  exhaust(cx-390*s,GROUND-55,s,u,mv?1:.6);
+  car({x:cx,y:GROUND+4,s,spin:warp*(mv?40:2),turn:0,pass:true});
+  speedLines(u,mv?cl((warp-acc)*1.5):0);
+  c.restore();
+  sparks(u+idx,since>0?120:40);grade();vignette();
+  // 큰 자막(벽 문구 강조) — 돌파 전
+  if(since<0&&u>.35){const a=cl((u-.35)/.2)*cl((Ti-.15-warp)/.2);
+    c.save();c.globalAlpha=a;c.fillStyle='rgba(0,0,0,.55)';c.fillRect(0,H-210,W,150);c.restore();
+    title(WALLS[idx].lines.join(' '),W/2,H-135,74,'w',a,lerp(1.25,1,eo((u-.35)/.3)),0)}
+  if(since>0&&since<.9){title(idx===0?'쾅!':'콰광!',W*.72,H*.28,220,'y',cl((.9-since)/.3),lerp(2,1,back(since/.25)),-.12)}
+  flash(since>0?cl(1-since/.18)*.9:0);
+  if(u<.12)flash((1-u/.12)*.5);
+}
+function scene4(u){ // 12~18초 : 최종 증서 앞 주차, 뒤돌아 따봉
+  const x0=-500,xs=640,cx=u<2?lerp(x0,xs,eo(u/2)):xs,s=.95,stop=u>2;
+  const z=lerp(1.12,1,eo(u/2.2)),wallX=1080;
+  c.save();c.translate(W/2,H*.7);c.scale(z,z);c.translate(-W/2,-H*.7);
+  backdrop(u+8,cx*.15);
+  // 후광
+  const halo=c.createRadialGradient(wallX+380,GROUND-430,0,wallX+380,GROUND-430,700);
+  halo.addColorStop(0,`rgba(255,220,120,${.55+.1*Math.sin(u*4)})`);halo.addColorStop(1,'rgba(255,200,80,0)');c.fillStyle=halo;c.fillRect(0,0,W,H);
+  c.save();c.translate(wallX,GROUND-860);c.fillStyle='rgba(0,0,0,.4)';c.fillRect(20,840,760,30);c.drawImage(WALLC[2],0,0);
+  // 반짝이
+  for(let i=0;i<10;i++){const ph=(u*.7+rnd(i+300))%1,x=rnd(i+301)*760,y=rnd(i+302)*860;c.globalAlpha=Math.sin(ph*Math.PI);c.fillStyle='#fff';
+    c.save();c.translate(x,y);c.rotate(Math.PI/4);c.fillRect(-3,-18,6,36);c.fillRect(-18,-3,36,6);c.restore()}
+  c.restore();c.globalAlpha=1;
+  if(!stop){c.fillStyle='rgba(200,170,130,.3)';c.beginPath();c.ellipse(cx-200,GROUND-8,240,36,0,0,7);c.fill()}
+  else{const d=cl((u-2)/.8);c.fillStyle=`rgba(200,170,130,${.35*(1-d)})`;c.beginPath();c.ellipse(cx+80,GROUND-10,300+d*200,50,0,0,7);c.fill()}
+  const turn=u>2.5?cl((u-2.5)/.6):0;
+  car({x:cx,y:GROUND+4+(u>2&&u<2.3?Math.sin((u-2)*30)*3:0),s,spin:u<2?(eo(u/2)*30):30,turn,pass:true});
+  c.restore();
+  sparks(u+20,40);grade();vignette();
+  if(turn>=1&&u<3.3){const a=cl((3.3-u)/.2);c.save();c.globalAlpha=a*.85;c.fillStyle='#fff';
+    for(let i=0;i<12;i++){c.save();c.translate(cx*1+ (60+120)*s,GROUND-440);c.rotate(i*Math.PI/6);c.fillRect(70,-4,60,8);c.restore()}c.restore()}
+  // 마지막 증서 문구 크게
+  if(u>.6&&u<3.6){const a=cl((u-.6)/.25)*cl((3.6-u)/.25);
+    c.save();c.globalAlpha=a;c.fillStyle='rgba(0,0,0,.55)';c.fillRect(0,H-220,W,170);c.restore();
+    title('변호사를 전국 어디든 지원해주는',W/2,H-170,60,'w',a,1,0);title('메리츠화재 운전자보험',W/2,H-95,74,'y',a,1,0)}
+  // 엔딩 문구
+  if(u>3.4){const k=u-3.4;
+    c.fillStyle=`rgba(0,0,0,${cl(k/.4)*.35})`;c.fillRect(0,0,W,H);
+    title('삼성전자 말고',W*.36,H*.62,124,'w',cl(k/.15),lerp(1.8,1,back(k/.3)),-.05);
+    if(k>.35){brush(W/2,H*.8,1500,190,33);title('운전자 빨리 갈아타!',W/2,H*.8,170,'y',cl((k-.35)/.15),lerp(2,1,back((k-.35)/.3)),-.04)}
+    flash(k<.35?0:cl(1-(k-.35)/.15)*.6);
+  }
+  if(u<.1)flash((1-u/.1)*.6);
+  if(u>END-12-.5)c.fillStyle=`rgba(0,0,0,${cl((u-(END-12-.5))/.5)})`,c.fillRect(0,0,W,H);
+}
+function render(t){
+  c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);
+  if(t<4)scene1(t);else if(t<8)crashScene(t-4,0);else if(t<12)crashScene(t-8,1);else scene4(t-12);
+  letterbox();
+}
+window.ready=document.fonts.load('900 40px P').then(()=>document.fonts.ready).then(()=>{WALLC=WALLS.map(makeWall);render(0);return true});
+</script></body></html>
