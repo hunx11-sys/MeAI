@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko" data-asset-base="../../ui/">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
+<title>MeAI 홈 넛지 v5 · 개발 연습 화면</title>
+<link rel="stylesheet" href="sandbox.css">
+<link rel="stylesheet" href="../src/nudge/nudge.css">
+</head>
+<body>
+<!-- 개발 연습 화면 : 원본 홈 없이 넛지 모듈만 붙여 보는 곳. 인라인 스크립트 · style 속성 0 (가장 엄격한 CSP 에서 동작 확인용) -->
+<div class="page">
+  <header class="hdr">
+    <div class="logo"><b>meritz</b><i></i>MeAI <span class="tag">넛지 v5 연습 화면</span></div>
+    <div class="right"><div id="nz-slot-cap"></div><button type="button" class="ob" data-host="consent">고객 동의</button><button type="button" class="ob" data-host="board">게시판</button></div>
+  </header>
+  <section class="greet">
+    <h1><em>최현아</em>님 안녕하세요, 무엇을 도와드릴까요?</h1>
+    <div id="nz-slot-buddy"></div>
+    <div id="nz-slot-dock"></div>
+    <div class="cards"><button type="button" class="c" data-host="general"><b>일반대화</b><span>약관, 보장내용, 상담 포인트를 확인할 수 있어요</span></button><button type="button" class="c dark" data-host="custom"><b>맞춤대화</b><span>고객의 보장 내역을 기반으로 맞춤형 답변을 받을 수 있어요</span></button></div>
+  </section>
+  <section class="reco">
+    <h2>오늘의 추천 고객 <span id="nz-slot-rechint"></span></h2>
+    <div class="grid">
+      <article data-nz-reco="c-501" data-name="김민수" data-tags="age_up"><h3>김민수 <small>52세 · 보유</small></h3><p>상령일이 2주 남았고 암진단비가 1천만원뿐입니다.</p><div class="row"><span class="cs">사전조회동의 필요</span><span data-nz-badge></span></div><div class="acts"><button type="button" data-open-reco>고객 열기</button><button type="button" data-chat>맞춤대화 시작</button></div></article>
+      <article data-nz-reco="c-502" data-name="정재민"><h3>정재민 <small>56세 · 보유</small></h3><p>암진단비는 있지만 표적항암 치료비가 비어 있습니다.</p><div class="row"><span class="cs">사전조회동의 D-12</span><span data-nz-badge></span></div><div class="acts"><button type="button" data-open-reco>고객 열기</button><button type="button" data-chat>맞춤대화 시작</button></div></article>
+      <article data-nz-reco="c-503" data-name="서은아"><h3>서은아 <small>58세 · 보유</small></h3><p>보상 완료 후 후속 상담이 없었습니다.</p><div class="row"><span class="cs">사전조회동의 D-7</span><span data-nz-badge></span></div><div class="acts"><button type="button" data-open-reco>고객 열기</button><button type="button" data-chat>맞춤대화 시작</button></div></article>
+    </div>
+  </section>
+  <section class="log"><h2>보낸 이벤트 <small>MeAINudge.report(…) 와 화면 사용 기록</small></h2><ol id="evlog"></ol></section>
+</div>
+<script src="../src/core/rules.js"></script>
+<script src="../src/api/mock.js"></script>
+<script src="../src/api/client.js"></script>
+<script src="../src/nudge/core.js"></script>
+<script src="../src/nudge/fx.js"></script>
+<script src="../src/nudge/ui.js"></script>
+<script src="../src/nudge/cards.js"></script>
+<script src="../src/nudge/talks.js"></script>
+<script src="../src/nudge/dash.js"></script>
+<script src="../src/nudge/index.js"></script>
+<script src="../src/host/simple-host.js"></script>
+<script src="sandbox-boot.js"></script>
+</body>
+</html>

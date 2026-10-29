@@ -1,0 +1,131 @@
+{
+  "$comment": "MeAI 홈 넛지 v5 운영 설정. 서버가 이 값을 읽어 규칙 엔진(src/core/rules.js)에 넘긴다. 보상 · 한도 · 경품은 확정 전 예시(가정값)이며, 바꿀 때 코드 수정 없이 이 파일만 고친다.",
+  "version": "5.0.0",
+  "labels": {
+    "lotto": "MeAI 로또",
+    "lottoAlt": "MeAI 행운번호",
+    "useAltLottoName": false,
+    "ticket": "커피 응모권",
+    "shield": "보호권"
+  },
+  "rewards": {
+    "attend": { "ticket": 1 },
+    "perfectWeek": { "ticket": 3 },
+    "quizCorrect": { "ticket": 1 },
+    "talkCopy": { "ticket": 1 },
+    "dailyMission": { "need": 3, "ticket": 1 },
+    "allClear": { "need": 5, "ticket": 2 }
+  },
+  "xp": {
+    "attend": 10,
+    "quiz.answer": 10,
+    "quizCorrectBonus": 5,
+    "quiz.explained": 0,
+    "talk.copy": 15,
+    "reco.open": 20,
+    "chat.custom": 30,
+    "chat.general": 5,
+    "notice.read": 5,
+    "consent.request": 20,
+    "cheer.send": 2,
+    "fortune.send": 5,
+    "dash.open": 0,
+    "questClear": 5
+  },
+  "xpDailyCount": {
+    "reco.open": 10,
+    "chat.custom": 10,
+    "chat.general": 5,
+    "notice.read": 3,
+    "consent.request": 5,
+    "cheer.send": 3,
+    "fortune.send": 3
+  },
+  "pass": [
+    { "xp": 100, "reward": { "ticket": 1 }, "label": "응모권 +1" },
+    { "xp": 250, "reward": { "shield": 1 }, "label": "보호권 +1" },
+    { "xp": 450, "reward": { "ticket": 2 }, "label": "응모권 +2" },
+    { "xp": 700, "reward": { "frame": "gold" }, "label": "골드 테두리" },
+    { "xp": 1000, "reward": { "ticket": 3, "frame": "mvp" }, "label": "응모권 +3 · 이번 주 MVP" }
+  ],
+  "streak": {
+    "litBy": ["attend", "reco.open", "chat.custom", "chat.general"],
+    "milestones": [5, 10, 20, 30, 50, 100],
+    "shieldsPerMonth": 2,
+    "shieldMax": 3,
+    "riskFrom": "16:00"
+  },
+  "quests": {
+    "attend":      { "title": "출석 도장 찍기",            "ring": "come",  "on": ["attend"],          "target": 1, "go": "attend" },
+    "quiz":        { "title": "오늘의 퀴즈 풀기",          "ring": "learn", "on": ["quiz"],            "target": 1, "go": "quiz", "note": "틀려도 해설을 읽으면 인정" },
+    "reco_open":   { "title": "추천 고객 1명 열기",        "ring": "sell",  "on": ["reco.open"],       "target": 1, "go": "reco" },
+    "notice_read": { "title": "새 공지 1건 읽기",          "ring": "learn", "on": ["notice.read"],     "target": 1, "go": "board" },
+    "talk_copy":   { "title": "오늘의 화법 따라 쓰기",     "ring": "learn", "on": ["talk.copy"],       "target": 1, "go": "talk" },
+    "chat_custom": { "title": "맞춤대화 1회 하기",         "ring": "sell",  "on": ["chat.custom"],     "target": 1, "go": "custom" },
+    "age_up_3":    { "title": "상령일 임박 고객 3명 열기", "ring": "sell",  "on": ["reco.open"],       "target": 3, "tag": "age_up", "go": "reco" },
+    "consent_req": { "title": "사전조회동의 요청 1건",     "ring": "sell",  "on": ["consent.request"], "target": 1, "go": "consent" },
+    "fortune_send":{ "title": "고객에게 운세 링크 보내기", "ring": "sell",  "on": ["fortune.send"],    "target": 1, "go": "fortune" }
+  },
+  "questSchedule": {
+    "default": ["attend", "quiz", "reco_open", "notice_read", "talk_copy"],
+    "2026-10-30": ["attend", "quiz", "chat_custom", "consent_req", "talk_copy"]
+  },
+  "rings": {
+    "come":  { "label": "오기",     "color": "#E1262C" },
+    "learn": { "label": "배우기",   "color": "#3B66E0" },
+    "sell":  { "label": "영업하기", "color": "#119C6B" }
+  },
+  "lotto": {
+    "pool": 45,
+    "pick": 6,
+    "dailyMax": 5,
+    "perCustomerPerDay": 1,
+    "issueOn": "chat.custom",
+    "onlyTodayReco": true,
+    "cutoff": "16:00",
+    "drawAt": "17:00",
+    "tiers": [
+      { "match": 3, "prize": "커피 쿠폰",       "cap": 300 },
+      { "match": 4, "prize": "치킨 세트 쿠폰",  "cap": 20 },
+      { "match": 5, "prize": "모바일 상품권",   "cap": 3 }
+    ]
+  },
+  "badges": [
+    { "id": "streak_5",     "label": "불씨",        "desc": "5영업일 연속",          "type": "streak",  "n": 5 },
+    { "id": "streak_10",    "label": "불꽃",        "desc": "10영업일 연속",         "type": "streak",  "n": 10 },
+    { "id": "streak_20",    "label": "횃불",        "desc": "20영업일 연속",         "type": "streak",  "n": 20 },
+    { "id": "streak_50",    "label": "등대",        "desc": "50영업일 연속",         "type": "streak",  "n": 50 },
+    { "id": "streak_100",   "label": "태양",        "desc": "100영업일 연속",        "type": "streak",  "n": 100 },
+    { "id": "quiz_combo_5", "label": "척척박사",    "desc": "퀴즈 5번 연속 정답",    "type": "combo",   "n": 5 },
+    { "id": "talk_10",      "label": "화법 장인",   "desc": "화법 따라 쓰기 10번",   "type": "counter", "key": "talk.copy", "n": 10 },
+    { "id": "reco_50",      "label": "고객 탐험가", "desc": "추천 고객 50명 열기",   "type": "counter", "key": "reco.open", "n": 50 },
+    { "id": "cheer_10",     "label": "응원단장",    "desc": "동료 응원 10번",        "type": "counter", "key": "cheer.send", "n": 10 },
+    { "id": "pass_mvp",     "label": "이번 주 MVP", "desc": "주간 패스 5단계 완주",  "type": "pass",    "n": 5 }
+  ],
+  "coffeeDraw": { "winners": 100, "prize": "커피 쿠폰" },
+  "cheer": { "dailyMax": 3, "perPeerPerDay": 1 },
+  "league": { "goldCut": 3, "resetDow": 1 },
+  "onboarding": {
+    "maxJoinMonth": 3,
+    "steps": [
+      { "kind": "attend",          "title": "첫 출석 도장",        "text": "MeAI 홈과 첫인사를 나눴어요." },
+      { "kind": "quiz",            "title": "첫 퀴즈",             "text": "매일 9시에 새 문제가 열려요." },
+      { "kind": "reco.open",       "title": "첫 추천 고객 열기",   "text": "MeAI가 고른 오늘의 고객을 처음 열었어요." },
+      { "kind": "chat.custom",     "title": "첫 맞춤대화",         "text": "고객 한 명의 보장을 MeAI와 함께 봤어요." },
+      { "kind": "talk.copy",       "title": "첫 화법 따라 쓰기",   "text": "동료의 화법이 내 화법이 되기 시작했어요." },
+      { "kind": "consent.request", "title": "첫 사전조회동의 요청", "text": "동의를 받으면 맞춤대화가 열려요." },
+      { "kind": "dash.open",       "title": "첫 내 기록 보기",     "text": "쌓인 기록은 대시보드에서 언제든 볼 수 있어요." }
+    ]
+  },
+  "buddy": [
+    { "id": "draw_res", "from": "17:00", "to": "23:59", "dow": 5, "when": "!drawSeen",  "mascot": "ziziri_stars",   "text": "이번 주 당첨번호가 나왔어요.",                          "cta": { "label": "결과 보기", "go": "draw" } },
+    { "id": "risk",     "from": "16:00", "to": "23:59", "when": "!lit",                 "mascot": "eco_think",      "text": "아직 오늘 불이 꺼져 있어요. 추천 고객 1명만 열어도 {nextStreak}영업일째로 이어져요.", "cta": { "label": "추천 고객 보기", "go": "reco" } },
+    { "id": "draw_d0",  "from": "12:00", "to": "15:59", "dow": 5, "when": "true",       "mascot": "rara_present",   "text": "오늘 17시에 이번 주 추첨이 있어요. 응모 마감은 16시예요.", "cta": { "label": "내 번호 보기", "go": "lotto" } },
+    { "id": "monday",   "from": "07:00", "to": "11:30", "dow": 1, "when": "!attended",  "mascot": "group_hello",    "text": "새 회차가 시작됐어요. 첫 도장으로 이번 주를 열어요.",   "cta": { "label": "도장 찍기", "go": "attend" } },
+    { "id": "morning",  "from": "07:00", "to": "11:30", "when": "!attended",            "mascot": "hello_wave",     "text": "좋은 아침이에요. 도장 찍으면 {nextStreak}영업일째예요.", "cta": { "label": "도장 찍기", "go": "attend" } },
+    { "id": "quiz",     "from": "09:00", "to": "18:00", "when": "attended&!quizDone",   "mascot": "tata_board",     "text": "오늘의 퀴즈가 열렸어요. 30초면 풀어요.",              "cta": { "label": "퀴즈 풀기", "go": "quiz" } },
+    { "id": "mission",  "from": "09:00", "to": "18:00", "when": "questLeft==1",         "mascot": "success_thumbs", "text": "올클리어까지 하나 남았어요.",                           "cta": { "label": "남은 미션", "go": "quest" } },
+    { "id": "lunch",    "from": "11:30", "to": "14:00", "when": "!talkCopied",          "mascot": "indi_idea",      "text": "점심 전에 동료 화법 한 줄 따라 써 볼까요?",           "cta": { "label": "화법 보기", "go": "talk" } }
+  ],
+  "fx": { "defaultMode": "full", "soundDefault": false }
+}
