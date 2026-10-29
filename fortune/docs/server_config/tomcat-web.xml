@@ -1,0 +1,14 @@
+<!-- 오늘의 운세 v2 · 톰캣(Tomcat) · JEUS 등 서블릿 컨테이너 예시.
+     conf/web.xml 또는 앱의 WEB-INF/web.xml 의 <web-app> 안에 넣는다. (최근 톰캣은 webp · woff2 가 이미 들어 있다)
+     보안정책(CSP) 헤더는 웹서버(앞단 Apache/WebtoB/nginx) 또는 필터에서 붙인다 : 값은 README 의 '보안 정책(CSP)' -->
+<mime-mapping>
+  <extension>webp</extension>
+  <mime-type>image/webp</mime-type>
+</mime-mapping>
+<mime-mapping>
+  <extension>woff2</extension>
+  <mime-type>font/woff2</mime-type>
+</mime-mapping>
+<welcome-file-list>
+  <welcome-file>index.html</welcome-file>
+</welcome-file-list>

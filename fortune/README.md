@@ -3,8 +3,19 @@
 이름과 생년월일만 넣으면 **사주팔자 · 오늘의 운세 · 대운**과 **타로 4장 점괘**를 보여 주는 한 파일짜리 화면이다.
 설계사가 고객에게 카톡 · 문자로 보내는 재미용 도구(MeAI 홈 넛지). 입력한 정보는 휴대폰 밖으로 나가지 않는다.
 
-- 완성본 : `dist/unse_saju_tarot.html` (약 3.5MB, 바깥 파일을 하나도 부르지 않음 · 오프라인에서도 동작)
+- 한 파일판 : `dist/unse_saju_tarot.html` (약 3.5MB, 바깥 파일을 하나도 부르지 않음 · 오프라인 · 더블클릭 · 카톡 전달)
+- **사내 웹서버 · 폐쇄망 탑재 패키지** : `dist/unse_v2_package.zip` (웹서버판 `web/` · 한 파일판 · 개발 설계도 · 소스 전체 · 검증 도구 · 서버 설정 예시 · 파일 해시)
+- 개발 설계도 : `fortune/docs/BLUEPRINT.md` (보기 좋은 판 `.pdf` · `.html`), 탑재 가이드 : `fortune/docs/README_INSTALL.md`
 - v1 원본 : `fortune/legacy/unse_v1_261016.html` (구글 드라이브 `261016_오늘의운세_사주타로.html` 과 같은 파일)
+
+## 사내 웹서버 · 폐쇄망 탑재 패키지 (2026-10-29)
+
+`dist/unse_v2_package.zip` 을 IT 담당자에게 넘긴다. 안의 `README.md` 가 탑재 가이드다.
+- **웹서버판** `web/` : 정적 파일 92개 · 약 2.6MB. 인라인 스크립트 · 스타일 · `style` 속성 · `data:` 주소 · 외부 주소 0 →
+  가장 엄격한 보안정책(`default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'`)에서 위반 0 · 바깥 요청 0,
+  글꼴을 막은 정책에서도 동작, 포털 iframe 안에서도 동작 (`tools/check_web.js`)
+- 계산 파일(`fortune-text.js` · `saju-engine.js` · `tarot-data.js`)은 v1 웹 패키지(2026-10-16)와 본문이 같다
+- 웹판 폴더를 서버 없이 파일로 열면 저장 이미지에서 카드 그림만 빠진다(브라우저 규칙) → 서버 없는 PC 는 한 파일판
 
 ## v2 에서 바뀐 것 (2026-10-29)
 
@@ -34,22 +45,32 @@
 
 | 파일 | 하는 일 |
 |---|---|
-| `src/unse.html` | 화면 틀 (CSS · 화면 · 그림 조각). 자리표 `/*@@FONTS@@*/` `@@BACK@@` `/*@@ENGINE@@*/` `/*@@IMG@@*/` `/*@@APP@@*/` |
+| `src/unse.html` | 화면 틀 (화면 · 그림 조각). 자리표 `<!--@@HEAD@@-->` · `<!--@@SCRIPTS@@-->` |
+| `src/unse.css` | 디자인. 자리표 `@@FONT_*@@` · `@@BACK@@` · `@@HANJI@@` · `@@ZOOM@@` (웹판 = 파일 주소, 한 파일판 = data: 주소) |
+| `src/ie-check.js` | 익스플로러 → 엣지 안내 |
 | `src/engine.js` | 사주 엔진 · 운세 문구(`NZ_FTEXT`) · 타로 78장 풀이(`NZ_TAROT`). **v1 그대로, 고치지 않는다** |
 | `src/app.js` | 화면 동작 (사주 그리기 · 타로 섞기/뽑기 · 크게 보기 · 저장 이미지 · 공유) |
 | `assets/tarot/00~77.webp` | 카드 그림 (번호 = deck id : 0~21 메이저, 22부터 완드 · 컵 · 소드 · 펜타클 14장씩) |
-| `assets/svg/card_back.svg` | 카드 뒷면 |
+| `assets/svg/card-back.svg` · `hanji.svg` · `zoom.svg` | 카드 뒷면 · 한지 무늬 · 돋보기 |
 | `assets/fonts/*.woff2` · `OFL.txt` | 글꼴 3종(필요한 글자만) · 사용권 |
-| `build_unse.py` | 위 파일을 모아 `dist/unse_saju_tarot.html` 한 파일로 조립 |
+| `build_unse.py` | 조립 : 기본 = 한 파일판, `--web <폴더>` = 웹서버판(정적 파일 92개, 인라인 코드 · data: 주소 0), `--preview` = claude.ai 미리보기 |
+| `build_package.py` | 탑재 패키지 zip (`dist/unse_v2_package.zip`) |
+| `docs/` | 개발 설계도 · 탑재 가이드 · 서버 설정 예시(IIS · 톰캣 · nginx · 아파치) |
 | `tools/prep_tarot.py` | 카드 그림 손질 (테두리 · 영문 제목띠 자르기, 같은 비율로, WebP) |
 | `tools/make_fonts.py` | 글꼴 줄이기 (화면에 새 한자가 들어가면 다시 돌린다) |
-| `tools/regress_saju.js` | v1 과 사주 결과 대조 |
+| `tools/regress_saju.js` | v1 화면과 사주 결과 대조 (240건) |
+| `tools/verify_saju.py` · `tools/ref/` | 파이썬 사주 엔진(엑셀과 같은 규칙)과 1936~2046 40,543일 대조 |
+| `tools/csp_test_server.py` · `tools/check_web.js` | 가장 엄격한 보안정책(CSP)으로 웹판 띄우기 · 자동 점검(위반 · 바깥 요청 · iframe · 저장 이미지) |
+| `tools/render_doc.js` | 설계도 마크다운 → HTML · PDF (흐름 그림 포함) |
 
 ## 다시 만드는 순서
 
 ```
-python3 fortune/build_unse.py                      # 화면 · 문구만 고쳤을 때는 이것만
+python3 fortune/build_unse.py                      # 한 파일판 (화면 · 문구만 고쳤을 때는 이것만)
 node fortune/tools/regress_saju.js $PWD/fortune/legacy/unse_v1_261016.html $PWD/dist/unse_saju_tarot.html
+python3 fortune/build_unse.py --web /tmp/web && node fortune/tools/check_web.js /tmp/web   # 웹판 · 엄격한 CSP 점검
+python3 fortune/tools/verify_saju.py               # 계산을 고쳤다면 40,543일 대조
+python3 fortune/build_package.py                   # 탑재 패키지 zip (설계도를 고쳤다면 render_doc.js 먼저)
 ```
 
 카드 그림을 다시 뽑을 때 : `npm pack @cometpisces/tarot-kit-images@0.2.0` → 압축을 풀고

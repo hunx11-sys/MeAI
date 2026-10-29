@@ -164,13 +164,13 @@
     h += '</g>';
     var de = S.stemEl(ds);
     h += '<circle cx="' + cx + '" cy="' + cy + '" r="27" fill="#fffdf8" stroke="#d6c8aa"/><text x="' + cx + '" y="' + (cy - 7) + '" text-anchor="middle" dominant-baseline="central" font-size="21" font-weight="700" fill="' + ECOL[de][0] + '">' + S.STEM[ds] + '</text>' +
-      '<text x="' + cx + '" y="' + (cy + 13) + '" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="700" fill="#736d86" style="font-family:' + "'Pretendard',sans-serif" + '">일간</text>';
+      '<text x="' + cx + '" y="' + (cy + 13) + '" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="700" fill="#736d86" class="lbl">일간</text>';
     for (k = 0; k < 5; k++) {
       var n = c[k], rr2 = 19 + Math.min(n, 4) * 4.5, q = P[k], col = ECOL[k];
       var lx = q[0] + q[2] * (rr2 + 16), ly = q[1] + q[3] * (rr2 + 13);
       h += '<g class="node"><circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + rr2 + '" fill="' + col[1] + '" stroke="' + col[0] + '" stroke-width="' + (n ? 1.6 : 1.2) + '"' + (n ? '' : ' stroke-dasharray="3 3" opacity=".55"') + '/>' +
         '<text x="' + q[0].toFixed(1) + '" y="' + q[1].toFixed(1) + '" text-anchor="middle" dominant-baseline="central" font-size="' + Math.round(15 + Math.min(n, 4) * 2.5) + '" font-weight="700" fill="' + col[0] + '"' + (n ? '' : ' opacity=".55"') + '>' + S.EL_H[k] + '</text>' +
-        '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="700" fill="' + (n ? '#4b4560' : '#77718a') + '" style="font-family:' + "'Pretendard',sans-serif" + '">' + S.EL[k] + ' ' + n + '</text></g>';
+        '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="700" fill="' + (n ? '#4b4560' : '#77718a') + '" class="lbl">' + S.EL[k] + ' ' + n + '</text></g>';
     }
     return '<svg class="ohg" viewBox="0 0 320 292" role="img" aria-label="오행 분포 ' + c.map(function (v, i) { return S.EL[i] + ' ' + v; }).join(', ') + '">' + h + '</svg>';
   }
@@ -292,7 +292,7 @@
     x.fillStyle = '#736d86'; x.font = '500 25px ' + SANS; x.textAlign = 'center'; x.fillText('재미로 보는 사주예요 · 양력 · 한국 표준시 기준', W / 2, H - 22); x.textAlign = 'left';
     return cv;
   }
-  function toBlob(cv) { return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, 'image/png'); }); }
+  function toBlob(cv) { return new Promise(function (res, rej) { try { cv.toBlob(function (b) { if (b) res(b); else rej(new Error('toBlob')); }, 'image/png'); } catch (e) { rej(e); } }); }
   function sajuBlob() { return fontsReady().then(function () { return toBlob(makeImage()); }); }
   function ready() { if (!st.last) { toast('먼저 생년월일을 골라 주세요'); $('bd').focus(); return false; } return true; }
   function fileName() { var b = st.last.b; return '오늘의사주_' + (name() || '고객') + '_' + b.y + pad(b.m) + pad(b.d) + '.png'; }
@@ -575,7 +575,7 @@
   });
 
   /* ---------- 타로 결과 이미지 (카드 4장 + 점괘) ----------
-     카드 그림은 파일 안의 그림(data:)이라 캔버스가 오염되지 않음 → 오프라인·보안정책(CSP)에서도 저장 가능 */
+     카드 그림은 같은 출처 파일(웹판) 또는 파일 안에 넣은 그림(한 파일판)이라 캔버스가 오염되지 않음 → 오프라인·보안정책(CSP)에서도 저장 가능 */
   function drawFace(x, c, rev, X, Y, w, img) {
     var h = w * 1.72, p = w * 0.06, aw = w - 2 * p, ah = aw * 1.6923;
     x.save(); x.translate(X + w / 2, Y + h / 2); if (rev) x.rotate(Math.PI); x.translate(-w / 2, -h / 2);
@@ -633,7 +633,8 @@
   function shareTarot(S2, kakao) {
     var text = tarotText(S2), fname = '오늘의타로_' + (tname() || '고객') + '_' + T.y + pad(T.m) + pad(T.d) + '.png';
     Promise.all([fontsReady()].concat(TT.picks.map(function (p) { return p.img || cardImg(p.card.id); }))).then(function (r) {
-      return toBlob(makeTarotImage(S2, r.slice(1)));
+      /* 웹서버판 폴더를 서버 없이 파일(file://)로 열면 브라우저가 그림 넣은 캔버스 저장을 막는다 → 카드 그림만 빼고 다시 그림 */
+      return toBlob(makeTarotImage(S2, r.slice(1))).catch(function () { return toBlob(makeTarotImage(S2, [])); });
     }).then(function (blob) {
       var file = new File([blob], fname, { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) return navigator.share(kakao ? { files: [file], text: text, title: '오늘의 타로' } : { files: [file] });

@@ -1,0 +1,12 @@
+# 오늘의 운세 v2 · 아파치 예시. unse/ 폴더에 .htaccess 이름으로 두거나 <Directory> 설정에 넣는다 (mod_headers 필요)
+AddType image/webp .webp
+AddType font/woff2 .woff2
+AddDefaultCharset UTF-8
+DirectoryIndex index.html
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; connect-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'"
+  Header always set X-Content-Type-Options "nosniff"
+  <Files "index.html">
+    Header set Cache-Control "no-cache"
+  </Files>
+</IfModule>
