@@ -1,0 +1,27 @@
+/* 연습 화면 바탕 (원본 MeAI 홈과 비슷한 흰 바탕 · 넛지 확인용) */
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; color: #191b1f; font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+.page { max-width: 1200px; margin: 0 auto; padding: 24px 40px 64px; }
+.hdr { display: flex; align-items: center; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+.logo b { color: #e0282f; font-size: 20px; } .logo i { width: 1px; height: 16px; background: #d5d8dd; }
+.logo .tag { font-size: 12px; font-weight: 600; color: #61646b; background: #f2f3f5; padding: 3px 8px; border-radius: 6px; }
+.right { display: flex; align-items: center; gap: 8px; }
+.ob { height: 32px; padding: 0 12px; border: 1px solid #d5d8dd; border-radius: 8px; background: #fff; font: inherit; font-size: 14px; cursor: pointer; }
+.greet { position: relative; margin-top: 32px; }
+.greet h1 { margin: 0; font-size: 32px; letter-spacing: -0.03em; } .greet h1 em { font-style: normal; color: #e0282f; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.c { text-align: left; padding: 28px 32px; border: 1px solid #d5d8dd; border-radius: 16px; background: #fff; font: inherit; cursor: pointer; }
+.c b { display: block; font-size: 20px; margin-bottom: 8px; } .c span { color: #4a4c50; }
+.c.dark { background: #1e1f21; color: #fff; border-color: #1e1f21; } .c.dark span { color: #d5d8dd; }
+.reco { margin-top: 48px; } .reco h2 { font-size: 21px; display: flex; align-items: center; gap: 8px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+article { position: relative; padding: 22px; border: 1px solid #eeeff2; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+article h3 { margin: 0 0 10px; font-size: 18px; } article h3 small { font-size: 13px; color: #61646b; font-weight: 500; }
+article p { margin: 0 0 14px; padding-left: 12px; border-left: 3px solid #e0282f; font-weight: 600; line-height: 1.5; }
+.row { display: flex; align-items: center; gap: 8px; } .cs { font-size: 12px; padding: 3px 8px; border: 1px solid #d5d8dd; border-radius: 6px; }
+.acts { display: flex; gap: 8px; margin-top: 16px; } .acts button { flex: 1; height: 36px; border-radius: 10px; border: 0; background: #f2f3f5; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.acts button[data-chat] { background: #e0282f; color: #fff; }
+.log { margin-top: 40px; } .log h2 { font-size: 16px; } .log h2 small { font-weight: 500; color: #61646b; font-size: 12px; }
+#evlog { font: 12px/1.6 Consolas, "D2Coding", monospace; color: #313235; max-height: 220px; overflow: auto; background: #f8f9fa; border-radius: 12px; padding: 12px 12px 12px 36px; }
+@media (max-width: 760px) { .page { padding: 16px; } .cards, .grid { grid-template-columns: 1fr; } .greet h1 { font-size: 24px; } }
