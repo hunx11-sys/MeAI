@@ -17,6 +17,13 @@
 - 계산 파일(`fortune-text.js` · `saju-engine.js` · `tarot-data.js`)은 v1 웹 패키지(2026-10-16)와 본문이 같다
 - 웹판 폴더를 서버 없이 파일로 열면 저장 이미지에서 카드 그림만 빠진다(브라우저 규칙) → 서버 없는 PC 는 한 파일판
 
+## 사내 공모전 제출 PPT (2026-10-30)
+
+`dist/unse_v2_contest.pptx` (16장 · 장마다 통이미지 · 발표 원고는 발표자 메모) · `dist/unse_v2_contest.pdf` · 양식 칸별 제출 글 `fortune/docs/CONTEST_FORM_v2.md`
+- 10/14 「오늘의 사주」 공모전 설계도 PPT(14장)의 순서와 말투를 이어받음 : 표지 · 한 장 요약 · AS-IS · TO-BE · 사용 흐름(사주 · 타로) · **v1 → v2 비교** · 전체 구조 · 계산 로직(사주 · 타로) · 저장·보내기 · 추가 비용 0원 · 기대 효과 · 개인정보 · 사내 탑재 · 검증 · 한계 · 다음 단계
+- 「연 약 500만원」은 10/14 제출 글 기준 추정치라 장표에 별표로 밝혀 둠(근거 자료 확인 필요)
+- 다시 만들기 : `capture.js` + `capture_v1.js`(비교용 v1 화면) → `node fortune/guide/build_contest.js <cap> <Pretendard> <Tossface> <출력>` (공통 부품 `deck_kit.js`)
+
 ## 사용 가이드 PPT (2026-10-30)
 
 `dist/unse_v2_guide.pptx` (16장 · 장마다 통이미지라 어느 PC 에서도 글꼴이 깨지지 않음 · 발표자 메모 포함) · `dist/unse_v2_guide.pdf` (같은 내용)
