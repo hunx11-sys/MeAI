@@ -17,6 +17,14 @@
 - 계산 파일(`fortune-text.js` · `saju-engine.js` · `tarot-data.js`)은 v1 웹 패키지(2026-10-16)와 본문이 같다
 - 웹판 폴더를 서버 없이 파일로 열면 저장 이미지에서 카드 그림만 빠진다(브라우저 규칙) → 서버 없는 PC 는 한 파일판
 
+## 사용 가이드 PPT (2026-10-30)
+
+`dist/unse_v2_guide.pptx` (16장 · 장마다 통이미지라 어느 PC 에서도 글꼴이 깨지지 않음 · 발표자 메모 포함) · `dist/unse_v2_guide.pdf` (같은 내용)
+- 디자인 : `design/DESIGN-토스.md` (흰 바탕 · 토스 블루 하나 · 둥근 카드 · 1px 선 · 해요체 · Pretendard · 토스페이스 그림 글자)
+- 구성 : 표지 · 한눈에 보기 · 여는 방법 · 대문 · 사주 4장(입력 · 사주팔자 읽기 · 오늘의 운세 · 보내기) · 타로 4장(시작 · 4장 고르기 · 풀이와 크게 보기 · 종합 메시지) · 대화 예시 · 자주 묻는 질문 · 꼭 지켜 주세요 · 마무리
+- 다시 만들기 : `node fortune/guide/capture.js <한 파일판> <cap>` → `node fortune/guide/build_guide.js <cap> <PretendardVariable.woff2> <TossFaceFontMac.ttf> <출력>`
+  (Pretendard : `npm pack pretendard@1.3.9` · 토스페이스 : github.com/toss/tossface 릴리스 · pptxgenjs 필요)
+
 ## v2 에서 바뀐 것 (2026-10-29)
 
 | 화면 | v1 | v2 |
