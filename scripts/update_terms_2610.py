@@ -32,7 +32,12 @@ PRODS = [  # 상품, id 접두어, 새 약관, 옛 약관
     ('케어프리', '케', '무배당 메리츠 케어프리보험 M-Basket2610약관.pdf', '무배당 메리츠 케어프리보험 M-Basket2607약관.pdf'),
     ('운전자', '운', '무배당 메리츠 운전자 상해 종합보험2610약관.pdf', '무배당 메리츠 운전자 상해 종합보험2608약관.pdf'),
     ('또또암', '또', '무배당 메리츠 또 걸려도 또 받는 암보험(세만기형)2610(일반심사형)약관.pdf', '무배당 메리츠 또 걸려도 또 받는 암보험(세만기형)2607약관 (1).pdf'),
+    # 또또암간편(또 걸려도 또 받는 간편한 암보험(세만기형) 2607 · 10/31 판매중지) → 후속 「또 걸려도 또 받는 암보험(연만기형)2610(맞춤간편심사형)」 :
+    # 연만기형이라 특약 이름 앞에 「갱신형」 이 붙지만 세만기형과 같은 특약이다(소유자) → 갱신형을 뗀 이름으로 짝을 맞추고 이름은 그대로 둔다
+    ('또또암간편', '또간', '무배당 메리츠 또 걸려도 또 받는 암보험(연만기형)2610(맞춤간편심사형)약관.pdf', '무배당 메리츠 또 걸려도 또 받는 간편한 암보험(세만기형)2607약관.pdf'),
 ]
+RENEW = set()                  # 갱신형 이름으로 바꿀 상품 — 없음. 또또암간편의 2610 약관은 연만기형(맞춤간편심사형)이라 이름에 갱신형이 붙지만, 세만기형과 특약이 같으므로(소유자 2026-11-02) 이름은 세만기형(비갱신) 그대로 두고 쪽·본문만 맞춘다
+DELETE_MISSING = True          # 새 약관에 없는 특약은 지운다(소유자 2026-11-02 · 전에는 ex 표시)
 GOJI = re.compile(r'\([^()]{1,24}가입\)')
 EX_NOTE = '2610 약관(2026.10.31)에서 빠짐(판매중지) — 이전 판 계약 조회용으로 남겨 둠'
 
@@ -70,7 +75,9 @@ def main(write):
         for t in r['t']: by_t[t].add(r['p'])
     refresh, added, retired, moved = [], [], [], 0
     summary = {}
+    only_p = sys.argv[sys.argv.index('--product') + 1] if '--product' in sys.argv else None
     for P, pre, new_pdf, old_pdf in PRODS:
+        if only_p and P != only_p: continue
         print('\n■', P, '←', new_pdf)
         new, new_tabs, log, new_tab_pages = parse(P, pre, new_pdf)
         old, _, _, _ = parse(P, pre, old_pdf)
@@ -82,19 +89,25 @@ def main(write):
         for r in mine:
             if r.get('parent'): kids[r['parent']].append(r)
         matched, n_ref, n_ret = set(), 0, 0
-        unseen = []
+        unseen = []; gone_ids = set(); renamed = []
         for r in parents:
             k = key(r['n'])
             n_r = new_par.get(k) or new_par.get('갱신형' + k)        # 「X / 갱신형 X」 한 본문 — 앞 이름은 갱신형 레코드에서
             if not n_r:
                 if not (old_par.get(k) or old_par.get('갱신형' + k)):       # 옛 약관에서도 못 읽는 제목(재물손해 특약 등 절단 규칙 밖) → 그대로 둔다
                     unseen.append((P, r['id'], r['n'])); continue
-                if not r.get('ex'):
+                if DELETE_MISSING:
+                    gone_ids.add(r['id']); gone_ids.update(c['id'] for c in kids[r['id']])
+                elif not r.get('ex'):
                     r['ex'] = EX_NOTE
                     for c in kids[r['id']]: c['ex'] = EX_NOTE
                 retired.append((P, r['id'], r['n'])); n_ret += 1
                 continue
             matched.add(key(n_r['n']))
+            if P in RENEW and key(n_r['n']).startswith('갱신형') and not nz(r['n']).startswith('갱신형'):
+                old_n = r['n']; r['n'] = '갱신형 ' + old_n
+                for c in kids[r['id']]: c['n'] = '갱신형 ' + c['n']
+                renamed.append((r['id'], old_n, r['n']))
             o_r = old_par.get(k) or old_par.get('갱신형' + k)
             if int(r['pg']) != n_r['pg']:
                 r['pg'] = n_r['pg']; moved += 1
@@ -112,6 +125,7 @@ def main(write):
         new_rows = []; skipped = []
         for k, n_r in new_par.items():
             if k in matched or k in {key(x['n']) for x in parents}: continue
+            if P in RENEW and re.sub(r'^갱신형', '', k) in {re.sub(r'^갱신형', '', key(x['n'])) for x in parents}: continue
             if k in old_par or re.sub(r'^갱신형', '', k) in old_par:        # 옛 약관에도 있던 제목인데 감수본에 없음 → 절단 규칙이 만든 조각(일반조항 · 절 제목) — 더하지 않는다
                 skipped.append((P, n_r['n'])); continue
             rid = '%s%d' % (pre, nxt); nxt += 1
@@ -122,6 +136,9 @@ def main(write):
                 new_rows.append(c)
             added.append((P, rid, n_r['n'], len(n_r['k']), sum(1 for x in new if x.get('parent') == n_r['id'])))
         D['riders'][last + 1:last + 1] = new_rows
+        if gone_ids:
+            D['riders'] = [x for x in D['riders'] if x['id'] not in gone_ids]
+        if renamed: print('   갱신형 이름으로 바꿈 %d건 (예 : %s → %s)' % (len(renamed), renamed[0][1], renamed[0][2]))
         for t, tb in new_tabs.items():
             if any(t in r['t'] for r in new_rows) and t not in D['tables']:
                 D['tables'][t] = tb
@@ -139,11 +156,13 @@ def main(write):
             if x[0].startswith('KCD') and any(key(x[1]) == key(a[2]) for a in added if a[0] == P): print('   !', x[0], x[1])
     print('\n■ 신설 특약')
     for a in added: print('  %s %-7s %-60s k=%d 세부 %d' % a)
-    print('■ 판매중지(ex 표시)')
+    print('■ 판매중지(%s)' % ('삭제' if DELETE_MISSING else 'ex 표시'))
     for x in retired: print('  %s %-7s %s' % x)
     print('■ 본문 개정(표 되살리기 대상) %d건 (세부 포함)' % len(refresh))
     print('   --only ' + ','.join(refresh + [r['id'] for r in D['riders'] if r.get('new') == '2610']))
     print('■ 쪽 번호 옮김 %d건' % moved)
+    used_t = {t for r in D['riders'] for t in r['t']}
+    for t in [t for t in D['tables'] if t not in used_t]: del D['tables'][t]
     # 집계 · 버전
     D['meta']['total'] = len(D['riders'])
     D['meta']['prodcount'] = dict(collections.Counter(r['p'] for r in D['riders']))

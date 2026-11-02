@@ -40,7 +40,7 @@ def pdf_for(prod):
     if prod == '또또암':
         c = [p for p in names if '또 받는 암보험' in base(p)]
     elif prod == '또또암간편':
-        c = [p for p in names if '또 받는 간편한 암보험' in base(p)]
+        c = [p for p in names if '또 받는 간편한 암보험' in base(p) or '맞춤간편심사형' in base(p)]      # 2610 : 「또 걸려도 또 받는 암보험(연만기형)2610(맞춤간편심사형)」 으로 상품명 변경
     elif prod == '치아':
         c = [p for p in names if '치아보험' in base(p)]
     else:
