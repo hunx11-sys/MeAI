@@ -2,8 +2,8 @@
 
 완성본 : `dist/meai_flywheel_deck.pptx`(28장 · 장마다 통이미지 + 발표자 메모) · `dist/meai_flywheel_deck.pdf`
 
-고객발굴 → 터치 → 클로징 → 계약체결 → 관리·소개 → 새 고객발굴 플라이휠을 보조도구 14종의 실제 화면으로 설명하는 장표다.
-MeAI 홈 사용 매뉴얼 · MeAI 활용 가이드북 v4, 그리고 MeAI 통계(사용 통계 화면 · 넛지 대시보드 · 헤비유저 숫자)는 넣지 않았다(소유자 2026-11-02).
+고객발굴 → 터치 → 클로징 → 계약체결 → 관리·소개 → 새 고객발굴 플라이휠을 보조도구 13종의 실제 화면으로 설명하는 장표다.
+MeAI 홈 사용 매뉴얼 · MeAI 활용 가이드북 v4, MeAI 통계(사용 통계 화면 · 넛지 대시보드 · 헤비유저 숫자), 의학용어 그림과 해설 PPT 는 넣지 않았다(소유자 2026-11-02).
 
 - 디자인 : `design/DESIGN-토스.md`(흰 바탕 · 차가운 회색 · 한 화면 한 강조색 · 둥근 카드 · 1px 선 · Pretendard) + `design/DESIGN-MeAI.md`(메리츠 빨강 `#C8102E` · 굵기 400/600/700 · 걱정인형 2D)
 - 말투 : 장표 글은 음 · 임으로 끝내는 개조식(소유자 요청, 토스 해요체 대신). 긴 줄표 없음
@@ -30,13 +30,13 @@ node capture/cap_gb2.js $W/cap/gb
 node capture/cap_sp.js $W/sp/cust_a.html $W/sp sp_p
 (cd ../../proposal_smart && python3 ga_preview.py $W/sp/ga_preview.pdf)        # 파이썬 playwright 가 없으면 HTML 만 남는다 → 그 HTML 을 찍음
 VW=794 node capture/cap_sp.js $W/sp/ga_preview.html $W/sp ga_p
-# 4. 참고자료 : 의학용어 PPT · 예외질환 PDF · 엑셀 두 개
-soffice --headless --convert-to pdf <의학용어.pptx>  → pdftoppm -r 80 -png -f 1 -l 6 med.pdf $W/ref/med
+# 4. 참고자료 : 예외질환 PDF · 엑셀 두 개(수술비 정리표는 시트 두 장)
 pdftoppm -r 110 -png -f 1 -l 4 ../../dist/simple_ins_exception_guide_2610.pdf $W/ref/exg
 pdftoppm -r 110 -png -f 1 -l 4 ../../docs/simple_exception_disease_manual_2610.pdf $W/ref/exm
 python3 xl_view.py ../../dist/surgery_benefit_kcd_2610.xlsx '1-7종 대표질병' $W/ref/xl_surg.html 7 16 2 70,130,80,50,280,70,200 <Pretendard-Regular.woff2>
+python3 xl_view.py ../../dist/surgery_benefit_kcd_2610.xlsx '1-5종II' $W/ref/xl_s15.html 5 16 2 90,50,330,60,360 <Pretendard-Regular.woff2>
 python3 xl_view.py ../../dist/simple_exception_disease_2610.xlsx '경우의 수(신기준)' $W/ref/xl_ex.html 6 16 1 50,120,170,230,50,230 <Pretendard-Regular.woff2>
-node shot_el.js $W/ref/xl_surg.html $W/ref/xl_surg.png body ; node shot_el.js $W/ref/xl_ex.html $W/ref/xl_ex.png body
+node shot_el.js $W/ref/xl_surg.html $W/ref/xl_surg.png body ; node shot_el.js $W/ref/xl_s15.html $W/ref/xl_s15.png body ; node shot_el.js $W/ref/xl_ex.html $W/ref/xl_ex.png body
 # 5. 크기 표 → 굽기 → PDF
 python3 make_sizes.py $W
 node build_deck.js $W $W/node/package/dist/web/variable/woff2/PretendardVariable.woff2 $W/out meai_flywheel
