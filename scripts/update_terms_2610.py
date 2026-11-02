@@ -153,24 +153,30 @@ def main(write):
         print('\n(쓰지 않음 — 반영하려면 --write)'); return
     html = html[:m.start(2)] + json.dumps(deflate(D), ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/') + html[m.end(2):]
     html = html.replace('<span class="ver">ver2612</span>', '<span class="ver">ver2613</span>', 1)
-    # 상품 히스토리
-    G = {'name': '2026.10.31 개정(2610) 신설·판매중지', 'events': []}
-    def ev(n, e, hl, note, syn): G['events'].append({'d': '2026.10', 'ds': 20261031, 'e': e, 'hl': hl, 'n': n, 'note': note, 'q': n.split('(')[0], 'syn': syn})
-    ev('상해진단및치료비 신설(통합간편·케어프리)', '신설', 'good', '2610 약관부터 통합간편 · 케어프리(알파Plus) 에도 탑재(운전자는 2608 부터). 중증도별 상해분류표(경증및기타·중등증·중증) 진단비 3종 + 근골 주요처치및수술비 3종.', ['상해진단및치료비', '중증도별 상해'])
-    ev('암 통합입통원일당 신설', '신설', 'good', '암통합입통원일당(직접치료,요양병원입원포함) · (직접치료)(암중점치료기관(상급종합병원포함)) 2종. 입원·요양병원·통원 일당을 한 특약으로.', ['암통합입통원일당', '암 통합입통원일당'])
-    ev('특정순환계질환 통합치료비Ⅱ 신설', '신설', 'good', '통합치료항목(검사·주요치료·재활)과 한도별 금액은 기존 특정순환계질환 통합치료비와 같고, 연간 주요치료Ⅱ 3회이상/4회이상 추가지급 세부보장이 붙음.', ['특정순환계질환통합치료비Ⅱ', '순환계 통합치료비2'])
-    ev('수술비Ⅱ(1-5종)(체증형) 신설', '신설', 'good', '1-5종 수술비 체증형(2회차 이후 체증). 통합간편에는 수술비Ⅱ(1-5종) 비체증형도 같이 신설.', ['수술비Ⅱ(1-5종)(체증형)', '15종 체증'])
-    ev('장기요양급여금 3종 판매중지(케어프리)', '판매중단', 'bad', '케어프리 M-Basket 2610 약관에서 장기요양급여금(1-4등급 · 1-2등급 · 1등급) 빠짐. 특약검색기에는 이전 판 조회용으로 남김(ex 표시).', ['장기요양급여금'])
+    # 상품 히스토리 — 계통별 그룹에 나눠 넣는다(소유자 2026-11-02 : 따로 묶음을 만들지 않고 암통합치료비 · 뇌심 · 치매 계통에)
+    def ev(n, e, hl, note, syn, q): return {'d': '2026.10', 'ds': 20261031, 'e': e, 'hl': hl, 'n': n, 'note': note, 'q': q, 'syn': syn}
+    NEW_EVENTS = [
+        ('암통합치료비 계통', ev('암 통합입통원일당 신설', '신설', 'good', '2610 약관(2026.10.31)부터 통합간편·케어프리(알파Plus)·또또암 등에 탑재. 암통합입통원일당(직접치료,요양병원입원포함) · (직접치료)(암중점치료기관(상급종합병원포함)) 2종. 암 직접치료 입원(요양병원 제외)·암 요양병원 입원(연간 90일 한도)·암 직접치료 통원 일당을 한 특약으로, 가입금액 500/1,000/2,000만원에 따라 입원 3/5/10 · 요양병원 1/2/2 · 통원 3/5/10만원(1년 미만 50%). 연간 총 지급액은 가입금액 한도.', ['암통합입통원일당', '암 통합입통원일당', '암입통원일당'], '암통합입통원일당')),
+        ('뇌심(순환계)치료비 계통', ev('특정순환계질환 통합치료비Ⅱ 신설', '신설', 'good', '2610 약관(2026.10.31)부터 탑재. 통합치료항목(검사 MRI·PET·CT / 주요치료 혈전용해·CRRT·인공호흡기·저체온·부분체외순환·종합병원 중환자실·수술 / 재활)과 한도별 금액은 기존 특정순환계질환 통합치료비와 같고, 세부보장으로 「연간 주요치료Ⅱ 3회이상 / 4회이상(연간1회한)」 추가지급이 붙음. 이름 끝 Ⅱ 로 구분.', ['특정순환계질환통합치료비Ⅱ', '순환계 통합치료비2', '특정순환계 통합치료비Ⅱ'], '특정순환계질환통합치료비Ⅱ')),
+        ('치매보험 계통', ev('장기요양급여금 3종 판매중지(케어프리 계열)', '판매중단', 'bad', '케어프리 M-Basket · The좋은 케어프리(알파Plus) 2610 약관(2026.10.31)에서 장기요양급여금(1-4등급 · 1-2등급 · 1등급) 빠짐. 특약검색기에는 이전 판 계약 조회용으로 남김.', ['장기요양급여금'], '장기요양급여금')),
+    ]
+    DROP_GROUPS = ('상해진단·치료비 계통', '2026.10.31 개정(2610) 신설·판매중지')      # 상해진단·치료비 계통은 소유자 지시로 뺀다(2026-11-02)
+    def fix_hist(H):
+        H['groups'] = [g for g in H['groups'] if g['name'] not in DROP_GROUPS]
+        by = {g['name']: g for g in H['groups']}
+        for gname, e in NEW_EVENTS:
+            g = by[gname]; g['events'] = [x for x in g['events'] if x['n'] != e['n']] + [e]
+        H['updated'] = '2026.10.31'
+        return H
     h = re.search(r'(<script id="HISTORY" type="application/json">)(.*?)(</script>)', html, re.S)
-    H = json.loads(h.group(2)); H['updated'] = '2026.10.31'
-    H['groups'] = [g for g in H['groups'] if g['name'] != G['name']] + [G]
+    H = fix_hist(json.loads(h.group(2)))
     html = html[:h.start(2)] + json.dumps(H, ensure_ascii=False, separators=(',', ':')) + html[h.end(2):]
     sm = re.search(r'(<script id="SIMSRC" type="text/plain">)(.*?)(</script>)', html, re.S)
     if sm:
         sim = base64.b64decode(sm.group(2)).decode('utf-8')
         h2 = re.search(r'(<script id="HISTORY" type="application/json">)(.*?)(</script>)', sim, re.S)
         if h2:
-            H2 = json.loads(h2.group(2)); H2['groups'] = [g for g in H2['groups'] if g['name'] != G['name']] + [G]
+            H2 = fix_hist(json.loads(h2.group(2)))
             sim = sim[:h2.start(2)] + json.dumps(H2, ensure_ascii=False) + sim[h2.end(2):]
             html = html[:sm.start(2)] + base64.b64encode(sim.encode('utf-8')).decode('ascii') + html[sm.end(2):]
     io.open(TOOL, 'w', encoding='utf-8').write(html)
