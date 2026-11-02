@@ -132,8 +132,13 @@ def noren(n):
     """설계서의 '갱신형' 접두어를 뗀 이름 — 약관 지급금액표는 갱신 여부를 구분하지 않는다(v8.20)"""
     return re.sub(r'^갱신형', '', nname(n))
 def itc_id(name):
-    """약관 지급금액표가 있는 통합치료비면 그 id, 아니면 None(→ 규칙표 itc_unknown 이 계산 제외+로그)"""
-    return _ITC_NORM.get(nname(name)) or _ITC_NORM.get(noren(name))
+    """약관 지급금액표가 있는 통합치료비면 그 id, 아니면 None(→ 규칙표 itc_unknown 이 계산 제외+로그).
+       「부모[세부보장]」 꼴(특약 마스터의 세부 레코드 · 예 : 특정순환계질환통합치료비Ⅱ[특정순환계질환 통합치료비])은 세부보장 이름으로 본다(2610 약관 · 2026-11-01)"""
+    hit = _ITC_NORM.get(nname(name)) or _ITC_NORM.get(noren(name))
+    if hit: return hit
+    m = re.fullmatch(r'(.+?)\[(.+)\]', re.sub(GOJI, '', (name or '')).strip())        # 고지 꼬리표((통합간편가입) 등)는 떼고 본다(H3)
+    if m: return _ITC_NORM.get(nname(m.group(2))) or _ITC_NORM.get(noren(m.group(2)))
+    return None
 # ══ 통합생활지원비 식별 (v8.36) ════════════════════════════════════════════════
 # 통합생활지원비는 통합치료비와 구조가 다르다 — 산정특례 등록·치료 항목마다 **월** 단위로 지급하고
 # 가입금액은 '월간 총 지급금액 한도'다. 정액 치료비로 계산하면 진단만으로 가입금액 전액이 잡히므로

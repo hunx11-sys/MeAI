@@ -230,6 +230,31 @@ def col_text(page):
     return nl.join(b[4].rstrip(nl) for b in seq) + nl
 
 
+PAIR_HEAD = re.compile(r'^\s*\d+(?:-\d+)?\.\s*(.+?)\s*$')
+def alt_titles(lines, bstart, title):
+    """2610 약관(2026-10-31)부터 비갱신 특약과 갱신형 특약이 한 본문을 같이 쓴다 — 제목이
+         「2-168. 통합암진단비(유사암제외)보장 특별약관」 「2-169. 갱신형 통합암진단비(유사암제외)보장 특별약관」 두 줄(넷 줄)로 잇달아 오고
+       heading_blocks 는 제1조에서 거슬러 올라가다 첫 번호 줄(2-169.)에서 멈추므로 앞 제목(비갱신)을 잃는다(내Mom대로 · 내Mom같은어린이
+       암진단비(유사암제외) · 뇌졸중진단비 · 급성심근경색증진단비 등 13개 — 독립특약 → 종속특약 전환). 블록 바로 위 줄(최대 4줄)이
+       「번호. …특별약관」 꼴이면 그 제목을 돌려준다(같은 본문 · 같은 별표를 쓰는 특약으로 하나 더 만든다). 글자는 만들지 않는다."""
+    buf, j, n = [], bstart - 1, 0
+    while j >= 0 and n < 4:
+        t = lines[j][1].strip(); j -= 1
+        if not t: continue
+        n += 1; buf.insert(0, t)
+        joined = ' '.join(buf)
+        if PAIR_HEAD.match(joined) and '특별약관' in nz(joined):          # 「…보장 특별약」+「관」 처럼 글자가 줄 끝에서 끊긴 제목도(내Mom대로 2610 p.570 암진단비(유사암제외))
+            alt = IT.title_norm(PAIR_HEAD.match(joined).group(1))
+            alt = GOJI.sub('', tidy_goji(alt)); alt = re.sub(r'보장$', '', alt).strip()
+            # 짝으로 보는 것은 「갱신형」만 다른 같은 이름뿐(내Mom대로 2610 : 같은 이름 55쌍 · 다른 이름 5건은 앞 특약 머리글·절 제목이라 뺀다)
+            if alt and nz(alt) != nz(title) and re.sub(r'^갱신형', '', nz(alt)) == re.sub(r'^갱신형', '', nz(title)) and len(alt) <= 70 and not IT.JUNK.search(alt):
+                return [alt]
+            return []
+        if re.search(r'(니다|습니다|합니다|됩니다)\s*\.?\s*$', t) or re.match(r'^\s*제\s*\d+\s*조', t) or '【' in t:
+            return []
+    return []
+
+
 def parse(path, product, prefix):
     d = pymupdf.open(path)
     pages = [col_text(d[i]) if os.environ.get('TERMS_COLS', '1') == '1' else d[i].get_text() for i in range(len(d))]
@@ -266,6 +291,11 @@ def parse(path, product, prefix):
         riders.append(r)
         if not k and not re.search(r'사망|후유장해|상해|골절|화상|입원일당|수술비\(1-|1-5종|1-7종|수술비Ⅱ|질병수술비|납입|지원금|배상|벌금|변호사|소송|치아', title):
             log.append(('KCD 없음', rid, title, r['src']))
+        alt_ids = []
+        for alt in alt_titles(lines, b['bstart'], title):          # 비갱신·갱신형 짝 제목(2610 약관) — 같은 본문·별표로 하나 더
+            arid = '%s%d' % (prefix, len([r_ for r_ in riders if not r_.get('parent')]) + 1)
+            riders.append(dict(r, id=arid, n=alt, c=category(alt), pair=rid)); alt_ids.append((arid, alt))
+            log.append(('짝 제목(같은 본문)', arid, alt, rid))
         m_sub = re.search(r'총\s*(\d+)\s*개\s*(의)?\s*세부\s*보장', body)
         n_sub = int(m_sub.group(1)) if m_sub else 0
         if not n_sub: continue
@@ -288,8 +318,11 @@ def parse(path, product, prefix):
                     sx += [c for c in body_x(seg) if c not in sx]
                     st = [tid(product, e) for e in SR]; ssrc = [e['key'] + ' ' + e['name'] for e in SR]
                     shc = list(dict.fromkeys([h for e in SR if '수술분류표' not in e['name'] for h in hcs(e['text'])] + hcs(seg)))
-            riders.append({'id': '%s-%d' % (rid, i), 'p': product, 'n': '%s[%s]' % (title, lab), 'c': category('%s[%s]' % (title, lab)) if r['c'] == category(title) else r['c'], 'pg': r['pg'],
-                           'k': sk, 'x': sx, 't': st, 'hc': shc, 'src': ssrc, 'parent': rid})
+            child = {'id': '%s-%d' % (rid, i), 'p': product, 'n': '%s[%s]' % (title, lab), 'c': category('%s[%s]' % (title, lab)) if r['c'] == category(title) else r['c'], 'pg': r['pg'],
+                     'k': sk, 'x': sx, 't': st, 'hc': shc, 'src': ssrc, 'parent': rid}
+            riders.append(child)
+            for arid, alt in alt_ids:                                   # 짝 제목(비갱신) 쪽에도 같은 세부보장을
+                riders.append(dict(child, id='%s-%d' % (arid, i), n='%s[%s]' % (alt, lab), parent=arid))
     return riders, alltabs, log
 
 # 보강 상품의 추출(감수) 순서 — 같은 이름 특약의 코드를 빌릴 때 이 순서에서 앞선 상품 것만 쓴다
@@ -366,6 +399,24 @@ if __name__ == '__main__':
     n_m = settle(riders)
     print('감수 마스터와 같은 이름 %d건은 마스터 코드 · 나머지 %d건은 약관 파싱 코드' % (n_m, len(riders) - n_m))
     db = json.load(open(OUT, encoding='utf-8')) if os.path.exists(OUT) else {'meta': {}, 'riders': []}
+    # 새 약관에 없는 특약(판매중지 · 예 : 간편31 2610 간병인지원·사용 입원일당(Ⅶ) 18개)은 지우지 않고 「retired」 표시로 남긴다(2026-10-31 판 갱신) —
+    # 이전 판으로 가입한 계약의 설계서는 그대로 읽혀야 하고(틀린 금액이 아니라 빈칸 원칙), 지우면 기존 테스트 설계서(간편31 2건)의 간병인 칸이 비어 버린다.
+    # 코드·본문은 그때 뽑은 그대로(약관 원문에서만) · id 는 새 특약 뒤 번호로 다시 매긴다.
+    prev = [r for r in db['riders'] if r['p'] == product]
+    # 같은 특약으로 보는 이름 : 공백 제거 · 앞에 붙은 번호('8계속받는…') · 꼬리 '보장특별약관'(옛 추출기가 못 뗀 것) 을 뗀 것
+    _nk = lambda n: re.sub(r'(보장)?특별약관$', '', re.sub(r'^\d+', '', nz(n)))
+    have = {_nk(r['n']) for r in riders}
+    old_src = ((db.get('meta') or {}).get('sources') or {}).get(product, '')
+    n_ret = 0
+    for pr in [r for r in prev if not r.get('parent')]:
+        if _nk(pr['n']) in have: continue
+        kids = [r for r in prev if r.get('parent') == pr['id']]
+        rid = '%s%d' % (prefix, len([r for r in riders if not r.get('parent')]) + 1)
+        note = pr.get('retired') or ('%s 까지(2610 약관에 없음 · 판매중지)' % (old_src or '이전 판'))
+        riders.append(dict(pr, id=rid, retired=note)); n_ret += 1
+        for i, c in enumerate(kids, 1):
+            riders.append(dict(c, id='%s-%d' % (rid, i), parent=rid, retired=note))
+    if n_ret: print('이전 판에만 있던 특약 %d건은 retired 표시로 남김' % n_ret)
     db['riders'] = [r for r in db['riders'] if r['p'] != product] + riders
     db['meta'] = {'note': '스마트 제안서 전용 특약 마스터(영업지원도구 미반영) — extract_terms_extra.py 로 약관 PDF 에서 추출',
                   'products': sorted({r['p'] for r in db['riders']}), 'prodcount': dict(collections.Counter(r['p'] for r in db['riders'])),

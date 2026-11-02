@@ -1,4 +1,4 @@
-import asyncio,sys
+import os, asyncio,sys
 from playwright.async_api import async_playwright
 
 # 자동 맞춤(v8.48) — 본문 틀(.body 545×632pt)보다 내용이 길면 그 쪽만 줄인다.
@@ -26,7 +26,8 @@ CHECK='''()=>{const o=[];document.querySelectorAll('.page').forEach((p,i)=>{cons
  return o.slice(0,30);}'''
 async def main():
     async with async_playwright() as pw:
-        b=await pw.chromium.launch(); pg=await b.new_page(viewport={'width':794,'height':1123})
+        exe=os.environ.get('GA_CHROMIUM') or ('/opt/pw-browsers/chromium' if os.path.exists('/opt/pw-browsers/chromium') and not os.path.isdir('/opt/pw-browsers/chromium') else None)   # 미리 깔린 크로뮴(세션 환경)이 있으면 그것 · 없으면 playwright 기본(ga_proposal.render 와 같은 규칙 · 2026-11-01)
+        b=await (pw.chromium.launch(executable_path=exe) if exe else pw.chromium.launch()); pg=await b.new_page(viewport={'width':794,'height':1123})
         print('RENDERER chromium/'+b.version)   # 어느 판으로 찍었는지 감사 로그에 남긴다(v8.49)
         import pathlib; await pg.goto(pathlib.Path(sys.argv[1]).resolve().as_uri())   # 윈도우·한글 폴더에서도 올바른 주소; await pg.evaluate('document.fonts.ready'); await pg.wait_for_timeout(300)
         for x in await pg.evaluate(FIT): print(' ',x)
