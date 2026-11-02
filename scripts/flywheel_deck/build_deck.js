@@ -8,7 +8,7 @@ const SZ = JSON.parse(fs.readFileSync(path.join(W, 'sizes.json'), 'utf8'));
 const ROOT = path.resolve(__dirname, '../..');
 const url = f => 'file://' + (f.startsWith('/') ? f : path.join(W, f));
 const MAS = n => url(path.join(ROOT, 'ui/mascots', n + '.webp'));
-const TOTAL = 29;
+const TOTAL = 28;
 
 /* ── 부품 ── */
 // 캡처 한 장 : crop 은 캡처 css 좌표 [x,y,w,h], marks 는 [x,y,번호] (캡처 css 좌표)
@@ -178,15 +178,15 @@ add(`<div class="cv">
 <div style="position:absolute;left:96px;top:120px;width:860px">
 <span class="chip">세일즈혁신TF · 2026.11</span>
 <h1 style="margin-top:40px">영업 플라이휠,<br>직접 만든 도구로<br><span style="color:var(--red)">한 바퀴</span> 돌림</h1>
-<p class="lead">고객발굴부터 터치, 클로징, 계약체결, 관리와 소개를 거쳐<br>새 고객발굴까지. 단계마다 꺼내 쓰는 보조도구 15종을<br>실제 화면으로 정리함</p>
+<p class="lead">고객발굴부터 터치, 클로징, 계약체결, 관리와 소개를 거쳐<br>새 고객발굴까지. 단계마다 꺼내 쓰는 보조도구 14종을<br>실제 화면으로 정리함</p>
 </div>
-<div style="position:absolute;left:96px;top:880px;display:flex;gap:10px">${tag('영업지원도구 6종', 'red')}${tag('설계서 생성기 3종')}${tag('MeAI 홈 2종')}${tag('참고자료 3종')}${tag('사용 통계')}</div>
+<div style="position:absolute;left:96px;top:880px;display:flex;gap:10px">${tag('영업지원도구 6종', 'red')}${tag('설계서 생성기 3종')}${tag('MeAI 홈 2종')}${tag('참고자료 3종')}</div>
 <div class="panel" style="left:1000px;top:64px;width:824px;height:952px"></div>
 ${wheel(640, 1092, 110, {})}
 ${doll('group_hello', 1232, 818, 198)}
 </div>`,
   `표지
-- 직접 만든 보조도구 15종을 영업 순서(플라이휠)에 맞춰 놓은 자료임
+- 직접 만든 보조도구 14종을 영업 순서(플라이휠)에 맞춰 놓은 자료임
 - 도구 소개가 아니라 "어느 단계에서 무엇을 꺼내는지"가 중심임
 - 화면은 모두 실제 도구를 열어 찍은 것. 고객 이름·숫자는 예시`);
 
@@ -246,21 +246,20 @@ const TOOLS = [
   ['예외질환 가이드라인', 'PDF · 매뉴얼 · 엑셀 8시트', [4], 'ref/exm-03.png', [0, 40, 909, 310]],
   ['수술비 3종 정리표', '1-5종 · 1-7종 · 131대', [3], 'ref/xl_surg.png', [0, 0, 926, 316]],
   ['의학용어 그림 해설', '223장 · 그림으로 설명', [3], 'ref/med-001.png', [0, 70, 1067, 364]],
-  ['사용 통계', '도구별 사용량 · 시간대', ['관리'], 'cap/stats_1.png', [140, 60, 1160, 396]],
 ];
 const DPR = { 'cap/unse/saju_share.png': 3, 'ref/exm-03.png': 1, 'ref/med-001.png': 1 };
 function thumb(file, crop, w, h) {
   const [nw] = SZ[file]; const dpr = DPR[file] || 2; const cw = nw / dpr; const sc = w / crop[2];
   return `<img src="${url(file)}" style="width:${Math.round(cw * sc)}px;left:${Math.round(-crop[0] * sc)}px;top:${Math.round(-crop[1] * sc)}px">`;
 }
-add(`${head('도구 지도', '보조도구 15종과 맡은 단계', '숫자 칸은 플라이휠 단계(1 발굴 · 2 터치 · 3 클로징 · 4 체결 · 5 관리·소개 · 6 새 발굴)', { chipGrey: true })}
+add(`${head('도구 지도', '보조도구 14종과 맡은 단계', '숫자 칸은 플라이휠 단계(1 발굴 · 2 터치 · 3 클로징 · 4 체결 · 5 관리·소개 · 6 새 발굴)', { chipGrey: true })}
 ${TOOLS.map(([n, d, st, f, crop], i) => `<div class="tc" style="left:${96 + (i % 5) * 350}px;top:${296 + Math.floor(i / 5) * 238}px;width:330px;height:222px">
 <div class="th">${thumb(f, crop, 330, 112)}</div><div class="tb"><div class="tn">${n}</div><div class="td">${d}</div></div>
 <div class="sp">${st[0] === '관리' ? '<i class="x">관리자용</i>' : [1, 2, 3, 4, 5, 6].map(k => `<i class="${st.includes(k) ? 'on' : ''}">${k}</i>`).join('')}</div></div>`).join('')}`,
   `도구 지도
 - 1행 : 대문에서 여는 영업지원도구 6종 중 5종 + 명패 제작기
 - 2행 : 설계서로 만드는 자료 3종(스마트 제안서 · GA 제안서 · 세일즈북)과 MeAI 홈 2종(홈 넛지 · 운세)
-- 3행 : 공부·참고 자료 3종과 사용 통계
+- 3행 : 공부·참고 자료 3종
 - 빨간 숫자 칸이 그 도구를 쓰는 단계. 프롬프트와 홈 넛지는 여러 단계에 걸침`);
 
 // 5 대문
@@ -536,37 +535,19 @@ ${note('명패 명단은 가상 이름', { x: 890, y: 880 })}`,
 
 // 24 습관
 add(`${head('미는 힘', '바퀴를 매일 미는 힘은 홈을 여는 습관에서 나옴', null, { chipGrey: true })}
-<div class="card g" style="left:96px;top:250px;width:520px;height:330px">
-<span class="k">TA 헤비유저(월 3주 이상 사용)</span>
-<div style="display:flex;align-items:flex-end;gap:18px;margin-top:22px"><div><div style="font-size:18px;font-weight:600;color:var(--muted)">6월</div><div class="big" style="color:var(--faint)">2,856<small>명</small></div></div><div style="font-size:40px;color:var(--dis);padding-bottom:10px">→</div><div><div style="font-size:18px;font-weight:600;color:var(--muted)">8월</div><div class="big" style="color:var(--red)">1,189<small>명</small></div></div></div>
-<p style="margin-top:20px">58.4% 줄어듦. 제품보다 매일 열 이유가 사라진 데서 원인을 찾음</p>
-<p style="font-size:16px;color:var(--faint);margin-top:6px">출처 : MeAI 8월 사용량 감소 원인 분석(2026-09-08)</p></div>
 ${pts([
-    ['', '오늘의 루틴 5개', '출석 · 퀴즈 · 추천 고객 열기 · 공지 · 화법 따라 쓰기'],
+    ['', '오기 · 배우기 · 영업하기 세 고리', '출석 · 퀴즈 · 공지 · 화법 따라 쓰기 · 추천 고객 열기. 3개면 커피 응모권, 5개 다 하면 응모권 2장 더(예시값)'],
     ['', 'OX 스피드 챌린지 39문항', '약관 문항 15개는 특약검색기 약관 원문과 글자 대조'],
     ['', '빙고 · 지점 리그 · 주간 리캡 · 신인 7일 여정', '재미 장치 끝은 늘 "오늘 연락할 고객"이나 "오늘 배울 것"'],
-  ], { x: 96, y: 620, w: 520, gap: 18 })}
+  ], { x: 96, y: 290, w: 520, gap: 34 })}
 ${shot('cap/nz/card_quest.png', { x: 660, y: 250, w: 380 })}
 ${shot('cap/nz/fun_ox.png', { x: 1070, y: 250, w: 380, crop: [0, 0, 576, 576] })}
 ${shot('cap/nz/fx_bingo.png', { x: 1070, y: 660, w: 380 })}
 ${shot('cap/nz/card_league.png', { x: 1480, y: 250, w: 344 })}`,
   `미는 힘 · 습관
-- 헤비유저 감소의 원인을 "매일 열 이유가 없어진 것"으로 보고 홈 넛지를 설계함
+- 홈 넛지는 매일 홈을 열 이유를 만드는 장치임
 - 오기 · 배우기 · 영업하기 세 고리를 매일 채우게 함
 - 보상 · 경품 숫자는 확정 전 예시값. 「로또」 명칭은 「MeAI 행운번호」 대체안 있음`);
-
-// 25 측정
-add(`${head('속도 재기', '바퀴가 얼마나 빨리 도는지 숫자로 봄', null, { chipGrey: true })}
-${shot('cap/stats_1.png', { x: 96, y: 260, w: 860, h: 400, crop: [140, 56, 1160, 800] })}
-${shot('cap/stats_2.png', { x: 96, y: 680, w: 860, crop: [140, 220, 1160, 300] })}
-${shot('cap/nz/dash_org.png', { x: 990, y: 260, w: 834, crop: [140, 40, 1160, 760] })}
-${pts([['', '사용 통계', '6개 도구 사용량 · 요일 · 시간대 히트맵 · 추이 · CSV(익명 집계)']], { x: 96, y: 920, w: 860 })}
-${pts([['', '홈 넛지 대시보드 3종', '나의 기록 · 본부 현황 · 본사 현황(지점별 퀴즈 참여율 지도)']], { x: 990, y: 860, w: 834 })}
-${note('화면 숫자는 구조를 보이려고 넣은 가정값', { x: 990, y: 944 })}`,
-  `속도 재기
-- 사용 통계는 인터넷판 전용(통계 서버). 화면 숫자는 이 자료를 위해 넣은 가정값
-- 넛지 대시보드의 출발점 숫자는 실제 분석값과 따로 표시하게 설계함
-- 어느 지점 · 어느 시간대에 바퀴가 느린지 보고 교육 대상을 정함`);
 
 // 26 축
 add(`${head('축', '바퀴의 축은 약관 하나임', '약관이 바뀌면 명령 하나로 세 갈래 산출물을 함께 다시 만듦', { chipGrey: true })}

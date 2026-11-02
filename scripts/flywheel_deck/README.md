@@ -1,13 +1,13 @@
 # MeAI 영업 플라이휠 PPT · 다시 만드는 법
 
-완성본 : `dist/meai_flywheel_deck.pptx`(29장 · 장마다 통이미지 + 발표자 메모) · `dist/meai_flywheel_deck.pdf`
+완성본 : `dist/meai_flywheel_deck.pptx`(28장 · 장마다 통이미지 + 발표자 메모) · `dist/meai_flywheel_deck.pdf`
 
-고객발굴 → 터치 → 클로징 → 계약체결 → 관리·소개 → 새 고객발굴 플라이휠을 보조도구 15종의 실제 화면으로 설명하는 장표다.
-MeAI 홈 사용 매뉴얼 · MeAI 활용 가이드북 v4 는 넣지 않았다(소유자 2026-11-02).
+고객발굴 → 터치 → 클로징 → 계약체결 → 관리·소개 → 새 고객발굴 플라이휠을 보조도구 14종의 실제 화면으로 설명하는 장표다.
+MeAI 홈 사용 매뉴얼 · MeAI 활용 가이드북 v4, 그리고 MeAI 통계(사용 통계 화면 · 넛지 대시보드 · 헤비유저 숫자)는 넣지 않았다(소유자 2026-11-02).
 
 - 디자인 : `design/DESIGN-토스.md`(흰 바탕 · 차가운 회색 · 한 화면 한 강조색 · 둥근 카드 · 1px 선 · Pretendard) + `design/DESIGN-MeAI.md`(메리츠 빨강 `#C8102E` · 굵기 400/600/700 · 걱정인형 2D)
 - 말투 : 장표 글은 음 · 임으로 끝내는 개조식(소유자 요청, 토스 해요체 대신). 긴 줄표 없음
-- 숫자 : 모두 도구 화면 · 저장소 자료에서 확인한 값. 사용 통계 화면 숫자만 구조를 보이려고 넣은 가정값(장표에 표시)
+- 숫자 : 모두 도구 화면 · 저장소 자료에서 확인한 값
 - 사람 이름 : 운세 「김하늘」 · 명패 명단 · 넛지 고객은 가상. 스마트 제안서는 `proposal_smart/cust_a.json`(설계사 정보 가린 예시), GA 는 `ga_preview.py` 가정값(번호는 0 으로 가림)
 
 ## 순서 (작업 폴더 W 하나에 캡처를 모은다)
@@ -19,7 +19,7 @@ W=<작업폴더>; mkdir -p $W/cap/nz $W/cap/unse $W/cap/gb $W/sp $W/ref $W/out
 # 1. 영업지원도구 화면 (1440x900 @2x)
 node capture/cap_ts.js $W/cap ; node capture/cap_tool2.js $W/cap ; node capture/cap_tool3.js $W/cap ; node capture/cap_ts.js $W/cap
 node capture/cap_sim3.js $W/cap ; node capture/cap_zz2.js $W/cap ; node capture/cap_pr.js $W/cap ; node capture/cap_pr3.js $W/cap
-node capture/cap_pm2.js $W/cap ; node capture/cap_idx.js $W/cap ; node capture/cap_stats.js $W/cap
+node capture/cap_pm2.js $W/cap ; node capture/cap_idx.js $W/cap
 node capture/cap_np.js $W/cap <가상 명단.xlsx>        # 첫 줄 : 이름 · 소속 · 기타
 # 2. MeAI 홈 넛지 · 운세 · 세일즈북
 node capture/shoot_nz.js $W/cap/nz
