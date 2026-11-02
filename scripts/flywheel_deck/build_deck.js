@@ -8,7 +8,7 @@ const SZ = JSON.parse(fs.readFileSync(path.join(W, 'sizes.json'), 'utf8'));
 const ROOT = path.resolve(__dirname, '../..');
 const url = f => 'file://' + (f.startsWith('/') ? f : path.join(W, f));
 const MAS = n => url(path.join(ROOT, 'ui/mascots', n + '.webp'));
-const TOTAL = 34;
+const TOTAL = 35;
 
 /* ── 부품 ── */
 // 캡처 한 장 : crop 은 캡처 css 좌표 [x,y,w,h], marks 는 [x,y,번호] (캡처 css 좌표)
@@ -62,10 +62,10 @@ function wheel(size, x, y, o) {
   const nodes = STAGES.map((s, i) => {
     const [nx, ny] = P(ang(i), r);
     const on = o.cur === i;
-    return `<div class="wn ${on ? 'on' : ''}" style="left:${nx - nr}px;top:${ny - nr}px;width:${nr * 2}px;height:${nr * 2}px"><b>${i + 1}</b><span style="font-size:${Math.round(nr * 0.27)}px">${s}</span></div>`;
+    return `<div class="wn ${on ? 'on' : o.all ? 'done' : ''}" style="left:${nx - nr}px;top:${ny - nr}px;width:${nr * 2}px;height:${nr * 2}px"><b>${i + 1}</b><span style="font-size:${Math.round(nr * 0.27)}px">${s}</span></div>`;
   }).join('');
   const ax = size * 0.15;
-  const axle = o.axle === false ? '' : `<div class="axle" style="left:${c - ax}px;top:${c - ax}px;width:${ax * 2}px;height:${ax * 2}px"><small style="font-size:${Math.round(ax * 0.15)}px">축</small><b style="font-size:${Math.round(ax * 0.2)}px">약관 하나</b><span style="font-size:${Math.round(ax * 0.14)}px">특약 마스터</span></div>`;
+  const axle = o.axle === false ? '' : `<div class="axle ${o.axleRed ? 'red' : ''}" style="left:${c - ax}px;top:${c - ax}px;width:${ax * 2}px;height:${ax * 2}px"><small style="font-size:${Math.round(ax * 0.15)}px">축</small><b style="font-size:${Math.round(ax * 0.2)}px">약관 하나</b><span style="font-size:${Math.round(ax * 0.14)}px">특약 마스터</span></div>`;
   return `<div class="wheel" style="left:${x}px;top:${y}px;width:${size}px;height:${size}px">
 <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><defs>
 <marker id="ahg" markerWidth="10" markerHeight="10" refX="6" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -127,6 +127,10 @@ body { background: #ccc; font-family: "Pretendard Variable", sans-serif; color: 
 .wn span { font-weight: 700; letter-spacing: -0.02em; text-align: center; line-height: 1.2; }
 .wn.on { background: var(--red); border-color: var(--red); }
 .wn.on b, .wn.on span { color: #fff; }
+.wn.done { background: var(--red-w); border-color: var(--red-l); }
+.wn.done b, .wn.done span { color: var(--red-s); }
+.axle.red { background: var(--red); }
+.axle.red small, .axle.red span { color: #FDECEE; }
 .axle { position: absolute; border-radius: 50%; background: var(--ink); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 2px; }
 .axle small { font-weight: 600; color: var(--dis); }
 .axle b { font-weight: 700; letter-spacing: -0.02em; }
@@ -168,12 +172,25 @@ body { background: #ccc; font-family: "Pretendard Variable", sans-serif; color: 
 .cv .lead { margin-top: 30px; font-size: 30px; font-weight: 400; color: var(--sub); line-height: 1.5; letter-spacing: -0.015em; }
 .arrow { position: absolute; color: var(--dis); font-size: 34px; font-weight: 700; }
 /* 간지 */
-.sec-no { margin-top: 44px; font-size: 150px; font-weight: 700; color: var(--red); letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
-.sec-t { margin-top: 22px; font-size: 96px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
-.sec-g { margin-top: 28px; font-size: 32px; font-weight: 400; color: var(--sub); line-height: 1.5; letter-spacing: -0.015em; }
-.sec-l { margin-top: 60px; font-size: 20px; font-weight: 600; color: var(--muted); }
+.sec-no { margin-top: 34px; font-size: 120px; font-weight: 700; color: var(--red); letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.sec-t { margin-top: 18px; font-size: 88px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
+.sec-g { margin-top: 22px; font-size: 30px; font-weight: 400; color: var(--sub); line-height: 1.5; letter-spacing: -0.015em; }
+.sec-l { margin-top: 44px; font-size: 20px; font-weight: 600; color: var(--muted); }
 .sec-l b { color: var(--red-s); font-weight: 700; }
 .sec-chips { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+.prog { position: absolute; display: flex; align-items: flex-start; gap: 28px; }
+.prog .pg-row { flex: 1; display: flex; gap: 6px; }
+.prog .seg { position: relative; min-width: 0; }
+.prog .seg i { display: block; height: 12px; border-radius: 999px; background: var(--line); }
+.prog .seg.done i { background: var(--red-l); }
+.prog .seg.cur i { background: var(--red); box-shadow: 0 0 0 4px var(--red-w); }
+.prog .seg span { display: block; margin-top: 14px; font-size: 16px; font-weight: 600; color: var(--faint); white-space: nowrap; letter-spacing: -0.01em; }
+.prog .seg.done span { color: var(--sub); }
+.prog .seg.cur span { color: var(--ink); font-weight: 700; }
+.prog .seg em { position: absolute; left: -2px; top: -48px; font-style: normal; white-space: nowrap; padding: 7px 13px; border-radius: 10px; background: var(--ink); color: #fff; font-size: 15px; font-weight: 700; box-shadow: 0 4px 12px rgba(15,23,42,.10); }
+.prog .seg em::after { content: ""; position: absolute; left: 16px; bottom: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: var(--ink); }
+.prog .pg-n { flex: none; margin-top: -9px; font-size: 26px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.prog .pg-n small { font-size: 18px; font-weight: 600; color: var(--faint); margin-left: 2px; }
 .sec-chips span { display: inline-flex; align-items: center; height: 48px; padding: 0 20px; border-radius: 999px; background: var(--soft); color: var(--ink2); font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
 `;
 
@@ -182,22 +199,37 @@ const S = [];
 const add = (html, notes) => S.push({ html: `<section class="slide">${html}${foot(S.length + 1)}</section>`, notes });
 // 영업 프로세스 간지 : 단계 번호 · 이름 · 목표 한 줄 · 이 단계 도구와 쪽수 · 지금 단계를 칠한 바퀴
 const DIV = [];
-function sect(k, goal, tools, mascot) {
+const DOLL_W = { merry_detective: 229, hello_wave: 278, eco_point: 271, tata_ok: 275, eco_doctor: 272, success_thumbs: 261, group_lineup: 720 };
+const DOLL_H = { group_lineup: 180 };
+function sect(k, goal, tools, mascot, o) {
+  o = o || {};
   DIV.push(S.length);
-  const mw = Math.round(220 * { merry_detective: 229, hello_wave: 278, eco_point: 271, tata_ok: 275, eco_doctor: 272, success_thumbs: 261 }[mascot] / 360);
-  add(`<div style="position:absolute;left:96px;top:110px;width:900px">
-<span class="chip">영업 프로세스 ${k} / 6</span>
+  const title = o.title || STAGES[k - 1];
+  const mh = o.mh || 180, mw = Math.round(mh * DOLL_W[mascot] / (DOLL_H[mascot] || 360));
+  add(`<div style="position:absolute;left:96px;top:96px;width:900px">
+<span class="chip">${o.chip || `영업 프로세스 ${k} / 6`}</span>
 <div class="sec-no">0${k}</div>
-<h1 class="sec-t">${STAGES[k - 1]}</h1>
+<h1 class="sec-t">${title}</h1>
 <p class="sec-g">${goal}</p>
-<div class="sec-l">이 단계에서 꺼내는 도구 · <b>@@RANGE${k}@@</b></div>
+<div class="sec-l">${o.label || '이 단계에서 꺼내는 도구'} · <b>@@RANGE${k}@@</b></div>
 <div class="sec-chips">${tools.map(t => `<span>${t}</span>`).join('')}</div></div>
-<div class="panel" style="left:1080px;top:64px;width:744px;height:952px"></div>
-${wheel(560, 1172, 110, { cur: k - 1 })}
-${doll(mascot, 1452 - Math.round(mw / 2), 756, 220)}`,
-    `간지 · ${k} ${STAGES[k - 1]}
-- 이 단계 목표 : ${goal.replace(/<br>/g, ' ')}
-- 다음 장부터 ${tools.join(' · ')} 화면을 차례로 봄`);
+<div class="panel" style="left:1080px;top:64px;width:744px;height:766px"></div>
+${wheel(500, 1202, 92, o.wheel || { cur: k - 1 })}
+${doll(mascot, 1452 - Math.round(mw / 2), 830 - mh - 26, mh)}
+@@PROG@@`,
+    `간지 · ${k} ${title}
+- ${o.chip ? '이 부분에서 보는 것' : '이 단계 목표'} : ${goal.replace(/<br>/g, ' ')}
+- 다음 장부터 ${tools.join(' · ')}
+- 아래 막대는 발표 진행. 진한 빨강이 지금 구간`);
+}
+// 발표 진척도 막대 : 도입 · 영업 6단계 · 정리 8구간, 구간 길이는 장 수에 비례
+const CHAPTERS = ['도입', '고객발굴', '터치', '클로징', '계약체결', '관리·소개', '새 고객발굴', '정리'];
+function prog(cur, page, bounds) {
+  const segs = CHAPTERS.map((c, i) => {
+    const cls = i < cur ? 'done' : i === cur ? 'cur' : '';
+    return `<div class="seg ${cls}" style="flex:${bounds[i + 1] - bounds[i]}"><i></i><span>${c}</span>${i === cur ? '<em>지금 여기</em>' : ''}</div>`;
+  }).join('');
+  return `<div class="prog" style="left:96px;top:906px;width:1728px"><div class="pg-row">${segs}</div><div class="pg-n">${Math.round(page / TOTAL * 100)}<small>%</small></div></div>`;
 }
 let HABIT_AT = 0;
 
@@ -568,6 +600,8 @@ ${note('명패 명단은 가상 이름', { x: 890, y: 880 })}`,
 - 소개 받은 고객은 터치 단계(운세 안부)부터 다시 시작
 - 이 장에서 바퀴가 1단계로 돌아감`);
 
+sect(7, '매일 미는 습관과 약관이라는 축,<br>한 바퀴 이야기와 지금 상태를 봄', ['미는 힘 · 홈 넛지 습관', '축 · 약관 하나', '가상 고객 한 바퀴', '지금 상태', '정리'], 'group_lineup',
+  { chip: '마무리', title: '바퀴를 굴리는 힘', label: '이 부분에서 보는 것', mh: 110, wheel: { all: true, axleRed: true } });
 HABIT_AT = S.length;
 // 24 습관
 add(`${head('미는 힘', '바퀴를 매일 미는 힘은 홈을 여는 습관에서 나옴', null, { chipGrey: true })}
@@ -654,8 +688,10 @@ ${doll('group_lineup', 1152, 836, 150)}`,
 
 if (S.length !== TOTAL) { console.error('장 수가 다름', S.length); process.exit(1); }
 S.forEach(x => { x.notes = x.notes.replace('@@SIMPAGE@@', String(SIM_AT + 1)); });
+const BOUNDS = [0, ...DIV, S.length];                              // 구간 c = BOUNDS[c] ~ BOUNDS[c+1]-1 (0 부터 세는 장 번호)
 DIV.forEach((d, i) => {
-  const end = i + 1 < DIV.length ? DIV[i + 1] : HABIT_AT;           // 다음 간지(또는 「미는 힘」) 바로 앞까지
+  S[d].html = S[d].html.replace('@@PROG@@', prog(i + 1, d + 1, BOUNDS));
+  const end = i + 1 < DIV.length ? DIV[i + 1] : S.length;           // 다음 간지 바로 앞까지(마지막은 끝 장까지)
   const a = String(d + 2).padStart(2, '0'), b = String(end).padStart(2, '0');
   S[d].html = S[d].html.replace(`@@RANGE${i + 1}@@`, a === b ? `${a}쪽` : `${a}~${b}쪽`);
 });
