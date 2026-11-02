@@ -1,0 +1,22 @@
+const { chromium } = require('playwright'); const path=require('path');
+const ROOT=require('path').resolve(__dirname,'../../..'), OUT=process.argv[2];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{
+  const b=await chromium.launch();
+  const ctx=await b.newContext({viewport:{width:1440,height:900},deviceScaleFactor:2,reducedMotion:'reduce'});
+  const p=await ctx.newPage(); p.setDefaultTimeout(8000);
+  const shot=(n,o)=>p.screenshot(Object.assign({path:path.join(OUT,n+'.png')},o||{}));
+  const ui=async lim=>console.log((await p.evaluate(lim=>[...document.querySelectorAll('input,select,button,label')].filter(e=>e.offsetParent&&e.getBoundingClientRect().top+scrollY>lim).slice(0,30).map(e=>e.tagName+'#'+e.id+'.'+String(e.className).slice(0,20)+':'+(e.placeholder||e.textContent.trim().replace(/\s+/g,' ').slice(0,30))+'@'+Math.round(e.getBoundingClientRect().top+scrollY)),lim)).join('\n'));
+  await p.goto('file://'+ROOT+'/products.html'); await sleep(2500);
+  await p.locator('button:visible',{hasText:'예외질환 판정'}).first().click(); await sleep(1200);
+  await p.locator('button:visible',{hasText:'대장용종'}).first().click(); await sleep(1000);
+  await p.locator('button.pick').first().click(); await sleep(1200);
+  await p.locator('button.ex-inc').first().click(); await sleep(300); await p.locator('button.ex-inc').first().click(); await sleep(1200);
+  const hy=await p.evaluate(()=>[...document.querySelectorAll('h2,h3')].filter(e=>e.offsetParent).map(e=>[e.textContent.trim().slice(0,20),Math.round(e.getBoundingClientRect().top+scrollY)]));
+  console.log(JSON.stringify(hy));
+  const yt=hy.find(h=>h[0].startsWith('어떻게'))[1], yr=hy.find(h=>h[0].startsWith('판정 결과'))[1];
+  await p.evaluate(v=>window.scrollTo(0,v),yt-110); await sleep(500); await shot('pr_ex_treat');
+  await p.evaluate(v=>window.scrollTo(0,v),yr-90); await sleep(500); await shot('pr_ex_result');
+  await p.evaluate(v=>window.scrollTo(0,v),yr+700); await sleep(500); await shot('pr_ex_result2');
+  await b.close();
+})();
