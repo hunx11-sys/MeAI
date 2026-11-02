@@ -9,6 +9,8 @@
   1) https://github.com/hunx11-sys/MeAI/releases/new
   2) 「Choose a tag」 칸에 terms-inbox 입력 → Create new tag
   3) 제목 : 약관 올리는 곳 → 아래 상자에 약관 PDF 를 모두 끌어다 놓기 → Publish release
+     ※ 깃허브는 첨부 이름에서 한글을 지우므로 「통합간편…2610(일반심사형)」 과 「…2610(355입원…)」 처럼 한글만 다른 파일은 같은 이름이 되어 올라가지 않는다.
+       → 탐색기에서 약관 PDF 들을 모두 선택 → 오른쪽 단추 → 「ZIP 파일로 압축」 → 그 zip 하나만 올린다(zip 안의 PDF 를 모두 꺼내 처리한다).
   다음부터는 https://github.com/hunx11-sys/MeAI/releases/tag/terms-inbox → 연필(Edit) → 끌어다 놓기 → Update release
 
 세션이 할 일
@@ -61,6 +63,15 @@ def key(t):
     return re.sub(r'\s+', '', t[0]) + '|' + t[2]       # 같은 상품 = 상품명 + 심사형 (판 번호는 바뀔 수 있다)
 
 
+def same_product(have, t):
+    """짝이 되는 기존 파일 — 심사형 표기까지 같은 것이 먼저, 없으면 상품명만 같고 어느 한쪽에 심사형 표기가 없는 것
+       (또또암 2607 「…암보험(세만기형)」 ↔ 2610 「…(일반심사형)」 · 2026-11-02)"""
+    if key(t) in have: return have[key(t)]
+    nm = re.sub(r'\s+', '', t[0])
+    c = [v for k, v in have.items() if k.split('|')[0] == nm and ('' in (k.split('|')[1], t[2]))]
+    return c[0] if len(c) == 1 else None
+
+
 def sha(p):
     return hashlib.sha256(open(p, 'rb').read()).hexdigest()
 
@@ -79,12 +90,26 @@ def from_release(tmp):
     print('릴리스 :', rel.get('name'), '(%s)' % rel.get('tag_name'))
     out = []
     for a in rel.get('assets', []):
-        if not a['name'].lower().endswith('.pdf'):
+        nm = a['name'].lower()
+        if not nm.endswith(('.pdf', '.zip')):
             continue
-        p = os.path.join(tmp, '%d.pdf' % a['id'])
+        p = os.path.join(tmp, '%d%s' % (a['id'], '.zip' if nm.endswith('.zip') else '.pdf'))
         print('  받는 중', a['name'], '%.1fMB' % (a['size'] / 1e6), flush=True)
         with urllib.request.urlopen(a['browser_download_url'], timeout=600) as r, open(p, 'wb') as f:
             shutil.copyfileobj(r, f)
+        if nm.endswith('.zip'):
+            # 깃허브 릴리스는 첨부 파일 이름에서 한글을 지워 버려 「2610.pdf」 처럼 겹치면 올라가지 않는다(2026-11-02 소유자 화면).
+            # 그래서 약관 여러 개를 zip 하나로 올리는 것을 받아, 안의 PDF 를 모두 꺼낸다(이름은 어차피 첫 쪽으로 다시 붙인다).
+            import zipfile
+            with zipfile.ZipFile(p) as z:
+                for i, info in enumerate(z.infolist()):
+                    if info.is_dir() or not info.filename.lower().endswith('.pdf'):
+                        continue
+                    q = os.path.join(tmp, '%d_%d.pdf' % (a['id'], i))
+                    with z.open(info) as src, open(q, 'wb') as dst:
+                        shutil.copyfileobj(src, dst)
+                    out.append(('%s 안 %s' % (a['name'], os.path.basename(info.filename)), q))
+            continue
         out.append((a['name'], p))
     return out
 
@@ -109,7 +134,7 @@ def main():
         if not t:
             rows.append(('확인 필요', orig, '첫 쪽에서 「(무) 상품명」을 못 읽음 — 약관 PDF 가 맞는지 확인', None, None)); continue
         new = os.path.join(ROOT, std_name(t))
-        old = have.get(key(t))
+        old = same_product(have, t)
         if old and sha(old[0]) == sha(p):
             rows.append(('같음', std_name(t), '이미 같은 파일이 있음', None, None)); continue
         what = ('새 판' if old else '새 상품') + (' : 판매버전 %s(%s) → %s(%s)' % (old[1][3], old[1][4], t[3], t[4]) if old else ' : 판매버전 %s(%s)' % (t[3], t[4]))
