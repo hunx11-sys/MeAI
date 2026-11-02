@@ -399,24 +399,7 @@ if __name__ == '__main__':
     n_m = settle(riders)
     print('감수 마스터와 같은 이름 %d건은 마스터 코드 · 나머지 %d건은 약관 파싱 코드' % (n_m, len(riders) - n_m))
     db = json.load(open(OUT, encoding='utf-8')) if os.path.exists(OUT) else {'meta': {}, 'riders': []}
-    # 새 약관에 없는 특약(판매중지 · 예 : 간편31 2610 간병인지원·사용 입원일당(Ⅶ) 18개)은 지우지 않고 「retired」 표시로 남긴다(2026-10-31 판 갱신) —
-    # 이전 판으로 가입한 계약의 설계서는 그대로 읽혀야 하고(틀린 금액이 아니라 빈칸 원칙), 지우면 기존 테스트 설계서(간편31 2건)의 간병인 칸이 비어 버린다.
-    # 코드·본문은 그때 뽑은 그대로(약관 원문에서만) · id 는 새 특약 뒤 번호로 다시 매긴다.
-    prev = [r for r in db['riders'] if r['p'] == product]
-    # 같은 특약으로 보는 이름 : 공백 제거 · 앞에 붙은 번호('8계속받는…') · 꼬리 '보장특별약관'(옛 추출기가 못 뗀 것) 을 뗀 것
-    _nk = lambda n: re.sub(r'(보장)?특별약관$', '', re.sub(r'^\d+', '', nz(n)))
-    have = {_nk(r['n']) for r in riders}
-    old_src = ((db.get('meta') or {}).get('sources') or {}).get(product, '')
-    n_ret = 0
-    for pr in [r for r in prev if not r.get('parent')]:
-        if _nk(pr['n']) in have: continue
-        kids = [r for r in prev if r.get('parent') == pr['id']]
-        rid = '%s%d' % (prefix, len([r for r in riders if not r.get('parent')]) + 1)
-        note = pr.get('retired') or ('%s 까지(2610 약관에 없음 · 판매중지)' % (old_src or '이전 판'))
-        riders.append(dict(pr, id=rid, retired=note)); n_ret += 1
-        for i, c in enumerate(kids, 1):
-            riders.append(dict(c, id='%s-%d' % (rid, i), parent=rid, retired=note))
-    if n_ret: print('이전 판에만 있던 특약 %d건은 retired 표시로 남김' % n_ret)
+    # 새 약관에 없는 특약(판매중지)은 넘기지 않는다 — 소유자 2026-11-02 : 판매중지 담보는 지운다(이전에는 retired 표시로 이월했음)
     db['riders'] = [r for r in db['riders'] if r['p'] != product] + riders
     db['meta'] = {'note': '스마트 제안서 전용 특약 마스터(영업지원도구 미반영) — extract_terms_extra.py 로 약관 PDF 에서 추출',
                   'products': sorted({r['p'] for r in db['riders']}), 'prodcount': dict(collections.Counter(r['p'] for r in db['riders'])),
