@@ -245,7 +245,7 @@ let HABIT_AT = 0;
 add(`<div class="cv">
 <div style="position:absolute;left:96px;top:120px;width:860px">
 <span class="chip">세일즈혁신TF · 2026.11</span>
-<h1 style="margin-top:40px">영업 플라이휠,<br>직접 만든 도구로<br><span style="color:var(--red)">한 바퀴</span> 돌림</h1>
+<h1 style="margin-top:40px;font-size:84px">플라이휠,<br>영업지원도구를 통한<br>영업프로세스 <span style="color:var(--red)">선순환</span></h1>
 <p class="lead">고객발굴부터 터치, 클로징, 계약체결, 관리와 소개를 거쳐<br>새 고객발굴까지. 단계마다 꺼내 쓰는 보조도구 13종을<br>실제 화면으로 정리함</p>
 </div>
 <div style="position:absolute;left:96px;top:880px;display:flex;gap:10px">${tag('영업지원도구 6종', 'red')}${tag('설계서 생성기 3종')}${tag('MeAI 홈 2종')}${tag('참고자료 2종')}</div>
@@ -740,7 +740,7 @@ DIV.forEach((d, i) => {
   const els = await p.$$('.slide'); const files = [];
   for (let i = 0; i < els.length; i++) { const f = path.join(dir, String(i + 1).padStart(2, '0') + '.jpg'); await els[i].screenshot({ path: f, type: 'jpeg', quality: 90 }); files.push(f); }
   await b.close();
-  const pres = new pptxgen(); pres.layout = 'LAYOUT_WIDE'; pres.title = 'MeAI 영업 플라이휠'; pres.author = '세일즈혁신TF'; pres.company = '메리츠화재'; pres.subject = '고객발굴부터 소개까지 보조도구로 돌리는 영업 한 바퀴';
+  const pres = new pptxgen(); pres.layout = 'LAYOUT_WIDE'; pres.title = '플라이휠, 영업지원도구를 통한 영업프로세스 선순환'; pres.author = '세일즈혁신TF'; pres.company = '메리츠화재'; pres.subject = '고객발굴부터 소개까지 보조도구로 돌리는 영업 한 바퀴';
   files.forEach((f, i) => { const s = pres.addSlide(); s.background = { color: 'FFFFFF' }; s.addImage({ path: f, x: 0, y: 0, w: 13.333, h: 7.5, altText: S[i].notes.split('\n')[0] }); s.addNotes(S[i].notes); });
   const pptx = path.join(OUT, name + '.pptx'); await pres.writeFile({ fileName: pptx });
   fs.writeFileSync(path.join(OUT, name + '_files.json'), JSON.stringify(files));
