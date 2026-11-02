@@ -1,8 +1,9 @@
 # MeAI 영업 플라이휠 PPT · 다시 만드는 법
 
-완성본 : `dist/meai_flywheel_deck.pptx`(28장 · 장마다 통이미지 + 발표자 메모) · `dist/meai_flywheel_deck.pdf`
+완성본 : `dist/meai_flywheel_deck.pptx`(34장 · 장마다 통이미지 + 발표자 메모) · `dist/meai_flywheel_deck.pdf`
 
 고객발굴 → 터치 → 클로징 → 계약체결 → 관리·소개 → 새 고객발굴 플라이휠을 보조도구 13종의 실제 화면으로 설명하는 장표다.
+영업 6단계 앞마다 간지(단계 번호 · 이름 · 목표 한 줄 · 그 단계 도구와 쪽수 · 지금 단계를 칠한 바퀴 · 걱정인형)가 들어간다(`sect()`). 간지의 쪽수는 굽는 마지막에 자동으로 채운다.
 MeAI 홈 사용 매뉴얼 · MeAI 활용 가이드북 v4, MeAI 통계(사용 통계 화면 · 넛지 대시보드 · 헤비유저 숫자), 의학용어 그림과 해설 PPT 는 넣지 않았다(소유자 2026-11-02).
 
 - 디자인 : `design/DESIGN-토스.md`(흰 바탕 · 차가운 회색 · 한 화면 한 강조색 · 둥근 카드 · 1px 선 · Pretendard) + `design/DESIGN-MeAI.md`(메리츠 빨강 `#C8102E` · 굵기 400/600/700 · 걱정인형 2D)

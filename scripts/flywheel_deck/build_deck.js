@@ -8,7 +8,7 @@ const SZ = JSON.parse(fs.readFileSync(path.join(W, 'sizes.json'), 'utf8'));
 const ROOT = path.resolve(__dirname, '../..');
 const url = f => 'file://' + (f.startsWith('/') ? f : path.join(W, f));
 const MAS = n => url(path.join(ROOT, 'ui/mascots', n + '.webp'));
-const TOTAL = 28;
+const TOTAL = 34;
 
 /* ── 부품 ── */
 // 캡처 한 장 : crop 은 캡처 css 좌표 [x,y,w,h], marks 는 [x,y,번호] (캡처 css 좌표)
@@ -167,11 +167,39 @@ body { background: #ccc; font-family: "Pretendard Variable", sans-serif; color: 
 .cv h1 { font-size: 96px; font-weight: 700; line-height: 1.14; letter-spacing: -0.04em; }
 .cv .lead { margin-top: 30px; font-size: 30px; font-weight: 400; color: var(--sub); line-height: 1.5; letter-spacing: -0.015em; }
 .arrow { position: absolute; color: var(--dis); font-size: 34px; font-weight: 700; }
+/* 간지 */
+.sec-no { margin-top: 44px; font-size: 150px; font-weight: 700; color: var(--red); letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.sec-t { margin-top: 22px; font-size: 96px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
+.sec-g { margin-top: 28px; font-size: 32px; font-weight: 400; color: var(--sub); line-height: 1.5; letter-spacing: -0.015em; }
+.sec-l { margin-top: 60px; font-size: 20px; font-weight: 600; color: var(--muted); }
+.sec-l b { color: var(--red-s); font-weight: 700; }
+.sec-chips { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+.sec-chips span { display: inline-flex; align-items: center; height: 48px; padding: 0 20px; border-radius: 999px; background: var(--soft); color: var(--ink2); font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
 `;
 
 /* ── 장표 ── */
 const S = [];
 const add = (html, notes) => S.push({ html: `<section class="slide">${html}${foot(S.length + 1)}</section>`, notes });
+// 영업 프로세스 간지 : 단계 번호 · 이름 · 목표 한 줄 · 이 단계 도구와 쪽수 · 지금 단계를 칠한 바퀴
+const DIV = [];
+function sect(k, goal, tools, mascot) {
+  DIV.push(S.length);
+  const mw = Math.round(220 * { merry_detective: 229, hello_wave: 278, eco_point: 271, tata_ok: 275, eco_doctor: 272, success_thumbs: 261 }[mascot] / 360);
+  add(`<div style="position:absolute;left:96px;top:110px;width:900px">
+<span class="chip">영업 프로세스 ${k} / 6</span>
+<div class="sec-no">0${k}</div>
+<h1 class="sec-t">${STAGES[k - 1]}</h1>
+<p class="sec-g">${goal}</p>
+<div class="sec-l">이 단계에서 꺼내는 도구 · <b>@@RANGE${k}@@</b></div>
+<div class="sec-chips">${tools.map(t => `<span>${t}</span>`).join('')}</div></div>
+<div class="panel" style="left:1080px;top:64px;width:744px;height:952px"></div>
+${wheel(560, 1172, 110, { cur: k - 1 })}
+${doll(mascot, 1452 - Math.round(mw / 2), 756, 220)}`,
+    `간지 · ${k} ${STAGES[k - 1]}
+- 이 단계 목표 : ${goal.replace(/<br>/g, ' ')}
+- 다음 장부터 ${tools.join(' · ')} 화면을 차례로 봄`);
+}
+let HABIT_AT = 0;
 
 // 1 표지
 add(`<div class="cv">
@@ -271,6 +299,8 @@ ${pts([[1, '첫 화면에서 특약검색으로 바로 들어감', null], [2, '�
 - 내부망 배포판(영업지원도구6종.zip)은 파일만 열면 동작함
 - 숫자는 대문 화면에 적힌 값. 특약 수는 세는 방식(세부보장 포함 여부)에 따라 화면마다 조금 다름`);
 
+sect(1, '오늘 연락할 고객을 고르고,<br>연락할 이유를 붙임', ['MeAI 홈 넛지 · 추천 고객 슬롯', 'CRM 룰렛', '프롬프트 「고객발굴」'], 'merry_detective');
+
 // 6 [1] 홈 넛지 추천
 add(`${head('1 고객발굴', '아침에 홈을 열면<br>오늘 챙길 고객이 먼저 떠 있음')}${stepper(0)}
 ${pts([
@@ -302,6 +332,8 @@ ${shot('cap/pm_s1.png', { x: 1170, y: 250, w: 654, h: 420, crop: [90, 150, 1260,
 - 확률 공개, 하루 한도는 준법 검토 항목으로 따로 정리해 둠
 - 오른쪽은 프롬프트 라이브러리에서 영업단계 「고객발굴/CRM선정」을 고른 화면(16개)`);
 
+sect(2, '보험 얘기 전에<br>안부와 첫마디로 대화를 엶', ['오늘의 운세', '오늘의 화법 798건', '프롬프트 「고객터치」'], 'hello_wave');
+
 // 8 [2] 오늘의 운세
 add(`${head('2 터치', '보험 얘기 전에 운세 한 장으로 안부를 엶')}${stepper(1)}
 ${pts([
@@ -331,6 +363,8 @@ ${pts([
 - 왼쪽 : 홈 넛지의 오늘의 화법 카드. 따라 쓰기를 마치면 응모권
 - 가운데 : 행운 존의 오늘의 운세 카드. 고객에게 건넬 한마디가 같이 나옴
 - 화법 798건은 제출자 이름을 가린 판만 저장소에 둠`);
+
+sect(3, '고객 질문에 약관 근거로 답하고,<br>고객 맞춤 자료를 건넴', ['특약검색기', '보상시뮬레이터', '통합치료비 시뮬레이터', '스마트 제안서', 'GA 스마트 제안서', '세일즈북 생성기', '수술비 3종 정리표'], 'eco_point');
 
 // 10 [3] 상담 한 장면
 const flow = [
@@ -381,6 +415,7 @@ ${note('NEW 표시가 붙은 표적항암 종류 · 수술비 비교는 새로 �
 - 상급종합 지도 : "큰 병원 가면요?" 질문에 권역별 병원 목록으로 답함
 - 표적항암 · 수술비 비교 · 상품 히스토리는 새로 붙인 단추`);
 
+const SIM_AT = S.length;
 // 13 [3] 보상시뮬레이터
 add(`${head('3 클로징', '병명 하나 넣으면<br>진단부터 사망까지 보장 순서가 나옴')}${stepper(2)}
 ${shot('cap/sim_stages.png', { x: 96, y: 330, w: 900, h: 496, crop: [130, 60, 1180, 700], marks: [[160, 95, 1], [170, 190, 2], [170, 370, 3], [170, 640, 4]] })}
@@ -462,6 +497,8 @@ ${pts([['', '1-7종 대표질병 시트', '수술코드 630개(수술구분 266�
 - 약관 별표와 영업지원도구 특약 마스터에서 뽑음. 대표 질병 시트는 참고용
 - 특약검색기의 「수술비 비교」 단추와 같이 씀`);
 
+sect(4, '청약 전에 인수 가능성과<br>면책 · 감액 조건을 확인함', ['상품 라인업 · 알릴의무', '예외질환 판정', '예외질환 가이드라인', '세일즈북 면책 · 감액표'], 'tata_ok');
+
 // 19 [4] 상품 라인업 · 알릴의무
 add(`${head('4 계약체결', '청약 전에 상품과 알릴의무부터 맞춰 봄')}${stepper(3)}
 ${shot('cap/pr_card.png', { x: 96, y: 300, w: 840, h: 556, crop: [130, 40, 1180, 860], marks: [[170, 90, 1], [190, 525, 2]] })}
@@ -499,6 +536,8 @@ ${pts([['', '세일즈북 면책 · 감액 상자', '보장개시 90일, 1년 �
 - 분쟁이 잦은 면책 · 감액 조건은 세일즈북에 상자로 따로 들어감
 - 청약 전에 짚어 주면 불완전판매를 줄일 수 있음`);
 
+sect(5, '아플 때 청구를 챙기고,<br>갱신 · 상령일에 먼저 연락함', ['보상시뮬레이터 청구 안내', '프롬프트 「사후관리」 111개', '보장 분석 탭', 'CRM 룰렛 갱신 칸'], 'eco_doctor');
+
 // 22 [5] 관리·소개
 add(`${head('5 관리·소개', '아플 때 받을 특약을 빠짐없이 짚어 주면<br>소개가 나옴')}${stepper(4)}
 ${shot('cap/pm_s6.png', { x: 96, y: 330, w: 620, h: 430, crop: [90, 180, 1260, 815], marks: [[110, 200, 1]] })}
@@ -507,9 +546,11 @@ ${shot('cap/nz/fun_roulette.png', { x: 1344, y: 330, w: 480, h: 430, crop: [0, 3
 ${pts([[1, '프롬프트 「사후관리/소개요청」 111개', '272개 중 가장 많음. 유방암 단계별 청구(수술 · 항암 · 방사선 · 재건) 같은 질문'], [2, '보장 분석 탭', '특약마다 사각지대 · 상위호환 특약. 보장 점검 자리에서 씀']], { x: 96, y: 790, w: 1214, gap: 14 })}
 ${pts([[3, 'CRM 룰렛 갱신 칸', '갱신 · 상령일이 다가온 고객 3명과 문구']], { x: 1344, y: 790, w: 480 })}`,
   `5 관리·소개
-- 고객이 아프다고 연락하면 보상시뮬레이터에서 그 병명의 단계별 특약을 처음부터 확인함(13장 화면)
+- 고객이 아프다고 연락하면 보상시뮬레이터에서 그 병명의 단계별 특약을 처음부터 확인함(@@SIMPAGE@@쪽 화면)
 - 청구를 놓치지 않게 챙기는 것이 소개로 이어짐
 - 1~2년 뒤 보장 점검 때는 스마트 제안서를 다시 뽑아 비교함`);
+
+sect(6, '소개 받은 고객을<br>다음 바퀴의 첫 고객으로 들임', ['명패 제작기', '추천 슬롯 「동의 필요」'], 'success_thumbs');
 
 // 23 [6] 새 고객발굴
 add(`${head('6 새 고객발굴', '소개 받은 고객이 다음 바퀴의 첫 고객이 됨')}${stepper(5)}
@@ -527,6 +568,7 @@ ${note('명패 명단은 가상 이름', { x: 890, y: 880 })}`,
 - 소개 받은 고객은 터치 단계(운세 안부)부터 다시 시작
 - 이 장에서 바퀴가 1단계로 돌아감`);
 
+HABIT_AT = S.length;
 // 24 습관
 add(`${head('미는 힘', '바퀴를 매일 미는 힘은 홈을 여는 습관에서 나옴', null, { chipGrey: true })}
 ${pts([
@@ -611,6 +653,12 @@ ${doll('group_lineup', 1152, 836, 150)}`,
 - 문의 : 세일즈혁신TF`);
 
 if (S.length !== TOTAL) { console.error('장 수가 다름', S.length); process.exit(1); }
+S.forEach(x => { x.notes = x.notes.replace('@@SIMPAGE@@', String(SIM_AT + 1)); });
+DIV.forEach((d, i) => {
+  const end = i + 1 < DIV.length ? DIV[i + 1] : HABIT_AT;           // 다음 간지(또는 「미는 힘」) 바로 앞까지
+  const a = String(d + 2).padStart(2, '0'), b = String(end).padStart(2, '0');
+  S[d].html = S[d].html.replace(`@@RANGE${i + 1}@@`, a === b ? `${a}쪽` : `${a}~${b}쪽`);
+});
 
 /* ── 굽기 ── */
 (async () => {
