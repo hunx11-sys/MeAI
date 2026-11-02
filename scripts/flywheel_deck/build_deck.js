@@ -42,7 +42,7 @@ function head(chip, title, sub, o) {
 const pts = (items, o) => `<div class="pts" style="left:${o.x}px;top:${o.y}px;width:${o.w}px;gap:${o.gap || 26}px">${items.map(([n, t, d]) => `<div class="pt">${n ? `<b class="num">${n}</b>` : '<b class="dot"></b>'}<div><div class="pt-t">${t}</div>${d ? `<div class="pt-d">${d}</div>` : ''}</div></div>`).join('')}</div>`;
 const note = (t, o) => `<div class="note" style="left:${o.x}px;top:${o.y}px;${o.w ? 'width:' + o.w + 'px;' : ''}">${t}</div>`;
 const tag = (t, k) => `<span class="tag ${k || ''}">${t}</span>`;
-const foot = n => `<div class="foot"><span>MeAI 영업 플라이휠 · 세일즈혁신TF</span><span>${String(n).padStart(2, '0')} / ${TOTAL}</span></div>`;
+const foot = n => `<div class="foot"><span>MeAI 영업 플라이휠 · 세일즈혁신TF</span>@@MINI@@<span>${String(n).padStart(2, '0')} / ${TOTAL}</span></div>`;
 const lab = (t, x, y, o) => `<div class="lab" style="left:${x}px;top:${y}px;${(o && o.w) ? 'width:' + o.w + 'px;' : ''}">${t}</div>`;
 const doll = (n, x, y, h) => `<img class="doll" src="${MAS(n)}" style="left:${x}px;top:${y}px;height:${h}px">`;
 
@@ -84,7 +84,15 @@ body { background: #ccc; font-family: "Pretendard Variable", sans-serif; color: 
 .chip.grey { background: var(--soft); color: var(--sub); }
 .title { margin-top: 20px; font-size: 50px; font-weight: 700; line-height: 1.28; letter-spacing: -0.03em; }
 .sub { margin-top: 12px; font-size: 23px; font-weight: 400; color: var(--muted); line-height: 1.5; letter-spacing: -0.01em; }
-.foot { position: absolute; left: 96px; right: 96px; bottom: 34px; display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; color: var(--faint); }
+.foot { position: absolute; left: 96px; right: 96px; bottom: 34px; display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 600; color: var(--faint); }
+/* 일반 장표 바닥 진척 막대 : 간지와 같은 8구간을 얇게, 지금 구간은 장 위치만큼 채우고 점 */
+.mini { flex: 1; display: flex; align-items: center; gap: 16px; margin: 0 56px; }
+.mini .mr { flex: 1; display: flex; gap: 4px; }
+.mini .ms { position: relative; height: 6px; border-radius: 999px; background: var(--line); }
+.mini .ms.done { background: var(--red-l); }
+.mini .ms.cur i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: var(--red); }
+.mini .ms.cur b { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--red-w); }
+.mini .ml { flex: none; font-size: 16px; font-weight: 700; color: var(--red-s); white-space: nowrap; }
 /* 진행 표시 */
 .stepper { position: absolute; right: 96px; top: 70px; display: flex; align-items: flex-start; }
 .stepper em { width: 34px; height: 2px; background: var(--line); margin-top: 15px; }
@@ -257,7 +265,7 @@ ${wheel(700, 96, 300, {})}
 <table><tr><th style="width:250px">단계</th><th>꺼내 쓰는 도구</th></tr>
 <tr><td class="st"><i>1</i>고객발굴</td><td>MeAI 홈 넛지(추천 고객 슬롯 · CRM 룰렛) · 프롬프트 「고객발굴」</td></tr>
 <tr><td class="st"><i>2</i>터치</td><td>오늘의 운세(사주 + 타로) · 오늘의 화법 798건 · 프롬프트 「고객터치」</td></tr>
-<tr><td class="st"><i>3</i>클로징</td><td>특약검색기 · 보상시뮬레이터 · 통합치료비 · 스마트 제안서 · GA 제안서 · 세일즈북 · 수술비 정리표</td></tr>
+<tr><td class="st"><i>3</i>클로징</td><td>특약검색기 · 보상시뮬레이터 · 통합치료비 · 스마트 제안서(끼움판 · GA 디자인판) · 세일즈북 · 수술비 정리표</td></tr>
 <tr><td class="st"><i>4</i>계약체결</td><td>상품 라인업(알릴의무 · 예외질환 판정) · 예외질환 가이드라인 · 세일즈북 면책·감액표</td></tr>
 <tr><td class="st"><i>5</i>관리·소개</td><td>보상시뮬레이터 청구 안내 · 프롬프트 「사후관리」 111개 · CRM 룰렛 갱신 칸</td></tr>
 <tr><td class="st"><i>6</i>새 고객발굴</td><td>명패 제작기(초청 세미나) · 추천 슬롯 「동의 필요」 → 다시 1단계</td></tr>
@@ -299,7 +307,7 @@ const TOOLS = [
   ['프롬프트 라이브러리', 'MeAI 질문 272개 · 영업 단계별', [1, 2, 3, 5], 'cap/pm_s1.png', [100, 60, 1240, 423]],
   ['명패 제작기', '엑셀 명단 → 명패 · 라벨', [6], 'cap/np_plates.png', [0, 0, 1076, 367]],
   ['스마트 제안서', '설계서 → 맞춤 보장 9쪽', [3, 5], 'sp/sp_p01.png', [0, 0, 794, 271]],
-  ['GA 스마트 제안서', 'GA 양식 · 세부내역 포함', [3], 'sp/ga_p02.png', [0, 20, 794, 271]],
+  ['스마트 제안서 GA 디자인판', 'GA 디자인 · TA PA부문도 출력', [3], 'sp/ga_p02.png', [0, 20, 794, 271]],
   ['세일즈북 생성기', '설계서 → 상담 가이드북', [3, 4], 'cap/gb/gb_p02.png', [0, 30, 794, 271]],
   ['MeAI 홈 넛지 플레이', '추천 고객 · 루틴 · 행운 존', [1, 2, 5, 6], 'cap/nz/home_1440.png', [150, 20, 1140, 389]],
   ['오늘의 운세', '사주 + 타로 · 카톡 공유', [2, 5], 'cap/unse/saju_share.png', [0, 0, 390, 133]],
@@ -317,7 +325,7 @@ ${TOOLS.map(([n, d, st, f, crop], i) => `<div class="tc" style="left:${96 + (i %
 <div class="sp">${st[0] === '관리' ? '<i class="x">관리자용</i>' : [1, 2, 3, 4, 5, 6].map(k => `<i class="${st.includes(k) ? 'on' : ''}">${k}</i>`).join('')}</div></div>`).join('')}`,
   `도구 지도
 - 1행 : 대문에서 여는 영업지원도구 6종 중 5종 + 명패 제작기
-- 2행 : 설계서로 만드는 자료 3종(스마트 제안서 · GA 제안서 · 세일즈북)과 MeAI 홈 2종(홈 넛지 · 운세)
+- 2행 : 설계서로 만드는 자료 3종(스마트 제안서 · 스마트 제안서 GA 디자인판 · 세일즈북)과 MeAI 홈 2종(홈 넛지 · 운세)
 - 3행 : 공부·참고 자료 2종(예외질환 가이드라인 · 수술비 정리표)
 - 빨간 숫자 칸이 그 도구를 쓰는 단계. 프롬프트와 홈 넛지는 여러 단계에 걸침`);
 
@@ -396,7 +404,7 @@ ${pts([
 - 가운데 : 행운 존의 오늘의 운세 카드. 고객에게 건넬 한마디가 같이 나옴
 - 화법 798건은 제출자 이름을 가린 판만 저장소에 둠`);
 
-sect(3, '고객 질문에 약관 근거로 답하고,<br>고객 맞춤 자료를 건넴', ['특약검색기', '보상시뮬레이터', '통합치료비 시뮬레이터', '스마트 제안서', 'GA 스마트 제안서', '세일즈북 생성기', '수술비 3종 정리표'], 'eco_point');
+sect(3, '고객 질문에 약관 근거로 답하고,<br>고객 맞춤 자료를 건넴', ['특약검색기', '보상시뮬레이터', '통합치료비 시뮬레이터', '스마트 제안서', '스마트 제안서 GA 디자인판', '세일즈북 생성기', '수술비 3종 정리표'], 'eco_point');
 
 // 10 [3] 상담 한 장면
 const flow = [
@@ -487,19 +495,20 @@ ${note('예시 고객 자료(이름 · 설계사 정보 가림)로 만든 9쪽',
 - 그 고객이 가입한 담보만 계산하므로 안 든 담보가 0원으로 찍히지 않음
 - 질병코드와 금액은 약관에서만 가져옴. 근거가 없으면 빈칸 + 사유 로그`);
 
-// 16 [3] GA 스마트 제안서
+// 16 [3] 스마트 제안서 GA 디자인판 (디자인만 GA 가 정함 · TA채널 PA부문도 출력)
 const GAN = ['표지', '보장 요약', '암 보장', '뇌·심 보장', '보장금액 세부내역'];
-add(`${head('3 클로징', 'GA 채널은 GA 양식 그대로 뽑음')}${stepper(2)}
-${GAN.map((t, i) => { const x = 96 + i * 352; return `${shot('sp/ga_p0' + (i + 1) + '.png', { x, y: 290, w: 330, h: 467, cls: 'doc', crop: [0, 0, 794, 1123] })}<div class="lab" style="left:${x}px;top:772px">${t}</div>`; }).join('')}
+add(`${head('3 클로징', 'GA가 정한 디자인 그대로,<br>TA채널 PA부문도 같이 뽑음')}${stepper(2)}
+${GAN.map((t, i) => { const x = 96 + i * 352; return `${shot('sp/ga_p0' + (i + 1) + '.png', { x, y: 310, w: 330, h: 467, cls: 'doc', crop: [0, 0, 794, 1123] })}<div class="lab" style="left:${x}px;top:790px">${t}</div>`; }).join('')}
 ${pts([
-    ['', 'GA 디자인 가안 그림 위에 값만 얹는 방식', null],
+    ['', '디자인만 GA가 정함 · 채널 구분 없이 씀', 'TA채널 PA부문도 청약서 출력 · 상품설명서 출력 단계에서 같은 양식으로 출력'],
     ['', '보장 요약 칸 : 암 · 뇌심 · 주요수술 12 · 간병인', null],
-  ], { x: 96, y: 830, w: 820, gap: 10 })}
+  ], { x: 96, y: 840, w: 820, gap: 10 })}
 ${pts([
-    ['', '세부내역은 빠지지 않음(GA 확정 2026-10-02)', '보장 요약 칸마다 어느 특약 몇 원이 더해졌는지 보여 주는 계산서'],
-  ], { x: 960, y: 830, w: 864 })}`,
-  `3 클로징 · GA 스마트 제안서
-- GA지원센터 수정사항(2026-10-22)까지 반영한 칸 구성
+    ['', '세부내역은 빠지지 않음(2026-10-02 확정)', '보장 요약 칸마다 어느 특약 몇 원이 더해졌는지 보여 주는 계산서'],
+  ], { x: 960, y: 840, w: 864 })}`,
+  `3 클로징 · 스마트 제안서 GA 디자인판
+- 디자인을 GA가 정했을 뿐 GA 전용이 아님. TA채널 PA부문도 청약서 출력 · 상품설명서 출력 단계에서 같은 양식으로 출력함
+- GA 디자인 가안 그림 위에 값 글자만 얹는 방식. GA지원센터 수정사항(2026-10-22)까지 반영한 칸 구성
 - 세부내역을 못 만들면 생성 자체를 실패로 처리함(빼고 내보내지 않음)
 - 화면 값은 설계서 없이 지면 모양만 보는 미리보기의 가정값. 이름 · 번호는 가안 표기`);
 
@@ -625,7 +634,7 @@ add(`${head('축', '바퀴의 축은 약관 하나임', '약관이 바뀌면 명
 <div class="arrow" style="left:440px;top:450px">›</div>
 <div class="card" style="left:480px;top:330px;width:420px;height:300px;border-color:var(--red-l)"><span class="k">특약 마스터</span><h4 style="margin-top:10px">tool.html 감수본 + 약관 파싱</h4><p>질병코드 · 지급표 · 같은 이름 특약 묶음</p></div>
 <div class="arrow" style="left:914px;top:450px">›</div>
-${[['영업지원도구 6종', '배포판 · 올인원 · 인터넷판'], ['스마트 제안서 · GA 제안서', '설계서 → 맞춤 보장 지면'], ['세일즈북 생성기', '설계서 → 상담 가이드북']].map(([t, d], i) => `<div class="card" style="left:954px;top:${330 + i * 104}px;width:420px;height:92px;padding:18px 24px"><h4 style="font-size:22px">${t}</h4><p style="margin-top:2px;font-size:17px">${d}</p></div>`).join('')}
+${[['영업지원도구 6종', '배포판 · 올인원 · 인터넷판'], ['스마트 제안서 · GA 디자인판', '설계서 → 맞춤 보장 지면'], ['세일즈북 생성기', '설계서 → 상담 가이드북']].map(([t, d], i) => `<div class="card" style="left:954px;top:${330 + i * 104}px;width:420px;height:92px;padding:18px 24px"><h4 style="font-size:22px">${t}</h4><p style="margin-top:2px;font-size:17px">${d}</p></div>`).join('')}
 ${pts([
     ['', '질병코드는 만들거나 짐작하지 않음', '약관 별표와 특약 마스터에서만 옴. 목록이 없으면 지급하지 않고 사유를 남김'],
     ['', '금액도 짐작하지 않음', '지급금액표에 없는 가입금액 · 항목은 계산에서 빼고 기록'],
@@ -661,7 +670,7 @@ ${story.map(([s, d, f, crop, dpr], i) => { const x = 96 + (i % 3) * 584, y = 300
 add(`${head('지금 상태', '바로 쓰는 것과 개발이 필요한 것', null, { chipGrey: true })}
 ${[
     ['바로 사용', 'red', ['영업지원도구 6종(배포판 zip · 인터넷 없이 동작)', '오늘의 운세 한 파일판', '간편보험 예외질환 가이드라인 · 매뉴얼 · 엑셀', '수술비 3종 정리표']],
-    ['프로토타입 · 시범 운영 전', '', ['스마트 제안서 생성기', 'GA 스마트 제안서(설계도 · IT 인계 문서 준비)', '세일즈북 생성기']],
+    ['프로토타입 · 시범 운영 전', '', ['스마트 제안서 생성기', '스마트 제안서 GA 디자인판(설계도 · IT 인계 문서 준비)', '세일즈북 생성기']],
     ['목업 · 개발 필요', 'dark', ['MeAI 홈 넛지 플레이 v5.1(API 28 · DB 표 35 · 배치 11 명세)', '오늘의 운세 사내 웹서버 탑재(패키지 준비)', '세일즈북 → 맞춤대화 요약리포트 「내 보장 쉽게 보기」']],
   ].map(([t, k, list], i) => `<div class="card" style="left:${96 + i * 584}px;top:280px;width:560px;height:540px">${tag(t, k)}
 <div style="margin-top:22px;display:flex;flex-direction:column;gap:16px">${list.map(s => `<div style="display:flex;gap:12px"><b class="dot" style="margin:11px 4px 0 0"></b><span style="font-size:22px;font-weight:600;line-height:1.45;letter-spacing:-0.01em">${s}</span></div>`).join('')}</div></div>`).join('')}
@@ -678,9 +687,9 @@ add(`<div style="position:absolute;left:96px;top:250px;width:900px">
 <p class="sub" style="font-size:28px;margin-top:30px">오늘 바로 쓸 수 있는 도구부터 현장에 풀고,<br>홈 넛지와 요약리포트 연동은 개발 협의로 넘김</p>
 <div style="margin-top:56px;display:flex;flex-direction:column;gap:12px;font-size:22px;font-weight:600;color:var(--sub)">
 <span>업데이트 · 오류 문의 : 세일즈혁신TF</span><span style="color:var(--faint);font-size:18px">내부 설계사 교육 · 업무용. 실제 보장 여부와 지급금액은 약관으로 확인해야 함</span></div></div>
-<div class="panel" style="left:1080px;top:64px;width:744px;height:952px"></div>
-${wheel(600, 1152, 130, { cur: 0 })}
-${doll('group_lineup', 1152, 836, 150)}`,
+<div class="panel" style="left:1080px;top:64px;width:744px;height:926px"></div>
+${wheel(600, 1152, 120, { cur: 0 })}
+${doll('group_lineup', 1152, 812, 150)}`,
   `정리
 - 6단계가 끊기지 않게 이어지면 소개가 다음 바퀴를 엶
 - 오늘 바로 쓸 수 있는 것부터 현장에 퍼뜨리고, 홈 넛지 · 요약리포트 연동은 개발 협의로 넘김
@@ -688,6 +697,18 @@ ${doll('group_lineup', 1152, 836, 150)}`,
 
 if (S.length !== TOTAL) { console.error('장 수가 다름', S.length); process.exit(1); }
 S.forEach(x => { x.notes = x.notes.replace('@@SIMPAGE@@', String(SIM_AT + 1)); });
+{ // 바닥 진척 막대 채우기 (표지 · 간지는 빼고)
+  const B = [0, ...DIV, S.length];
+  S.forEach((x, i) => {
+    let mini = '';
+    if (i > 0 && !DIV.includes(i)) {
+      const c = B.findIndex((b, k) => k < B.length - 1 && i >= b && i < B[k + 1]);
+      const f = Math.round((i - B[c] + 1) / (B[c + 1] - B[c]) * 1000) / 10;
+      mini = `<div class="mini"><div class="mr">${CHAPTERS.map((t, k) => `<div class="ms ${k < c ? 'done' : k === c ? 'cur' : ''}" style="flex:${B[k + 1] - B[k]}">${k === c ? `<i style="width:${f}%"></i><b style="left:${f}%"></b>` : ''}</div>`).join('')}</div><span class="ml">${CHAPTERS[c]}</span></div>`;
+    }
+    x.html = x.html.replace('@@MINI@@', mini);
+  });
+}
 const BOUNDS = [0, ...DIV, S.length];                              // 구간 c = BOUNDS[c] ~ BOUNDS[c+1]-1 (0 부터 세는 장 번호)
 DIV.forEach((d, i) => {
   S[d].html = S[d].html.replace('@@PROG@@', prog(i + 1, d + 1, BOUNDS));
