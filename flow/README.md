@@ -5,6 +5,7 @@
 장면마다 저장소에 있는 도구 HTML 을 그대로 띄운다. PPT(`dist/meai_flywheel_deck.pptx`)와 같은 순서 · 같은 말투(음·임)다.
 
 ## 여는 법
+- **내려받기 묶음** : `dist/meai_flywheel_kit.zip`(34MB). 압축을 다 푼 뒤 `meai_flywheel_kit/flow.html` 을 연다. PPT · PDF 는 그 안 `PPT/` 폴더. 시연판 · PPT · 도구를 고치면 `python3 scripts/build_flow_kit.py` 로 다시 묶는다.
 - 저장소(MeAI 폴더) 맨 위의 `flow.html` 을 크롬이나 엣지로 연다(더블클릭). 인터넷이 없어도 된다.
 - **폴더째 있어야 한다.** 시연판이 옆에 있는 `tool.html` · `products.html` · `통합치료비.html` · `prompts.html` · `명패생성기.html` · `index.html` · `dist/` · `docs/` · `ui/mascots/` · `flow/` 를 불러 쓴다.
 - 넘기기 : 아래 「다음」 · 「이전」, 키보드 → ← (화면 안 도구를 누른 뒤에는 키보드가 그 도구로 가므로 단추를 쓴다)
@@ -18,7 +19,7 @@
 | 1 고객발굴 | 추천 고객 · CRM 룰렛 · 프롬프트 「고객발굴」 | `dist/meai_home_nudge_v5.html` (목업) · `prompts.html` |
 | 2 터치 | 오늘의 운세(휴대폰 틀) · 오늘의 화법 | `dist/unse_saju_tarot.html#saju` · 홈 넛지 |
 | 3 클로징 | 특약검색기 · 보상시뮬레이터 · 통합치료비 · 스마트 제안서 9쪽 · GA 디자인판 · 세일즈북 · 수술비 정리표 | `tool.html#search` · `tool.html#sim` · `통합치료비.html#C16` · `flow/sp_*.jpg` · `flow/ga_*.jpg` · `docs/guidebook_proto.html` · `flow/xl_*.jpg` + 엑셀 받기 |
-| 4 계약체결 | 상품 라인업 · 예외질환 판정 · 가이드라인 PDF | `products.html` · `products.html?ex#ex` · `dist/simple_ins_exception_guide_2610.pdf` |
+| 4 계약체결 | 상품 라인업 · 예외질환 판정 · 가이드라인 | `products.html` · `products.html?ex#ex` · `flow/exg_*.jpg`(PDF 다섯 쪽 그림) + 「PDF 열기」 `dist/simple_ins_exception_guide_2610.pdf` |
 | 5 관리·소개 | 청구 안내 · 프롬프트 「사후관리」 · 갱신 연락 | `tool.html#sim` · `prompts.html` · 홈 넛지 |
 | 6 새 고객발굴 | 명패 제작기 · 다시 1단계 | `명패생성기.html` · 홈 넛지 |
 | 정리 | 한 바퀴 요약 | (시연판 안에서 그림) |
@@ -32,6 +33,7 @@
 - `flow/sp_01~09.jpg` : 스마트 제안서 9쪽(`proposal_smart/cust_a.json` 예시 고객 · 설계사 정보 가림)
 - `flow/ga_01~05.jpg` : GA 디자인판 미리보기(`ga_preview.py` 가정값 · 가계약 · 코드 번호는 0 으로 가림)
 - `flow/xl_s15.jpg` · `xl_surg.jpg` : 수술비 3종 정리표 시트 화면
+- `flow/exg_01 · 02 · 04 · 07 · 11.jpg` : 간편보험 예외질환 가이드라인 PDF 의 다섯 쪽. PDF 를 틀 안에 바로 띄우면 브라우저 설정에 따라 내려받기로 넘어가서 그림으로 보여 주고 원본은 「PDF 열기」로 연다
 - 글꼴 : 파일로 열면 브라우저가 옆 글꼴 파일을 막아서, 시연판에 쓰는 글자만 담은 Pretendard 를 파일 안에 넣었다.
   **글을 고쳤으면 `python3 scripts/build_flow_font.py` 를 다시 돌린다**(fonttools 필요 · 원본 `assets/pretendard-subset.woff2`).
 - 화면 속 사람 이름 · 금액은 모두 예시다. 홈 넛지는 목업이고, 스마트 제안서 · GA 디자인판 · 세일즈북은 프로토타입이다.
