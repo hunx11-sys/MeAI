@@ -1,0 +1,20 @@
+const { chromium } = require('playwright'); const path=require('path');
+const ROOT=require('path').resolve(__dirname,'../../..'), OUT=process.argv[2];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{
+  const b=await chromium.launch();
+  const ctx=await b.newContext({viewport:{width:1440,height:900},deviceScaleFactor:2,reducedMotion:'reduce'});
+  const p=await ctx.newPage(); p.setDefaultTimeout(8000);
+  const shot=(n,o)=>p.screenshot(Object.assign({path:path.join(OUT,n+'.png')},o||{}));
+  const to=async y=>{await p.evaluate(v=>window.scrollTo(0,v),y); await sleep(500);};
+  await p.goto('file://'+ROOT+'/통합치료비.html'); await sleep(2500);
+  await p.locator('button:visible',{hasText:'위암'}).first().click(); await sleep(1500);
+  await p.locator('button.pth',{hasText:'진행성 위암'}).first().click(); await sleep(1500);
+  const ys=await p.evaluate(()=>[...document.querySelectorAll('h3.ttl-s')].map(e=>[e.textContent.trim(),Math.round(e.getBoundingClientRect().top+scrollY)]));
+  console.log(ys);
+  await to(0); await shot('zz_top');
+  await to(ys[0][1]-120); await shot('zz_path');
+  await to(ys[1][1]-100); await shot('zz_steps');
+  await to(ys[2][1]-100); await shot('zz_amount');
+  await b.close();
+})();

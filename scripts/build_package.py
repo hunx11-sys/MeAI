@@ -115,6 +115,8 @@ def offline(name, s, log, font_b64=None):
         log.append(f'  대문 링크 {k}곳 교체')
 
     # 5) 통계 화면 링크 제거 (대문에만 있음)
+    # 대문의 「최신 올인원 파일 받기」 링크(GitHub 릴리스 — 인터넷 전용)도 뺀다
+    s = re.sub(r'(<br>)?<a class="dl-(?:btn|link)"[^>]*>[^<]*</a>', '', s)
     s, k = re.subn(r'<br><a [^>]*href="stats\.html"[^>]*>[^<]*</a>', '', s)
     if k:
         log.append('  사용 통계 링크 제거')

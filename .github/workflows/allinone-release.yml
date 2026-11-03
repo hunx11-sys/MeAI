@@ -1,0 +1,47 @@
+# 영업지원도구 올인원(내부망용 한 파일) — main 에 화면 · 데이터가 바뀌어 올라올 때마다 새로 만들어
+# GitHub 릴리스 「allinone-latest」 에 같은 이름으로 덮어 올린다. 받는 주소는 늘 같다(대문 「최신 파일 받기」 단추):
+#   https://github.com/hunx11-sys/MeAI/releases/download/allinone-latest/meritz_tools_allinone.html
+# 만드는 법은 세션과 같다(python scripts/build_allinone.py · 파이썬 기본 기능만 씀). 바깥 연결이 섞이면 올리지 않는다.
+name: allinone-release
+on:
+  push:
+    branches: [main]
+    paths: ['*.html', '*.js', 'ui/**', 'assets/**', 'scripts/build_*.py', 'scripts/tooldata.py', '.github/workflows/allinone-release.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: allinone-release
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: 올인원 만들기
+        run: python scripts/build_allinone.py
+      - name: 바깥 연결 점검(글꼴 · 스크립트 · 스타일을 인터넷에서 부르면 실패)
+        run: |
+          python - <<'PY'
+          import re, sys
+          s = open('dist/meritz_tools_allinone.html', encoding='utf-8').read()
+          bad = re.findall(r'<(?:script|link|img)[^>]+(?:src|href)="https?://[^"]+"', s)
+          print('크기 %.1f MB · 바깥 연결 %d건' % (len(s.encode()) / 1e6, len(bad)))
+          if bad: print('\n'.join(bad[:10])); sys.exit(1)
+          PY
+      - name: 릴리스에 올리기(allinone-latest)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=allinone-latest
+          F=dist/meritz_tools_allinone.html
+          NOTE="영업지원도구 올인원(내부망용 한 파일) 최신판 · $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M') KST · 커밋 ${GITHUB_SHA::7}
+          파일을 내려받아 두 번 누르면 크롬 · 엣지에서 열려요. 인터넷이 없어도 모든 기능이 돌아가요."
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "영업지원도구 올인원 (최신)" --notes "$NOTE" --latest=false --target "$GITHUB_SHA"
+          fi
+          gh release upload "$TAG" "$F" --clobber
+          gh release edit "$TAG" --notes "$NOTE"
