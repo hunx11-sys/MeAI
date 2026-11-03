@@ -160,8 +160,8 @@ for rl, md in ROWS3[:2]:
 RD = [('항암방사선', 'rad'), ('세기조절', 'imrt'), ('양성자', 'proton'), ('중입자', 'carbon')]   # 「방사선」 표기는 항암방사선에만(GA 2026-10-22)
 for rl, md in ROWS3[:2]:
     for n, k in RD: add('p2.rd.%s.%s' % (k, md), 2, '항암방사선치료', rl, n, 'engine', CS[k], md, sc_name='위암 %s' % n)
-add('p2.rh.in',  2, '암재활치료', '연 20회', '입원 재활', 'engine', sc_itc('C16', 'rehab', fam='cancer', extra={'n': 20}), 'itc_only', sc_name='위암 재활치료 20일 · 상급종합 · 통합치료비 항목만')
-add('p2.rh.out', 2, '암재활치료', '연 20회', '외래 재활', 'engine', sc_itc('C16', 'rehab', fam='cancer', extra={'n': 20}), 'itc_only', sc_name='(입원 칸과 같은 값)', note='입원·외래 구분 없이 같은 사례 값')
+add('p2.rh.in',  2, '암재활치료', '연 20회', '입원 재활', 'engine', sc_itc('C16', 'rehab', fam='cancer', extra={'n': 1}), 'itc_only', sc_name='위암 재활치료 1회(회당 금액) · 상급종합 · 통합치료비 항목만 — 연 20회 한도는 줄 제목에만(소유자 2026-11-03 : 합산액이 아니라 회당 금액)')
+add('p2.rh.out', 2, '암재활치료', '연 20회', '외래 재활', 'engine', sc_itc('C16', 'rehab', fam='cancer', extra={'n': 1}), 'itc_only', sc_name='(입원 칸과 같은 값)', note='입원·외래 구분 없이 같은 사례 값')
 add('p2.dis', 2, '암후유장해', '', '3-100% 암후유장해', 'direct', direct=dict(keys=['암', '후유장해'], exclude=[]), note="담보명에 '암'과 '후유장해'가 모두 들어간 담보의 가입금액 합 — 계산 아님")
 
 # ── 3쪽 뇌·심보장 ──
@@ -175,8 +175,8 @@ for rl, md in ROWS3:
     for i, (n, s_) in enumerate(heart_steps('상급종합')): add('p3.h%d.%s' % (i, md), 3, '심질환 치료 및 수술', rl, n, 'engine', s_, md, sc_name='%s · 심장 · 상급종합' % n)
 for n, k in SEV:
     add('p3.sev.' + k, 3, '뇌·심 중증치료', '반복(연 1회)', n, 'engine', sc_itc('I63', k, grp=BG), 'itc_only', sc_name='뇌경색(I63) %s · 상급종합 · 통합치료비 항목(연간)' % n)
-add('p3.rh.in',  3, '뇌·심 재활치료', '연 15회', '입원 재활', 'engine', sc_itc('I63', 'rehab', grp=BG, extra={'n': 15}), 'itc_only', sc_name='뇌경색 재활 15일 · 상급종합 · 통합치료비 항목만')
-add('p3.rh.out', 3, '뇌·심 재활치료', '연 15회', '외래 재활', 'engine', sc_itc('I63', 'rehab', grp=BG, extra={'n': 15}), 'itc_only', sc_name='(입원 칸과 같은 값)')
+add('p3.rh.in',  3, '뇌·심 재활치료', '연 15회', '입원 재활', 'engine', sc_itc('I63', 'rehab', grp=BG, extra={'n': 1}), 'itc_only', sc_name='뇌경색 재활 1회(회당 금액) · 상급종합 · 통합치료비 항목만 — 연 15회 한도는 줄 제목에만(소유자 2026-11-03)')
+add('p3.rh.out', 3, '뇌·심 재활치료', '연 15회', '외래 재활', 'engine', sc_itc('I63', 'rehab', grp=BG, extra={'n': 1}), 'itc_only', sc_name='(입원 칸과 같은 값)')
 
 # ═══════════════ 계산 ═══════════════
 _CACHE = {}
