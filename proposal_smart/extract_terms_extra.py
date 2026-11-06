@@ -20,6 +20,7 @@ import pymupdf
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(BASE, '..', 'scripts'))
 import import_terms as IT                                   # build_lines · heading_blocks · title_norm · subs_of · category · NONKCD · JUNK
+import name_spacing as NS                                   # 약관 줄바꿈 자리에 끼어든 띄어쓰기 바로잡기(2026-11-06 · 「주요치 료비」 → 「주요치료비」)
 OUT = os.path.join(BASE, 'db_terms_extra.json')
 
 HEAD = re.compile(r'\s*【\s*별\s*표\s*-?\s*([가-힣]*)\s*(\d+)\s*】\s*')
@@ -259,6 +260,8 @@ def parse(path, product, prefix):
     d = pymupdf.open(path)
     pages = [col_text(d[i]) if os.environ.get('TERMS_COLS', '1') == '1' else d[i].get_text() for i in range(len(d))]
     lines = IT.build_lines(pages)
+    TXT = NS.flat(pages)                                                   # 이름 띄어쓰기 판정용 약관 글자(같은 줄 안)
+    NREF = '\n'.join(r['n'] for r in json.load(open(os.path.join(BASE, 'db.json'), encoding='utf-8'))['riders'])   # 감수본 이름 — 붙여 쓴 표기 참고
     blocks = IT.heading_blocks(lines)
     regs = appendix(lines, [b['bstart'] for b in blocks])
     riders, log = [], []
@@ -272,6 +275,7 @@ def parse(path, product, prefix):
         tabs, app_a = nxt[0][2], nxt[0][0]                                  # 이 특약 뒤에 오는 부록(같은 구역)
         title = IT.title_norm(b['title'])
         title = GOJI.sub('', tidy_goji(title)); title = re.sub(r'보장$', '', title).strip()
+        title = NS.unbreak(title, TXT, ref=NREF)[0]
         if not title or len(title) > 70 or IT.JUNK.search(title) or re.search(r'다\.|^부터', title): continue
         end = min(blocks[bi + 1]['bstart'] if bi + 1 < len(blocks) else len(lines), app_a)
         body_lines = [l for _, l in lines[b['bstart']:end]]
@@ -293,6 +297,7 @@ def parse(path, product, prefix):
             log.append(('KCD 없음', rid, title, r['src']))
         alt_ids = []
         for alt in alt_titles(lines, b['bstart'], title):          # 비갱신·갱신형 짝 제목(2610 약관) — 같은 본문·별표로 하나 더
+            alt = NS.unbreak(alt, TXT, ref=NREF)[0]
             arid = '%s%d' % (prefix, len([r_ for r_ in riders if not r_.get('parent')]) + 1)
             riders.append(dict(r, id=arid, n=alt, c=category(alt), pair=rid)); alt_ids.append((arid, alt))
             log.append(('짝 제목(같은 본문)', arid, alt, rid))
@@ -308,6 +313,7 @@ def parse(path, product, prefix):
             if JUNKSUB.search(lab): continue                          # 보험금 청구서류 목록 등이 세부보장으로 잡힌 것
             lab = re.split(r'\s*:\s*|\s*보장\s*:', lab)[0].strip()      # '화상진단비보장 : 화상으로 진단확정시 …' → '화상진단비'
             lab = re.sub(r'보장$', '', lab).strip()
+            lab = NS.unbreak(lab, TXT, ref=NREF)[0]
             sk, sx, st, shc, ssrc = k, x, r['t'], hc, r['src']
             if ch:
                 seg = '\n'.join(body_lines[ch[i - 1][0]:ch[i - 1][1]])
