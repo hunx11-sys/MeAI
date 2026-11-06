@@ -768,8 +768,32 @@ def h_day(r, o, sc, nm, t):
 
 _EXAM_KEYS = [(r'내시경', 'x_endo'), (r'MRI', 'x_mri'), (r'(?<![A-Z])CT', 'x_ct'), (r'PET|양전자', 'x_pet'), (r'초음파', 'x_us'),
               (r'생검|조직병리', 'x_bio'), (r'단일유전자', 'x_gene'), (r'NGS', 'x_ngs')]
+def _tx_parts(r, o, sc, nm, t):
+    """약관 지급금액표가 치료 「구분」마다 지급률을 따로 정한 담보 — 건선특정치료비(v8.88 · rules.json tx_psoriasis opt.parts)
+       · 광선치료(hc_listed) : 마스터 수가코드(약관 제4조) 시술을 받고 연간 치료일수(사례 tags.psor_light_days)가 min_days 이상
+       · 약물·주사제치료 : 대상 약제 연간 처방일수(tags.psor_drug_days)가 min_drug_days 이상이거나 주사제 처방(tags.psor_inj)이 min_inj 이상
+       구분마다 가입금액 × rate% · 각각 연간 1회. 급여 치료만(비급여 단계 제외). 일수를 모르는 사례는 추정하지 않고 지급 제외 + 로그."""
+    tg = sc['tags']
+    if tg.get('nc'): return []
+    if t['cause'] and tg.get('cause') != t['cause']: return []
+    if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
+    out = []
+    for p in o['parts']:
+        if p.get('hc_listed'):
+            if not (set(r.get('hc') or []) & set(tg.get('hc') or [])): continue
+            d = tg.get('psor_light_days')
+            if d is None:
+                log('검토필요', r['name'], '%s : 연간 치료일수가 사례에 없어 지급 판정 제외(약관 연간 %d일 이상)' % (p['label'], p.get('min_days', 0))); continue
+            if d < p.get('min_days', 0): continue
+        else:
+            dd, inj = tg.get('psor_drug_days') or 0, tg.get('psor_inj') or 0
+            if not ((p.get('min_drug_days') and dd >= p['min_drug_days']) or (p.get('min_inj') and inj >= p['min_inj'])): continue
+        out.append((r['man'] * p['rate'] / 100.0, '%s · 가입금액의 %s%% · 연간 1회' % (p['label'], format(p['rate'], 'g')), o.get('group', '치료비'), 'year'))
+    return out
+
 def h_tx(r, o, sc, nm, t):
     tg = sc['tags']
+    if o.get('parts'): return _tx_parts(r, o, sc, nm, t)
     need = set(o.get('acts') or [])
     if o.get('by_benefit'):                                   # 세부급부명으로 치료행위·암종 결정 (26종 항암방사선및약물치료비 등)
         b = (r.get('benefit') or '')
