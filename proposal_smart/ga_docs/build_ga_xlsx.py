@@ -21,9 +21,9 @@ LS = json.load(open(os.path.join(PS, 'life_support.json'), encoding='utf-8'))
 URID = {r['db_id']: r for r in RES['universe_riders']}
 CELLS = RES['cells']; CELL = {c['id']: c for c in CELLS}
 DESIGNS = RES['designs']
-DNAME = {'gan31-M.pdf': '간편31 남(GA 테스트)', 'mom-40.pdf': '통합간편 남40', 'the510-44f.pdf': 'The건강한5.10.5 여44', 'mom5105-40.pdf': '내Mom대로5.10.5 여40',
-         'u355.pdf': '통합간편355(연만기) 여', 'light355.pdf': 'The가벼운 간편355 여', 'mom-new-40.pdf': '내Mom대로 남40', 'gan31-293370.pdf': '간편31 남(293,370원)', 'gan31-41650.pdf': '간편31 여(41,650원)', 'd42940.pdf': '통합간편 남(42,940원)', 'd106010.pdf': '통합간편 여(106,010원)', 'd272600.pdf': '통합간편 남(272,600원)', 'd61760.pdf': '통합간편 연만기 남(61,760원)', 'd104810.pdf': '알파Plus 남(104,810원)', 't5105-30020.pdf': 'The건강한5.10.5 여(30,020원)', 't5105-177770.pdf': 'The건강한5.10.5 남(177,770원)', 't5105-122661.pdf': 'The건강한내Mom대로5.10.5 남(122,660원)', 't5105-243046.pdf': 'The건강한내Mom대로5.10.5 남(243,040원)',
-         'naemom-40f.pdf': '내Mom대로 여40(446,720원)', 'naemom5105-40f.pdf': 'The건강한 내Mom대로5.10.5 여40(215,560원)', 'the-mb-40f.pdf': 'The좋은 케어프리 M-Basket 여40(226,370원)', 'u-sem-40m.pdf': '통합간편 세만기 남40(344,050원)'}   # 2026-10-23 설계서 4건(가안 합성 모드 검증)
+DNAME = {'mom-40.pdf': '통합간편 남40', 'the510-44f.pdf': 'The건강한5.10.5 여44', 'mom5105-40.pdf': '내Mom대로5.10.5 여40',
+         'u355.pdf': '통합간편355(연만기) 여', 'light355.pdf': 'The가벼운 간편355 여', 'mom-new-40.pdf': '내Mom대로 남40', 'gan31-41650.pdf': '간편31 여(41,650원)', 'd42940.pdf': '통합간편 남(42,940원)', 'd106010.pdf': '통합간편 여(106,010원)', 'd272600.pdf': '통합간편 남(272,600원)', 'd61760.pdf': '통합간편 연만기 남(61,760원)', 'd104810.pdf': '알파Plus 남(104,810원)', 't5105-30020.pdf': 'The건강한5.10.5 여(30,020원)', 't5105-177770.pdf': 'The건강한5.10.5 남(177,770원)', 't5105-122661.pdf': 'The건강한내Mom대로5.10.5 남(122,660원)', 't5105-243046.pdf': 'The건강한내Mom대로5.10.5 남(243,040원)',
+         'naemom-40f.pdf': '내Mom대로 여40(446,720원)', 'naemom5105-40f.pdf': 'The건강한 내Mom대로5.10.5 여40(215,560원)', 'the-mb-40f.pdf': 'The좋은 케어프리 M-Basket 여40(226,370원)'}   # 2026-10-23 설계서 4건(가안 합성 모드 검증)
 _VER = re.search(r"VERSION = '([^']+)'", open(os.path.join(PS, 'api.py'), encoding='utf-8').read()).group(1)
 _DBN = len(json.load(open(os.path.join(PS, 'db.json'), encoding='utf-8'))['riders'])
 _EXD = json.load(open(os.path.join(PS, 'db_terms_extra.json'), encoding='utf-8')) if os.path.exists(os.path.join(PS, 'db_terms_extra.json')) else {'riders': [], 'meta': {}}
@@ -275,7 +275,7 @@ for i, (t, b) in enumerate(lines, 1):
 # ═══════════ ② 칸 목록 ═══════════
 KIND_CELL_KO = {'engine': '엔진 계산', 'direct': '가입금액 직접표시', 'care': '간병인보장(설계서 담보 그대로 · ga_care.py)', 'text': '가입 여부 문구', 'fixed': '고정값 0'}
 hdr2 = ['칸ID', '쪽', '구역', '행', '열', '칸 종류', '사례 설명', 'KCD', '원인', '병원 종별', '1-5종 분류표 항목', '1-7종 수술코드', '질병군 표시(grp)', '진단 계열(dx)', '치료행위(사례 단계)', '비급여', '전신마취', '연간 약물 종수', '수가코드', '기타 태그', '사례 단계(itc_events)',
-        '집계 방식', '표시 조건(need · 이 말이 든 가입담보가 없으면 미가입)', '칸 key', '(예비)', '잡히는 특약 수(마스터 전체)', '설계서 ① 간편31 남(GA 테스트)', '설계서 ② 통합간편 남40', '설계서 ③ The건강한 여44', '비고']
+        '집계 방식', '표시 조건(need · 이 말이 든 가입담보가 없으면 미가입)', '칸 key', '(예비)', '잡히는 특약 수(마스터 전체)', '설계서 ① The좋은 케어프리 M-Basket 여40', '설계서 ② 내Mom대로 여40', '설계서 ③ 통합간편 남(272,600원)', '비고']
 rows2 = []
 CELL_ROWS = []  # 칸별 특약 행
 for c in CELLS:
@@ -287,7 +287,7 @@ for c in CELLS:
     rows2.append([c['id'], c['page'], c['section'], c['row'], c['col'], KIND_CELL_KO.get(c['kind'], c['kind']), c.get('sc_name') or c.get('note') or '', sd.get('KCD', ''), sd.get('원인', ''), sd.get('병원 종별', ''),
                   sd.get('1-5종 분류표 항목', ''), sd.get('1-7종 수술코드', ''), sd.get('질병군 표시(grp)', ''), sd.get('진단 계열(dx)', ''), sd.get('치료행위(사례 단계)', ''), sd.get('비급여', ''), sd.get('전신마취', ''), sd.get('연간 약물 종수', ''), sd.get('수가코드', ''), sd.get('기타 태그', ''), sd.get('사례 단계(itc_events)', ''),
                   MODE_KO.get(c['mode'], c['mode']) if c['kind'] == 'engine' else '', ' + '.join(c.get('need') or []), c.get('key', ''), '',
-                  len(names) if u else '', dv.get('gan31-M.pdf'), dv.get('mom-40.pdf'), dv.get('the510-44f.pdf'), c.get('note', '')])
+                  len(names) if u else '', dv.get('the-mb-40f.pdf'), dv.get('naemom-40f.pdf'), dv.get('d272600.pdf'), c.get('note', '')])
 sheet(wb, '② 칸 목록', hdr2, rows2, widths=[9, 4, 12, 14, 18, 12, 34, 8, 6, 22, 26, 26, 22, 8, 30, 6, 10, 8, 10, 16, 34, 30, 26, 18, 8, 8, 16, 16, 16, 40], sec_col=2)
 
 # ═══════════ ③ 칸별 특약(마스터 전체) · ④ 특약별 산정 기준 ═══════════

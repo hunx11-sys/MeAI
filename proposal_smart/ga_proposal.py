@@ -75,6 +75,9 @@ def ga_head(design_pdf, age=''):
         agent_name = agent_name or next((w for w in rest if w != org and re.fullmatch(r'[가-힣]{2,5}', w)), '')
     missing = [k for k, v in (('피보험자 이름', name), ('성별', sex), ('보험나이', ag), ('가계약번호', no), ('컨설턴트 소속', org), ('컨설턴트 이름', agent_name), ('휴대전화', mobile), ('코드', code)) if not v]
     if missing: S.ISSUES.append({'구분': '표지', '담보': '-', '사유': '설계서에서 읽지 못한 표지 항목 : ' + ' · '.join(missing) + ' (빈칸 「-」으로 둠)'})
+    if os.environ.get('GA_MASK') == '1':          # 설계도 캡처 · 견본용 : 피보험자 · 가계약번호 · 소속 · 컨설턴트 · 전화를 가린다(CLAUDE.md 6 · 계산과 무관)
+        name = name and '○○○'; no = no and '●' * len(no); org = org and '○○본부'; agent_name = agent_name and '○○○'
+        mobile = mobile and '010-****-****'; tel = tel and '0*-****-****'; code = code and '*****'; agent = ''
     return dict(name=name, sex=sex, age=ag, no=no, agent=agent, org=org, agent_name=agent_name, mobile=mobile, tel=tel, code=code)
 VAL = {}                                        # 칸 key → (값, 지급 줄, 로그)  — ga_spec.cell_value
 AUDIT = {}                                      # 마지막 build 의 감사 로그(요약·계산 제외 사유) — 웹 화면 「감사 로그」 탭

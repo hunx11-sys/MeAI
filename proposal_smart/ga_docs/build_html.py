@@ -3,7 +3,7 @@
   python3 build_html.py <data.json> <캡처폴더> <out.html> [캡처 설계서 이름]"""
 import os, sys, os, base64
 D, CAP, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
-label = sys.argv[4] if len(sys.argv) > 4 else '간편31 남 설계서(GA 테스트)'
+label = sys.argv[4] if len(sys.argv) > 4 else 'The좋은 케어프리 M-Basket 여40 설계서(GA 테스트)'
 here = os.path.dirname(os.path.abspath(__file__))
 t = open(os.path.join(here, 'tpl.html'), encoding='utf-8').read()
 t = t.replace('(The건강한 5.10.5 여44 설계서)', '(%s)' % label)
