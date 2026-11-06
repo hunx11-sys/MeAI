@@ -98,7 +98,11 @@ def judge(name, ct, o):
                 return '특약단위', '회사는 세부보장(%s) 단위 코드, 우리 마스터는 특약 단위 — 특약에 붙임' % ','.join(extra), cc, co
             return '특약단위', '우리 세부보장 이름과 안 맞아(%s) 특약에 붙임 — 세부보장 확인 필요' % ','.join(extra), cc, co
     if cc == 1.0 and co == 1.0: return '세부표기', '낱말은 같고 괄호 모양 · 순서 · 띄어쓰기만 다름', cc, co
-    if cc >= 0.99 and co >= 0.5: return '세부표기', '회사 이름의 낱말이 모두 우리 이름에 있음(우리 쪽이 길게 씀)', cc, co
+    if cc >= 0.99 and co >= 0.5:
+        ours = [u for u in o['_t'][1:] if not (covered(u, ct[1:]) or covered(short(u, o['_stem']), ct[1:]))]
+        q = [u for u in ours if QUAL.search(u)]
+        if q: return '유사', '우리 이름에만 있는 낱말(%s) — 다른 판일 수 있음 · 확인 필요' % ','.join(q), cc, co
+        return '세부표기', '회사 이름의 낱말이 모두 우리 이름에 있음(우리 쪽이 길게 씀 · 대개 세부보장 이름에 부모 이름을 다시 붙인 모양)', cc, co
     if co == 1.0:
         miss = [t for t in ct[1:] if not covered(t, do)]
         if miss and any(QUAL.search(t) for t in miss):
