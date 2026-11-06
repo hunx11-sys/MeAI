@@ -134,10 +134,16 @@ def match_one(name):
 
 VARIANTS = [('(출생전)', '출생전 가입 변형'), ('(최초발생후전환용)', '최초발생후 전환용 변형'), ('(전환용)', '전환용 변형'),
             ('(최초암발생후)', '최초암발생후 변형'), ('(최초2대질환발생후)', '최초2대질환발생후 변형')]
+SUB17 = re.compile(r'수술비\[(질병|상해)([1-7])종\]')   # 정보계는 1-7종 수술비 세부보장을 부모 이름 없이 「수술비[질병3종]」으로도 쓴다(같은 코드에 「수술비(1-7종, 연간3회한)[질병3종](편한가입)」이 함께 붙은 것으로 확인 · 단위상품마다 1~7종 14개 한 벌)
 def match(name):
     lv, o, note = match_one(name)
     if lv == '정확': return lv, o, note, ''
     s = strip_tags(name); var = []
+    m = SUB17.fullmatch(s.replace('(출생전)', ''))
+    if m and RANK[lv] > RANK['특약단위']:
+        lv2, o2, note2 = match_one('수술비(1-7종,연간3회한)[%s%s종]' % m.groups())
+        if RANK[lv2] <= RANK['특약단위']:
+            return lv2, o2, '부모 이름(1-7종) 없는 세부보장 이름 — ' + note2, '출생전 가입 변형' if '(출생전)' in s else ''
     for v, lab in VARIANTS:
         if v in s: s = s.replace(v, ''); var.append(lab)
     if s.endswith('추가') and len(s) > 4: s = s[:-2]; var.append('「추가」 표기')
