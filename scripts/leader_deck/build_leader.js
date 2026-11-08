@@ -510,7 +510,7 @@ add(`<div class="ctr"><div class="box">
 `[0:38] FMBTI 네 유형(약관 박사형 · 내가 다 해줄게형 · 숫자만형 · 조용히 지켜보기형)의 공통 처방도 이것이었습니다.
 답을 주지 말고, 찾아오게 하고, 그때 이야기하기.`);
 
-const TL = [['08:30', '조회 5분', '“동의 필요 몇 명? 오늘 카드는 누구?”', '카드 읽고 첫 말 준비'], ['10:00', '동행 전 10분', '요약 리포트에 빨간 펜 3줄', '요약 리포트 1클릭'], ['13:00', '점심 후 1분', '프롬프트 하나 단톡에, 또는 어제 답 속 용어 하나', '본인 폰으로 답'], ['15:00', '거절 복기 10분', '꼬리질문 3개까지 갔는지, 거절 사유는 어디인지', '꼬리질문 3개까지'], ['18:00', '마감 5분', '리포트 발송 수 · 동의 요청 수 · 코칭 인원', '숫자 셋 적기'], ['금요일', '리플레이 15분', '한 주 리포트 모아 자기 대화 설명, 질문 6개', '자기 대화 설명']];
+const TL = [['09:30', '조회 5분', '“동의 필요 몇 명? 오늘 카드는 누구?”', '카드 읽고 첫 말 준비'], ['11:00', '동행 전 10분', '요약 리포트에 빨간 펜 3줄', '요약 리포트 1클릭'], ['13:00', '점심 후 1분', '프롬프트 하나 단톡에, 또는 어제 답 속 용어 하나', '본인 폰으로 답'], ['15:00', '거절 복기 10분', '꼬리질문 3개까지 갔는지, 거절 사유는 어디인지', '꼬리질문 3개까지'], ['18:00', '마감 5분', '리포트 발송 수 · 동의 요청 수 · 코칭 인원', '숫자 셋 적기'], ['금요일', '리플레이 15분', '한 주 리포트 모아 자기 대화 설명, 질문 6개', '자기 대화 설명']];
 add(`
 <div class="box" style="position:absolute;left:96px;right:96px;top:100px;text-align:center"><div class="h1">하루 <span class="r">30분</span>, 그리고 금요일 15분</div><div class="p" style="margin-top:12px">시간은 예시입니다. 지점 조회 시간에 맞게 바꾸세요.</div></div>
 <div style="position:absolute;left:150px;right:150px;top:432px;height:3px;background:linear-gradient(90deg,#3A3B3F,#E60023 50%,#3A3B3F);box-shadow:0 0 24px rgba(230,0,35,.6)"></div>
@@ -528,7 +528,7 @@ add(`
 
 const CHAT = [['리더', '동의 필요 몇 명이에요? 오늘 추천 고객, 누구한테 연락해 볼 거예요?'], ['신인', '서은아 고객이요. 보상 완료 후 후속 상담이 없었대요.'], ['리더', '그 카드 문장 한번 확인해 보세요. MeAI에 뭘 물어볼 거예요?'], ['신인', '오른쪽 추천 질문이요. 입원일당 부족 고객에게 보낼 문자 문안이요.'], ['리더', '좋아요. MeAI에 넣어 보고, 요약 리포트 한번 뽑아서 봅시다.']];
 add(`
-<div class="box" style="position:absolute;left:140px;top:90px"><div class="kick y">08:30 조회 대본</div><div class="h1" style="margin-top:14px;font-size:84px">세 마디면 <span class="r">5분</span></div></div>
+<div class="box" style="position:absolute;left:140px;top:90px"><div class="kick y">09:30 조회 대본</div><div class="h1" style="margin-top:14px;font-size:84px">세 마디면 <span class="r">5분</span></div></div>
 <div class="box" style="position:absolute;left:180px;right:180px;top:290px;display:flex;flex-direction:column;gap:18px">
   ${CHAT.map(([w, t]) => w === '리더'
     ? `<div class="row" style="gap:24px"><div style="width:90px;font-size:26px;font-weight:800;color:#E60023;flex:none">리더</div><div class="bub" style="background:#fff;color:#111">${t}</div></div>`
@@ -549,7 +549,7 @@ add(`
   <path d="M60 470 C 280 462, 520 476, 760 464" stroke="#E60023" stroke-width="9" fill="none" stroke-linecap="round" opacity=".92"/>
 </svg>
 <div class="box" style="position:absolute;left:1180px;top:150px;width:680px">
-  <div class="kick y">10:00 동행 전 10분</div>
+  <div class="kick y">11:00 동행 전 10분</div>
   <div class="h2" style="margin-top:18px;font-size:68px">요약 리포트에<br><span class="r">빨간 펜 3줄</span></div>
   <div style="margin-top:40px;display:flex;flex-direction:column;gap:26px">
     ${[['① 순서', '잘 갖춘 것 먼저, 비어 있는 것 두 번째. 해지 얘기는 맨 뒤'], ['② 빠진 것', '가족력 · 직업 · 최근 보상. 고객 정보 다섯 칸을 채웠는지'], ['③ 하지 말 것', '‘타사보다 유리’, 확정 금액처럼 말하기, 확인 안 한 숫자']].map(([a, b]) => `<div><div style="font-size:36px;font-weight:800">${a}</div><div class="ps" style="margin-top:4px">${b}</div></div>`).join('')}
