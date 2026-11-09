@@ -291,7 +291,7 @@ def parse(path, product, prefix):
         hc = list(dict.fromkeys(hc + hcs(body)))
         rid = '%s%d' % (prefix, len([r for r in riders if not r.get('parent')]) + 1)
         r = {'id': rid, 'p': product, 'n': title, 'c': category(title), 'pg': b['page'] + 1, 'k': k, 'x': x,
-             't': [tid(product, e) for e in R], 'hc': hc, 'src': [e['key'] + ' ' + e['name'] for e in R]}
+             't': [tid(product, e) for e in R], 'hc': hc, 'src': [e['key'] + ' ' + e['name'] for e in R], '_body': body}   # _body : 세부보장 채우기(sub_fill)용 · 저장 전에 뗀다
         riders.append(r)
         if not k and not re.search(r'사망|후유장해|상해|골절|화상|입원일당|수술비\(1-|1-5종|1-7종|수술비Ⅱ|질병수술비|납입|지원금|배상|벌금|변호사|소송|치아', title):
             log.append(('KCD 없음', rid, title, r['src']))
@@ -398,12 +398,34 @@ def settle(riders):
             r['basis'] = ('약관 p.%s 파싱 : %s' % (r['pg'], ' · '.join(r.get('src') or []) or '별표 없음')) + ((' · 코드는 ' + r.pop('basis_from')) if r.get('basis_from') else '')
     return n_m
 
+def fill_subs(riders, log):
+    """약관이 「총 N개의 세부보장」 문구 없이 지급표로만 세부보장을 나눈 특약(32대질병관혈수술비 · 다빈치로봇 암수술비 · 표적항암약물허가치료비Ⅲ 등)에
+       같은 이름 특약(감수 마스터 · 다른 보강 상품)의 세부보장을 붙인다 — 이 약관 본문에 그 세부보장 이름이 모두 있을 때만(v8.90 · sub_fill.py)"""
+    import sub_fill as SF
+    db = [dict(r, src='db') for r in json.load(open(os.path.join(BASE, 'db.json'), encoding='utf-8'))['riders']]
+    other = [dict(r, src='extra') for r in (json.load(open(OUT, encoding='utf-8'))['riders'] if os.path.exists(OUT) else []) if riders and r['p'] != riders[0]['p']]
+    plan, flog = SF.plan(riders, db + other + [dict(r, src='extra') for r in riders], lambda r: r.get('_body') or '')
+    pos = {r['id']: i for i, r in enumerate(riders)}
+    add = []
+    for par, new in plan:
+        kids = [dict(k, t=list(par.get('t') or []), src=list(par.get('src') or []), pg=par['pg']) for k, _ in new]
+        add.append((pos[par['id']], kids))
+        log.append(('세부보장 채움 %d개' % len(kids), par['id'], par['n'], kids[0]['basis'][:60]))
+    for i, kids in sorted(add, key=lambda x: -x[0]):
+        riders[i + 1:i + 1] = kids
+    for x in flog:
+        if not x[0].startswith('본문 없음'): log.append(x)
+    return sum(len(k) for _, k in add)
+
 if __name__ == '__main__':
     if len(sys.argv) < 4: sys.exit(__doc__)
     path, product, prefix = sys.argv[1:4]
     riders, tabs, log = parse(path, product, prefix)
     n_m = settle(riders)
     print('감수 마스터와 같은 이름 %d건은 마스터 코드 · 나머지 %d건은 약관 파싱 코드' % (n_m, len(riders) - n_m))
+    n_f = fill_subs(riders, log)
+    if n_f: print('세부보장 채움 %d건(같은 이름 특약의 세부보장 · 약관 본문에 그 이름이 있을 때만 — sub_fill.py)' % n_f)
+    for r in riders: r.pop('_body', None)
     db = json.load(open(OUT, encoding='utf-8')) if os.path.exists(OUT) else {'meta': {}, 'riders': []}
     # 새 약관에 없는 특약(판매중지)은 넘기지 않는다 — 소유자 2026-11-02 : 판매중지 담보는 지운다(이전에는 retired 표시로 이월했음)
     db['riders'] = [r for r in db['riders'] if r['p'] != product] + riders

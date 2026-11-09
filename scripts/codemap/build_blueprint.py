@@ -52,7 +52,7 @@ def canon(r):
             if t in P: continue
             for sx in ('진단비', '치료비', '수술비', '입원일당'):
                 if par['_k'].endswith(sx) and t.endswith(sx): t = t[:-len(sx)]; break
-            if t and t not in P: sub.add(t)
+            if t and t not in P and t not in ('연간1회한', '최초1회한'): sub.add(t)   # 세부보장 이름 끝의 지급 횟수 메모는 알맹이가 아니다(특정순환계질환 통합치료 생활비[…2회이상] = […2회이상)(연간1회한)] · v8.90)
         v = canon(par) + '|' + '+'.join(sorted(sub))
     else:
         v = '+'.join(sorted(set(r['_t'])))
