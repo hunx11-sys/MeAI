@@ -117,9 +117,12 @@ def surg_open(tg):
 # 목록에 없는 새 꼬리표도 떼도록 '(… 가입)' 형태(24자 이내)는 모두 고지유형으로 본다(v8.65) — (편한가입)·(355입원,수술고지간편가입)·
 # (맞춤 간편가입) 등 상품마다 붙는 꼬리표만 다르고 특약은 같다. 꼬리표가 남으면 마스터·규칙표 대조가 어긋난다.
 GOJI = r'(?:\((?:%s)\)|\([^()]{1,24}가입\))' % '|'.join(re.escape(t) for t in RULEDOC['goji_tags'])
+# 인수 · 전환 표시 — [특별조건부](할증보험료법 특별약관 = 보험료만 할증 · 보장 같음) · [계약전환용] · (출생전) 은 보장 알맹이가 같은
+# 같은 특약이다(소유자 2026-11-09). 정보계 상품담보명에 붙어 오며, 떼지 않으면 마스터 매칭 · 통합치료비 금액표 찾기가 어긋난다(v8.89)
+VARTAG = re.compile(r'\[(?:특별조건부|계약전환용)\]|\(출생전\)')
 def nname(n):
-    """고지유형 꼬리표·공백 제거 — 규칙표 매칭에 쓰는 정규화 담보명"""
-    return re.sub(r'\s+', '', re.sub(GOJI, '', n or '').replace('[기본계약]', '').replace('┗', ''))
+    """고지유형 꼬리표·인수 표시·공백 제거 — 규칙표 매칭에 쓰는 정규화 담보명"""
+    return re.sub(r'\s+', '', VARTAG.sub('', re.sub(GOJI, '', n or '')).replace('[기본계약]', '').replace('┗', ''))
 
 # ══ 통합치료비 식별 (v8.3 : 약관 지급금액표 RIDERS 에서 자동 생성 + 보조 별칭) ═══════════
 ITC_MAP = {r['nm']: r['id'] for r in itc.RIDERS}
@@ -824,8 +827,8 @@ def h_tx(r, o, sc, nm, t):
     # 통합항암방사선약물치료비[항암방사선치료비(…)] 가 약물치료 단계에, [항암약물치료비(…)] 가 방사선 단계에도 붙었다.
     if o.get('split_by_label'):
         lab = re.sub(r'\s', '', (r.get('benefit') or r.get('sub') or '') or (re.search(r'\[([^\[\]]+)\]$', nm) or [None, ''])[1])
-        if re.search(r'항암방사선치료비', lab): need = {'rad'}
-        elif re.search(r'항암약물치료비', lab): need = {'chemo'}
+        if re.search(r'항암방사선치료비?', lab): need = {'rad'}       # 정보계 · 설계서 라벨은 「(급여, 항암방사선치료, 암(유사암제외))」처럼 「치료」로 끝난다(v8.89)
+        elif re.search(r'항암약물치료비?', lab): need = {'chemo'}
     if o.get('exam_by_name'):
         ek = {k for pat, k in _EXAM_KEYS if re.search(pat, nm)}
         if ek: need = ek
@@ -869,6 +872,11 @@ def h_tx(r, o, sc, nm, t):
     why = o.get('why', '약관 대상 치료')
     if freq == 'year' and o.get('freq') == 'once': why = why.replace('최초 1회', '연간 1회')
     elif freq == 'once' and o.get('freq', 'year') == 'year': why = why.replace('연간 1회', '최초 1회').replace('연 1회', '최초 1회')
+    # 「계속받는」 연간형이 두번째 해부터 지급률을 낮추는 담보(계속받는 표적항암약물허가치료비Ⅲ : 첫번째 100% · 두번째 이후 10% — 통185 · 케337 제2조①②)
+    # 첫 지급 줄은 가입금액 그대로, 「반복(연 1회)」 집계에는 repeat(가입금액 × 지급률)를 쓴다(v8.89)
+    if freq == 'year' and o.get('repeat_rate') is not None and '계속받는' in nm:
+        rr = o['repeat_rate']
+        return [(r['man'], '%s · 첫번째 100%% · 두번째 해부터 가입금액의 %s%%' % (why, format(rr, 'g')), o.get('group', '치료비'), freq, {'repeat': r['man'] * rr / 100.0})]
     return [(r['man'], why, o.get('group', '치료비'), freq)]
 
 def h_point2(r, o, sc, nm, t):
@@ -917,6 +925,10 @@ def pay_lines(riders, sc):
         try:
             if (r.get('man') or 0) <= 0: continue
             n = r['name']; nm = nname(n)
+            # 설계서 · 정보계가 세부보장을 둥근 괄호로 적은 담보(「통합항암방사선약물치료비(최대8회한)(급여, 항암방사선치료, 암(유사암제외))」)는
+            # 매칭된 마스터 세부보장 레코드의 이름(「…[항암방사선치료비(급여,암(유사암제외))]」)으로 규칙을 판정한다 — 둥근 괄호면 규칙표가
+            # 세부보장을 못 읽어 특약 전체(부모 규칙)로 계산해 다른 칸에도 금액이 들어갔다(통합항암방사선약물치료비 · 표적항암약물허가치료비Ⅲ · 통합전이암진단비)(v8.89)
+            if r.get('mname') and '[' in r['mname'] and '[' not in nm: nm = nname(r['mname'])
             if excluded(r, sc['kcd']): continue         # 약관 제외코드(보상하지 않는 질병)에 해당 — 지급 없음(v8.7)
             # 1) 통합치료비 — 약관 지급금액표 엔진에 위임
             if r.get('itc'):
@@ -983,7 +995,7 @@ def pay_lines(riders, sc):
                                 'sp': _sp, 'ls_rest': [(l, a) for l, a, g in lines if g != '산정특례']})
                 continue
             # 3) 규칙표 판정
-            rule = classify(n)
+            rule = classify(nm)                          # nm = 세부보장 둥근 괄호 표기는 마스터 이름으로 바꾼 것(v8.89)
             if rule is None:
                 log('미분류', n, '규칙표에 해당 담보 유형이 없어 계산 제외 (rules.json 보강 필요)')
                 continue
@@ -995,13 +1007,14 @@ def pay_lines(riders, sc):
                 log('조건부', n, rule['opt']['log']); continue   # 병기·상태 조건이 붙어 사례로 단정할 수 없는 담보(v8.21)
             h = HANDLER.get(rule['kind'])
             if h is None: continue                       # care·life·nonmed·skip = 사례 계산 대상 아님
-            for amt, why, grp, freq in h(r, rule.get('opt') or {}, sc, nm, tokens(nm)):
+            for item in h(r, rule.get('opt') or {}, sc, nm, tokens(nm)):
+                amt, why, grp, freq = item[:4]; extra = item[4] if len(item) > 4 else {}   # 5번째 : 줄에 덧붙일 값(repeat = 두번째 해부터의 연간 금액)(v8.89)
                 if amt > 0:
                     if r.get('matched') is False:        # 설계서 담보가 특약 마스터에 없는데(설계 상품 약관이 데이터에 없음) 규칙표로 지급 계산됨 — 근거를 남긴다(v8.61)
                         log('마스터없음', n, '특약 마스터(약관 데이터 : %s)에 없는 담보인데 규칙표 %s 로 계산됨 — 근거 : %s. 해당 상품 약관으로 확인 필요'
                             % ('·'.join(DB_PRODUCTS) or 'db.json', rule['id'], ((rule.get('opt') or {}).get('note') or rule.get('label') or '-').rstrip('. ')))
-                    out.append({'name': n, 'amt': amt, 'why': why, 'group': grp, 'no': r.get('no'),
-                                'freq': freq, 'rule': rule['id']})
+                    out.append(dict({'name': n, 'amt': amt, 'why': why, 'group': grp, 'no': r.get('no'),
+                                     'freq': freq, 'rule': rule['id']}, **extra))
         except Exception as ex:                          # 어떤 담보가 와도 생성이 중단되지 않게 한다
             log('오류', r.get('name', '?'), '%s: %s' % (type(ex).__name__, ex))
     return out
@@ -1012,7 +1025,7 @@ def total_by(lines, mode):
     s = 0
     for l in lines:
         if mode == 'first': s += l['amt']
-        elif mode == 'year': s += l['amt'] if l.get('freq') != 'once' else 0
+        elif mode == 'year': s += l.get('repeat', l['amt']) if l.get('freq') != 'once' else 0   # repeat = 두번째 해부터의 연간 금액(v8.89)
         else: s += l.get('each', l['amt'] if l.get('freq') == 'each' else 0)
     return s
 

@@ -194,7 +194,7 @@ def _ns(x): return re.sub(r'\s+', '', x or '')
 def counts(l, mode):
     """이 지급 줄이 칸의 집계 방식(mode)에 들어가는 금액"""
     if mode == 'first': return l['amt']
-    if mode == 'year': return l['amt'] if l.get('freq') != 'once' else 0
+    if mode == 'year': return (l.get('repeat', l['amt']) if l.get('repeat') is not None else l['amt']) if l.get('freq') != 'once' else 0   # repeat = 두번째 해부터의 연간 금액(v8.89)
     if mode == 'each': return l.get('each', l['amt'] if l.get('freq') == 'each' else 0)
     if mode == 'itc_only': return l['amt'] if l.get('group') == '통합치료비' else 0
     if mode == 'ms_only': return l['amt'] if l.get('itc') == 'ms' else 0
@@ -320,7 +320,7 @@ def add_design_only(uni, riders_lists):
             mid = (m or {}).get('id') or r.get('via_id')
             prod = ('설계서 표기 · 마스터 %s(%s) 매칭' % (mid, (m or DBID.get(mid) or {}).get('p', ''))) if (r.get('matched') and mid) else '설계서 담보(마스터에 없음)'
             uni.append({'no': 'design-%s' % S.nname(r['name']), 'name': r['name'], 'man': man, 'cat': r.get('cat'), 'codes': r.get('codes') or [], 'excl': r.get('excl') or [], 'hc': r.get('hc') or [],
-                        'benefit': r.get('benefit'), 'sub': r.get('sub'), 'matched': r.get('matched'), 'itc': iid, 'product': prod, 'db_id': 'design-%s' % S.nname(r['name']), 'via': mid})
+                        'benefit': r.get('benefit'), 'sub': r.get('sub'), 'matched': r.get('matched'), 'itc': iid, 'product': prod, 'db_id': 'design-%s' % S.nname(r['name']), 'via': mid, 'mname': r.get('mname')})
     return uni
 
 def run_universe(uni):
@@ -334,7 +334,7 @@ def run_universe(uni):
         for l in L:
             r = byno.get(l.get('no')) if l.get('no') in byno else None
             rows.append(dict(name=l['name'], db_id=l.get('no'), product=(r or {}).get('product'), rule=l.get('rule'), why=l['why'], group=l['group'],
-                             freq=l.get('freq'), amt=l['amt'], man=(r or {}).get('man'), each=l.get('each'), in_row=None, counted=counts(l, c['mode']) > 0,
+                             freq=l.get('freq'), amt=l['amt'], man=(r or {}).get('man'), each=l.get('each'), repeat=l.get('repeat'), in_row=None, counted=counts(l, c['mode']) > 0,
                              itc=l.get('itc'), benefit=(r or {}).get('benefit'), sub=(r or {}).get('sub'), ncodes=len((r or {}).get('codes') or []),
                              nexcl=len((r or {}).get('excl') or []), nhc=len((r or {}).get('hc') or [])))
         res[c['id']] = dict(lines=rows, issues=iss)

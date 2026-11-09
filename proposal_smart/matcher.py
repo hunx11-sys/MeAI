@@ -12,7 +12,7 @@ if os.path.exists(_EX):
 GOJI = S.GOJI                        # 고지유형 꼬리표는 rules.json goji_tags 한 곳에서만 관리(v8.3)
 _A = '(?:' + S.AMT_RE + ')'          # 가입금액 표기(1억5천만원·3천5백만원·1억 등 전부)
 RENEW = r'\((?:\d+년)?갱신\)'          # 설계서 표기 (20년갱신) → 마스터의 '갱신형'과 맞추기 위해 제거
-def base(n): return re.sub(r'\s+', '', re.sub(RENEW, '', re.sub(GOJI, '', n)).replace('[기본계약]', '').replace('┗', ''))
+def base(n): return re.sub(r'\s+', '', S.VARTAG.sub('', re.sub(RENEW, '', re.sub(GOJI, '', n))).replace('[기본계약]', '').replace('┗', ''))   # [특별조건부] · [계약전환용] · (출생전) 은 같은 특약(v8.89)
 PRE_REN = r'^갱신형'                  # 설계서 '갱신형 ○○' ↔ 마스터 '○○' 표기 차이(v8.20) — 양방향으로 한 번씩 다시 찾는다
 INDEX = collections.defaultdict(list)
 BRACK = collections.defaultdict(list)   # 부모 이름 → 세부급부([○○]) 레코드 — 설계서가 세부를 (○○) 괄호로 적는 경우 대비
@@ -73,7 +73,14 @@ def _sub_pick(n, line):
         for test in (lambda l: l == key, lambda l: l.startswith(key)):
             hit = [k for k in kids if test(label(k))]
             if hit: return hit, lab
+        # 정보계 · 설계서가 세부 라벨의 낱말 순서를 바꿔 적은 경우 — 「(급여, 항암방사선치료, 암(유사암제외))」 ↔ 마스터 「[항암방사선치료비(급여,암(유사암제외))]」.
+        # 괄호 · 쉼표로 나눈 낱말 묶음이 같으면(「○○치료비」 ↔ 「○○치료」 는 같은 낱말로) 그 세부보장(v8.89)
+        rawlabel = lambda k: _last_bracket(base(k['n'])) if base(k['n']).endswith(']') else base(k['n'])   # 쉼표를 남긴 라벨(_norm 은 쉼표를 지운다)
+        hit = [k for k in kids if _labtoks(rawlabel(k)) == _labtoks(lab)]
+        if hit: return hit, lab
     return None, None
+def _labtoks(l):
+    return frozenset(re.sub(r'치료비$', '치료', t) for t in re.split(r'[(),\s]+', l) if t)
 
 def _find(n, line):
     """정규화된 담보명 하나로 마스터를 찾는다. 반환 (후보목록, 대괄호세부, 끝괄호꼬리)"""
@@ -185,7 +192,7 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                     row = {'no': no, 'name': re.sub(GOJI, '', name).replace('[기본계약]', '').strip(),
                            'man': S.amt_to_man(am.group(0)), 'amount_text': amt, 'cat': (m or {}).get('c'),
                            'codes': (m or {}).get('k') or [], 'excl': (m or {}).get('x') or [], 'hc': (m or {}).get('hc') or [], 'benefit': b, 'sub': s2, 'matched': bool(m),
-                           'itc': S.itc_id(name), 'sub_rec': bool(m and '[' in (m.get('n') or ''))}   # 세부보장([○○]) 레코드에 매칭됐는지(v8.62 · g131 판정에 그 목록 우선)
+                           'itc': S.itc_id(name), 'sub_rec': bool(m and '[' in (m.get('n') or '')), 'mname': (m or {}).get('n')}   # 세부보장([○○]) 레코드에 매칭됐는지(v8.62 · g131 판정에 그 목록 우선)
                     rows.append(row if m else _link(row, parent, name))
             if '세부보장' in t:                                    # 세부보장 표 : 번호+담보명이 한 셀에 있고 이름이 셀 경계에서 잘리므로 텍스트로 읽는다
                 lines = [x.strip() for x in t.split('\n')]
@@ -210,7 +217,7 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                             rows.append({'no': no, 'name': re.sub(GOJI, '', name).replace('[기본계약]', '').strip(),
                                          'man': S.amt_to_man(amt), 'amount_text': amt, 'cat': (mt or {}).get('c'),
                                          'codes': (mt or {}).get('k') or [], 'excl': (mt or {}).get('x') or [], 'benefit': b, 'sub': s2, 'matched': bool(mt),
-                                         'itc': S.itc_id(name), 'sub_rec': bool(mt and '[' in (mt.get('n') or ''))})
+                                         'itc': S.itc_id(name), 'sub_rec': bool(mt and '[' in (mt.get('n') or '')), 'mname': (mt or {}).get('n')})
                     k += 1
     if guide: rows += _guide_rows(pdf_path, guide, seen, line)
     return rows
@@ -240,5 +247,5 @@ def _guide_rows(pdf_path, guide, seen, line=None):
         seen.add(k2); m, b, s2 = match(name, line)
         out.append({'no': no, 'name': nm, 'man': won // 10000, 'amount_text': '안내참조(가입금액 %s원)' % mm.group(1), 'cat': (m or {}).get('c'),
                     'codes': (m or {}).get('k') or [], 'excl': (m or {}).get('x') or [], 'hc': (m or {}).get('hc') or [], 'benefit': b, 'sub': s2, 'matched': bool(m),
-                    'itc': S.itc_id(name), 'sub_rec': bool(m and '[' in (m.get('n') or ''))})
+                    'itc': S.itc_id(name), 'sub_rec': bool(m and '[' in (m.get('n') or '')), 'mname': (m or {}).get('n')})
     return out
