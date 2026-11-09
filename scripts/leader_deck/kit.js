@@ -66,12 +66,12 @@ body { background: #444; font-family: "P", sans-serif; color: #fff; word-break: 
 `;
 
 // 굽기 : HTML → 장마다 JPG(2880x1620) → PPTX(통이미지 + 발표자 메모) · 점검(글꼴 · 깨진 그림 · 장 밖 · 겹침)
-// S : [{h, n, src}] · meta : {FONT, OUT, name, LAW, title, subject}
+// S : [{h, n, src}] · meta : {FONT, OUT, name, LAW, title, subject, css(덧붙일 스타일, 없어도 됨)}
 async function build(S, meta) {
   const { FONT, OUT, name, LAW } = meta;
   const dir = path.join(OUT, name + '_slides'); fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
   const body = S.map((s, i) => `<section class="slide">${s.h}${s.src ? `<div class="src">${s.src}</div>` : ''}<div class="foot"><span class="law">${LAW}</span><span class="pg">${i + 1}</span></div></section>`).join('\n');
-  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>${css(FONT)}</style></head><body>${body}</body></html>`;
+  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>${css(FONT)}${meta.css || ''}</style></head><body>${body}</body></html>`;
   fs.writeFileSync(path.join(OUT, name + '.html'), html);
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1.5 });
