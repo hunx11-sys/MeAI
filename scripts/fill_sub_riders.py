@@ -48,7 +48,7 @@ def main():
             if tk.get('cond'): rec['cond'] = tk['cond']
             recs.append(rec)
             print('  + %-9s %s   [%s]' % (rec['id'], rec['n'], kid['basis'].split('코드는 ')[-1]))
-        i = R.index(P); R[i + 1:i + 1] = recs; n_add += len(recs)
+        i = max([R.index(P)] + [j for j, r in enumerate(R) if r.get('parent') == P['id']]); R[i + 1:i + 1] = recs; n_add += len(recs)   # 세부보장이 일부 있으면 그 뒤에(v8.92)
     ren = SF.rename_plan(tr, tr + ex)
     sib = set()
     for r, cand in ren: sib.add(r['parent'])

@@ -409,7 +409,8 @@ def fill_subs(riders, log):
     add = []
     for par, new in plan:
         kids = [dict(k, t=list(par.get('t') or []), src=list(par.get('src') or []), pg=par['pg']) for k, _ in new]
-        add.append((pos[par['id']], kids))
+        at = max([pos[par['id']]] + [i for i, r in enumerate(riders) if r['id'].startswith(par['id'] + '-')])   # 세부보장이 일부 있으면 그 뒤에(v8.92)
+        add.append((at, kids))
         log.append(('세부보장 채움 %d개' % len(kids), par['id'], par['n'], kids[0]['basis'][:60]))
     for i, kids in sorted(add, key=lambda x: -x[0]):
         riders[i + 1:i + 1] = kids

@@ -10,6 +10,9 @@
   2. 이 특약의 약관 본문에 그 세부보장 이름이 모두 나올 때만 같은 세부보장을 붙인다(본문이 없으면 붙이지 않는다).
   3. 질병코드 · 제외코드 · 수가코드는 본보기 세부보장의 것(감수본 우선)을 쓰되, 이 특약 자신의 코드 안에 들어 있을 때만 쓴다.
      안 들어 있으면 이 특약 자신의 코드를 그대로 물려준다(이름이 같으면 약관 별표도 같다 · 코드를 새로 만들지 않는다).
+     감수본 본보기에서 다른 세부보장에는 코드가 있는데 그 세부보장만 비어 있으면(약관이 별표 대신 정의 조문으로 정한 것 — 중증화상및부식진단비 :
+     체표면적 20% 이상 3도 화상 · 부식) 코드 없이 둔다(v8.92 · 금액이 아니라 빈칸).
+  4. 세부보장이 일부만 있으면(있는 것이 본보기의 일부일 때만) 빠진 세부보장만 채운다(v8.92).
 쓰는 곳 : scripts/fill_sub_riders.py(영업지원도구 tool.html) · extract_terms_extra.py(보강 마스터 · 약관 추출 때마다)
 """
 import re, collections
@@ -77,14 +80,21 @@ def plan(riders, templates, body_of):
     kids = collections.defaultdict(list)
     for t in templates:
         if t.get('parent'): kids[(t['p'], t['parent'])].append(t)
-    have = {(r['p'], r['parent']) for r in riders if r.get('parent')}
+    have = collections.defaultdict(list)                     # 이 특약에 이미 있는 세부보장
+    for r in riders:
+        if r.get('parent'): have[(r['p'], r['parent'])].append(r)
     tidx = collections.defaultdict(list)
     for t in templates:
         ks = kids.get((t['p'], t['id']))
         if ks and not t.get('parent'): tidx[fam(t['n'])].append((t, sorted(ks, key=lambda x: x['id'])))
     out, log = [], []
     for r in riders:
-        if r.get('parent') or (r['p'], r['id']) in have: continue
+        if r.get('parent'): continue
+        ex = have.get((r['p'], r['id'])) or []                  # 세부보장이 일부만 있으면 빠진 것만 채운다(v8.92 · 신화상치료비 [중증화상및부식진단비])
+        exl = [_label(r['n'], k['n']) for k in ex]
+        if ex and any(l is None for l in exl): continue
+        exc = {_core(l[1] if l[0] == 'bracket' else l[1][1]) for l in exl}
+        nxt = max([int(k['id'].rsplit('-', 1)[1]) for k in ex if re.match(r'.*-\d+$', k['id'])] or [0]) + 1
         cands = tidx.get(fam(r['n']))
         if not cands: continue
         cands = sorted(cands, key=lambda c: (c[0].get('src') != 'db', c[0]['p'] == r['p']))   # 감수본(db) 본보기 먼저
@@ -96,11 +106,15 @@ def plan(riders, templates, body_of):
             labs = [_label(tp['n'], k['n']) for k in tks]
             if any(l is None for l in labs): continue
             cores = [_core(l[1] if l[0] == 'bracket' else l[1][1]) for l in labs]
+            if ex and not (exc < set(cores)): continue           # 있는 세부보장이 본보기의 일부일 때만(이름이 다르면 손대지 않는다)
+            sib = any(t.get('k') for t in tks)                     # 본보기 세부보장 중 코드가 있는 것이 있는가
+            pick = [i for i, c in enumerate(cores) if c not in exc]
+            tks, labs, cores = [tks[i] for i in pick], [labs[i] for i in pick], [cores[i] for i in pick]
             miss = [c for c in cores if c and c not in body]
             if miss:
                 log.append(('약관 본문에 세부보장 이름 없음 %s' % miss, r['p'], r['id'], r['n'])); continue
             new = []
-            for i, (k, l) in enumerate(zip(tks, labs), 1):
+            for i, (k, l) in enumerate(zip(tks, labs), nxt):
                 if l[0] == 'bracket':
                     n = '%s[%s]' % (r['n'], l[1])
                 else:
@@ -111,17 +125,21 @@ def plan(riders, templates, body_of):
                 if tk and pk:
                     kk = covered(tk, pk); how = '본보기 세부보장 %s 코드 %d개 중 이 특약 별표에도 있는 %d개' % (k['id'], len(tk), len(kk))
                     if not kk: kk = list(pk); how = '이 특약 코드 그대로(본보기 세부 코드가 이 특약 별표에 없음)'
+                elif pk and k.get('src') == 'db' and sib:             # 감수본이 다른 세부보장에는 코드를 두고 이것만 비워 둠 = 약관이 별표 대신 정의 조문으로 정함
+                    kk = []; how = '질병코드 없음 — 감수본 본보기 %s 처럼 약관이 별표 대신 정의 조문으로 정함(코드를 만들지 않는다)' % k['id']
                 elif pk: kk = list(pk); how = '이 특약 코드 그대로(본보기 세부보장에 코드 없음 · 세부 구분은 규칙표가 이름으로 판정)'
                 else: kk = list(tk); how = '본보기 세부보장 %s 코드(이 특약 코드 없음)' % k['id']
-                xx = covered(k.get('x') or [], r.get('x') or []) if (k.get('x') and r.get('x')) else list(r.get('x') or k.get('x') or [])
+                # 제외코드 : 질병코드를 본보기 세부보장에서 가져왔으면 그 세부보장의 제외코드 그대로(같은 이름 = 같은 별표 · 32대질병 분류표처럼
+                # 세부(14대 · 4대)마다 제외가 다르다 — v8.90 은 부모 제외코드를 물려 케102-4 가 4대질병 제외 M01.1 · N74 를 잃었다 · v8.92)
+                xx = list(k.get('x') or []) if (tk and pk and covered(tk, pk)) else list(r.get('x') or k.get('x') or [])
                 hh = [h for h in (k.get('hc') or []) if h in (r.get('hc') or [])] if (k.get('hc') and r.get('hc')) else list(r.get('hc') or [])
-                kid = dict(id='%s-%d' % (r['id'], i), p=r['p'], n=n, parent=r['id'], c=k.get('c') or r.get('c'), k=kk, x=xx, hc=hh,
+                kid = dict(id='%s-%d' % (r['id'], i), p=r['p'], n=n, parent=r['id'], c=k.get('c') or r.get('c'), k=kk, x=xx, hc=hh, **({'cond': k['cond']} if k.get('cond') else {}),
                            basis='세부보장 : 약관 본문의 「%s」 · 구성은 같은 이름 특약 %s(%s) · 코드는 %s' % (
                                _core(l[1] if l[0] == 'bracket' else l[1][1]), tp['id'], tp['p'], how))
                 new.append((kid, k))
             if new:
                 out.append((r, new)); done = True; break
-        if not done and not any(x[2] == r['id'] for x in log):
+        if not done and not ex and not any(x[2] == r['id'] for x in log):
             log.append(('본보기 세부보장 이름을 만들지 못함', r['p'], r['id'], r['n']))
     return out, log
 
