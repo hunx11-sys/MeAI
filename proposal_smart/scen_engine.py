@@ -381,7 +381,15 @@ def no_master_why(r, what):
     if r.get('matched') is False:
         return ('이 담보는 특약 마스터(약관 데이터 : %s)에 없다 — 설계 상품의 약관이 데이터에 없어 %s을 붙일 수 없으므로 지급 판정 제외. '
                 '다른 상품의 같은 이름 담보로 대신 계산하지 않음(약관 데이터 추가 전까지 빈칸)') % ('·'.join(DB_PRODUCTS) or 'db.json', what)
+    nm = re.sub(r'\s', '', r.get('name') or '')
+    for key, why in NO_KCD_BY_TERMS.items():
+        if key in nm: return why
     return '특약 마스터에 %s이 없어 지급 판정 제외 (마스터 보강 필요)' % what
+
+# 약관이 질병코드 별표 대신 정의 조문으로 정해 목록이 원래 없는 세부보장 — 「마스터 보강 필요」 가 아니다(v8.93 · 소유자 2026-11-10 문구)
+NO_KCD_BY_TERMS = {
+    '중증화상및부식': '약관이 체표면적 기준(신체표면적 20% 이상 3도 화상 · 부식, 제6조)으로 정하여 기준에서 제외함 — 질병코드 목록 없음',
+}
 
 def issues_grouped(items=None):
     """같은 구분·사유의 로그를 담보 그룹 1줄로 묶는다(v8.61). 예) '1-7종 수술분류표 종 구분이 사례에 없어 계산 제외' 14줄 → 1줄.
