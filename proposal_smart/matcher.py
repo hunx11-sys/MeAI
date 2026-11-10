@@ -61,7 +61,10 @@ def _sub_pick(n, line):
         ps = INDEX.get(parent) or []
         if not ps:                                        # 설계서 'Ⅱ' 꼬리 등 표기 차이 — 앞부분이 같은 가장 긴 이름
             ks = [k for k in INDEX if k and (parent.startswith(k) or k.startswith(parent)) and any(CHILD.get(r['id']) for r in INDEX[k])]
-            if ks: ps = INDEX[max(ks, key=len)]
+            # 뒤에 붙은 괄호가 설계서 이름에 다 있는 것만 — 「통합암 주요치료비(특정소액암)(연간1회한, 10년간)」 이 더 긴
+            # 「통합암 주요치료비(체증형)(연간1회한, 10년간)」(통52) 로 가지 않고 통51 로 가게(v8.91)
+            fit = [k for k in ks if k.startswith(parent) and all(g in n for g in re.findall(r'\([^()]*\)', k[len(parent):]))]
+            if ks: ps = INDEX[max(fit or ks, key=len)]
         kids = [k for r in ps if r['p'] == line for k in CHILD.get(r['id'], [])] if line else []
         if not kids:                                      # 설계 상품 레코드에 세부가 없으면(파싱 못 한 세부 — 내Mom대로 131대질병수술비) 같은 이름 특약의 다른 상품 세부(v8.66)
             kids = [k for r in ps for k in CHILD.get(r['id'], [])]
