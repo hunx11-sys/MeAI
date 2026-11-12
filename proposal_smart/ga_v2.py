@@ -228,13 +228,15 @@ def each_range(key):
         if m: hit = True; mx += a * m
         else: mx += a
     return (v, mx) if hit and mx > v + 1e-9 else None
+RG_LO, RG_HI, RG_LH = 0.82, 1.08, 1.12     # 「매 회」 두 줄 : 윗줄(1회차) 0.82배 · 아랫줄(최대) 1.08배 · 줄 간격(소유자 2026-11-12)
 def range_html(lo, hi, size, color, usize, ucolor, w):
-    """「매 회」 범위 두 줄 — 윗줄 1회차 금액, 아랫줄 「~ 최대 금액」(소유자 2026-11-12). w(pt) 를 넘으면 글자를 줄인다(RANGE_FIT)"""
-    def one(v):
+    """「매 회」 범위 두 줄 — 윗줄 1회차 금액(작게), 아랫줄 「~ 최대 금액」(크게). 두 줄을 오른쪽에 맞추고 「만」 은 두 줄 같은 크기라
+    「만」 이 세로로 한 줄에 선다(소유자 2026-11-12). w(pt) 를 넘으면 전체를 줄인다(RANGE_FIT)"""
+    def one(v, k):
         t, u = fmt(v)
-        return '<b style="color:%s">%s</b>%s' % (color, t, ('<span style="font-size:%.3fem;color:%s;font-weight:600;margin-left:.03em">%s</span>' % (usize / size, ucolor, u)) if u else '')
-    return ('<span class="rg" data-w="%.1f" style="display:inline-block;white-space:nowrap;font-size:%.2fpt;font-weight:800;line-height:1.1;text-align:center">%s<br>'
-            '<span style="font-size:.72em;color:#8B95A1;font-weight:600;margin-right:.2em;vertical-align:.12em">~</span>%s</span>' % (w, size, one(lo), one(hi)))
+        return '<b style="font-size:%.2fem;color:%s">%s</b>%s' % (k, color, t, ('<span style="font-size:%.3fem;color:%s;font-weight:600;margin-left:.03em">%s</span>' % (usize / size, ucolor, u)) if u else '')
+    return ('<span class="rg" data-w="%.1f" style="display:inline-block;white-space:nowrap;font-size:%.2fpt;font-weight:800;line-height:%.2f;text-align:right">%s<br>'
+            '<span style="font-size:.62em;color:#8B95A1;font-weight:600;margin-right:.25em;vertical-align:.2em">~</span>%s</span>' % (w, size, RG_LH, one(lo, RG_LO), one(hi, RG_HI)))
 def rtxt(r): return '%s ~ %s' % (mtxt(r[0]), mtxt(r[1]))
 def tsum(*keys):
     vs = [VX(k) for k in keys]; ns = [x for x in vs if isnum(x)]
@@ -351,7 +353,7 @@ def overlay_html():
             if k in ('amt', 'total'):
                 rg = each_range(s['key']) if s['key'].endswith('.each') else None
                 if rg:      # 두 줄(12pt × 2) — 원래 한 줄 글자의 가운데(기준선 − 0.36 × 크기)에 덩어리 가운데를 맞춘다
-                    sz = round(s['size'] * 0.84, 2); top = s['base'] - 0.36 * s['size'] - sz * 1.1
+                    sz = round(s['size'] * 0.84, 2); top = s['base'] - 0.36 * s['size'] - sz * RG_LH * (RG_LO + RG_HI) / 2
                     o.append('<div class="o" style="left:%.2fpt;width:300pt;text-align:center;top:%.2fpt;font-size:%.2fpt">%s</div>' % (s['cx'] - 150, top, sz, range_html(rg[0], rg[1], sz, s['color'], s['usize'] * 0.84, s['ucolor'], 104)))
                     if pk == 'ca1' and not any(x.startswith('<!--eachlab') for x in o):
                         o.insert(0, '<!--eachlab-->' + _at(cx=63.15, base=770.4, size=5.6, inner='<span style="color:#8B95A1">1회차 ~ 최대</span>', extra='font-weight:600'))
@@ -546,9 +548,9 @@ def row_label(n, l):
     if '1-5종' in s or '1-7종' in s:
         g = (re.search(r'\[(?:질병|상해)(\d종)\]', s) or [None, ''])[1] or GP.line_note(l); cause = '상해' if '상해' in s else '질병'
         return '%s 수술비 [%s%s]' % ('1-5종' if '1-5종' in s else '1-7종', cause, g)
-    return s.replace('131대질병수술비', '131대 질병수술비').replace('130대질병수술비', '130대 질병수술비')
+    return re.sub(r'\s*\(25%체증형\)', '', s).replace('131대질병수술비', '131대 질병수술비').replace('130대질병수술비', '130대 질병수술비')      # 체증형은 옆 꼬리표로
 def surg_rows(name):
-    """수술 하나의 줄 — (표시 이름, 범주, 모든 병원 금액, 상급종합 금액, 체증형?). 금액은 ga_spec 칸(p1.dz · 같은 사례 상급종합)의 지급 줄 그대로"""
+    """수술 하나의 줄 — (표시 이름, 범주, 모든 병원 금액, 상급종합 금액, 체증형?, 최대 배율). 금액은 ga_spec 칸(p1.dz · 같은 사례 상급종합)의 지급 줄 그대로(1회차)"""
     A = {}; order = []
     for l in LN('p1.dz.' + name):
         a = GS.counts(l, 'first')
@@ -561,22 +563,28 @@ def surg_rows(name):
         if l['name'] not in A: A[l['name']] = [l, None, 0]; order.append(l['name'])
         A[l['name']][2] += a
     full = {n: eff_name(n, A[n][0].get('no')) for n in order}
-    rows = [(row_label(full[n], A[n][0]), cat_of(full[n]), A[n][1], A[n][2], '체증' in full[n]) for n in order]
-    have = {cat_of(n) for n in rid_names()}
+    rows = [(row_label(full[n], A[n][0]), cat_of(full[n]), A[n][1], A[n][2], '체증' in full[n], esc_mult(full[n])) for n in order]
+    cause = '상해' if name == '골절진단' else '질병'       # 이 수술의 원인(골절만 상해) — 1-5종 · 1-7종은 질병 · 상해를 따로 가입한다
+    have = {(cat_of(n), '상해' if '상해' in n else '질병') for n in rid_names()}
     for cat, lab in (('s15', '1-5종 수술비'), ('s17', '1-7종 수술비')):
-        if cat not in have: rows.append((lab + (' [상해]' if name == '골절진단' else ''), cat, '미가입', '미가입', False))
+        if (cat, cause) not in have and not any(r[1] == cat for r in rows): rows.append(('%s [%s]' % (lab, cause), cat, '미가입', '미가입', False, None))
     rows.sort(key=lambda r: CAT_ORDER.index(r[1]))
     return rows
 def card(name):
     proc, kcd = GS.GA_DZ[name][0], GS.GA_DZ[name][1]
     rows = surg_rows(name); rs = ''; ta = tu = 0.0
-    for lab, cat, a, u, inc in rows:
+    def amt(v, m):      # 체증형 줄 : 같은 종 수술을 다시 받을 때의 최대 금액(1회차 × 최대 배율 · 약관 지급금액표 · ESC_RULES) + 작은 빨간 「최대」(소유자 2026-11-12)
+        if v is None: return '–'
+        return ('<span class="mxl">최대</span>%s만' % won(v * m)) if m else won(v) + '만'
+    anym = False
+    for lab, cat, a, u, inc, m in rows:
         if a == '미가입':
             rs += '<tr><td>%s</td><td colspan="2" class="na">미가입</td></tr>' % lab; continue
         tag = ''
-        if cat == 's15': tag = ' <span class="cz">체증형</span>' if inc else ' <span class="cz" style="background:#F2F4F6;color:#8B95A1">체증형 미가입</span>'
-        ta += a or 0; tu += u or 0
-        rs += '<tr><td>%s%s</td><td class="num %s">%s</td><td class="num">%s</td></tr>' % (lab, tag, 'na' if a is None else '', '–' if a is None else won(a) + '만', won(u) + '만')
+        if inc or m: tag = ' <span class="cz">체증형</span>'
+        elif cat == 's15': tag = ' <span class="cz" style="background:#F2F4F6;color:#8B95A1">체증형 미가입</span>'
+        ta += a or 0; tu += u or 0; anym = anym or bool(m)
+        rs += '<tr><td>%s%s</td><td class="num %s">%s</td><td class="num">%s</td></tr>' % (lab, tag, 'na' if a is None else '', amt(a, m), amt(u, m))
     want = V('p1.dz.' + name)
     if isnum(want) and abs(ta - want) > 0.01: raise RuntimeError('수술 카드 합계(%s)가 보장요약 칸(%s)과 다름 : %s' % (ta, want, name))
     none = not rows or all(r[2] == '미가입' for r in rows)
@@ -586,8 +594,9 @@ def card(name):
     chips = kcd_chip(kcd) + ((' <span class="chip %s">%s</span>' % ('m' if sex == '남성' else 'f', sex)) if sex else '')
     return ('<div class="card"><div class="ch">%s<div><div class="nm">%s</div><div class="op">%s</div><div style="margin-top:2px">%s</div></div></div>'
             '<table class="rt"><tr><th>보장(특약)</th><th>모든 병원</th><th>상급종합</th></tr>%s</table>'
-            '<div class="tot"><div><span>모든 병원</span><b class="num">%s</b></div><div class="up"><span>상급종합</span><b class="num">%s</b></div></div></div>') % (
-            ico(DZ_ICON[name], 46), name.replace('골절진단', '골절'), proc, chips, rs, tot(ta), tot(tu))
+            '<div class="tot"><div><span>모든 병원%s</span><b class="num">%s</b></div><div class="up"><span>상급종합%s</span><b class="num">%s</b></div></div></div>') % (
+            ico(DZ_ICON[name], 46), name.replace('골절진단', '골절'), proc, chips, rs, BASIS if anym else '', tot(ta), BASIS if anym else '', tot(tu))
+BASIS = '<em>1회차 기준</em>'      # 합계는 보장요약 칸과 같은 1회차 금액(체증형 최대 금액은 더하지 않는다)
 NEED_SURG = ('<div class="need"><div><div class="k">연간 주요수술 건수</div><div class="v">215<small>만건</small></div><div class="s">전년 대비 4.8% 증가</div></div>'
              '<div><div class="k">수술 1건당 평균 진료비</div><div class="v">496<small>만</small></div><div class="s">전년 대비 9.5% 상승</div></div>'
              '<div><div class="k">수술 진료비 증가</div><div class="v">14.7<small>%</small></div><div class="s">전년 대비 · 총 10조 6,738억</div></div></div>'
@@ -613,8 +622,8 @@ def esc():
             '</div><div class="lbl"><div>1회차<br>100%%</div><div>2회차<br>150%%</div><div>3회차 이후<br>200%%</div></div>'
             '<div class="note" style="text-align:center">4 · 5종 수술(질병 5종 %s만원 기준%s)</div></div></div>' % (won(b5), g5) +
             '<div class="note">근거 : 수술비Ⅱ(1-5종)(체증형) 약관 제1조 지급금액표(질병 · 상해 각각 · 같은 종 수술 회차 기준). 막대 높이는 가입금액 대비 지급 비율입니다.</div></div>')
-LEGEND = ('<div class="note" style="margin:0 0 6px">가입한 보장과 <b>가입하지 않은 보장(회색 「미가입」)</b>을 함께 보여 드립니다. 1-5종 수술비가 일반형이면 「체증형 미가입」으로 표시하고, '
-          '체증형은 다음 쪽 아래 시나리오에서 볼 수 있습니다. 「상급종합」 합계는 같은 수술을 상급종합병원에서 받았을 때의 금액으로, 병원 종류에 따라 더 나오는 보장(상급종합병원 · 종합병원 질병수술비 등 · 「모든 병원」 칸 「–」)이 들어 있습니다.</div>')
+LEGEND = ('<div class="note" style="margin:0 0 6px">가입한 보장과 <b>가입하지 않은 보장(회색 「미가입」)</b>을 함께 보여 드립니다. <b>체증형</b> 줄의 <b style="color:#E8432E">최대</b> 금액은 같은 종 수술을 다시 받을 때 받을 수 있는 가장 큰 금액(1회차의 2배 · 약관 지급금액표)이고, 아래 합계는 1회차 기준입니다. '
+          '1-5종 수술비가 일반형이면 「체증형 미가입」으로 표시하고, 회차별 비율은 다음 쪽 아래 시나리오에서 볼 수 있습니다. 「상급종합」 합계는 같은 수술을 상급종합병원에서 받았을 때의 금액으로, 병원 종류에 따라 더 나오는 보장(상급종합병원 · 종합병원 질병수술비 등 · 「모든 병원」 칸 「–」)이 들어 있습니다.</div>')
 def page_surg(i):
     names = GS.DZ_ORDER[i * 6:(i + 1) * 6]
     body = (NEED_SURG if i == 0 else '') + '<div class="tag">다빈도 수술별 보장금액 %s</div><div class="sec"></div>' % ('①' if i == 0 else '②') + (LEGEND if i == 0 else '')

@@ -98,3 +98,6 @@
 .ft span:first-child{max-width:392pt}.ft .who{white-space:nowrap}.ft .who b{color:#222;font-weight:700}.ft .who i{display:inline-block;width:.6pt;height:6pt;background:#C9C9C9;margin:0 5pt;vertical-align:-.5pt}
 .stp .ss{min-height:9px}.lane{margin-bottom:11px}
 .cov .v small{font-size:9px;font-weight:700}
+
+/* 수술 카드 체증형 줄 — 금액 왼쪽 작은 빨간 「최대」 · 합계 아래 「1회차 기준」(2026-11-12) */
+.rt .mxl{font-size:6.6px;color:#E8432E;font-weight:700;margin-right:2px;vertical-align:.5px}.tot span em{display:block;font-style:normal;font-size:6.4px;color:#8B95A1;font-weight:600;line-height:1.1}
