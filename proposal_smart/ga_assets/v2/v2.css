@@ -1,0 +1,100 @@
+/* GA 스마트 제안서 v2 — 새로 그리는 쪽(치료 여정 · 주요수술 · 간병인 · 보장 점검) 공통 스타일. 2026-11-11 회의 시안(토스 계열 · 메리츠 빨강)에서 옮김 */
+
+@page{size:A4;margin:0} *{box-sizing:border-box} body{margin:0;font-family:P;word-break:keep-all;overflow-wrap:anywhere;color:#191F28;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:210mm;height:297mm;padding:9mm 11mm 8mm;position:relative;page-break-after:always;overflow:hidden;background:#fff}
+.hd{display:flex;align-items:center;gap:8px;border-bottom:1px solid #E5E8EB;padding-bottom:6px;margin-bottom:9px}
+.logo{font-weight:800;color:#C8102E;font-size:17px;letter-spacing:-.5px}.logo small{font-size:10px;color:#C8102E;font-weight:600;margin-left:2px}
+.brand{color:#E8432E;font-weight:800;font-size:15px;margin-left:6px}.ttl{font-weight:700;font-size:16px;margin-left:10px}
+.warn{margin-left:auto;font-size:8px;color:#6B7684;display:flex;gap:5px;align-items:center;line-height:1.25}.warn i{background:#E8432E;color:#fff;border-radius:50%;width:13px;height:13px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-weight:700;font-size:9px}
+.tag{display:inline-block;background:#E8432E;color:#fff;font-weight:700;font-size:13px;padding:5px 14px;border-radius:9px 9px 0 0}
+.sec{border-top:2px solid #E8432E;margin-bottom:8px}
+.ft{position:absolute;left:11mm;right:11mm;bottom:5mm;border-top:1px solid #E5E8EB;padding-top:3px;font-size:7.5px;color:#8B95A1;display:flex;justify-content:space-between}
+.ver{position:absolute;top:3mm;right:11mm;font-size:7.5px;color:#fff;background:#333D4B;padding:2px 7px;border-radius:5px}
+.muted{color:#8B95A1}.red{color:#E8432E}.b{font-weight:700}.num{font-variant-numeric:tabular-nums}
+.bd{display:inline-flex;align-items:center;justify-content:center;border-radius:50%}
+.chip{display:inline-block;font-size:8px;font-weight:600;padding:1px 6px;border-radius:5px;background:#F2F4F6;color:#4E5968}
+.chip.code{background:#EBF1FC;color:#2B5BBF}.chip.m{background:#E8EEF8;color:#2B5BBF}.chip.f{background:#F8ECF5;color:#A23A91}.chip.tbd{background:#FFF3E0;color:#B25E00}
+.need{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.need>div{background:#F9FAFB;border:1px solid #E5E8EB;border-radius:12px;padding:8px 10px;text-align:center}
+.need .k{font-size:9px;color:#4E5968}.need .v{font-size:21px;font-weight:800;margin-top:1px}.need .v small{font-size:11px}.need .s{font-size:8px;color:#6B7684}
+.src{font-size:7px;color:#8B95A1;margin:-4px 0 6px}
+/* 수술 A안 카드 */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.card{border:1px solid #E5E8EB;border-radius:12px;padding:7px 9px 7px;display:flex;flex-direction:column}
+.ch{display:flex;gap:8px;align-items:center;margin-bottom:4px}.ch .nm{font-size:13.5px;font-weight:700}.ch .op{font-size:8.5px;color:#4E5968;margin-top:1px}
+.rt{width:100%;border-collapse:collapse;font-size:8.6px}.rt th{font-weight:600;color:#6B7684;font-size:7.8px;text-align:right;padding:1px 3px;border-bottom:1px solid #D1D6DB;background:#F9FAFB}
+.rt th:first-child{text-align:left}.rt td{padding:1.6px 3px;border-bottom:1px solid #F2F4F6;text-align:right}.rt td:first-child{text-align:left;color:#333D4B}
+.rt td.na{color:#B0B8C1}.rt .cz{display:inline-block;font-size:7px;font-weight:700;color:#C8102E;background:#FDECEE;border-radius:4px;padding:0 4px;margin-left:3px}
+.tot{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-top:4px}
+.tot div{background:#FFF5F4;border-radius:8px;padding:3px 7px;display:flex;justify-content:space-between;align-items:baseline;font-size:8px;color:#4E5968}
+.tot div.up{background:#F2F4F6}.tot b{font-size:15px;color:#E8432E;font-weight:800}.tot div.up b{color:#191F28}.tot b small{font-size:9px}
+/* 체증 시나리오 */
+.esc{border:1px solid #E5E8EB;border-radius:12px;padding:8px 10px;background:#FBFCFD}
+.esc h4{margin:0 0 4px;font-size:12px}.esc p{margin:0;font-size:8.5px;color:#4E5968}
+.bars{display:flex;align-items:flex-end;gap:7px;height:62px;margin:18px 0 2px}
+.bars div{flex:1;background:#F5C2CA;border-radius:6px 6px 0 0;position:relative;text-align:center}.bars div.mx{background:#E8432E}
+.bars div span{position:absolute;top:-13px;left:0;right:0;font-size:9px;font-weight:700}.lbl{display:flex;gap:7px}.lbl div{flex:1;text-align:center;font-size:7.8px;color:#6B7684}
+/* B안 표 */
+.mx{width:100%;border-collapse:collapse;font-size:9px}.mx th{background:#F9FAFB;color:#4E5968;font-weight:600;font-size:8px;padding:5px 3px;border-bottom:1px solid #D1D6DB;border-top:1px solid #D1D6DB;text-align:center}
+.mx th{white-space:nowrap}.mx td b,.mx .t1,.mx .t2{white-space:nowrap}.mx .t1{font-size:13px}.mx .t2{font-size:12px}.mx .na,.mx .cz,.mx .sub{white-space:nowrap}.mx td{border-bottom:1px solid #E5E8EB;padding:5px 3px;text-align:center;vertical-align:middle}.mx td.sg{text-align:left}.mx .na{color:#B0B8C1;font-size:8px}
+.mx .t1{font-size:14px;font-weight:800;color:#E8432E}.mx .t2{font-size:13px;font-weight:800}.mx .sub{font-size:7.5px;color:#6B7684;display:block}
+.mx .cz{display:block;font-size:7.5px;font-weight:700;color:#C8102E}
+/* 간병 */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.box{border:1px solid #E5E8EB;border-radius:12px;padding:9px 11px}.box h4{margin:0 0 5px;font-size:12px}.box p{margin:0;font-size:8.8px;color:#4E5968;line-height:1.5}
+.cov{border:1px solid #E5E8EB;border-radius:12px;padding:8px;text-align:center}.cov .k{font-size:9px;font-weight:600;color:#333D4B}.cov .s{font-size:7.6px;color:#6B7684}
+.cov .v{font-size:15px;font-weight:800;color:#E8432E;margin:3px 0 1px}.cov.na .v{color:#B0B8C1;font-size:12px}
+.step{display:flex;gap:6px;align-items:stretch}.step>div{flex:1;background:#F9FAFB;border-radius:10px;padding:8px;font-size:8.6px;color:#4E5968;position:relative}
+.step b{display:block;font-size:10px;color:#191F28;margin-bottom:2px}.step .n{display:inline-flex;width:16px;height:16px;border-radius:50%;background:#E8432E;color:#fff;font-size:9px;font-weight:700;align-items:center;justify-content:center;margin-bottom:3px}
+.tl{position:relative;height:46px;margin:22px 4px 4px;white-space:nowrap}.tl .seg{position:absolute;top:10px;height:16px;border-radius:8px;color:#fff;font-size:8.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tl .tick{position:absolute;top:30px;font-size:7.6px;color:#6B7684;transform:translateX(-50%)}.tl .cap{position:absolute;top:-14px;font-size:8px;font-weight:600;color:#333D4B;transform:translateX(-50%)}
+.cmp{display:grid;grid-template-columns:1fr auto 1fr auto 1.2fr;gap:6px;align-items:center}.cmp>div{background:#fff;border:1px solid #E5E8EB;border-radius:10px;padding:7px;text-align:center;font-size:8.5px;color:#4E5968}
+.cmp .big{font-size:17px;font-weight:800;color:#191F28}.cmp .rb{color:#E8432E}.cmp .res{background:#EBF1FC;border:none}.cmp .res .big{color:#1B4C9C}
+.note{font-size:7.8px;color:#6B7684;margin-top:4px;line-height:1.45}
+.tbd{background:#FFF3E0;color:#8A4B00;border-radius:6px;padding:1px 5px;font-size:7.5px;font-weight:600}
+.idx td{font-size:10px;padding:5px 6px;border-bottom:1px solid #E5E8EB;vertical-align:top}.idx th{font-size:9px;text-align:left;background:#F9FAFB;padding:5px 6px;border-bottom:1px solid #D1D6DB}
+
+.lane{border:1px solid #E5E8EB;border-radius:14px;padding:9px 11px 9px;margin-bottom:8px;background:#fff}
+.lh{display:flex;align-items:center;gap:8px;margin-bottom:7px}.lh b{font-size:13.5px}.lh span{font-size:8.6px;color:#4E5968}
+.steps{display:grid;gap:13px;align-items:stretch}.stp.tt{display:flex;flex-direction:column;justify-content:center}
+.stp{position:relative;background:#F9FAFB;border-radius:11px;padding:7px 3px 6px;text-align:center;min-width:0}
+.stp:not(.tt)::after{content:"";position:absolute;right:-10px;top:34px;border-left:7px solid #B0B8C1;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.stp.last::after{display:none}
+.stp .sn{display:inline-block;font-size:7.6px;font-weight:700;color:#fff;background:#333D4B;border-radius:8px;padding:1px 7px;margin-bottom:3px}
+.stp .sd{font-size:8px;color:#4E5968;line-height:1.3;min-height:21px;display:flex;align-items:center;justify-content:center}
+.stp .sv{font-size:15px;font-weight:800;color:#E8432E;white-space:nowrap}.stp .sv small{font-size:8.5px;color:#191F28;font-weight:600}
+.stp .ss{font-size:7px;color:#8B95A1;margin-top:1px}
+.op{margin-top:5px;border-top:1px solid #E5E8EB;padding-top:4px;text-align:left}.o{display:flex;flex-wrap:wrap;justify-content:space-between;gap:0 4px;font-size:7.2px;color:#6B7684;padding:1.2px 3px;border-radius:4px;line-height:1.35}.o b{font-weight:600;color:#333D4B;white-space:nowrap}.o.on{background:#FDECEE;color:#C8102E}.o.on b{color:#C8102E;font-weight:700}.o.no{border:1px dashed #B0B8C1;color:#8B95A1}.o.no b{color:#8B95A1}
+.stp.gap{background:#fff;border:1.2px dashed #B0B8C1}.stp.gap .sn{background:#8B95A1}.stp.gap .sv{color:#8B95A1;font-size:11px}
+.stp.tt{background:#EBF1FC}.stp.tt .sn{background:#1B4C9C}.stp.tt .sv{color:#1B4C9C;font-size:17px}.stp.tt .sv small{color:#1B4C9C}
+.alt{margin-top:7px;font-size:7.8px;color:#6B7684;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}.alt b{color:#333D4B;font-weight:600}
+.alt span{background:#F2F4F6;border-radius:6px;padding:1.5px 6px;white-space:nowrap}.alt span.on{background:#FDECEE;color:#C8102E;font-weight:600}.alt span.no{background:#fff;border:1px dashed #B0B8C1;color:#8B95A1}
+.sum{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px;margin-bottom:9px}.sum>div{border-radius:12px;padding:9px 12px;background:#F9FAFB;border:1px solid #E5E8EB}
+.sum .k{font-size:9px;color:#4E5968}.sum .v{font-size:22px;font-weight:800}.sum .v small{font-size:10px;font-weight:600}
+.row{display:grid;grid-template-columns:74px 1fr;gap:8px;align-items:stretch;margin-bottom:6px}.row .rh{background:#333D4B;color:#fff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:700;gap:3px;padding:5px 0}
+.tiles{display:grid;gap:5px}.tile{border-radius:9px;padding:5px 7px;border:1px solid #E5E8EB;background:#fff;min-height:38px}
+.tile .n{font-size:8.2px;color:#333D4B;font-weight:600;display:flex;align-items:center;gap:4px}.tile .a{font-size:11.5px;font-weight:800;margin-top:1px;white-space:nowrap}.tile .a small{font-size:7.5px;font-weight:600}
+.tile i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#0E7C4A;flex:none}
+.tile.pt{background:#FFF9EE;border-color:#F3DD94}.tile.pt i{background:#B25E00}
+.tile.no{background:#F9FAFB;border-style:dashed;border-color:#B0B8C1}.tile.no i{background:#fff;border:1.5px solid #8B95A1}.tile.no .a{color:#8B95A1;font-size:10px}
+.lg{display:flex;gap:12px;font-size:8px;color:#4E5968;margin:0 0 7px;align-items:center}.lg span{display:flex;align-items:center;gap:4px}.lg i{display:inline-block;width:8px;height:8px;border-radius:50%}
+.more{display:grid;grid-template-columns:1fr 1fr;gap:7px}.mc{border:1px solid #E5E8EB;border-radius:12px;padding:8px 10px;display:flex;gap:8px}
+.mc .no_{flex:none;width:20px;height:20px;border-radius:50%;background:#333D4B;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.mc b{font-size:10.5px}.mc p{margin:2px 0 0;font-size:8.3px;color:#4E5968;line-height:1.45}.mc .pg{font-size:7.4px;color:#2B5BBF;font-weight:600;margin-top:2px}
+.fp{display:grid;grid-template-columns:50% 1fr;gap:10px;align-items:start}
+.shot{position:relative;border:1px solid #D1D6DB;border-radius:8px;overflow:hidden;line-height:0}.shot img{width:100%}
+.pin{position:absolute;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:#C8102E;color:#fff;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 0 2px #fff}
+.ln{display:flex;gap:7px;padding:5.5px 0;border-bottom:1px solid #F2F4F6}.ln:last-child{border-bottom:none}
+.ln .pn{position:static;margin:1px 0 0;flex:none;box-shadow:none;width:15px;height:15px;font-size:8.5px}
+.ln .nm{font-size:8px;color:#6B7684;font-weight:600}.ln .say{font-size:10px;font-weight:700;line-height:1.35;margin:1px 0 2px}
+.ln .law{font-size:7.4px;color:#4E5968;line-height:1.4;background:#F9FAFB;border-radius:5px;padding:3px 5px}.ln .law b{color:#2B5BBF}
+.ln .cau{font-size:7.4px;color:#B25E00;margin-top:2px}
+.only{display:inline-block;background:#333D4B;color:#fff;font-size:8.5px;font-weight:700;border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+/* v41 머리 · 바닥과 맞춤 — 로고 · 경고문은 틀(tpl.pdf)에서 오려 붙이고, 제목은 v41 자리(x 191pt · 기준선 47.25pt)에 */
+.hd{display:block;position:relative;height:41pt;margin:0;padding:0;border:0}
+.hd .ttl{position:absolute;left:159.9pt;top:9.1pt;margin:0;font-size:15pt;font-weight:800;color:#1F1F22;line-height:15pt;letter-spacing:0;white-space:nowrap}
+.ver{display:none}
+.ft{left:31.5pt;right:31pt;top:808.5pt;bottom:auto;border-top:.7pt solid #F0B9B1;padding-top:4.3pt;font-size:6pt;color:#666;line-height:1.25}
+.ft span:first-child{max-width:392pt}.ft .who{white-space:nowrap}.ft .who b{color:#222;font-weight:700}.ft .who i{display:inline-block;width:.6pt;height:6pt;background:#C9C9C9;margin:0 5pt;vertical-align:-.5pt}
+.stp .ss{min-height:9px}.lane{margin-bottom:11px}
+.cov .v small{font-size:9px;font-weight:700}

@@ -292,7 +292,7 @@ def line_note(l):
     if l.get('group') == '통합치료비' or rule in ('itc', 'ls_monthly'):
         items = [re.sub(r'\s*[\d,.]+\s*$', '', p).strip() for p in re.split(r'\s·\s', why.split('(연간 한도')[0])]
         return ', '.join(x for x in items if x)
-    m = re.search(r'(\d)종', why) if rule.startswith('surg_grade') else None
+    m = re.search(r'(?<![-\d])(\d)종', why) if rule.startswith('surg_grade') else None     # 「1-7종 분류표 2종 수술」 의 「7종」(분류표 이름)을 잡지 않게
     return m.group(0) if m else ''
 def calc_row(c):
     """칸 하나 → (구분, 값, [(특약명, 메모, 가입금액, 지급액)]). 그 칸의 집계 방식으로 실제 합산된 줄만 적는다"""
