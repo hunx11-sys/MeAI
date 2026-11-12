@@ -671,7 +671,7 @@ def page_care_use(cf):
                                                                                ' style="color:#C8102E"' if gap else '', '보장 공백' if gap else '끊김 없이') +
              ('<p class="note">회청색 칸은 간병인 지원(현물) 기간이라 일당 합계에는 넣지 않았습니다.</p>' if any(v == SEND for _, _, v in rs) else '') + '</div>')
     body += '<div class="tag" style="margin-top:9px">이렇게 청구해요</div><div class="sec"></div><div class="step">' + ''.join('<div><span class="n">%d</span><b>%s</b>%s</div>' % (i + 1, a, b) for i, (a, b) in enumerate([
-        ('간병인 사용', '병원 소속 간병인 · 등록된 간병 업체 등 약관이 정한 유상 간병인(가족 간병 제외)'), ('서류 챙기기', '입원 확인서 · 간병인 사용 확인 서류(영수증 등) <span class="tbd">서류 목록 확정 필요</span>'),
+        ('간병인 사용', '병원 소속 간병인 · 등록된 간병 업체 등 약관이 정한 유상 간병인'), ('서류 챙기기', '입원 확인서 · 간병인 사용 확인 서류(영수증 등) <span class="tbd">서류 목록 확정 필요</span>'),
         ('청구', '모바일 앱 · 홈페이지 · 고객센터'), ('일당 지급', '간병인을 쓴 날 수 × 일당')])) + '</div>'
     body += '<div class="note">근거 : 이 설계의 %s(뒤쪽 세부내역) · 간병인의 정의(약관 제4조). 평균 간병비 12.2만 · 입원일수(30일 · 240일)는 가정값.</div>' % ' · '.join(_short_name(n) for n in cf['use_names'])
     return page('간병인 보장 · 간병인 사용 가입자', body, '※ 금액은 이 설계의 특약별 가입금액 기준입니다. 입원일수 · 평균 간병비는 가정값입니다.')
@@ -685,7 +685,7 @@ def page_care_none():
              ('<p style="margin-top:4px;font-size:9.5px"><b>이 설계</b> : 간호 · 간병통합서비스 입원일당 <b class="red">1일 %s만원</b>(통합서비스 병동을 쓴 날) — 일반병동에서 간병인을 쓰는 날은 보장하지 않습니다.</p>' % won(CF()['use_nurse'])) if CF()['use_nurse'] else '') + '</div>')
     body += ('<div class="tag">간병 보장, 두 가지 방법이 있어요</div><div class="sec"></div><div class="g2">'
              '<div class="box"><h4>%s 간병인 <span class="red">지원</span>(현물)</h4><p>회사가 간병인을 <b>직접 보내 드려요</b>. 간병인을 구하는 수고와 비용 걱정이 없어요.<br>· 병원 · 의원 1~180일(요양병원 포함)<br>· 181일 이상 장기입원(요양 · 정신 · 한방 제외)<br>· 요양병원 181일 이상(요양성 특정질병)</p><div style="margin-top:6px"><span class="chip">이 설계 미가입</span></div></div>'
-             '<div class="box"><h4>%s 간병인 <span class="red">사용</span>(금액)</h4><p>병원 소속 간병인이나 등록된 간병 업체의 간병인을 쓴 날마다 <b>정해진 일당</b>을 드려요(가족 간병은 보장하지 않아요).<br>· 병원 · 의원(요양병원 제외) · 요양병원 1~180일<br>· plus 181일 이상 장기입원(요양 · 정신 · 한방 제외)</p><div style="margin-top:6px"><span class="chip">이 설계 미가입</span></div></div></div>'
+             '<div class="box"><h4>%s 간병인 <span class="red">사용</span>(금액)</h4><p>병원 소속 간병인이나 등록된 간병 업체의 간병인을 쓴 날마다 <b>정해진 일당</b>을 드려요.<br>· 병원 · 의원(요양병원 제외) · 요양병원 1~180일<br>· plus 181일 이상 장기입원(요양 · 정신 · 한방 제외)</p><div style="margin-top:6px"><span class="chip">이 설계 미가입</span></div></div></div>'
              % (ico('caregiver', 26), ico('care_cost', 26)))
     body += ('<div class="tag" style="margin-top:9px">간병 보장이 없다면</div><div class="sec"></div><div class="box"><h4>뇌졸중으로 240일 입원하면 간병비만 약 %s만원(하루 12.2만 × 240일, 가정)</h4>' % won(round(12.2 * 240)) +
              '<div class="cmp" style="margin-top:4px"><div>30일<div class="big">%s만</div></div><div class="muted">→</div><div>180일<div class="big">%s만</div></div><div class="muted">→</div><div class="res">240일<div class="big">%s만</div></div></div>' % (won(round(12.2 * 30)), won(round(12.2 * 180)), won(round(12.2 * 240))) +
