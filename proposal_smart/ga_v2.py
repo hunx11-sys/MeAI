@@ -53,9 +53,11 @@ def _goto(html, name):
     hp = os.path.join(TMP, name + '.html'); open(hp, 'w', encoding='utf-8').write(html)
     pg = _page(); pg.emulate_media(media='print'); pg.goto(pathlib.Path(hp).resolve().as_uri(), wait_until='load'); pg.evaluate('document.fonts.ready'); pg.wait_for_timeout(120)
     return pg
+RANGE_FIT = """()=>{let n=0;document.querySelectorAll('.rg').forEach(e=>{const W=parseFloat(e.dataset.w)*4/3;let s=parseFloat(e.style.fontSize);
+  while(e.getBoundingClientRect().width>W&&s>6){s-=0.25;e.style.fontSize=s+'pt'}n++});return n}"""
 def render_snippet(html, out_pdf, w_pt, h_pt):
     """정해진 크기(pt)의 조각 한 장 — 5열 표 · 니즈 상자 · 덧붙임 상자"""
-    pg = _goto(html, 'snip')
+    pg = _goto(html, 'snip'); pg.evaluate(RANGE_FIT)
     pg.pdf(path=out_pdf, width='%spx' % (w_pt * 4 / 3), height='%spx' % (h_pt * 4 / 3), print_background=True, prefer_css_page_size=True)
     assert len(fitz.open(out_pdf)) == 1, '조각이 두 쪽으로 넘어감 : ' + out_pdf
     return out_pdf
@@ -154,12 +156,12 @@ NEED_HEART_HTML = ('<!doctype html><html><head><meta charset="utf-8"><style>%(F)
     '<div class="src">[출처: 질병관리청 「2023 심뇌혈관질환 발생통계」(2025.12.31 발표 · 건강보험 청구 · 사망원인 자료) · 대한심혈관중재학회 회복 · 관리 가이드북 배포 보도(2026.11.10)]</div>'
     '</body></html>')
 assert round((3373 / 1768 - 1) * 100, 1) == 90.8 and round(110 * 1768 / 3373, 1) == 57.7      # 막대 길이 = 건수 비율
-NOTICE_ADD_H = 112.0
+NOTICE_ADD_H = 122.0
 NOTICE_ADD_HTML = ('<!doctype html><html><head><meta charset="utf-8"><style>%(F)s'
-    '@page{size:532.5pt 112pt;margin:0}*{box-sizing:border-box}html,body{margin:0;width:532.5pt;height:112pt;overflow:hidden;font-family:P;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;word-break:keep-all}'
+    '@page{size:532.5pt 122pt;margin:0}*{box-sizing:border-box}html,body{margin:0;width:532.5pt;height:122pt;overflow:hidden;font-family:P;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;word-break:keep-all}'
     '.b{border:.8pt solid #E3E3E8;border-radius:7pt;background:#FAFAFB;padding:8pt 11pt}.b b{display:block;font-size:8.6pt;color:#1F1F22;margin:0 0 2.5pt}.b p{margin:0 0 6pt;font-size:7.3pt;line-height:1.5;color:#55555C}.b p:last-child{margin:0}'
     '</style></head><body><div class="b"><b>이번 제안서에 더한 쪽 안내</b><p>「치료 여정」 · 「보장 점검」 · 각 쪽 「보장(보상) 예시」 · 「사례로 보는 간병비 보장」 · 수술 · 간병 시나리오는 이 설계의 보장금액을 단순 합산하거나 '
-    '입원일수 · 평균 간병비를 가정한 예시로, 실제 진단 · 치료 내용과 약관상 지급조건에 따라 지급 여부와 금액이 달라집니다. 일부 특약은 가입 후 1년 안에 가입금액의 50%%를 지급합니다.</p>'
+    '입원일수 · 평균 간병비를 가정한 예시로, 실제 진단 · 치료 내용과 약관상 지급조건에 따라 지급 여부와 금액이 달라집니다. 일부 특약은 가입 후 1년 안에 가입금액의 50%%를 지급합니다. 수술 표 「매 회」 칸의 「○만 ~ ○만」 은 체증형 수술비가 같은 종(같은 특약) 수술을 다시 받을 때 회차에 따라 커지는 범위(1회차 ~ 최대 200%%, 약관 지급금액표)입니다.</p>'
     '<b>추가 출처</b><p>질병관리청 「2023 심뇌혈관질환 발생통계」(2025.12.31) — 재발 심근경색 발생 건수 · 1년 / 30일 치명률 · 대한심혈관중재학회 회복 · 관리 가이드북 배포 보도(2026.11.10) — 재발 위험 시기<br>'
     'Ferns SP 외, Stroke 2009(코일색전술 8,161건) — 코일색전술 후 재개통 비율 · 보건복지부 소개 서울대 사적 간병비 추정(2022년) — 국민 사적 간병비(연간)</p></div></body></html>')
 _NH, _NA = NEED_HEART_HTML, NOTICE_ADD_HTML
@@ -203,6 +205,37 @@ def VX(key):
     base = 'first' if mode in ('first', 'year', 'each') else mode
     if isnum(v) and abs(v) < 1e-9 and not any(GS.counts(l, base) for l in L): return None
     return v
+# ── 체증형 수술비 — 「매 회」 칸을 「1회차 금액 ~ 최대 금액」 으로(소유자 2026-11-12) ──
+# 같은 종(같은 특약) 수술을 다시 받을수록 지급률이 오른다. 최대 배율은 약관 지급금액표 그대로(값을 만들지 않고 엔진의 1회차 금액에 곱하기만 한다).
+# 여기 없는 체증형 이름은 범위를 그리지 않는다(1회차 금액만 · CLAUDE.md 2).
+ESC_RULES = [
+    (r'수술비Ⅱ\(1-5종\)\(체증형\)', 2.0, '수술비Ⅱ(1-5종)(체증형) 제1조 지급금액표 : 1 · 2 · 3종 1회차 100% → 5회차 이후 200% · 4 · 5종 1회차 100% → 3회차 이후 200%'),
+    (r'(뇌혈관질환|허혈성심장질환)수술비Ⅱ?\(25%체증형\)', 2.0, '뇌혈관질환 · 허혈성심장질환수술비(25%체증형) 제1조 지급금액표 : 1회차 100% → 5회차 이후 200%'),
+    (r'(암수술비\(유사암제외\)|유사암수술비)\(25%체증형\)', 2.0, '암 · 유사암수술비(25%체증형) 제1조 지급금액표 : 1회차 100% → 5회차 이후 200%'),
+]
+def esc_mult(name):
+    n = _ns(name)
+    return next((m for pat, m, _ in ESC_RULES if re.search(pat, n)), None)
+def each_range(key):
+    """「매 회」 칸 (1회차 금액, 최대 금액) — 체증형 줄에만 최대 배율을 곱한다. 체증형 줄이 없으면 None"""
+    v = VX(key)
+    if not isnum(v) or v <= 0: return None
+    _, L, _ = _raw(key); mx, hit = 0.0, False
+    for l in L:
+        a = GS.counts(l, 'each')
+        if not a: continue
+        m = esc_mult(eff_name(l['name'], l.get('no')))
+        if m: hit = True; mx += a * m
+        else: mx += a
+    return (v, mx) if hit and mx > v + 1e-9 else None
+def range_html(lo, hi, size, color, usize, ucolor, w):
+    """「매 회」 범위 두 줄 — 윗줄 1회차 금액, 아랫줄 「~ 최대 금액」(소유자 2026-11-12). w(pt) 를 넘으면 글자를 줄인다(RANGE_FIT)"""
+    def one(v):
+        t, u = fmt(v)
+        return '<b style="color:%s">%s</b>%s' % (color, t, ('<span style="font-size:%.3fem;color:%s;font-weight:600;margin-left:.03em">%s</span>' % (usize / size, ucolor, u)) if u else '')
+    return ('<span class="rg" data-w="%.1f" style="display:inline-block;white-space:nowrap;font-size:%.2fpt;font-weight:800;line-height:1.1;text-align:center">%s<br>'
+            '<span style="font-size:.72em;color:#8B95A1;font-weight:600;margin-right:.2em;vertical-align:.12em">~</span>%s</span>' % (w, size, one(lo), one(hi)))
+def rtxt(r): return '%s ~ %s' % (mtxt(r[0]), mtxt(r[1]))
 def tsum(*keys):
     vs = [VX(k) for k in keys]; ns = [x for x in vs if isnum(x)]
     return float(sum(ns)) if ns else None
@@ -316,7 +349,14 @@ def overlay_html():
         for s in SL['slots'][pk]:
             k = s['kind']
             if k in ('amt', 'total'):
-                o.append(_at(cx=s['cx'], base=s['base'], size=s['size'], inner=amt_html(s, VX(s['key'])), extra='font-weight:800'))
+                rg = each_range(s['key']) if s['key'].endswith('.each') else None
+                if rg:      # 두 줄(12pt × 2) — 원래 한 줄 글자의 가운데(기준선 − 0.36 × 크기)에 덩어리 가운데를 맞춘다
+                    sz = round(s['size'] * 0.84, 2); top = s['base'] - 0.36 * s['size'] - sz * 1.1
+                    o.append('<div class="o" style="left:%.2fpt;width:300pt;text-align:center;top:%.2fpt;font-size:%.2fpt">%s</div>' % (s['cx'] - 150, top, sz, range_html(rg[0], rg[1], sz, s['color'], s['usize'] * 0.84, s['ucolor'], 104)))
+                    if pk == 'ca1' and not any(x.startswith('<!--eachlab') for x in o):
+                        o.insert(0, '<!--eachlab-->' + _at(cx=63.15, base=770.4, size=5.6, inner='<span style="color:#8B95A1">1회차 ~ 최대</span>', extra='font-weight:600'))
+                else:
+                    o.append(_at(cx=s['cx'], base=s['base'], size=s['size'], inner=amt_html(s, VX(s['key'])), extra='font-weight:800'))
             elif k == 'amt_desc':
                 v = VX(s['key']); inner = amt_html(s, v) + (('<span style="font-size:%.2fpt;color:%s;font-weight:500;margin-left:2.4pt">%s</span>' % (s.get('dsize', 7.7), s.get('dcolor', '#666666'), s['desc'])) if s.get('desc') and v is not None else '')
                 o.append(_at(cx=s['cx'], base=s['base'], size=s['size'], inner=inner, extra='font-weight:800'))
@@ -348,12 +388,15 @@ def table_html(cols, hpt, rows_pt):
         if len(keys) == 1: return ico(keys[0], 30)
         return '<span style="position:relative;display:inline-block;width:46px;height:30px"><span style="position:absolute;left:0;top:0">%s</span><span style="position:absolute;left:16px;top:0">%s</span></span>' % (ico(keys[0], 30), ico(keys[1], 30))
     def amt(key, red):
+        rg = each_range(key) if key.endswith('.each') else None
+        if rg: return range_html(rg[0], rg[1], 12.5, '#1F1F22', 7, '#1F1F22', 88)
         v = VX(key); t, u = fmt(v)
         if t is None: return '<span style="font-size:10pt;font-weight:600;color:#AAAAAA">미가입</span>'
         return '<span style="font-size:14.5pt;font-weight:800;color:%s">%s</span><span style="font-size:8pt;color:#1F1F22;font-weight:600">%s</span>' % ('#E5432F' if red else '#1F1F22', t, u)
     th = ''.join('<th>%s</th>' % c[0] for c in cols)
     r1 = ''.join('<td class="ic"><div>%s</div><div class="ds">%s</div></td>' % (ic(c[1]), c[2]) for c in cols)
     r2, r3, r4 = (''.join('<td>%s</td>' % amt(c[3] % md, md == 'first') for c in cols) for md in ('first', 'year', 'each'))
+    eachlab = '매 회' + ('<div style="font-size:6.2pt;color:#8B95A1;font-weight:600;margin-top:1.5pt">1회차 ~ 최대</div>' if any(each_range(c[3] % 'each') for c in cols) else '')
     css = fonts_css() + '''@page{size:532.5pt %spt;margin:0}*{box-sizing:border-box}html,body{margin:0;width:532.5pt;height:%spt;overflow:hidden;font-family:P;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;word-break:keep-all}
     table{width:532.5pt;border-collapse:collapse;table-layout:fixed}td,th{padding:0;text-align:center;vertical-align:middle}
     th{background:#F4F4F5;font-size:9pt;font-weight:600;color:#333;height:%spt;border-bottom:.8pt solid #D9D9DD;white-space:nowrap}
@@ -361,8 +404,8 @@ def table_html(cols, hpt, rows_pt):
     td.ic{background:#fff}.ds{font-size:7.9pt;color:#555;line-height:1.25;margin-top:2pt}''' % (hpt, hpt, h0)
     return ('<!doctype html><html><head><meta charset="utf-8"><style>%s</style></head><body><table><colgroup><col style="width:63.7pt">%s</colgroup>'
             '<tr><th></th>%s</tr><tr style="height:%spt"><td class="lb"></td>%s</tr><tr style="height:%spt"><td class="lb r">최초 지급시</td>%s</tr>'
-            '<tr style="height:%spt"><td class="lb">연간 1회</td>%s</tr><tr style="height:%spt"><td class="lb">매 회</td>%s</tr></table></body></html>') % (
-            css, '<col>' * len(cols), th, h1, r1, h2, r2, h3, r3, h4, r4)
+            '<tr style="height:%spt"><td class="lb">연간 1회</td>%s</tr><tr style="height:%spt"><td class="lb">%s</td>%s</tr></table></body></html>') % (
+            css, '<col>' * len(cols), th, h1, r1, h2, r2, h3, r3, h4, eachlab, r4)
 
 # ═══════════════ 새로 그리는 쪽(HTML) ═══════════════
 CSS = None
@@ -427,7 +470,7 @@ def page_journey():
         stp('1', '진단', '허혈성심장질환(협심증)', M(VX('p3.dx.허혈성심장')), '최초 1회', '', [opt('검사 MRI · PET', same_all(['p3.ex.x_mri', 'p3.ex.x_pet'])), opt('검사 CT', 'p3.ex.x_ct')]),
         stp('2', '수술', '스텐트 삽입술', M(VX('p3.h2.first')), '최초 지급시', '', [opt('혈전용해', 'p3.h0.first'), opt('기계적 혈전제거술', 'thx.h.first'), opt('혈전용해 + 혈전제거술', 'p3.h1.first'),
                                                          opt('스텐트삽입술', 'p3.h2.first', 1), opt('개흉수술', 'p3.h3.first')]),
-        stp('3', '1년 뒤 재시술', '스텐트 삽입술', M(VX('p3.h2.year')), '연간 1회 금액', '', [opt('해마다 다시', 'p3.h2.year', 1), opt('같은 해 한 번 더', 'p3.h2.each')]),
+        stp('3', '1년 뒤 재시술', '스텐트 삽입술', M(VX('p3.h2.year')), '연간 1회 금액', '', [opt('해마다 다시', 'p3.h2.year', 1), opt('같은 해 한 번 더', Txt(rtxt(each_range('p3.h2.each'))) if each_range('p3.h2.each') else 'p3.h2.each')]),
         stp('4', '중증치료 · 재활', '필요할 때', ('최대 ' + M(max(sev_n))) if sev_n else '미가입', '', 'last', [('중환자실 · 에크모', same_all(['p3.sev.icu', 'p3.sev.ecmo']), 0), opt('재활(연 15회)', 'rh_bh')]),
         stp('', '진단 + 수술 + 재시술', '다시 시술해도', M(h_tot), '1회차 수술 기준 · 중증 · 재활 별도', 'tt')])
     gaps = journey_gaps(cf)
@@ -853,7 +896,7 @@ def build(design_pdf, out_pdf=None, age=''):
     p_cs = os.path.join(TMP, tag + '_cs.pdf'); _goto(cover_summary_html(), 'cs').pdf(path=p_cs, prefer_css_page_size=True, print_background=True)
     # 2) v41 틀 + 값 + 5열 표
     tpl = fitz.open(TPL); SL = slots(); order = SL['pages']
-    p_ov = os.path.join(TMP, tag + '_ov.pdf'); _goto(overlay_html(), 'ov').pdf(path=p_ov, prefer_css_page_size=True, print_background=True)
+    p_ov = os.path.join(TMP, tag + '_ov.pdf'); pg_ov = _goto(overlay_html(), 'ov'); pg_ov.evaluate(RANGE_FIT); pg_ov.pdf(path=p_ov, prefer_css_page_size=True, print_background=True)
     ov = fitz.open(p_ov); assert len(ov) == 5, len(ov)
     tp = fitz.open(); tp.insert_pdf(tpl, from_page=0, to_page=4)
     for i in range(5): tp[i].show_pdf_page(tp[i].rect, ov, i)
