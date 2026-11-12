@@ -93,6 +93,9 @@ def main():
     # 4. 세일즈북 생성기
     run('4. 세일즈북 생성기 다시 조립(docs/guidebook_proto.html)', [PY, 'scripts/build_guidebook_proto.py'], ROOT)
 
+    # 4-1. 화면 버전 표시(ver연도.월.그 달 변경 횟수 — 저장소 기록에서 센다)
+    run('4-1. 화면 버전 표시(verYYYY.MM.n)', [PY, 'scripts/stamp_versions.py'], ROOT)
+
     # 5. 영업지원도구 배포판
     if not a.skip_dist:
         run('5-1. 폐쇄망 배포 zip', [PY, 'scripts/build_package.py'], ROOT)
