@@ -85,7 +85,9 @@ def load(design_pdf, age=''):
     """설계서 한 건을 읽어 모든 칸 값을 채운다"""
     global RID, META, WHO, PRODUCT, PREMIUM, NRID, SHORTP, VAL, HEAD
     S.ISSUES.clear(); GS.clear_cache()
+    pipeline.check_file(design_pdf)                     # PDF 가 아님(사내 보안 DRM) · 깨짐 · 암호 → 이유를 알려 멈춘다(v8.98)
     RID = pipeline.read_riders(design_pdf)
+    pipeline.check_riders(design_pdf, RID)              # 담보를 하나도 못 읽음(그림 PDF · 다른 문서 · 미등록 상품) → 0원 · 「-」 뿐인 빈 제안서를 만들지 않는다(v8.98)
     META = BA.auto_meta(design_pdf)
     sex = META.get('sex') or ''
     # 나이는 설계서 본문에서 추정하지 않는다(만기·갱신 나이가 섞여 잘못 읽힘) — 넘겨받은 값만 쓴다
@@ -595,13 +597,15 @@ def main(argv):
     ok = 0
     for i, f in enumerate(files, 1):
         print('[%d/%d] %s' % (i, len(files), os.path.basename(f)), flush=True)
+        o = out_pdf or os.path.join(BASE, 'ga_output', ascii_name(f) + '_GA.pdf')
         try:
-            o = out_pdf or os.path.join(BASE, 'ga_output', ascii_name(f) + '_GA.pdf')
             if not out_pdf and os.path.exists(o):
                 o = os.path.join(BASE, 'ga_output', '%s_GA_%s.pdf' % (ascii_name(f), time.strftime('%H%M%S')))
             pdf, log, warn = build(f, o, age)
             print('      → %s  (담보 %d건 · %s)%s' % (pdf, NRID, SHORTP.replace('%%', '%'), ('  ※ 지면 경고 %d건 — 로그 확인' % len(warn)) if warn else ''), flush=True)
             ok += 1
+        except pipeline.DesignUnreadable as ex:
+            print('      ! 만들지 않았습니다 — %s\n        (이유를 적은 파일 : %s)' % (ex, pipeline.fail_note(o, f, ex)), flush=True)
         except Exception as ex:
             print('      ! 만들지 못했습니다 : %s: %s' % (type(ex).__name__, ex), flush=True)
     print('\n완료 %d / %d건 · 결과 폴더 : %s' % (ok, len(files), os.path.join(BASE, 'ga_output') if not out_pdf else os.path.dirname(os.path.abspath(out_pdf))))

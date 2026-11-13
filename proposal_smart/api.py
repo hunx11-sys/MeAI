@@ -32,7 +32,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v8.97'
+VERSION = 'v8.98'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 생성 요청은 2건까지 받아 두고(1건 처리 + 1건 대기) 나머지는 180초 기다린 뒤 503
 GA_LOCK = threading.Lock()                   # 실제 생성은 한 번에 한 건 — 설계서 상태 · 계산 로그(scen_engine.ISSUES)를 모듈 안에 두므로 9쪽 · GA · 새 양식 모두 이 잠금으로 줄을 선다
@@ -188,8 +188,8 @@ class Handler(BaseHTTPRequestHandler):
             pdf = self._read_pdf()
         except Exception as e:
             return self._err(400, str(e))
-        if not pdf.startswith(b'%PDF'):
-            return self._err(400, 'PDF 파일이 아닙니다')
+        if pipeline.not_pdf(pdf[:4096]):                    # 사내 보안(DRM)으로 잠긴 파일이면 그렇게 알려 준다(v8.98)
+            return self._err(400, pipeline.not_pdf(pdf[:4096]))
 
         sweep()
         tmp = tempfile.mkdtemp(prefix=TMP_PREFIX)
@@ -223,6 +223,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._gen(path, src, tmp)
             finally:
                 GA_LOCK.release()
+        except pipeline.DesignUnreadable as e:            # 설계서를 못 읽음(그림 PDF · DRM · 다른 문서) — 빈 제안서 대신 이유(v8.98)
+            return self._err(422, '설계서를 읽지 못해 만들지 않았습니다 — %s' % e)
         except Exception as e:
             traceback.print_exc()
             return self._err(500, '생성 중 오류 : %s' % (e or type(e).__name__))

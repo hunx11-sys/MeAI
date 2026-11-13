@@ -12,7 +12,7 @@
 build_all.py(명령행 실행)와 같은 로직이며, 호출마다 별도 작업폴더를 쓰므로 동시 호출에 안전하다.
 LLM·외부 API를 쓰지 않는다 — 전부 규칙표와 약관 데이터에 따른 계산이다.
 """
-import json, os, shutil, subprocess, sys, time, uuid
+import json, os, re, shutil, subprocess, sys, time, uuid
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
@@ -37,6 +37,67 @@ def read_riders(src_pdf):
     return matcher.read_proposal(src_pdf, line=BA.guess_line(rows, src_pdf))
 
 
+# ── 설계서를 못 읽었을 때 : 빈 제안서(0원 · 「-」 투성이)를 만들지 않고 이유를 알려 멈춘다(v8.98) ──
+class DesignUnreadable(ValueError):
+    """설계서에서 계산할 담보를 하나도 읽지 못함. 메시지는 화면 · 명령창에 그대로 보여 줄 쉬운 말"""
+
+
+_DRM = (b'fasoo', b'scdsa', b'drmone', b'markany', b'document safer', b'softcamp', b'drm')
+
+
+def fail_note(out_pdf, src_pdf, msg):
+    """만들지 않은 이유를 결과 PDF 자리 옆에 글 파일로 남긴다(끌어다 놓기로 돌려 명령창을 못 본 사람용) — 파일 이름은 영문(…_FAILED.txt)"""
+    p = os.path.splitext(os.path.abspath(out_pdf))[0] + '_FAILED.txt'
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p, 'w', encoding='utf-8-sig') as fh:          # BOM — 윈도우 메모장이 한글을 깨뜨리지 않게
+        fh.write('원본 설계서 : %s\n만들지 않은 이유 : %s\n' % (os.path.basename(src_pdf), msg))
+    return p
+
+
+def not_pdf(head):
+    """파일 앞부분(바이트)이 PDF 가 아니면 이유 문장, PDF 면 빈 문자열"""
+    if b'%PDF' in head[:1024]: return ''
+    drm = any(m in head[:4096].lower() for m in _DRM)
+    return ('PDF 파일이 아닙니다%s. 보안을 푼(복호화한) 설계서 PDF 를 넣어 주세요.'
+            % (' — 사내 보안 프로그램(DRM)으로 잠긴 파일로 보입니다' if drm else ''))
+
+
+def check_file(src_pdf):
+    """읽기 전에 파일 자체를 본다 — PDF 가 아님(사내 보안 DRM 으로 잠긴 파일 등) · 깨진 PDF · 암호 PDF"""
+    m = not_pdf(open(src_pdf, 'rb').read(4096))
+    if m: raise DesignUnreadable(m)
+    import pymupdf
+    try:
+        d = pymupdf.open(src_pdf)
+    except Exception as e:
+        raise DesignUnreadable('PDF 를 열 수 없습니다(파일이 깨졌을 수 있습니다 · %s). 설계 시스템에서 설계서를 다시 받아 넣어 주세요.' % type(e).__name__)
+    with d:
+        if d.needs_pass:
+            raise DesignUnreadable('암호가 걸린 PDF 입니다. 암호를 푼 설계서 PDF 를 넣어 주세요.')
+
+
+def check_riders(src_pdf, riders):
+    """담보를 읽은 뒤 — 하나도 못 읽었거나, 읽었어도 특약 마스터에서 하나도 못 찾았으면 이유를 골라 멈춘다
+    (한 건이라도 찾으면 그대로 간다 : 못 찾은 담보는 지금처럼 「계산 제외 + 로그」)"""
+    if riders and S.recog(riders)['계산제외'] < len(riders):      # 마스터 · 부모연결 · 규칙만 중 하나라도 있으면 계산할 것이 있다
+        return
+    if riders:
+        prod = re.sub(r'\s+', ' ', (BA.auto_meta(src_pdf).get('product') or '')).strip()
+        raise DesignUnreadable('담보 %d건을 읽었지만 특약 마스터 · 규칙표에서 하나도 찾지 못했습니다%s. 아직 등록하지 않은 상품 · 약관일 수 있습니다 — 개발 담당에게 이 설계서를 보내 주세요.'
+                               % (len(riders), (' (상품 : %s)' % prod) if prod else ''))
+    import pymupdf
+    with pymupdf.open(src_pdf) as d:
+        n = len(d)
+        t = re.sub(r'\s+', '', ''.join(p.get_text() for p in d))
+    if len(t) < 100:
+        raise DesignUnreadable('글자가 없는 그림 PDF 입니다(%d쪽 · 읽은 글자 %d자) — 스캔본 · 화면 캡처 · 「그림으로 인쇄」 · 보안 출력본은 읽지 못합니다. '
+                               '설계 시스템에서 「PDF 저장(다운로드)」으로 받은 원본 설계서를 넣어 주세요.' % (n, len(t)))
+    if '가입담보리스트' not in t:                    # 가입설계서마다 있는 표 제목(설계서 63건 확인 · 이미 만든 제안서 · 상품설명서에는 없다)
+        raise DesignUnreadable('메리츠화재 가입설계서가 아닌 문서로 보입니다(「가입담보리스트」 표가 없음). 청약서 · 상품설명서만 따로 받은 파일 · 이미 만든 제안서 · '
+                               '다른 회사 설계서나, 사내 보안 프로그램이 내용을 가린 파일은 읽지 못합니다 — 가입설계서 원본 PDF 를 넣어 주세요.')
+    raise DesignUnreadable('설계서의 「가입담보리스트」 표에서 담보 줄을 하나도 읽지 못했습니다(설계서 양식이 바뀌었을 수 있습니다). 개발 담당에게 이 설계서를 보내 주세요.')
+
+
 def build(src_pdf, cust=None, workdir=None, keep=True):
     """원본 PDF → 스마트 제안서 지면 생성 → 삽입. 산출물 경로와 감사 로그를 돌려준다.
 
@@ -51,9 +112,11 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
     w = workdir or _work()
     t0 = time.time()
 
+    check_file(src_pdf)                    # PDF 가 아님(DRM) · 깨짐 · 암호 → 이유를 알려 멈춘다(v8.98)
     c = dict(cust) if cust else BA.auto_meta(src_pdf)
     if not c.get('riders'):
         c['riders'] = read_riders(src_pdf)
+        check_riders(src_pdf, c['riders'])  # 담보를 하나도 못 읽음(그림 PDF · 다른 문서) → 빈 지면 대신 이유(v8.98)
     c['src'] = os.path.basename(src_pdf)
     try:                                   # 2차 안전장치(v8.22) : 상품설명서의 담보별 약관 요약을 읽어 붙인다
         import desc_engine

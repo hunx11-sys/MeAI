@@ -20,7 +20,7 @@
 import os, sys, re, json, base64, copy, math, time, glob, atexit, pathlib, subprocess
 BASE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, BASE)
 import fitz
-import ga_proposal as GP, ga_spec as GS, ga_care as CARE, scen_engine as S, ga_overlay as OV
+import ga_proposal as GP, ga_spec as GS, ga_care as CARE, scen_engine as S, ga_overlay as OV, pipeline
 
 V2 = os.path.join(BASE, 'ga_assets', 'v2')
 TPL, SLOTS, ICONS = os.path.join(V2, 'tpl.pdf'), os.path.join(V2, 'slots.json'), os.path.join(V2, 'icons')
@@ -931,6 +931,8 @@ def build(design_pdf, out_pdf=None, age=''):
     try:
         try:
             return _build(design_pdf, out_pdf, age)
+        except pipeline.DesignUnreadable:
+            raise                                             # 설계서를 못 읽은 것 — 크로뮴은 멀쩡하다(이유를 그대로 올린다 · v8.98)
         except Exception as e:
             close_browser()                                   # 실패한 건 뒤에는 크로뮴을 새로 띄운다(죽었거나 이상한 상태일 수 있다)
             if not re.search(r'closed|crash|Target|disconnected', str(e)): raise
@@ -1031,12 +1033,14 @@ def main(argv):
     ok = 0
     for i, f in enumerate(files, 1):
         print('[%d/%d] %s' % (i, len(files), os.path.basename(f)), flush=True)
+        o = out_pdf or os.path.join(BASE, 'ga_output', GP.ascii_name(f) + '_GA2.pdf')
         try:
-            o = out_pdf or os.path.join(BASE, 'ga_output', GP.ascii_name(f) + '_GA2.pdf')
             if not out_pdf and os.path.exists(o): o = os.path.join(BASE, 'ga_output', '%s_GA2_%s.pdf' % (GP.ascii_name(f), time.strftime('%H%M%S')))
             pdf, log, info = build(f, o, age)
             print('      → %s  (%d쪽 · 간병인 %s · 세부내역 %d쪽)%s' % (pdf, info['pages'], '+'.join(info['care']), info['detail_pages'], ('  ※ ' + ' / '.join(info['warn'])) if info['warn'] else ''), flush=True)
             ok += 1
+        except pipeline.DesignUnreadable as ex:
+            print('      ! 만들지 않았습니다 — %s\n        (이유를 적은 파일 : %s)' % (ex, pipeline.fail_note(o, f, ex)), flush=True)
         except Exception as ex:
             print('      ! 만들지 못했습니다 : %s: %s' % (type(ex).__name__, ex), flush=True)
     print('\n완료 %d / %d건' % (ok, len(files)))
