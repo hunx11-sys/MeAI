@@ -37,12 +37,12 @@ python api.py 0.0.0.0 9000                # 호스트·포트 지정
 | GET | `/health` | — | `{"ok":true,"version":"v8.48","llm":false,"network":false}` |
 | GET | `/` | — | 연동 데모 화면(HTML) |
 | GET | `/assets/<파일>` | — | 지면이 쓰는 글꼴·로고(미리보기용 정적 파일) |
-| POST | `/v1/proposal/pdf` | 상품설명서 PDF | **결과 PDF**(원본 + 생성 지면) `application/pdf` |
-| POST | `/v1/proposal/pages.pdf` | 상품설명서 PDF | 생성 지면만 담은 PDF |
-| POST | `/v1/proposal/pages.html` | 상품설명서 PDF | 생성 지면 HTML — `<iframe>`에 그대로 띄울 수 있음 |
-| POST | `/v1/proposal/audit` | 상품설명서 PDF | 요약 + 감사 로그 JSON |
-| POST | `/v1/proposal/riders` | 상품설명서 PDF | 인식한 담보 목록 JSON (생성 없이 빠르게 확인) |
-| POST | `/v1/proposal/all` | 상품설명서 PDF | 요약 + 감사로그 + 지면 HTML + 결과 PDF(base64) 한 번에 |
+| POST | `/v1/proposal/pdf` | 가입설계서 PDF | **결과 PDF**(원본 + 생성 지면) `application/pdf` |
+| POST | `/v1/proposal/pages.pdf` | 가입설계서 PDF | 생성 지면만 담은 PDF |
+| POST | `/v1/proposal/pages.html` | 가입설계서 PDF | 생성 지면 HTML — `<iframe>`에 그대로 띄울 수 있음 |
+| POST | `/v1/proposal/audit` | 가입설계서 PDF | 요약 + 감사 로그 JSON |
+| POST | `/v1/proposal/riders` | 가입설계서 PDF | 인식한 담보 목록 JSON (생성 없이 빠르게 확인) |
+| POST | `/v1/proposal/all` | 가입설계서 PDF | 요약 + 감사로그 + 지면 HTML + 결과 PDF(base64) 한 번에 |
 | POST | `/v1/ga/pdf` · `/v1/ga/all` | 설계서 PDF | 기존 GA 양식 6쪽 PDF / JSON(PDF base64 · 감사 로그 · 인식 담보) |
 | POST | **`/v1/ga2/pdf`** | 설계서 PDF | **GA 새 양식(v2 · 2026-11-11 회의) PDF 15~19쪽** |
 | POST | **`/v1/ga2/all`** | 설계서 PDF | 새 양식 JSON : `pages` · `detail_pages` · `care_pages`(support/use/none) · `care_pages_ko` · `rider_count` · `matched` · `riders` · `warn` · `elapsed_sec` · `log`(계산 로그) · `pdf_base64` |
@@ -145,7 +145,7 @@ d.pdf_base64      // 결과 PDF (base64)
 ```python
 from pipeline import build
 
-r = build('원본_상품설명서.pdf')
+r = build('가입설계서.pdf')
 r['out_pdf']      # 결과 PDF 경로
 r['pages_html']   # 생성 지면 HTML 경로
 r['audit']        # 감사 로그

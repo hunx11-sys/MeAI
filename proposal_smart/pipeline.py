@@ -2,7 +2,7 @@
 """스마트 제안서 생성 파이프라인 — 함수 한 번 호출로 끝나는 진입점(API·배치 공용).
 
     from pipeline import build
-    r = build('원본_상품설명서.pdf')
+    r = build('가입설계서.pdf')   # 설계 시스템에서 「PDF 저장」으로 받은 원본
     r['attached']    # 지면을 붙였는지(대상 담보가 없으면 False)
     r['out_pdf']     # 원본 + 생성 지면이 합쳐진 PDF
     r['pages_pdf']   # 생성 지면만 담은 PDF
@@ -45,13 +45,26 @@ class DesignUnreadable(ValueError):
 _DRM = (b'fasoo', b'scdsa', b'drmone', b'markany', b'document safer', b'softcamp', b'drm')
 
 
+def _note_path(out_pdf, src_pdf):
+    """만들지 않은 이유 메모 자리 — 결과 PDF 이름 + 원본 이름의 짧은 표식(한글 이름은 모두 design 이 되어 서로 덮어쓰지 않게) · 영문 이름"""
+    import hashlib
+    h = hashlib.sha1(os.path.basename(src_pdf).encode('utf-8')).hexdigest()[:6]
+    return os.path.splitext(os.path.abspath(out_pdf))[0] + '_%s_FAILED.txt' % h
+
+
 def fail_note(out_pdf, src_pdf, msg):
-    """만들지 않은 이유를 결과 PDF 자리 옆에 글 파일로 남긴다(끌어다 놓기로 돌려 명령창을 못 본 사람용) — 파일 이름은 영문(…_FAILED.txt)"""
-    p = os.path.splitext(os.path.abspath(out_pdf))[0] + '_FAILED.txt'
+    """만들지 않은 이유를 결과 PDF 자리 옆에 글 파일로 남긴다(끌어다 놓기로 돌려 명령창을 못 본 사람용)"""
+    p = _note_path(out_pdf, src_pdf)
     os.makedirs(os.path.dirname(p), exist_ok=True)
     with open(p, 'w', encoding='utf-8-sig') as fh:          # BOM — 윈도우 메모장이 한글을 깨뜨리지 않게
         fh.write('원본 설계서 : %s\n만들지 않은 이유 : %s\n' % (os.path.basename(src_pdf), msg))
     return p
+
+
+def clear_fail_note(out_pdf, src_pdf):
+    """같은 설계서를 다시 넣어 만들어졌으면 예전 실패 메모를 지운다(결과 옆에 「만들지 않았습니다」 가 남지 않게)"""
+    try: os.remove(_note_path(out_pdf, src_pdf))
+    except OSError: pass
 
 
 def not_pdf(head):
@@ -74,6 +87,39 @@ def check_file(src_pdf):
     with d:
         if d.needs_pass:
             raise DesignUnreadable('암호가 걸린 PDF 입니다. 암호를 푼 설계서 PDF 를 넣어 주세요.')
+    import pdfplumber                                        # 담보를 읽는 부품으로도 열어 본다 — pymupdf 는 끝이 잘린 파일도 고쳐서 열어 버린다
+    try:
+        with pdfplumber.open(src_pdf) as p: len(p.pages)
+    except Exception as e:
+        raise _broken(e)
+
+
+def _broken(e):
+    return DesignUnreadable('PDF 를 읽다가 멈췄습니다(파일이 깨졌거나 끝까지 받지 못했을 수 있습니다 · %s). 설계 시스템에서 설계서를 다시 받아 넣어 주세요.' % type(e).__name__)
+
+
+def _from_pdf_lib(e):
+    """PDF 읽기 부품(pdfminer · pdfplumber · pymupdf) 안에서 난 오류인가 — 그때만 「깨진 PDF」 로 바꾼다(우리 코드 오류는 그대로 올려 숨기지 않는다)"""
+    import traceback
+    mods = ('pdfminer', 'pdfplumber', 'pymupdf', 'fitz')
+    if type(e).__module__.split('.')[0] in mods: return True
+    tb = traceback.extract_tb(e.__traceback__)
+    return bool(tb) and any(('%s%s%s' % (os.sep, m, os.sep)) in tb[-1].filename or ('/%s/' % m) in tb[-1].filename for m in mods)
+
+
+def read_checked(src_pdf, allow_unmatched=False):
+    """설계서 → 담보 목록. 파일 점검(check_file) → 담보 읽기 → 담보 점검(check_riders)을 한 번에(v8.98).
+       allow_unmatched=True 면 담보를 읽기만 했으면(계산 못 하는 것뿐이어도) 그대로 돌려준다 — 「담보 인식만 보기」 용"""
+    check_file(src_pdf)
+    try:
+        rid = read_riders(src_pdf)
+    except DesignUnreadable:
+        raise
+    except Exception as e:
+        if _from_pdf_lib(e): raise _broken(e) from e
+        raise
+    if not (allow_unmatched and rid): check_riders(src_pdf, rid)
+    return rid
 
 
 def check_riders(src_pdf, riders):
@@ -82,7 +128,8 @@ def check_riders(src_pdf, riders):
     if riders and S.recog(riders)['계산제외'] < len(riders):      # 마스터 · 부모연결 · 규칙만 중 하나라도 있으면 계산할 것이 있다
         return
     if riders:
-        prod = re.sub(r'\s+', ' ', (BA.auto_meta(src_pdf).get('product') or '')).strip()
+        try: prod = re.sub(r'\s+', ' ', (BA.auto_meta(src_pdf).get('product') or '')).strip()
+        except Exception: prod = ''
         raise DesignUnreadable('담보 %d건을 읽었지만 특약 마스터 · 규칙표에서 하나도 찾지 못했습니다%s. 아직 등록하지 않은 상품 · 약관일 수 있습니다 — 개발 담당에게 이 설계서를 보내 주세요.'
                                % (len(riders), (' (상품 : %s)' % prod) if prod else ''))
     import pymupdf
@@ -92,7 +139,7 @@ def check_riders(src_pdf, riders):
     if len(t) < 100:
         raise DesignUnreadable('글자가 없는 그림 PDF 입니다(%d쪽 · 읽은 글자 %d자) — 스캔본 · 화면 캡처 · 「그림으로 인쇄」 · 보안 출력본은 읽지 못합니다. '
                                '설계 시스템에서 「PDF 저장(다운로드)」으로 받은 원본 설계서를 넣어 주세요.' % (n, len(t)))
-    if '가입담보리스트' not in t:                    # 가입설계서마다 있는 표 제목(설계서 63건 확인 · 이미 만든 제안서 · 상품설명서에는 없다)
+    if '가입담보리스트' not in t:                    # 가입설계서마다 있는 표 제목(실제 설계서 35건 모두 있음 · 이미 만든 제안서 · 상품설명서에는 없다)
         raise DesignUnreadable('메리츠화재 가입설계서가 아닌 문서로 보입니다(「가입담보리스트」 표가 없음). 청약서 · 상품설명서만 따로 받은 파일 · 이미 만든 제안서 · '
                                '다른 회사 설계서나, 사내 보안 프로그램이 내용을 가린 파일은 읽지 못합니다 — 가입설계서 원본 PDF 를 넣어 주세요.')
     raise DesignUnreadable('설계서의 「가입담보리스트」 표에서 담보 줄을 하나도 읽지 못했습니다(설계서 양식이 바뀌었을 수 있습니다). 개발 담당에게 이 설계서를 보내 주세요.')
@@ -107,16 +154,17 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
     src_pdf = os.path.abspath(src_pdf)
     if not os.path.exists(src_pdf):
         raise FileNotFoundError(src_pdf)
+    t0 = time.time()
+    if cust and cust.get('riders'):
+        check_file(src_pdf)
+        c = dict(cust)
+    else:                                  # 설계서를 못 읽으면(그림 PDF · DRM · 깨짐 · 다른 문서) 빈 지면 대신 이유를 알려 멈춘다(v8.98) — 메타보다 먼저
+        rid = read_checked(src_pdf)
+        c = dict(cust) if cust else BA.auto_meta(src_pdf)
+        c['riders'] = rid
     import assets_ready                    # 글꼴·로고가 없는 PC 에서도 멈추지 않게(assets/ 가 저장소에 없다)
     assets_ready.ensure(src_pdf)
     w = workdir or _work()
-    t0 = time.time()
-
-    check_file(src_pdf)                    # PDF 가 아님(DRM) · 깨짐 · 암호 → 이유를 알려 멈춘다(v8.98)
-    c = dict(cust) if cust else BA.auto_meta(src_pdf)
-    if not c.get('riders'):
-        c['riders'] = read_riders(src_pdf)
-        check_riders(src_pdf, c['riders'])  # 담보를 하나도 못 읽음(그림 PDF · 다른 문서) → 빈 지면 대신 이유(v8.98)
     c['src'] = os.path.basename(src_pdf)
     try:                                   # 2차 안전장치(v8.22) : 상품설명서의 담보별 약관 요약을 읽어 붙인다
         import desc_engine
@@ -185,7 +233,7 @@ def build(src_pdf, cust=None, workdir=None, keep=True):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('사용법 : python pipeline.py 원본_상품설명서.pdf [결과.pdf]'); sys.exit(1)
+        print('사용법 : python pipeline.py 가입설계서.pdf [결과.pdf]'); sys.exit(1)
     res = build(sys.argv[1])
     if len(sys.argv) > 2:
         shutil.copyfile(res['out_pdf'], sys.argv[2]); res['out_pdf'] = sys.argv[2]

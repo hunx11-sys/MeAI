@@ -1033,14 +1033,14 @@ def main(argv):
     ok = 0
     for i, f in enumerate(files, 1):
         print('[%d/%d] %s' % (i, len(files), os.path.basename(f)), flush=True)
-        o = out_pdf or os.path.join(BASE, 'ga_output', GP.ascii_name(f) + '_GA2.pdf')
+        o = o0 = out_pdf or os.path.join(BASE, 'ga_output', GP.ascii_name(f) + '_GA2.pdf')
         try:
             if not out_pdf and os.path.exists(o): o = os.path.join(BASE, 'ga_output', '%s_GA2_%s.pdf' % (GP.ascii_name(f), time.strftime('%H%M%S')))
-            pdf, log, info = build(f, o, age)
+            pdf, log, info = build(f, o, age); pipeline.clear_fail_note(o0, f)
             print('      → %s  (%d쪽 · 간병인 %s · 세부내역 %d쪽)%s' % (pdf, info['pages'], '+'.join(info['care']), info['detail_pages'], ('  ※ ' + ' / '.join(info['warn'])) if info['warn'] else ''), flush=True)
             ok += 1
         except pipeline.DesignUnreadable as ex:
-            print('      ! 만들지 않았습니다 — %s\n        (이유를 적은 파일 : %s)' % (ex, pipeline.fail_note(o, f, ex)), flush=True)
+            print('      ! 만들지 않았습니다 — %s\n        (이유를 적은 파일 : %s)' % (ex, pipeline.fail_note(o0, f, ex)), flush=True)
         except Exception as ex:
             print('      ! 만들지 못했습니다 : %s: %s' % (type(ex).__name__, ex), flush=True)
     print('\n완료 %d / %d건' % (ok, len(files)))

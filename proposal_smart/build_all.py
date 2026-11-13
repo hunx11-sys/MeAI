@@ -20,7 +20,7 @@ def auto_meta(pdf_path):
     """원본 상품설명서 첫 쪽들에서 피보험자·보험료·상품명·계약사항·영업담당자·발행정보를 자동 추출"""
     with pdfplumber.open(pdf_path) as pdf:
         t1 = pdf.pages[0].extract_text() or ''
-        t2 = (pdf.pages[1].extract_text() or '') + '\n' + (pdf.pages[2].extract_text() or '')
+        t2 = '\n'.join((q.extract_text() or '') for q in pdf.pages[1:3])      # 2 · 3쪽(짧은 PDF 에서 멈추지 않게 · 결과는 같다)
     def g(pat, t, d=''):
         mm = re.search(pat, t); return mm.group(1).strip() if mm else d
     m = {}

@@ -249,7 +249,7 @@ class Handler(BaseHTTPRequestHandler):
                                           'log': io.open(log, encoding='utf-8').read(),
                                           'pdf_base64': base64.b64encode(body).decode()}))
         if path == '/v1/proposal/riders':                     # 담보 인식만(빠름)
-            rid = pipeline.read_riders(src)
+            rid = pipeline.read_checked(src, allow_unmatched=True)   # 못 읽는 파일 · 담보 0건이면 다른 단추와 같은 422 이유(v8.98)
             return self._send(200, _json({'ok': True, 'count': len(rid),
                                           'matched': sum(1 for r in rid if r.get('matched')),
                                           'recog': pipeline.S.recog(rid),        # 마스터 / 부모연결 / 규칙만 / 계산제외(v8.61)
