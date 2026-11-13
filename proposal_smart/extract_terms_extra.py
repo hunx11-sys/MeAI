@@ -190,6 +190,38 @@ def body_x(txt):
             for a, b in CODE.findall(m.group(1)): ex.append(a + ('~' + (b if b[0].isalpha() else a[0] + b) if b else ''))
     return list(dict.fromkeys(ex))
 
+# 특약 본문 「… 아래의 질병은 보상하지 않습니다. ① 정신 및 행동장애(F04∼F99) ② …」 목록(v8.99 · 2026-11-13).
+# body_x 는 '제외' 가 든 문장만 보므로 이 목록을 못 읽었다 — 내Mom같은 어린이 태아고급형 수술비(1-7종)[질병](아191·아192)의 x 가 비어
+# 정신질환 · 치과 · 출생전후기 수술도 지급으로 계산되던 것. 같은 이름의 감수 마스터가 없어 빌려 올 곳도 없었다.
+LIST_TRIG = re.compile(r'질병[^.。①]{0,60}?보상하지\s*않습니다\.\s*(?=①)')
+LIST_STOP = re.compile(r'【|\s회사는\s|\s제\d+조\s*\(|\s\d+-\d+\.\s')
+
+def list_x(txt):
+    """'아래의 질병은 보상하지 않습니다' 뒤 ①②… 항목의 괄호 코드(약관 원문 그대로). 목록은 【…】 · '회사는' · 다음 조 · 다음 특약 제목에서 끝난다.
+       N96~N98 처럼 '보장개시 2년 뒤 발생분은 보상' 단서가 붙은 것도 다른 특약 x 와 같은 방식으로 넣는다(단서 문장에는 코드가 없다)."""
+    flat = re.sub(r'\s*\n\s*', ' ', strip_examples(txt))
+    out = []
+    for m in LIST_TRIG.finditer(flat):
+        if not re.search(r'아래|다음|분류', flat[max(0, m.start() - 80):m.end()]): continue
+        seg = flat[m.end():m.end() + 1500]
+        s = LIST_STOP.search(seg)
+        seg = seg[:s.start()] if s else seg
+        for p in re.finditer(r'[(（]([^()（）]{2,60})[)）]', seg):
+            if not re.fullmatch(r'\s*[A-Z]\d{2}[\s\d.,~∼～A-Z]*', p.group(1)): continue
+            for a, b in CODE.findall(p.group(1)): out.append(a + ('~' + (b if b[0].isalpha() else a[0] + b) if b else ''))
+    return list(dict.fromkeys(out))
+
+# list_x 목록을 x 에 넣는 특약 — 약관 원문을 소유자가 확인한 것만(이름은 갱신형 · 공백을 뗀 열쇠). 나머지는 추출 로그
+# 「본문 면책 목록 미반영」 으로 남겨 다음 확인 거리로 둔다(계산이 소리 없이 바뀌지 않게).
+# 로그의 목록은 후보일 뿐이다 — 목록 안팎의 단서를 이 함수는 읽지 않는다(2026-11-13 원문 대조) :
+#   · Q형 특약(질병수술비Q · 질병수술입원일당Q 등)은 ④ 선천기형(Q00~Q99) 뒤 「다만, …Q보장 특별약관을 가입한 경우에는 … 지급합니다」 → Q 는 제외가 아니다
+#   · 목록 다음 문단의 「화염상모반 등 선천성 비신생물성모반(Q82.5)은 보상합니다」 · 「수면무호흡(G47.3)은 보상합니다」 괄호 코드도 함께 잡힌다 → 제외가 아니다
+LISTX_OK = {
+    '수술비(1-7종,연간3회한)(태아고급형)[질병]':
+        '내Mom같은 어린이 태아고급형 수술비(1-7종) 제5조 — 일반 수술비(1-7종)[질병]과 달리 선천기형(Q00~Q99)은 제외하지 않음(소유자 2026-11-13)',
+}
+def listx_key(n): return re.sub(r'^갱신형', '', re.sub(r'\s', '', n or ''))
+
 def sub_chunks(body_lines, labels):
     """제3조(세부보장에 관한 사항)의 ①②… 구간 — 세부보장마다 [시작, 끝) 줄 위치. 못 찾으면 None"""
     pos = []
@@ -285,6 +317,12 @@ def parse(path, product, prefix):
         R = list({id(e): e for e, _ in P}.values())
         k, x, _u = cover(P)
         x += [c for c in body_x(body) if c not in x]
+        lx = [c for c in list_x(body) if c not in x]
+        basis_x = ''
+        if lx and listx_key(title) in LISTX_OK:
+            x += lx; basis_x = '제외코드 %s : %s' % (', '.join(lx), LISTX_OK[listx_key(title)])
+        elif lx:
+            log.append(('본문 면책 목록 미반영', '%s%d' % (prefix, len([r for r in riders if not r.get('parent')]) + 1), title, lx))
         hc = []
         for e in R:
             if '수술분류표' not in e['name'] and '산정특례' not in e['name']: hc += hcs(e['text'])
@@ -292,6 +330,7 @@ def parse(path, product, prefix):
         rid = '%s%d' % (prefix, len([r for r in riders if not r.get('parent')]) + 1)
         r = {'id': rid, 'p': product, 'n': title, 'c': category(title), 'pg': b['page'] + 1, 'k': k, 'x': x,
              't': [tid(product, e) for e in R], 'hc': hc, 'src': [e['key'] + ' ' + e['name'] for e in R], '_body': body}   # _body : 세부보장 채우기(sub_fill)용 · 저장 전에 뗀다
+        if basis_x: r['basis_x'] = basis_x
         riders.append(r)
         if not k and not re.search(r'사망|후유장해|상해|골절|화상|입원일당|수술비\(1-|1-5종|1-7종|수술비Ⅱ|질병수술비|납입|지원금|배상|벌금|변호사|소송|치아', title):
             log.append(('KCD 없음', rid, title, r['src']))
@@ -395,7 +434,9 @@ def settle(riders):
                      basis='마스터 %s(%s) 같은 이름 특약' % (best['id'], best['p']))
             n_m += 1
         else:
-            r['basis'] = ('약관 p.%s 파싱 : %s' % (r['pg'], ' · '.join(r.get('src') or []) or '별표 없음')) + ((' · 코드는 ' + r.pop('basis_from')) if r.get('basis_from') else '')
+            r['basis'] = ('약관 p.%s 파싱 : %s' % (r['pg'], ' · '.join(r.get('src') or []) or '별표 없음')) + ((' · 코드는 ' + r.pop('basis_from')) if r.get('basis_from') else '') \
+                + ((' · ' + r['basis_x']) if r.get('basis_x') else '')
+        r.pop('basis_x', None)
     return n_m
 
 def fill_subs(riders, log):

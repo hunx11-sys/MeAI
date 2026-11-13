@@ -32,7 +32,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v8.98'
+VERSION = 'v8.99'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 생성 요청은 2건까지 받아 두고(1건 처리 + 1건 대기) 나머지는 180초 기다린 뒤 503
 GA_LOCK = threading.Lock()                   # 실제 생성은 한 번에 한 건 — 설계서 상태 · 계산 로그(scen_engine.ISSUES)를 모듈 안에 두므로 9쪽 · GA · 새 양식 모두 이 잠금으로 줄을 선다
