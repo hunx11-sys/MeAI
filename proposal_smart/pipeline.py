@@ -46,9 +46,9 @@ _DRM = (b'fasoo', b'scdsa', b'drmone', b'markany', b'document safer', b'softcamp
 
 
 def _note_path(out_pdf, src_pdf):
-    """만들지 않은 이유 메모 자리 — 결과 PDF 이름 + 원본 이름의 짧은 표식(한글 이름은 모두 design 이 되어 서로 덮어쓰지 않게) · 영문 이름"""
+    """만들지 않은 이유 메모 자리 — 결과 PDF 이름 + 원본 파일(폴더 포함)의 짧은 표식(한글 이름은 모두 design 이 되어 서로 덮어쓰지 않게) · 영문 이름"""
     import hashlib
-    h = hashlib.sha1(os.path.basename(src_pdf).encode('utf-8')).hexdigest()[:6]
+    h = hashlib.sha1(os.path.abspath(src_pdf).encode('utf-8')).hexdigest()[:6]      # 폴더까지 — 다른 폴더의 같은 이름 설계서와 섞이지 않게
     return os.path.splitext(os.path.abspath(out_pdf))[0] + '_%s_FAILED.txt' % h
 
 
@@ -91,7 +91,7 @@ def check_file(src_pdf):
     try:
         with pdfplumber.open(src_pdf) as p: len(p.pages)
     except Exception as e:
-        raise _broken(e)
+        raise _broken(e) from e
 
 
 def _broken(e):
@@ -107,6 +107,15 @@ def _from_pdf_lib(e):
     return bool(tb) and any(('%s%s%s' % (os.sep, m, os.sep)) in tb[-1].filename or ('/%s/' % m) in tb[-1].filename for m in mods)
 
 
+def _damaged(src_pdf):
+    """파일이 실제로 망가졌는가 — pymupdf 가 고쳐서 열었으면(끝이 잘림 · 목차 깨짐) 망가진 것"""
+    import pymupdf
+    try:
+        with pymupdf.open(src_pdf) as d: return bool(d.is_repaired)
+    except Exception:
+        return True
+
+
 def read_checked(src_pdf, allow_unmatched=False):
     """설계서 → 담보 목록. 파일 점검(check_file) → 담보 읽기 → 담보 점검(check_riders)을 한 번에(v8.98).
        allow_unmatched=True 면 담보를 읽기만 했으면(계산 못 하는 것뿐이어도) 그대로 돌려준다 — 「담보 인식만 보기」 용"""
@@ -116,8 +125,8 @@ def read_checked(src_pdf, allow_unmatched=False):
     except DesignUnreadable:
         raise
     except Exception as e:
-        if _from_pdf_lib(e): raise _broken(e) from e
-        raise
+        if _from_pdf_lib(e) and _damaged(src_pdf): raise _broken(e) from e
+        raise                                                # 멀쩡한 PDF 에서 난 오류는 우리 코드 문제 — 「다시 받으세요」 로 숨기지 않는다
     if not (allow_unmatched and rid): check_riders(src_pdf, rid)
     return rid
 

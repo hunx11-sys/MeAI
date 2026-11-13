@@ -224,6 +224,8 @@ class Handler(BaseHTTPRequestHandler):
             finally:
                 GA_LOCK.release()
         except pipeline.DesignUnreadable as e:            # 설계서를 못 읽음(그림 PDF · DRM · 다른 문서) — 빈 제안서 대신 이유(v8.98)
+            if e.__cause__ is not None:                      # 깨진 PDF 로 본 원래 오류는 서버 로그에 남긴다(원인 추적용)
+                traceback.print_exception(type(e.__cause__), e.__cause__, e.__cause__.__traceback__)
             return self._err(422, '설계서를 읽지 못해 만들지 않았습니다 — %s' % e)
         except Exception as e:
             traceback.print_exc()
