@@ -43,11 +43,25 @@ def _page():
     if 'pg' not in _PW:
         from playwright.sync_api import sync_playwright
         pw = sync_playwright().start()
-        exe = os.environ.get('GA_CHROMIUM') or ('/opt/pw-browsers/chromium' if os.path.exists('/opt/pw-browsers/chromium') and not os.path.isdir('/opt/pw-browsers/chromium') else None)
-        b = pw.chromium.launch(executable_path=exe) if exe else pw.chromium.launch()
+        exe = os.environ.get('GA_CHROMIUM') or ('/opt/pw-browsers/chromium' if os.path.exists('/opt/pw-browsers/chromium') and not os.path.isdir('/opt/pw-browsers/chromium') else None)   # ga_proposal.render 와 같은 규칙
+        try:
+            b = pw.chromium.launch(executable_path=exe) if exe else pw.chromium.launch()
+        except Exception:      # playwright 크로뮴을 못 받은 PC(폐쇄망) — 깔려 있는 Edge · Chrome 으로(GA_CHROMIUM 을 안 넣었을 때)
+            cand = [c for c in (os.path.expandvars(r'%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe'), os.path.expandvars(r'%ProgramFiles%\Microsoft\Edge\Application\msedge.exe'),
+                                os.path.expandvars(r'%ProgramFiles%\Google\Chrome\Application\chrome.exe'), '/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser') if os.path.isfile(c)]
+            if exe or not cand: raise
+            b = pw.chromium.launch(executable_path=cand[0])
         _PW.update(pw=pw, b=b, pg=b.new_page(viewport={'width': 794, 'height': 1123}))
-        atexit.register(lambda: (_PW['b'].close(), _PW['pw'].stop()))
+        atexit.register(close_browser)
     return _PW['pg']
+def close_browser():
+    """띄워 둔 크로뮴을 닫는다(끝날 때 · 서버 작업 스레드 안에서). 다른 스레드에서 불려 실패해도 프로그램 종료를 막지 않는다"""
+    pw = _PW.pop('pw', None); b = _PW.pop('b', None); _PW.pop('pg', None)
+    try:
+        if b: b.close()
+        if pw: pw.stop()
+    except Exception:
+        pass
 def _goto(html, name):
     os.makedirs(TMP, exist_ok=True)
     hp = os.path.join(TMP, name + '.html'); open(hp, 'w', encoding='utf-8').write(html)
@@ -896,6 +910,19 @@ def cover_summary_html():
 # ═══════════════ 묶기 ═══════════════
 def title_of(pg): return pg.get_text(clip=fitz.Rect(185, 30, 450, 52)).strip()
 def build(design_pdf, out_pdf=None, age=''):
+    """설계서 1건 → 새 양식 PDF · 로그. 중간 파일(설계서 내용이 든 HTML · PDF 조각)은 한 건마다 임시 폴더에 만들고 끝나면 지운다
+    (서버로 돌릴 때 개인정보가 남지 않게 · GA_V2_KEEP=1 이면 남겨 둔다 — 지면 점검용)"""
+    import tempfile, shutil, gc
+    global TMP
+    root = TMP; os.makedirs(root, exist_ok=True)
+    TMP = tempfile.mkdtemp(prefix='job_', dir=root)
+    try:
+        return _build(design_pdf, out_pdf, age)
+    finally:
+        work, TMP = TMP, root
+        gc.collect()                                          # 열어 둔 조각 PDF 를 닫아 윈도우에서도 지워지게
+        if os.environ.get('GA_V2_KEEP') != '1': shutil.rmtree(work, ignore_errors=True)
+def _build(design_pdf, out_pdf=None, age=''):
     t0 = time.time(); os.makedirs(TMP, exist_ok=True)
     out_pdf = out_pdf or os.path.join(BASE, 'ga_output', GP.ascii_name(design_pdf) + '_GA2.pdf')
     os.makedirs(os.path.dirname(os.path.abspath(out_pdf)), exist_ok=True)

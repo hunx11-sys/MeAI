@@ -46,8 +46,9 @@
 <div class="wrap">
 
   <h1>스마트 제안서 생성 — 연동 데모</h1>
-  <p class="sub">상품설명서 PDF를 넣으면 가입담보를 읽어 보상 시뮬레이션 지면을 만들고, 담보사항이 끝나는 쪽 뒤에 끼워 넣습니다.
-     프론트엔드는 이 화면이 호출하는 API 두 개만 쓰면 됩니다.</p>
+  <p class="sub">설계서(상품설명서) PDF를 올리면 그 자리에서 가입담보를 읽고 계산해 제안서를 만듭니다.
+     <b style="color:var(--ink)">GA 새 양식</b>(2026-11-11 회의 · 15~19쪽)이 기본이고, 기존 GA 6쪽 · 9쪽 지면도 함께 만들 수 있습니다.
+     프론트엔드는 이 화면이 호출하는 API 를 그대로 쓰면 됩니다.</p>
 
   <div id="warnFile" class="card hide" style="border-color:#F3B9BC;background:#FFF5F5">
     <b style="color:var(--red);font-size:16px">이 파일을 직접 열면 동작하지 않습니다</b>
@@ -74,13 +75,49 @@
       <input id="file" type="file" accept="application/pdf" hidden>
     </div>
     <div class="row">
-      <button id="run" disabled>지면 생성</button>
-      <button id="gaRun" disabled style="background:#C12027">GA 제안서 생성</button>
+      <button id="ga2Run" disabled style="background:#E01F26">GA 새 양식 생성</button>
+      <button id="gaRun" disabled class="ghost">기존 GA 6쪽</button>
+      <button id="run" disabled class="ghost">9쪽 지면 생성</button>
       <button id="ridersOnly" class="ghost" disabled>담보 인식만 보기</button>
       <span id="fname" style="color:var(--mute)"></span>
     </div>
     <div id="bar" class="bar"><i></i></div>
     <div id="msg" class="msg"></div>
+  </div>
+
+  <div id="ga2Result" class="hide">
+    <div class="card">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <b style="font-size:17px">GA 스마트 제안서 — 새 양식</b>
+        <span id="g2Info" style="color:var(--mute)"></span>
+      </div>
+      <div class="stat">
+        <div><div class="k">쪽수</div><div class="v" id="g2_pages">–</div></div>
+        <div><div class="k">간병인 쪽</div><div class="v" id="g2_care" style="font-size:15px;line-height:1.35;padding-top:5px">–</div></div>
+        <div><div class="k">세부내역</div><div class="v" id="g2_detail">–</div></div>
+        <div><div class="k">인식 담보</div><div class="v" id="g2_rider">–</div></div>
+        <div><div class="k">마스터 매칭</div><div class="v" id="g2_match">–</div></div>
+        <div><div class="k">지면 경고</div><div class="v" id="g2_warn">–</div></div>
+        <div><div class="k">처리 시간</div><div class="v" id="g2_time">–</div></div>
+      </div>
+      <div class="row">
+        <button id="g2Dl">PDF 내려받기</button>
+        <button id="g2LogDl" class="ghost">계산 로그 내려받기(txt)</button>
+      </div>
+    </div>
+    <div class="tabs" id="g2Tabs">
+      <button data-g2="pv" class="on">제안서 미리보기</button>
+      <button data-g2="lg">계산 로그</button>
+      <button data-g2="rd">인식 담보</button>
+      <button data-g2="js">응답 JSON</button>
+    </div>
+    <div class="card" id="g2_pv"><iframe id="g2Prev" title="새 양식 미리보기" style="height:1100px"></iframe></div>
+    <div class="card hide" id="g2_lg"><pre id="g2Log" style="white-space:pre-wrap"></pre></div>
+    <div class="card hide" id="g2_rd">
+      <table><thead><tr><th>번호</th><th>담보</th><th>가입금액</th><th>마스터</th></tr></thead>
+        <tbody id="g2Riders"></tbody></table>
+    </div>
+    <div class="card hide" id="g2_js"><pre id="g2Json"></pre></div>
   </div>
 
   <div id="gaResult" class="hide">
@@ -164,7 +201,14 @@
     <p style="color:var(--body);margin:8px 0 0">
       PDF 바이트를 그대로 <code>POST</code> 하면 됩니다. 별도 인증·LLM 호출은 없습니다.
       서버는 <code>python api.py</code> 로 띄웁니다(추가 패키지 설치 없음).</p>
-<pre>// ① 결과 PDF 만 받기
+<pre>// ⓪ GA 새 양식 — PDF 만 받기 / 요약 · 로그 · PDF(base64) 한 번에 받기
+const ga2 = await fetch(API + '/v1/ga2/pdf',
+  { method:'POST', headers:{'Content-Type':'application/pdf'}, body: file }).then(r =&gt; r.blob());
+const ga2all = await fetch(API + '/v1/ga2/all',
+  { method:'POST', headers:{'Content-Type':'application/pdf'}, body: file }).then(r =&gt; r.json());
+// ga2all.pages / ga2all.care_pages(['support'|'use'|'none']) / ga2all.log / ga2all.pdf_base64
+
+// ① 결과 PDF 만 받기
 const pdf = await fetch(API + '/v1/proposal/pdf',
   { method:'POST', headers:{'Content-Type':'application/pdf'}, body: file })
   .then(r =&gt; r.blob());
@@ -217,11 +261,17 @@ function pick(f) {
   if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) return say('PDF 파일만 넣어 주세요', true);
   file = f;
   $('fname').textContent = f.name + '  (' + (f.size / 1048576).toFixed(1) + 'MB)';
-  $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = false;
+  $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = $('ga2Run').disabled = false;
   say('');
 }
 function say(t, err) { $('msg').textContent = t || ''; $('msg').className = 'msg' + (err ? ' err' : ''); }
-function busy(on) { $('bar').style.display = on ? 'block' : 'none'; $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = on; }
+let tick = null;
+function busy(on, label) {
+  $('bar').style.display = on ? 'block' : 'none';
+  $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = $('ga2Run').disabled = on;
+  clearInterval(tick);
+  if (on && label) { const t0 = Date.now(); say(label + ' · 0초'); tick = setInterval(() => say(label + ' · ' + Math.round((Date.now() - t0) / 1000) + '초'), 1000); }
+}
 
 async function post(path) {
   let r;
@@ -250,6 +300,51 @@ $('run').onclick = async () => {
   busy(false);
 };
 
+// ── GA 새 양식(v2) ──
+let g2Url = null, g2Name = 'ga2_proposal.pdf', g2LogText = '';
+$('ga2Run').onclick = async () => {
+  busy(true, 'GA 새 양식을 만드는 중입니다(설계서 읽기 → 계산 → 지면) — 보통 15~30초');
+  try {
+    const d = await (await post('/v1/ga2/all')).json();
+    busy(false);
+    renderGa2(d);
+    say('완료 — 새 양식 ' + d.pages + '쪽 · 간병인 쪽 : ' + d.care_pages_ko.join(' + '));
+  } catch (e) { busy(false); say('실패 : ' + e.message, true); }
+};
+function renderGa2(d) {
+  if (g2Url) URL.revokeObjectURL(g2Url);
+  g2Url = URL.createObjectURL(b64(d.pdf_base64));
+  const stem = (file && file.name ? file.name.replace(/\.pdf$/i, '') : 'design').replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+  g2Name = (/[A-Za-z0-9]/.test(stem) ? stem : 'design') + '_GA2.pdf';
+  g2LogText = d.log || '';
+  $('g2Prev').src = g2Url;
+  $('g2Info').textContent = (d.product || '') + (d.premium ? ' · ' + d.premium : '');
+  $('g2_pages').textContent = d.pages + '쪽';
+  $('g2_care').textContent = d.care_pages_ko.join(' + ');
+  $('g2_detail').textContent = d.detail_pages + '쪽';
+  $('g2_rider').textContent = d.rider_count;
+  $('g2_match').textContent = d.matched;
+  $('g2_warn').textContent = (d.warn || []).length + '건';
+  $('g2_time').textContent = d.elapsed_sec + '초';
+  $('g2Log').textContent = g2LogText;
+  $('g2Riders').innerHTML = (d.riders || []).map(r =>
+    '<tr><td>' + (r.no ?? '') + '</td><td>' + esc(r.name) + '</td><td>' +
+    (r.man != null ? Number(r.man).toLocaleString() + '만원' : '') + '</td><td>' + (r.matched ? 'O' : '–') + '</td></tr>').join('');
+  $('g2Json').textContent = JSON.stringify(
+    Object.assign({}, d, { pdf_base64: '(생략 ' + Math.round((d.pdf_base64 || '').length / 1365) + 'KB)', log: '(계산 로그 탭)', riders: '(인식 담보 탭 · ' + (d.riders || []).length + '건)' }), null, 2);
+  $('gaResult').classList.add('hide'); $('result').classList.add('hide');
+  $('ga2Result').classList.remove('hide');
+  g2tab('pv');
+  $('ga2Result').scrollIntoView({ behavior: 'smooth' });
+}
+function g2tab(t) {
+  document.querySelectorAll('#g2Tabs button').forEach(b => b.classList.toggle('on', b.dataset.g2 === t));
+  ['pv', 'lg', 'rd', 'js'].forEach(x => $('g2_' + x).classList.toggle('hide', x !== t));
+}
+document.querySelectorAll('#g2Tabs button').forEach(b => b.onclick = () => g2tab(b.dataset.g2));
+$('g2Dl').onclick = () => { if (g2Url) { const a = document.createElement('a'); a.href = g2Url; a.download = g2Name; a.click(); } };
+$('g2LogDl').onclick = () => save(new Blob(['\ufeff' + g2LogText], { type: 'text/plain;charset=utf-8' }), g2Name.replace(/\.pdf$/, '_log.txt'));
+
 let gaUrl = null, gaName = 'ga_proposal.pdf', gaLogText = '';
 const KIND_NM = { dx: '진단비', surg: '수술비', day: '입원·통원', tx: '치료비', care: '간병',
                   itc: '통합치료비', itc_unknown: '금액표없음', life: '사망·장해', nonmed: '비대상', skip: '제외' };
@@ -257,6 +352,7 @@ $('gaRun').onclick = async () => {
   busy(true); say('GA 제안서를 만드는 중입니다 — 20~40초 걸립니다');
   try {
     const d = await (await post('/v1/ga/all')).json();
+    $('ga2Result').classList.add('hide');
     renderGa(d);
     say('완료 — GA 제안서 6쪽');
   } catch (e) { say('실패 : ' + e.message, true); }
@@ -315,6 +411,7 @@ $('ridersOnly').onclick = async () => {
 
 function render(d) {
   lastPdf = d.pdf_base64;
+  $('ga2Result').classList.add('hide');
   $('result').classList.remove('hide');
   $('s_rider').textContent = d.rider_count;
   $('s_match').textContent = d.matched;

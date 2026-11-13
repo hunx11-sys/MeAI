@@ -43,6 +43,11 @@ python api.py 0.0.0.0 9000                # 호스트·포트 지정
 | POST | `/v1/proposal/audit` | 상품설명서 PDF | 요약 + 감사 로그 JSON |
 | POST | `/v1/proposal/riders` | 상품설명서 PDF | 인식한 담보 목록 JSON (생성 없이 빠르게 확인) |
 | POST | `/v1/proposal/all` | 상품설명서 PDF | 요약 + 감사로그 + 지면 HTML + 결과 PDF(base64) 한 번에 |
+| POST | `/v1/ga/pdf` · `/v1/ga/all` | 설계서 PDF | 기존 GA 양식 6쪽 PDF / JSON(PDF base64 · 감사 로그 · 인식 담보) |
+| POST | **`/v1/ga2/pdf`** | 설계서 PDF | **GA 새 양식(v2 · 2026-11-11 회의) PDF 15~19쪽** |
+| POST | **`/v1/ga2/all`** | 설계서 PDF | 새 양식 JSON : `pages` · `detail_pages` · `care_pages`(support/use/none) · `care_pages_ko` · `rider_count` · `matched` · `riders` · `warn` · `elapsed_sec` · `log`(계산 로그) · `pdf_base64` |
+
+새 양식(v2)은 한 프로세스에서 한 번에 1건씩(줄 서서) 처리한다 — 크로뮴 하나를 같은 작업 스레드에서 쓴다. 자세한 인계 안내는 `ga_docs/IT_GA_V2.md`.
 
 업로드 방식은 두 가지 모두 받습니다.
 

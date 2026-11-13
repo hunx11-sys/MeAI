@@ -14,6 +14,8 @@
   POST /v1/proposal/all       원본 PDF 업로드      → 위 내용을 한 번에(JSON, PDF는 base64)
   POST /v1/ga/pdf             원본 PDF 업로드      → GA 양식 스마트 제안서 6쪽 PDF
   POST /v1/ga/all             원본 PDF 업로드      → GA PDF(base64) + 감사 로그 + 인식 담보 + 로그 텍스트 JSON
+  POST /v1/ga2/pdf            원본 PDF 업로드      → GA 스마트 제안서 새 양식(v2 · 2026-11-11 회의) PDF(15~19쪽)
+  POST /v1/ga2/all            원본 PDF 업로드      → 새 양식 PDF(base64) + 간병인 쪽 선택 · 쪽수 · 계산 로그 · 인식 담보 JSON
 
 업로드 방법 두 가지 모두 받는다.
   · multipart/form-data 의 file 필드 (HTML <input type=file>)
@@ -22,6 +24,7 @@
 LLM·외부 API 호출은 없다. 실행 중 외부 통신을 하지 않는다.
 """
 import base64, io, json, os, re, shutil, sys, tempfile, threading, traceback
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import quote
 
@@ -29,17 +32,29 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v8.96'
+VERSION = 'v8.97'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 동시 생성 2건까지(렌더가 무거워 과부하 방지)
-GA_LOCK = threading.Lock()                   # GA 생성기는 한 건씩(모듈 안에 설계서 상태를 둔다)
+GA_LOCK = threading.Lock()                   # GA 생성기는 한 건씩(모듈 안에 설계서 상태를 둔다 — v1 · v2 가 같은 상태를 쓴다)
+GA2_WORKER = ThreadPoolExecutor(max_workers=1, thread_name_prefix='ga2')   # 새 양식(v2)은 크로뮴 하나를 띄워 두고 같은 스레드에서만 쓴다(playwright 규칙)
+CARE_NM = {'support': '간병인 지원 가입자', 'use': '간병인 사용 가입자', 'none': '간병인 지원 · 사용 함께(둘 다 미가입)'}
+
+
+def ga2_build(src, out):
+    """새 양식 한 건 — 작업 스레드(GA2_WORKER) 안에서만 부른다"""
+    import ga_v2, ga_proposal
+    with GA_LOCK:
+        pdf, log, info = ga_v2.build(src, out)
+        rid = ga_proposal.RID
+        return dict(info=info, log=io.open(log, encoding='utf-8').read(), premium=ga_proposal.PREMIUM,
+                    riders=rid, matched=sum(1 for r in rid if r.get('matched')), body=open(out, 'rb').read())
 
 
 def _json(o):
     return json.dumps(o, ensure_ascii=False).encode('utf-8')
 
 
-ASCII_NAME = {'스마트제안서.pdf': 'smart_proposal.pdf', '생성지면.pdf': 'smart_pages.pdf'}
+ASCII_NAME = {'스마트제안서.pdf': 'smart_proposal.pdf', '생성지면.pdf': 'smart_pages.pdf', 'ga_proposal.pdf': 'ga_proposal.pdf', 'ga2_proposal.pdf': 'ga2_proposal.pdf'}
 MIME = {'.ttf': 'font/ttf', '.otf': 'font/otf', '.png': 'image/png',
         '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.css': 'text/css; charset=utf-8'}
 
@@ -123,7 +138,8 @@ class Handler(BaseHTTPRequestHandler):
         if path == '/health':
             return self._send(200, _json({'ok': True, 'version': VERSION,
                                           'python': sys.version.split()[0],
-                                          'llm': False, 'network': False}))
+                                          'llm': False, 'network': False,
+                                          'formats': {'proposal': '/v1/proposal/*', 'ga': '/v1/ga/*', 'ga2': '/v1/ga2/*'}}))
         return self._err(404, 'not found : ' + path)
 
     # ── POST ────────────────────────────────────────────────
@@ -148,7 +164,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split('?')[0]
-        if not (path.startswith('/v1/proposal') or path.startswith('/v1/ga')):
+        if not (path.startswith('/v1/proposal') or path.startswith('/v1/ga')):          # /v1/ga · /v1/ga2
             return self._err(404, 'not found : ' + path)
         try:
             pdf = self._read_pdf()
@@ -165,6 +181,17 @@ class Handler(BaseHTTPRequestHandler):
             shutil.rmtree(tmp, ignore_errors=True)
             return self._err(503, '처리 대기가 길어졌습니다 — 잠시 후 다시 시도해 주세요')
         try:
+            if path in ('/v1/ga2/pdf', '/v1/ga2/all'):            # GA 새 양식 v2(ga_v2.py)
+                r = GA2_WORKER.submit(ga2_build, src, os.path.join(tmp, 'ga2_proposal.pdf')).result(timeout=600)
+                if path == '/v1/ga2/pdf':
+                    return self._send(200, r['body'], 'application/pdf', 'ga2_proposal.pdf')
+                i = r['info']
+                return self._send(200, _json({'ok': True, 'format': 'ga2', 'product': i['product'], 'premium': r['premium'],
+                                              'pages': i['pages'], 'detail_pages': i['detail_pages'],
+                                              'care_pages': i['care'], 'care_pages_ko': [CARE_NM[k] for k in i['care']],
+                                              'rider_count': i['riders'], 'matched': r['matched'], 'warn': i['warn'],
+                                              'elapsed_sec': i['sec'], 'log': r['log'], 'riders': r['riders'],
+                                              'pdf_base64': base64.b64encode(r['body']).decode()}))
             if path in ('/v1/ga/pdf', '/v1/ga/all'):              # GA 양식 v5(표지·보장요약·암·뇌심 + 세부내역 · ga_proposal.py)
                 import ga_proposal
                 with GA_LOCK:
@@ -186,7 +213,8 @@ class Handler(BaseHTTPRequestHandler):
                                               'matched': sum(1 for r in rid if r.get('matched')),
                                               'recog': pipeline.S.recog(rid),        # 마스터 / 부모연결 / 규칙만 / 계산제외(v8.61)
                                               'riders': rid}))
-            r = pipeline.build(src)
+            job = os.path.join(tmp, 'job'); os.makedirs(job, exist_ok=True)
+            r = pipeline.build(src, workdir=job)          # 작업 폴더를 요청 임시 폴더 안에 — 응답 뒤 함께 지운다(설계서 내용이 out/ 에 쌓이지 않게)
             summary = {'ok': True, 'attached': r['attached'], 'base_pages': r['base_pages'],
                        'new_pages': r['new_pages'], 'total_pages': r['total_pages'],
                        'insert_after': r['insert_after'], 'rider_count': r['rider_count'],
@@ -230,6 +258,13 @@ def main():
         srv.serve_forever()
     except KeyboardInterrupt:
         print('\n종료')
+    finally:
+        try:
+            import ga_v2
+            GA2_WORKER.submit(ga_v2.close_browser).result(timeout=20)     # 띄워 둔 크로뮴은 그 스레드에서 닫는다
+        except Exception:
+            pass
+        GA2_WORKER.shutdown(wait=False)
 
 
 if __name__ == '__main__':
