@@ -38,21 +38,33 @@ def fonts_css():
                          for w, n in ((400, 'Regular'), (500, 'Medium'), (600, 'SemiBold'), (700, 'Bold'), (800, 'ExtraBold')))
     return _FONTS
 _PW = {}
+CHROME_CAND = (r'%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe', r'%ProgramFiles%\Microsoft\Edge\Application\msedge.exe',
+               r'%ProgramFiles%\Google\Chrome\Application\chrome.exe', r'%LocalAppData%\Google\Chrome\Application\chrome.exe',
+               '/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser')
+def _alive():
+    try: return _PW['b'].is_connected() and not _PW['pg'].is_closed()
+    except Exception: return False
 def _page():
-    """크로뮴 하나를 띄워 두고 계속 쓴다(설계서 여러 건을 돌릴 때 빠르게)"""
+    """크로뮴 하나를 띄워 두고 계속 쓴다(설계서 여러 건을 돌릴 때 빠르게). 죽어 있으면(메모리 부족 · 프로세스 종료 등) 닫고 새로 띄운다"""
+    if 'pg' in _PW and not _alive(): close_browser()
     if 'pg' not in _PW:
         from playwright.sync_api import sync_playwright
         pw = sync_playwright().start()
-        exe = os.environ.get('GA_CHROMIUM') or ('/opt/pw-browsers/chromium' if os.path.exists('/opt/pw-browsers/chromium') and not os.path.isdir('/opt/pw-browsers/chromium') else None)   # ga_proposal.render 와 같은 규칙
         try:
-            b = pw.chromium.launch(executable_path=exe) if exe else pw.chromium.launch()
-        except Exception:      # playwright 크로뮴을 못 받은 PC(폐쇄망) — 깔려 있는 Edge · Chrome 으로(GA_CHROMIUM 을 안 넣었을 때)
-            cand = [c for c in (os.path.expandvars(r'%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe'), os.path.expandvars(r'%ProgramFiles%\Microsoft\Edge\Application\msedge.exe'),
-                                os.path.expandvars(r'%ProgramFiles%\Google\Chrome\Application\chrome.exe'), '/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser') if os.path.isfile(c)]
-            if exe or not cand: raise
-            b = pw.chromium.launch(executable_path=cand[0])
-        _PW.update(pw=pw, b=b, pg=b.new_page(viewport={'width': 794, 'height': 1123}))
-        atexit.register(close_browser)
+            exe = os.environ.get('GA_CHROMIUM') or ('/opt/pw-browsers/chromium' if os.path.exists('/opt/pw-browsers/chromium') and not os.path.isdir('/opt/pw-browsers/chromium') else None)   # ga_proposal.render 와 같은 규칙
+            try:
+                b = pw.chromium.launch(executable_path=exe) if exe else pw.chromium.launch()
+            except Exception:      # playwright 크로뮴을 못 받은 PC(폐쇄망) — 깔려 있는 Edge · Chrome 으로(GA_CHROMIUM 을 안 넣었을 때)
+                cand = [c for c in (os.path.expandvars(x) for x in CHROME_CAND) if os.path.isfile(c)]
+                if exe or not cand: raise
+                b = pw.chromium.launch(executable_path=cand[0])
+            pg = b.new_page(viewport={'width': 794, 'height': 1123}); pg.set_default_timeout(120000)      # 한 동작 2분 넘으면 오류(멈춘 채 붙잡지 않게)
+        except Exception:
+            try: pw.stop()                                    # 띄우다 실패해도 playwright 를 닫아 둔다(다음 건이 다시 띄울 수 있게)
+            except Exception: pass
+            raise
+        _PW.update(pw=pw, b=b, pg=pg)
+        if not _PW.get('atexit'): atexit.register(close_browser); _PW['atexit'] = True
     return _PW['pg']
 def close_browser():
     """띄워 둔 크로뮴을 닫는다(끝날 때 · 서버 작업 스레드 안에서). 다른 스레드에서 불려 실패해도 프로그램 종료를 막지 않는다"""
@@ -915,13 +927,27 @@ def build(design_pdf, out_pdf=None, age=''):
     import tempfile, shutil, gc
     global TMP
     root = TMP; os.makedirs(root, exist_ok=True)
-    TMP = tempfile.mkdtemp(prefix='job_', dir=root)
+    TMP = tempfile.mkdtemp(prefix='job_%d_' % os.getpid(), dir=root)
     try:
-        return _build(design_pdf, out_pdf, age)
+        try:
+            return _build(design_pdf, out_pdf, age)
+        except Exception as e:
+            close_browser()                                   # 실패한 건 뒤에는 크로뮴을 새로 띄운다(죽었거나 이상한 상태일 수 있다)
+            if not re.search(r'closed|crash|Target|disconnected', str(e)): raise
+            return _build(design_pdf, out_pdf, age)           # 크로뮴이 죽어서 난 오류면 새로 띄워 한 번 더
     finally:
         work, TMP = TMP, root
         gc.collect()                                          # 열어 둔 조각 PDF 를 닫아 윈도우에서도 지워지게
         if os.environ.get('GA_V2_KEEP') != '1': shutil.rmtree(work, ignore_errors=True)
+def sweep_tmp(max_age=3600):
+    """서버가 처리 중에 꺼져 남은 중간 파일(out/v2tmp/job_*)을 치운다 — 만든 지 1시간 넘은 것만(다른 프로세스가 지금 쓰는 것은 건드리지 않게)"""
+    import shutil
+    n = 0
+    for d in glob.glob(os.path.join(TMP, 'job_*')):
+        try:
+            if time.time() - os.path.getmtime(d) > max_age: shutil.rmtree(d, ignore_errors=True); n += 1
+        except OSError: pass
+    return n
 def _build(design_pdf, out_pdf=None, age=''):
     t0 = time.time(); os.makedirs(TMP, exist_ok=True)
     out_pdf = out_pdf or os.path.join(BASE, 'ga_output', GP.ascii_name(design_pdf) + '_GA2.pdf')

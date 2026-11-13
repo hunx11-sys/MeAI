@@ -23,8 +23,8 @@
 
 LLM·외부 API 호출은 없다. 실행 중 외부 통신을 하지 않는다.
 """
-import base64, io, json, os, re, shutil, sys, tempfile, threading, traceback
-from concurrent.futures import ThreadPoolExecutor
+import base64, glob, io, json, os, re, shutil, sys, tempfile, threading, time, traceback
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutTimeout
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import quote
 
@@ -34,8 +34,24 @@ import pipeline
 
 VERSION = 'v8.97'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
-LOCK = threading.Semaphore(2)                # 동시 생성 2건까지(렌더가 무거워 과부하 방지)
-GA_LOCK = threading.Lock()                   # GA 생성기는 한 건씩(모듈 안에 설계서 상태를 둔다 — v1 · v2 가 같은 상태를 쓴다)
+LOCK = threading.Semaphore(2)                # 생성 요청은 2건까지 받아 두고(1건 처리 + 1건 대기) 나머지는 180초 기다린 뒤 503
+GA_LOCK = threading.Lock()                   # 실제 생성은 한 번에 한 건 — 설계서 상태 · 계산 로그(scen_engine.ISSUES)를 모듈 안에 두므로 9쪽 · GA · 새 양식 모두 이 잠금으로 줄을 선다
+GA2_TIMEOUT = int(os.environ.get('GA2_TIMEOUT', '600'))   # 새 양식 1건 제한 시간(초)
+GA2_STATE = {'broken': False}                # 새 양식 작업이 제한 시간을 넘겨 멈추면 True — /health 가 503 을 돌려 재시작을 알린다
+TMP_PREFIX = 'sp_in_%d_' % os.getpid()
+
+
+def sweep(max_age=3600):
+    """처리 중에 서버가 꺼져 남은 업로드 · 중간 파일(설계서 내용)을 치운다 — 만든 지 1시간 넘은 것만(다른 프로세스가 지금 쓰는 것은 그대로)"""
+    n = 0
+    for d in glob.glob(os.path.join(tempfile.gettempdir(), 'sp_in_*')):
+        try:
+            if time.time() - os.path.getmtime(d) > max_age: shutil.rmtree(d, ignore_errors=True); n += 1
+        except OSError: pass
+    try:
+        import ga_v2; n += ga_v2.sweep_tmp(max_age)
+    except Exception: pass
+    return n
 GA2_WORKER = ThreadPoolExecutor(max_workers=1, thread_name_prefix='ga2')   # 새 양식(v2)은 크로뮴 하나를 띄워 두고 같은 스레드에서만 쓴다(playwright 규칙)
 CARE_NM = {'support': '간병인 지원 가입자', 'use': '간병인 사용 가입자', 'none': '간병인 지원 · 사용 함께(둘 다 미가입)'}
 
@@ -136,6 +152,8 @@ class Handler(BaseHTTPRequestHandler):
         if path in ('/style.css', '/extra2.css'):
             return self._send(200, open(os.path.join(BASE, path[1:]), 'rb').read(), MIME['.css'])
         if path == '/health':
+            if GA2_STATE['broken']:
+                return self._send(503, _json({'ok': False, 'version': VERSION, 'error': '새 양식 작업이 멈춰 있습니다 — 서버를 다시 켜 주세요'}))
             return self._send(200, _json({'ok': True, 'version': VERSION,
                                           'python': sys.version.split()[0],
                                           'llm': False, 'network': False,
@@ -173,7 +191,8 @@ class Handler(BaseHTTPRequestHandler):
         if not pdf.startswith(b'%PDF'):
             return self._err(400, 'PDF 파일이 아닙니다')
 
-        tmp = tempfile.mkdtemp(prefix='sp_in_')
+        sweep()
+        tmp = tempfile.mkdtemp(prefix=TMP_PREFIX)
         src = os.path.join(tmp, 'source.pdf')
         open(src, 'wb').write(pdf)
         got = LOCK.acquire(timeout=180)
@@ -181,8 +200,14 @@ class Handler(BaseHTTPRequestHandler):
             shutil.rmtree(tmp, ignore_errors=True)
             return self._err(503, '처리 대기가 길어졌습니다 — 잠시 후 다시 시도해 주세요')
         try:
-            if path in ('/v1/ga2/pdf', '/v1/ga2/all'):            # GA 새 양식 v2(ga_v2.py)
-                r = GA2_WORKER.submit(ga2_build, src, os.path.join(tmp, 'ga2_proposal.pdf')).result(timeout=600)
+            if path in ('/v1/ga2/pdf', '/v1/ga2/all'):            # GA 새 양식 v2(ga_v2.py) — 작업 스레드에서(그 안에서 GA_LOCK)
+                if GA2_STATE['broken']:
+                    return self._err(503, '새 양식 작업이 멈춰 있습니다 — 서버를 다시 켜 주세요')
+                try:
+                    r = GA2_WORKER.submit(ga2_build, src, os.path.join(tmp, 'ga2_proposal.pdf')).result(timeout=GA2_TIMEOUT)
+                except FutTimeout:
+                    GA2_STATE['broken'] = True
+                    return self._err(504, '처리 시간이 %d초를 넘었습니다 — 지면을 그리는 크로뮴이 멈춘 것으로 보입니다. 서버를 다시 켜 주세요' % GA2_TIMEOUT)
                 if path == '/v1/ga2/pdf':
                     return self._send(200, r['body'], 'application/pdf', 'ga2_proposal.pdf')
                 i = r['info']
@@ -192,58 +217,66 @@ class Handler(BaseHTTPRequestHandler):
                                               'rider_count': i['riders'], 'matched': r['matched'], 'warn': i['warn'],
                                               'elapsed_sec': i['sec'], 'log': r['log'], 'riders': r['riders'],
                                               'pdf_base64': base64.b64encode(r['body']).decode()}))
-            if path in ('/v1/ga/pdf', '/v1/ga/all'):              # GA 양식 v5(표지·보장요약·암·뇌심 + 세부내역 · ga_proposal.py)
-                import ga_proposal
-                with GA_LOCK:
-                    out = os.path.join(tmp, 'ga_proposal.pdf')
-                    _pdf, log, warn = ga_proposal.build(src, out)
-                    body = open(out, 'rb').read()
-                    if path == '/v1/ga/pdf':
-                        return self._send(200, body, 'application/pdf', 'ga_proposal.pdf')
-                    a = ga_proposal.AUDIT
-                    return self._send(200, _json({'ok': True, 'rider_count': ga_proposal.NRID, 'matched': a['요약']['마스터매칭'],
-                                                  'recog': a['요약']['인식'], 'new_pages': 6, 'elapsed_sec': a['요약']['처리시간'],
-                                                  'product': ga_proposal.PRODUCT, 'premium': ga_proposal.PREMIUM, 'warn': warn,
-                                                  'audit': a, 'riders': ga_proposal.RID,
-                                                  'log': io.open(log, encoding='utf-8').read(),
-                                                  'pdf_base64': base64.b64encode(body).decode()}))
-            if path == '/v1/proposal/riders':                     # 담보 인식만(빠름)
-                rid = pipeline.read_riders(src)
-                return self._send(200, _json({'ok': True, 'count': len(rid),
-                                              'matched': sum(1 for r in rid if r.get('matched')),
-                                              'recog': pipeline.S.recog(rid),        # 마스터 / 부모연결 / 규칙만 / 계산제외(v8.61)
-                                              'riders': rid}))
-            job = os.path.join(tmp, 'job'); os.makedirs(job, exist_ok=True)
-            r = pipeline.build(src, workdir=job)          # 작업 폴더를 요청 임시 폴더 안에 — 응답 뒤 함께 지운다(설계서 내용이 out/ 에 쌓이지 않게)
-            summary = {'ok': True, 'attached': r['attached'], 'base_pages': r['base_pages'],
-                       'new_pages': r['new_pages'], 'total_pages': r['total_pages'],
-                       'insert_after': r['insert_after'], 'rider_count': r['rider_count'],
-                       'matched': r['matched'], 'recog': r.get('recog'), 'elapsed_sec': r['elapsed_sec'],
-                       'meta': r['meta']}
-            if path in ('/v1/proposal/pdf', '/v1/proposal'):
-                body = open(r['out_pdf'], 'rb').read()
-                return self._send(200, body, 'application/pdf', '스마트제안서.pdf')
-            if path == '/v1/proposal/pages.pdf':
-                if not r['pages_pdf']:
-                    return self._err(409, '대상 담보가 없어 생성된 지면이 없습니다')
-                return self._send(200, open(r['pages_pdf'], 'rb').read(), 'application/pdf', '생성지면.pdf')
-            if path == '/v1/proposal/pages.html':
-                return self._send(200, html_for_web(r['pages_html']).encode('utf-8'),
-                                  'text/html; charset=utf-8')
-            if path == '/v1/proposal/audit':
-                return self._send(200, _json(dict(summary, audit=r['audit'])))
-            if path == '/v1/proposal/all':
-                out = dict(summary, audit=r['audit'],
-                           pages_html=html_for_web(r['pages_html']),
-                           pdf_base64=base64.b64encode(open(r['out_pdf'], 'rb').read()).decode())
-                return self._send(200, _json(out))
-            return self._err(404, 'not found : ' + path)
+            if not GA_LOCK.acquire(timeout=180):                 # 9쪽 · 기존 GA 도 새 양식과 같은 줄(계산 로그가 섞이지 않게)
+                return self._err(503, '처리 대기가 길어졌습니다 — 잠시 후 다시 시도해 주세요')
+            try:
+                return self._gen(path, src, tmp)
+            finally:
+                GA_LOCK.release()
         except Exception as e:
             traceback.print_exc()
-            return self._err(500, '생성 중 오류 : %s' % e)
+            return self._err(500, '생성 중 오류 : %s' % (e or type(e).__name__))
         finally:
             LOCK.release()
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def _gen(self, path, src, tmp):
+        """9쪽 지면 · 기존 GA 6쪽 — GA_LOCK 안에서만 부른다"""
+        if path in ('/v1/ga/pdf', '/v1/ga/all'):              # GA 양식 v5(표지·보장요약·암·뇌심 + 세부내역 · ga_proposal.py)
+            import ga_proposal
+            out = os.path.join(tmp, 'ga_proposal.pdf')
+            _pdf, log, warn = ga_proposal.build(src, out)
+            body = open(out, 'rb').read()
+            if path == '/v1/ga/pdf':
+                return self._send(200, body, 'application/pdf', 'ga_proposal.pdf')
+            a = ga_proposal.AUDIT
+            return self._send(200, _json({'ok': True, 'rider_count': ga_proposal.NRID, 'matched': a['요약']['마스터매칭'],
+                                          'recog': a['요약']['인식'], 'new_pages': 6, 'elapsed_sec': a['요약']['처리시간'],
+                                          'product': ga_proposal.PRODUCT, 'premium': ga_proposal.PREMIUM, 'warn': warn,
+                                          'audit': a, 'riders': ga_proposal.RID,
+                                          'log': io.open(log, encoding='utf-8').read(),
+                                          'pdf_base64': base64.b64encode(body).decode()}))
+        if path == '/v1/proposal/riders':                     # 담보 인식만(빠름)
+            rid = pipeline.read_riders(src)
+            return self._send(200, _json({'ok': True, 'count': len(rid),
+                                          'matched': sum(1 for r in rid if r.get('matched')),
+                                          'recog': pipeline.S.recog(rid),        # 마스터 / 부모연결 / 규칙만 / 계산제외(v8.61)
+                                          'riders': rid}))
+        job = os.path.join(tmp, 'job'); os.makedirs(job, exist_ok=True)
+        r = pipeline.build(src, workdir=job)          # 작업 폴더를 요청 임시 폴더 안에 — 응답 뒤 함께 지운다(설계서 내용이 out/ 에 쌓이지 않게)
+        summary = {'ok': True, 'attached': r['attached'], 'base_pages': r['base_pages'],
+                   'new_pages': r['new_pages'], 'total_pages': r['total_pages'],
+                   'insert_after': r['insert_after'], 'rider_count': r['rider_count'],
+                   'matched': r['matched'], 'recog': r.get('recog'), 'elapsed_sec': r['elapsed_sec'],
+                   'meta': r['meta']}
+        if path in ('/v1/proposal/pdf', '/v1/proposal'):
+            body = open(r['out_pdf'], 'rb').read()
+            return self._send(200, body, 'application/pdf', '스마트제안서.pdf')
+        if path == '/v1/proposal/pages.pdf':
+            if not r['pages_pdf']:
+                return self._err(409, '대상 담보가 없어 생성된 지면이 없습니다')
+            return self._send(200, open(r['pages_pdf'], 'rb').read(), 'application/pdf', '생성지면.pdf')
+        if path == '/v1/proposal/pages.html':
+            return self._send(200, html_for_web(r['pages_html']).encode('utf-8'),
+                              'text/html; charset=utf-8')
+        if path == '/v1/proposal/audit':
+            return self._send(200, _json(dict(summary, audit=r['audit'])))
+        if path == '/v1/proposal/all':
+            out = dict(summary, audit=r['audit'],
+                       pages_html=html_for_web(r['pages_html']),
+                       pdf_base64=base64.b64encode(open(r['out_pdf'], 'rb').read()).decode())
+            return self._send(200, _json(out))
+        return self._err(404, 'not found : ' + path)
 
 
 def main():
@@ -251,6 +284,8 @@ def main():
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 8080
     os.makedirs(os.path.join(BASE, 'out'), exist_ok=True)
     import assets_ready; assets_ready.fonts()         # 글꼴이 없는 PC(zip 으로 받은 경우) — ga_assets 의 나눔고딕을 assets/ 로
+    n = sweep()
+    if n: print('지난번에 처리 중 남은 임시 파일 %d개를 지웠습니다' % n)
     srv = ThreadingHTTPServer((host, port), Handler)
     print('스마트 제안서 API %s — http://%s:%d  (Ctrl+C 로 종료)' % (VERSION, host, port))
     print('  데모 화면 : http://%s:%d/' % (host, port))

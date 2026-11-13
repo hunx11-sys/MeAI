@@ -260,6 +260,7 @@ function pick(f) {
   if (!f) return;
   if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) return say('PDF 파일만 넣어 주세요', true);
   file = f;
+  ['ga2Result', 'gaResult', 'result'].forEach(id => $(id).classList.add('hide'));     // 새 설계서를 고르면 앞 고객의 결과는 감춘다(섞여 보이지 않게)
   $('fname').textContent = f.name + '  (' + (f.size / 1048576).toFixed(1) + 'MB)';
   $('run').disabled = $('ridersOnly').disabled = $('gaRun').disabled = $('ga2Run').disabled = false;
   say('');
@@ -401,6 +402,7 @@ $('ridersOnly').onclick = async () => {
   busy(true); say('담보를 읽고 있습니다');
   try {
     const d = await (await post('/v1/proposal/riders')).json();
+    $('ga2Result').classList.add('hide'); $('gaResult').classList.add('hide');
     $('result').classList.remove('hide');
     $('s_rider').textContent = d.count; $('s_match').textContent = d.matched;
     fillRiders(d.riders); tab('rd');

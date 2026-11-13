@@ -21,6 +21,7 @@ OK_PHONES = {'010-0000-0000', '02-0000-0000', '010-1234-5678', '02-1234-5678'}
 PHONE = re.compile(r'(?<![\d-])0\d{1,2}-\d{3,4}-\d{4}(?![\d-])')
 LONGNUM = re.compile(r'(?<![\d.])\d{12,}(?![\d.])')
 AGENT = re.compile(r'컨설턴트\s*[:：]\s*[가-힣]{2,4}(?![가-힣])')
+SANG = re.compile(r'[가-힣]{2,4}\(상령일')                  # 「이름(상령일:…)」 — 설계서 피보험자 칸 꼴
 
 def files():
     r = subprocess.run(['git', '-c', 'core.quotepath=off', 'ls-files', '--cached', '--others', '--exclude-standard', 'proposal_smart'],
@@ -30,6 +31,7 @@ def files():
         if not f or not os.path.isfile(os.path.join(ROOT, f)): continue
         rel = f[len('proposal_smart/'):]
         if rel.startswith(('ga_input/', 'ga_output/', 'out/', 'assets/')) and not rel.endswith('README.txt'): continue
+        if rel.startswith('source/'): continue          # 약관 별표 원본(분류표 다시 뽑기용 · 실행에는 필요 없음 · 한글 파일명 · 문서 작성자 정보)
         out.append(rel)
     return out
 
@@ -40,12 +42,19 @@ def scan(rel, data, names):
         t = data.decode('utf-8', 'ignore')
     elif ext == '.pdf':
         import fitz
-        t = ''.join(p.get_text() for p in fitz.open(stream=data, filetype='pdf'))
+        d = fitz.open(stream=data, filetype='pdf')
+        t = ''.join(p.get_text() for p in d)
+        hits += ['PDF 작성자 정보 : %s' % v for k, v in (d.metadata or {}).items() if k in ('author', 'creator') and v and v.strip()]
+    elif ext in ('.xlsx', '.docx', '.pptx'):
+        import zipfile as Z
+        core = Z.ZipFile(io.BytesIO(data)).read('docProps/core.xml').decode('utf-8', 'ignore')
+        return ['문서 작성자 정보 : ' + m for m in re.findall(r'<dc:creator>([^<]+)</dc:creator>|<cp:lastModifiedBy>([^<]+)<', core) if any(m)]
     else:
         return hits
     hits += [m for m in PHONE.findall(t) if m not in OK_PHONES]
     if ext == '.pdf': hits += LONGNUM.findall(t)
     hits += [m for m in AGENT.findall(t) if not re.search(r'컨설턴트\s*[:：]\s*(○○○|이름|성명)', m)]
+    hits += [m for m in SANG.findall(t) if not m.startswith(('홍○○', '○○○'))]
     hits += [n for n in names if n in t]
     return hits
 
