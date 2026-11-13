@@ -573,6 +573,7 @@ def row_label(n, l):
     s = re.sub(r'^\(\d+년갱신\)갱신형\s*|\(건강가입\)', '', re.sub(r'\s+', ' ', n)).strip()
     if '1-5종' in s or '1-7종' in s:
         g = (re.search(r'\[(?:질병|상해)(\d종)\]', s) or [None, ''])[1] or GP.line_note(l); cause = '상해' if '상해' in s else '질병'
+        if '태아고급형' in s: return '태아고급형 수술비(1-7종) [%s%s]' % (cause, g)     # 내Mom같은 어린이 태아고급형 수술비(1-7종) — 분류표 · 제외 질병이 일반 1-7종과 달라 이름을 따로(소유자 2026-11-13)
         return '%s 수술비 [%s%s]' % ('1-5종' if '1-5종' in s else '1-7종', cause, g)
     return re.sub(r'\s*\(25%체증형\)', '', s).replace('131대질병수술비', '131대 질병수술비').replace('130대질병수술비', '130대 질병수술비')      # 체증형은 옆 꼬리표로
 def surg_rows(name):

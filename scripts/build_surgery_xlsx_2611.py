@@ -50,7 +50,7 @@ PRODUCTS = [
     ('The건강한 5.10.5', 'The건강한5.10.5', EXTRA, '무배당 메리츠 The건강한 5.10.5 보장보험2610약관.pdf', ''),
     ('The건강한 내Mom대로 5.10.5', 'The건강한내Mom대로5.10.5', EXTRA, '무배당 메리츠 The건강한 내Mom대로 5.10.5 보장보험2610약관.pdf', ''),
     ('내Mom대로', '내Mom대로', EXTRA, '무배당 내Mom대로 보장보험2610약관.pdf', ''),
-    ('내Mom같은 어린이(태아전용)', '내Mom같은어린이', EXTRA, '무배당 내Mom같은 어린이보험2610(태아전용)약관.pdf', '태아고급형 1-7종은 「1-7종 수술분류표Ⅱ」(선천기형 수술 10개 더함)'),
+    ('내Mom같은 어린이(태아전용)', '내Mom같은어린이', EXTRA, '무배당 내Mom같은 어린이보험2610(태아전용)약관.pdf', '내Mom같은 어린이 태아고급형 수술비(1-7종)는 「1-7종 수술분류표Ⅱ」(선천기형 수술 10개 더함) · 일반 수술비(1-7종)는 「1-7종 수술분류표」'),
     ('The좋은 내Mom대로', 'The좋은내Mom대로', EXTRA, '무배당 메리츠 The좋은 내Mom대로 보장보험2610약관.pdf', ''),
     ('The가벼운 간편355', 'The가벼운간편355', EXTRA, '무배당 The가벼운 간편355건강보험(세만기형)2610약관.pdf', ''),
     ('간편31', '간편31', EXTRA, '무배당 메리츠 간편31 건강보험2610약관.pdf', ''),
@@ -386,7 +386,7 @@ def main():
             got = pdf17(P, s, e, num)
             extra = sorted(set(got) - set(T17))
             same = all(got[c][0] == T17[c] for c in T17 if c in got) and set(T17) <= set(got)
-            checks.append((disp, '1-7종 수술분류표Ⅱ', '별표%s' % num, '%d~%d' % (s, e), len(got),
+            checks.append((disp, '1-7종 수술분류표Ⅱ(내Mom같은 어린이 태아고급형 수술비(1-7종) 전용)', '별표%s' % num, '%d~%d' % (s, e), len(got),
                            '참고(별도 표)', '1-7종 630개와 같고 %d개 더 있음 : %s' % (len(extra), ', '.join('%s(%d종)' % (c, got[c][0]) for c in extra)) if same else '확인 필요'))
             refs['1-7종Ⅱ'] = (num, s, e, off, {c: got[c] for c in extra})
         # 1-5종Ⅱ
@@ -446,7 +446,8 @@ def main():
             rn = reduce_note(body)
             gb = '갱신형' if name.startswith('갱신형') else '비갱신형'
             note = []
-            if '태아고급형' in name: note.append('1-7종 수술분류표Ⅱ(선천기형 수술코드 10개 더함) · 선천기형(Q00~Q99) 제외 없음')
+            if '태아고급형' in name: note.append('내Mom같은 어린이 태아고급형 수술비(1-7종) — 1-7종 수술분류표Ⅱ(선천기형 수술코드 10개 더함)'
+                                            + (' · 선천기형(Q00~Q99) 제외 없음(일반 1-7종[질병]과 다름)' if '[질병]' in name.replace(' ', '') else ''))
             if kd == '1-7종' and '[질병]' in name.replace(' ', '') and ex:
                 note.append('습관성 유산·불임(N96~N98)은 보장개시 2년 후 발생분 보상')
             if m and src == EXTRA and kd == '1-7종' and '[질병]' in name.replace(' ', ''):
@@ -459,7 +460,7 @@ def main():
                 subs_ = [v for k_, v in refs.items() if k_ in (S131 if kd == '131대' else S130)]
                 ref = ['세부 분류표 11개 : ' + ' · '.join('별표%s' % v[0] for v in subs_)] if subs_ else []
             rowsp.append([kd, disp, fn, no, name, pg, gb, ', '.join(r.strip('【】') for r in ref), ', '.join(ex), rn,
-                          m['id'] if m else '(마스터에 없음)', m['n'] if m else '', src if m else '', (m.get('sv') or '') if m else '', ' · '.join(note + ([pnote] if pnote and kd else []))])
+                          m['id'] if m else '(마스터에 없음)', m['n'] if m else '', src if m else '', (m.get('sv') or '') if m else '', ' · '.join(note + ([pnote] if pnote and kd and pkey != '내Mom같은어린이' else []))])
             if not m:
                 issues.append(('마스터 없음', '%s 약관 %s. %s — %s 에 같은 이름 특약 없음' % (disp, no, name, '영업지원도구' if src == TOOL else 'db_terms_extra.json'), 'PDF %s쪽' % pg))
         # 마스터에만 있는 특약
@@ -551,8 +552,8 @@ def main():
                         if cc[0]: g = cc[0]
                         if cc[2] == c: nm, grp = cc[1], g
             mg = re.match(r'(\d+)\.\s*(.*)', grp or '')
-            rows17.append([int(mg.group(1)) if mg else '', (mg.group(2) if mg else grp) + ' [1-7종 수술분류표Ⅱ 전용]', c, nm, '%d종' % j, '', '',
-                           '내Mom같은 어린이 2610 별표%s(1-7종 수술분류표Ⅱ) · %d쪽(PDF %d) — 태아고급형만' % (numx, pg - offx, pg)])
+            rows17.append([int(mg.group(1)) if mg else '', (mg.group(2) if mg else grp) + ' [1-7종 수술분류표Ⅱ 전용 · 내Mom같은 어린이 태아고급형 수술비(1-7종)]', c, nm, '%d종' % j, '', '',
+                           '내Mom같은 어린이 2610 별표%s(1-7종 수술분류표Ⅱ) · %d쪽(PDF %d) — 내Mom같은 어린이 태아고급형 수술비(1-7종)만' % (numx, pg - offx, pg)])
     n17 = len(T); n17x = len(rows17) - n17
 
     # ── 4) 131대 · 130대 질병 시트 ──
@@ -625,7 +626,7 @@ def main():
     def judge7(c):
         a, n = c[0], int(c[1:3])
         if a in 'ST': return 'O', '상해 — 1-7종[상해] 특약'
-        if a == 'Q': return 'X', '1-7종[질병] 선천기형(Q00~Q99) 제외 — 태아고급형(어린이)만 보장'
+        if a == 'Q': return 'X', '1-7종[질병] 선천기형(Q00~Q99) 제외 — 내Mom같은 어린이 태아고급형 수술비(1-7종)[질병]은 선천기형 제외 없음(1-7종 수술분류표Ⅱ 수술이면 지급)'
         if a == 'F' and n >= 4: return 'X', '정신 및 행동장애(F04~F99) 제외'
         if a == 'K' and n <= 8: return 'X', '치과질환(K00~K08) 제외'
         if a == 'P': return 'X', '출생전후기 병태(P00~P96) 제외'
@@ -678,8 +679,8 @@ def main():
     sheet(wb, '1-7종 수술행위', ['구분번호', '수술구분', '수술코드(ADRG)', '수술행위(약관 수술명)', '종', '계통(참고)', '대표 질병 예시(KCD · 수술구분별)', '근거(약관 별표 · 쪽)'],
           rows17, [8, 30, 11, 46, 6, 14, 40, 34],
           '1-7종 수술분류표 — 건강보험 급여 수술(KDRG ADRG 수술코드) 기준 · 비급여 제외 · ADRG 2·3번째 자리 60~99 · Error DRG(961·962·963·990·999) · 960 DRG 제외. '
-          '[질병] 특약은 정신(F04~F99) · 치과(K00~K08) · 선천기형(Q00~Q99) · 출생전후기(P00~P96) 질병의 수술을 보상하지 않음(습관성 유산·불임 N96~N98 은 보장개시 2년 후 발생분만). '
-          '맨 아래 %d줄은 내Mom같은 어린이 태아고급형이 쓰는 「1-7종 수술분류표Ⅱ」에만 있는 수술코드(태아고급형[질병]은 선천기형 제외 없음).' % n17x)
+          '일반 수술비(1-7종)[질병] 특약은 정신(F04~F99) · 치과(K00~K08) · 선천기형(Q00~Q99) · 출생전후기(P00~P96) 질병의 수술을 보상하지 않음(습관성 유산·불임 N96~N98 은 보장개시 2년 후 발생분만). '
+          '맨 아래 %d줄은 「내Mom같은 어린이 태아고급형 수술비(1-7종)」가 쓰는 「1-7종 수술분류표Ⅱ」에만 있는 수술코드 — 이 특약[질병]은 선천기형(Q00~Q99)을 제외하지 않음(정신 · 치과 · 출생전후기 · N96~N98 제외는 같음 · 약관 2-148 · 2-149 제5조).' % n17x)
     sheet(wb, '상품별 탑재', ['수술비 종류', '상품', '약관 파일', '약관 번호', '특약명(약관 목차)', 'PDF 쪽', '갱신형 여부', '쓰는 분류표(특약 본문)', 'KCD 제외(특약 본문)',
                            '감액(약관 지급표에서 읽음)', '마스터 id', '마스터 특약명', '마스터 출처', '간편심사 감액 메모(sv)', '비고'],
           rowsp, [12, 22, 30, 8, 40, 7, 9, 26, 26, 22, 10, 32, 22, 22, 36],
