@@ -232,6 +232,7 @@ def load(design_pdf, age=''):
     for n in GS.DZ_ORDER:
         EXTRA['sgpaid'][cause_of(n)].update(grp_of(full, cause_of(n)) for full, _, _ in surg_rows(n))
     EXTRA['care'] = care_flags()
+    if SURG_MODE == 'all': EXTRA['unj'] = unjoined_all(design_pdf)
 def _raw(key):
     """(값, 지급 줄, 집계 방식)"""
     if key in EXTRA: return EXTRA[key][0], EXTRA[key][1], key.rsplit('.', 1)[-1] if key.startswith('thx.') else 'first'
@@ -574,15 +575,70 @@ def card_all(name):
     for full, l, a, u in rows:
         tag = ((' <i class="cz">체증형</i>' + (' <i class="mx2">최대 2배 체증</i>' if any(re.search(p_, _ns(full)) for p_ in ESC2) else '')) if '체증' in full else '') + (' <i class="cz b">태아고급형</i>' if '태아고급형' in full else '')
         rs += '<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>' % (_esc(rider_label(full, l)), tag, m(a), m(u))
-    if none: rs = '<tr><td colspan="3" class="nn">이 설계에는 이 수술에 나오는 수술비가 없습니다</td></tr>'
+    for lab, _g in EXTRA.get('unj', {}).get(name, []):
+        rs += '<tr class="uj"><td>%s</td><td colspan="2"><span class="na">미가입</span></td></tr>' % _esc(lab)
+    if not rs: rs = '<tr><td colspan="3" class="nn">이 설계에는 이 수술에 나오는 수술비가 없습니다</td></tr>'
     sex = DZ_SEX.get(name)
     chips = kcd_chip(kcd) + ((' <span class="chip %s">%s</span>' % ('m' if sex == '남성' else 'f', sex)) if sex else '')
     return ('<div class="card"><div class="ch">%s<div class="cn"><div class="nm">%s</div><div class="op">%s</div></div>'
             '<div class="ca"><div><span>모든 병원</span><b class="num">%s</b></div><div class="up"><span>상급종합</span><b class="num">%s</b></div></div></div>'
             '<div class="ck">%s</div><table class="rl"><tr><th>보장(특약)</th><th>모든 병원</th><th>상급종합</th></tr>%s</table></div>') % (
             ico(DZ_ICON[name], 46), name.replace('골절진단', '골절'), proc, amt(ta), amt(tu), chips, rs)
+# 「특약 전부」 판의 미가입 줄(2026-11-18 소유자 「미가입한 수술비 특약도 표시 · 미가입으로 표기」) — 이 설계 상품의 특약 마스터(약관에서 뽑은 db.json · db_terms_extra.json)
+# 전체를 같은 수술 사례(모든 병원 · 상급종합)로 엔진에 돌려 지급되는 특약 가운데 설계에 없는 것만 이름 + 「미가입」 으로 적는다. 금액은 적지 않는다(가입금액이 없으므로 · CLAUDE.md 2).
+# 판정은 ga_spec.universe() · pay() 와 같은 길이다(설계서 대조 · 하네스가 쓰는 길). 상품 라인을 못 믿으면(설계 담보 대부분이 그 라인 마스터에 없으면) 미가입 줄을 아예 싣지 않고 로그만 남긴다.
+def fam_key(name, via=None):
+    """같은 특약 판정 열쇠 — 갱신형 · 고지 꼬리표 · 띄어쓰기를 떼고, 종별 행(1-5종 · 1-7종)은 특약 단위(원인 포함)로 · 체증형은 일반형과 같은 특약으로 본다"""
+    n = S.nname(((via or '') + ' ' + name) if (name or '').lstrip().startswith('┗') else name)
+    n = re.sub(r'^갱신형|^\(\d+년갱신\)', '', n)
+    cz = (re.search(r'\[(질병|상해)\d?(?:-\d)?종\]', n) or re.search(r'^(질병|상해)', n) or [None, ''])[1]
+    if '1-7종' in n: return '1-7종|' + cz
+    if '1-5종' in n: return ('1-5종plus|' if 'plus' in n else '1-5종|') + cz
+    return re.sub(r'\((25%)?체증형\)', '', n)
+def unj_label(name, via=None):
+    """미가입 줄 이름 — 종별 행은 특약 단위로(「1-5종 수술비 [질병]」), 그 밖은 카드의 특약 이름 규칙(rider_label) 그대로"""
+    k = fam_key(name, via)
+    if k.startswith('1-7종|'): return '1-7종 수술비 [%s]' % k.split('|')[1]
+    if k.startswith('1-5종plus|'): return '1-5종 수술비(plus · 연간2회이상) [%s]' % k.split('|')[1]
+    if k.startswith('1-5종|'): return '1-5종 수술비 [%s]' % k.split('|')[1]
+    return rider_label(name, {})
+def unjoined_all(design_pdf):
+    """{수술 이름: [(미가입 줄 이름, 묶음)]} — 상품 라인 마스터 전체를 엔진에 돌려 그 수술에 지급되는데 설계에 없는 특약"""
+    import build_all as BA
+    line = BA.guess_line(GP.RID, design_pdf)
+    mine = {S.nname(r['n']) for r in GS.DB['riders'] if r.get('p') == line}
+    joined = [r for r in GP.RID if (r.get('man') or 0) > 0]
+    known = [r for r in joined if S.nname(r.get('mname') or '') in mine or S.nname(GS.matcher.GRADE_RANGE.sub(lambda g: '[%s]' % g.group(1), r.get('via') or '')) in mine]
+    if not joined or len(known) < 0.6 * len(joined):
+        S.log('검토필요', '주요수술 미가입 줄', '설계 담보 %d건 중 %d건만 상품 라인 「%s」 마스터에 있음 — 미가입 줄을 싣지 않음' % (len(joined), len(known), line)); return {}
+    uni = []
+    for u in GS.universe():
+        if u.get('product') == line: pass
+        elif u.get('product') == '설계서 종별 행' and S.nname(u.get('via') or '') in mine: pass
+        else: continue
+        if '태아' in u['name']: continue                                   # 태아 특약은 태아 가입 설계에만 — 가입하지 않았으면 싣지 않는다
+        k = next((k for k in GS.INJ_ITC if S.nname(k) in (S.nname(u['name']), S.noren(u['name']))), None)
+        if k: u = dict(u, man=min(int(t) for t in GS.INJ_ITC[k]))       # 상해 통합치료비(실속형) — 금액표에 있는 가입금액으로(지급 여부만 본다)
+        uni.append(u)
+    have = {fam_key(r['name'], r.get('via')) for r in joined} | {fam_key(r.get('mname') or '') for r in joined if r.get('mname')}
+    n0 = len(S.ISSUES); out = {}
+    try:
+        for n in GS.DZ_ORDER:
+            cause = cause_of(n); seen = {}
+            for hosp in ('병원', '상급종합'):
+                L, _ = GS.pay(uni, GS.sc_dz(n, hosp)); il, _ = GS.inj_lines(uni, GS.sc_dz(n, hosp))
+                for l in L + il:
+                    if GS.counts(l, 'first') <= 0: continue
+                    u = next((x for x in uni if x['db_id'] == l.get('no')), None) or {}
+                    k = fam_key(l['name'], u.get('via'))
+                    if k in have or k in seen: continue
+                    seen[k] = (unj_label(l['name'], u.get('via')), grp_of(((u.get('via') or '') + ' ' + l['name']) if l['name'].lstrip().startswith('┗') else l['name'], cause))
+            out[n] = sorted(seen.values(), key=lambda x: (GRP_ORDER.index(x[1]), '상급종합' in x[0], '종합병원' in x[0], x[0]))      # 묶음 순서 → 묶음 안은 기본(질병수술비) · 종합병원 · 상급종합 순
+    finally:
+        del S.ISSUES[n0:]; GS.clear_cache()                               # 가상의 마스터 계산은 이 설계의 감사 로그 · 계산 캐시에 남기지 않는다
+    return out
 SG_GUIDE_ALL = ('<div class="note" style="margin:0 0 7px;font-size:9px">수술명 옆 금액은 가입한 수술비를 모두 더한 금액입니다(「상급종합」 은 같은 수술을 상급종합병원에서 받았을 때). '
-                '아래 표는 그 수술에 나오는 특약과 특약별 금액(1회차 기준)이며, 「모든 병원」 칸의 「–」 는 종합병원 · 상급종합병원처럼 병원 종류에 따라 나오는 보장입니다.</div>')
+                '아래 표는 그 수술에 나오는 특약과 특약별 금액(1회차 기준)이며, 「모든 병원」 칸의 「–」 는 종합병원 · 상급종합병원처럼 병원 종류에 따라 나오는 보장입니다. 회색 「미가입」 줄은 이 상품에 있고 이 수술에 나오지만 이 설계에는 넣지 않은 특약입니다.</div>')
 _MEASURE_JS = """()=>{const q=s=>document.querySelector(s);
   const av=id=>{const pg=q(id),c=pg.querySelector('.cards'),ft=pg.querySelector('.ft'),nt=pg.querySelector('.note.end');
     return ft.getBoundingClientRect().top-c.getBoundingClientRect().top-nt.getBoundingClientRect().height-parseFloat(getComputedStyle(nt).marginTop)-24};
