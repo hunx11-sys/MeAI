@@ -524,6 +524,81 @@ def page_surg(i):
             + '<div class="note" style="margin-top:6px;font-size:8.6px">%s</div>' % ESC_NOTE)
     return page('주요수술 보장 %s' % ('①' if i == 0 else '②'), body, '※ 금액은 이 설계의 특약별 가입금액 기준입니다. 수술명 옆 질병코드는 사례 기준입니다.', ' data-zg="surg" data-zmax="1.04"')
 
+# ── 주요수술 「특약 전부」 판(GA_V2_SURG=all · 2026-11-18 회의 「수술비를 많이 넣은 설계로 다 나온 버전을 보자」 · 비교용) ──
+# 다섯 묶음 대신 카드마다 그 수술에 지급되는 특약을 하나씩 모두 적는다(「그 외」 로 묶지 않음). 글씨 크기는 고정하고, 카드가 길어져
+# 한 쪽에 안 들어가면 쪽을 늘린다(주요수술 ① ② ③ …) — 카드 높이를 실제로 재서(Chromium) 나눈다.
+SURG_MODE = os.environ.get('GA_V2_SURG', 'group')
+GRP_ORDER = ['g1', 's15', 's17', 's131', 'frac', 'etc']
+def surg_lines(name):
+    """수술 하나에 지급되는 특약 — [(특약 이름(부모 이름 포함), 지급 줄, 모든 병원 금액, 상급종합 금액)] · 묶음 순서로"""
+    A = {}; order = []
+    for i, L in ((2, LN('p1.dz.' + name)), (3, EXTRA['dzup.' + name][1])):
+        for l in L:
+            a = GS.counts(l, 'first')
+            if not a: continue
+            if l['name'] not in A: A[l['name']] = [eff_name(l['name'], l.get('no')), l, 0.0, 0.0]; order.append(l['name'])
+            A[l['name']][i] += a
+    cause = cause_of(name); rows = [tuple(A[n]) for n in order]
+    rows.sort(key=lambda r: GRP_ORDER.index(grp_of(r[0], cause)))
+    return rows
+def rider_label(full, l):
+    """카드 줄 이름 — 갱신 · 가입형 꼬리표를 떼고 1-5종 · 1-7종은 「1-5종 수술비 [질병2종]」 꼴로(체증형은 옆 꼬리표)"""
+    s = re.sub(r'\s+', ' ', full).strip()
+    s = re.sub(r'^\(\d+년갱신\)\s*', '', s); s = re.sub(r'^갱신형\s*', '', s)
+    s = re.sub(r'\s*\((건강가입|통합간편가입|편한가입|31간편가입|간편가입)\)', '', s).strip()
+    if '1-5종' in s or '1-7종' in s:
+        g = (re.search(r'\[(?:질병|상해)(\d종)\]', s) or [None, ''])[1] or GP.line_note(l); cause = '상해' if '상해' in s else '질병'
+        if '태아고급형' in s: return '태아고급형 수술비(1-7종) [%s%s]' % (cause, g)
+        return '%s 수술비 [%s%s]' % ('1-5종' if '1-5종' in s else '1-7종', cause, g)
+    s = re.sub(r'\s*\((25%)?체증형\)', '', s)
+    return s.replace('131대질병수술비', '131대 질병수술비').replace('130대질병수술비', '130대 질병수술비')
+def card_all(name):
+    proc, kcd = GS.GA_DZ[name][0], GS.GA_DZ[name][1]
+    rows = surg_lines(name); ta = sum(r[2] for r in rows); tu = sum(r[3] for r in rows)
+    want = V('p1.dz.' + name)
+    if isnum(want) and abs(ta - want) > 0.01: raise RuntimeError('수술 카드 합계(%s)가 보장요약 칸(%s)과 다름 : %s' % (ta, want, name))
+    none = not rows
+    amt = lambda v: '<span class="na">미가입</span>' if none else '%s<small>만</small>' % won(v)
+    def m(v): return '<span class="dash">–</span>' if v <= 0 else '%s만' % won(v)
+    rs = ''
+    for full, l, a, u in rows:
+        tag = (' <i class="cz">체증형</i>' if '체증' in full else '') + (' <i class="cz b">태아고급형</i>' if '태아고급형' in full else '')
+        rs += '<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>' % (_esc(rider_label(full, l)), tag, m(a), m(u))
+    if none: rs = '<tr><td colspan="3" class="nn">이 설계에는 이 수술에 나오는 수술비가 없습니다</td></tr>'
+    sex = DZ_SEX.get(name)
+    chips = kcd_chip(kcd) + ((' <span class="chip %s">%s</span>' % ('m' if sex == '남성' else 'f', sex)) if sex else '')
+    return ('<div class="card"><div class="ch">%s<div class="cn"><div class="nm">%s</div><div class="op">%s</div></div>'
+            '<div class="ca"><div><span>모든 병원</span><b class="num">%s</b></div><div class="up"><span>상급종합</span><b class="num">%s</b></div></div></div>'
+            '<div class="ck">%s</div><table class="rl"><tr><th>보장(특약)</th><th>모든 병원</th><th>상급종합</th></tr>%s</table></div>') % (
+            ico(DZ_ICON[name], 46), name.replace('골절진단', '골절'), proc, amt(ta), amt(tu), chips, rs)
+SG_GUIDE_ALL = ('<div class="note" style="margin:0 0 7px;font-size:9px">수술명 옆 금액은 가입한 수술비를 모두 더한 금액입니다(「상급종합」 은 같은 수술을 상급종합병원에서 받았을 때). '
+                '아래 표는 그 수술에 나오는 특약과 특약별 금액(1회차 기준)이며, 「모든 병원」 칸의 「–」 는 종합병원 · 상급종합병원처럼 병원 종류에 따라 나오는 보장입니다.</div>')
+_MEASURE_JS = """()=>{const q=s=>document.querySelector(s);
+  const av=id=>{const pg=q(id),c=pg.querySelector('.cards'),ft=pg.querySelector('.ft'),nt=pg.querySelector('.note.end');
+    return ft.getBoundingClientRect().top-c.getBoundingClientRect().top-nt.getBoundingClientRect().height-parseFloat(getComputedStyle(nt).marginTop)-24};
+  return {h:[...document.querySelectorAll('#pm .card')].map(c=>c.getBoundingClientRect().height),a1:av('#p1'),a2:av('#p2'),gap:parseFloat(getComputedStyle(q('#pm .cards')).rowGap)}}"""
+def page_surg_all():
+    names = GS.DZ_ORDER; cards = [card_all(n) for n in names]
+    end = '<div class="note end" style="margin-top:6px;font-size:8.6px">%s</div>' % ESC_NOTE
+    head1 = NEED_SURG + '<div class="tag">다빈도 수술별 보장금액 ①</div><div class="sec"></div>' + SG_GUIDE_ALL
+    head2 = lambda k: '<div class="tag">다빈도 수술별 보장금액 %s</div><div class="sec"></div>' % k
+    pg = lambda i, body: '<div class="page" id="%s">%s<div class="cnt">%s</div>%s</div>' % (i, head(''), body, foot(''))
+    probe = ('<!doctype html><html><head><meta charset="utf-8"><style>%s</style></head><body>' % css()
+             + pg('p1', head1 + '<div class="cards"></div>' + end) + pg('p2', head2('②') + '<div class="cards"></div>' + end)
+             + pg('pm', '<div class="cards" style="align-items:start">%s</div>' % ''.join(cards)) + '</body></html>')
+    r = _goto(probe, 'surgm').evaluate(_MEASURE_JS)
+    H, gap = r['h'], r['gap']; pages = [[]]; used = 0.0
+    for k in range(0, len(cards), 2):       # 두 장씩 한 줄 — 줄 높이 = 둘 중 큰 카드
+        h = max(H[k:k + 2]); cap = r['a1'] if len(pages) == 1 else r['a2']
+        need = h + (gap if pages[-1] else 0)
+        if pages[-1] and used + need > cap: pages.append([]); used = 0.0; need = h
+        pages[-1].append(k); used += need
+    nums = '①②③④⑤⑥'; out = []
+    for i, ks in enumerate(pages):
+        body = (head1 if i == 0 else head2(nums[i])) + '<div class="cards">%s</div>' % ''.join(cards[k] + (cards[k + 1] if k + 1 < len(cards) else '') for k in ks) + end
+        out.append(page('주요수술 보장 %s' % nums[i], body, '※ 금액은 이 설계의 특약별 가입금액 기준입니다. 수술명 옆 질병코드는 사례 기준입니다.', ' data-zg="surg" data-zmax="1"'))
+    return out
+
 # ── 간병인 — GA 시안 v8 표 양식(1~180일 / 181일 이상) · 보상 예시는 뺌(2026-11-18 회의) ──
 def _ic(key): return '<span class="cv-ic">%s</span>' % ico(key, 34)
 def need_care():
@@ -753,7 +828,7 @@ def _build(design_pdf, out_pdf=None, age=''):
         tp[order.index(k)].show_pdf_page(fitz.Rect(31.5, y0, 564.0, pts[-1]), fitz.open(tb), 0)
     # 3) 새로 그리는 쪽
     care_pages = {'support': page_care_support, 'use': page_care_use, 'none': page_care_none}
-    pages = [page_surg(0), page_surg(1)] + [care_pages[k](cf) for k in cf['pages']]
+    pages = (page_surg_all() if SURG_MODE == 'all' else [page_surg(0), page_surg(1)]) + [care_pages[k](cf) for k in cf['pages']]
     p_h = os.path.join(TMP, tag + '_html.pdf')
     fit, over = render_pages('<!doctype html><html><head><meta charset="utf-8"><style>%s</style></head><body>%s</body></html>' % (css(), ''.join(pages)), p_h, 'html')
     if over: warn.append('새 쪽 넘침 %s' % over)

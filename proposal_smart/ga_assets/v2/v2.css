@@ -89,3 +89,13 @@
 .cv-two .st{flex:none;font-size:7.4pt;font-weight:700;color:#8B95A1;background:#fff;border:.75pt dashed #C4CAD1;border-radius:20pt;padding:2pt 7pt;white-space:nowrap}
 .cv-two .st.on{color:#C8102E;background:#FDECEE;border:.75pt solid #FDECEE}
 .cv-base{font-size:7.4pt;color:#777;line-height:1.5;margin-top:11pt}
+
+/* 주요수술 「특약 전부」 판(GA_V2_SURG=all) — 카드 아래 특약 표(글씨 고정 · 줄 수는 설계마다) */
+.rl{width:100%;border-collapse:collapse;border-top:1px solid #D1D6DB;font-size:10.5px}
+.rl th{font-weight:600;color:#6B7684;font-size:8.5px;text-align:right;padding:3px 3px;background:#F9FAFB;border-bottom:1px solid #E5E8EB;white-space:nowrap}
+.rl th:first-child{text-align:left}
+.rl td{padding:4px 3px;border-bottom:1px solid #F2F4F6;text-align:right;white-space:nowrap;color:#191F28;font-weight:600;font-variant-numeric:tabular-nums}
+.rl td:first-child{text-align:left;white-space:normal;color:#333D4B;font-weight:500;padding-right:6px}
+.rl tr:last-child td{border-bottom:none}.rl td .dash{color:#B0B8C1;font-weight:500}.rl td.nn{text-align:center;color:#A0A7B1;font-weight:500}
+.rl .cz{font-style:normal;font-size:8px;font-weight:700;color:#C8102E;background:#FDECEE;border-radius:4px;padding:0 5px;margin-left:4px;white-space:nowrap}.rl .cz.b{color:#2B5BBF;background:#EBF1FC}
+.rl th:nth-child(2),.rl th:nth-child(3){width:58px}
