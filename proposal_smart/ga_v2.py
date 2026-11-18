@@ -483,11 +483,15 @@ def sg_have(g, cause):
 def sg_state(name):
     """(원인, [(묶음 이름, 상태, 묶음 값)], 모든 병원 합, 상급종합 합). 상태 : on 가입(이 수술에 지급) · up 상급종합병원에서만 지급 · na 가입했지만 이 수술 예시에는 지급 없음 · no 미가입"""
     cause = cause_of(name); spec = SG_INJ if cause == '상해' else SG_DZ
-    G = {g: dict(a=0.0, u=0.0, esc=False, fetus=False) for g, _ in spec}
+    G = {g: dict(a=0.0, u=0.0, esc=False, esc2=False, fetus=False) for g, _ in spec}
     for full, a, u in surg_rows(name):
         x = G[grp_of(full, cause)]; x['a'] += a; x['u'] += u; x['esc'] |= '체증' in full; x['fetus'] |= '태아고급형' in full
+        x['esc2'] |= any(re.search(p_, _ns(full)) for p_ in ESC2)
     rows = [(lab, 'on' if G[g]['a'] > 0 else ('up' if G[g]['u'] > 0 else ('na' if sg_have(g, cause) else 'no')), G[g]) for g, lab in spec]
     return cause, rows, sum(x['a'] for x in G.values()), sum(x['u'] for x in G.values())
+# 체증형 중 최대 지급률이 2배(200%)로 약관 지급금액표에서 확인된 것만 「최대 2배」 를 붙인다(같은 원인 · 같은 종 수술 회차 기준) — 그 밖의 체증형은 「체증형」 표시만
+ESC2 = (r'수술비Ⅱ\(1-5종\)\(체증형\)',                                   # 1 · 2 · 3종 1회차 100% → 5회차 이후 200% · 4 · 5종 → 3회차 이후 200%
+        r'(뇌혈관질환|허혈성심장질환)수술비Ⅱ?\(25%체증형\)', r'(암수술비\(유사암제외\)|유사암수술비)\(25%체증형\)')      # 1회차 100% → 5회차 이후 200%
 SG_TXT = {'on': '가입', 'up': '가입', 'na': '해당 없음', 'no': '미가입'}
 def card(name):
     proc, kcd = GS.GA_DZ[name][0], GS.GA_DZ[name][1]
@@ -498,7 +502,7 @@ def card(name):
     amt = lambda v: '<span class="na">미가입</span>' if none else '%s<small>만</small>' % won(v)
     rs = ''
     for lab, st, x in rows:
-        tag = (' <i class="cz">체증형</i>' if x['esc'] else '') + (' <i class="cz b">태아고급형</i>' if x['fetus'] else '')      # 태아고급형 수술비(1-7종)는 분류표 · 제외 질병이 달라 이름을 밝힌다(소유자 2026-11-13)
+        tag = ((' <i class="cz">체증형</i>' + (' <i class="mx2">최대 2배 체증</i>' if x['esc2'] else '')) if x['esc'] else '') + (' <i class="cz b">태아고급형</i>' if x['fetus'] else '')      # 태아고급형 수술비(1-7종)는 분류표 · 제외 질병이 달라 이름을 밝힌다(소유자 2026-11-13)
         if st == 'on':      # 가입 · 지급 → 금액(모든 병원 · 상급종합에서 더 나오면 옆에 작게 · 2026-11-18 소유자)
             val = '%s만' % won(x['a']) + ((' <em>상급종합 %s만</em>' % won(x['u'])) if x['u'] > x['a'] + 0.01 else '')
         elif st == 'up': val = '<em>상급종합</em> %s만' % won(x['u'])
@@ -568,7 +572,7 @@ def card_all(name):
     def m(v): return '<span class="dash">–</span>' if v <= 0 else '%s만' % won(v)
     rs = ''
     for full, l, a, u in rows:
-        tag = (' <i class="cz">체증형</i>' if '체증' in full else '') + (' <i class="cz b">태아고급형</i>' if '태아고급형' in full else '')
+        tag = ((' <i class="cz">체증형</i>' + (' <i class="mx2">최대 2배 체증</i>' if any(re.search(p_, _ns(full)) for p_ in ESC2) else '')) if '체증' in full else '') + (' <i class="cz b">태아고급형</i>' if '태아고급형' in full else '')
         rs += '<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>' % (_esc(rider_label(full, l)), tag, m(a), m(u))
     if none: rs = '<tr><td colspan="3" class="nn">이 설계에는 이 수술에 나오는 수술비가 없습니다</td></tr>'
     sex = DZ_SEX.get(name)

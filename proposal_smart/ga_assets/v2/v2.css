@@ -99,3 +99,6 @@
 .rl tr:last-child td{border-bottom:none}.rl td .dash{color:#B0B8C1;font-weight:500}.rl td.nn{text-align:center;color:#A0A7B1;font-weight:500}
 .rl .cz{font-style:normal;font-size:8px;font-weight:700;color:#C8102E;background:#FDECEE;border-radius:4px;padding:0 5px;margin-left:4px;white-space:nowrap}.rl .cz.b{color:#2B5BBF;background:#EBF1FC}
 .rl th:nth-child(2),.rl th:nth-child(3){width:58px}
+
+/* 체증형 「최대 2배 체증」 — 체증형 꼬리표 옆 작은 글(2026-11-18 소유자) */
+.sg .mx2,.rl .mx2{font-style:normal;font-size:7.5px;font-weight:600;color:#E8432E;margin-left:4px;letter-spacing:-.1px;white-space:nowrap}.sg .mx2::before,.rl .mx2::before{content:'↗';font-size:7px;margin-right:1.5px}
