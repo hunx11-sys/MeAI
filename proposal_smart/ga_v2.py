@@ -108,6 +108,8 @@ FIT_JS = """(gap)=>{const P=[...document.querySelectorAll('.page')].map((pg,i)=>
   set(lo); return {i,z:lo,c,avail,set,g:pg.dataset.zg||''}});
   const G={}; P.forEach(p=>{if(p.g)(G[p.g]=G[p.g]||[]).push(p)});
   Object.values(G).forEach(a=>{const z=Math.min(...a.map(p=>p.z)); a.forEach(p=>{p.z=z;p.set(z)})});
+  P.forEach(p=>{const pg=document.querySelectorAll('.page')[p.i]; if(!p.c||!pg.classList.contains('sfill'))return;      // 특약 전부판 : 남는 높이를 카드 줄에 고르게 나눠 두 쪽을 채운다
+    const cd=p.c.querySelector('.cards'), extra=p.avail-p.c.getBoundingClientRect().height; if(cd&&extra>2) cd.style.minHeight=((cd.getBoundingClientRect().height+extra-2)/p.z)+'px'});
   return P.map(p=>[p.i+1,+p.z.toFixed(3),p.c?Math.round(p.c.getBoundingClientRect().height):0,p.c?Math.round(p.avail):0])}"""
 def render_pages(html, out_pdf, name='pages'):
     """A4 쪽들(.page) — 쪽마다 본문(.cnt)을 머리 아래 ~ 바닥글 위 빈 곳에 맞춘다(넘치면 0.7배까지 줄이고, 남으면 data-zmax 배까지 키움).
@@ -563,6 +565,31 @@ def rider_label(full, l):
         return '%s 수술비 [%s%s]' % ('1-5종' if '1-5종' in s else '1-7종', cause, g)
     s = re.sub(r'\s*\((25%)?체증형\)', '', s)
     return s.replace('131대질병수술비', '131대 질병수술비').replace('130대질병수술비', '130대 질병수술비')
+# 카드 줄 기준(2026-11-18 소유자 「잡다구리한 수술비는 ~외 N건 합산 · 수술 6개씩 두 쪽에 예쁘게」) — 묶음판의 다섯 묶음 순서로 줄을 세운다
+#  · 대표 수술비 묶음(질병 · 상해수술비 / 1-5종 / 1-7종 / 130 · 131대 / 골절 진단 · 수술비) : 가입 특약은 한 줄씩 금액(묶음 안은 금액 큰 순).
+#  · 「그 외」 묶음(통합치료비 · 신수술비 · 생활지원비 · 전신마취 등) : 가입 특약은 금액이 가장 큰 것 이름 + 「외 N건」 한 줄에 금액을 더한다(합산).
+#  · 묶음에 가입 특약이 없고 이 상품에 지급 특약이 있으면 그 묶음 한 줄 = 첫 이름 + 「외 N건」 · 「미가입」.
+#  · 가입 줄이 많으면(대표 줄 5줄 초과) 넘친 줄을 「그 외」 합산 줄에 넣는다 — 카드 줄 수가 들쭉날쭉하지 않게.
+CORE = ('g1', 's15', 's17', 's131', 'frac')
+CORE_MAX = 5
+def _fold_label(names): return names[0] if len(names) == 1 else '%s 외 %d건' % (names[0], len(names) - 1)
+def card_lines(rows, unj, cause):
+    """[('one', 이름, 전체이름, 모든 병원, 상급종합) | ('sum', 「○○ 외 N건」, '', 합, 합) | ('no', 「○○ 외 N건」, '', 0, 0)] — 합계는 그대로(줄만 묶는다)"""
+    by = {g: [] for g in GRP_ORDER}
+    for r in rows: by[grp_of(r[0], cause)].append(r)
+    for g in by: by[g].sort(key=lambda r: (-r[2], -r[3]))
+    core = [(g, r) for g in CORE for r in by[g]]
+    over = [r for _, r in core[CORE_MAX:]]; keep = {id(r) for _, r in core[:CORE_MAX]}
+    U = {g: [lab for lab, gg in unj if gg == g] for g in GRP_ORDER}
+    out = []
+    for g in GRP_ORDER:
+        mine = [r for r in by[g] if id(r) in keep] if g != 'etc' else sorted(by['etc'] + over, key=lambda r: (-r[2], -r[3]))
+        if g == 'etc' and len(mine) > 1:
+            out.append(('sum', _fold_label([rider_label(f, l) for f, l, _, _ in mine]), '', sum(r[2] for r in mine), sum(r[3] for r in mine)))
+        elif mine: out += [('one', rider_label(f, l), f, a, u) for f, l, a, u in mine]
+        elif not by[g] and U[g]: out.append(('no', _fold_label(U[g]), '', 0, 0))
+        elif not by[g] and sg_have(g, cause): out.append(('na', dict(SG_INJ if cause == '상해' else SG_DZ).get(g, '그 외 수술 · 치료비'), '', 0, 0))     # 가입했지만 이 수술 예시에는 지급 없음
+    return out
 def card_all(name):
     proc, kcd = GS.GA_DZ[name][0], GS.GA_DZ[name][1]
     rows = surg_lines(name); ta = sum(r[2] for r in rows); tu = sum(r[3] for r in rows)
@@ -572,11 +599,14 @@ def card_all(name):
     amt = lambda v: '<span class="na">미가입</span>' if none else '%s<small>만</small>' % won(v)
     def m(v): return '<span class="dash">–</span>' if v <= 0 else '%s만' % won(v)
     rs = ''
-    for full, l, a, u in rows:
-        tag = ((' <i class="cz">체증형</i>' + (' <i class="mx2">최대 2배 체증</i>' if any(re.search(p_, _ns(full)) for p_ in ESC2) else '')) if '체증' in full else '') + (' <i class="cz b">태아고급형</i>' if '태아고급형' in full else '')
-        rs += '<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>' % (_esc(rider_label(full, l)), tag, m(a), m(u))
-    for lab, _g in EXTRA.get('unj', {}).get(name, []):
-        rs += '<tr class="uj"><td>%s</td><td colspan="2"><span class="na">미가입</span></td></tr>' % _esc(lab)
+    cause = cause_of(name)
+    for kind, lab, full, a, u in card_lines(rows, EXTRA.get('unj', {}).get(name, []), cause):
+        if kind == 'no': rs += '<tr class="uj"><td>%s</td><td colspan="2"><span class="na">미가입</span></td></tr>' % _esc(lab); continue
+        if kind == 'na': rs += '<tr class="uj"><td>%s</td><td colspan="2"><span class="na hn">해당 없음</span></td></tr>' % _esc(lab); continue
+        if kind == 'one':
+            tag = ((' <i class="cz">체증형</i>' + (' <i class="mx2">최대 2배 체증</i>' if any(re.search(p_, _ns(full)) for p_ in ESC2) else '')) if '체증' in full else '') + (' <i class="cz b">태아고급형</i>' if '태아고급형' in full else '')
+            rs += '<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>' % (_esc(lab), tag, m(a), m(u))
+        else: rs += '<tr class="fo"><td>%s <i class="fo-n">합산</i></td><td>%s</td><td>%s</td></tr>' % (_esc(lab), m(a), m(u))
     if not rs: rs = '<tr><td colspan="3" class="nn">이 설계에는 이 수술에 나오는 수술비가 없습니다</td></tr>'
     sex = DZ_SEX.get(name)
     chips = kcd_chip(kcd) + ((' <span class="chip %s">%s</span>' % ('m' if sex == '남성' else 'f', sex)) if sex else '')
@@ -647,31 +677,21 @@ def unjoined_all(design_pdf):
         del S.ISSUES[n0:]; GS.clear_cache()                               # 가상의 마스터 계산은 이 설계의 감사 로그 · 계산 캐시에 남기지 않는다
     return out
 SG_GUIDE_ALL = ('<div class="note" style="margin:0 0 7px;font-size:9px">수술명 옆 금액은 가입한 수술비를 모두 더한 금액입니다(「상급종합」 은 같은 수술을 상급종합병원에서 받았을 때). '
-                '아래 표는 그 수술에 나오는 특약과 특약별 금액(1회차 기준)이며, 「모든 병원」 칸의 「–」 는 종합병원 · 상급종합병원처럼 병원 종류에 따라 나오는 보장입니다. 회색 「미가입」 줄은 이 상품에 있고 이 수술에 나오지만 이 설계에는 넣지 않은 특약입니다.</div>')
+                '아래 표는 그 수술에 나오는 특약과 특약별 금액(1회차 기준)이며, 「모든 병원」 칸의 「–」 는 종합병원 · 상급종합병원처럼 병원 종류에 따라 나오는 보장입니다. 줄은 수술비 묶음 순서(질병수술비 · 1-5종 · 1-7종 · 130 · 131대 · 그 외)이며, 「○○ 외 N건 합산」 은 그 외 특약 금액을 더한 줄(특약별 금액은 뒤쪽 「보장금액 세부내역」), 회색 「미가입」 은 이 상품에 있고 이 수술에 나오지만 이 설계에는 넣지 않은 특약(묶음별 첫 이름 외 N건), 「해당 없음」 은 가입했지만 이 수술 예시에는 나오지 않는 묶음입니다.</div>')
+SG_GUIDE_ALL_HEAD = ''
 _MEASURE_JS = """()=>{const q=s=>document.querySelector(s);
   const av=id=>{const pg=q(id),c=pg.querySelector('.cards'),ft=pg.querySelector('.ft'),nt=pg.querySelector('.note.end');
     return ft.getBoundingClientRect().top-c.getBoundingClientRect().top-nt.getBoundingClientRect().height-parseFloat(getComputedStyle(nt).marginTop)-24};
   return {h:[...document.querySelectorAll('#pm .card')].map(c=>c.getBoundingClientRect().height),a1:av('#p1'),a2:av('#p2'),gap:parseFloat(getComputedStyle(q('#pm .cards')).rowGap)}}"""
 def page_surg_all():
-    names = GS.DZ_ORDER; cards = [card_all(n) for n in names]
+    """수술 12개 → 6개씩 두 쪽(묶음판과 같은 배치 · 2026-11-18 소유자). 넘치면 두 쪽을 같은 비율로 줄여 맞춘다(data-zg)"""
     end = '<div class="note end" style="margin-top:6px;font-size:8.6px">%s</div>' % ESC_NOTE
-    head1 = NEED_SURG + '<div class="tag">다빈도 수술별 보장금액 ①</div><div class="sec"></div>' + SG_GUIDE_ALL
-    head2 = lambda k: '<div class="tag">다빈도 수술별 보장금액 %s</div><div class="sec"></div>' % k
-    pg = lambda i, body: '<div class="page" id="%s">%s<div class="cnt">%s</div>%s</div>' % (i, head(''), body, foot(''))
-    probe = ('<!doctype html><html><head><meta charset="utf-8"><style>%s</style></head><body>' % css()
-             + pg('p1', head1 + '<div class="cards"></div>' + end) + pg('p2', head2('②') + '<div class="cards"></div>' + end)
-             + pg('pm', '<div class="cards" style="align-items:start">%s</div>' % ''.join(cards)) + '</body></html>')
-    r = _goto(probe, 'surgm').evaluate(_MEASURE_JS)
-    H, gap = r['h'], r['gap']; pages = [[]]; used = 0.0
-    for k in range(0, len(cards), 2):       # 두 장씩 한 줄 — 줄 높이 = 둘 중 큰 카드
-        h = max(H[k:k + 2]); cap = r['a1'] if len(pages) == 1 else r['a2']
-        need = h + (gap if pages[-1] else 0)
-        if pages[-1] and (used + need > cap or len(pages[-1]) >= 3): pages.append([]); used = 0.0; need = h      # 한 쪽 최대 3줄(6장) — 묶음판과 같은 배치, 넘치면 쪽을 더 늘린다
-        pages[-1].append(k); used += need
-    nums = '①②③④⑤⑥'; out = []
-    for i, ks in enumerate(pages):
-        body = (head1 if i == 0 else head2(nums[i])) + '<div class="cards">%s</div>' % ''.join(cards[k] + (cards[k + 1] if k + 1 < len(cards) else '') for k in ks) + end
-        out.append(page('주요수술 보장 %s' % nums[i], body, '※ 금액은 이 설계의 특약별 가입금액 기준입니다. 수술명 옆 질병코드는 사례 기준입니다.', ' data-zg="surg" data-zmax="1"'))
+    out = []
+    for i in (0, 1):
+        names = GS.DZ_ORDER[i * 6:(i + 1) * 6]
+        body = ((NEED_SURG + SG_GUIDE_ALL_HEAD if i == 0 else '') + '<div class="tag">다빈도 수술별 보장금액 %s</div><div class="sec"></div>' % '①②'[i]
+                + (SG_GUIDE_ALL if i == 0 else '') + '<div class="cards">%s</div>' % ''.join(card_all(n) for n in names) + end)
+        out.append(page('주요수술 보장 %s' % '①②'[i], body, '※ 금액은 이 설계의 특약별 가입금액 기준입니다. 수술명 옆 질병코드는 사례 기준입니다.', ' data-zg="surg" data-zmax="1.12"', ' sfill'))
     return out
 
 # ── 간병인 — GA 시안 v8 표 양식(1~180일 / 181일 이상) · 보상 예시는 뺌(2026-11-18 회의) ──

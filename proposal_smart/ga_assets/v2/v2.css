@@ -104,3 +104,7 @@
 .sg .mx2,.rl .mx2{font-style:normal;font-size:7.5px;font-weight:600;color:#E8432E;margin-left:4px;letter-spacing:-.1px;white-space:nowrap}.sg .mx2::before,.rl .mx2::before{content:'↗';font-size:7px;margin-right:1.5px}
 /* 특약 전부판 미가입 줄 — 이 상품에 있고 이 수술에 나오지만 설계에 없는 특약(2026-11-18 소유자) */
 .rl tr.uj td{color:#A0A7B1;font-weight:500;font-size:9.5px;padding-top:2px;padding-bottom:2px;line-height:1.3}.rl tr.uj td:last-child{text-align:right}.rl tr.uj .na{display:inline-block;font-size:8.5px;font-weight:600;color:#8B95A1;border:1px dashed #C9CED6;border-radius:9px;padding:0 6px;line-height:12px}
+.rl tr.fo td:first-child{color:#4E5968}.rl .fo-n{font-style:normal;font-size:7.5px;font-weight:600;color:#6B7684;background:#F2F4F6;border-radius:4px;padding:0 4px;margin-left:3px;white-space:nowrap}
+/* 특약 전부판 — 6장이 두 쪽을 고르게 채우게(카드 줄 높이를 나눠 가짐 · 2026-11-18) */
+.page.sfill .cards{grid-auto-rows:1fr}.page.sfill .card{display:flex;flex-direction:column}
+.rl tr.uj .na.hn{border-style:solid;border-color:#E5E8EB;background:#F9FAFB}
