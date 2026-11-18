@@ -590,15 +590,19 @@ def card_all(name):
 def fam_key(name, via=None):
     """같은 특약 판정 열쇠 — 갱신형 · 고지 꼬리표 · 띄어쓰기를 떼고, 종별 행(1-5종 · 1-7종)은 특약 단위(원인 포함)로 · 체증형은 일반형과 같은 특약으로 본다"""
     n = S.nname(((via or '') + ' ' + name) if (name or '').lstrip().startswith('┗') else name)
-    n = re.sub(r'^갱신형|^\(\d+년갱신\)', '', n)
+    n = re.sub(r'^(?:\(\d+년갱신\))?(?:갱신형)?', '', n)
+    m = re.match(r'^(질병|상해)신수술비\[(기본|주요수술)\]', n)
+    if m: return '신수술비%s|%s' % (m.group(2), m.group(1))           # 신수술비 세부 줄(입원 · 통원 · 개복 …)은 한 특약
     cz = (re.search(r'\[(질병|상해)\d?(?:-\d)?종\]', n) or re.search(r'^(질병|상해)', n) or [None, ''])[1]
-    if '1-7종' in n: return '1-7종|' + cz
+    if '1-7종' in n: return ('1-7종태아|' if '태아고급형' in n else '1-7종|') + cz      # 태아고급형 1-7종은 분류표 · 제외 질병이 다른 다른 특약
     if '1-5종' in n: return ('1-5종plus|' if 'plus' in n else '1-5종|') + cz
     return re.sub(r'\((25%)?체증형\)', '', n)
 def unj_label(name, via=None):
     """미가입 줄 이름 — 종별 행은 특약 단위로(「1-5종 수술비 [질병]」), 그 밖은 카드의 특약 이름 규칙(rider_label) 그대로"""
     k = fam_key(name, via)
     if k.startswith('1-7종|'): return '1-7종 수술비 [%s]' % k.split('|')[1]
+    if k.startswith('1-7종태아|'): return '태아고급형 수술비(1-7종) [%s]' % k.split('|')[1]
+    if k.startswith('신수술비'): return '%s 신수술비[%s]' % (k.split('|')[1], k.split('|')[0][4:])
     if k.startswith('1-5종plus|'): return '1-5종 수술비(plus · 연간2회이상) [%s]' % k.split('|')[1]
     if k.startswith('1-5종|'): return '1-5종 수술비 [%s]' % k.split('|')[1]
     return rider_label(name, {})
@@ -607,6 +611,8 @@ def unjoined_all(design_pdf):
     import build_all as BA
     line = BA.guess_line(GP.RID, design_pdf)
     mine = {S.nname(r['n']) for r in GS.DB['riders'] if r.get('p') == line}
+    base = lambda n: re.sub(r'\((25%)?체증형\)', '', S.noren(n))         # 갱신형 · 체증형만 다른 같은 특약(연만기 상품은 갱신형 이름으로만 판다 — CLAUDE.md 세만기형 · 연만기형)
+    mine_base = {base(r['n']) for r in GS.DB['riders'] if r.get('p') == line}
     joined = [r for r in GP.RID if (r.get('man') or 0) > 0]
     known = [r for r in joined if S.nname(r.get('mname') or '') in mine or S.nname(GS.matcher.GRADE_RANGE.sub(lambda g: '[%s]' % g.group(1), r.get('via') or '')) in mine]
     if not joined or len(known) < 0.6 * len(joined):
@@ -614,9 +620,12 @@ def unjoined_all(design_pdf):
     uni = []
     for u in GS.universe():
         if u.get('product') == line: pass
-        elif u.get('product') == '설계서 종별 행' and S.nname(u.get('via') or '') in mine: pass
+        elif u.get('product') == '설계서 종별 행' and base(u.get('via') or '') in mine_base: pass
         else: continue
+        if '성장판' in u['name']: continue                                 # 성장판손상골절진단비 — 골절 진단에 더해 의사의 「성장판손상」 진단이 따로 있어야 한다(약관 제1조) · 골절 사례는 그것까지 가정하지 않는다
         if '태아' in u['name']: continue                                   # 태아 특약은 태아 가입 설계에만 — 가입하지 않았으면 싣지 않는다
+        m = re.match(r'^[^\[]*신수술비\[[^\]]*\]\[(.*)\]$', u['name'])
+        if m: u = dict(u, name=m.group(1))                                 # 신수술비 세부 레코드 「질병신수술비[기본][질병 신수술비[기본](입원, …)]」 → 설계서 이름 꼴(엔진이 입원 · 통원 · 수술 갈래를 읽는다)
         k = next((k for k in GS.INJ_ITC if S.nname(k) in (S.nname(u['name']), S.noren(u['name']))), None)
         if k: u = dict(u, man=min(int(t) for t in GS.INJ_ITC[k]))       # 상해 통합치료비(실속형) — 금액표에 있는 가입금액으로(지급 여부만 본다)
         uni.append(u)
