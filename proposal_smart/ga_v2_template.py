@@ -118,6 +118,11 @@ def build(src_pdf):
         exk = ('p3.dx.뇌졸중', 'p3.b1.first', 'p3.sev.icu') if k == 'brain' else ('p3.dx.허혈성심장', 'p3.h2.first', 'p3.h2.year')      # 뇌 예시는 「뇌경색」 → 뇌졸중(I63) 칸
         s += [slot(kk, l) for kk, l in zip(exk, exb)] + [slot('ex_%s_total' % k, tot[0], kind='total')]
         W = exl + dxl + sev + rh + exb + tot
+        if k == 'brain':      # 니즈 상자 문구 「뇌졸중 재발 비율」 → 「뇌졸중 재발률」(GA 시안 v8 · 2026-11-18 — 지우고 v8 자리(기준선 129pt)에 다시 쓴다)
+            l2 = one(pg, r'^뇌졸중 재발 비율', fitz.Rect(80, 110, 300, 145)); sp2 = [x for x in l2['spans'] if abs(x['size'] - l2['spans'][0]['size']) < 0.1]      # 같은 줄의 「4명 중 1명」(큰 글자)은 남긴다
+            assert re.sub(r'\s+', '', ''.join(x['text'] for x in sp2)) == '뇌졸중재발비율', [x['text'] for x in sp2]
+            b2 = fitz.Rect(min(x['bbox'][0] for x in sp2), min(x['bbox'][1] for x in sp2), max(x['bbox'][2] for x in sp2), max(x['bbox'][3] for x in sp2)); W.append(dict(bbox=b2))
+            s.append(dict(key='lb_stroke', kind='label', text='뇌졸중 재발률', x0=round(b2.x0, 2), base=129.0, size=round(sp2[0]['size'], 2), color='#%06x' % sp2[0]['color']))
         if k == 'brain':      # 예시 진단 이름 「뇌혈관질환」 → 「뇌졸중(뇌경색)」(값이 뇌경색 칸이므로)
             lb = one(pg, r'^뇌혈관질환$', fitz.Rect(200, 712, 270, 730)); W.append(lb)
             s.append(slot('ex_brain_dx', lb, kind='text', size=round(lb['spans'][0]['size'], 2), color='#%06x' % lb['spans'][0]['color']))

@@ -14,7 +14,7 @@
   POST /v1/proposal/all       원본 PDF 업로드      → 위 내용을 한 번에(JSON, PDF는 base64)
   POST /v1/ga/pdf             원본 PDF 업로드      → GA 양식 스마트 제안서 6쪽 PDF
   POST /v1/ga/all             원본 PDF 업로드      → GA PDF(base64) + 감사 로그 + 인식 담보 + 로그 텍스트 JSON
-  POST /v1/ga2/pdf            원본 PDF 업로드      → GA 스마트 제안서 새 양식(v2 · 2026-11-11 회의) PDF(15~19쪽)
+  POST /v1/ga2/pdf            원본 PDF 업로드      → GA 스마트 제안서 새 양식(v2 · 2026-11-18 회의 반영) PDF(13~17쪽)
   POST /v1/ga2/all            원본 PDF 업로드      → 새 양식 PDF(base64) + 간병인 쪽 선택 · 쪽수 · 계산 로그 · 인식 담보 JSON
 
 업로드 방법 두 가지 모두 받는다.
@@ -32,7 +32,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v8.99'
+VERSION = 'v9.00'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 LOCK = threading.Semaphore(2)                # 생성 요청은 2건까지 받아 두고(1건 처리 + 1건 대기) 나머지는 180초 기다린 뒤 503
 GA_LOCK = threading.Lock()                   # 실제 생성은 한 번에 한 건 — 설계서 상태 · 계산 로그(scen_engine.ISSUES)를 모듈 안에 두므로 9쪽 · GA · 새 양식 모두 이 잠금으로 줄을 선다
@@ -53,7 +53,7 @@ def sweep(max_age=3600):
     except Exception: pass
     return n
 GA2_WORKER = ThreadPoolExecutor(max_workers=1, thread_name_prefix='ga2')   # 새 양식(v2)은 크로뮴 하나를 띄워 두고 같은 스레드에서만 쓴다(playwright 규칙)
-CARE_NM = {'support': '간병인 지원 가입자', 'use': '간병인 사용 가입자', 'none': '간병인 지원 · 사용 함께(둘 다 미가입)'}
+CARE_NM = {'support': '간병인 지원', 'use': '간병인 사용', 'none': '간병인 지원 · 사용 함께(둘 다 미가입)'}
 
 
 def ga2_build(src, out):

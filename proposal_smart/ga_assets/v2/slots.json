@@ -900,6 +900,15 @@
     "base": 734.25
    },
    {
+    "key": "lb_stroke",
+    "kind": "label",
+    "text": "뇌졸중 재발률",
+    "x0": 93.88,
+    "base": 129.0,
+    "size": 11.57,
+    "color": "#6f86ad"
+   },
+   {
     "key": "ex_brain_dx",
     "kind": "text",
     "cx": 234.52,
