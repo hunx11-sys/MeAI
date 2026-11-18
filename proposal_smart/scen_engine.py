@@ -95,6 +95,25 @@ def surg5_grade(x, kcd=None):
     for e in it.get('exceptions') or []:
         if kcd and (kcd == e['kcd'] or kcd.startswith(e['kcd'])): return e['grade']
     return it['grade']
+# ══ 폴립및양성종양수술(급여,1-6종) 분류표 (약관 별표, extract_polyp6.py 로 생성) — 진료행위코드 → 종 (v9.02) ══
+#   설계서는 한 특약을 [1종]~[6종] 행으로 나눠 싣는다. 사례 수가코드의 종과 같은 행만 지급한다.
+POLYP6 = {}
+_pp6 = os.path.join(BASE, 'polyp6.json')
+if os.path.exists(_pp6): POLYP6 = {r['code']: r['grade'] for r in json.load(open(_pp6, encoding='utf-8'))['rows']}
+def is_polyp6(r):
+    """설계 행이 폴립및양성종양수술비(1-6종)인지 — 행 이름 · 물린 부모(┗ 세부 행) · 매칭된 마스터 이름 중 하나로."""
+    return any('폴립및양성종양수술비' in (r.get(k) or '').replace(' ', '') for k in ('name', 'via', 'mname'))
+def polyp6_row_grade(r, t):
+    """설계 행의 종 : 담보명 [N종] · (N종), 없으면 ┗ 세부 행 이름 / 세부보장 글자의 'N종'(「1-6종」 은 뺀다)."""
+    if t.get('gj'): return t['gj']
+    for k in ('name', 'benefit', 'sub'):
+        v = re.sub(r'\d-\d종', '', str(r.get(k) or '')).replace(' ', '')
+        m = re.search(r'(?<![\d-])([1-6])종(?:수술)?(?![\d])', v)
+        if m: return int(m.group(1))
+    return None
+def polyp6_grades(r, tg):
+    """특약 수가코드 ∩ 사례 수가코드 → 분류표의 종 집합. 분류표에 없는 코드는 None 을 넣는다(계산 제외 사유)."""
+    return {POLYP6.get(c) for c in set(r.get('hc') or []) & set(tg.get('hc') or [])}
 def surg5_name(x):
     it = SURG5.get(str(x)) if isinstance(x, str) else None
     return it['name'] if it else ''
@@ -733,6 +752,18 @@ def h_surg(r, o, sc, nm, t):
         # 대장 용종·양성신생물 내시경 절제(사례 태그 five_major)는 특정5대·6대의 ① 항 — 특정2대에는 없다
         if (g in ('5', '6') and tg.get('five_major')) or code_hit(lst, sc['kcd']): return []
     if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
+    if o.get('kcd') == 'hc' and is_polyp6(r):
+        # 1-6종 분류표 : [N종] 행은 사례 수가코드가 그 종일 때만 지급한다. 전에는 수가코드만 맞으면
+        # [1종]~[6종] 행이 모두 지급되어 종별 가입금액이 전부 더해졌다(v9.02)
+        if not POLYP6:
+            log('검토필요', r['name'], '폴립및양성종양수술 1-6종 분류표(polyp6.json)가 없어 계산 제외'); return []
+        gs = polyp6_grades(r, tg)
+        if None in gs:
+            log('검토필요', r['name'], '1-6종 분류표에 없는 진료행위코드 — 계산 제외'); return []
+        gj = polyp6_row_grade(r, t)
+        if not gj:
+            log('검토필요', r['name'], '담보명에 [N종] 구분이 없어 1-6종 판정 불가 — 계산 제외'); return []
+        if gj not in gs: return []
     # 관혈/비관혈로 나뉜 담보(5대질환수술비[관혈]·[비관혈], 32대질병관혈수술비) — 한 번의 수술은 둘 중 하나다.
     # 전에는 둘 다 지급되어 뇌·심장 수술마다 1,000만원(비관혈 가입금액)이 더 붙었다(v8.55)
     lab = r['name'].replace(' ', '')

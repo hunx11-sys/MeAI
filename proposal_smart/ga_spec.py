@@ -42,7 +42,7 @@ GA_DZ = collections.OrderedDict([
  ('맹장염',      ('충수절제술',        'K35',   dict(surg='41',   surg7='G212', grp=[], anes=1),                               [['수술', '충수 절제', '', ['surg'], {'j': 2}]])),
  ('갑상선결절',   ('고주파절제술',      'D34',   dict(surg='88-2', surg7='K080', hc=['PZ612'], grp=['다빈도62대질병'], adm='out'), [['수술', '고주파절제술', '', ['surg'], {'j': 2}]])),
  ('유방양성종양', ('맘모톰',            'D24',   dict(surg='4',    surg7='J071', grp=['유방의장애'], adm='out'),                   [['수술', '맘모톰', '', ['surg'], {'j': 1}]])),
- ('자궁근종',    ('복강경 수술',       'D25.9', dict(surg='52',   surg7='N031', grp=['다빈도62대질병'], anes=1),                 [['수술', '복강경 근종절제술', '', ['surg'], {'j': 2}]])),  # 1-5종 52 자궁 관혈수술 2종 · 1-7종 N031 복강경 단순 자궁 수술(악성 제외)
+ ('자궁근종',    ('복강경 수술',       'D25.9', dict(surg='52',   surg7='N031', hc=['R4128'], grp=['다빈도62대질병'], anes=1),                 [['수술', '복강경 근종절제술', '', ['surg'], {'j': 2}]])),  # 1-5종 52 자궁 관혈수술 2종 · 1-7종 N031 복강경 단순 자궁 수술(악성 제외) · 폴립및양성종양수술(1-6종) R4128 자궁근종절제술-복강경술(단순) 2종(v9.02)
  ('전립선비대증', ('경요도 전립선절제술', 'N40',  dict(surg='88-3', surg7='M022', grp=['관절염,생식기질환']),                      [['수술', '경요도 전립선절제술', '', ['surg'], {'j': 1}]])),  # 1-5종 88-3 비뇨·생식기 내시경 수술 1종 · 1-7종 M022 기타 전립선 적출술
  ('치질',        ('치핵절제술',        'K64',   dict(surg='44',   surg7='G271', grp=[], anes=1),                               [['수술', '치핵 절제술', '', ['surg'], {'j': 1}]])),     # 1-5종 44 치루·탈항·치핵 근본수술 1종 · 1-7종 G271 주요 치핵 수술 1종 · 130대[치핵] K64
  ('요로결석',    ('체외충격파쇄석술',  'N20.0', dict(surg='87',   surg7='L092', grp=[], adm='out'),                             [['수술', '체외충격파쇄석술', '', ['surg'], {'j': 2}]])),  # 1-5종 87 체외충격파쇄석술(E.S.W.L) 2종 · 1-7종 L092 요로결석 ESWL 단순 1종 · 통원 시술 가정
@@ -283,6 +283,12 @@ def universe():
         elif lsid:
             t = (S.LS.get(lsid) or {}).get('tiers') or {}
             man = int(float(min(t, key=lambda x: float(x)))) if t else 100
+        if '폴립및양성종양수술비' in S.nname(name):         # 설계서는 [1종]~[6종] 행으로 싣는다 — 종별 행으로 펼친다(v9.02)
+            for j in range(1, 7):
+                out.append({'no': '%s-%d' % (rec['id'], j), 'name': '%s[%d종]' % (name, j), 'man': man, 'cat': rec.get('c'), 'codes': [], 'excl': rec.get('x') or [],
+                            'hc': rec.get('hc') or [], 'benefit': '%d종' % j, 'sub': None, 'matched': True, 'itc': None, 'product': rec.get('p'),
+                            'db_id': '%s-%d' % (rec['id'], j)})
+            continue
         out.append({'no': rec['id'], 'name': name, 'man': man, 'cat': rec.get('c'), 'codes': rec.get('k') or [], 'excl': rec.get('x') or [],
                     'hc': rec.get('hc') or [], 'benefit': b, 'sub': s2, 'matched': True, 'itc': iid, 'product': rec.get('p'), 'db_id': rec['id']})
     for cause in ('질병', '상해'):
