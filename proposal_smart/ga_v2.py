@@ -499,7 +499,11 @@ def card(name):
     rs = ''
     for lab, st, x in rows:
         tag = (' <i class="cz">체증형</i>' if x['esc'] else '') + (' <i class="cz b">태아고급형</i>' if x['fetus'] else '')      # 태아고급형 수술비(1-7종)는 분류표 · 제외 질병이 달라 이름을 밝힌다(소유자 2026-11-13)
-        rs += '<div class="sg %s"><span>%s%s</span><b>%s%s</b></div>' % (st, lab, tag, SG_TXT[st], ' <em>상급종합병원</em>' if st == 'up' else '')
+        if st == 'on':      # 가입 · 지급 → 금액(모든 병원 · 상급종합에서 더 나오면 옆에 작게 · 2026-11-18 소유자)
+            val = '%s만' % won(x['a']) + ((' <em>상급종합 %s만</em>' % won(x['u'])) if x['u'] > x['a'] + 0.01 else '')
+        elif st == 'up': val = '<em>상급종합</em> %s만' % won(x['u'])
+        else: val = SG_TXT[st]
+        rs += '<div class="sg %s"><span>%s%s</span><b>%s</b></div>' % (st, lab, tag, val)
     sex = DZ_SEX.get(name)
     chips = kcd_chip(kcd) + ((' <span class="chip %s">%s</span>' % ('m' if sex == '남성' else 'f', sex)) if sex else '')
     return ('<div class="card"><div class="ch">%s<div class="cn"><div class="nm">%s</div><div class="op">%s</div></div>'
@@ -510,14 +514,14 @@ NEED_SURG = ('<div class="need"><div><div class="k">연간 주요수술 건수</
              '<div><div class="k">수술 진료비 증가</div><div class="v">14.7<small>%</small></div><div class="s">전년 대비 · 총 10조 6,738억</div></div></div>'
              '<div class="src">[출처: 국민건강보험공단 2025년 주요수술 통계연보]</div>')
 SG_GUIDE = ('<div class="note" style="margin:0 0 7px;font-size:9px">수술명 옆 금액은 가입한 수술비를 모두 더한 금액입니다(「상급종합」 은 같은 수술을 상급종합병원에서 받았을 때). '
-            '아래 다섯 줄은 수술비 묶음별 가입 여부이고, 특약별 금액(모든 병원 기준)은 뒤쪽 「보장금액 세부내역」 에 있습니다. 상급종합 금액에는 종합병원 · 상급종합병원 질병(상해)수술비가 더해져 있습니다.</div>')
+            '아래 다섯 줄은 수술비 묶음별 금액(가입하지 않은 묶음은 「미가입」)이고, 특약별 금액(모든 병원 기준)은 뒤쪽 「보장금액 세부내역」 에 있습니다. 상급종합 금액에는 종합병원 · 상급종합병원 질병(상해)수술비가 더해져 있습니다.</div>')
 SG_LEGEND = ('<div class="box sgl"><h4>수술비 묶음은 이렇게 나눴어요</h4><div class="sgl2">'
              '<div><b>질병수술비 · 상해수술비</b>질병(상해)수술비와 종합병원 · 상급종합병원 질병(상해)수술비</div>'
              '<div><b>1-5종 · 1-7종 수술비</b>수술 종류(종)에 따라 금액이 정해지는 수술비 · 통합치료비의 <span style="white-space:nowrap">수술(1-5종)</span> 항목</div>'
              '<div><b>130 · 131대 질병수술비</b>약관이 정한 질병으로 수술했을 때 나오는 수술비</div>'
              '<div><b>골절 진단 · 수술비</b>골절 진단비 · 골절 수술비(골절 칸에만 있음)</div>'
              '<div><b>그 외 수술 · 치료비</b>위 묶음에 들지 않는 수술 · 치료 관련 특약</div>'
-             '<div style="grid-column:1/-1"><b>표시</b><i class="k on">가입</i> 이 수술에 지급 <i class="k na">해당 없음</i> 가입했지만 이 수술 예시에는 지급 없음 <i class="k no">미가입</i> 설계에 없음</div>'
+             '<div style="grid-column:1/-1"><b>표시</b><i class="k on">○○만</i> 이 수술에 나오는 금액(1회차) <i class="k na">해당 없음</i> 가입했지만 이 수술 예시에는 지급 없음 <i class="k no">미가입</i> 설계에 없음</div>'
              '</div></div>')
 def page_surg(i):
     names = GS.DZ_ORDER[i * 6:(i + 1) * 6]
