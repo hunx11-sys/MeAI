@@ -593,7 +593,7 @@ def page_surg_all():
     for k in range(0, len(cards), 2):       # 두 장씩 한 줄 — 줄 높이 = 둘 중 큰 카드
         h = max(H[k:k + 2]); cap = r['a1'] if len(pages) == 1 else r['a2']
         need = h + (gap if pages[-1] else 0)
-        if pages[-1] and used + need > cap: pages.append([]); used = 0.0; need = h
+        if pages[-1] and (used + need > cap or len(pages[-1]) >= 3): pages.append([]); used = 0.0; need = h      # 한 쪽 최대 3줄(6장) — 묶음판과 같은 배치, 넘치면 쪽을 더 늘린다
         pages[-1].append(k); used += need
     nums = '①②③④⑤⑥'; out = []
     for i, ks in enumerate(pages):
