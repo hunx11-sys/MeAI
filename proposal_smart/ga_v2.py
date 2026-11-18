@@ -300,6 +300,7 @@ def care_flags():
     assert f['nurse180'] == CARE.nurse_total(rs)[0] and f['unused180'] == CARE.unused(rs)[0]      # 1~180일 열 = 보장요약 칸
     f['has_sup'] = bool(sup180 or sup181 or supnh or nadd180 or nadd181)
     f['has_use'] = any(f[k] for k in ('use_gen', 'use_nh', 'use181', 'usenh181'))      # 「간병인사용」 담보로만 정한다(간호 · 간병통합서비스 입원일당만 있으면 간병인사용일당 가입이 아니다 → 함께 쪽 · 그 금액은 그 쪽 표에 적는다)
+    f['inj_only'] = not f['has_sup'] and not f['has_use'] and any(re.search(r'간병인(지원|사용)', r['name']) and '상해입원일당' in r['name'] for r in rs)      # 상해 입원 간병인 담보만(표는 질병 입원 기준)
     f['pages'] = (['support'] if f['has_sup'] else []) + (['use'] if f['has_use'] else []) or ['none']      # 둘 다 없으면 지원 표 + 사용 표 한 쪽
     return f, [], []
 def CF(): return EXTRA['care'][0]
@@ -474,9 +475,10 @@ def surg_rows(name):
 def sg_have(g, cause):
     """이 설계에 그 묶음의 특약이 있는가 — 12개 수술 가운데 어느 하나에라도 지급되는 특약이 있거나, 1-5종 · 1-7종은 이름에 그 글자가 있는 특약(같은 원인)"""
     if g in EXTRA['sgpaid'][cause]: return True
-    if g in ('s15', 's17'):
-        k = '1-5종' if g == 's15' else '1-7종'
-        return any(k in _ns(n) and (('상해' in n) == (cause == '상해')) for n in rid_names())
+    inj = lambda n: bool(re.search(r'상해|골절|화상|외상', n))      # 특약 원인 — 질병 카드에는 질병 특약, 골절 카드에는 상해 특약만
+    for n in rid_names():
+        if inj(n) != (cause == '상해') or not re.search(r'수술|통합치료비', n): continue      # 수술 관련 특약만(진단비 · 입원일당 등은 묶음에 넣지 않는다)
+        if grp_of(n, cause) == g: return True
     return False
 def sg_state(name):
     """(원인, [(묶음 이름, 상태, 묶음 값)], 모든 병원 합, 상급종합 합). 상태 : on 가입(이 수술에 지급) · up 상급종합병원에서만 지급 · na 가입했지만 이 수술 예시에는 지급 없음 · no 미가입"""
@@ -508,14 +510,14 @@ NEED_SURG = ('<div class="need"><div><div class="k">연간 주요수술 건수</
              '<div><div class="k">수술 진료비 증가</div><div class="v">14.7<small>%</small></div><div class="s">전년 대비 · 총 10조 6,738억</div></div></div>'
              '<div class="src">[출처: 국민건강보험공단 2025년 주요수술 통계연보]</div>')
 SG_GUIDE = ('<div class="note" style="margin:0 0 7px;font-size:9px">수술명 옆 금액은 가입한 수술비를 모두 더한 금액입니다(「상급종합」 은 같은 수술을 상급종합병원에서 받았을 때). '
-            '아래 다섯 줄은 수술비 묶음별 가입 여부이고, 특약별 금액은 뒤쪽 「보장금액 세부내역」 에 있습니다.</div>')
+            '아래 다섯 줄은 수술비 묶음별 가입 여부이고, 특약별 금액(모든 병원 기준)은 뒤쪽 「보장금액 세부내역」 에 있습니다. 상급종합 금액에는 종합병원 · 상급종합병원 질병(상해)수술비가 더해져 있습니다.</div>')
 SG_LEGEND = ('<div class="box sgl"><h4>수술비 묶음은 이렇게 나눴어요</h4><div class="sgl2">'
              '<div><b>질병수술비 · 상해수술비</b>질병(상해)수술비와 종합병원 · 상급종합병원 질병(상해)수술비</div>'
-             '<div><b>1-5종 · 1-7종 수술비</b>수술 종류(종)에 따라 금액이 정해지는 수술비 · 통합치료비의 수술(1-5종) 항목</div>'
+             '<div><b>1-5종 · 1-7종 수술비</b>수술 종류(종)에 따라 금액이 정해지는 수술비 · 통합치료비의 <span style="white-space:nowrap">수술(1-5종)</span> 항목</div>'
              '<div><b>130 · 131대 질병수술비</b>약관이 정한 질병으로 수술했을 때 나오는 수술비</div>'
              '<div><b>골절 진단 · 수술비</b>골절 진단비 · 골절 수술비(골절 칸에만 있음)</div>'
              '<div><b>그 외 수술 · 치료비</b>위 묶음에 들지 않는 수술 · 치료 관련 특약</div>'
-             '<div><b>표시</b><i class="k on">가입</i> 이 수술에 지급 <i class="k na">해당 없음</i> 가입했지만 이 수술 예시에는 지급 없음 <i class="k no">미가입</i> 설계에 없음</div>'
+             '<div style="grid-column:1/-1"><b>표시</b><i class="k on">가입</i> 이 수술에 지급 <i class="k na">해당 없음</i> 가입했지만 이 수술 예시에는 지급 없음 <i class="k no">미가입</i> 설계에 없음</div>'
              '</div></div>')
 def page_surg(i):
     names = GS.DZ_ORDER[i * 6:(i + 1) * 6]
@@ -622,14 +624,17 @@ def tbl_support(cf):
     금액이 없고(약관 : 회사가 간병인을 지원하지 못하거나 보험수익자가 회사 지원 간병인을 계속 원하지 않을 때, 실제 쓴 간병인 사용비용을 「회사가 정한 간병인지원비용」 한도로 지급 ·
     (Ⅰ) 제1조 ② · (Ⅵ) 제1조 ① 단서), 금액은 회사 공시 값이라 GA · 회사 자료로 확정해야 한다. 요양성 특정질병 풀이는 약관 분류표의 구분 이름으로 적는다"""
     co = '<span class="snd">실손보장</span>' + _sub('*한도 내 실손 보장'); lim = _lim(cf['lim_sup'])
+    nurse = cf['nurse180']; nsub = lim
+    if cf['use_nurse'] and not cf['has_use']:      # 간병인사용 담보 없이 「간호 · 간병통합서비스 사용 질병입원일당」 만 있으면 이 표에 더해 보인다(같은 날 함께 지급)
+        nurse = (nurse or 0) + cf['use_nurse']; nsub = _sub('통합서비스 사용일당 %s만 포함' % won(cf['use_nurse']))
     u181, usub = cf['unused181'], ''
     if u181 is None and cf['supnh']: u181, usub = sum(CARE.daily(r) for r in cf['supnh']), _sub('요양병원 · 요양성 특정질병')
     return ('<div class="cv-tab"><b>간병인 지원일당</b><span>현물지원 · 회사가 간병인을 보내드려요</span></div>' + _tbl([
         ('<td class="l" rowspan="2">간병인 사용 시</td><td class="l">병 · 의원</td>', c_send(cf['sup180'], lim), c_send(cf['sup181'])),
         ('<td class="l">요양병원</td>', c_send(cf['sup180'], lim), c_send(cf['supnh'], _sub('요양성 특정질병 보장'))),
-        ('<td class="l" colspan="2">공동간병인 사용 시</td>', co if cf['sup180'] else C_NA, co if (cf['sup181'] or cf['supnh']) else C_NA),
-        ('<td class="l" colspan="2">간호 · 간병통합서비스 사용 시</td>', c_day(cf['nurse180']), c_day(cf['nurse181'])),
-        ('<td class="l" colspan="2">간병인 미사용 시</td>', c_day(cf['unused180']), c_day(u181, usub))]) +
+        ('<td class="l" colspan="2">공동간병인 사용 시</td>', (co + (lim if cf['sup180'] else '')) if cf['sup180'] else C_NA, co if (cf['sup181'] or cf['supnh']) else C_NA),
+        ('<td class="l" colspan="2">간호 · 간병통합서비스 사용 시</td>', c_day(nurse, nsub), c_day(cf['nurse181'])),
+        ('<td class="l" colspan="2">간병인 미사용 시</td>', c_day(cf['unused180'], lim), c_day(u181, usub))]) +
         '<div class="cv-note">※ 한도 내 실손보장: 간병인 이용한 실제 비용을 간병인 지원 공시금액 한도 내 실손 보장(2026년 기준 간병인 지원 공시금액: 140,400원)<br>'
         '※ 요양성 특정질병: 약관 분류표가 정한 치매질환 · 뇌혈관질환(뇌내출혈 · 뇌경색증 등) · 신경계질환(파킨슨병 등)</div>')
 def tbl_use(cf):
@@ -649,7 +654,7 @@ def tbl_use(cf):
             + (['※ 체증형은 계약일부터 5년 · 10년 · 20년이 지나면 1일당 금액이 가입금액의 120% · 150% · 200%로 커짐(위 금액은 가입금액 기준)'] if cf['use_esc'] else [])) + '</div>')
 def two_ways(cf):
     """「메리츠는 간병인 지원 · 사용 모두 가능」 — 사용 쪽 장점 칸 자리에 담백하게(2026-11-18 회의)"""
-    st = lambda on: '<span class="st%s">%s</span>' % (' on' if on else '', '이 설계 가입' if on else '이 설계 미가입')
+    st = lambda on: '<span class="st on">이 설계 가입</span>' if on else ''      # 미가입은 아무것도 적지 않는다(회의 2026-11-18 : 「미가입」 이 나쁜 인상을 준다)
     return ('<div class="cv-h" style="margin-top:15pt"><b>메리츠는 간병인 지원 · 사용 모두 가능</b><span>필요에 맞게 골라서 준비할 수 있어요</span></div>'
             '<div class="cv-two"><div>%s<div class="x"><small>간병인이 필요하다면</small><b>간병인 지원</b><p>회사가 간병인을 직접 보내 드려요</p></div>%s</div>'
             '<div>%s<div class="x"><small>간병비가 필요하다면</small><b>간병인 사용</b><p>간병인을 쓴 날 수만큼 일당을 드려요</p></div>%s</div></div>') % (
@@ -670,16 +675,17 @@ def page_care_support(cf):
     elif cf['type1'] and cf['type6']: know.append(ask + '(Ⅰ)형은 입원일당으로 지급하고 (Ⅵ)형은 지급하지 않습니다.')
     body = (need_care() + tbl_support(cf) + '<div class="cv-h" style="margin-top:15pt"><b>간병인 지원 장점</b><span>간병인을 구하는 수고와 비용 걱정이 없어요</span></div>' + adv
             + '<div class="cv-h" style="margin-top:13pt"><b>알아두세요</b></div><ul class="cv-ul">%s</ul>' % ''.join('<li>%s</li>' % k for k in know))
-    return page('간병인 보장(간병인 지원)', body, CARE_FOOT, ' data-zmax="1.12"', ' nt')
+    return page('간병인 보장(간병인 지원)', body, CARE_FOOT, ' data-zg="care" data-zmax="1.08"', ' nt')
 def page_care_use(cf):
     steps = ''.join('<div><div class="h"><span class="n">%d</span><b>%s</b></div><p>%s</p></div>' % (i + 1, a, b) for i, (a, b) in enumerate([
         ('간병인 사용', '약관이 정한 간병인<br>(병원 소속 · 간병 업체 등)'), ('서류 준비', '입원 확인서<br>간병인 사용 영수증 등'), ('보험금 청구', '모바일 앱, 홈페이지,<br>고객센터로 청구'), ('보험금 지급', '보험금 심사 후 지급')]))
     body = (need_care() + tbl_use(cf) + '<div class="cv-h" style="margin-top:15pt"><b>청구 방법</b><span>간병인을 쓴 날 수만큼 일당으로 받으세요</span></div><div class="cv-steps">%s</div>' % steps
             + two_ways(cf) + '<div class="cv-base">근거 : 이 설계의 %s · 간병인의 정의(약관 제4조)</div>' % ' · '.join(_short_name(n) for n in cf['use_names']))
-    return page('간병인 보장(간병인 사용)', body, CARE_FOOT, ' data-zmax="1.12"', ' nt')
+    return page('간병인 보장(간병인 사용)', body, CARE_FOOT, ' data-zg="care" data-zmax="1.08"', ' nt')
 def page_care_none(cf):
     """간병인 지원 · 사용 둘 다 없을 때 — 두 표를 한 쪽에 같이(소유자 2026-11-11 · 표 양식 2026-11-18)"""
-    return page('간병인 보장', need_care() + tbl_support(cf) + tbl_use(cf) + two_ways(cf), '※ 이 설계에는 간병인 지원 · 사용 보장이 없습니다.', ' data-zmax="1.12"', ' nt')
+    foot = '※ 이 설계의 간병인 보장은 상해 입원에만 있습니다(위 표는 질병 입원 기준).' if cf['inj_only'] else '※ 이 설계에는 간병인 지원 · 사용 보장이 없습니다.'
+    return page('간병인 보장', need_care() + tbl_support(cf) + tbl_use(cf) + two_ways(cf), foot, ' data-zg="care" data-zmax="1.08"', ' nt')
 
 # ═══════════════ 보장금액 세부내역(글씨 키움 · 쪽 나눔 자동) ═══════════════
 DETAIL_CSS = '''
@@ -773,8 +779,8 @@ def detail_overlay_html(n):
 def cover_summary_html():
     if GP.MOCK_MODE:
         p1 = GP.p1_mock(); assert p1.endswith('</div>')
-        note = '<div style="position:absolute;left:33pt;top:%.2fpt;font-size:6.6pt;line-height:1;color:#777;white-space:nowrap;font-family:Pretendard,sans-serif">%s</div>' % (772.5 - K_BASE * 6.6, ESC_NOTE)      # 주요수술 칸 아래(v8 · 기준선 772.5pt)
-        return '<!doctype html><html><head><meta charset="utf-8"><style>%s%s%s</style></head><body>%s</body></html>' % (GP._font_css(), GP.CSS, OV.page_css() + GP.MOCK_CSS, GP.p0_mock() + p1[:-6] + note + '</div>')
+        note = '<div style="position:absolute;left:33pt;top:%.2fpt;font-size:6.6pt;line-height:1;color:#777;white-space:nowrap;font-family:N,P">%s</div>' % (772.5 - K_N * 6.6, ESC_NOTE)      # 주요수술 칸 아래(v8 · 기준선 772.5pt)
+        return '<!doctype html><html><head><meta charset="utf-8"><style>%s%s%s</style></head><body>%s</body></html>' % (GP._font_css() + noto_css(), GP.CSS, OV.page_css() + GP.MOCK_CSS, GP.p0_mock() + p1[:-6] + note + '</div>')
     return '<!doctype html><html><head><meta charset="utf-8"><style>%s%s</style></head><body>%s</body></html>' % (GP._font_css(), GP.CSS, GP.p0() + GP.p1())
 
 # ═══════════════ 묶기 ═══════════════
