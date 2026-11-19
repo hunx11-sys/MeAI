@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>중국 직항 38개 도시 랭킹</title>
-<meta name="description" content="인천·김포 출발 직항으로 닿는 중국 38개 도시를 야경, 맛집, 볼거리, 비용 등 8가지 기준으로 비교한 순위표">
+<meta name="description" content="인천·김포 출발 직항으로 닿는 중국 38개 도시를 야경, 맛집, 볼거리, 비용 등 8가지 기준으로 비교하고, 1월부터 12월까지 달마다 가기 좋은 도시를 추천하는 순위표">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,6 +159,28 @@ h1,h2,h3{text-wrap:balance}
 .chip[aria-pressed="true"]{background:var(--sun);color:var(--ink)}
 .chip:active{transform:scale(.94)}
 
+/* month */
+.mrail{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;padding:.35rem;margin:0 -.35rem}
+.mrail::-webkit-scrollbar{display:none}
+.mpill{flex:none;min-width:3.4rem;height:2.6rem;padding:0 .9rem;border-radius:999px;font-size:15px;font-weight:700;color:var(--mute);background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transition:all .5s var(--ease)}
+.mpill:hover{color:var(--paper)}
+.mpill[aria-pressed="true"]{background:var(--sun);color:var(--ink);box-shadow:none}
+.mpill .now{display:block;font-size:9px;font-weight:700;line-height:1;margin-top:-1px;opacity:.8}
+.mcard{position:relative;display:block;width:100%;text-align:left;border-radius:1.5rem;overflow:hidden;min-height:12rem;background:#111A24;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);transition:transform .5s var(--ease)}
+.mcard:hover{transform:translateY(-4px)}
+.mcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55}
+.mcard .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,16,.15) 0%,rgba(7,11,16,.92) 72%)}
+.dots{display:inline-flex;gap:3px;vertical-align:middle}
+.dots i{width:7px;height:7px;border-radius:999px;background:rgba(239,233,221,.18)}
+.dots i.f{background:var(--sun)}
+.heat{min-width:40rem}
+.heat .hr{display:grid;grid-template-columns:5.5rem repeat(12,1fr);gap:3px;align-items:center}
+.heat .hc{height:1.6rem;border-radius:.35rem;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:rgba(11,17,24,.85)}
+.heat .s1{background:rgba(239,233,221,.07);color:var(--mute)}.heat .s2{background:rgba(233,177,76,.18);color:var(--paper)}.heat .s3{background:rgba(233,177,76,.4)}.heat .s4{background:rgba(233,177,76,.7)}.heat .s5{background:#E9B14C}
+.heat .col{outline:1.5px solid var(--paper);outline-offset:-1px}
+.heat button.mh{font-size:11px;font-weight:700;color:var(--mute);height:1.6rem;border-radius:.35rem}
+.heat button.mh.on{color:var(--ink);background:var(--paper)}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   .rv{opacity:1;transform:none;filter:none}
@@ -181,6 +203,7 @@ h1,h2,h3{text-wrap:balance}
       <span class="font-didone text-xl italic font-semibold text-sun leading-none">38</span>
       <span class="font-kr text-sm font-semibold">직항 도시</span>
     </button>
+    <button type="button" data-go="month" class="rounded-full px-3 py-2 text-sm font-medium text-mute transition-colors duration-500 hover:text-paper">월별</button>
     <button type="button" data-go="rank" class="rounded-full px-3 py-2 text-sm font-medium text-mute transition-colors duration-500 hover:text-paper">순위표</button>
     <button type="button" data-go="cities" class="rounded-full px-3 py-2 text-sm font-medium text-mute transition-colors duration-500 hover:text-paper">도시</button>
     <button type="button" data-go="guide" class="rounded-full px-3 py-2 text-sm font-medium text-mute transition-colors duration-500 hover:text-paper">기준</button>
@@ -261,6 +284,29 @@ h1,h2,h3{text-wrap:balance}
     <div class="lg:col-span-8">
       <div class="bezel rv" style="--i:2"><div class="core p-3 md:p-6"><svg id="bigmap" viewBox="0 0 141 100" class="h-auto w-full" role="img" aria-label="서울에서 중국 38개 도시로 이어지는 노선 지도"></svg></div></div>
     </div>
+  </div>
+</section>
+
+<!-- MONTH: 1~12월 추천 -->
+<section id="month" class="relative scroll-mt-20 py-24 md:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div class="max-w-2xl">
+        <span class="eyebrow rv">월별 추천</span>
+        <h2 class="rv mt-5 font-kr text-3xl font-bold leading-snug tracking-tight md:text-5xl md:leading-[1.2]" style="--i:1" id="mTitle">언제 가세요?</h2>
+        <p class="rv mt-4 text-base leading-relaxed text-mute md:text-lg" style="--i:2">달을 고르면 그 계절에 날씨와 볼거리가 가장 좋은 도시 순서로 바뀌어요. 계절 점수가 같으면 8개 기준 종합 점수가 높은 도시가 앞에 옵니다.</p>
+      </div>
+    </div>
+    <div class="rv mt-8" style="--i:3"><div class="mrail" id="mPills" role="group" aria-label="여행 달 고르기"></div></div>
+    <div id="mNote" class="mt-5 hidden rounded-2xl bg-sun/10 p-4 text-sm leading-relaxed text-paper/90 shadow-[inset_0_0_0_1px_rgba(233,177,76,.25)]"></div>
+    <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" id="mTop"></div>
+    <div class="mt-6 rounded-2xl bg-white/[0.03] p-4 text-sm leading-relaxed text-mute" id="mAvoid"></div>
+    <details class="mt-6 rounded-2xl bg-white/[0.03] p-4">
+      <summary class="cursor-pointer font-kr font-semibold text-paper">38개 도시 × 12개월 계절 점수 한눈에 보기</summary>
+      <div class="mt-4 overflow-x-auto pb-2"><div class="heat grid gap-[3px]" id="mHeat"></div></div>
+      <p class="mt-3 text-xs leading-relaxed text-mute">진할수록 그 달에 가기 좋아요 (5점 만점). 달 이름을 누르면 위 추천이 그 달로 바뀝니다.</p>
+    </details>
+    <p class="mt-4 text-xs leading-relaxed text-mute">계절 점수는 도시별 일반적인 기후(기온, 장마, 태풍, 대기질)와 꽃, 단풍, 축제 같은 계절 볼거리를 바탕으로 매긴 편집 판단이에요(가정값). 축제와 개화 날짜는 해마다 달라지니 출발 전에 꼭 확인하세요.</p>
   </div>
 </section>
 
@@ -583,6 +629,7 @@ function buildCities(){
           <span class="rounded-full bg-white/5 px-2.5 py-1 text-mute">${c[2]}</span><span class="rounded-full bg-white/5 px-2.5 py-1 text-mute">비행 ${c[3]}</span>${c[4]?`<span class="rounded-full bg-sun/15 px-2.5 py-1 text-sun">김포 출발 가능</span>`:""}
         </div>
         <p class="mt-4 text-[15px] leading-relaxed text-paper/90">${esc(c[6])}</p>
+        <p class="mt-3 flex flex-wrap items-center gap-1.5 text-xs"><span class="flex items-center gap-1 font-bold text-mute"><iconify-icon icon="solar:calendar-linear" width="15"></iconify-icon>가기 좋은 달</span>${bestMonths(c).map(m=>`<button type="button" data-m="${m}" class="rounded-full bg-sun/15 px-2.5 py-1 font-semibold text-sun">${m}월</button>`).join("")}</p>
         ${ph.length?`<div class="mt-6 flex items-center gap-1.5 text-xs font-bold text-mute"><iconify-icon icon="solar:camera-linear" width="15"></iconify-icon>풍경과 랜드마크</div><div class="ph mt-2.5">${ph.map(p=>`<a href="${link(p)}" target="_blank" rel="noopener"><img loading="lazy" decoding="async" alt="${esc(c[0])} 풍경 사진" src="${photoURL(p)}" data-alt="${photoURL(p,TH)}" onerror="phErr(this)"></a>`).join("")}</div>`:""}
         <div class="mt-6 flex items-center gap-1.5 text-xs font-bold text-mute"><iconify-icon icon="solar:chef-hat-linear" width="15"></iconify-icon>대표 음식</div>
         ${fd.length?`<div class="ph food mt-2.5">${fd.map(f=>`<a href="${link(f[0])}" target="_blank" rel="noopener"><img loading="lazy" decoding="async" alt="${esc(f[1])}" src="${photoURL(f[0])}" data-alt="${photoURL(f[0],TH)}" onerror="this.dataset.alt?(this.src=this.dataset.alt,this.removeAttribute('data-alt')):this.remove()"><span>${esc(f[1])}</span></a>`).join("")}</div>`:`<p class="mt-2 text-sm text-paper/85">${esc(FOODTXT[k]||"")}</p>`}
@@ -672,10 +719,80 @@ if(!RM&&matchMedia("(hover:hover)").matches){
   $("#podium").addEventListener("pointerout",e=>{const p=e.target.closest(".pod");if(p&&!p.contains(e.relatedTarget)){p.style.removeProperty("--ry");p.style.removeProperty("--rx")}});
 }
 
+/* ---------- month (1~12월) ---------- */
+/* 계절 점수 1~5 (1월→12월), 편집 판단 · 가정값 */
+const SEA={PEK:"223553225532",TSN:"223553225532",SJW:"113443224421",SHE:"222455445422",DLC:"223455445532",CGQ:"222355445422",HRB:"542235544324",YNJ:"222345555422",TAO:"223455455432",YNT:"223455445432",WEH:"333455445433",TNA:"223553225432",LYI:"223453224532",PVG:"334553224554",NKG:"235542224553",WUX:"225542224542",YTY:"225552224542",YNZ:"433453224554",HGH:"224542224553",NGB:"224542224542",WNZ:"224542213543",HFE:"224542224552",FOC:"334443223554",XMN:"444443223555",CGO:"224542224532",WUH:"225442113542",YIH:"224543224542",CSX:"223442124543",DYG:"223453334542",CAN:"433332223555",SZX:"433332223555",KWL:"223442335543",HAK:"554432222345",XIY:"234553224542",TFU:"234543224542",CKG:"224542113542",KMG:"555443334555",LJG:"445443334554"};
+const ZONE={PEK:"n",TSN:"n",SJW:"n",TNA:"n",CGO:"n",XIY:"n",SHE:"ne",DLC:"ne",CGQ:"ne",HRB:"ne",YNJ:"ne",TAO:"sd",YNT:"sd",WEH:"sd",LYI:"sd",PVG:"jn",NKG:"jn",WUX:"jn",YTY:"jn",YNZ:"jn",HGH:"jn",NGB:"jn",WNZ:"jn",HFE:"jn",WUH:"jn",YIH:"jn",CSX:"jn",DYG:"jn",TFU:"sc",CKG:"sc",FOC:"s",XMN:"s",CAN:"s",SZX:"s",KWL:"s",HAK:"t",KMG:"p",LJG:"p"};
+const ZT={
+ n:["한겨울 혹한, 건조하고 대기질이 나쁜 날이 많아요","여전히 춥고 건조해요","풀리기 시작하지만 황사와 바람이 있어요","꽃 피고 맑은 날이 많은 봄","따뜻하고 맑은 최적기","더워지기 시작해요","무덥고 비가 몰리는 장마철","덥고 습해요","선선하고 하늘이 높은 최적기","단풍과 맑은 가을","쌀쌀해지고 난방이 시작돼요","춥고 건조한 겨울"],
+ ne:["영하 20도 안팎의 혹한, 눈과 얼음의 계절","혹한이 이어져요","아직 겨울이에요","늦은 봄이 시작돼요","꽃과 신록, 쾌적한 봄","선선한 초여름","한국보다 시원한 여름","시원한 여름 피서지","맑고 선선한 가을","단풍이 짧고 금방 추워져요","겨울이 시작돼요","본격적인 혹한과 눈"],
+ sd:["바닷바람이 차가운 겨울","춥고 바람이 강해요","아직 쌀쌀해요","벚꽃과 함께 풀리는 봄","맑고 쾌적한 봄 바다","해변이 열리는 초여름","해무와 장마가 잦아요","해수욕 성수기, 덥고 붐벼요","바다가 아직 따뜻한 가을 최적기","선선한 가을","쌀쌀한 바닷바람","추운 겨울"],
+ jn:["난방이 약해 실내도 으슬으슬한 겨울","춥고 습해요","매화와 벚꽃이 피는 봄의 시작","꽃과 신록의 최적기","따뜻하지만 점점 습해져요","매우(장마)가 시작돼요","찜통더위","가장 더운 달, 태풍 영향도 있어요","늦더위가 남아요","선선하고 맑은 최적기","단풍과 은행잎의 늦가을","습하고 추운 초겨울"],
+ sc:["흐리고 습한 겨울, 해를 보기 어려워요","흐리고 쌀쌀해요","꽃이 피기 시작하는 봄","따뜻하고 쾌적한 봄","더워지기 시작해요","덥고 비가 늘어요","무더위와 소나기","가장 더운 달","더위가 꺾이는 초가을","선선한 가을","안개 낀 늦가을","흐리고 습한 겨울"],
+ s:["한국 겨울을 피하기 좋은 선선한 날씨","선선하지만 흐린 날이 늘어요","습도가 올라가는 봄","습하고 비가 잦아요","우기가 시작돼요","비가 가장 많은 때","덥고 태풍 영향이 있어요","무덥고 태풍이 잦아요","늦더위와 태풍","덥지 않고 맑은 최적기","건조하고 쾌적한 가을","따뜻한 겨울"],
+ t:["한겨울에도 반팔, 피한 최적기","따뜻하고 건조한 성수기","따뜻하고 맑아요","더워지기 시작해요","덥고 습해져요","우기, 한낮 무더위","무덥고 태풍 철","태풍이 가장 잦은 때","태풍과 비가 이어져요","비가 줄어드는 가을","건기, 쾌적해져요","따뜻한 피한지"],
+ p:["낮은 맑고 따뜻, 밤은 쌀쌀한 건기","맑은 건기","꽃이 만발한 건기","맑고 따뜻한 봄","우기 직전, 아직 맑아요","우기 시작, 오후 소나기","우기지만 덥지 않아요","우기, 선선한 피서지","우기 끝무렵","맑은 하늘이 돌아오는 최적기","건기, 하늘이 가장 맑아요","맑고 건조한 겨울"]};
+/* 달별 볼거리 (날짜는 해마다 다름) */
+const EV={PEK:{4:"살구꽃과 벚꽃 피는 공원",10:"샹산 단풍 (10월 말~11월 초)"},
+ HRB:{12:"빙설대세계 개막 (보통 12월 말)",1:"빙설대세계 절정",2:"빙설대세계 막바지",7:"쑹화강 강변 피서"},
+ YNJ:{9:"백두산 천지 단풍",7:"백두산 천지 등반 성수기",8:"백두산 천지 등반 성수기"},
+ DLC:{5:"아카시아꽃 피는 5월 하순"},
+ TAO:{8:"칭다오 국제맥주축제 (보통 7월 말~8월)",4:"중산공원 벚꽃"},
+ WEH:{12:"룽청 백조호 큰고니 월동",1:"룽청 백조호 큰고니 월동",2:"룽청 백조호 큰고니 월동"},
+ PVG:{12:"와이탄 연말 야경과 크리스마스 장식",2:"예원 등불 축제 (춘절~정월대보름)"},
+ NKG:{3:"메이화산 매화 (2월 말~3월)",2:"친화이 등불 축제 (춘절~정월대보름)",11:"은행나무와 플라타너스 단풍"},
+ WUX:{3:"위안터우주 벚꽃 (3월 말~4월 초)",4:"위안터우주 벚꽃 (3월 말~4월 초)"},
+ YTY:{3:"'연화삼월' 수서호 봄꽃",4:"'연화삼월' 수서호 봄꽃"},
+ YNZ:{11:"두루미 월동 시작",12:"두루미 월동지",1:"두루미 월동지"},
+ HGH:{4:"룽징 햇차 따는 철",10:"계화 향 가득한 서호",11:"서호 단풍"},
+ HFE:{11:"황산 단풍과 운해",3:"훙춘 유채꽃"},
+ WUH:{3:"우한대학 벚꽃 (3월 중순 전후)"},
+ CGO:{4:"뤄양 모란 축제"},
+ DYG:{10:"단풍과 운해",7:"여름 성수기, 아주 붐벼요"},
+ KWL:{9:"계화 피는 철 (9~10월)",10:"계화 피는 철 (9~10월)",6:"우기, 리강 유람선 운항이 바뀔 수 있어요"},
+ XMN:{12:"따뜻한 겨울 바다"},HAK:{1:"한국 한겨울에 해변 여행",2:"한국 한겨울에 해변 여행"},
+ KMG:{12:"뎬츠 붉은부리갈매기 (11월~3월)",1:"뎬츠 붉은부리갈매기 (11월~3월)",2:"뎬츠 붉은부리갈매기 (11월~3월)"},
+ LJG:{11:"옥룡설산이 가장 또렷한 철"},XIY:{2:"성벽 등불 축제 (춘절 무렵)"},
+ TFU:{3:"유채꽃과 봄꽃"},CAN:{2:"춘절 꽃시장 (춘절 직전)"},SZX:{12:"선선한 겨울, 테마파크 다니기 좋아요"}};
+const MN={1:"춘절(음력 설) 연휴가 1월 말에 걸리는 해도 있어요. 출발 전 날짜를 꼭 확인하세요.",2:"춘절 연휴 전후는 중국 전역이 붐비고 숙소가 비싸요. 날짜는 해마다 달라요.",5:"5월 1~5일 노동절 연휴는 중국 전역이 붐벼요. 연휴를 피해 가세요.",7:"중국 여름방학 성수기라 유명 관광지가 붐벼요.",8:"중국 여름방학 성수기라 유명 관광지가 붐벼요.",10:"10월 1~7일 국경절 연휴는 1년 중 가장 붐비는 때예요. 연휴가 끝난 뒤로 잡으세요."};
+const sea=(c,m)=>+SEA[code(c)][m-1];
+function bestMonths(c){const v=[...SEA[code(c)]].map(Number),top=Math.max(...v);return v.map((x,i)=>x===top?i+1:0).filter(Boolean)}
+const NOWM=new Date().getMonth()+1;
+let mon=NOWM;try{const v=+localStorage.getItem("cn-rank-month");if(v>=1&&v<=12)mon=v}catch(e){}
+function monthRows(m){return C.map(c=>({c,s:sea(c,m),all:c[5].reduce((a,b)=>a+b,0)})).sort((a,b)=>b.s-a.s||b.all-a.all||a.c[0].localeCompare(b.c[0],"ko"))}
+const dots=n=>`<span class="dots" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=n?"f":""}"></i>`).join("")}</span>`;
+function reason(c,m){const k=code(c),ev=(EV[k]||{})[m];return {ev,cl:ZT[ZONE[k]][m-1]}}
+function buildMonth(){
+  $("#mPills").innerHTML=Array.from({length:12},(_,i)=>`<button type="button" class="mpill" data-m="${i+1}">${i+1}월${i+1===NOWM?`<span class="now">이번 달</span>`:""}</button>`).join("");
+  const mh=Array.from({length:12},(_,i)=>`<button type="button" class="mh" data-m="${i+1}">${i+1}월</button>`).join("");
+  $("#mHeat").innerHTML=`<div class="hr"><span></span>${mh}</div>`+C.map(c=>`<div class="hr"><button type="button" data-open="${c[10]}" class="truncate text-left font-kr text-[13px] font-semibold hover:text-sun">${esc(c[0])}</button>${[...SEA[code(c)]].map((v,i)=>`<span class="hc s${v}" data-hm="${i+1}" title="${esc(c[0])} ${i+1}월 ${v}점">${v}</span>`).join("")}</div>`).join("");
+}
+function renderMonth(){
+  const m=mon,r=monthRows(m);
+  $$("#mPills .mpill").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.m===m));
+  $$("#mHeat .mh").forEach(b=>b.classList.toggle("on",+b.dataset.m===m));
+  $$("#mHeat .hc").forEach(b=>b.classList.toggle("col",+b.dataset.hm===m));
+  $("#mTitle").textContent=m+"월에 가기 좋은 도시";
+  const n=$("#mNote");if(MN[m]){n.innerHTML=`<span class="font-bold text-sun">연휴 주의</span> ${esc(MN[m])}`;n.classList.remove("hidden")}else n.classList.add("hidden");
+  $("#mTop").innerHTML=r.slice(0,6).map((x,i)=>{const c=x.c,h=(HERO[code(c)]||{}).p,rs=reason(c,m);return `<button type="button" class="mcard" data-open="${c[10]}" aria-label="${m}월 추천 ${i+1}위 ${esc(c[0])}, 계절 점수 ${x.s}점">
+    ${h?`<img alt="" loading="lazy" decoding="async" src="${photoURL(h)}" data-alt="${photoURL(h,TH)}" onerror="if(this.dataset.alt){var s=this.dataset.alt;this.removeAttribute('data-alt');this.src=s}else{this.remove()}">`:""}
+    <span class="shade"></span>
+    <span class="relative flex h-full min-h-[12rem] flex-col justify-between p-5 sm:min-h-[15rem]">
+      <span class="flex items-start justify-between gap-3"><span class="font-didone text-5xl italic font-medium leading-none text-sun">${i+1}</span><span class="glass flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold">${dots(x.s)}<span class="tnum">${x.s}/5</span></span></span>
+      <span class="block"><span class="block font-kr text-2xl font-bold leading-tight">${esc(c[0])}<span class="ml-2 font-didone text-sm italic font-normal text-paper/70">${esc(c[2])} · ${esc(c[3])}</span></span>
+      ${rs.ev?`<span class="mt-2 flex items-start gap-1.5 text-sm font-semibold text-sun"><iconify-icon icon="solar:star-linear" width="16" class="mt-0.5 flex-none"></iconify-icon>${esc(rs.ev)}</span>`:""}
+      <span class="mt-1.5 block text-sm leading-relaxed text-paper/80">${esc(rs.cl)}</span></span>
+    </span></button>`}).join("");
+  const bad=r.filter(x=>x.s<=2).reverse();
+  $("#mAvoid").innerHTML=bad.length?`<span class="font-semibold text-paper">${m}월엔 아쉬운 도시 ${bad.length}곳</span> <span class="text-xs">(계절 점수 1~2점, 낮은 순)</span><span class="mt-2 flex flex-wrap gap-1.5">${bad.map(x=>`<button type="button" data-open="${x.c[10]}" class="rounded-full bg-white/5 px-2.5 py-1 text-xs font-semibold text-paper/80 hover:text-sun" title="${esc(reason(x.c,m).cl)}">${esc(x.c[0])} <span class="tnum text-mute">${x.s}</span></button>`).join("")}</span>`:`<span class="font-semibold text-paper">${m}월은 대부분의 도시가 무난해요.</span>`;
+  try{localStorage.setItem("cn-rank-month",m)}catch(e){}
+}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-m]");if(!t)return;mon=+t.dataset.m;renderMonth();if(!t.closest("#month"))go("month")});
+
 /* ---------- boot ---------- */
 $("#minCost").dataset.count=Math.min(...C.map(c=>r5(c[9].lo)));
-buildDefs();buildBoard();buildMarquee();buildBigMap();buildPresets();buildGuide();buildMatrix();buildCities();
-update(true);
+buildDefs();buildBoard();buildMarquee();buildBigMap();buildPresets();buildGuide();buildMatrix();buildCities();buildMonth();
+update(true);renderMonth();
 $$(".rv").forEach(watch);
 $$("[data-count]").forEach(el=>{if(cio)cio.observe(el);else el.textContent=el.dataset.count});
 </script>
