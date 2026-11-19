@@ -787,7 +787,7 @@ footer .ic{font-size:13px;margin-right:4px}
   <div class="mark" aria-hidden="true">M</div>
   <h1>통합치료비 시뮬레이터 <span class="sub">암 · 뇌 · 심장</span></h1>
   <div class="sp"></div>
-  <span class="ver" data-mu-ver>ver2026.11.4</span>
+  <span class="ver" data-mu-ver>ver2026.11.5</span>
 </div></header>
 
 <div class="layout">
@@ -881,7 +881,7 @@ const RIDERS=[
  {id:'ms',        g:'cv', ty:'MS', nm:'특정순환계질환(주요손상및질환) 통합치료비', sh:'주요손상및질환', tiers:[2000,3000], half:1, wait:0, pg:'5조(부가)',
   about:'고혈압·판막질환·동맥경화·외상성 뇌출혈 등을 1~5종 수술 기준으로 보장해요'}
 ];
-const DEFAULT_COMBO={ca_basic:10000, pre:4000, circ:10000, ms:3000};
+const DEFAULT_COMBO={ca_basic:10000, pre:4000, circ2:10000, circ2_3:1000, circ2_4:2000, ms:3000};   // 뇌·심장 기본은 특정순환계질환 통합치료비Ⅱ(소유자 2026-11-19 · 전에는 circ) · ②③ 세부 가입금액은 약관 지급예시 금액
 /* 특정순환계질환 통합치료비Ⅱ ②·③ 세부 가입금액 — 약관에 정해진 구간표가 없어 설계서 금액을 고르게 한다(0 = 세부 미가입).
    처음 값은 약관 【보험금 지급 예시】의 세부보장 가입금액(② 1,000만원 · ③ 2,000만원) */
 const SUBT=[0,500,1000,2000,3000,5000], SUBDEF={3:1000,4:2000};
@@ -2110,7 +2110,7 @@ $('#q').addEventListener('keydown',e=>{
 DZ.forEach(d=>{
   if(cancerCls(d.c)||!groupsFor(d.c).has('cv')||d.P.length<2) return;
   const dz0={code:d.c}, ids=RIDERS.filter(r=>r.g==='cv'&&DEFAULT_COMBO[r.id]).map(r=>r.id);
-  const tot=p=>ids.reduce((s,id)=>s+calcRider(id,DEFAULT_COMBO[id],dz0,p,false).total,0);
+  const tot=p=>ids.reduce((s,id)=>{ const c=calcRider(id,DEFAULT_COMBO[id],dz0,p,false); return s+c.total-(c.add||0); },0);   // 순서는 ① 금액으로만(②③ 세부 가입금액은 사람마다 달라 순서를 바꾸지 않게)
   d.P=d.P.map((p,i)=>({p,i,t:tot(p)})).sort((x,y)=>y.t-x.t||x.i-y.i).map(x=>x.p);
 });
 /* ── 시작 ── */
