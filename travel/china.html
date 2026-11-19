@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중국 직항 38개 도시 랭킹</title>
+<meta name="description" content="인천·김포 출발 직항으로 닿는 중국 38개 도시를 야경, 맛집, 볼거리, 비용 등 8가지 기준으로 비교한 순위표">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hahmlet:wght@400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>
+<script>
+tailwind.config={theme:{extend:{
+  colors:{ink:'#0B1118',panel:'#111A24',deep:'#070B10',paper:'#EFE9DD',mute:'#93A0AD',sun:'#E9B14C'},
+  fontFamily:{sans:['Pretendard','-apple-system','BlinkMacSystemFont','Apple SD Gothic Neo','system-ui','sans-serif'],
+    kr:['Hahmlet','Pretendard','serif'],didone:['"Bodoni Moda"','Hahmlet','serif']}
+}}}
+</script>
+<style>
+:root{
+  /* 밤 비행 출발 안내판: 잉크빛 밤하늘 위에 종이색 글자, 안내판 호박색 하나만 포인트. 히어로의 플랩 보드가 주인공이고 나머지는 조용하게 */
+  --ink:#0B1118; --panel:#111A24; --deep:#070B10; --paper:#EFE9DD; --mute:#93A0AD; --sun:#E9B14C;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:dark;
+}
+html{scroll-behavior:smooth;background:var(--ink)}
+body{background:var(--ink);color:var(--paper);word-break:keep-all;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--sun);color:var(--ink)}
+button{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible{outline:2px solid var(--sun);outline-offset:3px;border-radius:999px}
+.tnum{font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance}
+
+/* ambient layers */
+.mesh{position:fixed;inset:-20%;z-index:0;pointer-events:none}
+.orb{position:absolute;border-radius:50%;will-change:transform}
+.orb.a{width:55vmax;height:55vmax;left:-12vmax;top:-18vmax;background:radial-gradient(circle,rgba(233,177,76,.16),rgba(233,177,76,0) 62%);animation:drift 22s ease-in-out infinite}
+.orb.b{width:60vmax;height:60vmax;right:-20vmax;top:22vmax;background:radial-gradient(circle,rgba(46,92,120,.34),rgba(46,92,120,0) 64%);animation:drift 28s ease-in-out infinite reverse}
+.orb.c{width:46vmax;height:46vmax;left:18vmax;bottom:-22vmax;background:radial-gradient(circle,rgba(120,62,44,.22),rgba(120,62,44,0) 62%);animation:drift 34s ease-in-out infinite}
+@keyframes drift{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4vmax,-3vmax,0) scale(1.08)}}
+.grain{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
+.stars{position:absolute;inset:0;background-image:radial-gradient(1px 1px at 12% 22%,rgba(239,233,221,.7) 50%,transparent 51%),radial-gradient(1px 1px at 78% 14%,rgba(239,233,221,.6) 50%,transparent 51%),radial-gradient(1.5px 1.5px at 64% 58%,rgba(239,233,221,.5) 50%,transparent 51%),radial-gradient(1px 1px at 33% 72%,rgba(239,233,221,.45) 50%,transparent 51%),radial-gradient(1px 1px at 91% 81%,rgba(239,233,221,.5) 50%,transparent 51%),radial-gradient(1.5px 1.5px at 46% 9%,rgba(239,233,221,.55) 50%,transparent 51%);animation:twinkle 5s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.9}50%{opacity:.35}}
+.progress{position:fixed;left:0;top:0;height:2px;width:100%;background:var(--sun);transform-origin:0 50%;transform:scaleX(0);z-index:55}
+@supports (animation-timeline:scroll()){.progress{animation:grow linear both;animation-timeline:scroll(root)}}
+@keyframes grow{to{transform:scaleX(1)}}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(2rem);filter:blur(4px)}
+.rv.in{animation:fadeInUp .9s var(--ease) both;animation-delay:calc(var(--i,0)*80ms)}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(2rem);filter:blur(4px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+
+/* glass + bezel */
+.glass{background:rgba(17,26,36,.62);-webkit-backdrop-filter:blur(22px) saturate(1.3);backdrop-filter:blur(22px) saturate(1.3);border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 18px 50px -18px rgba(2,6,10,.8)}
+.bezel{background:rgba(255,255,255,.035);border-radius:2rem;padding:.375rem;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 30px 80px -40px rgba(2,6,10,.9)}
+.bezel>.core{background:linear-gradient(180deg,#131D28,#0F1720);border-radius:calc(2rem - .375rem);box-shadow:inset 0 1px 1px rgba(255,255,255,.12)}
+.eyebrow{display:inline-flex;align-items:center;gap:.4rem;border-radius:999px;padding:.3rem .8rem;font-size:12px;font-weight:600;letter-spacing:.02em;background:rgba(233,177,76,.1);color:var(--sun);box-shadow:inset 0 0 0 1px rgba(233,177,76,.22)}
+
+/* buttons */
+.cta{display:inline-flex;align-items:center;gap:.9rem;border-radius:999px;padding:.55rem .55rem .55rem 1.5rem;min-height:56px;font-weight:700;font-size:1.05rem;background:var(--sun);color:var(--ink);transition:transform .5s var(--ease),box-shadow .5s var(--ease);box-shadow:0 14px 40px -16px rgba(233,177,76,.55)}
+.cta .ico{width:2.6rem;height:2.6rem;border-radius:999px;background:rgba(11,17,24,.12);display:flex;align-items:center;justify-content:center;transition:transform .5s var(--ease)}
+.cta:hover{transform:scale(1.02)} .cta:hover .ico{transform:translateX(4px)} .cta:active{transform:scale(.98)}
+.ghost{display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;padding:0 1.4rem;min-height:56px;font-weight:600;color:var(--paper);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);transition:transform .5s var(--ease),background .5s var(--ease)}
+.ghost:hover{background:rgba(255,255,255,.06);transform:scale(1.02)} .ghost:active{transform:scale(.98)}
+
+/* split-flap board */
+.board{--c:clamp(14px,4.05vw,22px)}
+@media (min-width:1024px){.board{--c:28px}}
+.brow{display:flex;align-items:center;gap:calc(var(--c)*.42);padding:calc(var(--c)*.3) 0}
+.bgrp{display:flex;gap:2px;perspective:300px}
+.flap{position:relative;display:inline-flex;align-items:center;justify-content:center;width:var(--c);height:calc(var(--c)*1.5);border-radius:4px;background:linear-gradient(180deg,#0A1017 0,#0A1017 49%,#05080C 51%,#0C131B 100%);color:#F4EAD4;font-weight:700;font-size:calc(var(--c)*.72);line-height:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 1px 0 rgba(0,0,0,.6);transform-origin:50% 50%;will-change:transform}
+.flap.k{width:calc(var(--c)*1.28);font-size:calc(var(--c)*.78)}
+.flap.s{color:var(--sun)}
+.bhead{display:flex;gap:calc(var(--c)*.42);font-size:10.5px;color:var(--mute);letter-spacing:.04em}
+.float{animation:float 7s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* marquee */
+.mq{display:flex;width:max-content;animation:mq 46s linear infinite}
+.mq.r{animation-direction:reverse;animation-duration:58s}
+@keyframes mq{to{transform:translateX(-50%)}}
+.mqwrap{-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+
+/* presets */
+.preset{position:relative;text-align:left;border-radius:1.625rem;padding:1.25rem;background:linear-gradient(180deg,#131D28,#0F1720);box-shadow:inset 0 1px 1px rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.05);transition:transform .5s var(--ease),box-shadow .5s var(--ease);overflow:hidden}
+.preset:hover{transform:translateY(-4px)} .preset:active{transform:scale(.98)}
+.preset.on{box-shadow:inset 0 1px 1px rgba(255,255,255,.14),inset 0 0 0 1.5px var(--sun)}
+.preset .tick{opacity:0;transform:scale(.6);transition:all .5s var(--ease)}
+.preset.on .tick{opacity:1;transform:scale(1)}
+
+/* podium */
+.pod{position:relative;border-radius:2rem;overflow:hidden;min-height:19rem;background:#0F1720;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 40px 90px -40px rgba(2,6,10,.95);transition:transform .7s var(--ease);transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) rotate(var(--rz,0deg)) translateY(var(--ty,0))}
+.pod img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease),opacity .8s var(--ease)}
+.pod:hover img{transform:scale(1.06)}
+.pod .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,16,.15) 0,rgba(7,11,16,.55) 45%,rgba(7,11,16,.94) 100%)}
+@media (min-width:768px){.pod.p1{--rz:-2deg;z-index:3}.pod.p2{--rz:1.6deg;--ty:2.4rem;z-index:2}.pod.p3{--rz:-1deg;--ty:4.6rem;z-index:1}}
+
+/* matrix */
+.mx{--cols:1.5rem minmax(3.5rem,1.5fr) repeat(8,minmax(1.45rem,1fr)) 2rem}
+@media (min-width:1024px){.mx{--cols:2.4rem minmax(9rem,1.6fr) repeat(8,minmax(2.6rem,1fr)) 3.4rem 8.5rem}}
+.mxrow{display:grid;grid-template-columns:var(--cols);align-items:center;column-gap:2px;padding:.42rem .5rem;border-radius:.9rem;transition:background .5s var(--ease)}
+.mxrow:hover{background:rgba(255,255,255,.04)}
+.mxrow .rk{font-family:"Bodoni Moda",serif;font-style:italic;font-weight:600;color:var(--mute);text-align:center}
+.mxrow.top .rk{color:var(--sun)}
+.sc{display:flex;justify-content:center}
+.sc i{font-style:normal;display:flex;align-items:center;justify-content:center;width:1.4rem;height:1.4rem;border-radius:.45rem;font-size:12px;font-weight:700;transition:opacity .5s var(--ease),transform .5s var(--ease)}
+@media (min-width:1024px){.sc i{width:2rem;height:2rem;font-size:14px;border-radius:.6rem}}
+.sc.off i{opacity:.22;transform:scale(.86)}
+.v1{background:rgba(255,255,255,.05);color:#6F7C89}
+.v2{background:rgba(233,177,76,.12);color:#B79A62}
+.v3{background:rgba(233,177,76,.26);color:#F0D9A6}
+.v4{background:rgba(233,177,76,.55);color:#1A1407}
+.v5{background:var(--sun);color:#1A1407}
+.mxhead button{font-size:10.5px;font-weight:600;color:var(--mute);width:100%;padding:.4rem 0;border-radius:.5rem;transition:color .5s var(--ease)}
+@media (min-width:1024px){.mxhead button{font-size:13px}}
+.mxhead .on button{color:var(--sun)}
+
+/* city cards */
+.city{scroll-margin-top:5.5rem;transition:transform .6s var(--ease)}
+@media (hover:hover){.city:hover{transform:translateY(-4px)}}
+.ph{display:flex;gap:.6rem;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;margin:0 -1.25rem;padding:0 1.25rem}
+.ph::-webkit-scrollbar{display:none}
+.ph a{flex:none;scroll-snap-align:start;width:15rem;height:10rem;border-radius:1.1rem;overflow:hidden;background:#0A1017;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.ph img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
+.ph a:hover img{transform:scale(1.07)}
+.bar{display:grid;grid-template-columns:4.2rem minmax(0,1fr) 1rem;align-items:center;gap:.7rem;font-size:13.5px;color:var(--mute);transition:opacity .5s var(--ease)}
+.bar.off{opacity:.35}
+.bar b{color:var(--paper);text-align:right;font-weight:700}
+.bar span.t{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar span.t u{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,rgba(233,177,76,.55),var(--sun));transform:scaleX(0);transform-origin:0 50%;transition:transform 1.1s var(--ease);transition-delay:calc(var(--d,0)*60ms)}
+.in .bar span.t u{transform:scaleX(var(--v))}
+
+/* card hero photo */
+.hero-fig{position:relative;aspect-ratio:16/10;margin:0;overflow:hidden;background:radial-gradient(120% 90% at 20% 0%,#1B2A3A 0,#0C141C 70%)}
+.hero-fig img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--ease)}
+@media (hover:hover){.city:hover .hero-fig img{transform:scale(1.05)}}
+.hero-fig .shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(7,11,16,.28) 0,rgba(7,11,16,0) 30%,rgba(7,11,16,.5) 62%,rgba(12,18,25,.96) 100%)}
+.food a{position:relative;flex:none;scroll-snap-align:start;width:11.5rem;height:8.5rem;border-radius:1.1rem;overflow:hidden;background:#0A1017;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.food a img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
+.food a:hover img{transform:scale(1.07)}
+.food a span{position:absolute;inset:auto 0 0 0;padding:1.6rem .8rem .6rem;font-size:13px;font-weight:600;line-height:1.3;background:linear-gradient(180deg,rgba(7,11,16,0),rgba(7,11,16,.9))}
+/* maps */
+.cnshape{fill:rgba(239,233,221,.055);stroke:rgba(239,233,221,.24);stroke-width:.4;stroke-linejoin:round}
+.arc{fill:none;stroke:var(--sun);stroke-width:.4;stroke-linecap:round;opacity:.42;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.8s var(--ease);transition-delay:calc(var(--d,0)*35ms)}
+.in .arc{stroke-dashoffset:0}
+.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.4s var(--ease) infinite}
+@keyframes pulse{0%{transform:scale(.7);opacity:.85}100%{transform:scale(3);opacity:0}}
+.mdot{cursor:pointer;transition:r .7s var(--ease),fill .7s var(--ease)}
+.mlab{font-family:Pretendard,sans-serif;font-size:3.3px;font-weight:700;paint-order:stroke;stroke:#0B1118;stroke-width:1.1px;stroke-linejoin:round;pointer-events:none}
+
+/* dock */
+.dock{position:fixed;left:50%;bottom:calc(.8rem + env(safe-area-inset-bottom));z-index:50;transform:translate(-50%,140%);opacity:0;transition:transform .7s var(--ease),opacity .7s var(--ease);max-width:calc(100vw - 1.25rem)}
+.dock.show{transform:translate(-50%,0);opacity:1}
+.dock .rail{display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;padding:.4rem}
+.dock .rail::-webkit-scrollbar{display:none}
+.chip{flex:none;height:2.4rem;padding:0 .95rem;border-radius:999px;font-size:14px;font-weight:600;color:var(--mute);white-space:nowrap;transition:all .5s var(--ease)}
+.chip[aria-pressed="true"]{background:var(--sun);color:var(--ink)}
+.chip:active{transform:scale(.94)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv{opacity:1;transform:none;filter:none}
+  .bar span.t u{transform:scaleX(var(--v))}
+  .arc{stroke-dashoffset:0}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<div class="mesh" aria-hidden="true"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"></div>
+
+<!-- floating glass nav -->
+<nav class="fixed left-1/2 top-3 z-40 -translate-x-1/2" aria-label="주요 메뉴">
+  <div class="glass flex items-center gap-1 rounded-full py-1.5 pl-4 pr-1.5">
+    <button type="button" data-go="top" class="mr-2 flex items-baseline gap-1.5 whitespace-nowrap">
+      <span class="font-didone text-xl italic font-semibold text-sun leading-none">38</span>
+      <span class="font-kr text-sm font-semibold">직항 도시</span>
+    </button>
+    <button type="button" data-go="rank" class="rounded-full px-3 py-2 text-sm font-medium text-mute transition-colors duration-500 hover:text-paper">순위표</button>
+    <button type="button" data-go="cities" class="rounded-full px-3 py-2 text-sm font-medium text-mute transition-colors duration-500 hover:text-paper">도시</button>
+    <button type="button" data-go="guide" class="rounded-full px-3 py-2 text-sm font-medium text-mute transition-colors duration-500 hover:text-paper">기준</button>
+  </div>
+</nav>
+
+<main class="relative z-10">
+
+<!-- HERO: editorial split, board on the right -->
+<section id="top" class="relative min-h-[100dvh] pt-28 pb-16 md:pt-36">
+  <div class="stars" aria-hidden="true"></div>
+  <div class="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8">
+    <div class="lg:col-span-6">
+      <span class="eyebrow rv" style="--i:0"><iconify-icon icon="solar:moon-stars-linear"></iconify-icon>2026 동계, 인천·김포 출발</span>
+      <h1 class="rv mt-6 font-kr text-[2.5rem] font-bold leading-[1.22] tracking-tight sm:text-5xl lg:text-[4.1rem] lg:leading-[1.16]" style="--i:1">오늘 밤 비행기,<br>어느 도시로 띄울까요</h1>
+      <p class="rv mt-6 max-w-[34rem] text-base leading-relaxed text-mute md:text-lg" style="--i:2">직항으로 닿는 중국 도시 38곳을 야경, 맛집, 볼거리, 비용까지 여덟 가지 기준으로 견줘 봤어요. 기준을 바꾸면 출발 안내판이 다시 넘어갑니다.</p>
+      <div class="rv mt-9 flex flex-wrap items-center gap-3" style="--i:3">
+        <button type="button" class="cta magnetic" data-go="rank">순위표 펼치기<span class="ico"><iconify-icon icon="solar:arrow-right-linear" width="20"></iconify-icon></span></button>
+        <button type="button" class="ghost" data-go="presets"><iconify-icon icon="solar:tuning-2-linear" width="18"></iconify-icon>내 기준 고르기</button>
+      </div>
+      <dl class="rv mt-12 grid max-w-md grid-cols-3 gap-6" style="--i:4">
+        <div><dt class="text-xs text-mute">가장 가까운 도시</dt><dd class="mt-1 font-kr text-lg font-semibold">웨이하이 <span class="tnum text-sun">1시간</span></dd></div>
+        <div><dt class="text-xs text-mute">가장 먼 도시</dt><dd class="mt-1 font-kr text-lg font-semibold">리장 <span class="tnum text-sun">5시간</span></dd></div>
+        <div><dt class="text-xs text-mute">김포 출발</dt><dd class="mt-1 font-kr text-lg font-semibold">베이징</dd></div>
+      </dl>
+    </div>
+    <div class="lg:col-span-6 lg:pl-6">
+      <div class="rv" style="--i:3">
+        <div class="float lg:rotate-[1.2deg]">
+          <div class="bezel">
+            <div class="core board px-3 py-4 sm:px-5 sm:py-5">
+              <div class="mb-3 flex items-end justify-between gap-3">
+                <div>
+                  <div class="font-didone text-2xl italic leading-none text-sun sm:text-3xl">Departures</div>
+                  <div class="mt-1.5 font-kr text-sm font-semibold">지금 기준 상위 여섯 편</div>
+                </div>
+                <div class="text-right text-[11px] leading-snug text-mute"><span id="boardCrit">8개 기준 전체</span><br><span class="tnum" id="boardMax">40점 만점</span></div>
+              </div>
+              <div class="bhead" id="boardHead" aria-hidden="true"></div>
+              <div id="board" role="list" aria-label="현재 기준 상위 도시"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS + MARQUEE -->
+<section class="relative py-10 md:py-14" aria-label="한눈에 보는 숫자">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="rv grid grid-cols-2 gap-y-8 border-y border-white/10 py-8 md:grid-cols-4">
+      <div><div class="font-didone text-5xl font-medium tnum md:text-6xl"><span data-count="38">0</span></div><div class="mt-2 text-sm text-mute">직항으로 닿는 도시</div></div>
+      <div><div class="font-didone text-5xl font-medium tnum md:text-6xl"><span data-count="8">0</span></div><div class="mt-2 text-sm text-mute">취향 따라 고르는 기준</div></div>
+      <div><div class="font-didone text-5xl font-medium tnum md:text-6xl"><span data-count="265">0</span></div><div class="mt-2 text-sm text-mute">풍경과 음식 사진</div></div>
+      <div><div class="font-didone text-5xl font-medium tnum md:text-6xl"><span data-count="105" id="minCost">0</span><span class="ml-1 font-kr text-xl">만 원</span></div><div class="mt-2 text-sm text-mute">3인 3박4일 최저 추정</div></div>
+    </div>
+  </div>
+  <div class="mqwrap mt-10 overflow-hidden" aria-hidden="true">
+    <div class="mq" id="mq1"></div>
+    <div class="mq r mt-3" id="mq2"></div>
+  </div>
+</section>
+
+<!-- ROUTE MAP: editorial split -->
+<section id="map" class="relative py-24 md:py-32">
+  <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+    <div class="lg:col-span-4">
+      <span class="eyebrow rv">노선 지도</span>
+      <h2 class="rv mt-5 font-kr text-3xl font-bold leading-snug tracking-tight md:text-4xl" style="--i:1">한 시간 거리부터<br>다섯 시간 거리까지</h2>
+      <p class="rv mt-4 text-base leading-relaxed text-mute" style="--i:2">서울에서 뻗어 나가는 38개 노선이에요. 점이 클수록 지금 기준에서 점수가 높은 도시이고, 점을 누르면 그 도시 노트로 이동합니다.</p>
+      <ul class="rv mt-6 space-y-2 text-sm text-mute" style="--i:3">
+        <li class="flex items-center gap-2"><span class="inline-block h-2.5 w-2.5 rounded-full bg-sun"></span>지금 기준 상위 3곳</li>
+        <li class="flex items-center gap-2"><span class="inline-block h-2.5 w-2.5 rounded-full bg-paper/60"></span>그 밖의 직항 도시</li>
+        <li class="flex items-center gap-2"><span class="inline-block h-2.5 w-2.5 rounded-full ring-2 ring-paper"></span>서울 (인천·김포)</li>
+      </ul>
+    </div>
+    <div class="lg:col-span-8">
+      <div class="bezel rv" style="--i:2"><div class="core p-3 md:p-6"><svg id="bigmap" viewBox="0 0 141 100" class="h-auto w-full" role="img" aria-label="서울에서 중국 38개 도시로 이어지는 노선 지도"></svg></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRESETS: asymmetric bento -->
+<section id="presets" class="relative py-24 md:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl">
+      <span class="eyebrow rv">취향 프리셋</span>
+      <h2 class="rv mt-5 font-kr text-3xl font-bold leading-snug tracking-tight md:text-5xl md:leading-[1.2]" style="--i:1">먼저, 어떤 여행인지 골라 보세요</h2>
+      <p class="rv mt-4 text-base leading-relaxed text-mute md:text-lg" style="--i:2">버튼 하나로 기준 묶음이 바뀝니다. 더 세밀하게는 화면 아래 기준 바에서 하나씩 켜고 끌 수 있어요.</p>
+    </div>
+    <div class="mt-10 grid grid-cols-1 gap-4 md:grid-cols-6" id="presetGrid"></div>
+  </div>
+</section>
+
+<!-- PODIUM: z-axis cascade -->
+<section class="relative py-24 md:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div class="max-w-2xl">
+        <span class="eyebrow rv">지금 기준 상위 3곳</span>
+        <h2 class="rv mt-5 font-kr text-3xl font-bold leading-snug tracking-tight md:text-5xl md:leading-[1.2]" style="--i:1">이 기준이라면, 이 세 도시입니다</h2>
+      </div>
+      <p class="rv text-sm text-mute md:text-right" style="--i:2" id="podSub"></p>
+    </div>
+    <div class="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5 md:pb-20" id="podium"></div>
+  </div>
+</section>
+
+<!-- RANK MATRIX -->
+<section id="rank" class="relative scroll-mt-20 py-24 md:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-10">
+      <div class="lg:col-span-3">
+        <div class="lg:sticky lg:top-28">
+          <span class="eyebrow rv">순위표</span>
+          <h2 class="rv mt-5 font-kr text-3xl font-bold leading-snug tracking-tight md:text-4xl" style="--i:1">38개 도시,<br>한눈에 보기</h2>
+          <p class="rv mt-4 text-sm leading-relaxed text-mute" style="--i:2" id="rankSub"></p>
+          <p class="rv mt-3 text-sm leading-relaxed text-mute" style="--i:3">항목 이름을 누르면 그 기준 하나로만 줄을 세워요. 도시 이름을 누르면 설명으로 내려갑니다.</p>
+        </div>
+      </div>
+      <div class="lg:col-span-9">
+        <div class="bezel rv" style="--i:2">
+          <div class="core mx px-1.5 py-3 sm:px-3 lg:px-5 lg:py-5">
+            <div class="mxrow mxhead" id="mxHead"></div>
+            <div class="flex flex-col" id="mxBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CITY NOTES -->
+<section id="cities" class="relative scroll-mt-20 py-24 md:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl">
+      <span class="eyebrow rv">도시 노트</span>
+      <h2 class="rv mt-5 font-kr text-3xl font-bold leading-snug tracking-tight md:text-5xl md:leading-[1.2]" style="--i:1">한 곳씩 들여다보기</h2>
+      <p class="rv mt-4 text-base leading-relaxed text-mute md:text-lg" style="--i:2">순위표와 같은 순서로 이어집니다. 사진은 옆으로 넘겨 보세요.</p>
+    </div>
+    <div class="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6" id="cityGrid"></div>
+  </div>
+</section>
+
+<!-- GUIDE: editorial split -->
+<section id="guide" class="relative scroll-mt-20 py-24 md:py-32">
+  <div class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+    <div class="lg:col-span-4">
+      <div class="lg:sticky lg:top-28">
+        <span class="eyebrow rv">채점 기준</span>
+        <h2 class="rv mt-5 font-kr text-3xl font-bold leading-snug tracking-tight md:text-4xl" style="--i:1">점수는 이렇게 매겼어요</h2>
+        <p class="rv mt-4 text-sm leading-relaxed text-mute" style="--i:2">모든 항목은 5점 만점이고, 숫자가 클수록 좋은 쪽입니다. 일반적인 여행 평판을 바탕으로 한 주관적인 평가라서, 계절과 일정에 따라 체감은 달라질 수 있어요.</p>
+      </div>
+    </div>
+    <div class="lg:col-span-8"><div class="grid grid-cols-1 gap-x-10 sm:grid-cols-2" id="guideList"></div></div>
+  </div>
+</section>
+
+<!-- CLOSING CTA -->
+<section class="relative py-24 md:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="bezel rv">
+      <div class="core relative overflow-hidden px-6 py-16 md:px-16 md:py-24">
+        <div class="stars" aria-hidden="true"></div>
+        <div class="relative max-w-3xl">
+          <h2 class="font-kr text-3xl font-bold leading-snug tracking-tight md:text-5xl md:leading-[1.2]">기준 하나만 바꿔도<br>1위가 달라집니다</h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-mute md:text-lg">같이 가는 사람에게 중요한 것부터 켜 보세요. 순위표와 도시 노트가 그 순서로 다시 정렬됩니다.</p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <button type="button" class="cta magnetic" id="resetAll">전체 기준으로 되돌리기<span class="ico"><iconify-icon icon="solar:restart-linear" width="20"></iconify-icon></span></button>
+            <button type="button" class="ghost" data-go="top">맨 위로 올라가기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="relative border-t border-white/10 pb-32 pt-10">
+  <div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 text-[13px] leading-relaxed text-mute sm:px-6 md:grid-cols-12 lg:px-8">
+    <div class="md:col-span-4"><span class="font-didone text-2xl italic text-sun">38</span> <span class="font-kr font-semibold text-paper">직항 도시</span><p class="mt-2">인천·김포 출발 중국 직항 도시 비교표</p></div>
+    <p class="md:col-span-8">비용은 평수기 기준 추정치입니다. 항공은 직항 일반석 1인 왕복, 숙박은 4성급 1박, 현지 지출은 3인의 식비와 교통, 입장료를 하루 10~24만 원으로 잡았어요. 연말과 연휴, 여름 성수기에는 항공과 숙박이 1.5~2배까지 오를 수 있습니다. 도시 목록은 2026 동계 스케줄을 정리한 블로그 표 기준이며, 비행시간은 대략적인 값이에요. 지도는 위치를 가늠하기 위한 약도예요. 사진은 위키미디어 공용(Wikimedia Commons)에서 불러오고, 사진을 누르면 저작자와 라이선스를 볼 수 있습니다.</p>
+  </div>
+</footer>
+</main>
+
+<!-- criteria dock -->
+<div class="dock" id="dock" aria-label="순위 기준 선택">
+  <div class="glass rounded-full"><div class="rail" id="chips"></div></div>
+</div>
+
+<script>
+const CR=["야경","편의","한산","맛집","명소","이국","전통","가격"];
+const CRL=["야경","인프라","한산함","맛집","볼거리","외국풍경","전통풍경","저렴함"];
+const ICON=["solar:moon-stars-linear","solar:buildings-2-linear","solar:leaf-linear","solar:chef-hat-linear","solar:camera-linear","solar:map-point-linear","solar:crown-linear","solar:wallet-money-linear"];
+const GUIDE=["조명 쇼, 강변과 고성의 야경처럼 밤에 볼거리가 얼마나 있는지","지하철, 호텔, 쇼핑몰, 외국인이 다니기 쉬운 정도","5점이 가장 한산해요. 평소 관광지 인파 기준","지역 음식의 수준과 다양성","명소의 양과 급. 자연, 랜드마크, 테마파크, 당일 근교까지 포함","유럽과 러시아풍 조계지처럼 이국적인 거리","고성, 궁, 정원, 옛 골목 같은 중국 전통미","5점이 가장 저렴해요. 3인 3박4일 예상 총액의 중간값이 150만 원 미만이면 5점, 175만 미만 4점, 200만 미만 3점, 225만 미만 2점, 그 이상 1점"];
+const PRE=[
+ {t:"전체 종합",d:"여덟 가지 기준을 모두 더한 기본 순위예요.",s:[0,1,2,3,4,5,6,7],ic:"solar:ranking-linear",span:"md:col-span-4 md:row-span-2"},
+ {t:"조용한 이국 야경",d:"야경, 한산함, 외국풍경만 봅니다. 붐비는 곳이 싫다면.",s:[0,2,5],ic:"solar:moon-stars-linear",span:"md:col-span-2"},
+ {t:"편하게 먹고 다니기",d:"인프라와 맛집. 이동과 식사가 편한 도시.",s:[1,3],ic:"solar:chef-hat-linear",span:"md:col-span-2"},
+ {t:"볼거리 위주",d:"볼거리, 외국풍경, 전통풍경. 일정이 꽉 차는 도시.",s:[4,5,6],ic:"solar:camera-linear",span:"md:col-span-2"},
+ {t:"싸고 한산하게",d:"한산함과 저렴함. 부담 없이 쉬다 오는 도시.",s:[2,7],ic:"solar:leaf-linear",span:"md:col-span-2"},
+ {t:"비용 빼고 보기",d:"돈 생각은 접어 두고 도시의 매력만으로.",s:[0,1,2,3,4,5,6],ic:"solar:star-linear",span:"md:col-span-2"}
+];
+/* [이름, 코드, 권역, 비행, 김포, [야경,청결,인프라,한산,맛집,자연,외국,전통], 특징, 장점, 단점] */
+const C=[
+["베이징","PEK·PKX","화북","약 2시간",1,[3,4,5,1,4,5,2,5],"자금성과 만리장성, 중국 전통의 끝판왕. 유니버설 스튜디오도 있어요.","볼거리의 양과 급이 압도적, 김포 출발 가능, 지하철 편리","겨울 혹한과 건조함, 어디든 인파, 명소 사이 이동이 김"],
+["톈진","TSN","화북","약 1시간 50분",0,[4,4,4,3,3,3,5,3],"하이허 강변에 이탈리아·영국풍 조계 건물이 늘어선 항구 도시","유럽풍 거리와 강변 야경, 베이징까지 고속철 30분, 덜 붐빔","이틀이면 다 봄, 겨울 추위, 미식은 평범"],
+["스자좡","SJW","화북","약 2시간 10분",0,[2,3,3,4,2,2,1,3],"허베이성 성도. 정딩 고성과 조주교로 가는 관문","한산하고 물가 저렴, 정딩 고성 야경","도시 자체 볼거리가 적음, 겨울 대기질"],
+["선양","SHE","동북","약 1시간 50분",0,[3,3,4,3,4,3,2,4],"청나라 첫 수도. 선양 고궁과 서탑 코리아타운","고궁·북릉 등 청나라 유적, 동북 요리와 한식이 편함, 물가 저렴","겨울 혹한, 도시 풍경은 투박함"],
+["다롄","DLC","동북","약 1시간 10분",0,[4,5,4,4,4,3,5,1],"바다와 광장, 러시아·일본풍 거리가 섞인 깨끗한 항구 도시","비행 1시간, 깨끗하고 한산, 해산물, 동방수성 야경","중국 전통 느낌은 없음, 겨울 바닷바람, 3일이면 충분"],
+["창춘","CGQ","동북","약 2시간",0,[2,3,3,4,3,2,2,2],"옛 만주국 수도. 위만황궁과 넓은 숲 공원 정월담","한산하고 저렴, 숲 공원과 겨울 스키","관광 매력이 약함, 혹한, 야경과 미식 평범"],
+["하얼빈","HRB","동북","약 2시간 30분",0,[4,3,4,2,4,4,5,1],"러시아풍 중앙대가와 겨울 빙설대세계의 얼음 도시","러시아 건축과 얼음 축제가 유일무이, 푸짐한 동북 요리","겨울 영하 20~30도, 축제철 인파와 숙박비"],
+["옌지","YNJ","동북","약 2시간 20분",0,[3,3,3,3,5,3,1,2],"조선족 자치주 중심. 한글 간판 거리와 백두산 가는 길목","말이 통하고 음식이 입에 맞음, 냉면·양꼬치, 백두산 연계","도시 볼거리는 하루치, 백두산까지 차로 3~4시간, 겨울 혹한"],
+["칭다오","TAO","산둥","약 1시간 30분",0,[4,4,4,3,4,4,5,2],"독일풍 구시가와 해변, 맥주의 도시","가깝고 항공편 많음, 유럽풍 거리와 바다, 맥주·해산물","여름 성수기 인파, 공항에서 시내 1시간, 겨울 바닷바람"],
+["옌타이","YNT","산둥","약 1시간 10분",0,[2,4,3,5,3,3,3,3],"조용한 바닷가 도시. 옌타이산 영사관 거리와 와인","가깝고 한산, 깨끗한 해변, 펑라이각 당일 가능","볼거리가 적고 밤이 심심함, 겨울엔 할 게 줄어듦"],
+["웨이하이","WEH","산둥","약 1시간",0,[2,5,3,5,3,2,2,2],"중국에서 손꼽히게 깨끗한 해안 도시. 한국과 가장 가까움","비행 1시간, 깨끗하고 조용, 해안 드라이브와 류궁다오","관광 콘텐츠가 적음, 야경과 미식 약함"],
+["지난","TNA","산둥","약 1시간 50분",0,[3,3,4,3,3,3,2,4],"샘의 도시. 바오투취안과 대명호, 타이산·취푸 관문","샘물 공원 산책, 타이산과 공자 유적 연계","도시 자체는 하루치, 여름 무더위"],
+["린이","LYI","산둥","약 1시간 40분",0,[2,3,2,5,2,2,1,2],"산둥 남부 물류 도시. 이멍산과 지하 대협곡","매우 한산하고 저렴, 이멍산 자연","관광 인프라 부족, 일부러 갈 이유는 약함"],
+["상하이","PVG","화동","약 2시간",0,[5,4,5,1,5,5,5,3],"와이탄 야경과 디즈니, 조계지 골목의 국제 도시","야경·미식·쇼핑·디즈니 모두 최상, 교통 편리, 항공편 최다","늘 붐빔, 물가 높음, 자연은 없음"],
+["난징","NKG","화동","약 2시간 10분",0,[4,4,4,2,4,4,2,5],"육조 고도. 중산릉과 성벽, 친화이허 등불 야경","역사 유적 밀도 높음, 친화이허 밤 뱃놀이, 오리 요리","주말 인파, 여름 찜통더위, 걷는 양이 많음"],
+["우시","WUX","화동","약 2시간",0,[3,4,4,3,3,3,1,4],"타이후 호숫가 도시. 위안터우주 벚꽃과 영산대불","호수 풍경, 녠화완 마을 야경, 상하이·쑤저우 연계","음식이 달아 호불호, 명소가 흩어져 차 필요"],
+["양저우","YTY","화동","약 2시간",0,[3,4,3,4,4,3,1,5],"수서호와 정원, 아침 딤섬 문화의 운하 고도","정원·운하 전통 풍경, 화이양 요리, 차분한 분위기","밤 볼거리 적음, 대중교통 약함"],
+["옌청","YNZ","화동","약 1시간 40분",0,[1,3,2,5,2,2,1,2],"황해 습지와 두루미·사슴 보호구의 한적한 도시","아주 한산, 습지 생태 풍경, 비행 짧음","관광 인프라·야경·미식 모두 약함, 차 없으면 불편"],
+["항저우","HGH","화동","약 2시간 20분",0,[4,5,5,2,4,5,1,5],"서호와 용정 차밭, 알리바바의 도시","서호 풍경과 전통미, 깨끗하고 세련됨, 디지털 인프라 최고","주말 서호 인파, 여름 무더위, 음식이 순한 편"],
+["닝보","NGB","화동","약 2시간 30분",0,[3,4,4,4,4,3,3,4],"천일각과 라오와이탄, 해산물의 항구 도시","덜 알려져 한산, 깨끗함, 상하이·항저우 고속철 연계","킬러 콘텐츠 부족, 2~3일이면 끝, 주 3회 운항"],
+["원저우","WNZ","화동","약 2시간 30분",0,[3,3,3,4,3,3,1,2],"상인의 도시. 옌당산 기암과 난시강 옛 마을","옌당산·난시강 자연, 한산, 해산물","명소가 근교에 흩어짐, 도심 매력 약함"],
+["허페이","HFE","화동","약 2시간 20분",0,[2,4,4,4,3,2,1,2],"안후이성 성도이자 황산·홍춘으로 가는 관문","깨끗한 신도시, 황산과 옛 마을 연계, 한산","도시 자체 볼거리 적음, 황산까지 고속철 1시간 반 이상"],
+["푸저우","FOC","화동","약 2시간 50분",0,[3,4,3,4,4,3,2,4],"삼방칠항 옛 골목과 온천의 도시","전통 골목과 푸젠 요리, 겨울 온화, 한산","야경과 임팩트 약함, 여름 태풍·무더위"],
+["샤먼","XMN","화동","약 3시간",0,[4,5,4,3,4,4,5,3],"구랑위 섬의 유럽풍 골목과 바다, 겨울에도 따뜻한 정원 도시","깨끗하고 이국적, 겨울 15~20도, 해산물, 섬 가는 배","구랑위 계단과 낮 인파, 큰 놀이시설 없음, 여름 태풍"],
+["정저우","CGO","중부","약 2시간 40분",0,[2,3,4,3,3,3,1,4],"중원의 교통 허브. 소림사·뤄양·카이펑 관문","소림사, 룽먼석굴, 카이펑 야시장 연계","도시 자체 매력 낮음, 근교 이동 1~2시간"],
+["우한","WUH","중부","약 2시간 50분",0,[5,3,4,2,4,3,3,3],"장강과 황학루, 러간몐의 도시","장강 양안 라이트쇼, 아침 먹거리 문화, 한커우 옛 조계 거리","여름 가마솥더위, 도시가 넓어 이동이 김"],
+["이창","YIH","중부","약 3시간 20분",0,[3,4,3,4,3,4,1,2],"장강 삼협과 삼협댐의 도시","삼협 크루즈와 협곡 절경, 깨끗하고 한산","도심 볼거리 적음, 명소가 외곽"],
+["창사","CSX","중부","약 3시간 20분",0,[5,3,4,1,5,3,1,2],"밤이 낮보다 밝은 야식과 야경의 도시","먹거리와 밤거리 활기 최고, 귤자주, 물가 저렴","매운 음식 위주, 주말 인파 극심, 여름 무더위"],
+["장자제","DYG","중부","약 3시간 30분",0,[3,3,3,2,2,5,1,3],"아바타 속 기암 절벽과 유리 다리, 천문산","압도적인 산악 절경, 케이블카와 유리 다리","많이 걷고 계단 많음, 안개·비 변수, 음식 약함"],
+["광저우","CAN","화남","약 3시간 40분",0,[5,4,5,2,5,4,4,3],"딤섬의 본고장, 캔톤타워 야경과 사몐섬","미식 최상, 겨울 온화, 야경과 교통 편리, 선전·홍콩 연계","비행이 긴 편, 도시가 크고 붐빔, 여름 고온다습"],
+["선전","SZX","화남","약 3시간 50분",0,[5,5,5,2,4,3,2,1],"빌딩 숲 야경과 테크, 테마파크의 젊은 도시","가장 깨끗하고 현대적, 야경, 겨울 온화, 홍콩 연계","역사·전통 볼거리 없음, 물가 높음"],
+["구이린","KWL","화남","약 4시간",0,[4,3,3,3,3,5,1,3],"리강 뱃놀이와 양숴의 카르스트 산수","수묵화 같은 풍경, 양숴 자전거·뗏목, 양강사호 야경","명소가 근교, 비 오면 반감, 상술 있음"],
+["하이커우","HAK","화남","약 4시간 40분",0,[3,4,3,4,3,2,3,2],"하이난섬의 관문. 야자수 해변과 치러우 옛 거리","겨울에도 20도 이상, 면세 쇼핑, 한산","비행이 김, 해변은 싼야만 못함"],
+["시안","XIY","서부","약 3시간 20분",0,[5,3,4,1,5,5,1,5],"병마용과 성벽, 대당불야성의 천년 고도","역사 유적 최상급, 대당불야성 야경, 회족거리 먹거리","어디든 인파, 병마용까지 1시간, 건조함"],
+["청두","TFU","서부","약 4시간",0,[4,4,5,2,5,4,1,4],"판다와 훠궈, 느긋한 찻집 문화의 도시","미식 천국, 판다 기지, 여유로운 분위기","매운 음식, 흐린 날 많음, 비행 4시간"],
+["충칭","CKG","서부","약 4시간",0,[5,3,4,1,5,4,1,3],"산과 강 위에 층층이 쌓인 입체 도시, 훠궈 본고장","훙야둥·모노레일의 독특한 야경, 훠궈, 우룽 절경 연계","인파 극심, 언덕과 계단, 매운 음식, 여름 폭염"],
+["쿤밍","KMG","서부","약 4시간 50분",0,[2,4,4,3,4,4,1,3],"사계절 봄 같은 고원 도시. 석림과 뎬츠 호수","연중 온화, 석림 절경, 버섯 요리, 다리·리장 연계","비행 약 5시간, 해발 1,900m, 야경 약함"],
+["리장","LJG","서부","약 5시간",0,[4,4,3,2,3,4,1,5],"옥룡설산 아래 나시족 고성","고성 홍등 야경과 설산 풍경, 전통미","해발 2,400m 고산 반응 주의, 고성 상업화, 비행이 김"]
+];
+const COST={"베이징":[25,42,13,24,"h"],"톈진":[22,38,8,14,"m"],"스자좡":[20,35,6,10,"l"],"선양":[22,38,7,12,"l"],"다롄":[18,32,8,15,"m"],"창춘":[28,42,6,11,"l"],"하얼빈":[28,45,8,16,"m"],"옌지":[30,50,6,11,"l"],"칭다오":[15,28,8,15,"m"],"옌타이":[15,28,7,12,"l"],"웨이하이":[20,32,7,12,"l"],"지난":[20,35,7,12,"l"],"린이":[18,30,5,9,"l"],"상하이":[22,40,14,25,"h"],"난징":[25,40,9,16,"m"],"우시":[22,36,7,13,"m"],"양저우":[18,30,7,12,"l"],"옌청":[25,40,5,9,"l"],"항저우":[25,40,11,20,"h"],"닝보":[20,35,8,14,"m"],"원저우":[25,40,7,12,"l"],"허페이":[28,42,7,12,"l"],"푸저우":[28,42,7,13,"m"],"샤먼":[25,45,10,18,"m"],"정저우":[22,38,7,12,"l"],"우한":[28,42,8,14,"m"],"이창":[25,40,6,11,"l"],"창사":[30,45,8,14,"m"],"장자제":[28,48,7,13,"h"],"광저우":[30,50,11,20,"h"],"선전":[30,50,12,22,"h"],"구이린":[28,45,7,13,"m"],"하이커우":[30,48,8,15,"m"],"시안":[30,48,8,15,"m"],"청두":[30,50,8,15,"m"],"충칭":[30,48,8,14,"m"],"쿤밍":[35,55,7,13,"m"],"리장":[35,55,8,16,"m"]};
+const PH={"PEK":["5/54/Forbidden_City_Panorama_2.jpg","6/64/The_Mutianyu_section_of_the_Great_Wall_of_China.jpg","9/9a/Temple_of_Heaven%2C_Beijing_-_February_2024.jpg","c/c5/Beijing_skyline_%28cropped%29.jpg","d/db/Longevity_Hill_of_the_Summer_Palace.jpg"],"TSN":["0/01/Tianjin_Eye_11.jpg","9/96/Italian_Style_Town_21225-Tianjin_%2848709352512%29.jpg","1/1d/Tianjin_Skyline_from_Tianjin_Water_Park_3.jpg","f/f9/%E7%82%AB%E5%BD%A9%E6%B4%A5%E9%97%A811Tianjin_Eye_and_Haihe_River.jpg","7/75/Jiefang_Bridge%2C_Tianjin_20080818.jpg"],"SJW":["2/24/Shijiazhuang_city_centre.jpg","2/2d/Longxing_Temple%2C_Zhengding_6.jpg","7/72/Anji_Bridge%2C_Zhao_County%2C_2020-09-06_05.jpg","7/7c/South_Gate_of_Zhengding_City_Wall_3.jpg"],"SHE":["6/65/Mukden_Palace_drone_view_5_%28cropped_%26_rotated%29.jpg","e/e4/Skyline_of_Shenyang_3.jpg","a/a2/2014_North_Tomb_%28Zhaoling%2C_Tomb_of_Manchu_Chief_Abahai_or_Huang_Taiji%29_78.jpg","2/2a/Zhongjie_drone_view_8.jpg"],"DLC":["b/b4/Dalian_Skyline_Enhanced.jpg","e/ed/%E6%98%9F%E6%B5%B7%E5%B9%BF%E5%9C%BA_%E2%84%964_-_panoramio.jpg","a/ac/Zhongshan_Square%2C_Aug2018.jpg","e/ea/Dalian_Xinghai_Bay_Bridge.jpg","1/1c/Dalian_China_Russian-Street-05.jpg","d/d7/Donggang_Dalian.jpg"],"CGQ":["8/86/Changchun_skyline_with_Ji_Tower_-_panoramio.jpg","9/91/Nanhu-See_im_Nanhu-Park%2C_Changchun.jpg","4/4f/25279-Changchun%2C_Museum_of_the_Imperial_Palace_of_Manchukuo.jpg","f/ff/%E5%87%80%E6%9C%88%E6%BD%AD_jing_yue_tan_-_panoramio.jpg","7/72/Changchun_Geological_Palace_%2820230723154904%29.jpg"],"HRB":["7/7c/Saint_Sophia_Cathedral%2C_Harbin_10.jpg","6/63/Harbin_Ice_Festival.jpg","8/84/Harbin_Central_Street_20130524_%288853379083%29.jpg","c/cc/Songhua_River_in_Harbin_2.jpg","3/36/Harbin_Grand_Theatre_8.jpg"],"YNJ":["4/4a/Baili_City%2C_Yanji_5.jpg","0/07/Night_in_Yanji_1.jpg","9/9b/%E9%95%B7%E7%99%BD%E5%B1%B1%E5%A4%A9%E6%B1%A0_Heavenly_Lake_on_Changbai_Mountain_-_panoramio.jpg","6/6f/Yanbian_University_2.jpg"],"TAO":["9/9d/Qingdao_-_Drone_view_city_with_skyline_%28Unsplash%29.jpg","b/ba/20240729_Zhanqiao_02.jpg","0/00/20240729_Qingdao_No._2_Beach_02.jpg","5/50/20240730_St._Michael%27s_Cathedral%2C_Qingdao_01.jpg","3/36/51361-Qingdao_May_Fourth_Square.jpg","f/f9/20240729_Qingdao_Signal_Hill.jpg"],"YNT":["8/89/Yantai_City_Seaside_Scenery.jpg","4/48/%E7%83%9F%E5%8F%B0%E6%BB%A8%E6%B5%B7%E4%B9%8B%E5%A4%9C_-_panoramio.jpg","2/2d/Penglaige.jpg","f/fa/Yantai_Golden_Beach_Seaside_Park.jpg","9/98/%E7%83%9F%E5%8F%B0%E6%BB%A8%E6%B5%B7%E5%B9%BF%E5%9C%BA%E6%B8%85%E6%99%A8%E8%A5%BF%E6%9C%9B%E7%83%9F%E5%8F%B0%E5%B1%B1%E6%B5%B7%E9%B8%A5.jpg"],"WEH":["d/da/Weihai_City.jpg","6/66/Liugong_Island_colonial_buildings_%2853993552515%29.jpg","2/2a/Weihai-Xingfu_men.jpg","8/81/Weihai.Haibin_lu.jpg","2/2e/%E6%88%90%E5%B1%B1%E5%A4%B4_-_panoramio.jpg"],"LYI":["1/1a/%E4%B8%B4%E6%B2%82%E5%B8%82%E4%B8%B4%E5%B7%A5%E5%A4%A7%E6%A1%A5%E5%8D%97%E4%BE%A7%E8%A5%BF%E5%90%91%E8%A7%86%E5%9B%BE.jpg","4/4b/%E4%B8%B4%E6%B2%82%E5%B8%82%E8%8C%B6%E5%B1%B1%E9%97%B8%E4%BF%AF%E7%9E%B0%E5%9B%BE.jpg","3/38/%E6%B2%82%E8%92%99%E5%B1%B1%E5%A4%A9%E8%92%99%E6%97%85%E6%B8%B8%E5%8C%BA%E6%9C%9B%E6%B5%B7%E6%A5%BC%EF%BC%88%E8%83%8C%E9%9D%A2%EF%BC%89.jpg"],"PVG":["d/d4/The_Bund%2C_Shanghai_at_night.jpg","9/92/Lujiazui_Skyline_from_Bund.jpg","4/45/Shanghai_-_Yu_Garden_-_0035.jpg","5/51/Enchanted_Storybook_Castle.jpg","a/a2/East_Nanjing_Road_at_night%2C_Shanghai.jpg","9/9f/Wukang_Mansion_2.jpg"],"NKG":["8/89/Sun_Yat-sen_Mausoleum_%28%E4%B8%AD%E5%B1%B1%E9%99%B5%EF%BC%89.jpg","4/4c/Confucius_Temple_and_Qinhuai_River%2C_Nanjing_Night.jpg","e/eb/2024Apr_-_Nanjing_City_Wall_%28south_section%29_-_img_11.jpg","4/4d/%E7%B4%AB%E9%87%91%E5%B1%B1%E5%A4%A9%E6%96%87%E5%8F%B0%E6%9C%9B%E7%8E%84%E6%AD%A6%E6%B9%96%E5%85%A8%E6%99%AF.jpg","8/82/Night_Confucius_Temple_in_Nanjing%2C_20170304.jpg"],"WUX":["7/7e/Gbyte_travel_china_wuxi_0029.jpg","e/e2/Yuantouzhu%2CWuxi.JPG","b/b0/Lake_Taihu_2017_04_29_%2834258061371%29.jpg","7/72/Nanchang_Street%2C_Wuxi_3.jpg","b/bd/%E6%97%A0%E9%94%A1%E6%B8%85%E5%90%8D%E6%A1%A5%E5%A4%9C%E6%99%AF.jpg"],"YTY":["a/ab/Slender_West_Lake_2017.jpg","f/f7/The_Five_Pavilion_bridge.jpg","1/1c/Bamboo_Garden_in_Yangzhou.JPG","e/e3/%E4%B8%9C%E5%85%B3%E8%A1%97_-_Dongguan_Street_-_2015.04_-_panoramio.jpg"],"YNZ":["f/f6/P%C3%A8re_David%27s_Deer_imported_from_iNaturalist_photo_162354434_on_24_January_2024.jpg","0/04/Saunders%27s_Gull%2C_Diaoyugang%2C_Jiangsu%2C_China_53174278.jpg","7/70/Tinghu%2C_Yancheng%2C_Jiangsu%2C_China_-_panoramio_%2825%29.jpg"],"HGH":["e/ed/20260424_West_Lake_and_Hangzhou_Skyline.jpg","c/c9/Leifeng_Pagoda_%E9%9B%B7%E5%B3%B0%E5%A1%94_-_panoramio.jpg","6/6f/Longjing_Tea_field%2C_Dragon_Well_area%2C_Meijiawu_China.jpg","6/66/Lingyin_Temple%2C_Hangzhou_20161003.jpg","a/a0/Huanglong_%26_Broken_Bridge_-_Hangzhou_City_%26_West_Lake_near_Broken_Bridge.jpg","1/1e/Hangzhou_CBD_at_night_4.jpg"],"NGB":["e/ec/Ningbo_Tianyige_2013.07.28_09-23-22.jpg","3/37/Ningbo_Old_Bund_at_Night.JPG","9/9d/Ningbo_skyline_viewed_on_Changfeng_Bridge.jpg","7/73/Dongqian_Lake%2C_2020-03-14_02.jpg","d/d0/Tianyi_Square_2019-11-09_01.jpg"],"WNZ":["d/d4/Yandang_Mountain.jpg","5/5f/Yongjia%2C_Wenzhou%2C_Zhejiang%2C_China_-_panoramio_%282%29.jpg","e/ef/Skyline_of_Wenzhou_1.jpg","8/8a/Jiangxin_Yu_Jiangxin_si.jpg"],"HFE":["b/b1/Skylines_of_Hefei_at_Tianehu.jpg","d/d3/Hefei_City_Artificial_Swan_Lake.jpeg","3/33/Sea_of_clouds_viewed_from_the_top_of_Huangshan.jpg","7/72/Ancient_Villages_in_Southern_Anhui_%E2%80%93_Xidi_and_Hongcun-114147.jpg","7/7f/%E5%AE%89%E5%BE%BD%E5%90%88%E8%82%A5%E5%8C%85%E5%85%AC%E7%A5%A0.jpg"],"FOC":["7/7b/Fuzhou_Three_Lanes_and_Seven_Alleys_Mainstreet.jpg","f/f5/Fuzhou_skyline_2.jpg","6/68/Fuzhou_Yongquan_Si_2019.03.12_14-13-38.jpg","3/3a/Fuzhou_Zhongzhou_Island_at_night.jpg","b/b8/%E7%A6%8F%E5%B7%9E%E8%A5%BF%E6%B9%96%E5%85%AC%E5%9B%AD_-_panoramio.jpg"],"XMN":["1/11/Gulangyu_at_dusk.jpg","f/fe/Xiamen_night_Skyline_from_Gulangyu.JPG","b/b5/Panoramatic_view_of_xiamen_university_at_sunset.jpg","3/3e/Nanputuo_Temple%2C_Xiamen.jpg","a/a1/Night_Aerial_view_of_Xiamen_Island_20250822.jpg","e/e3/Tulou_from_Fujian_-_Aug_2022.jpg"],"CGO":["b/b0/20200831_CBD_of_Zhengdong_New_Area.jpg","5/51/20241103_Bell_Tower_of_Shaolin_Temple_with_Ginkgo_Tree.jpg","b/b6/Longmen_Grottoes_3.jpg","7/7d/20240920_Erqi_Memorial_Tower_02.jpg","9/9f/20241103_Pagoda_Forest_of_Shaolin_Temple_01.jpg"],"WUH":["d/d5/20240621_Yellow_Crane_Tower.jpg","1/10/Wuhan_Yangtze_River_Bridge.jpg","5/5b/East_lake_Wuhan_view_.jpg","1/14/Skyline_of_Wuhan-2.jpg"],"YIH":["b/b2/Three_gorges_dam_view_from_vantage_point.jpg","8/83/Xiling_Gorge_2014.jpg","c/ce/Yichang_skyline_3.jpg","8/81/Three_gorges_on_the_Yangtze_river.jpg"],"CSX":["9/93/Orange_Isle_2021122661.jpg","7/7c/%E9%95%BF%E6%B2%99%E6%B9%98%E6%B1%9F%E5%A4%9C%E6%99%AF.jpg","9/97/Yuelu_academy.jpg","b/b6/Changsha_IFS_Tower_24_August_2023c.jpg","c/ce/Buildings_near_the_Meixi_Lake_in_Changsha%2C_picture14.jpg"],"DYG":["4/47/Zhangjiajie_National_Forest_Park.jpg","4/45/Tianmen_38330-Zhangjiajie_%2849047525877%29.jpg","2/27/Glass_Bridge_in_Zhangjiajie_China.jpg","6/62/1_zhangjiajie_huangshizhai_wulingyuan_panorama_2012.jpg","2/29/Winding_road%2C_Tianmen_Mountain.jpg"],"CAN":["e/ef/Canton_Tower_at_night_1.jpg","6/65/Zhujiang_New_Town_Buildings%2C_Guangzhou.jpg","6/6e/Shamian_001.jpg","8/81/Chen_Clan_Ancestral_Hall_2025.06_04.jpg","6/67/Sacred_Heart_Cathedral_of_Guangzhou_2025.06_05.jpg","8/88/The_beautiful_night_scene_near_the_Pearl_River_in_Guangzhou%2C_China.jpg"],"SZX":["c/cb/Shenzhen_Skyline_At_Night_%28214551663%29.jpeg","e/eb/Ping_An_IFC_from_above.jpg","8/84/Shenzhen_Bay_Bridge_To_HK_on_Shenzhen_Side.jpg","c/cf/WINDOWS_OF_THE_WORLD_SHENZHEN_%2837%29.jpg","4/46/Civic_Center%2C_Shenzhen_Lianhuashan_Park_%282018.9%29_Daytime.jpg"],"KWL":["9/92/1_li_jiang_guilin_yangshuo_2011.jpg","c/c2/1_aerial_yangshuo_panorama_2017.jpg","2/2d/Sun_and_Moon_Pagodas_Guilin_November_2017_HDR.jpg","9/98/Elephant_Trunk_Hill%2C_Guilin.jpg","5/5e/Longji_Rice_Terraces_004.jpg"],"HAK":["a/aa/Haikou_skyline_4_-_2009_09_07.jpg","4/4b/Haikou_Century_Bridge_viewed_from_Haidian_Island_-_01.jpg","e/e8/Holiday_Beach%2C_Haikou_looking_west_-_01.jpg","6/6c/%E6%B5%B7%E5%8F%A3%E9%AA%91%E6%A5%BC%E8%80%81%E8%A1%97_-_Haikou_Arcaded_Streets_-_2016.01_-_panoramio.jpg","a/ac/Leiqiong_Global_Geopark_-_01.jpg"],"XIY":["4/43/Qin_Shihuang_Terracotta_Army%2C_Pit_1.jpg","d/d7/Xi%27an_city_walls_%2889479%29.jpg","9/91/Giant_Wild_Goose_Pagoda%2C_Xi%27an%2C_May%2C_2018-1.jpg","e/ef/Xi%27an_Bell_Tower_at_night.jpg","5/5c/Tang_Paradise_2.jpg","7/76/Xi%27an_Muslim_Quarter.jpg"],"TFU":["2/20/Chengdu_skyline_June_2017.jpg","5/54/Chengdu-pandas-d10.jpg","8/8f/Shops_-_Kuanzhai_Alleys_-_Chengdu%2C_China_-_DSC05305.jpg","5/51/Chengdu_Jinli-Stra%C3%9Fe_11.jpg","a/a9/Anshun_Bridge_Jin_River_Chengdu_night_2026_dllu.jpg","6/60/Chengdu_Wuhou_ci.jpg"],"CKG":["2/27/Hongya_Cave_at_night_20251027_%282%29.jpg","6/60/Chongqing_Night_Yuzhong.jpg","5/52/View_from_Liziba_Station_4.jpg","0/01/Raffles_City_Chongqing_20260507-1.jpg","3/33/Wulongtianshengsanqiao.JPG"],"KMG":["8/8d/Shilin_Yunnan_China_Shilin-Stone-Forest-03a.jpg","e/e9/Dian_Lake.jpg","3/3e/Kunming.%E6%98%86%E6%98%8E.skyline.sunset.2013.jpg","5/50/55526-Kunming-Green-Lake-Park.jpg","4/44/55606-Kunming-Yuantong-Temple.jpg"],"LJG":["7/74/1_lijiang_old_town_night.jpg","b/be/Lijiang_Yunnan_China_Jade-Dragon-Snow-Mountain-01.jpg","d/d0/Lijiang_Yunnan_Black-Dragon-Pool-01.jpg","7/76/%E8%93%9D%E6%9C%88%E8%B0%B7_-_panoramio.jpg","6/67/%E4%B8%BD%E6%B1%9F%E6%9D%9F%E6%B2%B3%E5%8F%A4%E9%95%87.JPG"],"TNA":["0/0f/Jinan_Baotu_Spring_pond-20150519-RM-174750.jpg","3/34/Lixia_Pavillion%2C_Daming_Lake%2C_Jinan_in_October_2019.jpg","6/67/Skyline_of_CBD%2C_Jinan%2C_China.jpg","7/7c/Jade_Emperor_Peak_of_Mount_Tai_%E6%B3%B0%E5%B1%B1%E7%8E%89%E7%9A%87%E9%A1%B6_2007_075.jpg","a/a0/Jinan_Thousand_Buddha_Mountain-20150520-RM-095403.jpg"]};
+const HERO={"PEK":{"p":"8/8b/%E5%8C%97%E4%BA%ACCBD%E5%A4%9C%E6%99%AF.jpg","n":1},"SJW":{"p":"a/aa/ShijiazhuangNight.jpg","n":1},"SHE":{"p":"b/b2/Shenyang_at_Night.jpg","n":1},"DLC":{"p":"1/11/Dalian_skyscrapers_at_night.jpg","n":1},"CGQ":{"p":"1/1a/%E4%BA%BA%E6%B0%91%E5%A4%A7%E8%A1%97%E5%A4%9C%E6%99%AF_night_-_panoramio.jpg","n":1},"TAO":{"p":"2/2b/%E9%9D%92%E5%B2%9B%E6%B9%BE%E5%A4%9C%E6%99%AF.jpg","n":1},"TNA":{"p":"8/8f/Night_in_Jinan_%2820250302_~_Image_4%29.jpg","n":1},"YTY":{"p":"d/d9/Yangzhou_-_canal_front_at_night_-_P1070274.JPG","n":1},"WNZ":{"p":"f/ff/%E4%B8%83%E9%83%BD%E5%A4%A7%E6%A1%A5%E5%8C%97%E6%B1%8A%E6%A1%A5%E5%A4%9C%E6%99%AF.jpg","n":1},"HFE":{"p":"6/6d/%E5%90%88%E8%82%A5%E6%B7%AE%E6%B2%B3%E8%B7%AF%E6%AD%A5%E8%A1%8C%E8%A1%97%E5%A4%9C%E6%99%AF_-_panoramio.jpg","n":1},"CGO":{"p":"b/bc/Zhengzhou_east_district_at_night.jpg","n":1},"WUH":{"p":"9/90/Night_in_Wuhan_City.jpg","n":1},"YIH":{"p":"7/73/Night_view_of_Yichang_1.jpg","n":1},"HAK":{"p":"3/37/Haikou_century_bridge1.jpg","n":1},"KMG":{"p":"0/0a/Kunming_night.jpg","n":1},"PVG":{"p":"d/d4/The_Bund%2C_Shanghai_at_night.jpg","n":1},"CAN":{"p":"e/ef/Canton_Tower_at_night_1.jpg","n":1},"XMN":{"p":"f/fe/Xiamen_night_Skyline_from_Gulangyu.JPG","n":1},"CKG":{"p":"2/27/Hongya_Cave_at_night_20251027_%282%29.jpg","n":1},"XIY":{"p":"e/ef/Xi%27an_Bell_Tower_at_night.jpg","n":1},"NKG":{"p":"4/4c/Confucius_Temple_and_Qinhuai_River%2C_Nanjing_Night.jpg","n":1},"HGH":{"p":"1/1e/Hangzhou_CBD_at_night_4.jpg","n":1},"SZX":{"p":"c/cb/Shenzhen_Skyline_At_Night_%28214551663%29.jpeg","n":1},"TFU":{"p":"a/a9/Anshun_Bridge_Jin_River_Chengdu_night_2026_dllu.jpg","n":1},"KWL":{"p":"2/2d/Sun_and_Moon_Pagodas_Guilin_November_2017_HDR.jpg","n":1},"LJG":{"p":"7/74/1_lijiang_old_town_night.jpg","n":1},"TSN":{"p":"0/01/Tianjin_Eye_11.jpg","n":1},"NGB":{"p":"3/37/Ningbo_Old_Bund_at_Night.JPG","n":1},"FOC":{"p":"3/3a/Fuzhou_Zhongzhou_Island_at_night.jpg","n":1},"CSX":{"p":"7/7c/%E9%95%BF%E6%B2%99%E6%B9%98%E6%B1%9F%E5%A4%9C%E6%99%AF.jpg","n":1},"WUX":{"p":"b/bd/%E6%97%A0%E9%94%A1%E6%B8%85%E5%90%8D%E6%A1%A5%E5%A4%9C%E6%99%AF.jpg","n":1},"YNT":{"p":"4/48/%E7%83%9F%E5%8F%B0%E6%BB%A8%E6%B5%B7%E4%B9%8B%E5%A4%9C_-_panoramio.jpg","n":1},"YNJ":{"p":"0/07/Night_in_Yanji_1.jpg","n":1},"HRB":{"p":"6/63/Harbin_Ice_Festival.jpg","n":1},"WEH":{"p":"2/2e/%E6%88%90%E5%B1%B1%E5%A4%B4_-_panoramio.jpg","n":0},"LYI":{"p":"3/38/%E6%B2%82%E8%92%99%E5%B1%B1%E5%A4%A9%E8%92%99%E6%97%85%E6%B8%B8%E5%8C%BA%E6%9C%9B%E6%B5%B7%E6%A5%BC%EF%BC%88%E8%83%8C%E9%9D%A2%EF%BC%89.jpg","n":0},"YNZ":{"p":"f/f6/P%C3%A8re_David%27s_Deer_imported_from_iNaturalist_photo_162354434_on_24_January_2024.jpg","n":0},"DYG":{"p":"4/47/Zhangjiajie_National_Forest_Park.jpg","n":0}};
+const FOOD={"PEK":[["d/d1/Peking_duck_by_Mr_Wabu_in_Beijing.jpg","베이징덕"],["a/a7/Zhajiangmian_before_stirring_at_Fangzhuanchang_%2820210115130756%29.jpg","자장몐"]],"TSN":[["4/4a/Jianbing_Guozi_20170610.jpg","젠빙궈쯔"],["c/c9/Guobacai_in_Tianjin_Goubuli_2017.jpg","궈바차이"]],"SJW":[["8/8b/Donkey_sandwich%2C_Hejian_style_%2820160220143311%29.jpg","뤼러우 훠사오"]],"SHE":[["f/fe/Liaoning-style_Guobaorou_at_Handsome_Cooking_Guys%2C_Hopson_One_%2820230306162321%29.jpg","궈바오러우"],["2/2a/%E6%B2%88%E9%98%B3%E7%83%A4%E9%B8%A1%E6%9E%B6.jpg","카오지자 (닭뼈 구이)"]],"DLC":[["8/80/Dalian_Menzi.JPG","먼쯔"],["a/a1/Sanxian_Menzi_at_a_Restaurant_in_Dalian_20251122.jpg","삼선 먼쯔"]],"CGQ":[["5/55/Disanxian.jpg","디싼셴 (지삼선)"],["7/76/Suan_cai_pork_stew.jpg","쏸차이 돼지고기찜"]],"HRB":[["0/04/Guobaorou_at_Zhenbutong%2C_Changchun_%2820220826174428%29.jpg","궈바오러우"]],"YNJ":[["7/78/%E5%BB%B6%E5%90%89_%E5%90%B4%E6%B0%8F%E5%8C%85%E9%A5%AD%E4%B9%8B%E5%90%B4%E6%B0%8F%E6%8B%8C%E5%86%B7%E9%9D%A2.jpg","옌지 냉면"]],"TAO":[["7/7d/Tsingtao_Beer_variations_at_BHG_Lifestyle_Market%2C_Shangdi_%2820210813162723%29.jpg","칭다오 맥주"]],"YNT":[["2/28/Haichang_Laofan_at_a_restaurant_in_Beijing_%2820251012140004%29.jpg","하이창 라오판 (개불 덮밥)"]],"TNA":[["4/48/%E6%B5%8E%E5%8D%97%E6%8A%8A%E5%AD%90%E8%82%89%E5%92%8C%E8%82%89%E4%B8%B8%E5%AD%90.jpg","바쯔러우"],["4/48/Tangcu_Liyu_20230622.jpg","탕추리위 (잉어 탕수)"]],"LYI":[["a/a8/%E7%B3%81%E6%B1%A4_sa%E6%B1%A4.jpg","싼탕 (아침 고깃국)"]],"PVG":[["7/7d/Xiaolongbao_1_2018-12-05.jpg","샤오룽바오"],["b/ba/Shengjian_Mantou_on_a_Pan.jpg","성젠바오"],["a/a8/Red_braised_pork_belly.jpg","훙사오러우"]],"NKG":[["0/0d/Nanjing_Salted_Duck.jpg","옌수이야 (소금 오리)"],["f/f3/Duck_blood_and_vermicelli_soup_and_salted_duck.jpg","오리 선지 당면탕"]],"WUX":[["8/8d/Spareribs_of_Wuxi_Lugaojian.jpg","우시 장파이구"],["d/dc/%E5%92%AC%E4%BA%86%E4%B8%80%E5%8F%A3%E7%9A%84%E6%97%A0%E9%94%A1%E5%B0%8F%E7%AC%BC%E5%8C%85.jpg","우시 샤오룽바오"]],"YTY":[["3/3c/Yangzhou_fried_rice_and_drinks_25-09-2019.jpg","양저우 볶음밥"],["c/c4/Lions_head_meatballs_in_brown_sauce.jpg","스쯔터우 (사자머리 완자)"]],"HGH":[["4/4e/Dongpo_pork_%28a_Hangzhou_dish%29.jpg","둥포러우"],["1/1b/West_Lake_Fish_in_Vinegar_Gravy.jpg","시후추위 (서호 초어)"],["8/8d/Longjing_prawns_in_Hangzhou_Restaurant_2015-07.JPG","룽징 새우"]],"NGB":[["5/5a/Wufangzhai_Tangyuan_in_Wuhan.jpg","탕위안"]],"WNZ":[["8/8b/%E6%B8%A9%E5%B7%9E%E9%B1%BC%E4%B8%B8%E9%9D%A2.jpg","원저우 어묵 국수"]],"HFE":[["0/0a/Fermented_mandarin_fish.jpg","처우구이위 (삭힌 쏘가리)"],["0/03/Hairy_Tofu.jpg","마오더우푸"]],"FOC":[["f/ff/Fotiaoqiang_at_Juchunyuan%2C_Fuzhou_%2820250127114656%29.jpg","불도장"]],"XMN":[["3/35/Shachamian.JPG","사차면"],["8/83/Oyster_omelette.JPG","굴전"]],"CGO":[["c/c7/Henan_braised_noodles.JPG","후이몐"],["f/f9/20210708_Henan-style_Hulatang.jpg","후라탕"]],"YIH":[["0/09/Hubei_Fish_Balls.jpg","후베이 생선 완자"],["d/d3/Lotus_root-Hubei_style.jpg","연근 요리"]],"WUH":[["7/7e/Hot_Dry_Noodles.jpg","러간몐"],["e/e4/Doupi_breakfast_in_Wuhan.jpeg","더우피"]],"DYG":[["a/ab/Hunan_cuisine%2C_twice-cooked_pork.jpg","후난식 돼지고기 볶음"]],"CSX":[["9/9c/Changsha_Stinky_Tofu.jpg","창사 취두부"],["4/49/Steamed_fish_head_with_diced_hot_red_peppers_20211206.jpg","둬자오 위터우"]],"CAN":[["5/55/Cantonese_roast_goose_served_in_Guangzhou%2C_China%2C_June_2026.jpg","거위구이"],["f/fa/Char_siu_pieces.jpg","차사오"],["3/39/Chaoshan_rice_noodle_roll.jpg","창펀"]],"SZX":[["9/94/Chaoshan_Beef_Hot_Pot_at_Baheli_Haiji%2C_ZGC1_%2820221003132726%29.jpg","차오산 소고기 훠궈"],["a/a5/Yeziji_Hainanese_coconut_chicken_soup.jpg","코코넛 닭 훠궈"]],"KWL":[["4/49/Guilin_mifan.jpg","구이린 쌀국수"]],"HAK":[["4/46/Wenchang_Chicken_1.JPG","원창지 (닭 요리)"],["a/ac/Coconut_milk_Ching_Bo_Leung_%2820220421141453%29.jpg","칭부량"]],"XIY":[["c/c5/Roujiamo.jpg","러우자모"],["a/ae/Biang_Biang_Mian.jpg","뱡뱡면"],["8/80/Yangrou_Paomo.JPG","양러우 파오모"]],"TFU":[["4/4e/Chengdu_Hot_Pot_Yuanyangguo_style_2019.jpg","쓰촨 훠궈"],["e/ee/Dandan_Noodles.jpg","단단면"]],"CKG":[["c/c6/Chongqing_Hot_Pot.jpg","충칭 훠궈"],["4/4b/Chongqing_Xiaomian_with_fried_eggs.jpg","충칭 샤오몐"]],"KMG":[["9/92/Crossing_the_Bridge_Noodle_at_Qian_Xiang_Yuan.jpg","궈차오 미셴"]],"LJG":[["5/5d/%E4%B8%BD%E6%B1%9F%E7%B2%91%E7%B2%91_Lijiang_Ba_Ba_Bread_with_spring_onion_and_egg_-_street_vendor_CNY4.jpg","리장 바바"]]};
+const FOODTXT={WEH:"해삼, 굴, 가리비 구이",YNZ:"어탕면, 둥타이 해산물"};
+const LL={"PEK":[116.4,39.9],"TSN":[117.2,39.1],"SJW":[114.5,38.0],"SHE":[123.4,41.8],"DLC":[121.6,38.9],"CGQ":[125.3,43.9],"HRB":[126.6,45.8],"YNJ":[129.5,42.9],"TAO":[120.4,36.1],"YNT":[121.4,37.5],"WEH":[122.1,37.5],"TNA":[117.0,36.7],"LYI":[118.4,35.1],"PVG":[121.5,31.2],"NKG":[118.8,32.1],"WUX":[120.3,31.5],"YTY":[119.4,32.4],"YNZ":[120.2,33.4],"HGH":[120.2,30.3],"NGB":[121.5,29.9],"WNZ":[120.7,28.0],"HFE":[117.3,31.8],"FOC":[119.3,26.1],"XMN":[118.1,24.5],"CGO":[113.6,34.7],"WUH":[114.3,30.6],"YIH":[111.3,30.7],"CSX":[113.0,28.2],"DYG":[110.5,29.1],"CAN":[113.3,23.1],"SZX":[114.1,22.5],"KWL":[110.3,25.3],"HAK":[110.3,20.0],"XIY":[108.9,34.3],"TFU":[104.1,30.7],"CKG":[106.5,29.6],"KMG":[102.7,25.0],"LJG":[100.2,26.9]};
+const CN=[[135,48.4],[131,45],[131,42.9],[130.6,42.4],[128,41.5],[126,41],[124.4,40],[121.6,38.9],[122,40.6],[119.5,39.8],[117.7,38.9],[118.9,37.5],[120.8,37.8],[122.5,37.3],[120.3,36],[119.3,35],[120.9,32.6],[121.9,31],[121.9,29.9],[121.6,28.2],[119.7,25.8],[118.1,24.4],[116.7,23.3],[114.2,22.3],[111.7,21.5],[110.2,20.3],[109.6,21.5],[108,21.5],[106.7,22.8],[105.3,23.3],[103,22.5],[101.8,21.2],[100,21.6],[99,22],[98.7,24],[97.6,24],[98.7,25.8],[98.5,27.6],[97.4,28.2],[96,29.3],[94.6,29.2],[92,26.9],[91.6,27.8],[89,27.3],[88.8,28],[85.9,27.9],[83.2,29.6],[81.2,30.1],[79.2,31],[78.7,32.5],[78.9,34.3],[77.8,35.5],[76,36.5],[74.9,37.2],[73.6,39.3],[73.9,40],[76.5,40.4],[78.3,41.1],[80.2,42.1],[80.3,45],[82.5,45.2],[82.6,47.1],[85.5,47.1],[85.7,48.4],[87.8,49.2],[88.8,48.1],[90.9,46.9],[91,45.2],[95.4,44.3],[96.4,42.7],[101,42.6],[105,41.6],[109.6,42.5],[111.9,43.7],[111.8,45],[115.5,45.4],[116.7,46.3],[119.7,46.6],[118.1,48],[115.8,47.9],[116.7,49.8],[119.3,50.3],[120.8,53.3],[123.6,53.5],[125.6,53],[127.5,49.8],[130.6,48.9],[132.5,47.7]];
+const DAILY={l:[10,14],m:[12,18],h:[15,24]},PL={l:"낮음",m:"보통",h:"높음"};
+C.forEach((c,idx)=>{c[5].splice(1,1);const k=COST[c[0]],d=DAILY[k[4]];
+  const lo=3*k[0]+3*k[2]+4*d[0],hi=3*k[1]+3*k[3]+4*d[1],mid=(lo+hi)/2;
+  c[9]={air:[k[0],k[1]],hotel:[k[2],k[3]],pl:PL[k[4]],lo,hi,mid};c[10]=idx;
+  c[5][7]=mid<150?5:mid<175?4:mid<200?3:mid<225?2:1;});
+const r5=v=>Math.round(v/5)*5;
+const UP="https://upload.wikimedia.org/wikipedia/commons/thumb/",TH="https://thumb.wikimedia.org/wikipedia/commons/thumb/";
+const code=c=>c[1].slice(0,3);
+const photoURL=(p,h)=>(h||UP)+p+"/500px-"+p.split("/").pop();
+function phErr(im){if(im.dataset.alt){const s=im.dataset.alt;im.removeAttribute("data-alt");im.src=s;return}const a=im.closest("a")||im,w=a.parentNode;a.remove();if(w&&w.classList.contains("ph")&&!w.children.length)w.remove()}
+
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+const EASE="cubic-bezier(.16,1,.3,1)";
+let sel=new Set([0,1,2,3,4,5,6,7]),rows=[];
+try{const v=JSON.parse(localStorage.getItem("cn-rank-nova")||"null");if(Array.isArray(v)&&v.length)sel=new Set(v.filter(n=>n>=0&&n<8))}catch(e){}
+const same=a=>a.length===sel.size&&a.every(i=>sel.has(i));
+
+function rankFor(set){
+  const r=C.map(c=>({c,idx:c[10],sum:[...set].reduce((a,i)=>a+c[5][i],0),all:c[5].reduce((a,b)=>a+b,0)}));
+  r.sort((a,b)=>b.sum-a.sum||b.all-a.all||a.c[0].localeCompare(b.c[0],"ko"));
+  let prev=null,rank=0;r.forEach((x,i)=>{if(x.sum!==prev){rank=i+1;prev=x.sum}x.rank=rank;x.pos=i});
+  return r;
+}
+
+/* ---------- maps ---------- */
+const MW=141,MH=100,px=lon=>(lon-73)/62.5*MW,py=lat=>(53.8-lat)/35.8*MH,SEOUL=[126.98,37.57];
+const pt=l=>[+px(l[0]).toFixed(2),+py(l[1]).toFixed(2)];
+function arcD(l){const a=pt(SEOUL),b=pt(l),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],k=.2;return `M${a[0]},${a[1]} Q${(mx+dy*k).toFixed(2)},${(my-dx*k).toFixed(2)} ${b[0]},${b[1]}`}
+function seoulMark(){const s=pt(SEOUL);return `<circle cx="${s[0]}" cy="${s[1]}" r="1.5" fill="none" stroke="#EFE9DD" stroke-width=".6"/><text class="mlab" x="${s[0]+2.6}" y="${s[1]+1.1}" fill="#EFE9DD">서울</text>`}
+function buildDefs(){
+  const h=pt([109.7,19.2]);
+  document.body.insertAdjacentHTML("beforeend",`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="cn" viewBox="0 0 141 100"><polygon class="cnshape" points="${CN.map(p=>pt(p).join(",")).join(" ")}"/><ellipse class="cnshape" cx="${h[0]}" cy="${h[1]}" rx="2" ry="1.5"/></symbol></defs></svg>`);
+}
+function miniMap(c){const p=pt(LL[code(c)]);return `<svg viewBox="0 0 141 100" class="mx-auto h-auto w-full max-w-[17rem]" role="img" aria-label="중국 지도에서 ${esc(c[0])}의 위치"><use href="#cn"/><path class="arc" pathLength="1" d="${arcD(LL[code(c)])}"/>${seoulMark()}<circle class="pulse" cx="${p[0]}" cy="${p[1]}" r="2.2" fill="#E9B14C"/><circle cx="${p[0]}" cy="${p[1]}" r="2" fill="#E9B14C"/></svg>`}
+function buildBigMap(){
+  $("#bigmap").innerHTML=`<use href="#cn"/>`+C.map((c,i)=>`<path class="arc" style="--d:${i}" pathLength="1" d="${arcD(LL[code(c)])}"/>`).join("")+seoulMark()+
+   C.map(c=>{const p=pt(LL[code(c)]);return `<circle class="mdot" data-open="${c[10]}" data-dot="${c[10]}" cx="${p[0]}" cy="${p[1]}" r="1.4" fill="rgba(239,233,221,.6)"><title>${esc(c[0])}</title></circle>`}).join("")+`<g id="maplabs"></g>`;
+}
+function setMap(){
+  const max=sel.size*5;
+  rows.forEach(r=>{const d=document.querySelector(`[data-dot="${r.idx}"]`);d.setAttribute("r",(0.9+r.sum/max*1.7).toFixed(2));d.setAttribute("fill",r.pos<3?"#E9B14C":"rgba(239,233,221,.6)")});
+  rows.slice(0,3).forEach(r=>{const d=document.querySelector(`[data-dot="${r.idx}"]`);d.parentNode.insertBefore(d,document.getElementById("maplabs"))});
+  $("#maplabs").innerHTML=rows.slice(0,3).map(r=>{const l=LL[code(r.c)],p=pt(l),left=l[0]>112;return `<circle class="pulse" cx="${p[0]}" cy="${p[1]}" r="2.4" fill="#E9B14C" style="pointer-events:none"/><text class="mlab" x="${left?p[0]-3.2:p[0]+3.2}" y="${p[1]+1.2}" text-anchor="${left?"end":"start"}" fill="#E9B14C">${r.rank} ${esc(r.c[0])}</text>`}).join("");
+}
+function heroErr(im){if(im.dataset.alt){const s=im.dataset.alt;im.removeAttribute("data-alt");im.src=s;return}(im.closest("a")||im).remove()}
+
+/* ---------- reveal ---------- */
+const io=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px",threshold:.06}):null;
+const watch=el=>{if(io)io.observe(el);else el.classList.add("in")};
+
+/* ---------- split-flap board ---------- */
+const POOL={k:"가나다라마바사아자차카타파하",a:"ABCDEFGHJKLMNPRSTUVWXYZ",n:"0123456789"};
+const BOARD_ROWS=6,GROUPS=[["n",2,"순위"],["k",4,"도시"],["a",3,"코드"],["n",4,"비행"],["n",2,"점수"]];
+let cells=[];
+function buildBoard(){
+  $("#boardHead").innerHTML=GROUPS.map(g=>`<span style="width:calc(${g[1]} * var(--c) * ${g[0]==="k"?1.28:1} + ${(g[1]-1)*2}px)">${g[2]}</span>`).join("");
+  let h="";for(let r=0;r<BOARD_ROWS;r++){h+=`<div class="brow" role="listitem">`+GROUPS.map((g,gi)=>`<span class="bgrp">`+Array.from({length:g[1]},()=>`<span class="flap${g[0]==="k"?" k":""}${gi===4?" s":""}" data-p="${g[0]}">&nbsp;</span>`).join("")+`</span>`).join("")+`</div>`}
+  $("#board").innerHTML=h;
+  cells=$$("#board .brow").map(r=>[...r.querySelectorAll(".flap")]);
+}
+function flightShort(s){const m=s.match(/(\d+)시간(?:\s*(\d+)분)?/);return m?m[1]+":"+String(m[2]||0).padStart(2,"0"):"-:--"}
+async function flip(el,ch,delay){
+  if(el.dataset.ch===ch)return;el.dataset.ch=ch;
+  const put=t=>{el.textContent=t===" "?" ":t};
+  if(RM||!el.animate){put(ch);return}
+  await new Promise(r=>setTimeout(r,delay));
+  const pool=POOL[el.dataset.p]||POOL.n,steps=2+Math.floor(Math.random()*2);
+  for(let i=0;i<=steps;i++){
+    await el.animate([{transform:"rotateX(0deg)"},{transform:"rotateX(-88deg)"}],{duration:70,easing:"ease-in"}).finished;
+    if(el.dataset.ch!==ch&&i<steps){}
+    put(i===steps?ch:pool[Math.floor(Math.random()*pool.length)]);
+    await el.animate([{transform:"rotateX(88deg)"},{transform:"rotateX(0deg)"}],{duration:i===steps?260:70,easing:i===steps?EASE:"ease-out"}).finished;
+  }
+}
+function setBoard(){
+  rows.slice(0,BOARD_ROWS).forEach((r,ri)=>{
+    const c=r.c,str=String(r.rank).padStart(2,"0")+c[0].padEnd(4," ").slice(0,4)+code(c)+flightShort(c[3]).padStart(4," ")+String(r.sum).padStart(2," ");
+    const chars=[...str];
+    cells[ri].forEach((el,ci)=>flip(el,chars[ci]||" ",ri*110+ci*26));
+    cells[ri][0].parentNode.parentNode.setAttribute("aria-label",`${r.rank}위 ${c[0]}, ${r.sum}점`);
+  });
+}
+
+/* ---------- number tween ---------- */
+function tween(el,to,dur=700){
+  const from=+(el.dataset.n||0);el.dataset.n=to;
+  if(RM||from===to){el.textContent=to;return}
+  const t0=performance.now();
+  (function step(t){const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,4);el.textContent=Math.round(from+(to-from)*e);if(k<1)requestAnimationFrame(step)})(t0);
+}
+
+/* ---------- static builds ---------- */
+function buildMarquee(){
+  const half=Math.ceil(C.length/2),mk=a=>{const one=a.map(c=>`<span class="mx-5 inline-flex items-baseline gap-2 whitespace-nowrap"><span class="font-didone text-lg italic text-sun/80">${code(c)}</span><span class="font-kr text-2xl font-semibold text-paper/80 md:text-3xl">${esc(c[0])}</span></span>`).join("");return one+one};
+  $("#mq1").innerHTML=mk(C.slice(0,half));$("#mq2").innerHTML=mk(C.slice(half));
+}
+function buildPresets(){
+  $("#presetGrid").innerHTML=PRE.map((p,i)=>{
+    const top=rankFor(new Set(p.s)).slice(0,3),big=i===0;
+    return `<button type="button" class="preset rv ${p.span}" style="--i:${i}" data-p="${i}">
+      <span class="flex items-start justify-between gap-3">
+        <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 text-sun shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"><iconify-icon icon="${p.ic}" width="22"></iconify-icon></span>
+        <span class="tick flex h-7 items-center gap-1 rounded-full bg-sun px-2.5 text-xs font-bold text-ink"><iconify-icon icon="solar:check-circle-linear" width="14"></iconify-icon>적용 중</span>
+      </span>
+      <span class="mt-5 block font-kr ${big?"text-3xl md:text-4xl":"text-xl"} font-bold leading-snug">${p.t}</span>
+      <span class="mt-2 block text-sm leading-relaxed text-mute ${big?"max-w-sm md:text-base":""}">${p.d}</span>
+      ${big?`<span class="mt-8 grid grid-cols-3 gap-3">${top.map(r=>`<span class="rounded-2xl bg-white/[0.04] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"><span class="font-didone text-2xl italic text-sun">${r.rank}</span><span class="mt-1 block font-kr text-base font-semibold">${esc(r.c[0])}</span><span class="tnum block text-xs text-mute">${r.sum}점</span></span>`).join("")}</span>`
+      :`<span class="mt-5 flex items-center gap-2 text-sm"><span class="text-mute">1위</span><span class="font-kr font-semibold">${esc(top[0].c[0])}</span><span class="tnum text-sun">${top[0].sum}점</span></span>`}
+    </button>`}).join("");
+  $$("#presetGrid .rv").forEach(watch);
+}
+function buildGuide(){
+  $("#guideList").innerHTML=CRL.map((l,i)=>`<div class="rv flex gap-4 border-t border-white/10 py-6" style="--i:${i%4}">
+    <span class="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-white/5 text-sun shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"><iconify-icon icon="${ICON[i]}" width="22"></iconify-icon></span>
+    <span><span class="block font-kr text-lg font-semibold">${l}</span><span class="mt-1 block text-sm leading-relaxed text-mute">${GUIDE[i]}</span></span></div>`).join("");
+  $$("#guideList .rv").forEach(watch);
+}
+function buildMatrix(){
+  $("#mxHead").innerHTML=`<span></span><span class="pl-1 text-[10.5px] font-semibold text-mute lg:text-[13px]">도시</span>`+CR.map((l,i)=>`<span data-h="${i}"><button type="button" data-only="${i}" aria-label="${CRL[i]} 기준으로만 순위 보기"><span class="lg:hidden">${l}</span><span class="hidden lg:inline">${CRL[i]}</span></button></span>`).join("")+`<span class="text-center text-[10.5px] font-semibold text-mute lg:text-[13px]">합</span><span class="hidden text-right text-[13px] font-semibold text-mute lg:block">3인 3박4일</span>`;
+  $("#mxBody").innerHTML=C.map(c=>`<div class="mxrow" data-row="${c[10]}">
+    <span class="rk tnum text-sm lg:text-xl" data-rk></span>
+    <button type="button" data-open="${c[10]}" class="min-w-0 truncate pl-1 text-left font-kr text-[13.5px] font-semibold transition-colors duration-500 hover:text-sun lg:text-base">${esc(c[0])}<span class="ml-2 hidden font-didone text-xs italic text-mute lg:inline">${code(c)}</span></button>
+    ${c[5].map((v,i)=>`<span class="sc" data-c="${i}"><i class="v${v} tnum">${v}</i></span>`).join("")}
+    <span class="tnum text-center font-didone text-base font-semibold text-paper lg:text-2xl" data-sum data-n="0">0</span>
+    <span class="tnum hidden text-right text-sm text-mute lg:block">${r5(c[9].lo)}~${r5(c[9].hi)}만</span>
+  </div>`).join("");
+}
+function buildCities(){
+  const link=p=>"https://commons.wikimedia.org/wiki/File:"+p.split("/").pop();
+  $("#cityGrid").innerHTML=C.map(c=>{const k=code(c),hero=HERO[k],ph=(PH[k]||[]).filter(p=>!hero||p!==hero.p),fd=FOOD[k]||[];return `<article class="city bezel rv" id="city-${c[10]}" data-city="${c[10]}">
+    <div class="core h-full overflow-hidden">
+      <figure class="hero-fig">
+        ${hero?`<a href="${link(hero.p)}" target="_blank" rel="noopener" class="absolute inset-0" aria-label="${esc(c[0])} 대표 사진 원본 보기"><img loading="lazy" decoding="async" alt="${esc(c[0])} ${hero.n?"야경":"풍경"}" src="${photoURL(hero.p)}" data-alt="${photoURL(hero.p,TH)}" onerror="heroErr(this)"></a>`:""}
+        <div class="shade"></div>
+        <span class="pointer-events-none absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-[11px] font-semibold text-paper shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14)]">${hero&&hero.n?"대표 야경":"대표 풍경"}</span>
+        <figcaption class="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 md:p-7">
+          <div class="min-w-0">
+            <div class="flex items-baseline gap-1.5"><span class="font-didone text-4xl italic font-semibold leading-none text-sun tnum" data-rk></span><span class="text-xs text-paper/70">위</span></div>
+            <h3 class="mt-1.5 font-kr text-[1.9rem] font-bold leading-tight tracking-tight md:text-4xl">${esc(c[0])}<span class="ml-2 font-didone text-sm italic font-normal text-paper/70">${esc(c[1])}</span></h3>
+          </div>
+          <div class="flex-none text-right"><span class="font-didone text-5xl font-medium leading-none tnum" data-sum data-n="0">0</span><span class="ml-1 text-xs text-paper/70 tnum" data-max></span></div>
+        </figcaption>
+      </figure>
+      <div class="p-5 md:p-7">
+        <div class="flex flex-wrap gap-1.5 text-xs font-medium">
+          <span class="rounded-full bg-white/5 px-2.5 py-1 text-mute">${c[2]}</span><span class="rounded-full bg-white/5 px-2.5 py-1 text-mute">비행 ${c[3]}</span>${c[4]?`<span class="rounded-full bg-sun/15 px-2.5 py-1 text-sun">김포 출발 가능</span>`:""}
+        </div>
+        <p class="mt-4 text-[15px] leading-relaxed text-paper/90">${esc(c[6])}</p>
+        ${ph.length?`<div class="mt-6 flex items-center gap-1.5 text-xs font-bold text-mute"><iconify-icon icon="solar:camera-linear" width="15"></iconify-icon>풍경과 랜드마크</div><div class="ph mt-2.5">${ph.map(p=>`<a href="${link(p)}" target="_blank" rel="noopener"><img loading="lazy" decoding="async" alt="${esc(c[0])} 풍경 사진" src="${photoURL(p)}" data-alt="${photoURL(p,TH)}" onerror="phErr(this)"></a>`).join("")}</div>`:""}
+        <div class="mt-6 flex items-center gap-1.5 text-xs font-bold text-mute"><iconify-icon icon="solar:chef-hat-linear" width="15"></iconify-icon>대표 음식</div>
+        ${fd.length?`<div class="ph food mt-2.5">${fd.map(f=>`<a href="${link(f[0])}" target="_blank" rel="noopener"><img loading="lazy" decoding="async" alt="${esc(f[1])}" src="${photoURL(f[0])}" data-alt="${photoURL(f[0],TH)}" onerror="this.dataset.alt?(this.src=this.dataset.alt,this.removeAttribute('data-alt')):this.remove()"><span>${esc(f[1])}</span></a>`).join("")}</div>`:`<p class="mt-2 text-sm text-paper/85">${esc(FOODTXT[k]||"")}</p>`}
+        <div class="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div class="rounded-2xl bg-white/[0.04] p-4"><div class="flex items-center gap-1.5 text-xs font-bold text-sun"><iconify-icon icon="solar:check-circle-linear" width="15"></iconify-icon>좋은 점</div><p class="mt-1.5 text-sm leading-relaxed text-paper/85">${esc(c[7])}</p></div>
+          <div class="rounded-2xl bg-white/[0.04] p-4"><div class="flex items-center gap-1.5 text-xs font-bold text-mute"><iconify-icon icon="solar:close-circle-linear" width="15"></iconify-icon>아쉬운 점</div><p class="mt-1.5 text-sm leading-relaxed text-paper/85">${esc(c[8])}</p></div>
+        </div>
+        <div class="mt-6 grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+          <div class="grid content-start gap-2.5">${c[5].map((v,i)=>`<div class="bar" data-b="${i}" style="--d:${i}"><span>${CRL[i]}</span><span class="t"><u style="--v:${v/5}"></u></span><b class="tnum">${v}</b></div>`).join("")}</div>
+          <div class="content-start">
+            <div class="rounded-2xl bg-white/[0.04] p-3"><div class="flex items-center justify-between px-1 text-xs text-mute"><span class="flex items-center gap-1.5 font-bold"><iconify-icon icon="solar:map-point-linear" width="15"></iconify-icon>중국에서의 위치</span><span>${c[2]} 권역</span></div>${miniMap(c)}</div>
+            <dl class="mt-3 text-sm">
+              <div class="flex justify-between gap-3 py-2"><dt class="text-mute">항공 1인 왕복</dt><dd class="tnum font-semibold">${c[9].air[0]}~${c[9].air[1]}만 원</dd></div>
+              <div class="flex justify-between gap-3 py-2"><dt class="text-mute">4성급 호텔 1박</dt><dd class="tnum font-semibold">${c[9].hotel[0]}~${c[9].hotel[1]}만 원</dd></div>
+              <div class="flex justify-between gap-3 py-2"><dt class="text-mute">현지 물가</dt><dd class="font-semibold">${c[9].pl}</dd></div>
+              <div class="mt-1 flex items-baseline justify-between gap-3 border-t border-white/10 pt-3"><dt class="text-mute">3인 3박4일</dt><dd class="tnum font-kr text-lg font-bold text-sun">${r5(c[9].lo)}~${r5(c[9].hi)}만 원</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>`}).join("");
+  $$("#cityGrid .rv").forEach(watch);
+}
+
+/* ---------- podium ---------- */
+function setPodium(){
+  const top=rows.slice(0,3),max=sel.size*5;
+  const html=top.map((r,i)=>{const c=r.c,p=(HERO[code(c)]||{}).p;return `<article class="pod p${i+1}" data-open="${r.idx}" tabindex="0" role="button" aria-label="${esc(c[0])} 설명 보기">
+    ${p?`<img alt="" decoding="async" src="${photoURL(p)}" data-alt="${photoURL(p,TH)}" onerror="if(this.dataset.alt){var s=this.dataset.alt;this.removeAttribute('data-alt');this.src=s}else{this.remove()}">`:""}
+    <div class="shade"></div>
+    <div class="relative flex h-full min-h-[19rem] flex-col justify-between p-6 md:min-h-[26rem] md:p-7">
+      <div class="flex items-start justify-between"><span class="font-didone text-7xl italic font-medium leading-none text-sun md:text-8xl">${r.rank}</span><span class="glass rounded-full px-3 py-1.5 text-xs font-semibold tnum">${r.sum} / ${max}점</span></div>
+      <div><h3 class="font-kr text-3xl font-bold leading-tight md:text-4xl">${esc(c[0])}</h3><p class="mt-2 text-sm leading-relaxed text-paper/85">${esc(c[6])}</p><p class="mt-3 text-xs text-mute tnum">${c[2]}, 비행 ${c[3]}, 3인 ${r5(c[9].lo)}~${r5(c[9].hi)}만 원</p></div>
+    </div></article>`}).join("");
+  const box=$("#podium");
+  if(RM||!box.animate||!box.children.length){box.innerHTML=html;return}
+  box.animate([{opacity:1,transform:"translateY(0)"},{opacity:0,transform:"translateY(14px)"}],{duration:220,easing:"ease-in"}).finished.then(()=>{box.innerHTML=html;box.animate([{opacity:0,transform:"translateY(14px)"},{opacity:1,transform:"translateY(0)"}],{duration:700,easing:EASE})});
+}
+
+/* ---------- update on criteria change ---------- */
+function update(first){
+  rows=rankFor(sel);const max=sel.size*5,names=[...sel].sort((a,b)=>a-b).map(i=>CRL[i]);
+  const label=sel.size===8?"8개 기준 전체":names.join(" + ");
+  $("#chips").innerHTML=CRL.map((l,i)=>`<button type="button" class="chip" aria-pressed="${sel.has(i)}" data-i="${i}">${l}</button>`).join("");
+  $$("#presetGrid .preset").forEach((b,i)=>b.classList.toggle("on",same(PRE[i].s)));
+  $("#boardCrit").textContent=sel.size===8?"8개 기준 전체":sel.size<=2?names.join(" + "):names[0]+" 외 "+(sel.size-1)+"개";
+  $("#boardMax").textContent=max+"점 만점";
+  $("#rankSub").textContent=label+", "+max+"점 만점";
+  $("#podSub").textContent=label;
+  setBoard();setPodium();setMap();
+  /* matrix: FLIP reorder */
+  const body=$("#mxBody"),els=new Map($$("#mxBody .mxrow").map(e=>[+e.dataset.row,e]));
+  const firstRect=new Map();if(!first&&!RM)els.forEach((e,k)=>firstRect.set(k,e.getBoundingClientRect().top));
+  rows.forEach(r=>{const e=els.get(r.idx);e.style.order=r.pos;e.classList.toggle("top",r.rank<=3);
+    e.querySelector("[data-rk]").textContent=r.rank;tween(e.querySelector("[data-sum]"),r.sum);
+    e.querySelectorAll(".sc").forEach(s=>s.classList.toggle("off",!sel.has(+s.dataset.c)))});
+  if(!first&&!RM)els.forEach((e,k)=>{const dy=firstRect.get(k)-e.getBoundingClientRect().top;if(Math.abs(dy)>1&&Math.abs(dy)<2400)e.animate([{transform:`translateY(${dy}px)`},{transform:"translateY(0)"}],{duration:800,easing:EASE})});
+  $$("#mxHead [data-h]").forEach(h=>h.classList.toggle("on",sel.has(+h.dataset.h)));
+  /* city cards */
+  rows.forEach(r=>{const e=document.getElementById("city-"+r.idx);e.style.order=r.pos;
+    e.querySelector("[data-rk]").textContent=r.rank;tween(e.querySelector("[data-sum]"),r.sum);e.querySelector("[data-max]").textContent="/ "+max;
+    e.querySelectorAll(".bar").forEach(b=>b.classList.toggle("off",!sel.has(+b.dataset.b)))});
+  try{localStorage.setItem("cn-rank-nova",JSON.stringify([...sel]))}catch(e){}
+}
+
+/* ---------- interactions ---------- */
+function go(id){const el=document.getElementById(id);if(el)el.scrollIntoView({block:"start",behavior:RM?"auto":"smooth"})}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-i],[data-p],[data-only],[data-open],[data-go],#resetAll");if(!t)return;
+  if(t.dataset.i!==undefined){const i=+t.dataset.i;if(sel.has(i)){if(sel.size>1)sel.delete(i)}else sel.add(i);update()}
+  else if(t.dataset.p!==undefined){sel=new Set(PRE[+t.dataset.p].s);update();go("rank")}
+  else if(t.dataset.only!==undefined){sel=new Set([+t.dataset.only]);update()}
+  else if(t.dataset.open!==undefined){go("city-"+t.dataset.open)}
+  else if(t.dataset.go){go(t.dataset.go)}
+  else if(t.id==="resetAll"){sel=new Set([0,1,2,3,4,5,6,7]);update();go("rank")}
+});
+document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("pod")){e.preventDefault();go("city-"+e.target.dataset.open)}});
+/* dock appears once the hero leaves the viewport */
+if(io){new IntersectionObserver(es=>es.forEach(e=>$("#dock").classList.toggle("show",!e.isIntersecting)),{threshold:.25}).observe($("#top"))}else $("#dock").classList.add("show");
+/* count-up */
+const cio=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){tween(e.target,+e.target.dataset.count,1400);cio.unobserve(e.target)}}),{threshold:.6}):null;
+/* magnetic buttons + podium tilt (pointer devices only) */
+if(!RM&&matchMedia("(hover:hover)").matches){
+  $$(".magnetic").forEach(b=>{b.addEventListener("pointermove",e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${((e.clientX-r.left)/r.width-.5)*10}px,${((e.clientY-r.top)/r.height-.5)*8}px) scale(1.02)`});b.addEventListener("pointerleave",()=>{b.style.transform=""})});
+  $("#podium").addEventListener("pointermove",e=>{const p=e.target.closest(".pod");if(!p)return;const r=p.getBoundingClientRect();p.style.setProperty("--ry",(((e.clientX-r.left)/r.width-.5)*7).toFixed(2)+"deg");p.style.setProperty("--rx",((.5-(e.clientY-r.top)/r.height)*6).toFixed(2)+"deg")});
+  $("#podium").addEventListener("pointerout",e=>{const p=e.target.closest(".pod");if(p&&!p.contains(e.relatedTarget)){p.style.removeProperty("--ry");p.style.removeProperty("--rx")}});
+}
+
+/* ---------- boot ---------- */
+$("#minCost").dataset.count=Math.min(...C.map(c=>r5(c[9].lo)));
+buildDefs();buildBoard();buildMarquee();buildBigMap();buildPresets();buildGuide();buildMatrix();buildCities();
+update(true);
+$$(".rv").forEach(watch);
+$$("[data-count]").forEach(el=>{if(cio)cio.observe(el);else el.textContent=el.dataset.count});
+</script>
+</body>
+</html>
