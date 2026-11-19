@@ -697,7 +697,10 @@ footer .ic{font-size:13px;margin-right:4px}
 .tchip.on{border-color:var(--accent-line);background:var(--accent-weak);color:var(--accent-strong);font-weight:600}
 @media (hover:hover){.tchip:not(.on):hover{background:var(--surface-1);border-color:var(--line-strong)}}
 .rd.off .tchips{display:none}
-@media(max-width:520px){.tchips{margin-left:0}}
+.sub-l{margin:14px 0 0 56px;font-size:13px;font-weight:600;color:var(--sub)}
+.rd.off .sub-l{display:none}
+.crow .v small{display:block;font-size:12px;font-weight:500;color:var(--muted,#6B7684);text-align:right}
+@media(max-width:520px){.tchips{margin-left:0}.sub-l{margin-left:0}}
 
 /* ── 보장표 ── */
 .mxw{overflow:auto;border:1px solid var(--line);border-radius:var(--r-md);max-height:min(60vh,560px)}
@@ -784,7 +787,7 @@ footer .ic{font-size:13px;margin-right:4px}
   <div class="mark" aria-hidden="true">M</div>
   <h1>통합치료비 시뮬레이터 <span class="sub">암 · 뇌 · 심장</span></h1>
   <div class="sp"></div>
-  <span class="ver" data-mu-ver>ver2026.11.3</span>
+  <span class="ver" data-mu-ver>ver2026.11.4</span>
 </div></header>
 
 <div class="layout">
@@ -849,7 +852,7 @@ logEvent('open',{});
 
 const ALLC=['major','skin','thy','cis','bord'], MAL=['major','skin','thy'], SIM=['skin','thy','cis','bord'], MIN=['skin','thy'];
 
-/* 특약 12종 */
+/* 특약 13종 */
 const RIDERS=[
  {id:'ca_basic',  g:'ca', ty:'CB', nm:'암 통합치료비(기본형)', sh:'암 기본형', tiers:[4000,8000,10000], half:0, wait:1, pg:'94조',
   about:'검사·수술·항암·비급여 신약·통증·재활까지 가장 넓게 보장해요'},
@@ -870,13 +873,20 @@ const RIDERS=[
  {id:'pre',       g:'ca', ty:'PR', nm:'암전후관련 특정질환 및 양성신생물 통합치료비', sh:'암전후 · 양성종양', tiers:[2000,4000], half:1, wait:0, pg:'105조',
   about:'암이 되기 전(용종·선종·양성종양)과 암 치료 후 합병증을 보장해요'},
  {id:'circ',      g:'cv', ty:'CV', nm:'특정순환계질환 통합치료비', sh:'특정순환계', tiers:[2000,3000,5000,8000,10000], half:1, wait:0, pg:'74조',
-  about:'뇌졸중·심근경색·부정맥 등 뇌·심장 질환의 검사부터 재활까지 보장해요. 2610 신담보 특정순환계질환 통합치료비Ⅱ의 ① 통합치료비도 이 표와 같아요(②③ 연간 주요치료Ⅱ 3회·4회 이상 추가지급은 별도)'},
+  about:'뇌졸중·심근경색·부정맥 등 뇌·심장 질환의 검사부터 재활까지 보장해요'},
+ {id:'circ2',     g:'cv', ty:'CV2', nm:'특정순환계질환 통합치료비Ⅱ', sh:'특정순환계 Ⅱ', tiers:[2000,3000,5000,8000,10000], half:1, wait:0, pg:'2610 신담보(통합간편 p.695)', add:[3,4],
+  about:'① 통합치료비는 특정순환계와 같은 표예요. 한 해에 주요치료Ⅱ(혈전용해·수술·중환자실 4일 이상 등)를 3회·4회 이상 받으면 ②·③ 세부 가입금액을 한 번씩 더 받아요'},
  {id:'circ_top',  g:'cv', ty:'CV', nm:'상급종합병원,권역심뇌혈관질환센터 특정순환계질환 통합치료비', sh:'특정순환계 · 상급종합', tiers:[2000,3000,5000,8000,10000], half:1, wait:0, pg:'75조',
   hosp:'상급종합병원·권역심뇌혈관질환센터에서 받은 치료만', about:'특정순환계와 금액은 같고, 상급종합병원·권역센터 치료만 보장해요'},
  {id:'ms',        g:'cv', ty:'MS', nm:'특정순환계질환(주요손상및질환) 통합치료비', sh:'주요손상및질환', tiers:[2000,3000], half:1, wait:0, pg:'5조(부가)',
   about:'고혈압·판막질환·동맥경화·외상성 뇌출혈 등을 1~5종 수술 기준으로 보장해요'}
 ];
 const DEFAULT_COMBO={ca_basic:10000, pre:4000, circ:10000, ms:3000};
+/* 특정순환계질환 통합치료비Ⅱ ②·③ 세부 가입금액 — 약관에 정해진 구간표가 없어 설계서 금액을 고르게 한다(0 = 세부 미가입).
+   처음 값은 약관 【보험금 지급 예시】의 세부보장 가입금액(② 1,000만원 · ③ 2,000만원) */
+const SUBT=[0,500,1000,2000,3000,5000], SUBDEF={3:1000,4:2000};
+/* 주요치료Ⅱ 항목(약관 ②③ 3.정의) — 수술은 1회당, 나머지는 연간 1회. 중환자실은 「4일 이상 계속 입원」만 센다 */
+const M2_ONCE=['thromb','icu','crrt','vent','hypo','ecmo'];
 
 /* 통합치료항목 (순서 = 금액표 순서) — p: y 연간1회 / o 수술1회당 / d 1일1회(연간 max회) */
 const IT={
@@ -989,6 +999,9 @@ const IT={
 };
 
 /* 쉬운 말 풀이 */
+IT.CV2=IT.CV; AMT.CV2=AMT.CV;     /* 특정순환계질환 통합치료비Ⅱ ① = 특정순환계질환 통합치료비 표와 같다(통합간편 2610 통310 · 케어프리 케421 약관 금액표 대조) */
+/* ※ proposal_smart/extract_data.py 로 product_data.json 을 다시 뽑을 때 : 위 두 줄은 글자 그대로의 표가 아니라 뽑히지 않는다.
+   스마트 제안서는 Ⅱ 를 따로 계산한다(scen_engine 규칙 tx_life_circ2 · ① 은 circ 표) — 다시 뽑으면 circ2 를 RIDERS 에서 빼거나 CV2 표를 함께 넣는다. */
 const GLOSS={
  x_endo:'내시경으로 몸 안을 직접 들여다보는 검사', x_mri:'자기장으로 몸 속을 촬영하는 검사', x_pet:'암세포가 퍼졌는지 전신을 보는 촬영',
  x_gene:'암 유전자 1개의 변이를 확인하는 검사', x_us:'초음파로 몸 속을 보는 검사', x_ct:'X선으로 몸을 단면 촬영하는 검사',
@@ -1518,7 +1531,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 
 /* ── 토스페이스 아이콘 사전 ──
    (U+FE0F·U+200D 를 쓰지 않는 이모지만 사용 → 필요한 서체 조각만 내려받아요) */
-const RIC={CB:'🧰',CL:'👛',C2:'💎',CM:'⭐',PR:'🌱',CV:'💓',MS:'🩺'};
+const RIC={CB:'🧰',CL:'👛',C2:'💎',CM:'⭐',PR:'🌱',CV:'💓',CV2:'❤️‍🔥',MS:'🩺'};
 const SIC={'진단':'🥼','검사':'🧪','수술':'🏥','시술':'🩹','항암':'💉','방사선':'⚡','중환자':'🚑','입원':'🏥','재활':'👣','추적':'📅','약물':'💊'};
 const KIC={x_endo:'🔎',x_mri:'🧲',x_pet:'🔦',x_gene:'🧬',x_us:'🔊',x_ct:'📷',x_bio:'🧫',x_ngs:'🧬',x_punct:'📍',x_bm:'🦴',
   surg:'🏥',rad:'⚡',chemo:'💉',imrt:'📐',robot:'🤖',target:'🎯',immune:'💪',proton:'✨',pain:'🌿',rehab:'👣',
@@ -1562,7 +1575,7 @@ const CAT={
   ['항암',[['항암약물(급여)','💉',['chemo']],['항암약물(비급여)','💊',['chemo'],{nc:1}],['표적항암(비급여)','🎯',['chemo','target'],{nc:1}],['면역항암(비급여)','💪',['chemo','immune'],{nc:1}]]],
   ['그 외',[['암성 통증완화','🌿',['pain']],['재활치료 10일','👣',['rehab'],{n:10}]]]],
  cv:[['검사',[['CT 촬영','📷',['x_ct']],['MRI 촬영','🧲',['x_mri']],['PET-CT','🔦',['x_pet']]]],
-  ['주요치료',[['혈전용해치료','💧',['thromb']],['수술·경피적 시술','🏥',['surg']],['종합병원 중환자실','🚑',['icu']],['에크모(부분체외순환)','🫀',['ecmo']],['지속적신대체요법','🔄',['crrt']],['인공호흡기(12시간 초과)','💨',['vent']],['저체온요법','🧊',['hypo']]]],
+  ['주요치료',[['혈전용해치료','💧',['thromb']],['수술·경피적 시술','🏥',['surg']],['종합병원 중환자실','🚑',['icu']],['중환자실 4일 이상 계속 입원','🚑',['icu'],{icu4:1}],['에크모(부분체외순환)','🫀',['ecmo']],['지속적신대체요법','🔄',['crrt']],['인공호흡기(12시간 초과)','💨',['vent']],['저체온요법','🧊',['hypo']]]],
   ['그 외',[['재활치료 10일','👣',['rehab'],{n:10}]]]],
  pr:[['검사',[['특정내시경','🔎',['x_endo']],['특정생검','🔬',['x_bio']],['특정천자','📍',['x_punct']],['골수검사','🦴',['x_bm']],['CT 촬영','📷',['x_ct']],['MRI 촬영','🧲',['x_mri']],['PET-CT','🔦',['x_pet']]]],
   ['수술',[['1종 수술','🏥',['surg'],{j:1}],['2종 수술','🏥',['surg'],{j:2}],['3종 수술','🏥',['surg'],{j:3}],['4종 수술','🏥',['surg'],{j:4}],['5종 수술','🏥',['surg'],{j:5}]]],
@@ -1582,8 +1595,12 @@ const autoTarget=ev=>ev[3].includes('immune')&&!ev[3].includes('target');
 
 /* ── 저장 (사용 불가 환경 대비) ── */
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const S={combo:store.get('itc_combo')||{...DEFAULT_COMBO}, dz:null, path:0, y1:false, mine:null, y5:false};
-Object.keys(S.combo).forEach(k=>{ if(!RM[k]||!RM[k].tiers.includes(S.combo[k])) delete S.combo[k]; });
+const S={combo:store.get('itc_combo')||{...DEFAULT_COMBO}, dz:null, path:0, y1:false, mine:null, y5:false, icu4:false};
+Object.keys(S.combo).forEach(k=>{
+  const m=/^(.+)_(\d)$/.exec(k);   // 특정순환계 Ⅱ ②·③ 세부 가입금액(circ2_3 · circ2_4) — 본 특약이 있고 고를 수 있는 금액일 때만 남긴다
+  if(m&&RM[m[1]]&&(RM[m[1]].add||[]).includes(+m[2])){ if(!S.combo[m[1]]||!SUBT.includes(S.combo[k])) delete S.combo[k]; return; }
+  if(!RM[k]||!RM[k].tiers.includes(S.combo[k])) delete S.combo[k]; });
+RIDERS.forEach(r=>{ if(r.add&&S.combo[r.id]) r.add.forEach(n=>{ if(S.combo[r.id+'_'+n]===undefined) S.combo[r.id+'_'+n]=SUBDEF[n]; }); });
 
 /* ── 금액 표기 ── */
 function won(m){
@@ -1623,7 +1640,7 @@ function cover(r,code){
     return cancerCls(code)?'yes':'no';
   }
   if(r.ty==='PR') return inList(P60,code);
-  if(r.ty==='CV') return inList(C32,code);
+  if(r.ty==='CV'||r.ty==='CV2') return inList(C32,code);   // Ⅱ 도 같은 【별표32 특정순환계질환 분류표】
   if(r.ty==='MS') return inList(M61,code);
   return 'no';
 }
@@ -1677,7 +1694,7 @@ function calcRider(id,tier,dz,path,y1){
        예) 대장내시경은 「암 내시경검사(급여)」(제4절 내시경 전체)에는 들어가지만
            「특정내시경(급여)」(수가코드 13개 열거)에는 없다.
        그래서 단계마다 특약 종류별로 '이 항목은 해당 없음' 을 적어 둔다. */
-    const off=(o.no&&(o.no[r.ty]||o.no.all))||[];
+    const off=(o.no&&(o.no[r.ty==='CV2'?'CV':r.ty]||o.no.all))||[];
     evKeys(ev).forEach(k=>{
       const cands=items.map((it,i)=>({it,i})).filter(x=>x.it.k===k);
       if(!cands.length){ res.lines.push({ei,k,amt:0,why:'none'}); return; }
@@ -1700,6 +1717,25 @@ function calcRider(id,tier,dz,path,y1){
   res.raw=res.lines.reduce((s,l)=>s+l.amt,0);
   res.cap=tier*((r.half&&y1)?0.5:1);
   res.total=Math.min(res.raw,res.cap); res.capped=res.raw>res.cap;
+  if(r.add){
+    /* ②·③ 연간 주요치료Ⅱ 3회·4회 이상(연간1회한) — ① 연간 한도와 별개의 세부보장. 횟수 = 수술 1회당 + 나머지 항목 연간 1회씩.
+       중환자실은 4일 이상 계속 입원(단계 icu4 표시 또는 화면 단추)일 때만 센다. 1년 이내 50%(약관 지급금액표) */
+    let n=0; const once={}, at={};
+    path.e.forEach((ev,ei)=>{ const o=ev[4]||{}; evKeys(ev).forEach(k=>{
+      if(k==='surg') n++;
+      else if(M2_ONCE.indexOf(k)>=0&&!(k==='icu'&&!o.icu4&&!S.icu4)&&!once[k]){ once[k]=1; n++; }
+      else return;
+      r.add.forEach(t=>{ if(n===t&&at[t]===undefined) at[t]=ei; });
+    }); });
+    res.m2=n; res.icuWait=path.e.some(ev=>evKeys(ev).indexOf('icu')>=0&&!(ev[4]||{}).icu4);
+    let add=0;
+    r.add.forEach(t=>{
+      const v=S.combo[id+'_'+t]||0; if(!v) return;
+      const amt=at[t]!==undefined?v*f:0; add+=amt;
+      res.lines.push({ei:at[t]!==undefined?at[t]:path.e.length-1,k:'m2',amt,lab:`${t===3?'②':'③'} 연간 주요치료Ⅱ ${t}회 이상(세부 ${tierLb(v)})`,why:amt?'':'m2',need:t,m2:n,add:1});
+    });
+    res.add=add; res.total+=add;
+  }
   return res;
 }
 function activeIds(){ return RIDERS.map(r=>r.id).filter(id=>S.combo[id]); }
@@ -1709,6 +1745,8 @@ function calcAll(dz,path,y1){ return shownIds(dz.code).map(id=>calcRider(id,S.co
 
 function whyText(l,dz){
   const dc=cancerCls(dz.code);
+  if(l.why==='m2') return `올해 주요치료Ⅱ ${l.m2}회라 ${l.need}회에 못 미쳐요`;
+  if(l.add) return `올해 주요치료Ⅱ ${l.need}회째`;
   if(l.why==='nc') return '급여 치료라 비급여 전용 항목은 해당하지 않아요';
   if(l.why==='once') return '같은 해에 이미 받은 항목이에요(연 1회)';
   if(l.why==='max') return `연간 ${l.max}회 한도라 ${l.n}회만 인정돼요`;
@@ -1785,7 +1823,7 @@ function renderChips(){
 }
 function renderCombo(){
   const ids=activeIds(), g={ca:ids.filter(i=>RM[i].g==='ca'), cv:ids.filter(i=>RM[i].g==='cv')};
-  const row=id=>`<div class="crow">${riderTile(id,40)}<span class="n">${esc(RM[id].sh)}${RM[id].hosp?'<small>'+esc(RM[id].hosp)+'</small>':''}</span><span class="v num">${unitH(tierLb(S.combo[id]))}</span></div>`;
+  const row=id=>`<div class="crow">${riderTile(id,40)}<span class="n">${esc(RM[id].sh)}${RM[id].hosp?'<small>'+esc(RM[id].hosp)+'</small>':''}</span><span class="v num">${unitH(tierLb(S.combo[id]))}${RM[id].add?`<small>${RM[id].add.map(n=>(n===3?'② ':'③ ')+(S.combo[id+'_'+n]?tierLb(S.combo[id+'_'+n]):'미가입')).join(' · ')}</small>`:''}</span></div>`;
   const none=`<div class="crow-empty">${tile('📭',40)}선택한 특약이 없어요</div>`;
   $('#comboCard').innerHTML=`<div class="sh">${tile('🧩',32,'bg-cv')}<h2 class="ttl-s">내 통합치료비 조합</h2><button class="tbtn" id="editCombo">바꾸기</button></div>
    <div class="cgl">${ic('🎀')}암</div>${g.ca.length?g.ca.map(row).join(''):none}
@@ -1817,7 +1855,7 @@ function renderEmpty(){
 let lastTotal=0;
 function renderMain(anim){
   const dz=S.dz; if(!dz){ renderEmpty(); return; }
-  if(!dz.P.length&&!S.mine){ $('#main').innerHTML=`<section class="card"><div class="dz-h">${tile(dzIc(dz.code),64,'bg-'+tileCls(dz.code))}<div style="min-width:0"><h2 class="ttl">${esc(dz.name)}</h2><div class="kc">${esc(dz.code)}</div></div></div><p class="dz-d">${ic('📭')}<span>이 질병은 통합치료비(암·뇌·심장) 12종의 보장 대상이 아니에요.</span></p></section>`; return; }
+  if(!dz.P.length&&!S.mine){ $('#main').innerHTML=`<section class="card"><div class="dz-h">${tile(dzIc(dz.code),64,'bg-'+tileCls(dz.code))}<div style="min-width:0"><h2 class="ttl">${esc(dz.name)}</h2><div class="kc">${esc(dz.code)}</div></div></div><p class="dz-d">${ic('📭')}<span>이 질병은 통합치료비(암·뇌·심장) 13종의 보장 대상이 아니에요.</span></p></section>`; return; }
   const path=(S.path==='mine'&&S.mine)?S.mine:dz.P[Math.min(typeof S.path==='number'?S.path:0,dz.P.length-1)];
   const res=calcAll(dz,path,S.y1);
   const total=res.reduce((s,r)=>s+r.total,0);
@@ -1854,8 +1892,9 @@ function renderMain(anim){
     <div class="amt num"><span id="totAmt">${wonH(total)}</span></div>
     <div class="basis">${ic(S.y1?'⏳':'📅')}${S.y1?'가입 후 1년 이내에 치료받은 경우':'가입 1년이 지난 뒤 치료받은 경우'} · 통합치료비 합계 예상</div>
     <div class="split" aria-hidden="true">${res.filter(r=>r.total>0).map(r=>`<i style="width:${total?r.total/total*100:0}%;background:${colorOf(r.id)}"></i>`).join('')}</div>
-    <div class="leg">${res.map(r=>`<div class="row${r.total>0?'':' zero'}">${riderTile(r.id,36,r.total>0?colorOf(r.id):'var(--g300)')}<span class="n">${esc(RM[r.id].sh)}${r.capped?'<span class="capn">연간 한도 적용</span>':''}<small>${tierLb(r.tier)} 가입</small></span><b class="num">${r.cov==='no'?'대상 아님':wonH(r.total)}</b></div>`).join('')}</div>
+    <div class="leg">${res.map(r=>`<div class="row${r.total>0?'':' zero'}">${riderTile(r.id,36,r.total>0?colorOf(r.id):'var(--g300)')}<span class="n">${esc(RM[r.id].sh)}${r.capped?'<span class="capn">연간 한도 적용</span>':''}<small>${tierLb(r.tier)} 가입${r.m2!==undefined?` · 주요치료Ⅱ 올해 ${r.m2}회`:''}</small></span><b class="num">${r.cov==='no'?'대상 아님':wonH(r.total)}</b></div>`).join('')}</div>
     ${anyHalf||anyWait?`<div class="tog">${tile('⏳',40)}<div class="t"><b>가입 후 1년 안에 치료받으면?</b><span>${anyHalf?'1년 감액 특약은 절반만 지급돼요.':''}${anyWait?' 암 특약은 가입 후 90일이 지나야 보장이 시작돼요.':''}</span></div><button class="sw" id="y1" role="switch" aria-checked="${S.y1}" aria-label="가입 후 1년 이내 기준으로 보기"></button></div>`:''}
+    ${res.some(r=>r.icuWait&&r.cov!=='no')?`<div class="tog">${tile('🚑',40)}<div class="t"><b>중환자실에 4일 이상 계속 입원했다면?</b><span>특정순환계 Ⅱ의 주요치료Ⅱ 횟수에는 중환자실 4일 이상 계속 입원만 들어가요.</span></div><button class="sw" id="icu4" role="switch" aria-checked="${S.icu4}" aria-label="중환자실 4일 이상 계속 입원으로 보기"></button></div>`:''}
   </section>`;
 
   /* 4. 치료 단계 */
@@ -1876,7 +1915,7 @@ function renderMain(anim){
       ${badges.length?`<div class="bdg">${badges.join('')}</div>`:''}
       ${perR.length?`<div class="lines">${perR.map(x=>x.ls.map(l=>{
         const it=l.i!==undefined?IT[RM[x.r.id].ty][l.i]:null;
-        const nm=it?((it.nc?'비급여 ':'')+it.l):'';
+        const nm=it?((it.nc?'비급여 ':'')+it.l):(l.lab||'');
         const sub=[nm, l.n!==undefined&&l.amt?`${won(AMT[RM[x.r.id].ty][x.r.tier][l.i]*(RM[x.r.id].half&&S.y1&&!(RM[x.r.id].ty==='MS'&&isInjury(dz.code))?0.5:1))} × ${l.n}회`:'', whyText(l,dz)].filter(Boolean).join(' · ');
         return `<div class="ln${l.amt?'':' z'}" title="${esc(GLOSS[l.k]||'')}">${riderTile(x.r.id,28)}<span class="rn"><b>${esc(RM[x.r.id].sh)}</b><span>${esc(sub)}</span></span><span class="a num">${unitH(l.amt?won(l.amt):'0원')}</span></div>`;
       }).join('')).join('')}</div>`:''}
@@ -1921,6 +1960,7 @@ function renderMain(anim){
     ['💊','<b>비급여 표적·면역항암약물허가치료</b>는 식약처 허가 범위 안에서 비급여(전액본인부담 포함)로 투여한 경우만 해당해요. 호르몬 관련 치료제는 보장하지 않아요.'],
     ['💎','<b>비급여(전액본인부담 포함) 특약</b>(암 Ⅱ·암 주요치료)은 건강보험이 적용된 급여 치료에는 지급하지 않아요.']
   ];
+  if(shown.includes('circ2')) notes.push(['❤️‍🔥','<b>특정순환계질환 통합치료비Ⅱ</b>는 ① 통합치료비(특정순환계와 같은 표) 위에, 한 해(계약해당일 기준)에 받은 <b>주요치료Ⅱ 횟수</b>가 3회 · 4회 이상이면 ② · ③ 세부 가입금액을 한 번씩 더 줘요. 수술은 1회마다, 혈전용해 · 중환자실(4일 이상 계속 입원) · CRRT · 인공호흡기 · 저체온 · 부분체외순환은 연 1회씩 세요. 같은 날 같은 부위 수술은 1회예요.']);
   if(shown.some(id=>RM[id].hosp)) notes.push(['🏥','<b>병원 조건 특약</b>(암중점치료기관·상급종합병원·권역심뇌혈관질환센터)은 해당 병원에서 받은 치료만 보장해요.']);
   if(shown.includes('ms')&&isInjury(dz.code)) notes.push(['🤕','<b>주요손상(두개내손상·흉부 혈관·심장 손상)</b>은 가입 1년 이내에도 항목 금액을 100% 지급해요. 연간 총 지급액 한도는 약관 문언대로 1년 이내 가입금액의 50%를 적용했어요.']);
   if(path.e.some(e=>/중입자/.test(e[1]))) notes.push(['✨','<b>중입자치료</b>는 약관의 [비급여 항암양성자방사선치료] 항목에 해당하지 않아 지급되지 않아요. 양성자치료는 해당 항목으로 지급돼요.']);
@@ -2001,7 +2041,8 @@ function drawCombo(){
   const body=`<div class="seg" role="tablist"><button class="${draftTab==='ca'?'on':''}" data-tab="ca">${ic('🎀')}암 계열</button><button class="${draftTab==='cv'?'on':''}" data-tab="cv">${ic('🫀')}뇌·심장 계열</button></div>
    ${list.map(r=>`<div class="rd${draft[r.id]?'':' off'}"><div class="rd-h">${riderTile(r.id,44)}<div class="n"><b>${esc(r.sh)}</b><span>${esc(r.about)}</span>${r.hosp||r.half?`<div class="tg">${r.hosp?`<span class="tag t-g">${ic('🏥')}${esc(r.hosp)}</span>`:''}${r.half?`<span class="tag t-g">${ic('⏳')}1년 이내 50%</span>`:''}</div>`:''}</div>
      <button class="sw" role="switch" aria-checked="${!!draft[r.id]}" data-tg="${r.id}" aria-label="${esc(r.sh)} 선택"></button></div>
-     <div class="tchips">${r.tiers.map(t=>`<button class="tchip${draft[r.id]===t?' on':''}" data-dt="${r.id}:${t}">${tierLb(t)}</button>`).join('')}</div></div>`).join('')}`;
+     <div class="tchips">${r.tiers.map(t=>`<button class="tchip${draft[r.id]===t?' on':''}" data-dt="${r.id}:${t}">${tierLb(t)}</button>`).join('')}</div>${
+     r.add&&draft[r.id]?r.add.map(t=>`<div class="sub-l">${t===3?'②':'③'} 연간 주요치료Ⅱ ${t}회 이상 · 세부 가입금액</div><div class="tchips">${SUBT.map(v=>`<button class="tchip${(draft[r.id+'_'+t]||0)===v?' on':''}" data-dt="${r.id}_${t}:${v}">${v?tierLb(v):'미가입'}</button>`).join('')}</div>`).join('')+'<div class="sub-l" style="font-weight:400">세부 가입금액은 설계서에 적힌 금액으로 골라 주세요.</div>':''}</div>`).join('')}`;
   openSheet('통합치료비 조합 바꾸기',body,'<button class="btn s" id="cbReset">기본 조합으로</button><button class="btn p" id="cbApply">적용하기</button>',tile('🧩',36,'bg-cv'));
 }
 function openMatrix(id){
@@ -2016,7 +2057,7 @@ function openMatrix(id){
   });
   const body=`<p class="desc" style="margin:0 0 12px">${esc(r.nm)}</p>
    <div class="mxw"><table class="mx"><thead><tr><th>통합치료항목</th>${r.tiers.map(t=>`<th class="${t===S.combo[id]?'cur':''}">${tierLb(t)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>
-   <p class="mx-note">가입 1년이 지난 뒤 금액이에요.${r.half?' 1년 이내에는 절반만 지급돼요.':''} '지급' 표시는 지금 보고 있는 치료 과정에서 지급되는 항목이에요. 비급여 = 비급여(전액본인부담 포함). 연간 총 지급액 한도는 가입금액${r.half?'(1년 이내 50%)':''}이에요.${r.miss?' 3,000만원 구간은 약관 원본 표 누락으로 101조 동일 구조 금액을 적용했어요.':''}</p>`;
+   <p class="mx-note">가입 1년이 지난 뒤 금액이에요.${r.half?' 1년 이내에는 절반만 지급돼요.':''} '지급' 표시는 지금 보고 있는 치료 과정에서 지급되는 항목이에요. 비급여 = 비급여(전액본인부담 포함). 연간 총 지급액 한도는 가입금액${r.half?'(1년 이내 50%)':''}이에요.${r.add?' ②·③ 세부보장은 한 해에 주요치료Ⅱ(혈전용해 · 중환자실 4일 이상 계속 입원 · CRRT · 인공호흡기 12시간 초과 · 저체온요법 · 부분체외순환은 연 1회씩, 수술은 1회마다)를 3회 · 4회 이상 받으면 세부 가입금액(1년 이내 50%)을 연 1회 지급하고, ① 한도와 따로예요.':''}${r.miss?' 3,000만원 구간은 약관 원본 표 누락으로 101조 동일 구조 금액을 적용했어요.':''}</p>`;
   openSheet(r.sh+' 보장표',body,'',riderTile(id,36));
 }
 
@@ -2041,15 +2082,16 @@ document.addEventListener('click',e=>{
   if(t.id==='bClear'){ draftMine=[]; drawBuilder(); return; }
   if(t.id==='bApply'){ applyMine(); return; }
   if(t.id==='y1'){ S.y1=!S.y1; renderMain(false); return; }
+  if(t.id==='icu4'){ S.icu4=!S.icu4; renderMain(false); return; }
   if(t.dataset.tier){ const [id,v]=t.dataset.tier.split(':'); S.combo[id]=+v; store.set('itc_combo',S.combo); renderCombo(); renderMain(false); return; }
-  if(t.dataset.add){ const r=RM[t.dataset.add]; S.combo[r.id]=r.tiers[Math.floor((r.tiers.length-1)/2)]; store.set('itc_combo',S.combo); renderCombo(); renderMain(false); return; }
+  if(t.dataset.add){ const r=RM[t.dataset.add]; S.combo[r.id]=r.tiers[Math.floor((r.tiers.length-1)/2)]; (r.add||[]).forEach(n=>{ if(S.combo[r.id+'_'+n]===undefined) S.combo[r.id+'_'+n]=SUBDEF[n]; }); store.set('itc_combo',S.combo); renderCombo(); renderMain(false); return; }
   if(t.dataset.open==='combo'){ openCombo(); return; }
   if(t.dataset.mx){ openMatrix(t.dataset.mx); return; }
   if(t.dataset.tab){ draftTab=t.dataset.tab; drawCombo(); return; }
-  if(t.dataset.tg){ const r=RM[t.dataset.tg]; if(draft[r.id]) delete draft[r.id]; else draft[r.id]=r.tiers[r.tiers.length-1]; drawCombo(); return; }
+  if(t.dataset.tg){ const r=RM[t.dataset.tg]; if(draft[r.id]){ delete draft[r.id]; (r.add||[]).forEach(n=>delete draft[r.id+'_'+n]); } else { draft[r.id]=r.tiers[r.tiers.length-1]; (r.add||[]).forEach(n=>{ if(draft[r.id+'_'+n]===undefined) draft[r.id+'_'+n]=SUBDEF[n]; }); } drawCombo(); return; }
   if(t.dataset.dt){ const [id,v]=t.dataset.dt.split(':'); draft[id]=+v; drawCombo(); return; }
   if(t.id==='cbReset'){ draft={...DEFAULT_COMBO}; drawCombo(); return; }
-  if(t.id==='cbApply'){ S.combo={...draft}; store.set('itc_combo',S.combo); closeSheet(); renderCombo(); renderMain(false); try{ logEvent('combo',{ term:Object.keys(S.combo).map(function(id){return (RM[id]?RM[id].sh:id)+' '+tierLb(S.combo[id]);}).join(' · ').slice(0,180) }); }catch(e){} return; }
+  if(t.id==='cbApply'){ S.combo={...draft}; store.set('itc_combo',S.combo); closeSheet(); renderCombo(); renderMain(false); try{ logEvent('combo',{ term:Object.keys(S.combo).filter(function(id){return RM[id];}).map(function(id){return RM[id].sh+' '+tierLb(S.combo[id]);}).join(' · ').slice(0,180) }); }catch(e){} return; }
   if(t.id==='shX'){ closeSheet(); return; }
   if(t.id==='clr'){ $('#q').value=''; renderSug(); $('#q').focus(); return; }
 });
