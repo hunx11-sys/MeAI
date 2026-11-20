@@ -13,7 +13,9 @@
 
   [v2data.json]   proposal_smart/ga_docs/build_ga_v2_sheets.py 결과 — 주면 새 양식(v2) 시트 11-1~11-7 을 붙인다(수술 카드 줄 × 담보코드)
 
-사용 : python3 build_blueprint.py <작업폴더> <매핑 엑셀> <GA 결과 json> <설계도 엑셀> [v2data.json]
+  [왕복 검증 json] verify_designs.py 결과 — 주면 시트 12(설계서 담보 왕복 검증)를 붙인다
+
+사용 : python3 build_blueprint.py <작업폴더> <매핑 엑셀> <GA 결과 json> <설계도 엑셀> [v2data.json] [왕복 검증 json]
 """
 import sys, os, re, json, pickle, collections
 import openpyxl
@@ -27,7 +29,8 @@ from norm import key as nkey, strip_tags
 import scen_engine as S
 
 WORK, MAPX, RESJ, OUT = sys.argv[1:5]
-V2J = sys.argv[5] if len(sys.argv) > 5 else None      # proposal_smart/ga_docs/build_ga_v2_sheets.py 가 남긴 새 양식(v2) 시트 자료
+V2J = sys.argv[5] if len(sys.argv) > 5 else None
+VDJ = sys.argv[6] if len(sys.argv) > 6 else None      # verify_designs.py 결과(설계서 담보 왕복 검증)      # proposal_smart/ga_docs/build_ga_v2_sheets.py 가 남긴 새 양식(v2) 시트 자료
 rows = json.load(open(os.path.join(WORK, 'rows.json'), encoding='utf-8'))
 NR = pickle.load(open(os.path.join(WORK, 'name_res.pkl'), 'rb'))
 RES = json.load(open(RESJ, encoding='utf-8'))
@@ -349,6 +352,20 @@ if V2J:
         ws.freeze_panes = 'A3'
         if ws.auto_filter.ref: ws.auto_filter.ref = 'A2:%s%d' % (get_column_letter(len(head)), ws.max_row)
 
+# 12. 설계서 담보 왕복 검증 — 담보코드로 찾은 특약 = 설계서 이름으로 엔진이 찾은 특약 · 그 자료로 다시 계산한 칸 값
+if VDJ:
+    VD = json.load(open(VDJ, encoding='utf-8')); KS = ['같은 특약', 'ID 다름 · 약관 자료 같음', '다름', '정보계에 같은 이름 없음', '엔진이 못 찾은 담보(계산 제외)']
+    calc = lambda d: next((v for k, v in d['counts'].items() if k.startswith('계산 대조')), '')
+    D12 = [[d['label'], d['line'], d['riders']] + [d['counts'].get(k, 0) for k in KS] + [calc(d)] for d in VD['designs']]
+    D12.append(['합계', '', sum(d['riders'] for d in VD['designs'])] + [VD['total'].get(k, 0) for k in KS] + [sum(v for k, v in VD['total'].items() if k.startswith('계산 대조'))])
+    ws = sheet('12. 설계서 담보 왕복 검증', ['설계서', '상품 라인', '담보 수', '같은 특약(ID 같음)', 'ID 다름 · 약관 자료(질병코드 · 제외코드 · 수가코드) 같음', '약관 자료가 다른 특약', '정보계에 같은 이름 없음', '엔진이 못 찾은 담보(계산 제외)', '계산 대조 : 칸 144개 중 값이 다른 칸'],
+               D12, [44, 24, 8, 12, 18, 12, 12, 14, 16])
+    D12b = [[d['label'], n[0], n[1], n[2], n[3]] for d in VD['designs'] for n in d['notes']]
+    sheet('12-1. 왕복 검증 메모', ['설계서', '구분', '설계서 담보명 / 칸', '담보코드', '내용'], D12b, [44, 26, 60, 20, 70], (3, 5))
+    ws.insert_rows(1); ws.cell(1, 1, '설계서 담보마다 ① 정보계 표에서 이름이 같은 줄(그 상품으로 추정된 단위상품코드 먼저) → ② 담보 식별표(시트 4)와 같은 규칙으로 고른 특약 마스터 → ③ 엔진이 설계서 이름으로 찾은 특약 마스터와 비교. '
+            '「약관 자료가 다른 특약」 은 부모 특약 ↔ 세부보장 차이다 — 맨 오른쪽 열이 그 자료로 다시 계산한 결과(칸 132 + 수술 카드 상급종합 12)이고 0 이면 코드로 넘겨도 같은 금액이다.').font = BF
+    ws.cell(1, 1).alignment = WRAP; ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=9); ws.row_dimensions[1].height = 48; ws.freeze_panes = 'A3'; ws.auto_filter.ref = 'A2:I%d' % ws.max_row
+
 # 1. 개요
 ws = wb['Sheet']; ws.title = '1. 개요·읽는 법'; wb.move_sheet(ws, offset=-(len(wb.sheetnames) - 1))
 def put(r, c, v, font=BF, fill=None):
@@ -359,7 +376,7 @@ put(1, 1, '스마트 제안서(GA 디자인판) 설계도 — 정보계 담보�
 INTRO = [
  '목적 : 사내 전산은 가입설계의 담보를 「단위상품코드 + 담보코드」로 가리킨다. 기존 GA 설계도(dist/ga-blueprint-final.xlsx)는 설계서 PDF 의 담보명에서 출발하므로, 같은 계산을 담보코드에서 출발하도록 다시 짠 것이 이 엑셀이다. 계산 규칙 · 칸 사례 · 금액표는 기존 설계도와 같다(바뀐 것은 담보를 찾는 열쇠).',
  '한 줄 요약 : 담보코드 → (시트 4) 특약 마스터 ID → (시트 5) 약관 질병코드 · 규칙 · 금액식 → (시트 6) GA 칸 사례에 넣어 계산 → 칸 값 → 지면. 못 찾는 담보는 계산 제외 + 로그(빈칸).',
- '읽는 순서 : 2(흐름) → 3(IT 가 넘길 데이터) → 4(담보 식별표 · IT 조회표) → 5(담보코드별 계산 사양) → 6(GA 칸별 담보코드) → 7(계산 제외) → 9(예외 · IT 확인) → 11(새 양식 v2 : 쪽 구성 · 값 자리 · 수술 카드 다섯 줄 규칙 · 줄 × 담보코드 · 간병인 표 · 설계 검증 · 확정/미정) → 10(시험 자료 : 2026-11 GA 설계 3건을 담보코드로 다시 쓴 것과 칸 값 · 2610 판에서 없어진 간병인지원일당(Ⅶ)이 든 설계서는 쓰지 않는다).',
+ '읽는 순서 : 2(흐름) → 3(IT 가 넘길 데이터) → 4(담보 식별표 · IT 조회표) → 5(담보코드별 계산 사양) → 6(GA 칸별 담보코드) → 7(계산 제외) → 9(예외 · IT 확인) → 11(새 양식 v2 : 쪽 구성 · 값 자리 · 수술 카드 다섯 줄 규칙 · 줄 × 담보코드 · 간병인 표 · 설계 검증 · 확정/미정 · 신담보 · 개정 절차) → 12(설계서 담보 왕복 검증 : 코드로 찾은 특약 = 이름으로 찾은 특약 · 계산 값 차이 0) → 10(시험 자료 : 2026-11 GA 설계 3건을 담보코드로 다시 쓴 것과 칸 값 · 2610 판에서 없어진 간병인지원일당(Ⅶ)이 든 설계서는 쓰지 않는다).',
  '기존 GA 설계도와 같이 본다 : 규칙표 전체(⑦) · 칸 사례 정의(② · 설계도9) · 질병코드 그룹표(설계도7) · 수술분류표(설계도8) · 통합치료비 지급금액표(⑤) · 생활지원비 항목표(⑥) · 칸 집계(설계도10).',
  '자료 : 정보계 「단위상품코드 · 담보코드 · 상품담보명」 표(%s행 · 2026-11-20 받은 판) × 특약 마스터 %s건(14개 상품 · 약관 파싱). 매핑 판정은 자동이며, 확인 필요 코드는 사람이 정한다.' % (format(len(rows), ','), format(len(M), ',')),
  '취급 : 정보계 담보코드는 사내 자료다. 사외로 보내지 않는다. 설계서 예시에 설계사명 · 고유번호 같은 개인정보는 넣지 않았다.',

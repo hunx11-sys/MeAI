@@ -681,6 +681,13 @@ def h_dx(r, o, sc, nm, t):
     freq = 'year' if '연간1회한' in nm else o.get('freq', 'once')      # 산정특례 진단비(연간1회한) 등 담보명이 연 1회로 정한 것(v8.61)
     return [(r['man'], o.get('why', '진단확정'), o.get('group', '진단비'), freq)]
 
+_GRADE_T = {}
+def grade_table(key):
+    """수가코드 → 종 표(약관 분류표를 extract_*.py 로 읽은 것). 파일이 없으면 빈 표 — 그 담보는 계산 제외 + 로그(추정하지 않는다)"""
+    if key not in _GRADE_T:
+        p = os.path.join(BASE, key + '.json')
+        _GRADE_T[key] = (json.load(open(p, encoding='utf-8')).get('grades') or {}) if os.path.exists(p) else {}
+    return _GRADE_T[key]
 def h_surg(r, o, sc, nm, t):
     tg = sc['tags']; j = tg.get('surg')
     if 'surg' not in _acts(sc): return []
@@ -696,6 +703,8 @@ def h_surg(r, o, sc, nm, t):
         if t['gj'] != j5: return []
         if o.get('plus') and tg.get('surg_cnt', 1) < 2: return []
     elif o.get('grade') == '1-7':
+        if re.search(r'\[(상해|질병)\d-\d종\]', r['name'].replace(' ', '')):      # 종 범위 부모 행([질병4-7종]) — 금액은 ┗ 종별 세부 행에 있다. 부모 행이 금액을 달고 들어와도 계산하지 않는다(v9.05)
+            log('검토필요', r['name'], '1-7종 수술비 부모 행(종 범위 표기) — 종별 세부 행만 계산'); return []
         g7 = surg7_grade(tg.get('surg7'))                # 정수 또는 분류표 수술코드(v8.5)
         if g7 is None:
             log('검토필요', r['name'], ('1-7종 수술분류표에 없는 수술코드 %s — 계산 제외' % tg.get('surg7')) if tg.get('surg7')
@@ -733,6 +742,18 @@ def h_surg(r, o, sc, nm, t):
         # 대장 용종·양성신생물 내시경 절제(사례 태그 five_major)는 특정5대·6대의 ① 항 — 특정2대에는 없다
         if (g in ('5', '6') and tg.get('five_major')) or code_hit(lst, sc['kcd']): return []
     if not kcd_ok(o.get('kcd'), r, sc, nm, o): return []
+    _pg = ''
+    if o.get('grade_table'):
+        # 종별로 금액이 다른 수가코드 수술비(폴립및양성종양수술비 1-6종) — 사례 수가코드의 종(약관 분류표 · polyp6.json)과 같은 [N종] 줄만 지급한다(v9.05).
+        # 전에는 수가코드가 걸리면 설계서의 [1종] ~ [6종] 여섯 줄이 모두 지급 계산됐다. 종 글자가 없는 줄(마스터 부모 레코드)은 지급 여부만 본다
+        gt = grade_table(o['grade_table']); cg = {gt.get(c) for c in set(r.get('hc') or []) & set(tg.get('hc') or [])} - {None}
+        if not cg:
+            log('검토필요', r['name'], '종별 분류표(%s)에 사례 수가코드가 없어 계산 제외' % o['grade_table']); return []
+        if len(cg) > 1:
+            log('검토필요', r['name'], '사례 수가코드가 여러 종(%s)에 걸쳐 종을 하나로 정할 수 없어 계산 제외' % '·'.join(str(g) for g in sorted(cg))); return []
+        mg = re.search(r'[\[(](\d)종[\])]\s*$', re.sub(GOJI, '', r['name']).replace(' ', ''))
+        if mg and int(mg.group(1)) not in cg: return []
+        _pg = '·'.join(str(g) for g in sorted(cg))
     # 관혈/비관혈로 나뉜 담보(5대질환수술비[관혈]·[비관혈], 32대질병관혈수술비) — 한 번의 수술은 둘 중 하나다.
     # 전에는 둘 다 지급되어 뇌·심장 수술마다 1,000만원(비관혈 가입금액)이 더 붙었다(v8.55)
     lab = r['name'].replace(' ', '')
@@ -743,7 +764,7 @@ def h_surg(r, o, sc, nm, t):
         if op != ('비관혈' not in lab): return []
     _jj = t['gj'] or (surg7_grade(tg.get('surg7')) if o.get('grade') == '1-7' else surg5_grade(j, sc['kcd'])) or ''
     _gl = (r.get('benefit') or r.get('sub') or (re.search(r'[\[(]([^\[\]()]+)[\])]\s*$', r['name']) or [None, ''])[1] or '').strip()
-    why = o.get('why', '수술 1회').replace('{j}', str(_jj)).replace('{g}', _gl).strip()   # (v8.63) 1-7종 부모 행 사유에 1-5종 종이 찍히던 것 · 130대[○○] 질병군 이름 빠짐
+    why = o.get('why', '수술 1회').replace('{j}', str(_jj)).replace('{g}', _gl).replace('{pg}', _pg).strip()   # (v8.63) 1-7종 부모 행 사유에 1-5종 종이 찍히던 것 · 130대[○○] 질병군 이름 빠짐
     freq = 'year' if '연간1회한' in lab else o.get('freq', 'each')     # 약관이 연간 1회로 정한 수술비(v8.55)
     return [(r['man'], why, o.get('group', '수술비'), freq)]
 

@@ -13,6 +13,7 @@ python build_data.py <결과.json> <data.json>
 python build_html.py <data.json> <html폴더>/_visual ../../dist/ga-cell-map.html "The좋은 케어프리 M-Basket 여40 설계서(GA 테스트)"
 ```
 
+- 생성기나 계산을 고친 뒤에는 `python ../verify_v2.py <설계서 폴더>`(인쇄 검증 · 전부 통과)와 `scripts/codemap/verify_designs.py`(담보코드 왕복 검증 · 계산 값 다른 칸 0)를 돌린다. 신담보 · 약관 개정 절차는 `NEW_RIDER_UPDATE.md`, 디자인만 바뀔 때는 `DESIGN_SWAP.md`.
 - `build_ga_xlsx.py` 는 엑셀을 새로 만든다. **⑫ 검수 메모처럼 손으로 적은 시트는 이전 파일에서 다시 복사해 넣는다** — 이전 엑셀을 먼저 복사해 두고, blueprint 뒤에 `restore_memo.py`(아래)를 돌린다(2026-10-02 · 2026-10-08 에 그렇게 했다).
 
 ```python

@@ -202,12 +202,16 @@ def read_proposal(pdf_path, line=None, max_pages=None):
                 k = 0
                 while k < len(lines):
                     mm = re.match(r'^(\d{1,3})\s+(.+?\[.+?)(?:\s+' + _A + r'.*)?$', lines[k])
+                    # 부모 행(「수술비(1-7종, 연간3회한)[질병4-7종] … 23,310」 — 금액 칸 '세부보장참조' 가 줄이 갈려 이 줄에 없고 끝에 보험료만 남은 꼴)은 담보가 아니다(v9.05).
+                    # 전에는 이 줄을 세부보장 표의 담보로 읽고, 바로 아래 「수술 202 ┗ 수술비[질병4종] 1백만원」(앞에 표 머리 글자가 붙어 숫자로 시작하지 않는 줄)의 금액을 물려받아
+                    # 종 구분 없는 수술비 100만원이 모든 수술 칸에 붙었다(2026-11 설계 여50 166,706원).
+                    if mm and (GRADE_RANGE.search(mm.group(2).replace(' ', '')) or re.search(r'\]\s*(?:\([^()]*\))?\s+[\d,]{3,}$', mm.group(2))): k += 1; continue
                     if mm and '세부보장' not in lines[k] and '참조' not in lines[k] and '/' not in lines[k]:
                         no, name = int(mm.group(1)), mm.group(2); amt = ''; j = k + 1
                         am0 = re.search(_A, lines[k][len(mm.group(0).rstrip()):] or lines[k].replace(name, '', 1))
                         if am0: amt = am0.group(0)
                         while j < len(lines) and j <= k + 4:
-                            if re.match(r'^\d{1,3}\s', lines[j]): break                      # 다음 번호 행의 금액을 가져오지 않는다(v8.65) — 부모 행('세부보장 참조'가 윗줄·아랫줄로 갈린 경우)이 ┗ 첫 행 금액으로 잡히던 것
+                            if re.match(r'^\d{1,3}\s', lines[j]) or '┗' in lines[j] or re.match(r'^[가-힣·]{1,8}\s+\d{1,3}\s+[가-힣(\[]', lines[j]): break      # 다음 번호 행(앞에 표 머리 글자가 붙은 줄 · ┗ 세부 행 포함)의 금액을 가져오지 않는다(v8.65 · v9.05) — 부모 행('세부보장 참조'가 윗줄·아랫줄로 갈린 경우)이 ┗ 첫 행 금액으로 잡히던 것
                             am = re.search(_A, lines[j])
                             if am and not amt: amt = am.group(0)                           # 금액 줄(행 라벨이 앞에 붙기도 함)
                             elif not am and (name.count('[') > name.count(']') or name.count('(') > name.count(')')):
