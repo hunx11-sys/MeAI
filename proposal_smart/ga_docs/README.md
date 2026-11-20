@@ -1,6 +1,6 @@
 # GA 설계도 엑셀 · 칸별 특약 지도(HTML) 다시 뽑기
 
-GA 지면 구성이나 계산이 바뀌면 이 순서대로 돌린다. 설계서 PDF(개인정보)는 저장소 밖 폴더에 둔다. 설계서 파일명은 `build_ga_xlsx.DNAME`·`build_data.DN` 에 적힌 이름으로 맞춘다. 캡처 기준 설계서는 **The좋은 케어프리 M-Basket 여40(the-mb-40f)** — 전에 쓰던 간편31 남(gan31-M = 293,370원)은 2610 판에서 없어진 간병인지원일당(Ⅶ)이 들어 있어 폐기했다(소유자 2026-11-06). **간병인지원일당(Ⅶ)이 든 설계서는 테스트에 쓰지 않는다.**
+GA 지면 구성이나 계산이 바뀌면 이 순서대로 돌린다. 설계서 PDF(개인정보)는 저장소 밖 폴더에 둔다. 설계서 파일명은 `build_ga_xlsx.DNAME`·`build_data.DN` 에 적힌 이름으로 맞춘다. 설계서 이름표는 `design_names.py`(2026-11 GA 설계 18건 — 2026-11-20 부터 이 18건으로 뽑는다). 캡처 기준 설계서는 **The건강한 내Mom대로 5.10.5 남28(m28-95538 · GA 최종 시안과 같은 설계)** — 그 전에는 The좋은 케어프리 M-Basket 여40(the-mb-40f) — 전에 쓰던 간편31 남(gan31-M = 293,370원)은 2610 판에서 없어진 간병인지원일당(Ⅶ)이 들어 있어 폐기했다(소유자 2026-11-06). **간병인지원일당(Ⅶ)이 든 설계서는 테스트에 쓰지 않는다.**
 
 ```
 cd proposal_smart/ga_docs
@@ -8,6 +8,7 @@ GA_MASK=1 python run_spec.py <결과.json> <html폴더> <설계서.pdf ...>   # 
 python build_ga_xlsx.py <결과.json> ../../dist/ga-blueprint-final.xlsx                                   # ①~⑫ 시트
 python build_ga_visual.py <결과.json> <html폴더>/the-mb-40f-ga.html the-mb-40f.pdf ../../dist/ga-blueprint-final.xlsx   # 캡처 시트(표지 · 1~3쪽 · 세부내역) + <html폴더>/_visual/p1~p3.jpg
 python build_ga_blueprint.py <결과.json> ../../dist/ga-blueprint-final.xlsx                              # 설계도 1~12 시트
+python build_ga_v2_sheets.py ../../dist/ga-blueprint-final.xlsx <v2data.json> <설계서.pdf ...>          # 새양식1~7 시트(새 양식 v2 : 쪽 구성 · 값 자리 · 수술 카드 다섯 줄 · 줄 × 특약 · 간병인 표 · 설계 검증 · 확정/미정) — v2data.json 은 담보코드 설계도(scripts/codemap/build_blueprint.py)가 다시 읽는다
 python build_data.py <결과.json> <data.json>
 python build_html.py <data.json> <html폴더>/_visual ../../dist/ga-cell-map.html "The좋은 케어프리 M-Basket 여40 설계서(GA 테스트)"
 ```

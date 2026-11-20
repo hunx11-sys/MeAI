@@ -4,7 +4,7 @@
 모든 값은 ga_spec.py 결과(엔진 실행값)와 저장소 데이터 파일에서만 온다. 추정·수기 금액 없음."""
 import os, sys, os, json, re, copy, collections
 PS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, PS)
+sys.path.insert(0, PS); sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import scen_engine as S, engine as itc
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -24,6 +24,11 @@ DESIGNS = RES['designs']
 DNAME = {'mom-40.pdf': '통합간편 남40', 'the510-44f.pdf': 'The건강한5.10.5 여44', 'mom5105-40.pdf': '내Mom대로5.10.5 여40',
          'u355.pdf': '통합간편355(연만기) 여', 'light355.pdf': 'The가벼운 간편355 여', 'mom-new-40.pdf': '내Mom대로 남40', 'gan31-41650.pdf': '간편31 여(41,650원)', 'd42940.pdf': '통합간편 남(42,940원)', 'd106010.pdf': '통합간편 여(106,010원)', 'd272600.pdf': '통합간편 남(272,600원)', 'd61760.pdf': '통합간편 연만기 남(61,760원)', 'd104810.pdf': '알파Plus 남(104,810원)', 't5105-30020.pdf': 'The건강한5.10.5 여(30,020원)', 't5105-177770.pdf': 'The건강한5.10.5 남(177,770원)', 't5105-122661.pdf': 'The건강한내Mom대로5.10.5 남(122,660원)', 't5105-243046.pdf': 'The건강한내Mom대로5.10.5 남(243,040원)',
          'naemom-40f.pdf': '내Mom대로 여40(446,720원)', 'naemom5105-40f.pdf': 'The건강한 내Mom대로5.10.5 여40(215,560원)', 'the-mb-40f.pdf': 'The좋은 케어프리 M-Basket 여40(226,370원)'}   # 2026-10-23 설계서 4건(가안 합성 모드 검증)
+from design_names import NOV as _NOV
+DNAME.update(_NOV)      # 2026-11 GA 설계 18건(design_names.py)
+_EX3 = [x for x in ('m28-95538.pdf', 'f30-138135.pdf', 'm20-168473.pdf') if x in {d['pdf'] for d in RES['designs']}]      # ② 칸 목록에 값을 보이는 설계 3건(GA 시안 기준 · 케어프리 계열 · 통합간편)
+if len(_EX3) < 3: _EX3 = ['the-mb-40f.pdf', 'naemom-40f.pdf', 'd272600.pdf']      # 앞 판 설계서로 뽑을 때
+import datetime as _dt
 _VER = re.search(r"VERSION = '([^']+)'", open(os.path.join(PS, 'api.py'), encoding='utf-8').read()).group(1)
 _DBN = len(json.load(open(os.path.join(PS, 'db.json'), encoding='utf-8'))['riders'])
 _EXD = json.load(open(os.path.join(PS, 'db_terms_extra.json'), encoding='utf-8')) if os.path.exists(os.path.join(PS, 'db_terms_extra.json')) else {'riders': [], 'meta': {}}
@@ -231,14 +236,15 @@ wb = Workbook(); wb.remove(wb.active)
 ov = wb.create_sheet('① 개요·읽는 법')
 ov.column_dimensions['A'].width = 4; ov.column_dimensions['B'].width = 150
 lines = [
- ('GA 스마트 제안서 · 설계도(칸별 특약 매핑 · 계산 공식 · 판정 로직) — v5 양식(2026-10-08 GA 내부 회의 목업) + GA지원센터 수정사항(2026-10-22) + GA 디자인 가안 합성(2026-10-23 · v8.82)', True),
- ('작성 : 세일즈혁신TF · 계산 엔진 proposal_smart %s · 특약 마스터 : db.json %s건(통합간편·케어프리·운전자·치아·또또암·또또암간편) + 스마트 제안서 전용 보강 %s건(%s) · 산출일 2026-10-23' % (_VER, format(_DBN, ','), format(_EXN, ','), ' · '.join('%s %d건' % kv for kv in _EXP.items())), False),
+ ('GA 스마트 제안서 · 설계도(칸별 특약 매핑 · 계산 공식 · 판정 로직) — v5 양식(2026-10-08 GA 내부 회의 목업) + GA지원센터 수정사항(2026-10-22) + GA 디자인 가안 합성(2026-10-23 · v8.82) + 새 양식(v2 · GA 최종 시안 2026-11-20 · 「새양식1~7」 시트)', True),
+ ('작성 : 세일즈혁신TF · 계산 엔진 proposal_smart %s · 특약 마스터 : db.json %s건(통합간편·케어프리·운전자·치아·또또암·또또암간편) + 스마트 제안서 전용 보강 %s건(%s) · 산출일 %s' % (_VER, format(_DBN, ','), format(_EXN, ','), ' · '.join('%s %d건' % kv for kv in _EXP.items()), _dt.date.today().isoformat()), False),
  ('', False),
  ('지면 구성(GA v5 + 2026-10-22 수정 · 지면은 GA 디자인 가안 그림 위에 값 글자만 얹는 합성 방식)', True),
  ('· 표지 2판(표지1 분홍 도형 · 표지2 방패·하트 — GA 디자인 가안 · 상품명 · 피보험자(이름, 성별, 보험나이) · 가계약번호 · 월 보험료 · 소속 · 컨설턴트 · 휴대전화 · 전화번호는 설계서 1쪽 글자 그대로) → 1쪽 보장요약 → 2쪽 암보장 → 3쪽 뇌·심보장 → 보장금액 세부내역(보장요약 칸의 합산 계산서 · 구분/보장금액/특약명/가입금액/특약별 보장금액 · 1쪽 이상 · 반드시 붙는다 · 담보가 많으면 자동으로 늘어난다).', False),
  ('· 1쪽 보장요약 : 암보장(진단금 일반암·유사암·전이암 / 수술 4 / 항암약물 화학·표적·면역·표적(면역) 2가지 약물 / 항암방사선 4) · 뇌·심보장(진단금 뇌졸중·뇌혈관·급성심근경색·허혈성심장 / 뇌 치료 및 수술 5 : 혈전용해·혈전제거·혈전용해+혈전제거·코일색전술·개두수술 / 심장 치료 및 수술 5 : …·스텐트삽입술·개흉수술 / 중증치료 5 · CRRT 표기) · 주요수술보장 12(4×3 · 치질 치핵절제술 · 요로결석 체외충격파쇄석술 추가) · 간병인보장(간병인지원 현물지원 4칸 · 간병인사용 금액지원 3칸).', False),
  ('· 2쪽 암보장 : 암검사 8 · 암진단 3(일반암·유사암·전이암) · 암수술 4×3(최초·반복·매회) · 항암약물치료 3×2 + 표적(면역) 개수별(2가지·3가지) · 항암방사선치료 4×2 · 암재활(연 20회 입원·외래) · 암후유장해.', False),
  ('· 3쪽 뇌·심보장 : 검사 3 · 진단 3(뇌혈관·뇌졸중·허혈성심장 — 급성심근경색 칸은 1쪽에만) · 뇌질환 치료 및 수술 4×3 · 심질환 치료 및 수술 4×3 · 중증치료 5(반복 연 1회) · 재활(연 15회 입원·외래).', False),
+ ('· 새 양식(v2 · GA 최종 시안 「스마트제안서 V5」 2026-11-20) : 같은 칸 값을 다른 지면(표지 · 보장요약 → 암 ① ② · 뇌혈관 · 심장 → 주요수술 ① ② → 간병인 → 세부내역 → 안내사항)에 그린다. 새 양식에만 있는 규칙(쪽 구성 · 값 자리 · 주요수술 카드 다섯 줄 · 특약별 줄 배정 · 간병인 표 · 설계 검증 · 확정/미정)은 「새양식1~7」 시트(build_ga_v2_sheets.py).', False),
  ('', False),
  ('이 엑셀 하나로 할 수 있는 것', True),
  ('· 앞쪽 「설계도 1~12」 시트만 순서대로 읽으면 GA 스마트 제안서를 처음부터 다시 만들 수 있다 : 설계서 PDF 읽기 → 담보명 정리 → 약관 데이터 찾기 → 규칙 판정 → 사례 계산 → 칸 집계 → 지면 표시. 각 단계의 입력·규칙·공식·예외·예시를 적었다.', False),
@@ -275,7 +281,7 @@ for i, (t, b) in enumerate(lines, 1):
 # ═══════════ ② 칸 목록 ═══════════
 KIND_CELL_KO = {'engine': '엔진 계산', 'direct': '가입금액 직접표시', 'care': '간병인보장(설계서 담보 그대로 · ga_care.py)', 'text': '가입 여부 문구', 'fixed': '고정값 0'}
 hdr2 = ['칸ID', '쪽', '구역', '행', '열', '칸 종류', '사례 설명', 'KCD', '원인', '병원 종별', '1-5종 분류표 항목', '1-7종 수술코드', '질병군 표시(grp)', '진단 계열(dx)', '치료행위(사례 단계)', '비급여', '전신마취', '연간 약물 종수', '수가코드', '기타 태그', '사례 단계(itc_events)',
-        '집계 방식', '표시 조건(need · 이 말이 든 가입담보가 없으면 미가입)', '칸 key', '(예비)', '잡히는 특약 수(마스터 전체)', '설계서 ① The좋은 케어프리 M-Basket 여40', '설계서 ② 내Mom대로 여40', '설계서 ③ 통합간편 남(272,600원)', '비고']
+        '집계 방식', '표시 조건(need · 이 말이 든 가입담보가 없으면 미가입)', '칸 key', '(예비)', '잡히는 특약 수(마스터 전체)', '설계서 ① %s' % DNAME[_EX3[0]], '설계서 ② %s' % DNAME[_EX3[1]], '설계서 ③ %s' % DNAME[_EX3[2]], '비고']
 rows2 = []
 CELL_ROWS = []  # 칸별 특약 행
 for c in CELLS:
@@ -287,7 +293,7 @@ for c in CELLS:
     rows2.append([c['id'], c['page'], c['section'], c['row'], c['col'], KIND_CELL_KO.get(c['kind'], c['kind']), c.get('sc_name') or c.get('note') or '', sd.get('KCD', ''), sd.get('원인', ''), sd.get('병원 종별', ''),
                   sd.get('1-5종 분류표 항목', ''), sd.get('1-7종 수술코드', ''), sd.get('질병군 표시(grp)', ''), sd.get('진단 계열(dx)', ''), sd.get('치료행위(사례 단계)', ''), sd.get('비급여', ''), sd.get('전신마취', ''), sd.get('연간 약물 종수', ''), sd.get('수가코드', ''), sd.get('기타 태그', ''), sd.get('사례 단계(itc_events)', ''),
                   MODE_KO.get(c['mode'], c['mode']) if c['kind'] == 'engine' else '', ' + '.join(c.get('need') or []), c.get('key', ''), '',
-                  len(names) if u else '', dv.get('the-mb-40f.pdf'), dv.get('naemom-40f.pdf'), dv.get('d272600.pdf'), c.get('note', '')])
+                  len(names) if u else '', dv.get(_EX3[0]), dv.get(_EX3[1]), dv.get(_EX3[2]), c.get('note', '')])
 sheet(wb, '② 칸 목록', hdr2, rows2, widths=[9, 4, 12, 14, 18, 12, 34, 8, 6, 22, 26, 26, 22, 8, 30, 6, 10, 8, 10, 16, 34, 30, 26, 18, 8, 8, 16, 16, 16, 40], sec_col=2)
 
 # ═══════════ ③ 칸별 특약(마스터 전체) · ④ 특약별 산정 기준 ═══════════

@@ -12,6 +12,9 @@ KIND={'dx':'진단비','surg':'수술비','tx':'치료비','day':'입원·통원
 PAGES={1:'보장요약',2:'암보장',3:'뇌·심보장'}
 DN={'mom-40.pdf':'통합간편 남40','the510-44f.pdf':'The건강한 5.10.5 여44','mom5105-40.pdf':'내Mom대로 5.10.5 여40','u355.pdf':'통합간편355 여','light355.pdf':'가벼운 간편355 여','mom-new-40.pdf':'내Mom대로 남40','gan31-41650.pdf':'간편31 여(41,650원)','d42940.pdf':'통합간편 남(42,940원)','d106010.pdf':'통합간편 여(106,010원)','d272600.pdf':'통합간편 남(272,600원)','d61760.pdf':'통합간편 연만기 남(61,760원)','d104810.pdf':'알파Plus 남(104,810원)','t5105-30020.pdf':'The건강한5.10.5 여(30,020원)','t5105-177770.pdf':'The건강한5.10.5 남(177,770원)','t5105-122661.pdf':'The건강한내Mom대로5.10.5 남(122,660원)','t5105-243046.pdf':'The건강한내Mom대로5.10.5 남(243,040원)','naemom-40f.pdf':'내Mom대로 여40(446,720원)','naemom5105-40f.pdf':'The건강한 내Mom대로5.10.5 여40(215,560원)','the-mb-40f.pdf':'The좋은 케어프리 M-Basket 여40(226,370원)'}
 order=['the-mb-40f.pdf','naemom-40f.pdf','naemom5105-40f.pdf','the510-44f.pdf','mom-40.pdf','mom5105-40.pdf','mom-new-40.pdf','u355.pdf','light355.pdf','gan31-41650.pdf','d42940.pdf','d106010.pdf','d272600.pdf','d61760.pdf','d104810.pdf','t5105-30020.pdf','t5105-177770.pdf','t5105-122661.pdf','t5105-243046.pdf']
+import os as _os; sys.path.insert(0,_os.path.dirname(_os.path.abspath(__file__)))
+from design_names import NOV as _NOV
+DN.update(_NOV); order=list(_NOV)+order      # 2026-11 GA 설계 18건(design_names.py) — 맨 앞이 칸 지도 기준 설계서
 D={d['pdf']:d for d in R['designs']}
 designs=[{'k':p,'l':DN[p],'prod':re.sub(r'\(무\)\s*','',D[p]['meta'].get('product','')).split('(해약')[0][:60]} for p in order if p in D]
 names=[]; NI={}

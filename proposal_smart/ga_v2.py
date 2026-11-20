@@ -409,7 +409,8 @@ def rid_names(): return [eff_name(r['name'], r.get('no')) for r in GP.RID if (r.
 def _ns(x): return re.sub(r'\s+', '', x or '')
 # 다섯 줄 나누기 — 특약 이름으로만(금액 · 지급 여부는 엔진 값 그대로).
 # 통합치료비의 수술(1-5종) 항목은 「그 외 수술비」 에 넣는다 — GA 최종 시안의 골절 카드가 그렇게 셌다(상해 통합치료비(실속형) 30만 → 「골절수술비 및 그 외 수술비」 150만 ·
-# 「1-5종 수술비[상해2종]」 줄은 그 특약 30만만). 2026-11-18 회의에서는 1-5종 줄에 묶자고 했으나 시안이 나중이다.
+# 「1-5종 수술비[상해2종]」 줄은 그 특약 30만만). 2026-11-18 회의에서는 1-5종 줄에 묶자고 했으나 시안이 나중이고, 소유자 확정(2026-11-20) :
+# 질병통합치료비 등 다섯 줄 양식에서 어긋나는 수술비 담보는 「그 외 수술비」 에 계산해 넣는다.
 ROWS = {'질병': ('g1', 's15', 's17', 's131', 'etc'), '상해': ('g1', 's15', 's17', 'fsg', 'fdx')}
 ROW_NAME = {'g1': '%s수술비 군', 's15': '1-5종 수술비[%s]', 's17': '1-7종 수술비[%s]', 'etc': '그 외 수술비', 'fsg': '골절수술비 및 그 외 수술비', 'fdx': '골절 진단비'}
 G1_RE = re.compile(r'^(?:\(\d+년갱신\))?(?:갱신형)?(?:종합병원|상급종합병원)?(?:질병|상해)수술비')      # 질병(상해)수술비 · (특정○대질병제외) · 종합병원 · 상급종합병원 — 심한상해 · 131대 · 호흡기질병수술비 등은 아님
@@ -468,6 +469,35 @@ def unj_label(name, via=None):
     if k.startswith('1-5종plus|'): return '1-5종 수술비(plus · 연간2회이상) [%s]' % k.split('|')[1]
     if k.startswith('1-5종|'): return '1-5종 수술비 [%s]' % k.split('|')[1]
     return rider_label(name, {})
+def _uni_fix(u):
+    """특약 마스터 레코드 한 건을 수술 사례에 태울 꼴로(지급 여부만 본다)"""
+    m = re.match(r'^[^\[]*신수술비\[[^\]]*\]\[(.*)\]$', u['name'])
+    if m: u = dict(u, name=m.group(1))                                     # 신수술비 세부 레코드 「질병신수술비[기본][질병 신수술비[기본](입원, …)]」 → 설계서 이름 꼴(엔진이 입원 · 통원 · 수술 갈래를 읽는다)
+    k = next((k for k in GS.INJ_ITC if S.nname(k) in (S.nname(u['name']), S.noren(u['name']))), None)
+    if k: u = dict(u, man=min(int(t) for t in GS.INJ_ITC[k]))           # 상해 통합치료비(실속형) — 금액표에 있는 가입금액으로
+    return u
+def master_rows():
+    """설계도용 — 특약 마스터 전체를 수술 12개 사례(모든 병원 · 상급종합)에 태워, 지급되는 특약이 카드 다섯 줄 중 어느 줄로 가는지.
+    [dict(surg, cause, row, db_id, name, via, product, any, top, note)] — 카드와 같은 길(GS.pay · inj_lines · grp_of)이다"""
+    uni = [_uni_fix(u) for u in GS.universe()]; by = {u['db_id']: u for u in uni}
+    n0 = len(S.ISSUES); out = []
+    try:
+        for n in GS.DZ_ORDER:
+            cause = cause_of(n); seen = {}
+            for key, hosp in (('any', '병원'), ('top', '상급종합')):
+                L, _ = GS.pay(uni, GS.sc_dz(n, hosp)); il, _ = GS.inj_lines(uni, GS.sc_dz(n, hosp))
+                for l in L + il:
+                    if GS.counts(l, 'first') <= 0: continue
+                    u = by.get(l.get('no')) or {}
+                    full = ((u.get('via') or '') + ' ' + l['name']) if l['name'].lstrip().startswith('┗') else l['name']
+                    r = seen.setdefault((l.get('no'), l['name']), dict(surg=n, cause=cause, row=grp_of(full, cause), db_id=l.get('no'), name=l['name'], via=u.get('via') or '',
+                                                                      product=u.get('product') or '', any=False, top=False,
+                                                                      note=('성장판손상 진단이 따로 필요 — 미가입 줄에는 싣지 않음' if '성장판' in l['name'] else '태아 가입 설계에만 — 미가입 줄에는 싣지 않음' if '태아' in l['name'] else '')))
+                    r[key] = True
+            out += list(seen.values())
+    finally:
+        del S.ISSUES[n0:]; GS.clear_cache()
+    return out
 def unjoined_all(design_pdf):
     """{수술 이름: [(미가입 줄 이름, 묶음)]} — 상품 라인 마스터 전체를 엔진에 돌려 그 수술에 지급되는데 설계에 없는 특약. 상품 라인을 못 믿으면 None"""
     import build_all as BA
@@ -487,11 +517,7 @@ def unjoined_all(design_pdf):
         else: continue
         if '성장판' in u['name']: continue                                 # 성장판손상골절진단비 — 골절 진단에 더해 의사의 「성장판손상」 진단이 따로 있어야 한다(약관 제1조) · 골절 사례는 그것까지 가정하지 않는다
         if '태아' in u['name']: continue                                   # 태아 특약은 태아 가입 설계에만 — 가입하지 않았으면 싣지 않는다
-        m = re.match(r'^[^\[]*신수술비\[[^\]]*\]\[(.*)\]$', u['name'])
-        if m: u = dict(u, name=m.group(1))                                 # 신수술비 세부 레코드 「질병신수술비[기본][질병 신수술비[기본](입원, …)]」 → 설계서 이름 꼴(엔진이 입원 · 통원 · 수술 갈래를 읽는다)
-        k = next((k for k in GS.INJ_ITC if S.nname(k) in (S.nname(u['name']), S.noren(u['name']))), None)
-        if k: u = dict(u, man=min(int(t) for t in GS.INJ_ITC[k]))       # 상해 통합치료비(실속형) — 금액표에 있는 가입금액으로(지급 여부만 본다)
-        uni.append(u)
+        uni.append(_uni_fix(u))
     have = {fam_key(r['name'], r.get('via')) for r in joined} | {fam_key(r.get('mname') or '') for r in joined if r.get('mname')}
     n0 = len(S.ISSUES); out = {}
     try:
@@ -580,7 +606,7 @@ def need_care():
             '<div>%s<div class="k">국민 사적 간병비<small>(연간 추정)</small></div><div class="v">10<small>조원</small></div></div></div>'
             '<div class="cv-src">[출처 : 보건복지부 2023년 발표 자료 · 보건복지부 소개 서울대 사적 간병비 추정(2022년) / 지역 · 환자 상태에 따라 편차가 큼]</div>') % (_ic('care_cost'), _ic('private_care'))
 C_NA = '<span class="na">미가입</span>'
-C_EXC = '<span class="na">보장 제외</span>'      # 간병인사용 181일 이상 특약은 요양병원을 보장하지 않는다(이름 「(요양,정신,한방병원제외)」) — 「미가입」 이 아니라 「보장 제외」(2026-11-18 회의)
+C_EXC = '<span class="na">보장 제외</span>'      # 간병인사용 181일 이상 특약은 요양병원을 보장하지 않는다(이름 「(요양,정신,한방병원제외)」) — 「미가입」 이 아니라 「보장 제외」(2026-11-18 회의 · 소유자 확정 2026-11-20 「제외는 제외로」)
 C_DASH = '<span class="na">-</span>'             # 간병인 미사용 일당이 없음(시안 표기)
 def _sub(t): return '<span class="sub">(%s)</span>' % t
 def c_send(on, sub=''): return ('<span class="snd">%s</span>%s' % (SEND, sub)) if on else C_NA

@@ -11,7 +11,9 @@
 출력
   <설계도 엑셀>   정보계 코드가 들어 있어 사내 자료 — 저장소에 넣지 않는다
 
-사용 : python3 build_blueprint.py <작업폴더> <매핑 엑셀> <GA 결과 json> <설계도 엑셀>
+  [v2data.json]   proposal_smart/ga_docs/build_ga_v2_sheets.py 결과 — 주면 새 양식(v2) 시트 11-1~11-7 을 붙인다(수술 카드 줄 × 담보코드)
+
+사용 : python3 build_blueprint.py <작업폴더> <매핑 엑셀> <GA 결과 json> <설계도 엑셀> [v2data.json]
 """
 import sys, os, re, json, pickle, collections
 import openpyxl
@@ -25,6 +27,7 @@ from norm import key as nkey, strip_tags
 import scen_engine as S
 
 WORK, MAPX, RESJ, OUT = sys.argv[1:5]
+V2J = sys.argv[5] if len(sys.argv) > 5 else None      # proposal_smart/ga_docs/build_ga_v2_sheets.py 가 남긴 새 양식(v2) 시트 자료
 rows = json.load(open(os.path.join(WORK, 'rows.json'), encoding='utf-8'))
 NR = pickle.load(open(os.path.join(WORK, 'name_res.pkl'), 'rb'))
 RES = json.load(open(RESJ, encoding='utf-8'))
@@ -204,6 +207,7 @@ FLOW = [
  ['5', 'GA 칸 사례 132개', '칸마다 정해진 사례(질병코드 · 치료 단계 · 병원)에 담보를 하나씩 넣어 지급 줄(금액 · 사유 · 빈도)을 만든다', '칸마다 지급 줄', '6. GA 칸 × 담보코드 · GA 설계도 ② 칸 목록 · 설계도9', 'scen_engine.pay_lines · engine(통합치료비 금액표)'],
  ['6', '지급 줄', '칸 집계 방식(최초 · 반복 · 매 회 등)으로 칸 값을 만든다. 담보가 없으면 「미가입」, 계산 제외는 빈칸', '칸 값', 'GA 설계도 설계도10', 'ga_spec.cell_value'],
  ['7', '칸 값', '지면(표지 · 1 보장요약 · 2 암보장 · 3 뇌·심보장 · 보장금액 세부내역)에 값을 얹는다. 세부내역 = 칸 값의 합산 계산서(구분 · 보장금액 · 특약명 · 가입금액 · 특약별 보장금액)', 'GA 양식 PDF', 'GA 설계도 캡처 시트', 'ga_proposal · ga_overlay'],
+ ['8', '칸 값 · 지급 줄', '새 양식(v2 · GA 최종 시안 2026-11-20)은 같은 칸 값을 다른 지면에 그린다 : 표지 · 보장요약 → 암 ① ② · 뇌혈관 · 심장 → 주요수술 ① ②(카드 12장 · 다섯 줄) → 간병인 → 세부내역 → 안내사항. 새로 정하는 것은 수술 카드의 줄 배정 · 「미가입 / 해당 없음」 · 간병인 표뿐', 'GA 새 양식 PDF(13~17쪽)', '11-1 ~ 11-7', 'ga_v2.py'],
 ]
 # 3. 입력 데이터 사양
 SPEC = [
@@ -285,8 +289,9 @@ D8 = [[u['단위상품코드'], u['담보 수'], u['우리 특약과 맞춘 담�
 # 10. 설계 예시(테스트 설계서 3건)
 KEY2CODES = collections.defaultdict(set)
 for u, c, n in rows: KEY2CODES[nkey(n)].add(c)
-EXD = ['the-mb-40f.pdf', 'naemom-40f.pdf', 'd272600.pdf']   # 간병인지원일당(Ⅶ)이 든 설계서는 쓰지 않는다(2610 판에서 담보 삭제 · 소유자 2026-11-06)
-DLABEL = {'the-mb-40f.pdf': 'The좋은 케어프리 M-Basket 여40(GA 캡처 기준 설계서)', 'naemom-40f.pdf': '내Mom대로 여40', 'd272600.pdf': '통합간편 남'}
+EXD = ['m28-95538.pdf', 'f30-138135.pdf', 'm20-168473.pdf']   # 2026-11 GA 설계 18건 중 3건(GA 시안 기준 설계 · 케어프리 계열 · 통합간편) — 앞 판 : the-mb-40f · naemom-40f · d272600   # 간병인지원일당(Ⅶ)이 든 설계서는 쓰지 않는다(2610 판에서 담보 삭제 · 소유자 2026-11-06)
+DLABEL = {'m28-95538.pdf': 'The건강한 내Mom대로5.10.5 남28(GA 시안 · 캡처 기준 설계서)', 'f30-138135.pdf': '알파Plus(케어프리) 여30', 'm20-168473.pdf': '통합간편(세만기) 남20',
+          'the-mb-40f.pdf': 'The좋은 케어프리 M-Basket 여40', 'naemom-40f.pdf': '내Mom대로 여40', 'd272600.pdf': '통합간편 남'}
 D10a, D10b = [], []
 for d in RES['designs']:
     base = os.path.basename(d['pdf'])
@@ -324,6 +329,26 @@ for title, head, data, widths, *opt in sheet_map:
         sheet(title, head, data, widths, wc, fc)
 for r in range(2, wb['8. 단위상품코드 → 상품'].max_row + 1): wb['8. 단위상품코드 → 상품'].cell(r, 4).number_format = '0%'
 
+# 11. 새 양식(v2) — ga_docs/build_ga_v2_sheets.py 자료 그대로 + 수술 카드 줄 × 특약 표에 담보코드 열
+if V2J:
+    V2 = json.load(open(V2J, encoding='utf-8'))
+    for i, sh in enumerate(V2['sheets'], 1):
+        head, data = list(sh['head']), [list(r) for r in sh['rows']]
+        title = '11-%d. %s' % (i, re.sub(r'^새양식\d+\s*', '', sh['title']))
+        if '줄×특약' in sh['title']:
+            k = head.index('특약 마스터 ID'); head.insert(k, '담보코드(정보계)'); n0 = 0
+            for r in data:
+                cs = sorted(codes_of_dbid(r[k])); n0 += not cs
+                r.insert(k, ' '.join(cs) if cs else '(코드 못 찾음)')
+            print('새 양식 수술 카드 줄 × 특약', len(data), '줄 · 담보코드 없는 줄', n0)
+            ws = sheet(title[:31], head, data, [14, 6, 28, 22, 40, 12, 50, 36, 9, 9, 36], (5, 7, 8, 11))
+        elif len(data) > 400: ws = sheet(title[:31], head, data, sh['widths'])
+        else: ws = text_sheet(title[:31], head, data, sh['widths'])
+        ws.insert_rows(1); ws.cell(1, 1, sh['intro']).font = BF; ws.cell(1, 1).alignment = WRAP
+        ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=min(len(head), 8)); ws.row_dimensions[1].height = max(30, 15 * (1 + len(sh['intro']) // 110))
+        ws.freeze_panes = 'A3'
+        if ws.auto_filter.ref: ws.auto_filter.ref = 'A2:%s%d' % (get_column_letter(len(head)), ws.max_row)
+
 # 1. 개요
 ws = wb['Sheet']; ws.title = '1. 개요·읽는 법'; wb.move_sheet(ws, offset=-(len(wb.sheetnames) - 1))
 def put(r, c, v, font=BF, fill=None):
@@ -334,9 +359,9 @@ put(1, 1, '스마트 제안서(GA 디자인판) 설계도 — 정보계 담보�
 INTRO = [
  '목적 : 사내 전산은 가입설계의 담보를 「단위상품코드 + 담보코드」로 가리킨다. 기존 GA 설계도(dist/ga-blueprint-final.xlsx)는 설계서 PDF 의 담보명에서 출발하므로, 같은 계산을 담보코드에서 출발하도록 다시 짠 것이 이 엑셀이다. 계산 규칙 · 칸 사례 · 금액표는 기존 설계도와 같다(바뀐 것은 담보를 찾는 열쇠).',
  '한 줄 요약 : 담보코드 → (시트 4) 특약 마스터 ID → (시트 5) 약관 질병코드 · 규칙 · 금액식 → (시트 6) GA 칸 사례에 넣어 계산 → 칸 값 → 지면. 못 찾는 담보는 계산 제외 + 로그(빈칸).',
- '읽는 순서 : 2(흐름) → 3(IT 가 넘길 데이터) → 4(담보 식별표 · IT 조회표) → 5(담보코드별 계산 사양) → 6(GA 칸별 담보코드) → 7(계산 제외) → 9(예외 · IT 확인) → 10(시험 자료 : 테스트 설계서 3건을 담보코드로 다시 쓴 것과 칸 값 · 2610 판에서 없어진 간병인지원일당(Ⅶ)이 든 설계서는 쓰지 않는다).',
+ '읽는 순서 : 2(흐름) → 3(IT 가 넘길 데이터) → 4(담보 식별표 · IT 조회표) → 5(담보코드별 계산 사양) → 6(GA 칸별 담보코드) → 7(계산 제외) → 9(예외 · IT 확인) → 11(새 양식 v2 : 쪽 구성 · 값 자리 · 수술 카드 다섯 줄 규칙 · 줄 × 담보코드 · 간병인 표 · 설계 검증 · 확정/미정) → 10(시험 자료 : 2026-11 GA 설계 3건을 담보코드로 다시 쓴 것과 칸 값 · 2610 판에서 없어진 간병인지원일당(Ⅶ)이 든 설계서는 쓰지 않는다).',
  '기존 GA 설계도와 같이 본다 : 규칙표 전체(⑦) · 칸 사례 정의(② · 설계도9) · 질병코드 그룹표(설계도7) · 수술분류표(설계도8) · 통합치료비 지급금액표(⑤) · 생활지원비 항목표(⑥) · 칸 집계(설계도10).',
- '자료 : 정보계 「단위상품코드 · 담보코드 · 상품담보명」 표(24,854행 · 2026-11-06 받음) × 특약 마스터 4,976건(14개 상품 · 약관 파싱). 매핑 판정은 자동이며, 확인 필요 코드는 사람이 정한다.',
+ '자료 : 정보계 「단위상품코드 · 담보코드 · 상품담보명」 표(%s행 · 2026-11-20 받은 판) × 특약 마스터 %s건(14개 상품 · 약관 파싱). 매핑 판정은 자동이며, 확인 필요 코드는 사람이 정한다.' % (format(len(rows), ','), format(len(M), ',')),
  '취급 : 정보계 담보코드는 사내 자료다. 사외로 보내지 않는다. 설계서 예시에 설계사명 · 고유번호 같은 개인정보는 넣지 않았다.',
 ]
 r = 2
