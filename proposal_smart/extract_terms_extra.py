@@ -194,9 +194,9 @@ def body_x(txt):
 # body_x 는 '제외' 가 든 문장만 보므로 이 목록을 못 읽었다 — 내Mom같은 어린이 태아고급형 수술비(1-7종)[질병](아191·아192)의 x 가 비어
 # 정신질환 · 치과 · 출생전후기 수술도 지급으로 계산되던 것. 같은 이름의 감수 마스터가 없어 빌려 올 곳도 없었다.
 LIST_TRIG = re.compile(r'질병[^.。①]{0,60}?보상하지\s*않습니다\.\s*(?=①)')
-LIST_STOP = re.compile(r'【|\s회사는\s|\s제\d+조\s*\(|\s\d+-\d+\.\s')
+LIST_STOP = re.compile(r'【|[\s\uf000-\uf8ff]회사는\s|\s제\d+조\s*\(|\s\d+-\d+\.\s')      # 항 번호 글리프(사용자 정의 영역 글자)가 「회사는」 앞에 붙어 있다 — 공백이 없어도 다음 항으로 본다(2026-11-20 · 전에는 첫 목록이 둘째 목록까지 이어져 「…(Q82.5)은 보상합니다」 코드가 제외로 들어갔다)
 
-def list_x(txt):
+def list_x(txt, first_only=False):
     """'아래의 질병은 보상하지 않습니다' 뒤 ①②… 항목의 괄호 코드(약관 원문 그대로). 목록은 【…】 · '회사는' · 다음 조 · 다음 특약 제목에서 끝난다.
        N96~N98 처럼 '보장개시 2년 뒤 발생분은 보상' 단서가 붙은 것도 다른 특약 x 와 같은 방식으로 넣는다(단서 문장에는 코드가 없다)."""
     flat = re.sub(r'\s*\n\s*', ' ', strip_examples(txt))
@@ -209,6 +209,7 @@ def list_x(txt):
         for p in re.finditer(r'[(（]([^()（）]{2,60})[)）]', seg):
             if not re.fullmatch(r'\s*[A-Z]\d{2}[\s\d.,~∼～A-Z]*', p.group(1)): continue
             for a, b in CODE.findall(p.group(1)): out.append(a + ('~' + (b if b[0].isalpha() else a[0] + b) if b else ''))
+        if first_only: break                                   # 첫 목록(질병 분류 ①~⑧)만 — 둘째 목록(치료 목적)의 「…은 보상합니다」 괄호 코드는 제외가 아니다
     return list(dict.fromkeys(out))
 
 # list_x 목록을 x 에 넣는 특약 — 약관 원문을 소유자가 확인한 것만(이름은 갱신형 · 공백을 뗀 열쇠). 나머지는 추출 로그
@@ -221,6 +222,12 @@ LISTX_OK = {
         '내Mom같은 어린이 태아고급형 수술비(1-7종) 제5조 — 일반 수술비(1-7종)[질병]과 달리 선천기형(Q00~Q99)은 제외하지 않음(소유자 2026-11-13)',
 }
 def listx_key(n): return re.sub(r'^갱신형', '', re.sub(r'\s', '', n or ''))
+# Q형 질병수술비(내Mom같은 어린이 · 약관 원문 대조 2026-11-20 : 2-152 p.578~579 · 2-154 p.580~581 · 종합병원 p.589~590 · 상급종합병원 p.591~592 · 2-174 p.595~596 · 2-178 p.599~600).
+# 제3조 「아래의 질병수술비에 대하여는 보상하지 않습니다」 ① F04~F99 ② N96~N98 ③ O00~O99 ④ Q00~Q99 ⑤ 비만 E66 ⑥ 요실금 N39.3 · N39.4 · R32
+# ⑦ 직장 · 항문 · 치핵 K60~K62 · K64 ⑧ 치과 K00~K08 — 여섯 특약 모두 같은 목록이다. ④ 는 「다만, …Q보장 특별약관을 가입한 경우에는 … 지급합니다」 라 제외가 아니고
+# (혀유착증제외형은 Q38.1 만 제외), 나머지는 제외다. 전에는 이 목록을 못 읽어 x 가 비거나(Q · 종합병원Q · 상급종합병원Q) Q00~Q99 만 잘못 들어가
+# 치핵(K64) · 치과 · 비만 수술도 지급으로 계산됐다(태아 설계 치질 칸 +20만).
+LISTX_Q = {'질병수술비Q', '질병수술비(특정5대질병제외)Q', '종합병원질병수술비Q', '상급종합병원질병수술비Q', '질병수술비(특정2대질병및혀유착증제외)Q', '질병수술비(특정6대질병및혀유착증제외)Q'}
 
 def sub_chunks(body_lines, labels):
     """제3조(세부보장에 관한 사항)의 ①②… 구간 — 세부보장마다 [시작, 끝) 줄 위치. 못 찾으면 None"""
@@ -321,6 +328,12 @@ def parse(path, product, prefix):
         basis_x = ''
         if lx and listx_key(title) in LISTX_OK:
             x += lx; basis_x = '제외코드 %s : %s' % (', '.join(lx), LISTX_OK[listx_key(title)])
+        elif listx_key(title) in LISTX_Q:
+            assert re.search(r'Q보\s*장\s*특별약관\s*을?\s*가입한\s*경우에는', re.sub(r'\s*\n\s*', ' ', body)), ('Q형 단서 문장이 없음', title)
+            lq = [c for c in list_x(body, first_only=True) if c != 'Q00~Q99']
+            assert {'E66', 'K64', 'K60~K62', 'K00~K08', 'F04~F99'} <= set(lq), ('Q형 면책 목록을 다 못 읽음', title, lq)
+            x = [c for c in x if c != 'Q00~Q99']; x += [c for c in lq if c not in x]
+            basis_x = '제외코드 : 제3조 면책 목록 ①~⑧(④ 선천기형 Q00~Q99 는 Q보장 특약이라 지급 — 약관 단서)'
         elif lx:
             log.append(('본문 면책 목록 미반영', '%s%d' % (prefix, len([r for r in riders if not r.get('parent')]) + 1), title, lx))
         hc = []

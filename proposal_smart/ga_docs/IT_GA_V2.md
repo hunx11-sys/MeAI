@@ -1,9 +1,9 @@
 # GA 스마트 제안서 새 양식(v2) 생성 프로그램 — IT 인계 안내
 
-세일즈혁신TF · 2026-11-13 · 계산 버전은 `api.py` 의 `VERSION`(이 묶음을 만든 판은 맨 아래 `VERSION.txt`)
+세일즈혁신TF · 2026-11-20(GA 최종 시안 반영) · 계산 버전은 `api.py` 의 `VERSION`(이 묶음을 만든 판은 맨 아래 `VERSION.txt`)
 
 가입설계서 PDF(설계 시스템에서 「PDF 저장」으로 받은 원본) 한 건을 올리면 그 자리에서 읽고 계산해 **GA 스마트 제안서 새 양식 PDF(13~17쪽)** 를 돌려주는 프로그램입니다.
-2026-11-11 회의에서 정한 「영업용 풀버전」 양식입니다.
+2026-11-11 회의에서 정한 「영업용 풀버전」 양식을 2026-11-18 회의에서 간결하게 줄였고, 지면 모양은 GA 가 보낸 **최종 시안(「스마트제안서 V5」 · 2026-11-20 받음)** 그대로입니다.
 웹 서버(HTTP API + 업로드 화면)와 명령줄 두 가지로 돌릴 수 있습니다.
 LLM · 외부 API 호출이 없고, 실행 중에 바깥 인터넷을 쓰지 않습니다.
 
@@ -20,7 +20,7 @@ PDF 업로드
  → ③ 지급 계산        scen_engine.py + rules.json(지급 규칙) + ga_spec.py(칸 정의 · 사례)
                        칸마다 「어느 특약에서 얼마」 지급 줄을 만든다
  → ④ 지면 그리기      ga_v2.py
-                       HTML → Chromium(playwright) PDF + v41 디자인 틀(ga_assets/v2/tpl.pdf) 위에 값 합성
+                       HTML → Chromium(playwright) PDF + GA 최종 시안 틀(ga_assets/v2/tpl.pdf) 위에 값 합성
  → PDF + 계산 로그(빈칸 · 0원이 된 이유)
 ```
 
@@ -30,7 +30,12 @@ PDF 업로드
 
 1. 표지 · 보장요약
 2. 암 보장 ① ② · 뇌혈관 · 심장
-3. 주요수술 ① ② — 수술 12개. 수술명 옆에 「모든 병원 / 상급종합」 금액, 아래에 수술비 다섯 묶음의 가입 여부(가입 · 해당 없음 · 미가입)
+3. 주요수술 ① ② — 수술 12개(쪽마다 6개). 수술명 옆에 「모든 병원 / 상급종합」 금액, 아래에 **늘 같은 다섯 줄**
+   - 질병 수술 : 질병수술비 군 · 1-5종 수술비 · 1-7종 수술비 · 130대(131대) 질병수술비 · 그 외 수술비
+   - 골절 : 상해수술비 군 · 1-5종 수술비 · 1-7종 수술비 · 골절수술비 및 그 외 수술비 · 골절 진단비
+   - 줄마다 금액(가입) · 「미가입」(이 상품에 있고 이 수술에 지급되는데 설계에 없음) · 「해당 없음」(이 수술에는 지급되지 않음) 중 하나
+   - 줄 옆 꼬리표 : 「체증형 · 최대 2배 체증」 · 「합산」(특약 여럿을 더한 줄 — 특약별 금액은 세부내역) · 「태아고급형」
+   - 통합치료비의 수술(1-5종) 항목 · 신수술비 · 생활지원비는 「그 외 수술비」 줄에 더합니다(GA 최종 시안의 골절 카드 계산과 같음)
 4. 간병인 쪽 — 아래 규칙대로 고른다(표 : 1~180일 / 181일 이상)
    - 간병인지원 담보 → 「간병인 지원」 쪽
    - 간병인사용 담보 → 「간병인 사용」 쪽
@@ -38,8 +43,6 @@ PDF 업로드
    - 둘 다 없으면 지원 표 + 사용 표를 함께 보여 주는 쪽
 5. 보장금액 세부내역 — 담보 수에 따라 3~7쪽
 6. 안내사항
-
-주요수술 카드를 「다섯 묶음」 대신 「특약 전부」 로 보이게 하려면 환경변수 `GA_V2_SURG=all` 을 켜고 돌립니다(비교용 · GA 결정 전 · 카드가 길면 주요수술 쪽이 3쪽 이상으로 늘어남).
 
 체증형 수술비는 지면에 1회차(가입금액 기준) 금액만 적고, 쪽 아래 주석(「※ 체증형 수술비 가입 시, 상기 예시 금액보다 더 큰 금액이 지급될 수 있습니다」)으로 알립니다.
 
@@ -62,7 +65,7 @@ PDF 업로드
 | `api.py` | HTTP 서버(파이썬 표준 라이브러리) · 업로드 화면 `/` · API `/v1/ga2/*`(새 양식) · `/v1/ga/*`(기존 GA 6쪽) · `/v1/proposal/*`(9쪽 지면) |
 | `web/index.html` | 업로드 화면(PDF 끌어다 놓기 → 「GA 새 양식 생성」) |
 | `ga_v2.py` | 새 양식 생성기(명령줄로도 실행) |
-| `ga_v2_template.py` | v41 디자인 → 빈 틀(`tpl.pdf`) · 값 자리(`slots.json`)를 다시 만들 때만 씀. 원본 v41 PDF 는 개인정보가 있어 넣지 않음 |
+| `ga_v2_template.py` | GA 최종 시안 PDF + 앞 판 틀 → 빈 틀(`tpl.pdf`) · 값 자리(`slots.json`)를 다시 만들 때만 씀(`python ga_v2_template.py <시안 PDF> <앞 판 tpl.pdf> <앞 판 slots.json>`). 시안 PDF 는 개인정보가 있어 넣지 않음 |
 | `ga_proposal.py` · `ga_spec.py` · `ga_care.py` · `ga_overlay.py` | 설계서 읽기 · 칸 정의 · 간병인 칸 · 표지/보장요약(기존 GA 양식 공용) |
 | `scen_engine.py` · `matcher.py` · `engine.py` · `pipeline.py` | 계산 엔진 · 담보 인식 · 통합치료비 금액표 |
 | `db.json` · `db_terms_extra.json` · `rules.json` · `*.json` | 특약 마스터 · 지급 규칙 · 금액표 · 분류표 |
@@ -83,6 +86,7 @@ PDF 업로드
 - **Python 3.10 ~ 3.13**(3.11 권장)
 - 패키지 : `pip install -r requirements.txt`
   - pdfplumber · PyMuPDF · pypdf · reportlab · playwright · pillow
+  - pypdf 는 7 미만(6.x)을 씁니다 — 7.x 는 원본 설계서에 지면을 끼우는 단계(`build_pdf.py`)에서 오류가 납니다
 - PDF 를 그리는 Chromium : `python -m playwright install chromium`
   - 폐쇄망이면 이 단계 대신 PC 에 깔린 **Edge · Chrome** 을 씁니다.
   - 환경변수 `GA_CHROMIUM=<msedge.exe 경로>` 를 주면 세 양식(새 양식 · 기존 GA 6쪽 · 9쪽) 모두 그 브라우저를 씁니다. `start_offline.bat` · `make_ga_offline.bat` 이 경로를 넣어 줍니다.
@@ -90,11 +94,11 @@ PDF 업로드
 - 인터넷이 없는 PC 에서 패키지를 설치하는 방법(`start_offline.bat` 이 이 목록 그대로 설치합니다)
   1. 인터넷 되는 PC 에서 아래 명령으로 `wheels` 폴더를 만듭니다.
      ```
-     python -m pip download pdfplumber "pymupdf<1.26" pypdf reportlab playwright pillow openpyxl -d wheels --platform win_amd64 --only-binary=:all: --python-version 3.11
+     python -m pip download pdfplumber "pymupdf<1.26" "pypdf<7" reportlab playwright pillow openpyxl -d wheels --platform win_amd64 --only-binary=:all: --python-version 3.11
      ```
   2. `wheels` 폴더를 묶음 폴더 안에 옮겨 두고 `start_offline.bat` 을 실행합니다. 직접 설치할 때는 아래 명령입니다.
      ```
-     python -m pip install --no-index --find-links wheels pdfplumber "pymupdf<1.26" pypdf reportlab playwright pillow openpyxl
+     python -m pip install --no-index --find-links wheels pdfplumber "pymupdf<1.26" "pypdf<7" reportlab playwright pillow openpyxl
      ```
 
 ### 자원
@@ -242,6 +246,8 @@ const d = await r.json();
 ## 8. 아직 정해지지 않은 것(GA 확인 전 — 지면에는 표시 없이 인쇄됨)
 
 - 간병인 지원 쪽 GA 시안 문구 : 「공동간병인 사용 시 실손보장」 · 「간병인 지원 공시금액 140,400원(2026년)」 · 신청 / 교체 전화 「1688-0090」 · 「자기부담금 0원」 — 약관에 없는 내용이라 GA · 회사 자료로 확정 필요
-- 주요수술 카드 방식 : 「다섯 묶음」(기본) 과 「특약 전부」(`GA_V2_SURG=all`) 중 GA 가 고름. 묶음 이름 · 「해당 없음」 표현도 확정 전
+- 주요수술 카드의 다빈도 순위 꼬리표(「50대 이후 다빈도 수술 1위」 등 4개)와 쪽 위 통계(연간 주요수술 건수 · 수술 1건당 평균 진료비)는 GA 시안 문구 — 출처(국민건강보험공단 2025년 주요수술 통계연보)는 지면에 적혀 있으나 숫자는 회사 자료로 한 번 더 확인 필요
+- 통합치료비 수술(1-5종) 항목을 넣는 줄 : 2026-11-18 회의에서는 「1-5종 묶음」 이라 했지만 GA 최종 시안은 「그 외 수술비」 에 더해 두었음 — 시안을 따랐고, 바꾸려면 `ga_v2.grp_of` 한 곳
+- 간병인 사용 쪽 요양병원 181일 이상 : 시안 그림은 「1일 5만」 예시지만 그 기간을 보장하는 특약이 없는 설계는 「보장 제외」 로 나옵니다(2026-11-18 회의)
 - 체증형이 아닌 설계의 표기(아무것도 적지 않음 / 「기본형」) — 회의에서 미정
 - 미가입 칸 표시(새 쪽 「미가입」 / 보장요약 「0만원」) 통일
