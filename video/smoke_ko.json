@@ -1,0 +1,54 @@
+{
+  "theme": "clean-professional",
+  "cuts": [
+    {
+      "id": "open",
+      "source": "",
+      "type": "hero_title",
+      "in_seconds": 0,
+      "out_seconds": 4,
+      "text": "영상 제작 준비 완료",
+      "subtitle": "오픈몽타주 설치 점검용 시험 영상"
+    },
+    {
+      "id": "flow",
+      "source": "",
+      "type": "callout",
+      "in_seconds": 4,
+      "out_seconds": 10,
+      "title": "말로 요청하면 이렇게 진행됩니다",
+      "text": "기획안 제안 → 대본 · 장면 확인 → 화면 · 자막 · 배경음 제작 → 점검 후 전달",
+      "callout_type": "info"
+    },
+    {
+      "id": "compare",
+      "source": "",
+      "type": "comparison",
+      "in_seconds": 10,
+      "out_seconds": 15,
+      "title": "지금 되는 것과 추가 준비가 필요한 것",
+      "leftLabel": "지금 바로",
+      "leftValue": "화면 · 자막 · 배경음",
+      "rightLabel": "추가 준비 필요",
+      "rightValue": "내레이션 · 실사 영상"
+    },
+    {
+      "id": "close",
+      "source": "",
+      "type": "text_card",
+      "in_seconds": 15,
+      "out_seconds": 19,
+      "text": "한글 글자 점검 : 가나다라 마바사 ABC 123"
+    }
+  ],
+  "overlays": [],
+  "captions": [],
+  "audio": {
+    "music": {
+      "src": "__MUSIC__",
+      "volume": 0.5,
+      "fadeInSeconds": 1.5,
+      "fadeOutSeconds": 2.5
+    }
+  }
+}
