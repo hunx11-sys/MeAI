@@ -84,7 +84,7 @@ overlay() {
 
 # ---------------------------------------------------------------- 4. 한글 글꼴
 korean_font() {
-  if fc-list 2>/dev/null | grep -qi "pretendard"; then
+  if [ "$(fc-list 2>/dev/null | grep -ci pretendard)" -gt 0 ]; then
     note "한글 글꼴(프리텐다드) 있음"
   else
     say "한글 글꼴(프리텐다드) 설치 중"
@@ -125,7 +125,7 @@ music() {
     find "$HERE/music" -maxdepth 1 -type f \( -name '*.mp3' -o -name '*.wav' -o -name '*.m4a' -o -name '*.flac' -o -name '*.ogg' \) \
       -exec cp -n {} "$lib/" \;
   fi
-  if ! ls "$lib"/meai_*.mp3 "$lib"/meai_*.wav >/dev/null 2>&1; then
+  if ! ls "$lib"/meai_* >/dev/null 2>&1; then
     say "기본 배경음 만드는 중(직접 합성 · 저작권 걱정 없음)"
     "$OM/.venv/bin/python" "$HERE/make_music.py" "$lib"
   else
@@ -155,6 +155,27 @@ korean_voice() {
   else
     note "[건너뜀] 한국어 목소리 모델을 받지 못했습니다 : $(tail -1 "$OM/.meai_setup.log")"
   fi
+}
+
+# ---------------------------------------------------------------- 5-2. 추가 도구(받아쓰기 · 장면 분석 · 실사 영상 검색 · 도표)
+extras() {
+  # 소유자가 2026-11-22 허용한 주소(허깅페이스 · pytorch 등)가 있어야 된다. 없으면 건너뛴다(영상은 그래도 만들 수 있다).
+  local py="$OM/.venv/bin/python"
+  if ! "$py" -c "import torch, transformers, faster_whisper, scenedetect, cv2, pygments" >/dev/null 2>&1; then
+    say "추가 도구 설치 중(AI 엔진 CPU판 · 받아쓰기 · 장면 분석 · 30초쯤)"
+    if "$py" -m pip install -q torch --index-url https://download.pytorch.org/whl/cpu >>"$OM/.meai_setup.log" 2>&1 \
+       && "$py" -m pip install -q transformers faster-whisper scenedetect opencv-python-headless Pygments \
+            youtube-transcript-api yt-dlp mediapipe >>"$OM/.meai_setup.log" 2>&1; then
+      note "추가 도구 설치됨"
+    else
+      note "[건너뜀] 추가 도구를 설치하지 못했습니다(주소 허용 확인 · 기록 .meai_setup.log). 기본 영상 제작은 됩니다."
+    fi
+  else
+    note "추가 도구 있음"
+  fi
+  command -v mmdc >/dev/null 2>&1 || PUPPETEER_SKIP_DOWNLOAD=1 npm install -g --silent @mermaid-js/mermaid-cli >/dev/null 2>&1 || true
+  # 이 환경용 작은 보정(NASA 영상 주소를 https 로)
+  "$py" "$HERE/overlay/patch_openmontage.py" "$OM" | grep -v "이미 됨" || true
 }
 
 # ---------------------------------------------------------------- 6. 기능 요약
@@ -220,6 +241,7 @@ overlay
 korean_font
 music
 korean_voice
+extras
 summary
 [ "$MODE" = "--smoke" ] && smoke
 printf '\n준비 끝. 영상 작업 순서 : source video/env.sh  →  cd "$OM"  →  AGENT_GUIDE.md 를 읽고 시작한다.\n(설치 위치 %s)\n' "$OM"

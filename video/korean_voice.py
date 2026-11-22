@@ -267,6 +267,36 @@ def word_captions(segments: list[dict]) -> list[dict]:
     return words
 
 
+# ----------------------------------------------------------------------------- 발음 점검(받아쓰기로 다시 듣기)
+def _norm(t: str) -> str:
+    return re.sub(r"[^가-힣a-zA-Z0-9]", "", t).lower()
+
+
+def check_pronunciation(items: list[dict], model_size: str = "small", threshold: float = 0.8) -> list[dict]:
+    """만든 내레이션을 받아쓰기 모델(faster-whisper)로 다시 듣고 문장마다 대본과 비교한다.
+
+    items : [{"wav": 소리 파일, "lines": [{"say": 읽기용 글, "show": 화면용 글(선택), "start": 초, "end": 초}]}]
+    받아쓰기는 숫자를 숫자로 적으므로 읽기용 글 · 화면용 글 중 더 가까운 쪽과 비교한다.
+    돌려주는 값 : 문장마다 {"say", "heard", "score", "flag"} — flag 가 True 면 들어 보고 확인할 문장.
+    클로드는 소리를 듣지 못하므로, 이 점수는 「사람이 먼저 들어 볼 곳」을 고르는 데만 쓴다(정답 판정이 아님).
+    """
+    import difflib
+
+    from faster_whisper import WhisperModel
+
+    model = WhisperModel(model_size, device="cpu", compute_type="int8")
+    report = []
+    for it in items:
+        segs, _ = model.transcribe(str(it["wav"]), language="ko", beam_size=5, word_timestamps=True)
+        words = [w for s in segs for w in (s.words or [])]
+        for ln in it["lines"]:
+            heard = "".join(w.word for w in words if ln["start"] - 0.15 <= (w.start + w.end) / 2 <= ln["end"] + 0.15).strip()
+            refs = [ln["say"]] + ([ln["show"]] if ln.get("show") else [])
+            score = max(difflib.SequenceMatcher(None, _norm(r), _norm(heard)).ratio() for r in refs)
+            report.append({"say": ln["say"], "heard": heard, "score": round(score, 3), "flag": score < threshold})
+    return report
+
+
 # ----------------------------------------------------------------------------- 명령줄
 def main() -> int:
     ap = argparse.ArgumentParser(description="한국어 내레이션(무료 · 로컬 합성)")
@@ -284,6 +314,10 @@ def main() -> int:
     y.add_argument("--srt")
     y.add_argument("--json")
     y.add_argument("--captions", help="화면 자막용 낱말 구간(json)도 쓴다")
+    c = sub.add_parser("check", help="만든 내레이션을 받아쓰기로 다시 듣고 대본과 비교(발음 점검)")
+    c.add_argument("items", help='json : [{"wav":..., "lines":[{"say","show","start","end"}]}]')
+    c.add_argument("--threshold", type=float, default=0.8)
+    c.add_argument("--model", default="small")
     v = sub.add_parser("voices", help="목소리 10종 견본 만들기")
     v.add_argument("-o", "--output", required=True)
     v.add_argument("--text", default="안녕하세요. 한국어 내레이션 견본입니다. 마음에 드는 목소리 번호를 알려 주세요.")
@@ -303,6 +337,13 @@ def main() -> int:
         if a.json:
             Path(a.json).write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"{res['output']}  {res['duration_seconds']}초  목소리 {a.voice}({res['voice_label']})  문장 {len(res['segments'])}개")
+        return 0
+    if a.cmd == "check":
+        rep = check_pronunciation(json.loads(Path(a.items).read_text(encoding="utf-8")), a.model, a.threshold)
+        bad = [r for r in rep if r["flag"]]
+        for r in bad:
+            print(f"  확인 필요 {r['score']*100:.0f}%  대본「{r['say']}」\n                 들림「{r['heard']}」")
+        print(f"문장 {len(rep)}개 중 확인 필요 {len(bad)}개 (평균 일치 {sum(r['score'] for r in rep)/max(1,len(rep))*100:.1f}%)")
         return 0
     if a.cmd == "voices":
         out = Path(a.output)
