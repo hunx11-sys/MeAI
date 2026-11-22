@@ -76,7 +76,8 @@ overlay() {
   (cd "$OM" && HYPERFRAMES_NO_TELEMETRY=1 npx --yes hyperframes telemetry disable >/dev/null 2>&1) || true
   # 우리가 얹은 파일 · 표시 파일이 오픈몽타주 쪽 변경으로 보이지 않게 한다.
   local ex="$OM/.git/info/exclude" f
-  for f in .meai_setup_done .meai_setup.log remotion-composer/remotion.config.ts remotion-composer/public/meai_smoke/; do
+  for f in .meai_setup_done .meai_setup.log remotion-composer/remotion.config.ts remotion-composer/public/meai_smoke/ \
+           tools/audio/meai_korean_voice.py tools/audio/supertonic_tts.py; do
     grep -qxF "$f" "$ex" 2>/dev/null || echo "$f" >>"$ex"
   done
 }
@@ -132,6 +133,30 @@ music() {
   fi
 }
 
+# ---------------------------------------------------------------- 5-1. 한국어 내레이션
+korean_voice() {
+  # 오픈몽타주의 도구 폴더에 우리 도구를 얹는다(스스로 찾아 등록한다).
+  cp "$HERE/korean_voice.py" "$OM/tools/audio/meai_korean_voice.py"
+  cp "$HERE/overlay/supertonic_tts.py" "$OM/tools/audio/supertonic_tts.py"
+  if ! "$OM/.venv/bin/python" -c "import sherpa_onnx, soundfile" >/dev/null 2>&1; then
+    say "한국어 음성 엔진 설치 중(sherpa-onnx)"
+    "$OM/.venv/bin/python" -m pip install -q "sherpa-onnx==2.0.2" soundfile >>"$OM/.meai_setup.log" 2>&1 \
+      || { note "[건너뜀] 음성 엔진을 설치하지 못했습니다. 내레이션 없이 진행됩니다."; return; }
+  fi
+  # Piper : 목소리 파일이 없는데도 「가능」으로 잡혀, 음성 선택기가 자동으로 고를 때 먼저 뽑히고 실패한다.
+  # 목소리 파일(~/.piper/models/*.onnx)이 없는 동안은 꺼 두고, 생기면 다시 켠다.
+  if ls "$HOME/.piper/models"/*.onnx >/dev/null 2>&1; then
+    [ -f "$OM/.venv/bin/piper.off" ] && mv "$OM/.venv/bin/piper.off" "$OM/.venv/bin/piper"
+  else
+    [ -f "$OM/.venv/bin/piper" ] && mv "$OM/.venv/bin/piper" "$OM/.venv/bin/piper.off"
+  fi
+  if "$OM/.venv/bin/python" "$HERE/korean_voice.py" setup >>"$OM/.meai_setup.log" 2>&1; then
+    note "한국어 내레이션 준비됨(Supertonic 3 · 목소리 10종)"
+  else
+    note "[건너뜀] 한국어 목소리 모델을 받지 못했습니다 : $(tail -1 "$OM/.meai_setup.log")"
+  fi
+}
+
 # ---------------------------------------------------------------- 6. 기능 요약
 summary() {
   say "지금 되는 기능"
@@ -155,23 +180,26 @@ for key, name in label.items():
         print(f"    {name:<14} {c.get('configured')}/{c.get('total')}")
 print("    ※ 위 숫자는 「도구가 설치돼 있다」는 뜻이다. 인터넷에서 받아 오는 것(무료 실사 영상 · 배경음 검색)은")
 print("      받는 주소가 이 환경의 허용 목록에 있어야 실제로 된다(video/README.md 「막혀 있는 것」).")
-voices = list((Path.home() / ".piper" / "models").glob("*.onnx"))
-if not voices:
-    print("    ※ 내레이션 음성 : 무료 음성(Piper)은 설치됐지만 목소리 파일이 없어 아직 소리를 못 냅니다.")
-    print("      (목소리 파일을 받는 주소 huggingface.co 가 이 환경에서 막혀 있음 · video/README.md 참고)")
+try:
+    from tools.audio.meai_korean_voice import model_ready
+    ko = model_ready()
+except Exception:
+    ko = False
+print("    ※ 한국어 내레이션 : " + ("된다 — 음성 선택기에 preferred_provider=\"supertonic\" 로 고른다(목소리 0~9)."
+                                 if ko else "안 된다 — 목소리 모델을 받지 못했다(설치 기록 .meai_setup.log)."))
+print("      (Piper 는 목소리 파일을 받을 수 없어 꺼 두었다 — 자동 선택 때 잘못 뽑히지 않게.)")
 PY
   ) || note "[건너뜀] 기능 요약을 만들지 못했습니다."
 }
 
 # ---------------------------------------------------------------- 7. 한국어 시험 영상
 smoke() {
-  say "한국어 시험 영상 만드는 중(1~2분)"
+  say "한국어 시험 영상 만드는 중(내레이션 · 자막 · 배경음 · 2~3분)"
   local pub="$OM/remotion-composer/public/meai_smoke" out="$REPO/video/out"
-  mkdir -p "$pub" "$out"
+  rm -rf "$pub"; mkdir -p "$pub" "$out"
   local track
   track="$(ls "$OM"/music_library/meai_calm.* 2>/dev/null | head -1)"
-  cp "$track" "$pub/music.${track##*.}"
-  sed "s#__MUSIC__#meai_smoke/music.${track##*.}#" "$HERE/smoke_ko.json" >"$pub/props.json"
+  (. "$HERE/env.sh" && python "$HERE/smoke_build.py" "$HERE/smoke_ko.json" "$pub" "$track") | sed 's/^/    /'
   (. "$HERE/env.sh" && cd "$OM/remotion-composer" && npx remotion render src/index.tsx Explainer \
       "$out/openmontage_smoke_ko.mp4" --props "$pub/props.json" --codec h264 --log error)
   note "완성 : $out/openmontage_smoke_ko.mp4"
@@ -191,6 +219,7 @@ install_deps
 overlay
 korean_font
 music
+korean_voice
 summary
 [ "$MODE" = "--smoke" ] && smoke
 printf '\n준비 끝. 영상 작업 순서 : source video/env.sh  →  cd "$OM"  →  AGENT_GUIDE.md 를 읽고 시작한다.\n(설치 위치 %s)\n' "$OM"

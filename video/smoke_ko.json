@@ -1,54 +1,42 @@
 {
   "theme": "clean-professional",
+  "voice": 0,
+  "speed": 1.0,
   "cuts": [
     {
       "id": "open",
       "source": "",
       "type": "hero_title",
-      "in_seconds": 0,
-      "out_seconds": 4,
       "text": "영상 제작 준비 완료",
-      "subtitle": "오픈몽타주 설치 점검용 시험 영상"
+      "subtitle": "오픈몽타주 설치 점검용 시험 영상",
+      "narration": "안녕하세요. 오픈몽타주 설치 점검용 시험 영상입니다."
     },
     {
       "id": "flow",
       "source": "",
       "type": "callout",
-      "in_seconds": 4,
-      "out_seconds": 10,
       "title": "말로 요청하면 이렇게 진행됩니다",
-      "text": "기획안 제안 → 대본 · 장면 확인 → 화면 · 자막 · 배경음 제작 → 점검 후 전달",
-      "callout_type": "info"
+      "text": "기획안 제안 → 대본 · 장면 확인 → 화면 · 자막 · 내레이션 제작 → 점검 후 전달",
+      "callout_type": "info",
+      "narration": "영상은 기획안 제안, 대본과 장면 확인, 제작, 점검의 순서로 만들어집니다."
     },
     {
       "id": "compare",
       "source": "",
       "type": "comparison",
-      "in_seconds": 10,
-      "out_seconds": 15,
       "title": "지금 되는 것과 추가 준비가 필요한 것",
       "leftLabel": "지금 바로",
-      "leftValue": "화면 · 자막 · 배경음",
+      "leftValue": "화면 · 자막 · 배경음 · 내레이션",
       "rightLabel": "추가 준비 필요",
-      "rightValue": "내레이션 · 실사 영상"
+      "rightValue": "실사 영상 · AI 생성",
+      "narration": "화면과 자막, 배경음, 그리고 한국어 내레이션은 지금 바로 됩니다. 인터넷 실사 영상과 인공지능 생성은 추가 준비가 필요합니다."
     },
     {
       "id": "close",
       "source": "",
       "type": "text_card",
-      "in_seconds": 15,
-      "out_seconds": 19,
-      "text": "한글 글자 점검 : 가나다라 마바사 ABC 123"
+      "text": "숫자 읽기 점검 : 2026년 11월 22일 · 35,000원",
+      "narration": "숫자도 읽어 봅니다. 2026년 11월 22일, 보험료는 35,000원입니다."
     }
-  ],
-  "overlays": [],
-  "captions": [],
-  "audio": {
-    "music": {
-      "src": "__MUSIC__",
-      "volume": 0.5,
-      "fadeInSeconds": 1.5,
-      "fadeOutSeconds": 2.5
-    }
-  }
+  ]
 }
