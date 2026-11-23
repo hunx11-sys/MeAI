@@ -220,6 +220,13 @@ def VX(key):
 # 체증형 수술비 : 지면 금액은 1회차(가입금액 기준)만 적는다. 「매 회 1회차 ~ 최대」 두 줄 · 카드 「최대」 금액(v8.95 · v8.96)은
 # "헷갈린다" 는 GA 의견으로 뺐고(2026-11-18 회의), 쪽 아래 주석(ESC_NOTE)으로만 알린다.
 ESC_NOTE = '※ 체증형 수술비 가입 시, 상기 예시 금액보다 더 큰 금액이 지급될 수 있습니다.'
+# 프리미엄 건강 · 간편보험의 「(체증형,10년후2배지급)」 특약(v9.09) — 약관 제1조 지급금액표 : 계약일부터 10년경과시점 전일 이전 가입금액의 100% · 이후 200%.
+# 지면 금액은 가입금액(100%) 그대로 적고(체증형은 첫 보상 기준 · 소유자 2026-11-06), 이 특약이 든 설계에만 아래 주석을 보장요약 · 주요수술 쪽에 한 줄 더 적는다
+ESC10 = re.compile(r'\(\s*체증형\s*,\s*10년후\s*2배지급\s*\)')
+ESC10_NOTE = '※ 「10년후 2배지급」 체증형 특약은 가입금액 기준 예시(10년 후 2배 지급)'      # 체증형 수술비 주석과 같은 줄에 잇는다(줄을 늘리면 보장요약은 표와 겹치고 주요수술 쪽은 카드가 줄어든다)
+ESCTAG = re.compile(r'\s*\(\s*(?:25%)?체증형(?:\s*,\s*10년후\s*2배지급)?\s*\)')      # (체증형) · (25%체증형) · (체증형,10년후2배지급) — 일반형과 같은 특약으로 본다
+ESC10_X = 262.0      # 보장요약 쪽 : 체증형 수술비 주석(왼쪽 33pt ~ 약 250pt) 오른쪽 빈 자리
+def has_esc10(): return any(ESC10.search(r.get('name') or '') for r in GP.RID if (r.get('man') or 0) > 0)
 def tsum(*keys):
     vs = [VX(k) for k in keys]; ns = [x for x in vs if isnum(x)]
     return float(sum(ns)) if ns else None
@@ -448,7 +455,7 @@ def rider_label(full, l):
         g = (re.search(r'\[(?:질병|상해)(\d종)\]', s) or [None, ''])[1] or GP.line_note(l); cause = '상해' if '상해' in s else '질병'
         if '태아고급형' in s: return '태아고급형 수술비(1-7종) [%s%s]' % (cause, g)
         return '%s 수술비 [%s%s]' % ('1-5종' if '1-5종' in s else '1-7종', cause, g)
-    s = re.sub(r'\s*\((25%)?체증형\)', '', s)
+    s = ESCTAG.sub('', s)
     return s.replace('131대질병수술비', '131대 질병수술비').replace('130대질병수술비', '130대 질병수술비')
 def fam_key(name, via=None):
     """같은 특약 판정 열쇠 — 갱신형 · 고지 꼬리표 · 띄어쓰기를 떼고, 종별 행(1-5종 · 1-7종)은 특약 단위(원인 포함)로 · 체증형은 일반형과 같은 특약으로 본다"""
@@ -459,7 +466,7 @@ def fam_key(name, via=None):
     cz = (re.search(r'\[(질병|상해)\d?(?:-\d)?종\]', n) or re.search(r'^(질병|상해)', n) or [None, ''])[1]
     if '1-7종' in n: return ('1-7종태아|' if '태아고급형' in n else '1-7종|') + cz      # 태아고급형 1-7종은 분류표 · 제외 질병이 다른 다른 특약
     if '1-5종' in n: return ('1-5종plus|' if 'plus' in n else '1-5종|') + cz
-    return re.sub(r'\((25%)?체증형\)', '', n)
+    return ESCTAG.sub('', n)
 def unj_label(name, via=None):
     """미가입 줄 이름 — 종별 행은 특약 단위로(「1-5종 수술비 [질병]」), 그 밖은 카드의 특약 이름 규칙(rider_label) 그대로"""
     k = fam_key(name, via)
@@ -503,7 +510,7 @@ def unjoined_all(design_pdf):
     import build_all as BA
     line = GP.LINE                                                      # 설계서 첫 쪽 상품명(PDF) 또는 입력 상품명(담보코드 입력)으로 정한 상품 라인
     mine = {S.nname(r['n']) for r in GS.DB['riders'] if r.get('p') == line}
-    base = lambda n: re.sub(r'\((25%)?체증형\)', '', S.noren(n))         # 갱신형 · 체증형만 다른 같은 특약(연만기 상품은 갱신형 이름으로만 판다 — CLAUDE.md 세만기형 · 연만기형)
+    base = lambda n: ESCTAG.sub('', S.noren(n))         # 갱신형 · 체증형만 다른 같은 특약(연만기 상품은 갱신형 이름으로만 판다 — CLAUDE.md 세만기형 · 연만기형)
     mine_base = {base(r['n']) for r in GS.DB['riders'] if r.get('p') == line}
     joined = [r for r in GP.RID if (r.get('man') or 0) > 0]
     known = [r for r in joined if S.nname(r.get('mname') or '') in mine or S.nname(GS.matcher.GRADE_RANGE.sub(lambda g: '[%s]' % g.group(1), r.get('via') or '')) in mine]
@@ -595,7 +602,7 @@ def page_surg(i):
     names = GS.DZ_ORDER[i * 6:(i + 1) * 6]
     body = ((need_surg() if i == 0 else '') + '<div class="cv-tab sg%d"><b>다빈도 수술별 보장금액 %s</b></div>' % (i, '①②'[i])
             + '<div class="cards2">%s</div>' % ''.join(card(n) for n in names)
-            + '<div class="sc-note">%s</div>' % ESC_NOTE + ('<div class="sc-src">%s</div>' % RANK_SRC if i == 1 else ''))
+            + '<div class="sc-note">%s</div>' % (ESC_NOTE + ('<span style="white-space:nowrap">&ensp;' + ESC10_NOTE + '</span>' if has_esc10() else '')) + ('<div class="sc-src">%s</div>' % RANK_SRC if i == 1 else ''))
     return page('주요수술 보장 %s' % '①②'[i], body, SURG_FOOT, ' data-zmax="1" data-gap="%s"' % (14 if i == 0 else 12), ' nt sgp two' + (' sfill' if i else ''))      # ② 쪽은 남는 높이를 카드 줄에 나눠 채운다(시안과 같게) · ① 쪽 카드는 시안 치수 그대로
 
 # ── 간병인 — GA 최종 시안(2026-11-20) : 표(1~180일 / 181일 이상) + 지원 장점 / 청구 방법 + 「니즈에 맞게 선택하세요」 ──
@@ -790,6 +797,7 @@ def summary_page():
             + GP._ov_text(sp, 'hdr.premium', prem or '-', '원' if prem else None) + summary_cells() + GP._ov_footer(sp))
     fix = (_pt_box(155.5, 299.5, 218.0, 313.0, '#FCFCFC') + _pt_text(157.59, 310.5, 9.8, '다빈치로봇', '#222222', 500, 'Pretendard,P')      # 가안 그림의 「로봇암수술」 → 「다빈치로봇」
            + _pt_text(33.0, 771.75, 6.6, ESC_NOTE, '#777777')
+           + (_pt_text(ESC10_X, 771.75, 6.6, ESC10_NOTE, '#777777') if has_esc10() else '')
            + _pt_box(30.0, 781.5, 400.0, 803.5, '#FFFFFF') + _pt_text(32.39, 791.25, 7.2, FOOT_MAX[0], '#777777') + _pt_text(32.39, 800.25, 7.2, FOOT_MAX[1], '#777777'))
     return OV.page_open('p1') + body + fix + '</div>'
 def cover_summary_html():

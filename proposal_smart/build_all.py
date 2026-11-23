@@ -95,8 +95,11 @@ def line_from_head(head):
     if re.search(r'OnlyYou통합보험', head, re.I): return 'OnlyYou통합간편' if '355간편' in head else 'OnlyYou통합'
     if '성공파트너종합보험' in head: return '성공파트너'
     if '상해안심보험' in head: return '상해안심'
+    # 프리미엄 건강보험 · 프리미엄 간편보험(v9.09 · 소유자 2026-11-23 「프리미엄을 반영한다고 가정」) — 담보에 「(355간편가입)」 이 붙어도 상품명이 먼저다
+    if '프리미엄간편보험' in head: return '프리미엄간편'
+    if '프리미엄건강보험' in head: return '프리미엄건강'
     return None
-NEW_LINES_2611 = ('올케어암', '올케어암간편', '올케어뇌심', '올케어뇌심간편', '올케어수술비', '올케어골키퍼', 'OnlyYou통합', 'OnlyYou통합간편', '성공파트너', '상해안심')
+NEW_LINES_2611 = ('올케어암', '올케어암간편', '올케어뇌심', '올케어뇌심간편', '올케어수술비', '올케어골키퍼', 'OnlyYou통합', 'OnlyYou통합간편', '성공파트너', '상해안심', '프리미엄건강', '프리미엄간편')
 
 if __name__=='__main__':
     if len(sys.argv) == 3:                      # python build_all.py 원본.pdf 결과.pdf  → 완전 자동

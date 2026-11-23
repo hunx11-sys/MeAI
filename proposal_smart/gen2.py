@@ -1182,7 +1182,7 @@ def page_all():
         items = ''.join(f'<span class="al"><i>{r["no"]}</i>{r["name"][:cut]}<b>{man(r["man"])}</b>{cutmark(r["name"], 1)}</span>' for r in sorted(rs, key=lambda x: (x.get('no') or 0)))
         blocks += f'''<div class="ablk"><div class="ah" style="color:{d}"><span class="adot" style="background:{d}"></span>{nm}<em>{len(rs)}개 · 합계 {won(sum(x["man"] for x in rs))}</em></div><div class="ag">{items}</div></div>'''
     return f'''{blocks}
- <div class="tip">{e('bulb','#D9480F')}<span>{'<b>가입금액 뒤 회색 %% 표시</b>는 계약 1년이 지나기 전에는 그 비율만 지급된다는 뜻이에요(%d개 담보). · ' % len(CUT) if CUT else ''}<b>지급 기준 요약</b> · 진단비는 최초 1회 · 수술비는 수술할 때마다(1~5종은 동시 수술 시 가장 높은 종 1가지) · 통합치료비는 항목별 연간 1회, 연간 한도는 가입금액까지 해마다 새로 적용 · 입원일당은 병원 종별·병실 종류·한도일수 조건 충족 시 지급 · 131대질병수술비 등 일반 질병 담보는 <b>암·유사암에는 지급되지 않아요</b>.</span></div>'''
+ <div class="tip">{e('bulb','#D9480F')}<span>{'<b>가입금액 뒤 회색 %% 표시</b>는 계약 1년이 지나기 전에는 그 비율만 지급된다는 뜻이에요(%d개 담보). · ' % len(CUT) if CUT else ''}{ESC10_TIP}<b>지급 기준 요약</b> · 진단비는 최초 1회 · 수술비는 수술할 때마다(1~5종은 동시 수술 시 가장 높은 종 1가지) · 통합치료비는 항목별 연간 1회, 연간 한도는 가입금액까지 해마다 새로 적용 · 입원일당은 병원 종별·병실 종류·한도일수 조건 충족 시 지급 · 131대질병수술비 등 일반 질병 담보는 <b>암·유사암에는 지급되지 않아요</b>.</span></div>'''
 
 # 사례 지면 주석 — 통합생활지원비는 '달' 단위 담보라 단계별 계산의 한계를 밝혀 둔다(v8.37)
 LSNOTE = ('<div class="mnote">※ 통합생활지원비는 <b>산정특례 등록·치료를 받은 달</b>마다 항목별로 지급되고, 한 달 합계는 가입금액까지예요. '
@@ -1288,6 +1288,10 @@ def esc_rows():
             out.append((nm, float(m.group(1)), r['man']))
     return sorted(out, key=lambda x: -x[2])[:3]
 
+# 프리미엄 건강 · 간편보험의 「(체증형,10년후2배지급)」 담보(v9.09) — 약관 제1조 : 계약일부터 10년경과시점 전일 이전 가입금액의 100% · 이후 200%.
+# 지면 금액은 가입금액(100%) 그대로이고, 이 담보가 든 설계에만 전체 담보 지면의 안내 글에 한 문장을 더한다
+_N10 = sum(1 for r in RID if r['man'] > 0 and re.search(r'체증형,10년후2배지급', r['name'].replace(' ', '')))
+ESC10_TIP = ('<b>「체증형, 10년후 2배지급」 담보</b>(%d개)는 가입금액 기준 예시이며, 계약일부터 10년이 지난 뒤에는 가입금액의 2배를 지급해요. · ' % _N10) if _N10 else ''
 def esc_block(no):
     """체증형 담보 — 회차별 지급 비율 한 줄 + 해당 담보 목록 한 줄 (마지막 지면, v8.33)"""
     rs = esc_rows()

@@ -9,8 +9,9 @@
   ① 두 길 대조   : 이름으로 찾은 특약으로 계산한 값 = 담보 식별표(code_map)의 특약 자료로 계산한 값
   ② 표기 변형    : 같은 특약의 표기 변형(갱신형 · (N년갱신) · [특별조건부] · [계약전환용] · (출생전) · 고지 구분자 · II/Ⅱ)끼리 값이 같다
   ③ 갱신형 불변  : 담보명에 「갱신형」 을 붙인 것과 뗀 것의 값이 같다(정보계 이름 + 특약 마스터 이름 전부)
+  ④ 체증형 불변  : 「(체증형,10년후2배지급)」(프리미엄 건강 · 간편) 을 붙인 것과 뗀 것의 값이 같다(v9.09 · 지면은 가입금액 기준)
 
-셋 다 「다른 곳 0」 이어야 한다. 다른 곳이 나오면 결과 json 에 줄 · 칸 · 두 값을 적는다 — 약관으로 어느 쪽이 맞는지 가린다.
+넷 다 「다른 곳 0」 이어야 한다. 다른 곳이 나오면 결과 json 에 줄 · 칸 · 두 값을 적는다 — 약관으로 어느 쪽이 맞는지 가린다.
 처음 돌렸을 때(v9.06) 찾은 것 : 통합생활지원비 항목표 기억이 메모리 주소로 구분되던 것(계산이 순서에 따라 흔들림) ·
 갱신형 세트 특약의 암진단비(유사암제외) 세부보장이 유사암 칸에 들어가던 것 · 세트 특약의 진단비 가입금액이 암후유장해 칸에 더해지던 것.
 정보계 코드는 사내 자료다 — 작업폴더 · 결과 json 은 저장소에 넣지 않는다.
@@ -96,7 +97,21 @@ for line, b in todo:
     if a != g: res['renew'].append(dict(line=line, name=b, cells={k: [a.get(k), g.get(k)] for k in sorted(set(a) | set(g)) if a.get(k) != g.get(k)}))
 cnt['③ 담보(상품 라인 × 담보명)'] = len(todo); cnt['③ 갱신형 유무로 계산이 달라지는 담보'] = len(res['renew'])
 print('③ 갱신형 불변 · 담보 %d · %.0f초' % (len(todo), time.time() - t0), flush=True)
-bad = len(res['two_path']) + len(res['variant']) + len(res['renew'])
+# ④ 체증형(10년 뒤 2배) 불변 — 프리미엄 건강 · 간편보험의 「(체증형,10년후2배지급)」 담보는 같은 이름 일반형과 지급사유 · 별표가 같고 지급금액표만 다르다(v9.09).
+#    지면은 가입금액(100%) 기준이라, 꼬리표를 붙인 것과 뗀 것의 계산 값이 같아야 한다(정보계 이름 + 특약 마스터 이름 전부)
+ESC10 = re.compile(r'\(\s*체증형\s*,\s*10년후\s*2배지급\s*\)')
+seen = set(); todo = []
+for (line, n, cid) in groups:
+    if ESC10.search(n) and (line or DEFAULT, n) not in seen: seen.add((line or DEFAULT, n)); todo.append((line or DEFAULT, n))
+for r in matcher.DB['riders']:
+    if ESC10.search(r['n']) and (r['p'], r['n']) not in seen: seen.add((r['p'], r['n'])); todo.append((r['p'], r['n']))
+res['esc10'] = []
+for line, n in todo:
+    a = calc(line, n)[1]; g = calc(line, re.sub(r'\s{2,}', ' ', ESC10.sub('', n)))[1]
+    if a != g: res['esc10'].append(dict(line=line, name=n, cells={k: [a.get(k), g.get(k)] for k in sorted(set(a) | set(g)) if a.get(k) != g.get(k)}))
+cnt['④ 10년 뒤 2배 체증형 담보(상품 라인 × 담보명)'] = len(todo); cnt['④ 체증형 꼬리표 유무로 계산이 달라지는 담보'] = len(res['esc10'])
+print('④ 체증형 불변 · 담보 %d · %.0f초' % (len(todo), time.time() - t0), flush=True)
+bad = len(res['two_path']) + len(res['variant']) + len(res['renew']) + len(res['esc10'])
 json.dump(dict(rows=len(rows), count=dict(cnt), **res), open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 print()
 for k in sorted(cnt): print('%7d  %s' % (cnt[k], k))

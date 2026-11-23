@@ -274,6 +274,9 @@ def verify(design, out_pdf):
         C.eq('쪽 제목 간병인 %d' % (j + 1), G.title_of(d[8 + j]), want)
     C.ok('쪽 제목 안내사항', '안내사항' in ns(d[len(d) - 1].get_text()[:400]) or True, '')
     v_summary(d[1], C)
+    esc10 = G.has_esc10()      # 「(체증형,10년후2배지급)」 특약이 든 설계에만 주석이 붙는다(v9.09 · 프리미엄 건강 · 간편)
+    for lab, pg in (('보장요약', d[1]), ('주요수술 ①', d[6]), ('주요수술 ②', d[7])):
+        C.ok('10년 뒤 2배 체증형 주석(%s)' % lab, (ns(G.ESC10_NOTE) in ns(pg.get_text())) == esc10, '주석이 %s' % ('없음(이 설계에 10년 뒤 2배 체증형 특약이 있음)' if esc10 else '있음(이 설계에는 그 특약이 없음)'))
     for j, pk in enumerate(('ca1', 'ca2', 'brain', 'heart')): v_template(d[2 + j], tpl[order.index(pk)], pk, C)
     v_template(d[len(d) - 1], tpl[order.index('notice')], 'notice', C)
     v_surgery([d[6], d[7]], C)

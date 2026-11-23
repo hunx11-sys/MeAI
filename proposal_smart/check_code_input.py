@@ -108,10 +108,13 @@ for i in range(60):
     x = cells(one('무배당 메리츠 통합간편건강보험(세만기형)2610', ('암' if i % 2 else '2대질환') + ' 통합생활지원비(월간한도)(통합간편가입)'))
     same = same and x == (A if i % 2 else B)
 ok('통합생활지원비 — 번갈아 60번 계산해도 같은 값', same and A != B and any(A.values()) and any(B.values()))
-# 만들지 않는 상품(프리미엄) — GA 길에서도 멈춘다
+# 만들지 않는 상품 정책(rules.json > exclude_products) — 목록에 올린 상품은 GA 길에서도 멈춘다.
+# v9.09 부터 프리미엄 건강 · 간편보험은 목록에서 뺐다(소유자 2026-11-23 「프리미엄을 반영한다고 가정」) → 장치는 시험용 이름으로 확인한다
 import ga_proposal as GP
-try: GP.load(CI.parse(mk(product='무배당 메리츠 프리미엄 건강보험2610'))); ok('프리미엄 건강보험 → 멈춤', False)
-except pipeline.DesignUnreadable as e: ok('프리미엄 건강보험 → 멈춤', '만들지 않는' in str(e))
+S.RULEDOC.setdefault('exclude_products', []).append({'m': '시험용제외상품', 'nm': '시험용 제외 상품', 'why': '자체 시험'})
+try: GP.load(CI.parse(mk(product='무배당 메리츠 시험용 제외상품2610'))); ok('정책 목록에 올린 상품 → 멈춤', False)
+except pipeline.DesignUnreadable as e: ok('정책 목록에 올린 상품 → 멈춤', '만들지 않는' in str(e))
+S.RULEDOC['exclude_products'].pop()
 # 신상품 신담보(약관 검수 전) — 일반 규칙에 걸려 계산되지 않는다
 for prod, nm in (('무배당 올케어 꽉 채운 수술비보험(세만기형)2610(일반고지형)', '종합병원 전신마취(1시간초과) 수술비(1-7종,연간3회한)[질병]'), ('무배당 올케어 꽉 채운 뇌심보험(세만기형)2610(일반심사형)', '중증뇌경색증진단비')):
     try: v = cells(one(prod, nm))
@@ -149,6 +152,20 @@ for nm in ('중증뇌경색증진단비', '중등증이상허혈성심장질환�
 try: v = cells(one(PG, '갱신형 회복기재활의료기관 골반대퇴골절입원일당(1일이상30일한도)'))
 except pipeline.DesignUnreadable: v = {}
 ok('회복기재활의료기관 입원일당은 빈칸(의료기관 지정 여부를 사례로 알 수 없음)', not any(v.values()))
+
+# 7. v9.09 프리미엄 건강 · 간편보험(가정 반영) — 10년 뒤 2배 체증형은 같은 이름 일반형과 같은 칸 · 같은 금액(가입금액 기준)
+PH, PE = '무배당 메리츠 프리미엄 건강보험2610', '무배당 메리츠 프리미엄 간편보험2610'
+ok('프리미엄 상품 라인 읽기', CI.line_of(CI.parse(mk(product=PH))) == '프리미엄건강' and CI.line_of(CI.parse(mk(product=PE))) == '프리미엄간편')
+try: GP.load(CI.parse(mk(product=PH))); ok('프리미엄 건강보험 → 만든다(제작 제외 목록에서 뺌)', True)
+except pipeline.DesignUnreadable as e: ok('프리미엄 건강보험 → 만든다(제작 제외 목록에서 뺌)', False, '— %s' % e)
+T10 = '(체증형,10년후2배지급)'
+for prod, base in ((PH, '암진단비(유사암제외)'), (PH, '유사암진단비'), (PH, '질병수술비'), (PH, '암수술비(유사암제외)'), (PE, '뇌졸중진단비Ⅱ(355간편가입)'), (PE, '혈전용해치료비Ⅱ(뇌졸중)(연간1회한)(355간편가입)')):
+    esc = base.replace('(355간편가입)', '') + T10 + ('(355간편가입)' if '(355간편가입)' in base else '')
+    ra, rb = one(prod, base), one(prod, esc); a, b = cells(ra), cells(rb)
+    ok('체증형(10년 뒤 2배) = 일반형과 같은 칸 · 같은 금액(%s)' % base[:14], a == b and any(a.values()) and rb[0]['matched'] and rb[0]['codes'] == ra[0]['codes'] and rb[0]['excl'] == ra[0]['excl'],
+       '— 일반 %s · 체증 %s' % ({k: v for k, v in a.items() if v}, {k: v for k, v in b.items() if v}))
+c = cells(rows(dict(schema=1, product=PH, riders=[{'no': 1, 'name': '암진단비(유사암제외)', 'amount': 10000000}, {'no': 2, 'name': '암진단비(유사암제외)' + T10, 'amount': 20000000}])))
+ok('일반형 + 체증형 같이 가입 → 가입금액 합(체증형은 10년 경과 전 100% 기준)', c['p1.ca.dx.일반암'] == 3000, '— %s' % c['p1.ca.dx.일반암'])
 
 print('\n결과 : %s — 점검 %d개 · 실패 %d' % ('전부 통과' if not N[1] else '실패', N[0], N[1]))
 sys.exit(1 if N[1] else 0)
