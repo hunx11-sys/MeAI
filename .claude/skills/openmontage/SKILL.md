@@ -101,7 +101,7 @@ source /home/user/MeAI/video/env.sh && cd "$OM" && <명령>
 1. 완성본을 `$MEAI_VIDEO_OUT`(= `video/out/`)에 복사한다. 오픈몽타주 폴더는 소유자가 앱에서 열 수 없다.
 2. ffprobe 로 길이 · 해상도 · 소리 유무를 확인하고, 장면 몇 장을 뽑아 직접 눈으로 본다(한글 깨짐 · 잘림 · 빈 화면).
 3. 파일을 소유자에게 보낸다(SendUserFile). 컨테이너는 임시라 세션이 끝나면 사라진다 — **보내지 않으면 남지 않는다.**
-4. `video/out/` 과 오픈몽타주의 `projects/` 는 저장소에 올리지 않는다. 다시 쓸 재료(대본 · 장면 구성 json)를 남겨야 하면 소유자에게 물어 `video/projects/<이름>/` 에 글자 파일만 둔다.
+4. `video/out/` 과 오픈몽타주의 `projects/` 는 저장소에 올리지 않는다. 다시 쓸 재료는 소유자에게 물어 `video/projects/<이름>/` 에 둔다 — 본보기 `video/projects/seoul-info-silson/`(대본 · 확인받은 내레이션 mp3 · 화면 스크립트 · `make.py` 한 번에 다시 뽑기 · 장면 하나만 `--resynth`). 「○○ 영상 고쳐서 v3」 요청이면 그 폴더 README 대로 한다.
 
 ## 고칠 때
 

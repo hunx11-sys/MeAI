@@ -106,6 +106,7 @@ Bash(git push origin HEAD:main)
 | `smoke_build.py` | 시험 영상의 내레이션 · 장면 시간 · 자막을 만드는 스크립트 |
 | `smoke_ko.json` | 한국어 시험 영상의 내용(장면마다 읽을 글 포함) |
 | `music/` | (선택) 쓰고 싶은 음악 파일을 넣는 곳 |
+| `projects/<이름>/` | 만든 영상마다 다시 뽑을 재료(대본 · 확인받은 내레이션 · 화면 스크립트 · `make.py`). 첫 번째 : `projects/seoul-info-silson/`(실손 할인 교육 영상) |
 | `out/` | 완성본이 놓이는 곳(저장소에는 올리지 않음) |
 
 클로드가 따르는 작업 순서는 `.claude/skills/openmontage/SKILL.md` 에 있습니다.
