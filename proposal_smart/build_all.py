@@ -26,6 +26,11 @@ def auto_meta(pdf_path):
     m = {}
     m['insured'] = g(r'피보험자\s+(\S+)', t1, '고객')
     m['premium'] = g(r'보험료\s+([\d,]+)\s*원', t1, '') + '원'
+    if m['premium'] == '원':                                   # 태아 설계 : 「보험료 출생전 : 110,770 원, 출생후 : 110,770 원」 — 지금 내는 출생전 보험료를 적는다(전에는 못 읽어 표지 · 머리줄에 「-」 · v9.06)
+        bf = re.search(r'보험료\s+출생전\s*[:：]?\s*([\d,]+)\s*원(?:\s*,?\s*출생후\s*[:：]?\s*([\d,]+)\s*원)?', t1)
+        if bf:
+            m['premium'] = bf.group(1) + '원'
+            if bf.group(2) and bf.group(2) != bf.group(1): m['premium_after'] = bf.group(2) + '원'      # 출생후 보험료가 다르면 따로 남긴다(지면에는 출생전)
     m['product'] = g(r'(\(무\)[^\n]+)', t1, '')
     m['head'] = g(r'(계약사항\s*:[^\n]+)', t2, '').replace('~', '~ ').replace('  ', ' ')
     m['agent'] = g(r'영업담당자\s+(.+?)\s+발행정보', t2, '')
@@ -58,21 +63,28 @@ def guess_line(riders, pdf=None):
         try:
             import pdfplumber
             with pdfplumber.open(pdf) as d: head = re.sub(r'\s+', '', d.pages[0].extract_text() or '')
-            if '통합간편건강보험' in head: return '통합간편'
-            if re.search(r'\(무\)내Mom대로보장보험', head): return '내Mom대로'          # 스마트 제안서 전용 보강 마스터(db_terms_extra.json)(v8.66)
-            if '내Mom같은어린이보험' in head: return '내Mom같은어린이'
-            if '간편31건강보험' in head: return '간편31'                                # 스마트 제안서 전용 보강 마스터(v8.70)
-            # 약관 4건 추가(v8.71) — 'The건강한 내Mom대로' 는 '내Mom대로' 보다 먼저 본다
-            if 'The건강한내Mom대로5.10.5' in head: return 'The건강한내Mom대로5.10.5'
-            if 'The건강한5.10.5' in head: return 'The건강한5.10.5'
-            if 'The좋은내Mom대로' in head: return 'The좋은내Mom대로'
-            if 'The가벼운간편355' in head: return 'The가벼운간편355'
-            # The좋은 M-Basket(약관명 The좋은 케어프리보험 M-Basket · GA 판매명 The좋은 알파Plus · 연만기 전 특약 갱신형)(v8.77) —
-            # 세만기·비갱신 기반 케어프리 M-Basket(GA 알파Plus)과 다른 상품이다. 두 판매명 약관은 본문이 같다. 이 줄이 없으면 아래에서 '케어프리' 로 떨어진다
-            if re.search(r'The좋은(케어프리보험|알파Plus)', head): return 'The좋은케어프리'
+            ln = line_from_head(head)
+            if ln: return ln
         except Exception:
             pass
     return '케어프리'
+
+def line_from_head(head):
+    """설계서 첫 쪽 글자(또는 상품명 · 띄어쓰기 없이) → 상품 라인. 못 읽으면 None(guess_line 이 '케어프리' 로 둔다).
+    담보코드 입력(code_input.line_of)도 이 규칙을 쓴다 — 설계서 PDF 와 같은 상품 라인이 나와야 같은 특약을 찾는다(v9.06)"""
+    if '통합간편건강보험' in head: return '통합간편'
+    if re.search(r'\(무\)내Mom대로보장보험', head): return '내Mom대로'          # 스마트 제안서 전용 보강 마스터(db_terms_extra.json)(v8.66)
+    if '내Mom같은어린이보험' in head: return '내Mom같은어린이'
+    if '간편31건강보험' in head: return '간편31'                                # 스마트 제안서 전용 보강 마스터(v8.70)
+    # 약관 4건 추가(v8.71) — 'The건강한 내Mom대로' 는 '내Mom대로' 보다 먼저 본다
+    if 'The건강한내Mom대로5.10.5' in head: return 'The건강한내Mom대로5.10.5'
+    if 'The건강한5.10.5' in head: return 'The건강한5.10.5'
+    if 'The좋은내Mom대로' in head: return 'The좋은내Mom대로'
+    if 'The가벼운간편355' in head: return 'The가벼운간편355'
+    # The좋은 M-Basket(약관명 The좋은 케어프리보험 M-Basket · GA 판매명 The좋은 알파Plus · 연만기 전 특약 갱신형)(v8.77) —
+    # 세만기·비갱신 기반 케어프리 M-Basket(GA 알파Plus)과 다른 상품이다. 두 판매명 약관은 본문이 같다. 이 줄이 없으면 '케어프리' 로 떨어진다
+    if re.search(r'The좋은(케어프리보험|알파Plus)', head): return 'The좋은케어프리'
+    return None
 
 if __name__=='__main__':
     if len(sys.argv) == 3:                      # python build_all.py 원본.pdf 결과.pdf  → 완전 자동

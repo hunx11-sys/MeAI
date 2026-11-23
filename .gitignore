@@ -8,3 +8,6 @@ proposal_smart/ga_assets/mock/tpl_*.png
 
 # 영상 완성본 · 시험 영상(다시 만들 수 있다 · 용량이 커서 올리지 않는다)
 video/out/
+
+# 담보 식별표(단위상품코드|담보코드 → 특약 마스터 ID) — 정보계 코드가 든 사내 자료. 서버에만 둔다(scripts/codemap/export_code_map.py)
+proposal_smart/code_map.json

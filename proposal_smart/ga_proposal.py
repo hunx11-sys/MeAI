@@ -75,18 +75,43 @@ def ga_head(design_pdf, age=''):
         agent_name = agent_name or next((w for w in rest if w != org and re.fullmatch(r'[가-힣]{2,5}', w)), '')
     missing = [k for k, v in (('피보험자 이름', name), ('성별', sex), ('보험나이', ag), ('가계약번호', no), ('컨설턴트 소속', org), ('컨설턴트 이름', agent_name), ('휴대전화', mobile), ('코드', code)) if not v]
     if missing: S.ISSUES.append({'구분': '표지', '담보': '-', '사유': '설계서에서 읽지 못한 표지 항목 : ' + ' · '.join(missing) + ' (빈칸 「-」으로 둠)'})
-    if os.environ.get('GA_MASK') == '1':          # 설계도 캡처 · 견본용 : 피보험자 · 가계약번호 · 소속 · 컨설턴트 · 전화를 가린다(CLAUDE.md 6 · 계산과 무관)
-        name = name and '○○○'; no = no and '●' * len(no); org = org and '○○본부'; agent_name = agent_name and '○○○'
-        mobile = mobile and '010-****-****'; tel = tel and '0*-****-****'; code = code and '*****'; agent = ''
-    return dict(name=name, sex=sex, age=ag, no=no, agent=agent, org=org, agent_name=agent_name, mobile=mobile, tel=tel, code=code)
+    return _mask(dict(name=name, sex=sex, age=ag, no=no, agent=agent, org=org, agent_name=agent_name, mobile=mobile, tel=tel, code=code))
+def _mask(h):
+    """설계도 캡처 · 견본용(GA_MASK=1) : 피보험자 · 가계약번호 · 소속 · 컨설턴트 · 전화를 가린다(CLAUDE.md 6 · 계산과 무관)"""
+    if os.environ.get('GA_MASK') == '1':
+        h = dict(h, name=h['name'] and '○○○', no=h['no'] and '●' * len(h['no']), org=h['org'] and '○○본부', agent_name=h['agent_name'] and '○○○',
+                 mobile=h['mobile'] and '010-****-****', tel=h['tel'] and '0*-****-****', code=h['code'] and '*****', agent='')
+    return h
 VAL = {}                                        # 칸 key → (값, 지급 줄, 로그)  — ga_spec.cell_value
 AUDIT = {}                                      # 마지막 build 의 감사 로그(요약·계산 제외 사유) — 웹 화면 「감사 로그」 탭
+LINE = ''                                       # 이 설계의 상품 라인(특약 마스터) — load() 가 채운다
+def is_data(design): return isinstance(design, dict)      # 담보코드 입력(code_input.parse 를 거친 dict) — 아니면 설계서 PDF 경로
+def tag_of(design):
+    """산출물 파일 이름용(ASCII)"""
+    if is_data(design):
+        import code_input
+        return code_input.tag(design)
+    return ascii_name(design)
+def label_of(design):
+    if is_data(design):
+        import code_input
+        return code_input.label(design)
+    return os.path.basename(design)
 def load(design_pdf, age=''):
-    """설계서 한 건을 읽어 모든 칸 값을 채운다"""
-    global RID, META, WHO, PRODUCT, PREMIUM, NRID, SHORTP, VAL, HEAD
+    """설계서 한 건(PDF 경로) 또는 담보코드 입력 한 건(code_input.parse 를 거친 dict)을 읽어 모든 칸 값을 채운다.
+    담보코드 입력은 담보 줄 · 표지 항목을 설계서 읽기와 같은 꼴로 받을 뿐, 그 뒤 계산은 같은 길이다(v9.06)"""
+    global RID, META, WHO, PRODUCT, PREMIUM, NRID, SHORTP, VAL, HEAD, LINE
     S.ISSUES.clear(); GS.clear_cache()
+    if is_data(design_pdf):
+        import code_input as CI
+        RID = CI.riders(design_pdf); META = CI.meta(design_pdf); LINE = design_pdf['_line']
+        age = age or ((design_pdf['insured']['age'] + '세') if design_pdf['insured']['age'] else '')
+        return _fill(lambda: _mask(CI.head(design_pdf, age)), age)
     RID = pipeline.read_checked(design_pdf)             # PDF 가 아님(DRM) · 깨짐 · 암호 · 그림 PDF · 다른 문서 · 계산할 담보 0 → 0원 · 「-」 뿐인 빈 제안서 대신 이유를 알려 멈춘다(v8.98)
-    META = BA.auto_meta(design_pdf)
+    META = BA.auto_meta(design_pdf); LINE = BA.guess_line(RID, design_pdf)
+    _fill(lambda: ga_head(design_pdf, age), age)
+def _fill(head_fn, age):
+    global WHO, PRODUCT, PREMIUM, NRID, SHORTP, VAL, HEAD
     sex = META.get('sex') or ''
     # 나이는 설계서 본문에서 추정하지 않는다(만기·갱신 나이가 섞여 잘못 읽힘) — 넘겨받은 값만 쓴다
     WHO = '고객님 (%s%s)' % ({'F': '여', 'M': '남'}.get(sex, ''), (' · ' + age) if age else '')
@@ -94,7 +119,7 @@ def load(design_pdf, age=''):
     PREMIUM = META.get('premium', '') or ''
     NRID = len(RID)
     SHORTP = (re.split(r'보장보험|건강보험|암보험', PRODUCT)[0].replace('(무) 메리츠 ', '').replace('(무)메리츠', '').strip() or PRODUCT).replace('%', '%%')
-    HEAD = ga_head(design_pdf, age)
+    HEAD = head_fn()
     VAL = {c['key']: GS.cell_value(c, RID) for c in GS.CELLS}
 def who_line():
     """「민메리 (여자, 20세)」 — 읽은 것만"""
@@ -282,9 +307,9 @@ def _wn(v):
     if v is None: return '<span class="cna">미가입</span>'
     return '<span class="cn">%s<i>만원</i></span>' % won(v) if not isinstance(v, str) else '<span class="cn txt" style="font-size:7.4pt;white-space:nowrap;letter-spacing:-.4pt">%s</span>' % v   # 「간병인 보내줌」 은 칸 폭에 맞게 작게(잘림 방지 · 2026-10-26)
 def disp_name(name):
-    """세부내역 특약명 — 26종 항암방사선및약물치료비의 꼬리 [세부급부명]은 뗀다(특정 암만 보장되는 듯한 오해 · GA 2026-10-22)"""
+    """세부내역 특약명 — 26종 항암방사선및약물치료비의 꼬리 [세부급부명]은 뗀다(특정 암만 보장되는 듯한 오해 · GA 2026-10-22) · 앞에 「갱신형」 · 「(N년갱신)」 이 붙은 이름도(연만기 설계서 · 정보계 원문 — v9.06)"""
     n = re.sub(r'\s+', ' ', name).strip()
-    if n.startswith('26종'): n = re.sub(r'\s*\[[^\[\]]*(\([^()]*\))*[^\[\]]*\]\s*$', '', n)
+    if re.match(r'^(?:\(\d+년갱신\)\s*)?(?:갱신형\s*)?26종', n): n = re.sub(r'\s*\[[^\[\]]*(\([^()]*\))*[^\[\]]*\]\s*$', '', n)
     return n
 def line_note(l):
     """담보명 옆 연한 글자 — 몇 종(1-5종 · 1-7종 수술비) · 통합치료비/통합생활지원비는 어느 항목에서 나왔나(금액 숫자는 뺀다). 그 밖에는 적지 않는다(GA 2026-10-22)"""

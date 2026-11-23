@@ -25,6 +25,8 @@ python3 build.py <작업폴더> <결과 엑셀>                 # 결과 엑셀(
 (cd ../../proposal_smart/ga_docs && python3 run_spec.py <GA 결과 json> <html폴더> <설계서.pdf ...>)   # 칸 정의 · 칸별 지급 줄 · 설계서 칸 값 — proposal_smart/ga_docs/README.md
 python3 verify_designs.py <작업폴더> <결과 엑셀> <설계서 폴더> <왕복 검증 json>                   # 설계서 담보 : 담보코드로 찾은 특약 = 이름으로 찾은 특약 · 그 자료로 다시 계산한 칸 값(다른 칸 0 이어야 함)
 python3 build_blueprint.py <작업폴더> <결과 엑셀> <GA 결과 json> <설계도 엑셀> [v2data.json] [왕복 검증 json]   # 시트 10개 + 새 양식 8개 + 왕복 검증 2개
+python3 export_code_map.py <작업폴더> <결과 엑셀> <code_map.json>                                        # 담보코드 입력(proposal_smart/code_input.py)이 쓰는 담보 식별표 — 「단위상품코드|담보코드」 → 특약 마스터 ID · **사내 자료 · 저장소에 넣지 않는다**
+python3 verify_code_input.py <작업폴더> <결과 엑셀> <설계서 폴더> <결과 폴더> [--pdf]                   # 설계서 담보를 정보계 원문 이름 · 코드로 바꾼 입력 JSON 을 만들어 「PDF 로 넣은 결과 = 담보코드로 넣은 결과」 인지(칸 값 · 수술 카드 · 간병인 표 · 표지 · --pdf 면 인쇄 검증과 쪽 글자까지)
 ```
 
 기존 GA 설계도(`dist/ga-blueprint-final.xlsx` · 담보명에서 출발)를 「단위상품코드 + 담보코드」에서 출발하도록 다시 짠 것이다. 계산 규칙 · 칸 사례 · 금액표는 같고, 담보를 찾는 열쇠만 바뀐다.
