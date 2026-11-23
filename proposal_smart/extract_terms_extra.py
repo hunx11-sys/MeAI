@@ -39,7 +39,9 @@ CIRC = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳'
 def nz(s): return re.sub(r'[\s ]', '', s or '')
 # '수술에서 제외하는 사항(① 흡인 ② 천자 ③ 신경차단 ④ 미용성형 목적의 수술 ⑤ 피임 목적의 수술 …)'도 세부보장이 아니다(2026-10-20 :
 # 간편31 · The좋은내Mom대로 32대질병관혈수술비에 [미용성형 목적의 수술] 세부 레코드가 생겼던 것)
-JUNKSUB = re.compile(r'청구서|증명서|제출|회사양식|위생관리|성형수술|미용\s*성형|목적의\s*수술|^\d+\.|[一-龥]|등의\s*조치|[「【“]|한다|이하|말한다|정한다')
+# 「보험금을 지급하지 않는 사유(① 피보험자가 고의로 자신을 해친 경우 ② 보험수익자가 고의로 … ③ 계약자가 고의로 … · 선박에 탑승…)」 도 세부보장이 아니다
+# (2026-11-23 : 올케어 수술비보험 성인주요질환 종합병원수술비 · 올케어 치아보험 통합상해진단비Ⅲ 에 면책 사유가 세부 레코드로 생겼던 것)
+JUNKSUB = re.compile(r'청구서|증명서|제출|회사양식|위생관리|성형수술|미용\s*성형|목적의\s*수술|^\d+\.|[一-龥]|등의\s*조치|[「【“]|한다|이하|말한다|정한다|고의로|해친\s*경우|직무상\s*선박')
 
 EXAMPLE = re.compile(r'【[^】]*예\s*시[^】]*】.*?(?=\n\s*\d+\.\s|\n\s*【|\n\s*제\s*\d+\s*조|\Z)', re.S)
 def strip_examples(t):
@@ -362,7 +364,7 @@ def parse(path, product, prefix):
         ch = sub_chunks(body_lines, labels) if how == 'enum' else None
         for i, lab in enumerate(labels, 1):
             lab = GOJI.sub('', tidy_goji(lab)).strip()
-            if JUNKSUB.search(lab): continue                          # 보험금 청구서류 목록 등이 세부보장으로 잡힌 것
+            if JUNKSUB.search(lab) or not nz(lab): continue          # 보험금 청구서류 목록 등이 세부보장으로 잡힌 것 · 이름이 빈 세부(「…[상해][]」 · 2026-11-23)
             lab = re.split(r'\s*:\s*|\s*보장\s*:', lab)[0].strip()      # '화상진단비보장 : 화상으로 진단확정시 …' → '화상진단비'
             lab = re.sub(r'보장$', '', lab).strip()
             lab = NS.unbreak(lab, TXT, ref=NREF)[0]
@@ -384,7 +386,9 @@ def parse(path, product, prefix):
     return riders, alltabs, log
 
 # 보강 상품의 추출(감수) 순서 — 같은 이름 특약의 코드를 빌릴 때 이 순서에서 앞선 상품 것만 쓴다
-ORDER = ['내Mom대로', '내Mom같은어린이', '간편31', 'The건강한내Mom대로5.10.5', 'The건강한5.10.5', 'The좋은내Mom대로', 'The가벼운간편355']
+ORDER = ['내Mom대로', '내Mom같은어린이', '간편31', 'The건강한내Mom대로5.10.5', 'The건강한5.10.5', 'The좋은내Mom대로', 'The가벼운간편355',
+         # 2026-11-23 약관 27개 추가분 중 스마트 제안서 대상(v9.07) — 암 · 뇌심 · 수술비 · 건강 · 통합 · 종합 · 상해. 뒤에 붙인다(앞 상품의 빌려오기 결과가 바뀌지 않게)
+         '올케어암', '올케어암간편', '올케어뇌심', '올케어뇌심간편', '올케어수술비', '올케어골키퍼', 'OnlyYou통합', 'OnlyYou통합간편', '성공파트너', '상해안심']
 
 MUGAM = re.compile(r'\((?:감액및면책기간미적용|감액기간미적용|면책기간미적용)\)')
 GJ_ = re.compile(r'\([^()]{1,24}가입\)')
@@ -441,6 +445,9 @@ def settle(riders):
             r['basis_from'] = '%s %s(같은 이름 특약 약관 p.%s)' % (o['p'], o['id'], o.get('pg'))
         kk = key(r['n'])
         c = idx0.get(exact(r['n'])) or idx.get(kk) or (idx.get(kk[1:]) if re.match(r'^\d', kk) else None)
+        if not c and re.match(r'^\d{2,3}[가-힣]', kk) and idx.get(re.sub(r'^\d+', '', kk)):
+            # 목차 번호가 「2-31 암전후관련 …」 처럼 마침표 없이 적혀 이름 앞에 번호(31)가 붙은 것 — 번호를 뗀 이름이 감수 마스터에 있을 때만 뗀다(2026-11-23 · 올케어 암보험)
+            c = idx.get(re.sub(r'^\d+', '', kk)); r['n'] = re.sub(r'^\s*\d+\s*', '', r['n'])
         if c:
             best = c[0]
             r.update(k=list(best.get('k') or []), x=list(best.get('x') or []), hc=list(best.get('hc') or []), c=best.get('c') or r['c'],

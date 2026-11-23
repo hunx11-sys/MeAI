@@ -104,12 +104,20 @@ def load(design_pdf, age=''):
     S.ISSUES.clear(); GS.clear_cache()
     if is_data(design_pdf):
         import code_input as CI
-        RID = CI.riders(design_pdf); META = CI.meta(design_pdf); LINE = design_pdf['_line']
+        META = CI.meta(design_pdf); _refuse_excluded()
+        RID = CI.riders(design_pdf); LINE = design_pdf['_line']
         age = age or ((design_pdf['insured']['age'] + '세') if design_pdf['insured']['age'] else '')
         return _fill(lambda: _mask(CI.head(design_pdf, age)), age)
     RID = pipeline.read_checked(design_pdf)             # PDF 가 아님(DRM) · 깨짐 · 암호 · 그림 PDF · 다른 문서 · 계산할 담보 0 → 0원 · 「-」 뿐인 빈 제안서 대신 이유를 알려 멈춘다(v8.98)
-    META = BA.auto_meta(design_pdf); LINE = BA.guess_line(RID, design_pdf)
+    META = BA.auto_meta(design_pdf); _refuse_excluded(); LINE = BA.guess_line(RID, design_pdf)
     _fill(lambda: ga_head(design_pdf, age), age)
+def _refuse_excluded():
+    """제작하지 않기로 한 상품(rules.json > exclude_products · 프리미엄 건강보험 · 프리미엄 간편보험)은 GA 양식도 만들지 않는다.
+    9쪽 스마트 제안서(gen2.excluded_product)에는 있던 막음이 GA 길에는 없어서, 10년 뒤 2배 체증형 담보가 일반 담보처럼 계산돼 나올 수 있었다(v9.07)"""
+    nm = re.sub(r'\s+', '', META.get('product') or '')
+    for x in S.RULEDOC.get('exclude_products', []):
+        if nm and re.search(x['m'], nm):
+            raise pipeline.DesignUnreadable('이 상품은 스마트 제안서를 만들지 않는 상품입니다 — %s. %s' % (x.get('nm') or '', x.get('why') or ''))
 def _fill(head_fn, age):
     global WHO, PRODUCT, PREMIUM, NRID, SHORTP, VAL, HEAD
     sex = META.get('sex') or ''

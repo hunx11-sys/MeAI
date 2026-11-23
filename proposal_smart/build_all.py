@@ -58,16 +58,19 @@ def guess_line(riders, pdf=None):
     그 결과 통합간편 설계서의 '갱신형 ○○' 담보가 같은 이름의 케어프리 레코드에 매칭되어,
     통합간편 약관의 세부보장 목록(예 32대질병관혈수술비 [5대질병] 통55-1)을 못 찾았다."""
     names = ' '.join(r['name'] for r in riders)
-    if '통합간편가입' in names: return '통합간편'
+    ln = None
     if pdf:
         try:
             import pdfplumber
             with pdfplumber.open(pdf) as d: head = re.sub(r'\s+', '', d.pages[0].extract_text() or '')
             ln = line_from_head(head)
-            if ln: return ln
         except Exception:
             pass
-    return '케어프리'
+    # 2026-11 추가 상품(올케어 수술비보험 통합간편고지형 등)은 담보에 「(통합간편가입)」 이 붙어도 통합간편건강보험이 아니다 — 상품명이 먼저다(v9.07).
+    # 그 밖의 상품은 전과 같은 순서(고지 구분자 → 상품명) 그대로
+    if ln in NEW_LINES_2611: return ln
+    if '통합간편가입' in names: return '통합간편'
+    return ln or '케어프리'
 
 def line_from_head(head):
     """설계서 첫 쪽 글자(또는 상품명 · 띄어쓰기 없이) → 상품 라인. 못 읽으면 None(guess_line 이 '케어프리' 로 둔다).
@@ -84,7 +87,16 @@ def line_from_head(head):
     # The좋은 M-Basket(약관명 The좋은 케어프리보험 M-Basket · GA 판매명 The좋은 알파Plus · 연만기 전 특약 갱신형)(v8.77) —
     # 세만기·비갱신 기반 케어프리 M-Basket(GA 알파Plus)과 다른 상품이다. 두 판매명 약관은 본문이 같다. 이 줄이 없으면 '케어프리' 로 떨어진다
     if re.search(r'The좋은(케어프리보험|알파Plus)', head): return 'The좋은케어프리'
+    # 2026-11-23 약관 추가분(v9.07) — 스마트 제안서 전용 보강 마스터. 심사형 · 고지형은 상품명에 적힌 글자로(약관 표지 「(맞춤간편심사형)」 · 「(355간편고지형)」)
+    if '올케어보장꽉채운암보험' in head: return '올케어암간편' if '맞춤간편' in head else '올케어암'
+    if '올케어꽉채운뇌심보험' in head: return '올케어뇌심간편' if '맞춤간편' in head else '올케어뇌심'
+    if '올케어꽉채운수술비보험' in head: return '올케어수술비'
+    if '올케어꽉채운골키퍼건강보험' in head: return '올케어골키퍼'
+    if re.search(r'OnlyYou통합보험', head, re.I): return 'OnlyYou통합간편' if '355간편' in head else 'OnlyYou통합'
+    if '성공파트너종합보험' in head: return '성공파트너'
+    if '상해안심보험' in head: return '상해안심'
     return None
+NEW_LINES_2611 = ('올케어암', '올케어암간편', '올케어뇌심', '올케어뇌심간편', '올케어수술비', '올케어골키퍼', 'OnlyYou통합', 'OnlyYou통합간편', '성공파트너', '상해안심')
 
 if __name__=='__main__':
     if len(sys.argv) == 3:                      # python build_all.py 원본.pdf 결과.pdf  → 완전 자동

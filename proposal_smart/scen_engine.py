@@ -173,9 +173,17 @@ if os.path.exists(os.path.join(BASE, 'inj_itc.json')):
 #      같은 표임을 대조한 담보만 쓴다. 확인하지 못한 금액은 만들지 않는다.
 _LS_ITEMS = {}
 def ls_items(r):
-    """담보 → (항목표, 근거) · 근거는 'paper'(상품설명서) · 'book'(약관) · None(없음)"""
-    key = id(r)
-    if key in _LS_ITEMS: return _LS_ITEMS[key]
+    """담보 → (항목표, 근거) · 근거는 'paper'(상품설명서) · 'book'(약관) · None(없음)
+    기억해 두는 열쇠는 담보의 내용(이름 · 가입금액 · 설명문)이다 — 전에는 메모리 주소(id(r))였는데, 담보 줄이 지워진 뒤 새 담보 줄이 같은 주소를 받으면
+    앞 담보의 항목표가 그대로 나왔다(서버가 설계를 이어서 처리할 때 · 가상 담보를 만들었다 지울 때 · v9.07).
+    로그는 기억에서 꺼낼 때도 다시 남긴다(log 가 같은 로그는 한 번만 쌓는다) — 설계마다 로그가 빠지지 않게."""
+    key = (r.get('name'), r.get('man'), r.get('desc') or '')
+    if key in _LS_ITEMS:
+        res, logs = _LS_ITEMS[key]
+        for a in logs: log(*a)
+        return res
+    logs = []
+    def _log(kind, reason): logs.append((kind, r['name'], reason)); log(kind, r['name'], reason)
     rid = ls_id(r['name'])
     res = ([], None)
     if rid:
@@ -189,12 +197,12 @@ def ls_items(r):
         if paper and book:
             k = lambda xs: sorted((re.sub(r'\s', '', x['label']), x['amt']) for x in xs)
             if k(paper) != k(book):
-                log('교차대조', r['name'], '상품설명서 설명문과 약관 지급금액표의 항목·금액이 달라 설명문 기준으로 표시함')
+                _log('교차대조', '상품설명서 설명문과 약관 지급금액표의 항목·금액이 달라 설명문 기준으로 표시함')
         if paper: res = (paper, 'paper')
         elif book and len(v.get('srcs') or []) >= 2: res = (book, 'book')
-        elif book: log('근거부족', r['name'], '이 상품 약관·설명문에서 항목표를 확인하지 못해 계산·지면에서 제외 (다른 상품 약관 1곳에만 있어 대조 불가)')
-        else: log('금액표없음', r['name'], '가입금액 %g만원 구간의 항목표가 설명문에도 약관에도 없어 계산·지면에서 제외' % r['man'])
-    _LS_ITEMS[key] = res
+        elif book: _log('근거부족', '이 상품 약관·설명문에서 항목표를 확인하지 못해 계산·지면에서 제외 (다른 상품 약관 1곳에만 있어 대조 불가)')
+        else: _log('금액표없음', '가입금액 %g만원 구간의 항목표가 설명문에도 약관에도 없어 계산·지면에서 제외' % r['man'])
+    _LS_ITEMS[key] = (res, logs)
     return res
 
 # 사례 단계 → 통합생활지원비 항목. 약관 항목명을 그대로 읽어 맞춘다.

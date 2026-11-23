@@ -88,5 +88,36 @@ ok('이름으로 못 찾으면 담보 식별표로', r99['matched'] and r99['how
 os.environ.pop('GA_CODE_MAP'); CI._CM = None; os.unlink(tmp.name)
 ok('담보 식별표가 없어도 돈다', len(rows(EX)) == 14)
 
+# 5. v9.07 에 찾아 고친 계산 오류 — 다시 생기지 않게(정보계 전 줄 계산 대조 scripts/codemap/audit_rows.py 가 찾은 것)
+def one(product, name, won=10000000):
+    return rows(dict(schema=1, product=product, riders=[{'no': 1, 'name': name, 'amount': won}]))
+KEY = {c['key']: c for c in GS.CELLS}
+for pre in ('', '갱신형 '):
+    for nm in ('암치료,후유장해및진단비[암진단비(유사암제외)]', '암후유장해및진단비[암진단비(유사암제외)]'):
+        c = cells(one('무배당 메리츠 The좋은 케어프리보험 M-Basket2610', pre + nm))
+        ok('세트 특약 암진단비(유사암제외) — 일반암 칸에만(%s%s)' % (pre, nm[:10]), c['p1.ca.dx.일반암'] == 1000 and not c['p1.ca.dx.유사암'] and not c['p2.dx.유사암'] and not c['p2.dis'],
+           '— 일반암 %s · 유사암 %s · 암후유장해 %s' % (c['p1.ca.dx.일반암'], c['p1.ca.dx.유사암'], c['p2.dis']))
+c = cells(rows(dict(schema=1, product='무배당 The가벼운 간편355건강보험(세만기형)2610', riders=[
+    {'no': 1, 'name': '암치료,후유장해및진단비[암후유장해(3-100%)](편한가입)', 'amount': 50000000}, {'no': 2, 'name': '암치료,후유장해및진단비[암80%이상후유장해](편한가입)', 'amount': 1000000},
+    {'no': 3, 'name': '암치료,후유장해및진단비[암진단비(유사암제외)](편한가입)', 'amount': 30000000}, {'no': 4, 'name': '암치료,후유장해및진단비[항암약물치료비](편한가입)', 'amount': 20000000}])))
+ok('암후유장해 칸 = 후유장해 세부보장만(진단비 · 항암치료비 가입금액은 더하지 않음)', c['p2.dis'] == 5100, '— %s' % c['p2.dis'])
+# 통합생활지원비 : 담보를 만들었다 지워도(같은 메모리 주소가 다시 쓰여도) 제 항목표가 나온다
+A = cells(one('무배당 메리츠 통합간편건강보험(세만기형)2610', '암 통합생활지원비(월간한도)(통합간편가입)')); B = cells(one('무배당 메리츠 통합간편건강보험(세만기형)2610', '2대질환 통합생활지원비(월간한도)(통합간편가입)'))
+same = True
+for i in range(60):
+    x = cells(one('무배당 메리츠 통합간편건강보험(세만기형)2610', ('암' if i % 2 else '2대질환') + ' 통합생활지원비(월간한도)(통합간편가입)'))
+    same = same and x == (A if i % 2 else B)
+ok('통합생활지원비 — 번갈아 60번 계산해도 같은 값', same and A != B and any(A.values()) and any(B.values()))
+# 만들지 않는 상품(프리미엄) — GA 길에서도 멈춘다
+import ga_proposal as GP
+try: GP.load(CI.parse(mk(product='무배당 메리츠 프리미엄 건강보험2610'))); ok('프리미엄 건강보험 → 멈춤', False)
+except pipeline.DesignUnreadable as e: ok('프리미엄 건강보험 → 멈춤', '만들지 않는' in str(e))
+# 신상품 신담보(약관 검수 전) — 일반 규칙에 걸려 계산되지 않는다
+for prod, nm in (('무배당 올케어 꽉 채운 수술비보험(세만기형)2610(일반고지형)', '종합병원 전신마취(1시간초과) 수술비(1-7종,연간3회한)[질병]'), ('무배당 올케어 꽉 채운 뇌심보험(세만기형)2610(일반심사형)', '중증뇌경색증진단비')):
+    try: v = cells(one(prod, nm))
+    except pipeline.DesignUnreadable: v = {}
+    ok('검수 전 신담보는 빈칸(%s)' % nm[:12], not any(v.values()), '— %s' % {k: x for k, x in v.items() if x})
+ok('새 상품 라인 읽기', CI.line_of(CI.parse(mk(product='무배당 올케어 꽉 채운 수술비보험(세만기형)2610(통합간편고지형)'))) == '올케어수술비' and CI.line_of(CI.parse(mk(product='(무) Only You 통합보험2610(355간편고지형)'))) == 'OnlyYou통합간편')
+
 print('\n결과 : %s — 점검 %d개 · 실패 %d' % ('전부 통과' if not N[1] else '실패', N[0], N[1]))
 sys.exit(1 if N[1] else 0)

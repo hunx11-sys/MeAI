@@ -162,7 +162,7 @@ for rl, md in ROWS3[:2]:
     for n, k in RD: add('p2.rd.%s.%s' % (k, md), 2, '항암방사선치료', rl, n, 'engine', CS[k], md, sc_name='위암 %s' % n)
 add('p2.rh.in',  2, '암재활치료', '연 20회', '입원 재활', 'engine', sc_itc('C16', 'rehab', fam='cancer', extra={'n': 1}), 'itc_only', sc_name='위암 재활치료 1회(회당 금액) · 상급종합 · 통합치료비 항목만 — 연 20회 한도는 줄 제목에만(소유자 2026-11-03 : 합산액이 아니라 회당 금액)')
 add('p2.rh.out', 2, '암재활치료', '연 20회', '외래 재활', 'engine', sc_itc('C16', 'rehab', fam='cancer', extra={'n': 1}), 'itc_only', sc_name='(입원 칸과 같은 값)', note='입원·외래 구분 없이 같은 사례 값')
-add('p2.dis', 2, '암후유장해', '', '3-100% 암후유장해', 'direct', direct=dict(keys=['암', '후유장해'], exclude=[]), note="담보명에 '암'과 '후유장해'가 모두 들어간 담보의 가입금액 합 — 계산 아님")
+add('p2.dis', 2, '암후유장해', '', '3-100% 암후유장해', 'direct', direct=dict(keys=['암', '후유장해'], exclude=['재활자금']), note="담보명(세트 특약은 세부보장 이름)에 '암'과 '후유장해'가 모두 들어간 담보의 가입금액 합 — 계산 아님. 「…후유장해재활자금」 은 다른 보장이라 뺀다(v9.07)")
 
 # ── 3쪽 뇌·심보장 ──
 for n, k in EX_BH:
@@ -179,12 +179,29 @@ add('p3.rh.in',  3, '뇌·심 재활치료', '연 15회', '입원 재활', 'engi
 add('p3.rh.out', 3, '뇌·심 재활치료', '연 15회', '외래 재활', 'engine', sc_itc('I63', 'rehab', grp=BG, extra={'n': 1}), 'itc_only', sc_name='(입원 칸과 같은 값)')
 
 # ═══════════════ 계산 ═══════════════
+def _sub_label(name):
+    """담보명에서 「무슨 보장인지」 를 말하는 부분 — 세트 특약의 세부보장 줄 「암치료,후유장해및진단비[암진단비(유사암제외)]」 은 대괄호 안(세부보장 이름)으로 본다.
+    전에는 담보명 전체를 봐서, 세트 이름에 「후유장해」 가 들어 있다는 이유로 진단비 · 항암약물치료비 세부보장의 가입금액까지 암후유장해 칸에 더했다(v9.07).
+    대괄호가 없는 담보(「암후유장해(3-100%)」 · 설계서의 「┗ 암후유장해(3-100%)」)는 이름 그대로."""
+    n = re.sub(r'\((?:[^()]{0,30}가입)\)|\[기본계약\]', '', name or '').strip()
+    if not n.endswith(']'): return n
+    d = 0
+    for i in range(len(n) - 1, -1, -1):
+        if n[i] == ']': d += 1
+        elif n[i] == '[':
+            d -= 1
+            if d == 0:
+                inner = n[i + 1:-1]
+                return _sub_label(inner) if inner.endswith(']') else inner      # 「A[A[세부]]」 꼴은 한 번 더 안쪽으로
+    return n
 _CACHE = {}
-def clear_cache(): _CACHE.clear()
+_ALIVE = {}        # 기억해 둔 담보 목록을 붙잡아 둔다 — 열쇠가 메모리 주소(id)라, 목록이 지워진 뒤 다른 목록이 같은 주소를 받으면 앞 목록의 계산이 나온다(v9.07)
+def clear_cache(): _CACHE.clear(); _ALIVE.clear()
 def pay(riders, s_):
     """같은 사례는 한 설계서 안에서 한 번만 계산한다(ga_proposal.load 가 clear_cache). 감사 로그(S.ISSUES)는 지우지 않고 이 호출분만 돌려준다"""
     k = (id(riders), json.dumps(s_, sort_keys=True, ensure_ascii=False))
     if k in _CACHE: return _CACHE[k]
+    _ALIVE[id(riders)] = riders
     n0 = len(S.ISSUES)
     L = S.pay_lines(riders, copy.deepcopy(s_))
     _CACHE[k] = (L, list(S.ISSUES[n0:]))
@@ -245,7 +262,7 @@ def cell_value(c, riders):
         return v, lines, []
     if k == 'direct':
         d = c['direct']
-        rs = [r for r in riders if all(a in r['name'] for a in d['keys']) and not any(x in r['name'] for x in d.get('exclude', []))]
+        rs = [r for r in riders if all(a in _sub_label(r['name']) for a in d['keys']) and not any(x in _sub_label(r['name']) for x in d.get('exclude', []))]
         return (None if not rs else sum(r['man'] for r in rs)), [dict(name=r['name'], amt=r['man'], why='가입금액 그대로', rule='direct') for r in rs], []
     L, iss = pay(riders, c['sc'])
     il, ii = inj_lines(riders, c['sc'])

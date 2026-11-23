@@ -72,24 +72,7 @@ def canon(r):
     _CAN[k] = v; return v
 GK = collections.defaultdict(list)
 for r in M: GK[canon(r)].append(r)
-PRODS = ['통합간편', '케어프리', '운전자', '치아', '또또암', '또또암간편', '간편31', '내Mom대로', '내Mom같은어린이',
-         'The건강한내Mom대로5.10.5', 'The건강한5.10.5', 'The좋은내Mom대로', 'The가벼운간편355', 'The좋은케어프리']
-PFULL = {
-    '통합간편': '무배당 메리츠 통합간편건강보험(세만기형)2610(통합간편심사형)',
-    '케어프리': '무배당 메리츠 케어프리보험 M-Basket2610 (GA 판매명 알파Plus보장보험 · 특약 구성 같음)',
-    '운전자': '무배당 메리츠 운전자 상해 종합보험2610',
-    '치아': '무배당 메리츠 치아보험 이목구비2601',
-    '또또암': '무배당 메리츠 또 걸려도 또 받는 암보험(세만기형)2610(일반심사형)',
-    '또또암간편': '무배당 메리츠 또 걸려도 또 받는 암보험(세만기형)2610(맞춤간편심사형) — 옛 이름 「간편한 암보험」',
-    '간편31': '무배당 메리츠 간편31 건강보험2610',
-    '내Mom대로': '무배당 내Mom대로 보장보험2610',
-    '내Mom같은어린이': '무배당 내Mom같은 어린이보험2610(태아전용)',
-    'The건강한내Mom대로5.10.5': '무배당 메리츠 The건강한 내Mom대로 5.10.5 보장보험2610',
-    'The건강한5.10.5': '무배당 메리츠 The건강한 5.10.5 보장보험2610',
-    'The좋은내Mom대로': '무배당 메리츠 The좋은 내Mom대로 보장보험2610',
-    'The가벼운간편355': '무배당 The가벼운 간편355건강보험(세만기형)2610',
-    'The좋은케어프리': '무배당 메리츠 The좋은 케어프리보험 M-Basket2610 (GA 판매명 The좋은 알파Plus · 케어프리와 다른 상품)',
-}
+from products import PRODS, PFULL, term_of, TAGP, TAGNOTE, UNTAG      # 상품 라인 · 약관 파일 → 상품 · 고지 구분자(2026-11-23 약관 47개 · 상품 24개)
 PORDER = {p: i for i, p in enumerate(PRODS)}
 def plist(rs): return ', '.join(sorted({r['p'] for r in rs}, key=lambda p: PORDER.get(p, 99)))
 
@@ -118,11 +101,11 @@ def rule_of(n):
     if not r: return '', '규칙 없음(계산 제외 · 빈칸)'
     return r['id'], KIND.get(r['id']) or r.get('kind', '')
 
-# ── 약관 목차(저장소 루트 PDF 20개) ─────────────────────────
-TOCF = {1: ('The가벼운간편355', 'y'), 2: ('내Mom같은어린이', 'y'), 3: ('내Mom대로', 'y'), 4: ('The건강한5.10.5', 'y'), 5: ('The건강한내Mom대로5.10.5', 'y'),
-        6: ('The좋은내Mom대로', 'y'), 7: ('The좋은 알파Plus(= The좋은케어프리)', 'y'), 8: ('The좋은케어프리', 'y'), 9: ('간편31', 'y'), 10: ('또또암간편', 'y'),
-        11: ('또또암', 'y'), 12: ('치매간병통합케어(355Ⅱ간편심사형)', 'dem'), 13: ('치매간병통합케어(일반심사형)', 'dem'), 14: ('운전자', 'y'), 15: ('치아', 'y'),
-        16: ('케어프리', 'y'), 17: ('통합간편(355입원,수술고지간편심사형)', 'tg'), 18: ('통합간편(일반심사형)', 'tg'), 19: ('통합간편(통합간편심사형)', 'y'), 20: ('알파Plus(= 케어프리)', 'y')}
+# ── 약관 목차(저장소 루트 PDF 전부 · toc.py 가 만든 index.txt 의 파일 이름으로 상품을 가린다) ─────────────────────────
+TOCF = {}
+for _l in open(os.path.join(BASE, 'terms_txt', 'index.txt'), encoding='utf-8').read().strip().split('\n'):
+    _i, _nm = _l.split(' ', 1); TOCF[int(_i)] = term_of(_nm)
+NTERM = len(TOCF)
 TOCJ = json.load(open(os.path.join(BASE, 'terms_txt', 'toc.json'), encoding='utf-8'))
 def tkey(t):
     t = re.sub(r'^\d+(-\d+)*\.', '', t).replace('보장특별약관', '').replace('특별약관', '')
@@ -161,8 +144,8 @@ def reason(c, lv, note, nm):
     if re.search(r'치아|치과|임플란트', s): return '분류 안 됨', '치아 담보 — 우리 치아 약관(2601)에 없음'
     if c[:3] == '690': return '분류 안 됨', '상위(묶음) 코드 — 우리 약관에 없는 특약'
     if re.search(r'체증형|10년후2배지급', s): return '분류 안 됨', '변형 특약(체증형 등) — 우리 약관에 이 판 없음'
-    if note.startswith('가장 가까운 후보'): return '분류 안 됨', '우리 약관(14개 상품)에 없는 담보 — 같은 계열 다른 판 또는 신담보'
-    return '분류 안 됨', '우리 약관(14개 상품)에 없는 담보'
+    if note.startswith('가장 가까운 후보'): return '분류 안 됨', '우리 약관(%d개 상품)에 없는 담보 — 같은 계열 다른 판 또는 신담보' % len(PRODS)
+    return '분류 안 됨', '우리 약관(%d개 상품)에 없는 담보' % len(PRODS)
 
 PREM = '프리미엄 건강보험 · 프리미엄 간편보험 전용(10년 뒤 2배 체증형) — 스마트 제안서 대상 아님(소유자 2026-11-06)'
 LVN = {'정확': '① 정확', '세부표기': '② 세부표기', '특약단위': '③ 특약단위', '유사': '④ 유사(확인)', '없음': '⑤ 없음'}
@@ -185,6 +168,7 @@ for c in codes:
         if 'y' in kinds: why = '우리 약관에 특약으로 있는데 마스터에 없음 — 마스터 누락 의심(확인)'; cls = '확인 필요'
         elif 'tg' in kinds: why = '통합간편 다른 심사형(355 · 일반) 약관에만 있음 — 우리 마스터(통합간편심사형 약관)에 없음'
         elif 'dem' in kinds: why = '치매간병통합케어 약관에 있음 — 스마트 제안서 대상 아닌 상품'
+        elif 'x' in kinds: why = '%s 약관에 있음 — 스마트 제안서 대상이 아니라 특약 마스터를 두지 않은 상품' % ' · '.join(sorted({TOCF[i][0] for i in toc if TOCF[i][1] == 'x'}))[:80]
     rep = ns[0]
     gs = []
     if cls == '매핑됨':
@@ -228,10 +212,25 @@ for c, d in CODE.items():
     elif d['cls'] == '확인 필요' and d['o']: BYK[canon(d['o'])]['유사'].append(c)
 
 # ── 단위상품코드 추정 ────────────────────────────────────────
-TAGP = {'(편한가입)': ['The가벼운간편355'], '(건강가입)': ['The건강한5.10.5', 'The건강한내Mom대로5.10.5'], '(31간편가입)': ['간편31'], '(315간편가입)': ['간편31'],
-        '(맞춤간편가입)': ['또또암간편'], '(통합간편가입)': ['통합간편'], '(355입원,수술고지간편가입)': ['통합간편'], '(355Ⅱ간편가입)': []}
-TAGNOTE = {'(355입원,수술고지간편가입)': '통합간편 355입원·수술고지간편심사형(우리 마스터는 통합간편심사형 약관)', '(355Ⅱ간편가입)': '치매간병통합케어(355Ⅱ간편심사형) — 도구 대상 아님'}
-UNTAG = ['케어프리', '운전자', '치아', '또또암', '내Mom대로', '내Mom같은어린이', 'The좋은내Mom대로', 'The좋은케어프리', '통합간편']   # 약관 목차에 고지 구분자가 없는 상품(통합간편은 일반심사형)
+# 약관 목차 대조 — 이 단위상품의 담보명이 약관마다 몇 개나 특약 제목으로 있는가(이름 전체 · 대괄호 앞 특약 이름 · 1-7종 종별 줄)
+VARS = ('(출생전)', '(최초발생후전환용)', '(전환용)', '(최초암발생후)', '(최초2대질환발생후)')
+def toc_keys(n):
+    s = strip_tags(n)
+    for v in VARS: s = s.replace(v, '')
+    out = {nkey(n), re.sub(r'[\[\]()]', '', s)}
+    if s.endswith('추가'): out.add(re.sub(r'[\[\]()]', '', s[:-2]))
+    if '[' in s: out.add(re.sub(r'[\[\]()]', '', s.split('[')[0]))
+    if re.fullmatch(r'수술비\[(질병|상해)[1-7]종\]', s): out.add('수술비1-7종,연간3회한')
+    return out
+def toc_units(ns):
+    """약관(표에 적는 이름)마다 목차에 있는 담보 수"""
+    hit = collections.Counter()
+    for n in ns:
+        fs = set()
+        for k in toc_keys(n): fs |= TOCK.get(k, set())
+        for lab in {TOCF[i][0] for i in fs}: hit[lab] += 1
+    return hit
+LABK = {v[0]: v for v in TOCF.values()}       # 표에 적는 이름 → (이름, 갈래, 마스터 상품)
 RENEWP = {p: sum(1 for r in M if r['p'] == p and r['n'].replace(' ', '').startswith('갱신형')) / max(1, sum(1 for r in M if r['p'] == p)) for p in PRODS}
 def unit_row(u):
     cs = U[u]; ns = [n for uu, c, n in UR[u]]
@@ -245,7 +244,11 @@ def unit_row(u):
     for c, n in rr:
         for p in {r['p'] for r in GK[canon(REC[(NR[n][2], NR[n][1])])]}: cov[p] += 1
     ren = sum(1 for n in ns if strip_tags(n) != re.sub(r'\s+', '', n) and re.sub(r'^\(\d+년갱신\)', '', n.replace('[특별조건부]', '').replace('[계약전환용]', '')).startswith('갱신형')) / len(ns) if ns else 0
-    def val(p): return cov[p] / len(rr) - 0.3 * abs(ren - RENEWP.get(p, 0)) if rr else 0
+    th = toc_units(ns)                                      # 약관 목차 대조(약관마다 이 단위상품 담보가 몇 개 있나)
+    thp = collections.Counter()                             # 마스터 상품 라인마다(같은 상품의 다른 심사형 · 만기형 약관은 큰 쪽)
+    for lab, k in th.items():
+        if LABK[lab][2]: thp[LABK[lab][2]] = max(thp[LABK[lab][2]], k)
+    def val(p): return (cov[p] / len(rr) - 0.3 * abs(ren - RENEWP.get(p, 0)) if rr else 0) + 0.5 * thp.get(p, 0) / max(1, len(ns))
     pool = [p for p in cov if allowed is None or p in allowed]
     top = sorted(pool, key=lambda p: -val(p))[:3]
     if allowed and rr and (not top or cov[top[0]] / len(rr) < 0.6):
@@ -267,12 +270,23 @@ def unit_row(u):
     else:
         p1 = top[0]; share = cov[p1] / len(rr)
         guess = ('%s(추정)' % p1) if share >= 0.6 else ('혼합 · 불명확(추정 1순위 %s)' % p1)
+    # 약관 목차 대조로 뒤집는 경우 — 특약 마스터를 두지 않은 상품(프리미엄 · 치매 · 장기간병 · 펫 · 정기 · 치아 · 이륜차)의 약관에 이 단위상품 담보가 가장 많이 있으면 그 상품이다.
+    # (2026-11-23 전에는 그 약관이 없어서, 이름이 겹치는 우리 상품(케어프리 · 운전자 등)으로 추정했다)
+    tx = [(k, lab) for lab, k in th.items() if LABK[lab][1] in ('x', 'dem')]
+    tocnote = ''
+    if tx:
+        kx, labx = max(tx); km = max(thp.values()) if thp else 0
+        if kx >= max(3, 0.25 * len(ns)) and kx > km and not guess.startswith('프리미엄'):
+            guess = '도구 대상 아님(약관 목차 대조) — %s' % labx
+        tocnote = ' · '.join('%s %d' % (lab, k) for k, lab in sorted(((k, lab) for lab, k in th.items()), reverse=True)[:3])
+    else:
+        tocnote = ' · '.join('%s %d' % (lab, k) for k, lab in sorted(((k, lab) for lab, k in th.items()), reverse=True)[:3])
     def fmt(i):
         if i >= len(top): return ''
         p = top[i]; return '%s %d/%d' % (p, cov[p], len(rr))
     fams = collections.Counter(fam(c) for c in cs).most_common(2)
     return [u, len(cs), len(mapped), rate, ' '.join('%s %d' % x for x in tg.most_common(3)), why, '%.0f%%' % (ren * 100), guess, fmt(0), fmt(1), fmt(2),
-            ', '.join('%s %d' % f for f in fams), ' · '.join(ns[:3])]
+            ', '.join('%s %d' % f for f in fams), ' · '.join(ns[:3]), tocnote]
 UR = collections.defaultdict(list)
 for u, c, n in rows: UR[u].append((u, c, n))
 
@@ -324,7 +338,7 @@ ws2 = sheet('담보코드 매핑', H2, D2, [9, 46, 16, 12, 11, 34, 40, 8, 9, 20,
                    (5, CLF)], wrapcols=(2, 6, 7, 15, 25))
 
 # 3. 분류 안 됨 · 확인 필요
-H3 = ['담보코드', '대표 담보명(정보계)', '분류', '사유', '판정 단계', '가장 가까운 우리 특약(참고)', '우리 상품', '판정 메모', '약관 목차에 같은 이름(저장소 약관 20개)', '코드 계열(추정)', '쓰는 단위상품코드 수', '이름 변형(전부)', '체크(담당자 기입)']
+H3 = ['담보코드', '대표 담보명(정보계)', '분류', '사유', '판정 단계', '가장 가까운 우리 특약(참고)', '우리 상품', '판정 메모', '약관 목차에 같은 이름(저장소 약관 전부)', '코드 계열(추정)', '쓰는 단위상품코드 수', '이름 변형(전부)', '체크(담당자 기입)']
 D3 = []
 order = {'확인 필요': 0, '분류 안 됨': 1}
 for c in sorted([c for c in codes if CODE[c]['cls'] != '매핑됨'], key=lambda c: (order[CODE[c]['cls']], CODE[c]['why'], c)):
@@ -368,9 +382,9 @@ ws4 = sheet('우리 특약→담보코드', H4, D4, [14, 11, 50, 10, 18, 18, 40,
             fills=[(11, {'코드 있음': 'E2F0D9', '못 찾음': 'FCE4D6'})])
 
 # 5. 단위상품코드 추정
-H5 = ['단위상품코드', '담보 수', '우리 특약과 맞춘 담보 수', '맞춘 비율', '고지 구분자(이름에 붙은 것 · 건수)', '후보를 좁힌 근거', '갱신형 이름 비율', '추정 상품', '추정 1순위(맞춘 이름 중 보유 수)', '2순위', '3순위', '주 코드 계열', '담보명 예']
+H5 = ['단위상품코드', '담보 수', '우리 특약과 맞춘 담보 수', '맞춘 비율', '고지 구분자(이름에 붙은 것 · 건수)', '후보를 좁힌 근거', '갱신형 이름 비율', '추정 상품', '추정 1순위(맞춘 이름 중 보유 수)', '2순위', '3순위', '주 코드 계열', '담보명 예', '약관 목차 대조(약관 · 목차에 있는 담보 수 · 위 3개)']
 D5 = [unit_row(u) for u in sorted(U)]
-ws5 = sheet('단위상품코드 추정', H5, D5, [11, 7, 9, 8, 30, 34, 9, 36, 26, 22, 22, 30, 70], wrapcols=(5, 6, 8, 13))
+ws5 = sheet('단위상품코드 추정', H5, D5, [11, 7, 9, 8, 30, 34, 9, 36, 26, 22, 22, 30, 70, 60], wrapcols=(5, 6, 8, 13, 14))
 for r in range(2, ws5.max_row + 1): ws5.cell(r, 4).number_format = '0%'
 
 # 6. 이름 하나에 코드 여러 개
@@ -428,7 +442,7 @@ lines = [
     '코드 계열(앞 3자리)의 뜻은 회사 공식 정의가 아니라 이름 분포를 보고 붙인 추정이다. 「단위상품코드 추정」 시트의 상품도 담보 구성 · 고지 구분자로 본 추정이다.',
     'GA 칸 : GA 스마트 제안서 설계도(dist/ga-blueprint-final.xlsx ③ 칸별 특약)에서 이 특약이 집계되는 칸 번호. 보상 유형 · 규칙ID 는 계산 엔진(scen_engine.classify)이 우리 특약명으로 판정한 것.',
     '중요 1 — 담보코드와 이름은 1:1 이 아니다 : 정보계는 담보 개념마다 코드를 주고, 상품마다 다른 이름을 붙인다(예 : %s). 그래서 우리 특약은 「단위상품코드 + 담보코드」 짝으로 찾는다 — 「전체 행」 시트가 짝마다 맞춘 결과다. 코드 하나에 우리 특약이 여럿 걸린 %d개는 「코드 하나에 특약 여럿」 시트, 이름 하나에 코드가 여럿인 %d개는 「이름 하나에 코드 여러 개」 시트.' % (EX1, len(D8), len(D6)),
-    '중요 2 — 마스터 점검 : 약관 20개 목차와 대조해 「우리 약관에 특약으로 있는데 마스터에 없음」으로 나온 것 — %s.' % (EX2 or '없음'),
+    '중요 2 — 마스터 점검 : 약관 %d개 목차와 대조해 「우리 약관에 특약으로 있는데 마스터에 없음」으로 나온 것 — %s.' % (NTERM, EX2 or '없음'),
     '취급 : 정보계 담보코드는 사내 자료다. 사외로 보내지 않는다. 설계사명 · 고유번호 같은 개인정보는 이 표에 없다.',
 ]
 r = 2
@@ -438,7 +452,7 @@ put(r, 1, '판정 단계', Font(name=F, bold=True, size=11)); r += 1
 for k2, t in [('① 정확', '고지 구분자 등을 떼면 이름이 글자까지 같음'), ('② 세부표기', '낱말은 같고 괄호 모양 · 순서 · 띄어쓰기 · 줄임 표기만 다름(예 : [특정항암] = [특정항암호르몬약물허가치료비])'),
               ('③ 특약단위', '회사는 세부보장 단위 코드, 우리 마스터는 특약 단위 — 우리 특약에 붙임(예 : 수술비Ⅱ(1-5종)[질병3종] → 수술비Ⅱ(1-5종))'),
               ('④ 유사(확인)', '비슷하지만 우리에 없는 낱말이 있음 — 같은 특약인지 확인 필요(10년 뒤 2배 체증형은 대상 아님으로 따로 뺌)'),
-              ('⑤ 없음', '우리 약관 14개 상품에 같은 알맹이가 없음(펫 · 실손 · 화재 · 치매 상품, 제도성 특약, 우리에 없는 신담보 등)')]:
+              ('⑤ 없음', '우리 약관 %d개 상품에 같은 알맹이가 없음(펫 · 실손 · 화재 · 치매 상품, 제도성 특약, 우리에 없는 신담보 등)' % len(PRODS))]:
     put(r, 1, k2, BF, LVF[{'①': '정확', '②': '세부표기', '③': '특약단위', '④': '유사', '⑤': '없음'}[k2[0]]]); put(r, 2, t); ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=6); ws.row_dimensions[r].height = 30; r += 1
 r += 1
 put(r, 1, '집계(수식 · 「담보코드 매핑」 시트를 센다)', Font(name=F, bold=True, size=11)); r += 1
