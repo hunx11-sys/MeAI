@@ -765,6 +765,16 @@ def h_surg(r, o, sc, nm, t):
     # 관혈/비관혈로 나뉜 담보(5대질환수술비[관혈]·[비관혈], 32대질병관혈수술비) — 한 번의 수술은 둘 중 하나다.
     # 전에는 둘 다 지급되어 뇌·심장 수술마다 1,000만원(비관혈 가입금액)이 더 붙었다(v8.55)
     lab = r['name'].replace(' ', '')
+    if o.get('open_rate'):
+        # 한 담보가 관혈 · 비관혈 지급률을 따로 정한 것(척추질병수술비(연간1회한)(관혈,비관혈) — 관혈 100% · 비관혈 50% · 각각 연간 1회 · v9.08).
+        # 아래 「관혈/비관혈로 나뉜 담보」 판정에 맡기면 이름에 두 글자가 다 있어 비관혈 수술에만 가입금액 전액이 계산된다
+        op = surg_open(tg)
+        if op is None:
+            log('검토필요', r['name'], '관혈·비관혈 구분이 사례에 없어 계산 제외'); return []
+        rate = o['open_rate']['open' if op else 'closed']
+        amt = r['man'] * rate / 100.0; amt = int(amt) if amt == int(amt) else amt
+        why = o.get('why', '수술 1회').replace('{approach}', '관혈' if op else '비관혈').replace('{rate}', format(rate, 'g'))
+        return [(amt, why, o.get('group', '수술비'), o.get('freq', 'year'))]
     if '관혈' in lab:
         op = surg_open(tg)
         if op is None:

@@ -68,15 +68,27 @@ def join_split_ranges(t):
     return '\n'.join(L)
 
 
+EXPAREN = re.compile(r'[(（]((?:[^()（）]|[(（][^()（）]{0,60}[)）]){0,120}?)제\s*외\s*[)）]')
+EXNOTE = re.compile(r'(제외\s*[-–]\s)(.*?)(?=포함\s*[-–]\s|\Z)', re.S)
+EXNOTE_CODE = re.compile(r'[(（]\s*([A-Z]\d{2}(?:\.\d{1,2})?[†*+]?)\s*[)）]')
 def kcds(txt):
     """표·본문 텍스트 → (코드목록, 제외코드목록). '(… 제외)' 괄호 안 코드는 제외코드로."""
     t = re.sub(r'([A-Z]\d{2}\.)\s*\n\s*(\d)', r'\1\2', txt)          # 'C78.' + 줄바꿈 + '4'
     t = join_split_ranges(t)                                           # 'C00~C1' … '4' (The건강한내Mom대로5.10.5 통합암 분류표 · v8.73)
     t = strip_examples(t)
     ex = []
-    for m in re.finditer(r'[(（]([^()（）]{0,120}?)제외\s*[)）]', t):
-        for a, b in CODE.findall(m.group(1)): ex.append(a + ('~' + (b if b[0].isalpha() else a[0] + b) if b else ''))
-    t2 = re.sub(r'[(（][^()（）]{0,120}?제외\s*[)）]', ' ', t)
+    def exadd(seg):
+        for a, b in CODE.findall(seg): ex.append(a + ('~' + (b if b[0].isalpha() else a[0] + b) if b else ''))
+    # '(… 제외)' 괄호 — 안에 괄호가 한 겹 더 있는 것(「(결핵 관절염(A18.01†) 제외)」)과 칸 폭 때문에 「제」 「외」 가 줄로 갈린 것(「(N74.0제 / 외)」)도
+    # 제외코드다(v9.08 · Only You 관절염,생식기질환 분류표 — 전에는 A18.01 · A18.17 · N74.0 · N74.1 이 대상 코드로 들어갔다)
+    # 「(N74.1제 / 생식기 / 외)」 — 「제」 와 「외」 사이에 옆 칸 글자(구분 칸 「생식기 질환」)가 한 줄 끼어든 것은 그 줄을 뒤로 돌려 잇는다(코드 바로 뒤의 「제」 만)
+    t = re.sub(r'([A-Z]\d{2}(?:\.\d{1,2})?[†*+]?\s*제)[ \t]*\n([^\n()（）A-Z0-9]{1,8})\n[ \t]*(외\s*[)）])', r'\1\3\n\2', t)
+    t2 = EXPAREN.sub(lambda m: (exadd(m.group(1)), ' ')[1], t)
+    # 질병분류의 「제외 - 합병증 : 합병된 출산 및 산후기(O87.2), 합병된 임신(O22.4)」 꼴 — 「제외 -」 뒤 병명에 괄호로 붙은 코드는 제외코드다
+    # (v9.08 · Only You 치핵 분류표 — 전에는 O87.2 · O22.4 가 대상 코드로 들어갔다). 칸에 따로 적힌 코드(K64)는 대상 그대로 둔다.
+    def exnote(m):
+        return m.group(1) + EXNOTE_CODE.sub(lambda c: (exadd(c.group(1)), ' ')[1], m.group(2))
+    t2 = EXNOTE.sub(exnote, t2)
     # 표 머리글의 범위 안내 문장('다만, 다음의 상병 이외의 출생전후기 질병(P00~P96)은 포함되지 않습니다')은 대상 코드가 아니다
     t2 = re.sub(r'[^.。]{0,200}(?:포함되지\s*않|포함하지\s*않|보상하지\s*않|지급하지\s*않|해당하지\s*않|아니합니다|제외합니다|제외됩니다|출생전후기)[^.。]{0,60}[.。]', ' ', t2.replace('\n', ' '))
     k = []

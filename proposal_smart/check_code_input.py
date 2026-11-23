@@ -119,5 +119,36 @@ for prod, nm in (('무배당 올케어 꽉 채운 수술비보험(세만기형)2
     ok('검수 전 신담보는 빈칸(%s)' % nm[:12], not any(v.values()), '— %s' % {k: x for k, x in v.items() if x})
 ok('새 상품 라인 읽기', CI.line_of(CI.parse(mk(product='무배당 올케어 꽉 채운 수술비보험(세만기형)2610(통합간편고지형)'))) == '올케어수술비' and CI.line_of(CI.parse(mk(product='(무) Only You 통합보험2610(355간편고지형)'))) == 'OnlyYou통합간편')
 
+# 6. v9.08 신담보 1차 검수(약관 조문 · 별표 대조) — 계산을 붙인 담보는 제 칸에만, 조건부 담보는 빈칸
+PB, PO, PG = '무배당 올케어 꽉 채운 뇌심보험(세만기형)2610(일반심사형)', '(무) Only You 통합보험2610(355간편고지형)', '무배당 올케어 꽉 채운 골키퍼 건강보험2610(일반심사형)'
+def only(c, *keys): return {k for k, v in c.items() if v} == set(keys)
+c = cells(one(PB, '뇌경색증진단비')); ok('뇌경색증진단비 — 뇌졸중 진단 칸에만', only(c, 'p1.bh.dx.뇌졸중', 'p3.dx.뇌졸중') and c['p1.bh.dx.뇌졸중'] == 1000, '— %s' % {k: v for k, v in c.items() if v})
+c = cells(one(PB, '뇌혈관질환관혈수술비(연간1회한)')); ok('뇌혈관질환 관혈수술비 — 개두수술 칸에만(코일색전술 · 개흉 아님)', c['p1.bh.txb.개두수술'] == 1000 and not c['p1.bh.txb.코일색전술'] and not c['p1.bh.txh.개흉수술'])
+c = cells(one(PB, '심장관련질환관혈수술비(연간1회한)')); ok('심장관련질환 관혈수술비 — 개흉수술 칸에만(스텐트 · 개두 아님)', c['p1.bh.txh.개흉수술'] == 1000 and not c['p1.bh.txh.스텐트삽입술'] and not c['p1.bh.txb.개두수술'])
+c = cells(one(PB, '혈전용해치료비Ⅲ(연간1회한)')); ok('혈전용해치료비Ⅲ — 뇌 · 심 혈전용해 칸', c['p1.bh.txb.혈전용해'] == 1000 and c['p1.bh.txh.혈전용해'] == 1000 and not c['p1.bh.txb.혈전제거'])
+c = cells(one(PB, '기계적혈전제거술(카테터법)치료비Ⅲ(급여, 연간1회한)')); ok('기계적혈전제거술Ⅲ — 혈전제거 칸', c['p1.bh.txb.혈전제거'] == 1000 and not c['p1.bh.txb.혈전용해'])
+c = cells(one(PO, '치핵수술비(355간편가입)')); ok('치핵수술비 — 치질 칸에만', only(c, 'p1.dz.치질') and c['p1.dz.치질'] == 1000, '— %s' % {k: v for k, v in c.items() if v})
+c = cells(one(PO, '관절염,생식기질환수술비(355간편가입)')); ok('관절염,생식기질환수술비 — 무릎관절 · 전립선 칸에만(자궁근종 D25 아님)', only(c, 'p1.dz.무릎관절질환', 'p1.dz.전립선비대증'), '— %s' % {k: v for k, v in c.items() if v})
+c = cells(one(PO, '백내장수술비(355간편가입)')); ok('백내장수술비 — 백내장 칸에만', only(c, 'p1.dz.백내장'))
+c = cells(one(PO, '유방의장애수술비(355간편가입)')); ok('유방의장애수술비 — 유방양성종양(D24) 칸에는 지급 없음', not any(c.values()))
+rO = one(PO, '관절염,생식기질환수술비(355간편가입)'); ok('관절염,생식기질환 분류표 — 제외코드(A18.01 · A18.17 · N74.0 · N74.1 · M01.1 · M14.2)가 대상 코드에 없음',
+   set(rO[0]['excl']) >= {'A18.01', 'A18.17', 'N74.0', 'N74.1', 'M01.1', 'M14.2'} and not ({'A18.01', 'A18.17', 'N74.0', 'N74.1'} & set(rO[0]['codes'])))
+rH = one(PO, '치핵수술비(355간편가입)'); ok('치핵 분류표 — 대상 K64 · 「제외 -」 의 O87.2 · O22.4 는 제외코드', rH[0]['codes'] == ['K64'] and set(rH[0]['excl']) == {'O87.2', 'O22.4'})
+dsk = lambda **tg: (lambda s: (s['tags'].update(tg), s)[1])(copy.deepcopy(GS.sc_dz('디스크', '병원')))
+amt = lambda rid, s: sum(l["amt"] for l in S.pay_lines(rid, s))
+rS = one(PG, '갱신형 척추질병수술비(연간1회한)(관혈,비관혈)')
+ok('척추질병수술비(관혈,비관혈) — 관혈 100% · 비관혈 50%', amt(rS, dsk()) == 1000 and amt(rS, dsk(open=False)) == 500, '— %s · %s' % (amt(rS, dsk()), amt(rS, dsk(open=False))))
+rJ = one(PG, '갱신형 상급종합병원 관절질환수술비(연간1회한)'); kn = lambda h: copy.deepcopy(GS.sc_dz('무릎관절질환', h))
+ok('상급종합병원 관절질환수술비 — 상급종합에서만', amt(rJ, kn('상급종합')) == 1000 and not amt(rJ, kn('종합')) and not amt(rJ, kn('병원')))
+rD = one(PG, '갱신형 호흡기질병입원일당(1일이상180일한도)', 20000); adm = lambda k, d: GS.sc(k, [], cause='질병', hosp='병원', days=d)
+ok('호흡기질병입원일당 — 호흡기질병 입원에만(일반 입원일당 규칙으로 새지 않음)', amt(rD, adm('J18', 10)) == 20 and not amt(rD, adm('C16', 10)), '— %s · %s' % (amt(rD, adm('J18', 10)), amt(rD, adm('C16', 10))))
+for nm in ('중증뇌경색증진단비', '중등증이상허혈성심장질환진단비', '2대질환 중증치료비(급여,연간1회한)[2대질환 지속적신대체요법(CRRT)치료비(급여,연간1회한)]', '뇌경색증진단 응급환자 응급실내원비(연간1회한)'):
+    try: v = cells(one(PB, nm))
+    except pipeline.DesignUnreadable: v = {}
+    ok('조건부 신담보는 빈칸(%s)' % nm[:14], not any(v.values()), '— %s' % {k: x for k, x in v.items() if x})
+try: v = cells(one(PG, '갱신형 회복기재활의료기관 골반대퇴골절입원일당(1일이상30일한도)'))
+except pipeline.DesignUnreadable: v = {}
+ok('회복기재활의료기관 입원일당은 빈칸(의료기관 지정 여부를 사례로 알 수 없음)', not any(v.values()))
+
 print('\n결과 : %s — 점검 %d개 · 실패 %d' % ('전부 통과' if not N[1] else '실패', N[0], N[1]))
 sys.exit(1 if N[1] else 0)
