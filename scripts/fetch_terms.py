@@ -40,6 +40,8 @@ def title_of(path):
     if i is None:
         return None
     name, ver, kind = lines[i][3:].strip(), '', ''
+    m0 = re.match(r'^(.*\D)(\d{4})$', name)                 # 「(무)펫퍼민트 Cat&Family보험2610」 처럼 상품명과 판 번호가 한 줄(2026-11-23)
+    if m0: name, ver = m0.group(1).strip(), m0.group(2)
     k = i + 1
     while k < len(lines) and not ver:
         m = re.match(r'^(.*?)\s*(\d{4})$', lines[k])
@@ -48,7 +50,7 @@ def title_of(path):
         else:
             name = (name + ' ' + lines[k]).strip()
         k += 1
-    if k < len(lines) and re.match(r'^\(.*심사형\)$', lines[k]):
+    if k < len(lines) and re.match(r'^\(.*(심사형|고지형)\)$', lines[k]):      # 올케어 수술비보험 · Only You 통합보험은 「(일반고지형)」 · 「(10년건강고지형)」 로 적는다(2026-11-23 — 전에는 세 약관이 한 이름이 되어 서로 덮어썼다)
         kind = lines[k]
     name = re.sub(r'\s+', ' ', name)
     return name, ver, kind, sale.group(1) if sale else '', re.sub(r'\s+', '', start.group(1)) if start else ''
