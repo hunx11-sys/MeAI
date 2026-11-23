@@ -112,8 +112,8 @@ def load(design_pdf, age=''):
     META = BA.auto_meta(design_pdf); _refuse_excluded(); LINE = BA.guess_line(RID, design_pdf)
     _fill(lambda: ga_head(design_pdf, age), age)
 def _refuse_excluded():
-    """제작하지 않기로 한 상품(rules.json > exclude_products · 프리미엄 건강보험 · 프리미엄 간편보험)은 GA 양식도 만들지 않는다.
-    9쪽 스마트 제안서(gen2.excluded_product)에는 있던 막음이 GA 길에는 없어서, 10년 뒤 2배 체증형 담보가 일반 담보처럼 계산돼 나올 수 있었다(v9.07)"""
+    """제작하지 않기로 한 상품(rules.json > exclude_products)은 GA 양식도 만들지 않는다(9쪽 스마트 제안서 gen2.excluded_product 와 같은 목록 · v9.07).
+    2026-11-23(v9.10)부터 목록은 비어 있다 — 프리미엄 건강 · 간편보험도 만든다(소유자). 장치는 남겨 둔다(정책으로 막을 상품이 생기면 rules.json 에만 적는다)"""
     nm = re.sub(r'\s+', '', META.get('product') or '')
     for x in S.RULEDOC.get('exclude_products', []):
         if nm and re.search(x['m'], nm):

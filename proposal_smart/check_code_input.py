@@ -108,10 +108,17 @@ for i in range(60):
     x = cells(one('무배당 메리츠 통합간편건강보험(세만기형)2610', ('암' if i % 2 else '2대질환') + ' 통합생활지원비(월간한도)(통합간편가입)'))
     same = same and x == (A if i % 2 else B)
 ok('통합생활지원비 — 번갈아 60번 계산해도 같은 값', same and A != B and any(A.values()) and any(B.values()))
-# 만들지 않는 상품(프리미엄) — GA 길에서도 멈춘다
+# 프리미엄 건강 · 간편보험 — 만든다(소유자 2026-11-23 · v9.10 · 그 전에는 만들지 않는 상품이라 멈췄다).
+# (체증형,10년후2배지급) 담보는 약관 지급금액표가 10년경과시점 전까지 일반형과 같으므로 일반형과 같은 특약 · 같은 값(첫 보상 기준)
 import ga_proposal as GP
-try: GP.load(CI.parse(mk(product='무배당 메리츠 프리미엄 건강보험2610'))); ok('프리미엄 건강보험 → 멈춤', False)
-except pipeline.DesignUnreadable as e: ok('프리미엄 건강보험 → 멈춤', '만들지 않는' in str(e))
+PH, PE, T10 = '무배당 메리츠 프리미엄 건강보험2610', '무배당 메리츠 프리미엄 간편보험2610', '(체증형,10년후2배지급)'
+ok('프리미엄 건강 · 간편 → 상품 라인', CI.line_of(CI.parse(mk(product=PH))) == '프리미엄건강' and CI.line_of(CI.parse(mk(product='(무) 메리츠 프리미엄 간편보험 2610'))) == '프리미엄간편')
+try: GP.load(CI.parse(mk(product=PH))); ok('프리미엄 건강보험 → 만들어짐(멈추지 않음)', GP.LINE == '프리미엄건강')
+except pipeline.DesignUnreadable as e: ok('프리미엄 건강보험 → 만들어짐(멈추지 않음)', False, '— %s' % e)
+for prod, nm, tag, key in ((PH, '암진단비(유사암제외)', '', 'p1.ca.dx.일반암'), (PH, '질병수술비', '', None), (PH, '뇌졸중진단비', '', 'p1.bh.dx.뇌졸중'), (PH, '간병인사용질병입원일당(1일이상180일한도)(요양병원)', '', None),
+                           (PE, '급성심근경색증진단비Ⅱ', '(355간편가입)', 'p1.bh.dx.급성심근경색'), (PE, '암수술비(유사암제외)', '(355간편가입)', None)):
+    r1 = one(prod, nm + T10 + tag); r0 = one(prod, nm + tag); c1 = cells(r1); c0 = cells(r0)
+    ok('10년후2배 체증형 = 일반형(%s)' % nm[:14], r1[0]['matched'] and c1 == c0 and any(c1.values()) and (key is None or c1[key] == 1000), '— %s' % {k: (c1[k], c0[k]) for k in c1 if c1[k] != c0[k] or (k == key)})
 # 신상품 신담보(약관 검수 전) — 일반 규칙에 걸려 계산되지 않는다
 for prod, nm in (('무배당 올케어 꽉 채운 수술비보험(세만기형)2610(일반고지형)', '종합병원 전신마취(1시간초과) 수술비(1-7종,연간3회한)[질병]'), ('무배당 올케어 꽉 채운 뇌심보험(세만기형)2610(일반심사형)', '중증뇌경색증진단비')):
     try: v = cells(one(prod, nm))

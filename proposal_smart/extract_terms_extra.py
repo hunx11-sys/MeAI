@@ -400,7 +400,28 @@ def parse(path, product, prefix):
 # 보강 상품의 추출(감수) 순서 — 같은 이름 특약의 코드를 빌릴 때 이 순서에서 앞선 상품 것만 쓴다
 ORDER = ['내Mom대로', '내Mom같은어린이', '간편31', 'The건강한내Mom대로5.10.5', 'The건강한5.10.5', 'The좋은내Mom대로', 'The가벼운간편355',
          # 2026-11-23 약관 27개 추가분 중 스마트 제안서 대상(v9.07) — 암 · 뇌심 · 수술비 · 건강 · 통합 · 종합 · 상해. 뒤에 붙인다(앞 상품의 빌려오기 결과가 바뀌지 않게)
-         '올케어암', '올케어암간편', '올케어뇌심', '올케어뇌심간편', '올케어수술비', '올케어골키퍼', 'OnlyYou통합', 'OnlyYou통합간편', '성공파트너', '상해안심']
+         '올케어암', '올케어암간편', '올케어뇌심', '올케어뇌심간편', '올케어수술비', '올케어골키퍼', 'OnlyYou통합', 'OnlyYou통합간편', '성공파트너', '상해안심',
+         # 프리미엄 건강 · 간편보험(소유자 2026-11-23 : 만든다 · v9.10)
+         '프리미엄건강', '프리미엄간편']
+
+ESC10 = re.compile(r'\(체증형,10년후2배지급\)')
+def fold_esc10(riders, log):
+    """「○○(체증형,10년후2배지급)」 특약(프리미엄 건강 · 간편보험)은 같은 상품의 일반형 「○○」 과 같은 특약으로 보고 레코드를 따로 두지 않는다(v9.10).
+       약관 근거(두 약관 87개 특약 전부 대조) : 가리키는 별표가 일반형과 같고, 지급금액표는 계약일부터 10년경과시점 전일 이전까지 일반형과 같은 금액 ·
+       그 이후만 2배다. 지면은 첫 보상 기준이라 일반형과 같은 계산이다(엔진 scen_engine.VARTAG 가 담보명에서 이 표시를 뗀다 → 일반형 레코드를 찾는다).
+       따로 두면 감수 마스터 코드를 쓰는 일반형과 약관 파싱 코드를 쓰는 체증형의 자료가 갈린다. 일반형이 같은 상품에 없는 체증형은 그대로 둔다(로그)"""
+    key = lambda n: re.sub(r'\s', '', n or '')
+    have = {key(r['n']) for r in riders if not ESC10.search(key(r['n']))}
+    out, gone = [], set()
+    for r in riders:
+        k = key(r['n'])
+        if ESC10.search(k):
+            if ESC10.sub('', k) in have or r['id'].rsplit('-', 1)[0] in gone:
+                gone.add(r['id']); continue
+            log.append(('체증형(10년후2배) 일반형 없음 — 따로 둠', r['id'], r['n'], ''))
+        out.append(r)
+    riders[:] = out
+    return len(gone)
 
 MUGAM = re.compile(r'\((?:감액및면책기간미적용|감액기간미적용|면책기간미적용)\)')
 GJ_ = re.compile(r'\([^()]{1,24}가입\)')
@@ -495,6 +516,8 @@ if __name__ == '__main__':
     if len(sys.argv) < 4: sys.exit(__doc__)
     path, product, prefix = sys.argv[1:4]
     riders, tabs, log = parse(path, product, prefix)
+    n_e = fold_esc10(riders, log)
+    if n_e: print('(체증형,10년후2배지급) %d건은 같은 상품의 일반형과 같은 특약 — 레코드를 따로 두지 않는다(약관 별표 · 10년경과시점 전 지급금액이 같음)' % n_e)
     n_m = settle(riders)
     print('감수 마스터와 같은 이름 %d건은 마스터 코드 · 나머지 %d건은 약관 파싱 코드' % (n_m, len(riders) - n_m))
     n_f = fill_subs(riders, log)

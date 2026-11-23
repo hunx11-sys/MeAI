@@ -448,7 +448,7 @@ def rider_label(full, l):
         g = (re.search(r'\[(?:질병|상해)(\d종)\]', s) or [None, ''])[1] or GP.line_note(l); cause = '상해' if '상해' in s else '질병'
         if '태아고급형' in s: return '태아고급형 수술비(1-7종) [%s%s]' % (cause, g)
         return '%s 수술비 [%s%s]' % ('1-5종' if '1-5종' in s else '1-7종', cause, g)
-    s = re.sub(r'\s*\((25%)?체증형\)', '', s)
+    s = re.sub(r'\s*\((25%)?체증형(,\s*10년후\s*2배지급)?\)', '', s)
     return s.replace('131대질병수술비', '131대 질병수술비').replace('130대질병수술비', '130대 질병수술비')
 def fam_key(name, via=None):
     """같은 특약 판정 열쇠 — 갱신형 · 고지 꼬리표 · 띄어쓰기를 떼고, 종별 행(1-5종 · 1-7종)은 특약 단위(원인 포함)로 · 체증형은 일반형과 같은 특약으로 본다"""
