@@ -12,6 +12,7 @@
   ③ 주요수술 ① ② : 카드 12장 — 머리 금액 두 칸 · 다섯 줄(줄 이름 옆 「모든 병원 / 상급종합」 금액 또는 미가입 · 해당 없음) · 머리 금액 = 보장요약 칸
   ④ 간병인        : 표의 줄마다 1~180일 · 181일 이상 칸 글자 = 설계서에서 읽은 값 · 1~180일 = 보장요약 간병인 칸
   ⑤ 세부내역      : 구분 보장금액 · 특약명 · 가입금액 · 특약별 보장금액 네 열을 위에서부터 읽은 순서 = 계산서 순서 · 구분 합계 = 특약별 합
+                    (한 쪽을 넘어 나뉜 묶음은 조각마다 보장금액을 다시 적는다 — 「다음 쪽에 이어짐」 · 「앞 쪽과 같은 금액」 표시로 한 묶음으로 이어 읽고, 조각의 금액이 서로 같은지도 본다)
   ⑥ 쪽 구성       : 표지 · 보장요약 → 암 ① ② · 뇌혈관 · 심장 → 주요수술 ① ② → 간병인 → 세부내역 → 안내사항
   ⑦ 읽은 담보     : 같은 담보가 두 번 읽히지 않았는가 · 담보명에 보험료 숫자가 붙지 않았는가 · 부모 줄이 담보로 읽히지 않았는가 · 마스터에 없는 담보가 지급 계산에 들어가지 않았는가
 글자 비교는 띄어쓰기를 지우고 한다. 좌표는 값 자리 파일(slots.json · overlay_p1.json)에서만 온다 — 디자인이 바뀌면 그 파일도 같이 바뀌므로 이 도구는 그대로 쓴다.
@@ -217,7 +218,7 @@ def v_detail(pages, C):
                 exp['n'].append(nm + ((' : ' + note) if note else ''))
                 exp['ga'].append('' if man is None else won(man) + ('원' if won(man).endswith('억') else '만원'))
                 exp['ea'].append(won(amt) + ('원' if won(amt).endswith('억') else '만원'))
-    got = {'m': '', 'n': '', 'ga': '', 'ea': ''}
+    got = {'m': '', 'n': '', 'ga': '', 'ea': ''}; kcont = 0
     for pg in pages:
         W = words(pg)
         heads = sorted([w for w in W if ns(w[4]) == '구분' and w[0] < 120], key=lambda w: w[1])
@@ -230,9 +231,21 @@ def v_detail(pages, C):
             xn0 = hm[2] + 8; xga0 = hga[2] - 51; xea0 = hga[2] + 3      # 열 경계 = 표 머리 글자 자리(보장금액 · 가입금액은 오른쪽 정렬 · 가입금액 열 50pt)
             seq = lambda ws: ns(''.join(w[4] for w in sorted(ws, key=lambda w: (round(cy(w) / 3.2), w[0]))))
             got['m'] += seq([w for w in body if hm[0] - 36 <= cx(w) < xn0])
+            kcont += sum(1 for w in body if cx(w) < hm[0] - 36 and ns(w[4]) == ns(G.DETAIL_KCONT))      # 구분 칸의 「(이어서)」 = 나뉜 묶음의 이어지는 조각
             got['n'] += seq([w for w in body if xn0 <= cx(w) < xga0])
             got['ga'] += seq([w for w in body if xga0 <= cx(w) < xea0])
             got['ea'] += seq([w for w in body if cx(w) >= xea0])
+    # 한 쪽을 넘어 나뉜 묶음(v9.09) : 조각마다 보장금액을 다시 적는다 — 「금액 · 다음 쪽에 이어짐」 뒤에 「같은 금액 · 앞 쪽과 같은 금액」 이 와야 한 묶음으로 잇는다.
+    # 이어지는 조각의 금액이 앞 조각과 다르거나 표시가 짝이 안 맞으면 잇지 않고 그대로 둔다 → 아래 대조에서 다른 곳으로 잡힌다
+    MORE, CONT = ns(G.DETAIL_MORE), ns(G.DETAIL_CONT); raw = got['m']; pos = 0; out = []; nsplit = 0
+    for e in exp['m']:
+        e = ns(e)
+        if not raw.startswith(e, pos): break
+        pos += len(e); out.append(e)
+        while raw.startswith(MORE + e + CONT, pos): pos += len(MORE + e + CONT); nsplit += 1
+    got['m'] = ''.join(out) + raw[pos:]
+    C.ok('세부내역 나뉜 묶음', kcont == nsplit and MORE not in got['m'] and CONT not in got['m'],
+         '이어지는 조각 %d개 ≠ 구분 칸 「%s」 %d개 · 또는 이어짐 표시의 짝 · 금액이 맞지 않음' % (nsplit, G.DETAIL_KCONT, kcont))
     for k, lab in (('m', '구분 보장금액'), ('ga', '가입금액'), ('ea', '특약별 보장금액')):
         want = ns(''.join(exp[k]))
         if got[k] != want:

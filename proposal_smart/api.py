@@ -35,7 +35,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v9.08'
+VERSION = 'v9.09'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
 JSON_MAX = 2 * 1024 * 1024                   # 담보코드 입력(JSON) 상한 2MB
 LOCK = threading.Semaphore(2)                # 생성 요청은 2건까지 받아 두고(1건 처리 + 1건 대기) 나머지는 180초 기다린 뒤 503

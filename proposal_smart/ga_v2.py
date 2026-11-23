@@ -695,64 +695,82 @@ td.n.none{color:#9A9AA2;font-weight:500;font-size:8.4pt}
 td.ga{text-align:right;font-size:8.6pt;color:#9A9AA2;white-space:nowrap}
 td.ea{text-align:right;font-size:8.9pt;font-weight:700;color:#222;white-space:nowrap;padding-right:7pt}
 tbody.g tr:last-child td,tbody.g td.k,tbody.g td.m{border-bottom-color:#D2D2D6}
+td.k i.ct{display:block;font-style:normal;font-size:7.6pt;font-weight:600;color:#EE3823;margin-top:1.5pt}
+td.m .cm{margin-top:1.5pt}td.m .cm i{display:block;font-style:normal;font-size:7.2pt;line-height:1.3;font-weight:500;color:#8B8B93;letter-spacing:0}
+td.m.ct b,td.m.ct span{color:#8B8B93}td.m.ct b{font-weight:700}
 '''
 DETAIL_COLS = '<colgroup><col style="width:102pt"><col style="width:86pt"><col><col style="width:50pt"><col style="width:66pt"></colgroup>'
 DETAIL_HEAD = '<thead><tr><th>구분</th><th class="r" style="padding-right:10pt">보장금액</th><th>특약명</th><th class="r">가입금액</th><th class="r" style="padding-right:7pt">특약별 보장금액</th></tr></thead>'
-DETAIL_JS = r'''
+DETAIL_CONT, DETAIL_MORE, DETAIL_KCONT = '앞 쪽과 같은 금액', '다음 쪽에 이어짐', '(이어서)'      # 나뉜 묶음의 표시 글(verify_v2.v_detail 이 이 글자로 조각을 다시 잇는다)
+DETAIL_JS = r"""
 const PX = 4/3, HPX = 708*PX, root = document.getElementById('root');
-let page = null, wrap = null, table = null, tab = null, report = {pages:0, groups:0, over:[]};
+let page = null, wrap = null, table = null, tab = null, report = {pages:0, groups:0, over:[], split:[]};
 function newPage(){ page = document.createElement('div'); page.className = 'pg'; wrap = document.createElement('div'); wrap.className = 'w'; page.appendChild(wrap); root.appendChild(page); table = null; }
 function startTable(title, cont){ tab = document.createElement('div'); tab.className = 'tab'; tab.textContent = title + (cont ? ' (이어서)' : ''); wrap.appendChild(tab);
   table = document.createElement('table'); table.dataset.sec = title; table.innerHTML = COLS + HEAD; wrap.appendChild(table); }
 function over(){ return wrap.offsetTop + wrap.getBoundingClientRect().height > HPX - 2; }
+// 묶음의 i0 ≤ 줄 < i1 조각을 표에 넣는다. 통째(0 ~ 끝)면 표시 없음 · 나뉜 조각이면 구분 칸에 「(이어서)」 · 보장금액 칸에 「앞 쪽과 같은 금액」(회색 금액) · 「다음 쪽에 이어짐」
+function put(g, i0, i1){ const cont = i0 > 0, more = i1 < g.rows.length, rs = ' rowspan="' + (i1 - i0) + '">';
+  const mark = (cont ? '<i>' + CONT + '</i>' : '') + (more ? '<i>' + MORE + '</i>' : '');
+  const head = '<td class="k"' + rs + g.k + (cont ? '<i class="ct">' + KCONT + '</i>' : '') + '</td><td class="' + g.mc + (cont ? ' ct' : '') + '"' + rs + g.m + (mark ? '<div class="cm">' + mark + '</div>' : '') + '</td>';
+  let h = ''; for (let i = i0; i < i1; i++) h += '<tr>' + (i === i0 ? head : '') + g.rows[i] + '</tr>';
+  table.insertAdjacentHTML('beforeend', '<tbody class="g">' + h + '</tbody>'); return table.lastElementChild; }
+// 빈 쪽에 혼자 놓아도 넘치는 묶음 : 줄 단위로 잘라 쪽마다 잇는다(지금 쪽 = 표만 막 시작한 빈 쪽). 마지막 조각에 한 줄만 남지 않게 한 줄을 넘긴다
+function splitGroup(sec, g){ const n = g.rows.length; let i = 0; const parts = [];
+  while (i < n){ if (parts.length){ newPage(); startTable(sec.title, true); }
+    let j = i + 1, tb = put(g, i, j);
+    if (over()) report.over.push(sec.title + ' : ' + g.name + ' ' + (i + 1) + '번째 줄');      // 줄 하나가 한 쪽을 넘음(있을 수 없는 꼴) — 그대로 싣고 멈춤에 맡긴다
+    while (j < n){ tb.remove(); tb = put(g, i, j + 1); if (over()){ tb.remove(); tb = put(g, i, j); break; } j++; }
+    if (n - j === 1 && j - i >= 3){ tb.remove(); j--; tb = put(g, i, j); }
+    parts.push(j - i); i = j; }
+  report.split.push({sec: sec.title, name: g.name, rows: n, parts: parts}); }      // parts = 조각마다 줄 수
 newPage();
 for (const sec of SECTIONS){ let placed = false;
-  for (const g of sec.groups){ let made = false;
+  for (const g of sec.groups){ let made = false; const n = g.rows.length;
     if (!table || table.dataset.sec !== sec.title){ startTable(sec.title, placed); made = true; }
-    table.insertAdjacentHTML('beforeend', g); let tb = table.lastElementChild;
+    let tb = put(g, 0, n);
     const orphan = made && !placed && wrap.children.length > 2 && (HPX - (wrap.offsetTop + wrap.getBoundingClientRect().height)) < 60*PX;
     if (over() || orphan){ tb.remove(); if (made){ table.remove(); tab.remove(); }
-      newPage(); startTable(sec.title, placed); table.insertAdjacentHTML('beforeend', g); tb = table.lastElementChild;
-      if (over()) report.over.push(sec.title); }
+      newPage(); startTable(sec.title, placed); tb = put(g, 0, n);
+      if (over()){ tb.remove(); splitGroup(sec, g); } }
     placed = true; report.groups++; } }
 report.pages = document.querySelectorAll('.pg').length;
 window.REPORT = report;
-'''
+"""
 def _esc(t): return (t or '').replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 def detail_groups():
-    """ga_proposal.calc_sections()(보장요약 칸의 합산 계산서) → 표 묶음. 구분 보장금액 = 특약별 합(다르면 멈춘다)"""
+    """ga_proposal.calc_sections()(보장요약 칸의 합산 계산서) → 표 묶음. 구분 보장금액 = 특약별 합(다르면 멈춘다).
+    묶음 = {name 구분 이름 · k 구분 칸 · mc · m 보장금액 칸 · rows 줄(특약명 · 가입금액 · 특약별 보장금액)} — 한 쪽을 넘는 묶음은 DETAIL_JS 가 줄 단위로 나눠 잇는다"""
     out = []
     for title, rows in GP.calc_sections():
         sec = dict(title=title.replace('뇌,심', '뇌 · 심'), groups=[])
         for lab, v, rs in rows:
             m = re.match(r'\[([^\]]+)\]\s*(.*)', lab); cat, item = (m.group(1), m.group(2)) if m else ('', lab)
             if isnum(v) and rs and abs(sum(a for *_, a in rs) - v) > 0.01: raise RuntimeError('세부내역 합계 불일치 : %s %s ≠ %s' % (lab, v, sum(a for *_, a in rs)))
-            n = max(1, len(rs))
-            k = '<td class="k" rowspan="%d"><small>%s</small><b>%s</b></td>' % (n, _esc(cat), _esc(item).replace('(', '<wbr>(').replace(',', ',<wbr>'))
-            t, u = fmt(v, '만원')
-            if t is None: a = '<td class="m na" rowspan="%d"><span class="pill">미가입</span></td>' % n
-            elif isinstance(v, str): a = '<td class="m" rowspan="%d"><b class="tx">%s</b></td>' % (n, _esc(t))
-            else: a = '<td class="m" rowspan="%d"><b>%s</b><span>%s</span></td>' % (n, t, u or '원')
-            if not rs:
-                g = '<tbody class="g"><tr>%s%s<td class="n none" colspan="3">이 설계에는 가입되지 않은 보장입니다</td></tr></tbody>' % (k, a)
+            k = '<small>%s</small><b>%s</b>' % (_esc(cat), _esc(item).replace('(', '<wbr>(').replace(',', ',<wbr>'))
+            t, u = fmt(v, '만원'); mc = 'm'
+            if t is None: mc, a = 'm na', '<span class="pill">미가입</span>'
+            elif isinstance(v, str): a = '<b class="tx">%s</b>' % _esc(t)
+            else: a = '<b>%s</b><span>%s</span>' % (t, u or '원')
+            if not rs: trs = ['<td class="n none" colspan="3">이 설계에는 가입되지 않은 보장입니다</td>']
             else:
                 trs = []
-                for i, (nm, note, man, amt) in enumerate(rs):
+                for nm, note, man, amt in rs:
                     ga = '' if man is None else (won(man) + ('원' if won(man).endswith('억') else '만원'))
                     ea = won(amt) + ('원' if won(amt).endswith('억') else '만원')
                     nmh = _esc(nm) + (('<span class="sub"> : %s</span>' % _esc(note)) if note else '')
-                    trs.append('<tr>%s<td class="n">%s</td><td class="ga">%s</td><td class="ea">%s</td></tr>' % ((k + a) if i == 0 else '', nmh, ga, ea))
-                g = '<tbody class="g">%s</tbody>' % ''.join(trs)
-            sec['groups'].append(g)
+                    trs.append('<td class="n">%s</td><td class="ga">%s</td><td class="ea">%s</td>' % (nmh, ga, ea))
+            sec['groups'].append(dict(name=lab, k=k, mc=mc, m=a, rows=trs))      # 줄 단위 조각 — 쪽에 놓는 일(통째 · 나눔)은 DETAIL_JS 가 한다
         out.append(sec)
     return out
 def render_detail(out_pdf):
     secs = detail_groups()
-    html = ('<!doctype html><html><head><meta charset="utf-8"><style>%s%s</style></head><body><div id="root"></div><script>const SECTIONS=%s;const COLS=%s;const HEAD=%s;%s</script></body></html>'
-            % (fonts_css(), DETAIL_CSS, json.dumps(secs, ensure_ascii=False), json.dumps(DETAIL_COLS), json.dumps(DETAIL_HEAD), DETAIL_JS))
+    html = ('<!doctype html><html><head><meta charset="utf-8"><style>%s%s</style></head><body><div id="root"></div><script>const SECTIONS=%s;const COLS=%s;const HEAD=%s;const CONT=%s;const MORE=%s;const KCONT=%s;%s</script></body></html>'
+            % (fonts_css(), DETAIL_CSS, json.dumps(secs, ensure_ascii=False), json.dumps(DETAIL_COLS), json.dumps(DETAIL_HEAD),
+               json.dumps(DETAIL_CONT, ensure_ascii=False), json.dumps(DETAIL_MORE, ensure_ascii=False), json.dumps(DETAIL_KCONT, ensure_ascii=False), DETAIL_JS))
     pg = _goto(html, 'detail'); pg.wait_for_function('window.REPORT'); rep = pg.evaluate('window.REPORT')
     pg.pdf(path=out_pdf, width='%spx' % (595 * 4 / 3), height='%spx' % (708 * 4 / 3), print_background=True, prefer_css_page_size=True)
-    if rep['over']: raise RuntimeError('세부내역 한 묶음이 한 쪽을 넘음 : %s' % rep['over'])
+    if rep['over']: raise RuntimeError('세부내역 한 줄이 한 쪽을 넘음 : %s' % rep['over'])      # 묶음은 줄 단위로 나눠 잇는다(v9.09) — 줄 하나가 한 쪽보다 길 때만 멈춘다
     return rep
 def detail_overlay_html(n):
     SL = slots(); W, H = SL['size']; s = {x['key']: x for x in SL['slots']['detail']}
@@ -871,12 +889,15 @@ def _build(design_pdf, out_pdf=None, age=''):
     err = subprocess.run(['pdftotext', out_pdf, '-'], capture_output=True, text=True).stderr.strip() if shutil_which('pdftotext') else ''
     if err: warn.append('글자층 경고 : ' + err[:200])
     info = dict(design=GP.label_of(design_pdf), product=GP.PRODUCT, pages=len(chk), care=cf['pages'], detail_pages=n, warn=warn, sec=round(time.time() - t0, 1),
-                riders=GP.NRID, fit=fit)
+                riders=GP.NRID, fit=fit, detail_split=rep.get('split') or [])
     log = os.path.splitext(out_pdf)[0] + '_log.txt'
     with open(log, 'w', encoding='utf-8') as f:
         f.write('원본 설계서 : %s\n상품 : %s\n보험료 : %s\n담보 %d건 · %d쪽 · 간병인 쪽 : %s · 세부내역 %d쪽 · %.1f초\n\n' % (info['design'], GP.PRODUCT, GP.PREMIUM, GP.NRID, info['pages'],
                 ' + '.join({'support': '간병인 지원', 'use': '간병인 사용', 'none': '지원 · 사용 함께(둘 다 미가입)'}[k] for k in cf['pages']), n, info['sec']))
-        f.write('[지면 경고] ' + (' / '.join(warn) if warn else '없음') + '\n\n[계산 로그 — 빈칸 · 0원의 이유]\n')
+        f.write('[지면 경고] ' + (' / '.join(warn) if warn else '없음') + '\n')
+        for sp in info['detail_split']:      # 한 쪽을 넘어 줄 단위로 나눠 이은 세부내역 묶음(값은 그대로 · 조판만)
+            f.write('[세부내역 쪽 나눔] %s — %s : %d줄을 %d쪽에 나눠 실음(%s줄)\n' % (sp['sec'], sp['name'], sp['rows'], len(sp['parts']), ' + '.join(map(str, sp['parts']))))
+        f.write('\n[계산 로그 — 빈칸 · 0원의 이유]\n')
         for it in S.issues_grouped(): f.write('- [%s] %s — %s\n' % (it['구분'], it['담보'], it['사유']))
     return out_pdf, log, info
 def shutil_which(x):
