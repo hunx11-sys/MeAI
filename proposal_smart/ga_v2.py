@@ -501,7 +501,7 @@ def master_rows():
 def unjoined_all(design_pdf):
     """{수술 이름: [(미가입 줄 이름, 묶음)]} — 상품 라인 마스터 전체를 엔진에 돌려 그 수술에 지급되는데 설계에 없는 특약. 상품 라인을 못 믿으면 None"""
     import build_all as BA
-    line = BA.guess_line(GP.RID, design_pdf)
+    line = GP.LINE                                                      # 설계서 첫 쪽 상품명(PDF) 또는 입력 상품명(담보코드 입력)으로 정한 상품 라인
     mine = {S.nname(r['n']) for r in GS.DB['riders'] if r.get('p') == line}
     base = lambda n: re.sub(r'\((25%)?체증형\)', '', S.noren(n))         # 갱신형 · 체증형만 다른 같은 특약(연만기 상품은 갱신형 이름으로만 판다 — CLAUDE.md 세만기형 · 연만기형)
     mine_base = {base(r['n']) for r in GS.DB['riders'] if r.get('p') == line}
@@ -830,10 +830,10 @@ def sweep_tmp(max_age=3600):
     return n
 def _build(design_pdf, out_pdf=None, age=''):
     t0 = time.time(); os.makedirs(TMP, exist_ok=True)
-    out_pdf = out_pdf or os.path.join(BASE, 'ga_output', GP.ascii_name(design_pdf) + '_GA2.pdf')
+    out_pdf = out_pdf or os.path.join(BASE, 'ga_output', GP.tag_of(design_pdf) + '_GA2.pdf')
     os.makedirs(os.path.dirname(os.path.abspath(out_pdf)), exist_ok=True)
     load(design_pdf, age)
-    cf = CF(); tag = GP.ascii_name(design_pdf); warn = []
+    cf = CF(); tag = GP.tag_of(design_pdf); warn = []
     # 1) 표지 · 보장요약
     p_cs = os.path.join(TMP, tag + '_cs.pdf'); _goto(cover_summary_html(), 'cs').pdf(path=p_cs, prefer_css_page_size=True, print_background=True)
     # 2) 시안 틀 + 값
@@ -870,7 +870,7 @@ def _build(design_pdf, out_pdf=None, age=''):
         if title_of(chk[base_i + j]) != title_of(tpl[order.index(k)]): raise RuntimeError('틀 쪽 제목이 바뀜 : %s' % k)
     err = subprocess.run(['pdftotext', out_pdf, '-'], capture_output=True, text=True).stderr.strip() if shutil_which('pdftotext') else ''
     if err: warn.append('글자층 경고 : ' + err[:200])
-    info = dict(design=os.path.basename(design_pdf), product=GP.PRODUCT, pages=len(chk), care=cf['pages'], detail_pages=n, warn=warn, sec=round(time.time() - t0, 1),
+    info = dict(design=GP.label_of(design_pdf), product=GP.PRODUCT, pages=len(chk), care=cf['pages'], detail_pages=n, warn=warn, sec=round(time.time() - t0, 1),
                 riders=GP.NRID, fit=fit)
     log = os.path.splitext(out_pdf)[0] + '_log.txt'
     with open(log, 'w', encoding='utf-8') as f:
@@ -893,6 +893,16 @@ def calibrate(family='P', weight=800):
 def main(argv):
     args = [a for a in argv if a.strip()]; age = ''
     if args and re.fullmatch(r'\d{1,3}세?', args[-1]): age = args.pop(); age = age if age.endswith('세') else age + '세'
+    if args and args[0] == '--json':      # 담보코드 입력 : python ga_v2.py --json <입력.json> [결과.pdf]  (사양 code_input.py)
+        import code_input
+        if len(args) < 2: print('사용 : python ga_v2.py --json <입력.json> [결과.pdf]'); return 1
+        try:
+            p = code_input.parse(open(args[1], encoding='utf-8-sig').read())
+            pdf, log, info = build(p, args[2] if len(args) > 2 else None, age)
+        except code_input.InputError as ex: print('! 입력이 사양과 다릅니다 — %s' % ex); return 2
+        except pipeline.DesignUnreadable as ex: print('! 만들지 않았습니다 — %s' % ex); return 2
+        print('→ %s  (%d쪽 · 간병인 %s · 세부내역 %d쪽 · 담보 %d건)%s' % (pdf, info['pages'], '+'.join(info['care']), info['detail_pages'], info['riders'], ('  ※ ' + ' / '.join(info['warn'])) if info['warn'] else ''))
+        close_browser(); return 0
     if not args: args = [os.path.join(BASE, 'ga_input')]
     files = []
     for a in args:

@@ -47,6 +47,8 @@ python api.py 0.0.0.0 9000                # 호스트·포트 지정
 | POST | **`/v1/ga2/pdf`** | 설계서 PDF | **GA 새 양식(v2 · 2026-11-18 회의 반영) PDF 13~17쪽** |
 | POST | **`/v1/ga2/all`** | 설계서 PDF | 새 양식 JSON : `pages` · `detail_pages` · `care_pages`(support/use/none) · `care_pages_ko` · `rider_count` · `matched` · `riders` · `warn` · `elapsed_sec` · `log`(계산 로그) · `pdf_base64` |
 
+| POST | **`/v1/ga2/json/pdf`** · `/all` · `/check` | 담보 목록 JSON | **담보코드 입력** — 설계서 PDF 없이 「단위상품코드 · 담보코드 · 상품담보명 · 가입금액」 으로 새 양식 PDF / JSON / 입력 점검만. 사양 · 예시는 `ga_docs/IT_GA_V2.md` 5장 · `ga_docs/code_input_example.json` · 모듈 `code_input.py` |
+
 새 양식(v2)은 한 프로세스에서 한 번에 1건씩(줄 서서) 처리한다 — 크로뮴 하나를 같은 작업 스레드에서 쓴다. 자세한 인계 안내는 `ga_docs/IT_GA_V2.md`.
 
 업로드 방식은 두 가지 모두 받습니다.

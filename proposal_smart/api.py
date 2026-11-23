@@ -16,6 +16,9 @@
   POST /v1/ga/all             원본 PDF 업로드      → GA PDF(base64) + 감사 로그 + 인식 담보 + 로그 텍스트 JSON
   POST /v1/ga2/pdf            원본 PDF 업로드      → GA 스마트 제안서 새 양식(v2 · 2026-11-18 회의 반영) PDF(13~17쪽)
   POST /v1/ga2/all            원본 PDF 업로드      → 새 양식 PDF(base64) + 간병인 쪽 선택 · 쪽수 · 계산 로그 · 인식 담보 JSON
+  POST /v1/ga2/json/pdf       담보 목록 JSON       → 새 양식 PDF — 설계서 PDF 없이 「단위상품코드 · 담보코드 · 상품담보명 · 가입금액」 으로(사양 code_input.py · API.md)
+  POST /v1/ga2/json/all       담보 목록 JSON       → 새 양식 PDF(base64) + 쪽수 · 계산 로그 · 담보마다 찾은 특약(how : name / code / 못 찾음)
+  POST /v1/ga2/json/check     담보 목록 JSON       → PDF 를 만들지 않고 입력 점검 + 담보 인식 결과만(빠름)
 
 업로드 방법 두 가지 모두 받는다.
   · multipart/form-data 의 file 필드 (HTML <input type=file>)
@@ -32,8 +35,9 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 import pipeline
 
-VERSION = 'v9.05'
+VERSION = 'v9.06'
 MAX_BYTES = 60 * 1024 * 1024                 # 업로드 상한 60MB
+JSON_MAX = 2 * 1024 * 1024                   # 담보코드 입력(JSON) 상한 2MB
 LOCK = threading.Semaphore(2)                # 생성 요청은 2건까지 받아 두고(1건 처리 + 1건 대기) 나머지는 180초 기다린 뒤 503
 GA_LOCK = threading.Lock()                   # 실제 생성은 한 번에 한 건 — 설계서 상태 · 계산 로그(scen_engine.ISSUES)를 모듈 안에 두므로 9쪽 · GA · 새 양식 모두 이 잠금으로 줄을 선다
 GA2_TIMEOUT = int(os.environ.get('GA2_TIMEOUT', '600'))   # 새 양식 1건 제한 시간(초)
@@ -57,7 +61,7 @@ CARE_NM = {'support': '간병인 지원', 'use': '간병인 사용', 'none': '�
 
 
 def ga2_build(src, out):
-    """새 양식 한 건 — 작업 스레드(GA2_WORKER) 안에서만 부른다"""
+    """새 양식 한 건 — 작업 스레드(GA2_WORKER) 안에서만 부른다. src = 설계서 PDF 경로 또는 담보코드 입력(code_input.parse 를 거친 dict)"""
     import ga_v2, ga_proposal
     with GA_LOCK:
         pdf, log, info = ga_v2.build(src, out)
@@ -184,6 +188,8 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split('?')[0]
         if not (path.startswith('/v1/proposal') or path.startswith('/v1/ga')):          # /v1/ga · /v1/ga2
             return self._err(404, 'not found : ' + path)
+        if path.startswith('/v1/ga2/json/'):                 # 담보코드 입력(설계서 PDF 없이 담보 목록 JSON · v9.06)
+            return self._ga2_json(path)
         try:
             pdf = self._read_pdf()
         except Exception as e:
@@ -227,6 +233,58 @@ class Handler(BaseHTTPRequestHandler):
             if e.__cause__ is not None:                      # 깨진 PDF 로 본 원래 오류는 서버 로그에 남긴다(원인 추적용)
                 traceback.print_exception(type(e.__cause__), e.__cause__, e.__cause__.__traceback__)
             return self._err(422, '설계서를 읽지 못해 만들지 않았습니다 — %s' % e)
+        except Exception as e:
+            traceback.print_exc()
+            return self._err(500, '생성 중 오류 : %s' % (e or type(e).__name__))
+        finally:
+            LOCK.release()
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def _ga2_json(self, path):
+        """담보코드 입력 — 본문은 JSON(사양 code_input.py). 입력이 사양과 다르면 400 + 이유, 담보를 하나도 못 찾으면 422"""
+        import code_input
+        if path not in ('/v1/ga2/json/pdf', '/v1/ga2/json/all', '/v1/ga2/json/check'):
+            return self._err(404, 'not found : ' + path)
+        n = int(self.headers.get('Content-Length') or 0)
+        if n <= 0: return self._err(400, '본문이 비어 있습니다 — 담보 목록 JSON 을 보내 주세요')
+        if n > JSON_MAX: return self._err(400, 'JSON 상한(%dMB)을 넘었습니다' % (JSON_MAX // 1024 // 1024))
+        try:
+            p = code_input.parse(self.rfile.read(n).decode('utf-8-sig'))
+        except UnicodeDecodeError:
+            return self._err(400, '본문을 UTF-8 로 읽지 못했습니다')
+        except code_input.InputError as e:
+            return self._err(400, '입력이 사양과 다릅니다 — %s' % e)
+        sweep()
+        tmp = tempfile.mkdtemp(prefix=TMP_PREFIX)
+        if not LOCK.acquire(timeout=180):
+            shutil.rmtree(tmp, ignore_errors=True)
+            return self._err(503, '처리 대기가 길어졌습니다 — 잠시 후 다시 시도해 주세요')
+        try:
+            if path == '/v1/ga2/json/check':
+                with GA_LOCK:
+                    import scen_engine
+                    scen_engine.ISSUES.clear()
+                    rid = code_input.riders(p)
+                    return self._send(200, _json({'ok': True, 'format': 'ga2-json-check', 'line': p['_line'], 'rider_count': len(rid), 'matched': sum(1 for r in rid if r.get('matched')),
+                                                  'recog': scen_engine.recog(rid), 'riders': rid, 'issues': scen_engine.issues_grouped()}))
+            if GA2_STATE['broken']:
+                return self._err(503, '새 양식 작업이 멈춰 있습니다 — 서버를 다시 켜 주세요')
+            try:
+                r = GA2_WORKER.submit(ga2_build, p, os.path.join(tmp, 'ga2_proposal.pdf')).result(timeout=GA2_TIMEOUT)
+            except FutTimeout:
+                GA2_STATE['broken'] = True
+                return self._err(504, '처리 시간이 %d초를 넘었습니다 — 서버를 다시 켜 주세요' % GA2_TIMEOUT)
+            if path == '/v1/ga2/json/pdf':
+                return self._send(200, r['body'], 'application/pdf', 'ga2_proposal.pdf')
+            i = r['info']
+            return self._send(200, _json({'ok': True, 'format': 'ga2', 'input': 'json', 'line': p['_line'], 'product': i['product'], 'premium': r['premium'],
+                                          'pages': i['pages'], 'detail_pages': i['detail_pages'],
+                                          'care_pages': i['care'], 'care_pages_ko': [CARE_NM[k] for k in i['care']],
+                                          'rider_count': i['riders'], 'matched': r['matched'], 'warn': i['warn'],
+                                          'elapsed_sec': i['sec'], 'log': r['log'], 'riders': r['riders'],
+                                          'pdf_base64': base64.b64encode(r['body']).decode()}))
+        except pipeline.DesignUnreadable as e:
+            return self._err(422, '만들지 않았습니다 — %s' % e)
         except Exception as e:
             traceback.print_exc()
             return self._err(500, '생성 중 오류 : %s' % (e or type(e).__name__))

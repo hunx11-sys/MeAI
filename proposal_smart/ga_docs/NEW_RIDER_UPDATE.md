@@ -91,6 +91,8 @@ python3 run2.py <작업폴더>
 python3 build.py <작업폴더> <매핑 엑셀>
 python3 build_blueprint.py <작업폴더> <매핑 엑셀> <GA 결과 json> <설계도 엑셀> <v2data.json> <왕복 검증 json>
 python3 verify_designs.py <작업폴더> <매핑 엑셀> <설계서 폴더> <왕복 검증 json>
+python3 export_code_map.py <작업폴더> <매핑 엑셀> <code_map.json>              # 담보코드 입력이 쓰는 담보 식별표(사내 자료 · 서버에 GA_CODE_MAP 으로)
+python3 verify_code_input.py <작업폴더> <매핑 엑셀> <설계서 폴더> <결과 폴더> --pdf   # PDF 로 넣은 결과 = 담보코드로 넣은 결과
 ```
 
 **판정 단계** — 코드마다 자동으로 붙습니다.
@@ -121,12 +123,12 @@ python3 verify_designs.py <작업폴더> <매핑 엑셀> <설계서 폴더> <왕
 
 | | A. 프로그램 그대로(설계서 PDF 입력) | B. 전산이 담보 목록을 직접 넘김(담보코드 입력) |
 |---|---|---|
-| 지금 있는 것 | 있음 — `dist/ga_v2_generator_package.zip` (웹 서버 + API `/v1/ga2/pdf`) | 설계도에 입력 사양(시트 3) · 담보 식별표(시트 4)까지. **입력 창구(API)는 아직 없음** |
+| 지금 있는 것 | 있음 — `dist/ga_v2_generator_package.zip` (웹 서버 + API `/v1/ga2/pdf`) | **있음(v9.06)** — 같은 묶음의 API `/v1/ga2/json/pdf` · `/all` · `/check` · 명령줄 `python ga_v2.py --json` · 모듈 `code_input.py` |
 | 신담보 반영 | 새 묶음 zip 으로 교체(프로그램 + 데이터가 한 묶음) | 담보 식별표 새 행 추가 + 새 묶음(또는 IT 가 계산을 다시 구현) |
 | 장점 | 지금 바로 가능 · 계산 로직이 한 곳 | PDF 읽기 단계가 없어 인식 오류가 없음 |
 | 확인할 것 | 설계서 PDF 를 서버로 넘기는 경로 · 보안 | 세부보장 행(┗ 종별 행)과 부모 특약을 함께 넘기는 방식 · 단위상품코드 → 상품 공식 대응표 |
 
-B 로 갈 때 필요한 추가 개발은 「담보 목록(JSON) → 계산」 입력 창구 하나입니다. 계산 엔진은 담보명에서 조건(원인 · 병원 종별 · 종 · 일수 · 연간1회한)을 읽으므로 **정보계 상품담보명 원문과 가입금액을 그대로 넘기면 됩니다.**
+B 의 입력 창구는 v9.06 에 만들었습니다(사양 `IT_GA_V2.md` 5장 「담보코드 입력」 · 예시 `code_input_example.json`). 계산 엔진은 담보명에서 조건(원인 · 병원 종별 · 종 · 일수 · 연간1회한)을 읽으므로 **정보계 상품담보명 원문과 가입금액을 그대로 넘기면 됩니다.** 담보 찾기는 ① 이름 → ② 담보 식별표(`code_map.json` · `scripts/codemap/export_code_map.py` 가 만드는 사내 자료 · 없어도 됨) → ③ 못 찾으면 계산 제외 + 로그 순서입니다. 11월 설계 18건을 정보계 이름 · 코드로 바꿔 넣어 설계서 PDF 로 만든 것과 칸 값 · 수술 카드 · 간병인 표가 모두 같음을 확인했습니다(`scripts/codemap/verify_code_input.py`).
 
 ---
 
