@@ -461,7 +461,7 @@ def grp_of(n, cause):
     if '1-7종' in m: return 's17'
     if G1_RE.match(m): return 'g1'
     if cause == '질병': return 's131' if re.search(r'13[01]대질병수술비', m) else 'etc'
-    return 'fdx' if ('골절' in m and '진단' in m) else 'fsg'
+    return 'fdx' if (('골절' in m and '진단' in m) or '상해진단비' in m) else 'fsg'      # 상해진단및치료비의 중등증 상해진단비 등도 「골절 진단비」 줄(소유자 확정 2026-11-24 · v9.12)
 def surg_lines(name):
     """수술 하나에 지급되는 특약 — [(특약 이름(부모 이름 포함), 지급 줄, 모든 병원 금액, 상급종합 금액)]. 금액은 ga_spec 칸(p1.dz · 같은 사례 상급종합)의 지급 줄 그대로(1회차)"""
     A = {}; order = []
