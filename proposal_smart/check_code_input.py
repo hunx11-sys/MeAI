@@ -195,13 +195,20 @@ ok('가운뎃점만 다른 이름은 같은 특약(마스터 맞추기)', MT.bas
 # 9. 상해진단및치료비 — 상해진단비 3개는 중증도별 상해분류표 등급 코드에만(v9.12 · 골절 카드 「골절 진단비」 줄)
 import ga_v2 as G2v
 RS = rows(dict(schema=1, product=TH, riders=[{'no': i + 1, 'name': '상해진단및치료비[%s](통합간편가입)' % n, 'amount': a} for i, (n, a) in enumerate(
+    [('경증및기타 상해진단비(연간1회한)', 30000), ('중등증 상해진단비(연간1회한)', 200000), ('중증 상해진단비(연간1회한)', 3000000)])]))
+RS_ALL = rows(dict(schema=1, product=TH, riders=[{'no': i + 1, 'name': '상해진단및치료비[%s](통합간편가입)' % n, 'amount': a} for i, (n, a) in enumerate(
     [('경증및기타 상해진단비(연간1회한)', 30000), ('중등증 상해진단비(연간1회한)', 200000), ('중증 상해진단비(연간1회한)', 3000000), ('중등증 상해 근골 주요처치및수술비(급여,연간1회한)', 500000)])]))
 def sev(kcd):
     sc = dict(GS.sc_dz('골절진단', '병원')); sc['kcd'] = kcd
     return sorted(l['amt'] for l in S.pay_lines(RS, sc))
 ok('상해진단비 : 아래팔 골절(S52.5) = 중등증 20만만', sev('S52.5') == [20], '— %s' % sev('S52.5'))
 ok('상해진단비 : 머리 표재성 손상(S00.0) = 경증및기타 3만만 · 중증(S57.0) = 300만만', sev('S00.0') == [3] and sev('S57.0') == [300], '— %s · %s' % (sev('S00.0'), sev('S57.0')))
-ok('상해 근골 주요처치및수술비는 계산 제외(수가코드 표 검수 대기)', S.classify('상해진단및치료비[중등증 상해 근골 주요처치및수술비(급여,연간1회한)]')['id'] == 'skip_injury_dx_tx')
+def msk(kcd, hc, cause='상해'):
+    sc = dict(GS.sc_dz('골절진단', '병원')); sc['kcd'] = kcd; sc['tags'] = dict(sc['tags'], hc=hc, cause=cause)
+    return sorted(l['amt'] for l in S.pay_lines(RS_ALL, sc))
+ok('근골 주요처치및수술비 : 손목 골절(S52.5) + 요골 관혈적 정복술(N1601) = 중등증 진단비 20 + 근골 50', msk('S52.5', ['N1601']) == [20, 50], '— %s' % msk('S52.5', ['N1601']))
+ok('근골 주요처치및수술비 : 별표67 수가코드가 없으면 지급 없음 · 질병 원인은 면책', msk('S52.5', []) == [20] and msk('M17', ['N1601'], '질병') == [], '— %s · %s' % (msk('S52.5', []), msk('M17', ['N1601'], '질병')))
+ok('상해진단및치료비 부모 줄은 계산 제외', S.classify('상해진단및치료비')['id'] == 'skip_injury_dx_tx' and S.classify('상해진단및치료비[중등증 상해 근골 주요처치및수술비(급여,연간1회한)]')['id'] == 'tx_injury_msk')
 ok('상해진단비는 골절 카드 「골절 진단비」 줄', G2v.grp_of('상해진단및치료비[중등증 상해진단비(연간1회한)]', '상해') == 'fdx' and G2v.grp_of('골절진단비Ⅱ', '상해') == 'fdx' and G2v.grp_of('골절수술비Ⅱ', '상해') == 'fsg')
 
 print('\n결과 : %s — 점검 %d개 · 실패 %d' % ('전부 통과' if not N[1] else '실패', N[0], N[1]))
