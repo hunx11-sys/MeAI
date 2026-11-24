@@ -252,6 +252,7 @@ def v_detail(pages, C):
     return ngrp
 
 # ── ⑦ 읽은 담보의 짜임새 ──
+def CARE_KEY(n): return re.sub(r'[\s·ㆍ․‧∙•・]', '', n or '').replace('치매주요질환입원일당', '질병입원일당')
 def v_riders(C):
     """설계서에서 읽은 담보 목록이 멀쩡한가 — 계산 전에 걸러야 할 꼴(2026-11 여50 166,706원 설계 : 부모 줄이 아래 줄 금액을 물려받아 수술 칸마다 100만원이 더 붙었다)"""
     rid = GP.RID; seen = {}
@@ -268,6 +269,13 @@ def v_riders(C):
     for r in rid:
         if not r.get('matched') and r.get('no') in paid:
             C.ok('담보 %s %s' % (r.get('no'), r['name'][:30]), False, '특약 마스터에 없는 담보가 지급 계산에 들어감(약관 근거 없이 규칙만으로 지급)')
+    # 간병인 담보(질병 입원)가 간병인 표의 어느 칸에도 들지 못했는가 — 이름 표기(가운뎃점 · 띄어쓰기)가 달라 가입한 담보가 「미가입」 으로 찍히는 일을 막는다(v9.11).
+    # 표를 만드는 코드(ga_care · care_flags)와 따로, 띄어쓰기 · 가운뎃점을 지운 이름으로 센다
+    cf = G.CF(); used = {CARE_KEY(n) for n in cf['sup_names'] + cf['use_names']}
+    for r in rid:
+        k = CARE_KEY(r['name'])
+        if re.search(r'간병인지원|간병인사용|간호간병통합서비스', k) and re.search(r'질병입원일당|치매주요질환입원일당', k):
+            C.ok('담보 %s %s' % (r.get('no'), r['name'][:30]), k in used, '간병인 담보(질병 입원)인데 간병인 표의 어느 칸에도 들지 않음 — 지면에 「미가입」 으로 찍힐 수 있다')
 
 # ── 한 건 ──
 TITLES = ['암 보장 ①', '암 보장 ②', '뇌혈관질환 보장', '심장질환 보장', '주요수술 보장 ①', '주요수술 보장 ②']

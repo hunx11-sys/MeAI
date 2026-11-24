@@ -281,7 +281,7 @@ def care_flags():
     값 : SEND(간병인 지원) · 숫자(만원/1일 · 0 은 가입했지만 그 일당이 없음) · None(미가입)"""
     rs = CARE.norm(GP.RID); dz = CARE._dz(rs)      # 질병입원일당만(상해 입원일당은 칸에 없다 — ga_care 와 같은 기준)
     is181 = lambda r: '181일' in r['name']
-    def names(L): return [r['name'] for r in L]
+    def names(L): return [r.get('shown') or r['name'] for r in L]
     amt = lambda L: (sum(r['man'] for r in L) if L else None)
     def nurse(add, sp):      # 간호 · 간병통합서비스 병동 1일 = 사용추가보장 + (Ⅰ형) 간병인 미사용 입원일당(ga_care.nurse_total 과 같은 식)
         return None if not add and not sp else sum(r['man'] for r in add) + sum(CARE.daily(r) for r in sp)

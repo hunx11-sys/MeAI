@@ -178,5 +178,19 @@ ok('10년 후 금액 : 뇌졸중 = 뇌혈관질환진단비 1,000 + 뇌졸중진
 ok('10년 후 표기는 진단금 칸에만(수술 칸은 주석만)', G2.dx10_sum('p1.ca.sg.endo') is None and G2.has_esc10())
 ok('둘째 줄 글귀에 「최대」 를 쓰지 않는다', '최대' not in G2.dx10_text(7000) + G2.dx10_text(7000, long=False) and G2.dx10_text(7000) == '계약 10년 후 진단 시 7,000만')
 
+# 8. 가운뎃점이 읽히지 않는 설계서(글꼴을 넣지 않고 저장한 PDF · v9.11) — 「간호·간병통합서비스」 가 「간호간병통합서비스」 로 와도 같은 담보 · 같은 칸
+import ga_care as CARE, matcher as MT
+TH = '무배당 메리츠 통합간편건강보험(세만기형)2610(통합간편심사형)'
+def care_of(names):
+    d = mk(product=TH, riders=[{'no': i + 1, 'name': n, 'amount': 70000} for i, n in enumerate(names)])
+    R_ = rows(d); return R_, {k: v[0] for k, v in CARE.cells(R_).items()}
+DOT = ['간호·간병통합서비스 사용 질병입원일당(1일이상 180일한도)(통합간편가입)', '간호·간병통합서비스 사용 질병입원일당(181일이상)(요양,정신,한방병원제외)(통합간편가입)']
+NOD = ['간호간병통합서비스사용질병입원일당(1일이상180일한도)(통합간편가입)', '간호간병통합서비스 사용 질병입원일당(181일이상)(요양,정신,한방병원제외)(통합간편가입)']
+Ra, ca = care_of(DOT); Rb, cb = care_of(NOD)
+ok('가운뎃점 없는 간호간병통합서비스 담보도 특약 마스터에서 찾음', all(r['matched'] for r in Rb) and [r['mname'] for r in Ra] == [r['mname'] for r in Rb], '— %s' % [(r['matched'], r.get('mname')) for r in Rb])
+ok('가운뎃점 없는 간호간병통합서비스 담보도 간병인 칸에 듦(미가입 아님)', ca == cb and cb['use_nurse'] == 7, '— %s · %s' % (ca.get('use_nurse'), cb.get('use_nurse')))
+ok('간병인 칸 판정용 표기 : 가운뎃점 · 띄어쓰기 차이 흡수', CARE.canon('갱신형 간병인지원 질병입원일당(간호간병통합서비스사용추가보장)(1일이상180일한도)') == '갱신형 간병인지원 질병입원일당(간호·간병통합서비스 사용추가보장)(1일이상180일한도)' and CARE.canon('간호ㆍ간병통합서비스 사용 질병입원일당') == '간호·간병통합서비스 사용 질병입원일당')
+ok('가운뎃점만 다른 이름은 같은 특약(마스터 맞추기)', MT.base('무릎인대파열·연골손상수술비') == MT.base('무릎인대파열연골손상수술비') and MT.base('질병수술비') != MT.base('상해수술비'))
+
 print('\n결과 : %s — 점검 %d개 · 실패 %d' % ('전부 통과' if not N[1] else '실패', N[0], N[1]))
 sys.exit(1 if N[1] else 0)

@@ -257,7 +257,7 @@ def cell_value(c, riders):
     if k == 'care':
         cc = CARE.cells(riders)[c['direct']]
         v, rs = cc
-        lines = [dict(name=r['name'], amt=(CARE.daily(r) if c['direct'] in ('unused', 'nurse') and '간호·간병' not in r['name'] else r['man']), why='설계서 가입금액 그대로' if r['man'] else '설계서 금액란(또는 N천원)', rule='direct', dementia=r.get('dementia')) for r in rs]
+        lines = [dict(name=r.get('shown') or r['name'], amt=(CARE.daily(r) if c['direct'] in ('unused', 'nurse') and '간호·간병' not in r['name'] else r['man']), why='설계서 가입금액 그대로' if r['man'] else '설계서 금액란(또는 N천원)', rule='direct', dementia=r.get('dementia')) for r in rs]
         if c['direct'] in ('hosp', 'nh'): return (CARE.SEND if v else None), lines, []
         return v, lines, []
     if k == 'direct':

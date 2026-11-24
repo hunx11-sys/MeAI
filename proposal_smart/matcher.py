@@ -12,7 +12,10 @@ if os.path.exists(_EX):
 GOJI = S.GOJI                        # 고지유형 꼬리표는 rules.json goji_tags 한 곳에서만 관리(v8.3)
 _A = '(?:' + S.AMT_RE + ')'          # 가입금액 표기(1억5천만원·3천5백만원·1억 등 전부)
 RENEW = r'\((?:\d+년)?갱신\)'          # 설계서 표기 (20년갱신) → 마스터의 '갱신형'과 맞추기 위해 제거
-def base(n): return re.sub(r'\s+', '', S.VARTAG.sub('', re.sub(RENEW, '', re.sub(GOJI, '', n))).replace('[기본계약]', '').replace('┗', ''))   # [특별조건부] · [계약전환용] · (출생전) 은 같은 특약(v8.89)
+# 가운뎃점(· ㆍ ․ ‧ ∙ • ・)은 지우고 맞춘다(v9.11) — 글꼴을 넣지 않고 저장한 설계서 PDF 는 「·」 가 통째로 읽히지 않아
+# 「간호·간병통합서비스 사용 질병입원일당」 이 「간호간병통합서비스사용질병입원일당」 으로 온다. 점을 지워도 같은 상품 안에서 겹치는 특약 이름은 없다(마스터 6,676개 확인)
+MIDDOT = re.compile('[·ㆍ․‧∙•・]')
+def base(n): return MIDDOT.sub('', re.sub(r'\s+', '', S.VARTAG.sub('', re.sub(RENEW, '', re.sub(GOJI, '', n))).replace('[기본계약]', '').replace('┗', '')))   # [특별조건부] · [계약전환용] · (출생전) 은 같은 특약(v8.89)
 PRE_REN = r'^갱신형'                  # 설계서 '갱신형 ○○' ↔ 마스터 '○○' 표기 차이(v8.20) — 양방향으로 한 번씩 다시 찾는다
 INDEX = collections.defaultdict(list)
 BRACK = collections.defaultdict(list)   # 부모 이름 → 세부급부([○○]) 레코드 — 설계서가 세부를 (○○) 괄호로 적는 경우 대비
@@ -76,6 +79,10 @@ def _sub_pick(n, line):
         for test in (lambda l: l == key, lambda l: l.startswith(key)):
             hit = [k for k in kids if test(label(k))]
             if hit: return hit, lab
+        # 마스터 세부 라벨이 부모 이름을 되풀이해 길게 적힌 경우 — 설계서 「원격전이포함 4기 통합암진단비(유사암제외)(특정소액암)」 ↔ 마스터 「…[원격전이포함4기특정소액암진단비]」.
+        # 라벨이 「○○진단비 · 수술비 · 치료비」 로 끝나는 세부가 꼭 하나일 때만(v9.11 · 전에는 부모 특약으로 맞춰져 세부 다섯 개의 질병코드를 모두 받았다 — 지금은 조건부라 계산 제외지만 자료는 세부 것이 맞다)
+        hit = [k for k in kids if key and any(label(k).endswith(key + sfx) for sfx in ('진단비', '수술비', '치료비')) and len(label(k)) > len(key) + 3]
+        if len(hit) == 1: return hit, lab
         # 정보계 · 설계서가 세부 라벨의 낱말 순서를 바꿔 적은 경우 — 「(급여, 항암방사선치료, 암(유사암제외))」 ↔ 마스터 「[항암방사선치료비(급여,암(유사암제외))]」.
         # 괄호 · 쉼표로 나눈 낱말 묶음이 같으면(「○○치료비」 ↔ 「○○치료」 는 같은 낱말로) 그 세부보장(v8.89)
         rawlabel = lambda k: _last_bracket(base(k['n'])) if base(k['n']).endswith(']') else base(k['n'])   # 쉼표를 남긴 라벨(_norm 은 쉼표를 지운다)

@@ -15,7 +15,8 @@
 import sys, os, re, json, glob, collections
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE)); PS = os.path.join(ROOT, 'proposal_smart')
 sys.path.insert(0, HERE); sys.path.insert(0, PS)
-from norm import key as nkey
+from norm import key as _nkey
+def nkey(s): return _nkey(s).replace('·', '')      # 가운뎃점 없이 견준다(v9.11) — 글꼴을 넣지 않고 저장한 설계서 PDF 는 「·」 가 읽히지 않는다(「간호간병통합서비스…」)
 import export_code_map as X
 
 WORK, MAPX, DDIR, OUT = sys.argv[1:5]; MAKE_PDF = '--pdf' in sys.argv

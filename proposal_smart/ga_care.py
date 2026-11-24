@@ -29,9 +29,18 @@ def won(v):
     if eok: return '%d억' % eok
     return format(man, ',')
 
+_NURSE = re.compile(r'간호\s*[·ㆍ․‧∙•・]?\s*간병\s*통합\s*서비스(\s*사용\s*추가\s*보장)?')
+def canon(name):
+    """「간호간병통합서비스」 · 「간호ㆍ간병…」 · 「…서비스사용추가보장」 처럼 가운뎃점 · 띄어쓰기가 다른 표기를 약관 표기(「간호·간병통합서비스」 · 「간호·간병통합서비스 사용추가보장」)로 — 칸을 가르는 데만 쓴다(v9.11).
+    글꼴을 넣지 않고 저장한 설계서 PDF 는 가운뎃점이 읽히지 않아, 가입한 간호·간병통합서비스 입원일당이 「미가입」 으로 찍혔다"""
+    return _NURSE.sub(lambda m: '간호·간병통합서비스' + (' 사용추가보장' if m.group(1) else ''), name or '')
 def norm(riders):
-    """치매 상품 간병인 담보를 같은 칸 규칙으로 읽기 위한 이름 치환 + 표시 플래그"""
-    return [dict(r, name=r['name'].replace('치매주요질환입원일당', '질병입원일당'), dementia=('치매주요질환입원일당' in r['name'])) for r in riders]
+    """치매 상품 간병인 담보를 같은 칸 규칙으로 읽기 위한 이름 치환 + 표시 플래그. 이름은 칸을 가르는 표기(canon)로 바꾸고, 지면에 적을 이름은 shown 에 설계서 그대로 둔다"""
+    out = []
+    for r in riders:
+        n = r['name'].replace('치매주요질환입원일당', '질병입원일당')
+        out.append(dict(r, name=canon(n), shown=n, dementia=('치매주요질환입원일당' in r['name'])))
+    return out
 
 _AMT = re.compile(r'또는\s*([\d.,]+)\s*(천원|만원|원)')
 def daily(r):

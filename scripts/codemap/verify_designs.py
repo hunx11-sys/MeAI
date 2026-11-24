@@ -18,7 +18,8 @@ import openpyxl
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE); sys.path.insert(0, os.path.join(ROOT, 'proposal_smart')); sys.path.insert(0, os.path.join(ROOT, 'proposal_smart', 'ga_docs'))
 from match import M, REC
-from norm import key as nkey
+from norm import key as _nkey
+def nkey(s): return _nkey(s).replace('·', '')      # 가운뎃점 없이 견준다(v9.11) — 글꼴을 넣지 않고 저장한 설계서 PDF 는 「·」 가 읽히지 않는다(「간호간병통합서비스…」)
 import matcher, pipeline, build_all as BA, ga_spec as GS, scen_engine as SE
 from design_names import NOV
 
