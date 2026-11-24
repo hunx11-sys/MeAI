@@ -12,4 +12,5 @@ def strip_tags(s):
     s = s.replace('ㆍ', '·').replace('․', '·').replace('（', '(').replace('）', ')').replace('，', ',')
     return s
 def key(s):
-    return re.sub(r'[\[\]()]', '', strip_tags(s))
+    # 가운뎃점도 지운다(2026-11-24) — 정보계 「구내폭발파열손해」 ↔ 약관 「구내폭발․파열손해」 처럼 점 유무만 다른 이름(설계서 쪽 matcher.base 와 같은 기준)
+    return re.sub(r'[\[\]()·]', '', strip_tags(s))
