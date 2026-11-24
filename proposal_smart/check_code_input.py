@@ -167,5 +167,16 @@ for prod, base in ((PH, '암진단비(유사암제외)'), (PH, '유사암진단�
 c = cells(rows(dict(schema=1, product=PH, riders=[{'no': 1, 'name': '암진단비(유사암제외)', 'amount': 10000000}, {'no': 2, 'name': '암진단비(유사암제외)' + T10, 'amount': 20000000}])))
 ok('일반형 + 체증형 같이 가입 → 가입금액 합(체증형은 10년 경과 전 100% 기준)', c['p1.ca.dx.일반암'] == 3000, '— %s' % c['p1.ca.dx.일반암'])
 
+# 진단금 둘째 줄 「계약 10년 후 진단 시」(v9.10) = 칸 금액 + 체증형 지급액(체증형만 2배 · 일반형은 그대로) · 체증형이 없는 칸에는 없음
+import ga_v2 as G2
+G2.load(CI.parse(mk(product=PH, riders=[{'no': 1, 'name': '암진단비(유사암제외)', 'amount': 30000000}, {'no': 2, 'name': '암진단비(유사암제외)' + T10, 'amount': 20000000},
+    {'no': 3, 'name': '유사암진단비', 'amount': 6000000}, {'no': 4, 'name': '뇌혈관질환진단비Ⅱ', 'amount': 10000000}, {'no': 5, 'name': '뇌졸중진단비Ⅱ' + T10, 'amount': 10000000},
+    {'no': 6, 'name': '질병수술비' + T10, 'amount': 200000}])))
+ok('10년 후 금액 : 일반형 3,000 + 체증형 2,000 → 7,000(칸 전체 2배 아님)', G2.V('p1.ca.dx.일반암') == 5000 and G2.dx10('p1.ca.dx.일반암') == 7000 and G2.dx10('p2.dx.일반암') == 7000, '— %s' % G2.dx10('p1.ca.dx.일반암'))
+ok('10년 후 금액 : 체증형이 없는 칸(유사암 · 뇌혈관)에는 적지 않음', G2.dx10('p1.ca.dx.유사암') is None and G2.dx10('p1.bh.dx.뇌혈관') is None and G2.dx10_sum('p1.ca.dx.유사암') is None)
+ok('10년 후 금액 : 뇌졸중 = 뇌혈관질환진단비 1,000 + 뇌졸중진단비(체증형) 1,000 → 3,000', G2.dx10('p1.bh.dx.뇌졸중') == 3000 and G2.dx10('p3.dx.뇌졸중') == 3000)
+ok('10년 후 표기는 진단금 칸에만(수술 칸은 주석만)', G2.dx10_sum('p1.ca.sg.endo') is None and G2.has_esc10())
+ok('둘째 줄 글귀에 「최대」 를 쓰지 않는다', '최대' not in G2.dx10_text(7000) + G2.dx10_text(7000, long=False) and G2.dx10_text(7000) == '계약 10년 후 진단 시 7,000만')
+
 print('\n결과 : %s — 점검 %d개 · 실패 %d' % ('전부 통과' if not N[1] else '실패', N[0], N[1]))
 sys.exit(1 if N[1] else 0)

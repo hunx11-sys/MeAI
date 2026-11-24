@@ -52,6 +52,8 @@ def v_summary(pg, C):
         v = G.V(c['key'])
         if G.isnum(v) and abs(v) < 1e-9: v = None
         want = strip(GP.M(v))
+        d_ = G.dx10_sum(c['key'])      # 진단금 둘째 줄 「10년 후 ○○만원」 — 체증형(10년 뒤 2배)이 든 칸에만(v9.10)
+        if d_: want += ns(d_['text'])
         x0, y0, x1, y1 = [t * k for t in sp['fields'][c['key']]['box']]
         got = join([w for w in W if x0 - 3 <= cx(w) <= x1 + 3 and y0 - 2 <= cy(w) <= y1 + 2])
         C.eq('보장요약 %s(%s · %s · %s)' % (c['id'], c['section'], c['row'], c['col']), got, want)
@@ -82,6 +84,10 @@ def v_template(pg, tpl_pg, pk, C):
         if base.get(kk, 0) > 0: base[kk] -= 1
         else: ov.append(w)
     C.ok('%s 틀 글자' % pk, not any(base.values()), '틀의 글자 %d개가 완성 PDF 에 없음' % sum(base.values()))
+    for d_ in G.dx10_subs(pk):      # 진단금 둘째 줄 「계약 10년 후 진단 시 ○○만」 — 먼저 떼어 대조한다(금액 자리 글자와 섞이지 않게)
+        hit = [w for w in ov if abs(w[3] - d_['base']) < d_['size'] * 0.75 and abs(cx(w) - d_['cx']) < 75 and (w[3] - w[1]) < d_['size'] * 1.9]
+        C.eq('%s 10년 후 %s' % (pk, d_['key']), line_join(hit), d_['text'])
+        ov = [w for w in ov if w not in hit]
     used = set()
     amt = [s for s in SL if s['kind'] in ('amt', 'total', 'amt_desc', 'rehab')]
     for s in SL:
@@ -212,6 +218,8 @@ def v_detail(pages, C):
             if G.isnum(v) and rs: C.ok('세부내역 합계 %s' % lab, abs(sum(a for *_, a in rs) - v) < 0.01, '구분 %s ≠ 특약별 합 %s' % (v, sum(a for *_, a in rs)))
             t, u = G.fmt(v, '만원')
             exp['m'].append('미가입' if t is None else (t if isinstance(v, str) else t + (u or '원')))
+            v10 = G.esc10_after(v, [(nm_, a_) for nm_, _, _, a_ in rs]) if re.match(r'\[진단금?\]', lab) else None
+            if v10 is not None: exp['m'].append('계약10년후진단시' + G.detail_x10(v10))
             if not rs: exp['n'].append('이 설계에는 가입되지 않은 보장입니다'); continue
             for nm, note, man, amt in rs:
                 exp['n'].append(nm + ((' : ' + note) if note else ''))

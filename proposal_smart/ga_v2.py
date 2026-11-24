@@ -226,6 +226,36 @@ ESC10 = re.compile(r'\(\s*체증형\s*,\s*10년후\s*2배지급\s*\)')
 ESC10_NOTE = '※ 「10년후 2배지급」 체증형 특약은 가입금액 기준 예시(10년 후 2배 지급)'      # 체증형 수술비 주석과 같은 줄에 잇는다(줄을 늘리면 보장요약은 표와 겹치고 주요수술 쪽은 카드가 줄어든다)
 ESCTAG = re.compile(r'\s*\(\s*(?:25%)?체증형(?:\s*,\s*10년후\s*2배지급)?\s*\)')      # (체증형) · (25%체증형) · (체증형,10년후2배지급) — 일반형과 같은 특약으로 본다
 ESC10_X = 262.0      # 보장요약 쪽 : 체증형 수술비 주석(왼쪽 33pt ~ 약 250pt) 오른쪽 빈 자리
+# ── 진단금 칸의 「계약 10년 후 진단 시」 금액(v9.10 · 소유자 확정 2026-11-24) ──
+# 체증형(10년 뒤 2배) 진단비가 든 진단금 칸에만, 큰 글씨 금액(가입금액 = 지금 진단받으면 받는 돈) 아래에 작은 글씨로 한 줄 더 적는다.
+#   10년 후 금액 = 그 칸의 금액 + 체증형 특약 지급액(체증형만 2배 · 일반형은 그대로) — 한 칸에 일반형과 체증형이 섞이므로 칸 전체를 2배 하지 않는다.
+# 「최대」 라는 말은 쓰지 않는다(10년 안에 진단받으면 가입금액만 받고 특약이 끝난다). 수술비 · 치료비 · 입원일당 체증형은 주석(ESC10_NOTE)만.
+# 프리미엄은 TA 채널 전용 상품이라 GA 시안에 없는 표기다 — 소유자가 정한다.
+DX10_SUM = ('p1.ca.dx.일반암', 'p1.ca.dx.유사암', 'p1.ca.dx.전이암', 'p1.bh.dx.뇌졸중', 'p1.bh.dx.뇌혈관', 'p1.bh.dx.급성심근경색', 'p1.bh.dx.허혈성심장')
+def esc10_after(v, pairs):
+    """(칸 금액, [(특약명, 지급액)]) → 계약 10년 후 금액. 체증형 지급액이 없거나 줄 합이 칸 금액과 다르면 None"""
+    if not isnum(v) or v <= 0: return None
+    esc = sum(a for n, a in pairs if ESC10.search(n or ''))
+    if not esc: return None
+    if abs(sum(a for n, a in pairs) - v) > 0.01:
+        S.log('검토필요', '10년 후 금액', '칸 금액 %s ≠ 지급 줄 합 %s — 10년 후 금액을 적지 않음' % (v, sum(a for n, a in pairs))); return None
+    return v + esc
+def dx10(key):
+    v, L, mode = _raw(key)
+    return esc10_after(v, [(l['name'], l['amt']) for l in L])
+def dx10_text(v10, long=True):
+    t, u = fmt(v10, '만원' if not long else '만'); return ('계약 10년 후 진단 시 %s%s' if long else '10년 후 %s%s') % (t, u or '원')
+def dx10_subs(pk):
+    """틀 쪽(암 ① · 뇌혈관 · 심장)의 진단금 자리 아래 둘째 줄 — [dict(key, cx, base, size, n, text)]. 그리기(overlay_html)와 인쇄 검증(verify_v2)이 같이 쓴다"""
+    out = []
+    for s_ in slots()['slots'].get(pk, []):
+        main = (pk == 'ca1' and s_['kind'] == 'amt' and s_['key'].startswith('p2.dx.')) or (pk in ('brain', 'heart') and s_['kind'] == 'amt_desc')
+        if not main: continue
+        v10 = dx10(s_['key'])
+        if v10 is None: continue
+        n = s_.get('ff') == 'N'
+        out.append(dict(key=s_['key'], cx=s_['cx'], base=s_['base'] + (7.7 if n else 9.6), size=6.0 if n else 6.6, n=n, text=dx10_text(v10)))
+    return out
 def has_esc10(): return any(ESC10.search(r.get('name') or '') for r in GP.RID if (r.get('man') or 0) > 0)
 def tsum(*keys):
     vs = [VX(k) for k in keys]; ns = [x for x in vs if isnum(x)]
@@ -365,6 +395,9 @@ def overlay_html():
                 nf = pk in ('brain', 'heart')
                 o.append(_at(x1=s['x1'], base=s['base'], size=s['size'], inner=who_html(s['size']), align='right', extra='white-space:nowrap;font-weight:500' + (';font-family:N,P;letter-spacing:0' if nf else ''), k=K_N if nf else K_BASE))
             else: raise RuntimeError('모르는 자리 종류 : %s' % k)
+        for d_ in dx10_subs(pk):      # 진단금 둘째 줄(체증형 10년 뒤 2배가 든 칸에만)
+            o.append(_at(cx=d_['cx'], base=d_['base'], size=d_['size'], inner='<span style="color:#555555">%s</span>' % d_['text'],
+                         extra='font-weight:600' + (';font-family:N,P;letter-spacing:0;font-weight:500' if d_['n'] else ''), k=K_N if d_['n'] else K_BASE))
         pages.append('<div class="pg">%s</div>' % ''.join(o))
     css = ('@page{size:%spt %spt;margin:0}html,body{margin:0;background:transparent;font-family:P;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
            '.pg{position:relative;width:%spt;height:%spt;overflow:hidden;page-break-after:always}.o{position:absolute;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.15pt}'
@@ -696,6 +729,7 @@ td{border-bottom:.75pt solid #E6E6E6;padding:2.3pt 6pt;vertical-align:middle}
 td.k{font-size:9.6pt;line-height:1.25;padding-left:9pt;overflow-wrap:normal;word-break:keep-all}td.k small{display:block;font-size:7.6pt;color:#8B8B93;font-weight:500;margin-bottom:1pt}td.k b{font-weight:600}
 td.m{text-align:right;padding-right:10pt;white-space:nowrap}td.m b{font-size:12.2pt;font-weight:800;color:#111;letter-spacing:-.2pt}td.m span{font-size:8.4pt;font-weight:500;margin-left:1.5pt}
 td.m b.tx{font-size:10pt;font-weight:700}
+td.m .x10{font-size:6.6pt;line-height:1.25;color:#666;font-weight:500;margin-top:2pt;white-space:nowrap}td.m .x10 b{font-size:8.4pt;font-weight:700;color:#333;letter-spacing:0}
 td.m.na .pill{display:inline-block;font-size:8.6pt;color:#9A9AA2;border:.8pt dashed #C4C4C8;border-radius:9pt;padding:1.5pt 8pt}
 td.n{font-size:8.7pt;font-weight:600;line-height:1.24;color:#222}td.n .sub{font-weight:500;color:#8B8B93}
 td.n.none{color:#9A9AA2;font-weight:500;font-size:8.4pt}
@@ -725,6 +759,8 @@ for (const sec of SECTIONS){ let placed = false;
 report.pages = document.querySelectorAll('.pg').length;
 window.REPORT = report;
 '''
+def detail_x10(v10):
+    t, u = fmt(v10, '만원'); return t + (u or '원')
 def _esc(t): return (t or '').replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 def detail_groups():
     """ga_proposal.calc_sections()(보장요약 칸의 합산 계산서) → 표 묶음. 구분 보장금액 = 특약별 합(다르면 멈춘다)"""
@@ -739,7 +775,10 @@ def detail_groups():
             t, u = fmt(v, '만원')
             if t is None: a = '<td class="m na" rowspan="%d"><span class="pill">미가입</span></td>' % n
             elif isinstance(v, str): a = '<td class="m" rowspan="%d"><b class="tx">%s</b></td>' % (n, _esc(t))
-            else: a = '<td class="m" rowspan="%d"><b>%s</b><span>%s</span></td>' % (n, t, u or '원')
+            else:
+                v10 = esc10_after(v, [(nm_, a_) for nm_, _, _, a_ in rs]) if re.match(r'\[진단금?\]', lab) else None      # 진단금 구분에만 둘째 줄
+                x10 = ('<div class="x10">계약 10년 후 진단 시<br><b>%s</b></div>' % detail_x10(v10)) if v10 is not None else ''
+                a = '<td class="m" rowspan="%d"><b>%s</b><span>%s</span>%s</td>' % (n, t, u or '원', x10)
             if not rs:
                 g = '<tbody class="g"><tr>%s%s<td class="n none" colspan="3">이 설계에는 가입되지 않은 보장입니다</td></tr></tbody>' % (k, a)
             else:
@@ -789,7 +828,19 @@ def summary_cells():
         if isnum(v): f = OV.fit(f, won(v), '만원')
         elif isinstance(v, str): f = OV.fit(f, v)
         out.append(OV.field_html(f, GP.M(v), 'val'))
+        d_ = dx10_sum(c['key'])
+        if d_: out.append(_pt_text_r(d_['x1'], d_['base'], d_['size'], d_['text'], '#555555', 500))
     return ''.join(out)
+def dx10_sum(key):
+    """보장요약 진단금 칸의 둘째 줄 자리(칸 상자 오른쪽 아래) — 그리기와 인쇄 검증이 같이 쓴다"""
+    if key not in DX10_SUM: return None
+    v10 = dx10(key)
+    if v10 is None: return None
+    sp = OV.spec('p1'); k = 594.96 / sp['size'][0]; x0, y0, x1, y1 = [t * k for t in sp['fields'][key]['box']]
+    return dict(key=key, x1=x1 - 1.2, base=y1 - 0.2, size=5.5, text=dx10_text(v10, long=False))
+def _pt_text_r(x1, base, size, text, color, weight=400, ff='N,P'):
+    return ('<div style="position:absolute;right:%.2fpt;top:%.2fpt;font-size:%.2fpt;line-height:1;color:%s;font-weight:%d;white-space:nowrap;font-family:%s;letter-spacing:0">%s</div>'
+            % (594.96 - x1, base - (K_N if ff.startswith('N') else K_BASE) * size, size, color, weight, ff, text))
 def summary_page():
     """보장요약 = GA 가안 그림 + 값(ga_proposal 합성 모드) + 시안의 고친 글자 세 군데(「다빈치로봇」 · 체증형 주석 · 바닥 안내 두 줄)"""
     sp = OV.spec('p1')['fields']; prem = (GP.PREMIUM or '').replace('원', '')
