@@ -211,5 +211,16 @@ ok('근골 주요처치및수술비 : 별표67 수가코드가 없으면 지급 
 ok('상해진단및치료비 부모 줄은 계산 제외', S.classify('상해진단및치료비')['id'] == 'skip_injury_dx_tx' and S.classify('상해진단및치료비[중등증 상해 근골 주요처치및수술비(급여,연간1회한)]')['id'] == 'tx_injury_msk')
 ok('상해진단비는 골절 카드 「골절 진단비」 줄', G2v.grp_of('상해진단및치료비[중등증 상해진단비(연간1회한)]', '상해') == 'fdx' and G2v.grp_of('골절진단비Ⅱ', '상해') == 'fdx' and G2v.grp_of('골절수술비Ⅱ', '상해') == 'fsg')
 
+# 10. 항암방사선치료비Ⅱ · 항암약물치료비Ⅱ(약관 개정안 v6.0 별첨7 · 2026-11-24 마스터 추가) — 수술후 / 수술후제외 · 암 구분은 세부보장명으로
+N2 = ['%s[%s,%s%s](통합간편가입)' % (t_, ca, ca, su) for t_ in ('항암방사선치료비Ⅱ', '항암약물치료비Ⅱ') for ca in ('암(유사암제외)', '기타피부암', '갑상선암') for su in ('수술후제외', '수술후')]
+R2 = rows(dict(schema=1, product=TH, riders=[{'no': i + 1, 'name': n, 'amount': 10000000} for i, n in enumerate(N2)]))
+def cx(kcd, acts):
+    ev = [[{'surg': '수술', 'chemo': '치료', 'rad': '치료'}[a], a, '', [a], {}] for a in acts]
+    return sorted(('약물치료비' if '약물' in l['name'] else '방사선치료비') + l['name'].split('[')[1].split(',')[0] + ('후' if l['name'].rstrip(']').endswith('수술후') or '수술후]' in l['name'] else '전') for l in S.pay_lines(R2, dict(kcd=kcd, tags=dict(cause='질병', hosp='병원', dx='cancer', grp=[]), itc_events=ev)))
+ok('항암치료비Ⅱ 12개 모두 특약 마스터에 매칭', all(r['matched'] for r in R2), '— %s' % [r['name'] for r in R2 if not r['matched']])
+ok('항암약물치료비Ⅱ : 위암 약물만 → 수술후제외 · 수술 뒤 약물 → 수술후', cx('C16', ['chemo']) == ['약물치료비암(유사암제외)전'] and cx('C16', ['surg', 'chemo']) == ['약물치료비암(유사암제외)후'], '— %s · %s' % (cx('C16', ['chemo']), cx('C16', ['surg', 'chemo'])))
+ok('항암방사선치료비Ⅱ : 갑상선암 수술 뒤 방사선 → 갑상선암 수술후만 · 제자리암은 없음', cx('C73', ['surg', 'rad']) == ['방사선치료비갑상선암후'] and cx('D05.1', ['chemo']) == [], '— %s' % cx('C73', ['surg', 'rad']))
+ok('항암치료비Ⅱ 부모 줄은 계산 제외', S.classify('갱신형 항암방사선치료비Ⅱ')['id'] == 'skip_parent_composite' and S.classify('항암약물치료비Ⅱ')['id'] == 'skip_parent_composite')
+
 print('\n결과 : %s — 점검 %d개 · 실패 %d' % ('전부 통과' if not N[1] else '실패', N[0], N[1]))
 sys.exit(1 if N[1] else 0)
