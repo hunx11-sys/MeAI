@@ -133,7 +133,27 @@ def subs_of(body_lines, n_sub):
     enum = re.findall(r'^\s*[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]\s*(.+?)(?=\n\s*[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]|\n제\d+조|\n\s*$)', joined[:4000], re.M | re.S)
     enum = [re.sub(r'\s+', ' ', e).strip() for e in enum]
     enum = [re.sub(r'\((맞춤간편가입|통합간편가입|간편가입)\)$', '', e).strip() for e in enum if len(e) < 90]
-    if n_sub and len(enum) >= n_sub: return enum[:n_sub], 'enum'
+    if n_sub and len(enum) >= n_sub:
+        if not all(re.match(r'^[:：]|.*보험금\s*지급', x) for x in enum[:n_sub]): return enum[:n_sub], 'enum'
+        # ①②… 가 지급 예시 문장(「① : A전신마취수술에 해당하는 보험금 지급」)뿐이면 세부보장 이름은 「·」 목록에 있다 — 올케어 수술비 2610 종합병원 전신마취수술비
+        # (「·종합병원전신마취(1시간초과)수술비(1-7종,\n연간3회한)[상해]」 · 2026-11-24 — 전에는 이름이 비어 「…[상해][]」 세부 레코드가 생겼다). 앞 4글자가 같은 n_sub 개일 때만
+        bl, cur = [], None
+        for l in body_lines:
+            s_ = l.strip()
+            if s_.startswith('·'):
+                if cur: bl.append(cur)
+                cur = s_[1:].strip()
+            elif cur is not None and s_ and not re.match(r'^(구분|지급|【|\d)', s_) and len(cur) < 80 and not cur.rstrip().endswith(']'):
+                cur += s_
+            else:
+                if cur: bl.append(cur)
+                cur = None
+        if cur: bl.append(cur)
+        seen = []
+        for b_ in (re.sub(r'\s+', '', b_) for b_ in bl):
+            if b_ not in seen: seen.append(b_)
+        if len(seen) == n_sub and len({b_[:4] for b_ in seen}) == 1 and all(len(b_) < 90 for b_ in seen): return seen, 'bullet'
+        return enum[:n_sub], 'enum'
     # 암종구분 : "… 진단시" (여러 줄에 걸친 것은 이어 붙임)
     labs = []; buf = []; in_ex = False
     for l in body_lines:

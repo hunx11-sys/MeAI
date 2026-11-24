@@ -72,7 +72,7 @@ def canon(r):
     _CAN[k] = v; return v
 GK = collections.defaultdict(list)
 for r in M: GK[canon(r)].append(r)
-from products import PRODS, PFULL, term_of, TAGP, TAGNOTE, UNTAG      # 상품 라인 · 약관 파일 → 상품 · 고지 구분자(2026-11-23 약관 47개 · 상품 24개)
+from products import PRODS, PFULL, term_of, TAGP, TAGNOTE, UNTAG      # 상품 라인 · 약관 파일 → 상품 · 고지 구분자(2026-11-24 약관 53개 · 마스터 상품 24개)
 PORDER = {p: i for i, p in enumerate(PRODS)}
 def plist(rs): return ', '.join(sorted({r['p'] for r in rs}, key=lambda p: PORDER.get(p, 99)))
 
@@ -120,6 +120,36 @@ def toc_find(ns):
         k = nkey(re.sub(r'\((출생전|최초발생후 ?전환용|전환용)\)', '', n)); k2 = re.sub(r'추가$', '', k)
         hit |= TOCK.get(k, set()) | TOCK.get(k2, set())
     return sorted(hit)
+
+# ── 약관 본문(세부보장까지) 대조 — 목차는 특별약관 제목만 본다. 세부보장 이름(예 암진단및치료비Ⅱ 안의 「항암약물치료비」)은 본문에만 있다(2026-11-24 소유자 지적)
+_BODY = {}
+_HEAD = re.compile(r'(?:\d+(?:-\d+)*\.)([^.\d「」]{2,90}?)(?:보장)?특별약관')
+def _body(i):
+    if i not in _BODY:
+        f = os.path.join(BASE, 'terms_txt', '%d.txt' % i)
+        s = re.sub(r'\s+', '', open(f, encoding='utf-8', errors='ignore').read()) if os.path.exists(f) else ''
+        heads = [(m.start(), m.group(1)) for m in _HEAD.finditer(s)]
+        _BODY[i] = (s, heads)
+    return _BODY[i]
+def body_find(ns):
+    """담보명(고지 구분자 · 갱신형 · [기본계약] 등을 뗀 것)이 약관 본문에 글자 그대로 있는 약관 → [(약관 번호, 그 자리 앞의 특별약관 제목)]"""
+    keys = set()
+    for n in ns:
+        k = strip_tags(n).replace('·', '')
+        if len(k) >= 6: keys.add(k)
+        k2 = re.sub(r'\[[^\[\]]*\]$', '', k)
+        if len(k2) >= 6: keys.add(k2)
+    out = []
+    for i in sorted(TOCF):
+        s, heads = _body(i)
+        if not s: continue
+        s2 = s.replace('·', '').replace('ㆍ', '').replace('․', '')
+        for k in sorted(keys, key=len, reverse=True):
+            p = s2.find(k)
+            if p >= 0:
+                h = [t for q, t in heads if q <= p]
+                out.append((i, h[-1] if h else '')); break
+    return out
 
 # ── 분류 사유 ───────────────────────────────────────────────
 ADMIN = re.compile(r'특약$|특별약관|부담보|부보장|납입|대리청구|전자서명|서비스|전환특|할인|연금|단체취급|저축|자동갱신|인수|정산|기부|할증|출생전자녀가입')
@@ -169,6 +199,17 @@ for c in codes:
         elif 'tg' in kinds: why = '통합간편 다른 심사형(355 · 일반) 약관에만 있음 — 우리 마스터(통합간편심사형 약관)에 없음'
         elif 'dem' in kinds: why = '치매간병통합케어 약관에 있음 — 스마트 제안서 대상 아닌 상품'
         elif 'x' in kinds: why = '%s 약관에 있음 — 스마트 제안서 대상이 아니라 특약 마스터를 두지 않은 상품' % ' · '.join(sorted({TOCF[i][0] for i in toc if TOCF[i][1] == 'x'}))[:80]
+    body = []
+    if cls != '매핑됨' and not toc and '제도성' not in why and c[:3] != '680':
+        body = body_find(ns)
+        if body:
+            kinds = {TOCF[i][1] for i, _ in body}
+            where = ' · '.join('%s(「%s」 안)' % (TOCF[i][0], h[:40]) if h else TOCF[i][0] for i, h in body[:3])
+            tocs = '본문(세부보장 등) : ' + where
+            if 'y' in kinds: why = '우리 약관 본문에 있음(특약 안의 세부보장 등) — 마스터 누락 의심(확인)'; cls = '확인 필요'
+            elif 'tg' in kinds: why = '통합간편 다른 심사형(355 · 일반) 약관 본문에만 있음 — 우리 마스터(통합간편심사형 약관)에 없음'
+            elif 'dem' in kinds: why = '치매간병통합케어 약관에 있음 — 스마트 제안서 대상 아닌 상품'
+            else: why = '%s 약관 본문에 있음 — 스마트 제안서 대상이 아니라 특약 마스터를 두지 않은 상품' % ' · '.join(sorted({TOCF[i][0] for i, _ in body if TOCF[i][1] == 'x'}))[:80]
     rep = ns[0]
     gs = []
     if cls == '매핑됨':

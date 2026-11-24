@@ -21,6 +21,19 @@ for r in M:
     if r.get('parent'): kids[(r['p'], r['parent'])].append(r)
 by_stem = collections.defaultdict(list); by_key = collections.defaultdict(list)
 for r in M: by_stem[r['_stem']].append(r); by_key[r['_k']].append(r)
+# 세부보장 이름만으로 온 정보계 이름(부모 이름 없이 「종합병원 전신마취(1시간초과)수술비(1-7종,연간3회한)[질병]」) — 다른 길로 못 찾았을 때만 그 세부보장에 정확 매칭(2026-11-24 · 기존 매핑은 그대로)
+SUBKEY = collections.defaultdict(list)
+for r in M:
+    if r.get('parent') and r['n'].rstrip().endswith(']'):
+        b, d, i = r['n'].rstrip(), 0, None
+        for j in range(len(b) - 1, -1, -1):
+            if b[j] == ']': d += 1
+            elif b[j] == '[':
+                d -= 1
+                if d == 0: i = j; break
+        if i is None: continue
+        sk = key(b[i + 1:-1])
+        if len(sk) >= 8 and sk not in by_key: SUBKEY[sk].append(r)
 
 import os
 FZ = int(os.environ.get('FZ', '1'))
@@ -123,22 +136,36 @@ def match_one(name):
     k = key(name)
     if k in by_key: return '정확', by_key[k][0], ''
     ct = toks(name)
-    if not ct: return '없음', None, ''
+    if not ct: return ('정확', SUBKEY[k][0], '세부보장 이름만으로 온 코드') if k in SUBKEY else ('없음', None, '')
     best = None
     for o in by_stem.get(ct[0], []):
         lv, note, cc, co = judge(name, ct, o)
         s = (-RANK[lv], round(dscore(ct, o), 4), round(cc + co, 4), 1 if o.get('parent') else 0, -len(o['_k']))
         if best is None or s > best[0]: best = (s, o, lv, note)
+    if (not best or RANK[best[2]] > RANK['특약단위']) and k in SUBKEY: return '정확', SUBKEY[k][0], '세부보장 이름만으로 온 코드 — 「%s」 특약 안의 세부보장' % re.sub(r'\[[^\[\]]*\]$', '', SUBKEY[k][0]['n'])
     if not best: return '없음', None, '이름 첫 낱말(%s)이 같은 우리 특약 없음' % ct[0]
     return best[2], best[1], best[3]
 
 VARIANTS = [('(출생전)', '출생전 가입 변형'), ('(최초발생후전환용)', '최초발생후 전환용 변형'), ('(전환용)', '전환용 변형'),
             ('(최초암발생후)', '최초암발생후 변형'), ('(최초2대질환발생후)', '최초2대질환발생후 변형')]
 SUB17 = re.compile(r'수술비\[(질병|상해)([1-7])종\]')   # 정보계는 1-7종 수술비 세부보장을 부모 이름 없이 「수술비[질병3종]」으로도 쓴다(같은 코드에 「수술비(1-7종, 연간3회한)[질병3종](편한가입)」이 함께 붙은 것으로 확인 · 단위상품마다 1~7종 14개 한 벌)
+GRADE14 = re.compile(r'((?:비)?운전자용자동차사고부상치료비)\((\d{1,2})급\)')   # 정보계는 「(1-14급)[4-14급]」 세부보장을 급마다 「(4급)」 … 「(14급)」 코드로 다시 나눈다(약관 별표 부상등급 · 2026-11-24 소유자 지적 : 큰 특약 안의 세부)
+GRADE3 = re.compile(r'(.*응급실내원비)\(([1-3])급\)')   # 「…응급실내원비(1-3등급)」 특약을 등급마다 「(1급)」 「(2급)」 「(3급)」 코드로 나눈 것(2026-11-24)
 def match(name):
     lv, o, note = match_one(name)
+    m3 = GRADE3.fullmatch(strip_tags(name))
+    if m3 and RANK[lv] > RANK['특약단위']:
+        lv3, o3, note3 = match_one(m3.group(1) + '(1-3등급)')
+        if RANK[lv3] <= RANK['정확'] or RANK[lv3] <= RANK['특약단위']:
+            return '특약단위', o3, '등급별 코드 — 「(1-3등급)」 특약의 %s등급 세부 · %s' % (m3.group(2), note3), ''
     if lv == '정확': return lv, o, note, ''
     s = strip_tags(name); var = []
+    mg = GRADE14.fullmatch(s)
+    if mg and RANK[lv] > RANK['특약단위'] and 1 <= int(mg.group(2)) <= 14:
+        g = int(mg.group(2))
+        lv2, o2, note2 = match_one('%s(1-14급)[%s]' % (mg.group(1), '4-14급' if g >= 4 else '%d급' % g))
+        if RANK[lv2] <= RANK['특약단위']:
+            return '특약단위', o2, '급별 코드 — 「(1-14급)」 특약의 %d급 세부(약관 별표 부상등급표) · %s' % (g, note2), ''
     m = SUB17.fullmatch(s.replace('(출생전)', ''))
     if m and RANK[lv] > RANK['특약단위']:
         lv2, o2, note2 = match_one('수술비(1-7종,연간3회한)[%s%s종]' % m.groups())
