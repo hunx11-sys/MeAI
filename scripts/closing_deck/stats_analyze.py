@@ -26,6 +26,9 @@ out = {'기간': [min(day), last], '누적': len(R), '운영일': len(day),
        '프롬프트복사': sum(1 for r in R if r['event'] in ('copy', 'prompt_copy')),
        '질병조회상위': C((r.get('disease') or '') for r in R if r['event'] == 'disease' and r.get('disease')).most_common(10),
        '특약상세상위': C((r.get('rider_name') or '') for r in R if r['event'] == 'rider').most_common(10),
+       '일별': sorted(day.items()),
+       '요일': [sum(1 for r in R if r['T'].weekday() == w) for w in range(7)],
+       '동작': C(r['event'] for r in R).most_common(12),
        '검색어상위': C((r.get('term') or '').strip() for r in R if r['event'] == 'search' and r.get('term')).most_common(10)}
 json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stats_2611.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 print(json.dumps({k: out[k] for k in ('누적', '하루최고', '10.21까지', '10.22부터')}, ensure_ascii=False))
