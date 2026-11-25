@@ -79,13 +79,13 @@ h1 em{font-style:normal;color:var(--accent)}
 .msg p:nth-child(1){animation-delay:.75s}.msg p:nth-child(2){animation-delay:.9s}
 .msg b{color:var(--ink);font-weight:600}
 .sign{margin:24px 0 0;font-size:15px;color:var(--muted);font-weight:500;opacity:0;animation:in .8s var(--spring) 1.1s forwards}
-.sign b{color:var(--ink);font-weight:700}
 /* 걱정인형 줄 */
 .dolls{display:flex;justify-content:center;align-items:flex-end;gap:4px;margin:32px -24px 0;padding:0 8px}
 .doll{margin:0;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;opacity:0;transform:translateY(40px);
   animation:pop .9s var(--spring) calc(1.25s + var(--i) * .12s) forwards}
 .doll img{display:block;height:112px;width:auto;max-width:100%%;object-fit:contain;transform-origin:50%% 100%%;
   animation:bob 4.6s cubic-bezier(.45,0,.55,1) calc(2.4s + var(--i) * .37s) infinite;user-select:none;-webkit-user-drag:none;cursor:pointer}
+.doll:nth-child(6) img{height:88px}   /* 찌지리는 몸집이 커 보여 작게(소유자 2026-11-25) */
 .doll figcaption{margin:6px 0 0;padding:0 10px;height:24px;line-height:24px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;background:var(--c)}
 .doll:nth-child(3) figcaption{color:#3D2C00}
 .doll.hop img{animation:hop .6s var(--spring)}
@@ -102,6 +102,7 @@ h1 em{font-style:normal;color:var(--accent)}
   .dolls{flex-wrap:wrap;gap:12px 0;margin:28px -8px 0}
   .doll{flex:0 0 33.333%%}
   .doll img{height:96px}
+  .doll:nth-child(6) img{height:76px}
   .foot{margin:0 -20px}
 }
 @media (prefers-reduced-motion:reduce){
@@ -120,7 +121,7 @@ h1 em{font-style:normal;color:var(--accent)}
     <p>영업지원도구는 <b>MeAI홈</b>에 이식하여<br>사내 정식 서비스로 찾아뵐 예정입니다.</p>
     <p>영업활동에 많은 도움이 되도록 노력하겠습니다.</p>
   </div>
-  <p class="sign">-세일즈혁신TF <b>이헌수</b> 배상-</p>
+  <p class="sign">-세일즈혁신TF 이헌수 배상-</p>
   <div class="dolls">%(dolls)s</div>
   <div class="foot">이 주소의 영업지원도구 서비스는 종료되었습니다.</div>
 </main>
