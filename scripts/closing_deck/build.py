@@ -7,7 +7,7 @@
 캡처 폴더 : index · tool · sim_c16 · itc · products · prompts · nameplate (1440x900 @2x, 사내처럼 파일로 열어 찍음)
 숫자 출처 : 사용 숫자 = 사용 통계 서버 익명 기록 전수 분석(2026.6.22~11.25 · 73,820건 · scripts/closing_deck/stats_2611.json · 다시 뽑기 stats_fetch.py → stats_analyze.py).
             특약 이름 · 보장 코드 · 질병명 = tool.html 데이터를 그 자리에서 셈 · 약관 쪽수 = 저장소 루트 약관 PDF 실측.
-            자료 규모 · 갱신 횟수 · 파일 크기 = 저장소(2026.11.25). 기대효과 = 내부 추정 산식의 가정값.
+            자료 규모 · 갱신 횟수 · 파일 크기 = 저장소(2026.11.25). 기대효과는 금액 없이 문구만(소유자 2026-11-25).
 그래프 : charts.py(SVG · 바깥 라이브러리 없음)
 디자인 : design/DESIGN-MeAI.md + DESIGN-토스.md · 장표 글은 음 · 임 개조식(소유자 덱 규칙)
 """
@@ -118,7 +118,7 @@ SKIP = FIELD
 # ── 2. 이 자료는 ───────────────────────────────────────────
 slide('''<div class="row" style="gap:20px">
   <div class="card" style="flex:1"><span class="tag">용도 1</span><div class="h3" style="margin-top:16px">내부 성과 보고</div>
-    <div class="p">157일 사용 성과(그래프)<br>컨닝페이퍼가 필요했던 현장 문제 6가지<br>현장이 애용한 이유 · 기대효과(가정값)</div></div>
+    <div class="p">157일 사용 성과(그래프)<br>컨닝페이퍼가 필요했던 현장 문제 6가지<br>현장이 애용한 이유 · 기대하는 효과</div></div>
   <div class="card" style="flex:1"><span class="tag">용도 2</span><div class="h3" style="margin-top:16px">이어지는 자산</div>
     <div class="p">MeAI 에 반영 · 정교화한 구성 요소<br>정식 전산용 스마트 제안서와 같은 원천<br>(특약 마스터 · 질병코드 · 계산 규칙)</div></div>
 </div>
@@ -433,18 +433,22 @@ screen('itc', 'PART 3 · 화면으로 보면 ③', '통합치료비 시뮬레이
        ['질병과 치료 과정을 고르면 특약별 1년 금액 합계', '치료 단계마다 어느 특약에서 얼마 · 0원이면 이유', '가입금액별 비교 · 1년 이내 감액 · 5년 치료 계획'],
        '통합치료비 시뮬레이터 화면입니다. 질병과 치료 과정을 고르면 특약별로 1년 동안 받는 금액이 합산되고, 치료 단계마다 어느 특약에서 얼마가 나오는지, 안 나오면 왜인지 문장으로 나옵니다.', '화면 : 통합치료비 시뮬레이터(2026.11.25 판 · 급성 심근경색 · 기본 조합)')
 
-EF = [('업무효율', 2.63, '#C8102E'), ('매출증진', 2.28, '#6D5BD6'), ('신담보 전파 절감', 1.0, '#F2B705'), ('민원 리스크 감소', 1.0, '#23874C')]
+EF = [('업무효율', '상담 중 확인 시간 단축 · 그 자리에서 바로 답', '#C8102E', 'merry_ok.webp'),
+      ('매출증진', '보장 공백이 눈에 보여 추가 제안이 권유가 아닌 설명이 됨', '#6D5BD6', 'success_thumbs.webp'),
+      ('신담보 전파', '새 담보 · 약관 개정이 현장에 바로 퍼짐', '#F2B705', 'rara_present.webp'),
+      ('민원 리스크 감소', '약관 원문 근거로 설명이 같아져 오안내 예방', '#23874C', 'eco_point.webp')]
+ef = ''.join('<div style="display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:16px;background:#fff;border:1px solid #EEF0F2;margin-top:%dpx;border-left:6px solid %s">'
+             '<img src="%s" style="height:58px;width:58px;object-fit:contain;flex:none"><div><div style="font-size:20px;font-weight:700;color:%s">%s</div>'
+             '<div style="font-size:15px;color:#4E5968;margin-top:3px;line-height:1.45">%s</div></div></div>' % (0 if k == 0 else 12, c, doll(m), c, n, d) for k, (n, d, c, m) in enumerate(EF))
 slide('''<div class="row" style="gap:22px;align-items:stretch">
  <div class="card" style="flex:1"><div class="h3">데이터를 믿을 수 있는 이유</div>
   <div class="p" style="font-size:17px">· 메리츠화재 상품 공시실 판매 약관(2610 판) 내려받아 원문 파싱<br>· 질병코드 · 금액은 추정하지 않음 · 없으면 빈칸<br>· 2026.9 전수 감사 325건 바로잡음<br>· 약관이 바뀌면 같은 스크립트로 다시 대조<br>· 표 · 사전 · 같은 이름 특약 자동 점검</div>
   <div class="h3" style="margin-top:22px">운영 방식</div>
   <div class="p" style="font-size:17px">· 개발 · 서버 · 라이선스 0원<br>· 오류 즉각 수정 · 신담보 즉각 반영(갱신 78회)<br>· 고객 개인정보 받지도 저장하지도 않음</div></div>
- <div class="card w" style="flex:1.1"><div class="h3">연간 기대효과 <span class="tag g" style="vertical-align:middle">가정값</span></div>
-  <div style="display:flex;gap:24px;align-items:center;margin-top:18px">%s<div style="flex:1">%s</div></div>
-  <div class="p" style="font-size:15px;margin-top:16px">내부 추정 산식(1인 월 상담 3건 · 확인 시간 10분 → 30초 · 3,667명 등) · 통합치료비 시뮬레이터 효과 미포함</div></div>
-</div>''' % (C.donut(EF, 250, '6.91억', '연간 · 가정값'), C.legend([(n, v, c) for n, v, c in EF], '억', 18)),
-'데이터를 믿을 수 있는 이유와 운영 방식, 기대효과입니다. 모든 데이터는 메리츠화재 상품 공시실에서 판매 약관을 내려받아 원문을 그대로 파싱한 것이고, 질병코드와 금액은 추정하지 않고 없으면 빈칸으로 둡니다. 9월 전수 감사에서 325건을 바로잡았습니다. 비용은 0원이고, 오류는 즉각 수정하고 새 정보는 즉각 반영합니다. 연간 기대효과는 내부 추정 산식으로 계산한 가정값으로 약 6.91억원이며, 업무효율 2.63억, 매출증진 2.28억, 신담보 전파 절감과 민원 리스크 감소가 각 1억입니다. 통합치료비 시뮬레이터 효과는 넣지 않았습니다.',
-'PART 3 · 신뢰와 운영', '메리츠화재 상품 공시실 약관을 내려받아 원문 파싱 · 추정 없음', '', '기대효과 : 내부 추정 산식(1인 월 상담 3건 · 확인 시간 10분 → 30초 · 3,667명 등) · 모두 가정값', 'PART 3', z=1.36)
+ <div class="card w" style="flex:1.1"><div class="h3">기대하는 효과</div><div style="margin-top:14px">%s</div></div>
+</div>''' % ef,
+'데이터를 믿을 수 있는 이유와 운영 방식, 기대하는 효과입니다. 모든 데이터는 메리츠화재 상품 공시실에서 판매 약관을 내려받아 원문을 그대로 파싱한 것이고, 질병코드와 금액은 추정하지 않고 없으면 빈칸으로 둡니다. 9월 전수 감사에서 325건을 바로잡았습니다. 비용은 0원이고, 오류는 즉각 수정하고 새 정보는 즉각 반영합니다. 기대하는 효과는 네 가지입니다. 상담 중 확인 시간이 줄어드는 업무효율, 보장 공백이 보여 추가 제안이 쉬워지는 매출증진, 새 담보와 약관 개정이 현장에 바로 퍼지는 신담보 전파, 그리고 약관 원문을 근거로 설명이 같아져 오안내를 막는 민원 리스크 감소입니다.',
+'PART 3 · 신뢰와 운영', '메리츠화재 상품 공시실 약관을 내려받아 원문 파싱 · 추정 없음', '', '', 'PART 3', z=1.22)
 
 SKIP = FIELD
 # ══ PART 4 · MeAI · 스마트 제안서로 이어짐 ═══════════════
