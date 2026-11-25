@@ -54,6 +54,7 @@ def stash(text):
 
 SHELL = """<!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8">
+<script id="meai-closed">try{if(/(^|\\.)github\\.io$/i.test(location.hostname)){document.documentElement.style.visibility="hidden";location.replace("/"+(location.pathname.split("/")[1]||"")+"/goodbye.html")}}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>메리츠 영업지원도구 (올인원)</title>

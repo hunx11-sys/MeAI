@@ -33,7 +33,12 @@ SITE_JS = io.open(os.path.join(ROOT, 'ui', 'meai-site.js'), encoding='utf-8').re
 # 카카오톡이면(mu-kakao) 사이트 스크립트가 다 불러온 뒤 처음 한 번 카카오 공식 주소(kakaotalk://web/openExternal)로 휴대폰 기본 브라우저(크롬 · 삼성 인터넷)에서 다시 연다.
 # 넘어가지 않거나 돌아오면 같은 탭(sessionStorage)에서는 다시 넘기지 않고 맨 위에 「브라우저로 열기」 한 줄을 보여 준다. ?inapp=1 이면 넘기지 않는다.
 # matchMedia 의 prefers-reduced-motion 답을 「줄이기」로 바꿔 두므로 각 화면 스크립트도 그대로 따른다. 주소에 ?lite=0 / ?lite=1 로 강제.
-BOOT = ('<script id="meai-boot">(function(h){h.classList.add("mu-js");var L=false;'
+# 인터넷판 종료(2026-11-25 · 회사 리스크진단파트 : 외부 깃허브 주소가 피싱 사이트로 오인될 수 있음) — github.io 에서 열리면
+# 화면을 그리기 전에 goodbye.html(종료 인사 · scripts/build_goodbye.py)로 넘긴다. 사내 노트북 파일 · 사내망 · 올인원 배포판은 그대로(개발 계속).
+BOOT = ('<script id="meai-boot">(function(h){'
+        'try{if(/(^|\\.)github\\.io$/i.test(location.hostname)){h.style.visibility="hidden";'
+        'location.replace("/"+(location.pathname.split("/")[1]||"")+"/goodbye.html");return}}catch(e){}'
+        'h.classList.add("mu-js");var L=false;'
         'try{var q=location.search,u=navigator.userAgent||"",c=navigator.connection;'
         'L=/[?&]lite=1/.test(q)||(!/[?&]lite=0/.test(q)&&(/KAKAOTALK|NAVER\\(inapp|; wv\\)|Instagram|FBAN|FBAV|Line\\/|DaumApps|everytimeApp|BAND\\//i.test(u)||!!(c&&c.saveData)))}catch(e){}'
         'if(L){h.classList.add("mu-lite");if(/KAKAOTALK/i.test(navigator.userAgent||"")){h.classList.add("mu-kakao");}var mm=window.matchMedia;window.matchMedia=function(x){if(/prefers-reduced-motion/.test(x)){var r=!/no-preference/.test(x);'
