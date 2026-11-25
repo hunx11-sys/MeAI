@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """영업지원도구 인터넷판 운영 결산 PPT — 성과 · 컨닝페이퍼가 필요했던 이유 · 애용 이유 · MeAI · 스마트 제안서로 이어짐
 
-  python3 scripts/closing_deck/build.py <캡처 폴더> <PretendardVariable.woff2> [출력 폴더=dist]
-    → dist/meai_tools_web_closing_2611.pptx · .pdf  (장마다 통이미지 + 발표자 메모 · 1600x900 화면을 2배로 찍음)
+  python3 scripts/closing_deck/build.py <캡처 폴더> <PretendardVariable.woff2> [출력 폴더=dist] [dept|field]
+    → dist/meai_tools_web_closing_2611_<dept|field>.pptx · .pdf  (dept = 부서 공유용 전체 · field = 영업채널 전달용 통계 · 성과만)  (장마다 통이미지 + 발표자 메모 · 1600x900 화면을 2배로 찍음)
 
 캡처 폴더 : index · tool · sim_c16 · itc · products · prompts · nameplate (1440x900 @2x, 사내처럼 파일로 열어 찍음)
 숫자 출처 : 사용 숫자 = 사용 통계 서버 익명 기록 전수 분석(2026.6.22~11.25 · 73,820건 · scripts/closing_deck/stats_2611.json · 다시 뽑기 stats_fetch.py → stats_analyze.py).
@@ -23,7 +23,11 @@ sys.path.insert(0, HERE); sys.path.insert(0, os.path.join(ROOT, 'scripts'))
 import charts as C, same_riders
 CAP, FONT = sys.argv[1], sys.argv[2]
 OUT = sys.argv[3] if len(sys.argv) > 3 else os.path.join(ROOT, 'dist')
-NAME = 'meai_tools_web_closing_2611'
+VAR = sys.argv[4] if len(sys.argv) > 4 else 'dept'     # dept = 부서 공유용(전체) · field = 영업채널 전달용(통계 · 성과만, 개발 · 이관 · 스마트 제안서 장 없음)
+assert VAR in ('dept', 'field'), VAR
+FIELD = VAR == 'field'
+NAME = 'meai_tools_web_closing_2611_' + VAR
+SKIP = False      # True 인 동안 만든 장은 넣지 않는다(field 판에서 개발 로드맵 장 빼기)
 W, H = 1600, 900
 
 def uri(path, mime):
@@ -75,10 +79,10 @@ def slide(body, notes, kick='', title='', lead='', src='', part='', z=1.0):
     foot = '<div class="foot"><span>MeAI 영업지원도구 인터넷판 운영 결산 · 세일즈혁신TF</span><span><b>%s</b>　@@N@@</span></div>' % part
     srch = '<div class="src">%s</div>' % src if src else ''
     bz = ' style="width:%dpx;zoom:%s"' % (round(1440 / z), z) if z != 1.0 else ''      # 내용이 적은 장은 글자를 키워 장을 채운다(폭은 그대로 1440)
-    S.append(('<div class="sl">%s<div class="body"%s>%s</div>%s%s</div>' % (head, bz, body, srch, foot), notes))
+    if not SKIP: S.append(('<div class="sl">%s<div class="body"%s>%s</div>%s%s</div>' % (head, bz, body, srch, foot), notes))
 
 def full(body, notes):
-    S.append((body, notes))
+    if not SKIP: S.append((body, notes))
 
 # ── 숫자 원천 ────────────────────────────────────────────
 ST = json.load(open(os.path.join(HERE, 'stats_2611.json'), encoding='utf-8'))
@@ -102,14 +106,15 @@ full('''<div class="sl" style="padding:0;background:#fff">
   <div style="position:absolute;left:100px;top:150px;width:820px">
     <span class="tag">2026.6.22 ~ 2026.11.25 · 157일</span>
     <div style="margin-top:28px;font-size:68px;font-weight:700;letter-spacing:-.035em;line-height:1.2">MeAI 영업지원도구<br><span class="em">인터넷판 운영 결산</span></div>
-    <div style="margin-top:26px;font-size:25px;color:#4E5968;line-height:1.5">성과 · 영업 컨닝페이퍼가 필요했던 이유<br>MeAI · 스마트 제안서로 이어진 자산</div>
+    <div style="margin-top:26px;font-size:25px;color:#4E5968;line-height:1.5">%s</div>
     <div style="margin-top:34px;width:560px">%s<div style="display:flex;justify-content:space-between;font-size:14px;color:#8B95A1;margin-top:6px"><span>6.22 하루 204건</span><span>11.20 하루 9,362건</span></div></div>
     <div style="margin-top:30px;font-size:19px;color:#6B7684">2026. 11　세일즈혁신TF</div>
   </div>
   <img src="%s" style="position:absolute;right:56px;bottom:0;width:640px;height:auto">
-</div>''' % (C.spark(DAYS, 560, 90), doll('group_hello.webp')),
-'MeAI 영업지원도구 인터넷판 운영 결산 보고를 시작하겠습니다. 6월 22일부터 11월 25일까지 157일 동안 운영한 영업지원도구의 성과와, 현장에 왜 이런 컨닝페이퍼가 필요했는지, 그리고 이 도구에서 만든 자산이 MeAI 와 회사 정식 전산용 스마트 제안서로 어떻게 이어지고 있는지 정리했습니다. 표지의 작은 그래프는 하루 사용 건수의 흐름입니다.')
+</div>''' % ('157일 사용 성과 · 현장이 애용한 이유<br>영업 컨닝페이퍼가 필요했던 이유' if FIELD else '성과 · 영업 컨닝페이퍼가 필요했던 이유<br>MeAI · 스마트 제안서로 이어진 자산', C.spark(DAYS, 560, 90), doll('group_hello.webp')),
+('MeAI 영업지원도구 인터넷판 운영 결산 보고를 시작하겠습니다. 6월 22일부터 11월 25일까지 157일 동안 운영한 영업지원도구의 성과와, 현장에 왜 이런 컨닝페이퍼가 필요했는지 정리했습니다. 표지의 작은 그래프는 하루 사용 건수의 흐름입니다.' if FIELD else 'MeAI 영업지원도구 인터넷판 운영 결산 보고를 시작하겠습니다. 6월 22일부터 11월 25일까지 157일 동안 운영한 영업지원도구의 성과와, 현장에 왜 이런 컨닝페이퍼가 필요했는지, 그리고 이 도구에서 만든 자산이 MeAI 와 회사 정식 전산용 스마트 제안서로 어떻게 이어지고 있는지 정리했습니다. 표지의 작은 그래프는 하루 사용 건수의 흐름입니다.'))
 
+SKIP = FIELD
 # ── 2. 이 자료는 ───────────────────────────────────────────
 slide('''<div class="row" style="gap:20px">
   <div class="card" style="flex:1"><span class="tag">용도 1</span><div class="h3" style="margin-top:16px">내부 성과 보고</div>
@@ -125,6 +130,7 @@ slide('''<div class="row" style="gap:20px">
 '이 자료는 두 가지 용도로 만들었습니다. 첫째는 내부 성과 보고입니다. 157일 동안의 사용 성과와, 왜 현장에 영업용 컨닝페이퍼가 필요했는지, 현장이 왜 이 도구를 애용했는지를 담았습니다. 둘째는 이 도구에서 만든 자산이 MeAI 와 회사 정식 전산용 스마트 제안서로 이어지고 있다는 점입니다. 인터넷 링크는 11월 25일 폐쇄했고, 개발은 계속해서 MeAI 홈에 이식할 예정입니다.',
 '00 · 이 자료는', '성과 보고와 이어지는 자산을 한 권으로', '', '', '', z=1.45)
 
+SKIP = False
 # ── 3. 한 장 요약 ─────────────────────────────────────────
 def tile(n, u, lab, red=False, w='1'):
     return '<div class="card" style="flex:%s;min-height:150px"><div class="num%s">%s<small>%s</small></div><div class="lab">%s</div></div>' % (w, ' r' if red else '', n, u, lab)
@@ -225,7 +231,7 @@ DATA = [('1,149', '종', '특약(6개 상품) · 세부보장 포함 1,842건', 
 grid = ''.join('<div class="card" style="width:calc(25%% - 14px);padding:22px 24px;min-height:170px;position:relative;overflow:hidden"><div class="num" style="font-size:46px">%s<small>%s</small></div><div class="lab" style="font-size:16px;padding-right:70px">%s</div>'
                '<img src="%s" style="position:absolute;right:-6px;bottom:-8px;height:86px;width:auto;opacity:.95"></div>' % (a, b, c, doll(m)) for a, b, c, m in DATA)
 slide('<div style="display:flex;flex-wrap:wrap;gap:18px">%s</div>' % grid,
-'도구 안에 담긴 자료 규모입니다. 6개 상품의 특약 1,149종을 세부보장까지 1,842건, 약관 분류표 293개와 공식 질병명 1,302개를 담았습니다. 일상 병명 사전 185개와 보험용어 쉬운 설명 907개, 장기상품 50종, MeAI 프롬프트 272개, 통합치료비 13종의 금액표가 들어 있습니다. 이 자료가 뒤에서 보실 MeAI 와 스마트 제안서로 이어지는 자산입니다.',
+('도구 안에 담긴 자료 규모입니다. 6개 상품의 특약 1,149종을 세부보장까지 1,842건, 약관 분류표 293개와 공식 질병명 1,302개를 담았습니다. 일상 병명 사전 185개와 보험용어 쉬운 설명 907개, 장기상품 50종, MeAI 프롬프트 272개, 통합치료비 13종의 금액표가 들어 있습니다. 이 자료가 상담 중 바로 꺼내 보는 영업 자료 자산입니다.' if FIELD else '도구 안에 담긴 자료 규모입니다. 6개 상품의 특약 1,149종을 세부보장까지 1,842건, 약관 분류표 293개와 공식 질병명 1,302개를 담았습니다. 일상 병명 사전 185개와 보험용어 쉬운 설명 907개, 장기상품 50종, MeAI 프롬프트 272개, 통합치료비 13종의 금액표가 들어 있습니다. 이 자료가 뒤에서 보실 MeAI 와 스마트 제안서로 이어지는 자산입니다.'),
 'PART 1 · 담긴 자료', '약관 원문을 그대로 옮긴 영업 자료 자산', '', '저장소 기록(2026.11.25) · tool.html 데이터 · gloss.js · ui/meai-lex.js · products · prompts · 통합치료비 화면', 'PART 1', z=1.22)
 
 # ══ PART 2 · 컨닝페이퍼가 필요했던 이유 ═══════════════════
@@ -393,6 +399,7 @@ slide('''<div class="row" style="gap:22px;align-items:stretch">
 '데이터를 믿을 수 있는 이유와 운영 방식, 기대효과입니다. 모든 데이터는 메리츠화재 상품 공시실에서 판매 약관을 내려받아 원문을 그대로 파싱한 것이고, 질병코드와 금액은 추정하지 않고 없으면 빈칸으로 둡니다. 9월 전수 감사에서 325건을 바로잡았습니다. 비용은 0원이고, 오류는 즉각 수정하고 새 정보는 즉각 반영합니다. 연간 기대효과는 내부 추정 산식으로 계산한 가정값으로 약 6.91억원이며, 업무효율 2.63억, 매출증진 2.28억, 신담보 전파 절감과 민원 리스크 감소가 각 1억입니다. 통합치료비 시뮬레이터 효과는 넣지 않았습니다.',
 'PART 3 · 신뢰와 운영', '메리츠화재 상품 공시실 약관을 내려받아 원문 파싱 · 추정 없음', '', '기대효과 : 내부 추정 산식(1인 월 상담 3건 · 확인 시간 10분 → 30초 · 3,667명 등) · 모두 가정값', 'PART 3', z=1.36)
 
+SKIP = FIELD
 # ══ PART 4 · MeAI · 스마트 제안서로 이어짐 ═══════════════
 section('4', 'MeAI · 스마트 제안서로', '도구에서 다듬은 자산이 정식 서비스로', 'rara_present.webp',
 '네 번째로, 이 영업지원도구를 만들며 쌓은 구성 요소와 소스가 지금 MeAI 에 어떻게 반영되고 더 정교해졌는지, 그리고 회사 정식 전산으로 들어가게 개발 중인 스마트 제안서에 어떻게 쓰이고 있는지 보겠습니다.')
@@ -451,6 +458,7 @@ slide('<table><tr><th style="width:30%%">영업지원도구에서 만들고 다�
 '영업지원도구에서 만들고 다듬은 것이 스마트 제안서에서 어디에 쓰이는지 하나씩 보겠습니다. 특약 1,149종의 마스터는 특약검색기 데이터를 감수한 것으로, 제안서 모든 칸 계산의 원천입니다. 약관 별표에서 옮긴 질병코드 원장은 암, 뇌혈관, 심장 칸의 지급 판정에 쓰입니다. 통합치료비 시뮬레이터와 같은 금액표가 제안서의 치료비 금액이 되고, 수술비 종 정리는 주요수술 카드의 다섯 줄이 됩니다. 같은 이름 특약 정리는 설계서 담보명으로 특약을 찾는 데, 전수 감사와 자동 점검은 제안서 점검과 인쇄 검증으로 이어졌습니다. 현장에서 매일 쓰이며 검증된 데이터가 정식 전산의 계산 기반이 되는 것이고, 약관이 바뀌면 한 번 고쳐 세 곳이 함께 바뀝니다.',
 'PART 4 · 스마트 제안서에 쓰이는 곳', '도구에서 다듬은 데이터 → 정식 전산 스마트 제안서의 계산 기반', '', '작업 규칙 문서(CLAUDE.md 「세 산출물은 함께 간다」 · 「어디를 고치나」) · proposal_smart/README.md · 2026.11.25 기준', 'PART 4', z=1.18)
 
+SKIP = False
 # ── 24. 맺음 ─────────────────────────────────────────────
 full('''<div class="sl" style="padding:0;background:#fff">
   <div style="position:absolute;inset:0;background:radial-gradient(50%% 60%% at 50%% 0%%,rgba(200,16,46,.07),transparent 70%%)"></div>
