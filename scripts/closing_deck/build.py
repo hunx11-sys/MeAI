@@ -308,20 +308,42 @@ def ex(codes, k): return ' · '.join('%s %s' % (c, e(CN.get(c, ''))) for c in co
 E1 = ex(['I21', 'I63', 'I61', 'I48'], K1); E2 = ex(['I10', 'I70', 'I83', 'S06'], K2)
 tiers = lambda T: ' · '.join(('1억' if t == 10000 else '%s천만' % (t // 1000)) for t in T)
 row = lambda lab, a, b: '<tr><td style="font-weight:700;width:180px;white-space:nowrap">%s</td><td>%s</td><td>%s</td></tr>' % (lab, a, b)
-cmp_rows = ''.join('<tr><td style="font-weight:700">%s</td><td style="font-weight:700;color:#C8102E">%s</td><td style="font-weight:700;color:#6D5BD6">%s</td></tr>' % x for x in CMP)
-slide('''<div class="row" style="gap:16px;align-items:stretch">
-<div class="card" style="flex:1;border-top:5px solid #C8102E;padding:14px 22px"><div style="font-size:24px;font-weight:700">특정순환계질환 통합치료비</div></div>
-<div style="display:grid;place-items:center;font-size:30px;font-weight:700;color:#8B95A1">≠</div>
-<div class="card" style="flex:1;border-top:5px solid #6D5BD6;padding:14px 22px"><div style="font-size:24px;font-weight:700">특정순환계질환<span style="color:#6D5BD6;background:#EFEDFB;border-radius:6px;padding:0 4px">(주요손상및질환)</span> 통합치료비</div></div></div>
-<table style="margin-top:10px;font-size:15px;line-height:1.45;table-layout:fixed"><tr><th style="width:200px"></th><th style="color:#C8102E">특정순환계질환 통합치료비</th><th style="color:#6D5BD6">(주요손상및질환) 통합치료비</th></tr>
-%s%s%s<tr><td colspan="3" style="background:#F9FAFB;font-size:14px;color:#4E5968;font-weight:600;padding:9px 16px">지급 금액 · 가입금액 2천만원 기준(약관 지급금액표)</td></tr>%s</table>
-<div class="card" style="margin-top:12px;padding:12px 20px;display:flex;gap:14px;align-items:center"><span class="tag" style="flex:none">사례</span>
-<div style="font-size:16px;line-height:1.55">「고혈압인데 특정순환계질환 통합치료비 나오죠?」 → <b class="em">안 나옴</b>(고혈압 I10 은 주요손상및질환 쪽) · 「뇌경색인데 주요손상및질환 쪽은요?」 → <b class="em">안 나옴</b>(뇌경색 I63 은 앞 특약 쪽) · 이름 앞부분이 같아 <b>같은 특약의 다른 형</b>으로 오안내 위험</div></div>''' % (
-    row('보장 질병', '질병코드 <b>%d개</b> · %s 등' % (len(K1), E1), '질병코드 <b>%d개</b> · %s 등' % (len(K2), E2)),
-    row('겹치는 질병', '<b class="em">%d개</b> — 보장 질병이 완전히 다름' % OVL, '<b class="em">%d개</b>' % OVL),
-    row('가입금액', tiers(T1) + ' (%d단계)' % len(T1), tiers(T2) + ' (%d단계)' % len(T2)), cmp_rows),
+RC, PC = '#C8102E', '#6D5BD6'
+def cells(K, col, per):
+    return '<div style="display:grid;grid-template-columns:repeat(%d,1fr);gap:4px">%s</div>' % (per, ''.join(
+        '<div style="height:26px;border-radius:6px;background:%s;color:#fff;font-size:11px;font-weight:600;display:grid;place-items:center;letter-spacing:-.02em">%s</div>' % (col, c) for c in K))
+def steps(T, col):
+    return ''.join('<div style="flex:1;padding:8px 0;border-radius:8px;background:%s;color:#fff;text-align:center;font-size:15px;font-weight:700">%s</div>' % (col, '1억' if t == 10000 else '%s천만' % (t // 1000)) for t in T)
+def panel(nm, K, E, T, col, bg, per):
+    return ('<div class="card" style="flex:1;padding:18px 20px;background:%s;border-color:transparent">'
+            '<div style="font-size:22px;font-weight:700;color:%s">%s</div>'
+            '<div style="margin-top:10px;font-size:15px;color:#4E5968">보장 질병코드 <b style="font-size:22px;color:%s">%d</b>개</div><div style="margin-top:8px">%s</div>'
+            '<div style="margin-top:8px;font-size:13px;color:#4E5968;line-height:1.45">%s 등</div>'
+            '<div style="margin-top:12px;font-size:15px;color:#4E5968">가입금액 <b style="color:%s">%d단계</b></div><div style="display:flex;gap:5px;margin-top:6px">%s</div></div>'
+            % (bg, col, nm, col, len(K), cells(K, col, per), E, col, len(T), steps(T, col)))
+MX = 1000
+BF = [('혈전용해치료', amt('CV', 'thromb'), amt('MS', 'thromb'), None), ('수술', amt('CV', 'surg'), amt('MS', 'surg', 5), '1~5종 10~700만'),
+      ('중환자실치료', amt('CV', 'icu'), amt('MS', 'icu'), None), ('부분체외순환', amt('CV', 'ecmo'), amt('MS', 'ecmo'), None)]
+def bar(v, col, side, lab):
+    if v is None:
+        return '<div style="flex:1;display:flex;justify-content:%s;align-items:center"><span style="font-size:15px;font-weight:700;color:#B0B8C1">없음</span></div>' % ('flex-end' if side == 'L' else 'flex-start')
+    w = v / MX * 100
+    t = '<span style="font-size:15px;font-weight:700;color:%s;white-space:nowrap">%s</span>' % (col, lab or '%s만' % format(v, ','))
+    b = '<i style="display:block;height:22px;width:%.1f%%;background:%s;border-radius:%s"></i>' % (w, col, '6px 0 0 6px' if side == 'L' else '0 6px 6px 0')
+    return '<div style="flex:1;display:flex;justify-content:%s;align-items:center;gap:8px">%s</div>' % ('flex-end' if side == 'L' else 'flex-start', t + b if side == 'L' else b + t)
+bf = ''.join('<div style="display:flex;align-items:center;margin:7px 0">%s<div style="width:120px;text-align:center;font-size:15px;font-weight:700">%s</div>%s</div>' % (bar(a, RC, 'L', None), n, bar(b, PC, 'R', l)) for n, a, b, l in BF)
+slide('''<div class="row" style="gap:0;align-items:stretch">
+%s
+<div style="width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><div style="width:88px;height:88px;border-radius:50%%;background:#191F28;color:#fff;display:grid;place-items:center;text-align:center;line-height:1.15"><div><div style="font-size:12px">겹치는 질병</div><div style="font-size:30px;font-weight:800">%d</div></div></div><div style="font-size:26px;font-weight:700;color:#8B95A1">≠</div></div>
+%s</div>
+<div class="row" style="gap:18px;margin-top:14px;align-items:stretch">
+<div class="card w" style="flex:1.35;padding:14px 22px"><div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700"><span style="color:%s">◀ 특정순환계질환</span><span style="color:#4E5968">지급 금액 · 가입금액 2천만원(약관 지급금액표)</span><span style="color:%s">주요손상및질환 ▶</span></div>%s</div>
+<div class="card" style="flex:.65;padding:16px 20px;display:flex;flex-direction:column;justify-content:center"><span class="tag" style="align-self:flex-start">사례</span>
+<div style="margin-top:8px;font-size:15px;line-height:1.6">「고혈압(I10)인데 특정순환계질환 통합치료비 나오죠?」 → <b class="em">안 나옴</b><br>「뇌경색(I63)인데 주요손상및질환 쪽은요?」 → <b class="em">안 나옴</b><br>이름 앞부분이 같아 <b>같은 특약의 다른 형</b>으로 오안내 위험</div></div></div>''' % (
+    panel('특정순환계질환 통합치료비', K1, E1, T1, RC, '#FDECEE', 13), OVL,
+    panel('특정순환계질환<span style="background:#fff;border-radius:6px;padding:0 4px">(주요손상및질환)</span> 통합치료비', K2, E2, T2, PC, '#EFEDFB', 10), RC, PC, bf),
 '네 번째 사례는 이름이 거의 같은데 전혀 다른 특약입니다. 특정순환계질환 통합치료비와 특정순환계질환 주요손상및질환 통합치료비는 이름 앞부분이 같지만, 보장하는 질병코드가 %d개와 %d개로 겹치는 것이 %d개, 완전히 다릅니다. 앞의 특약은 급성 심근경색, 뇌경색, 뇌내출혈, 심방세동 같은 뇌 심장 질환을, 뒤의 특약은 고혈압, 죽상경화증, 하지 정맥류, 두개내손상 같은 질환을 보장합니다. 지급 구조도 다릅니다. 가입금액 2천만원 기준으로 앞의 특약은 혈전용해치료 400만원이 있고 수술은 종 구분 없이 400만원이지만, 뒤의 특약은 혈전용해치료가 없고 수술은 1종부터 5종까지 10만원에서 700만원으로 나뉩니다. 가입금액도 앞의 특약은 2천만원부터 1억원까지 다섯 단계, 뒤의 특약은 2천만원과 3천만원 두 단계입니다. 이름만 보고 같은 특약의 다른 형으로 안내하면 오안내가 됩니다.' % (len(K1), len(K2), OVL),
-'PART 2 · 사례 4 비슷한 이름', '이름은 거의 같은데 보장 질병 · 지급 구조 · 가입금액이 모두 다름', '', '보장 질병 : 약관 분류표(별표) → 특약검색기 데이터 그대로(추정 없음) · 질병명 : 공식 코드명 · 금액 · 가입금액 : 통합치료비 금액표(약관 지급금액표 · product_data.json)', 'PART 2', z=1.0)
+'PART 2 · 사례 4 비슷한 이름', '이름은 거의 같은데 보장 질병 · 지급 구조 · 가입금액이 모두 다름', '', '보장 질병 : 약관 분류표(별표) → 특약검색기 데이터 그대로(추정 없음) · 질병명 : 공식 코드명 · 금액 · 가입금액 : 통합치료비 금액표(약관 지급금액표 · product_data.json)', 'PART 2', z=1.1)
 
 # 사례 5 · 통합치료비 16종
 ITN = [n for n in PN if '통합치료비' in n]
