@@ -289,18 +289,39 @@ slide('''<div class="card w" style="text-align:center;padding:30px 20px"><div st
 '세 번째 사례는 배경지식입니다. 상세조회 6위였던 암 통합치료비Ⅱ 비급여 전액본인부담 포함 암중점치료기관 상급종합병원 포함이라는 이름 하나를 읽으려면 통합치료비, 비급여, 전액본인부담, 암중점치료기관, 상급종합병원 다섯 가지 용어를 알아야 합니다. 아래 설명은 영업지원도구 용어 사전에 넣어 둔 쉬운 설명을 그대로 옮긴 것입니다. 급여와 비급여의 차이, 어떤 병원이 암중점치료기관인지, 통합치료비가 진단비와 어떻게 다른지를 모르면 이 특약을 설명할 수 없습니다. 그래서 도구에서는 용어에 밑줄을 긋고 누르면 쉬운 설명이 뜨게 했습니다.',
 'PART 2 · 사례 3 배경지식', '이름 하나에 용어 5개 · 비급여 · 전액본인부담 · 암중점치료기관', '', GL + ' · 특약 이름 : 특약검색기 데이터 · 상세조회 순위 : 사용 통계', 'PART 2', z=1.3)
 
-# 사례 4 · 비슷한 이름, 다른 범위
-BR = [('뇌출혈진단비', '#C8102E'), ('뇌졸중진단비', '#6D5BD6'), ('뇌혈관질환진단비', '#2563C9')]
-ICD = ['I%d' % k for k in range(60, 70)]
-hd = ''.join('<th style="text-align:center;padding:10px 4px;font-size:15px">%s<div style="font-weight:400;font-size:12px;color:#6B7684;line-height:1.3;margin-top:4px">%s</div></th>' % (c, e(CN.get(c, ''))) for c in ICD)
-rw = ''.join('<tr><td style="font-weight:700;white-space:nowrap;color:%s;font-size:18px">%s<div style="font-size:13px;color:#6B7684;font-weight:400">%d개 코드</div></td>%s</tr>' % (
-    col, n, len(rider(n)['k']), ''.join('<td style="text-align:center;padding:8px 4px"><span style="display:inline-block;width:38px;height:38px;border-radius:10px;background:%s"></span></td>' % (col if c in rider(n)['k'] else '#F2F4F6') for c in ICD)) for n, col in BR)
-slide('''<table style="table-layout:fixed"><tr><th style="width:190px">특약</th>%s</tr>%s</table>
-<div class="row" style="margin-top:18px;gap:18px"><div class="card w" style="flex:1.3;display:flex;gap:16px;align-items:center"><span class="tag" style="flex:none">사례</span><div style="font-size:18px;line-height:1.55">「뇌경색(I63)인데 뇌출혈진단비 나오죠?」 → <b class="em">안 나옴</b> · 뇌졸중진단비 · 뇌혈관질환진단비에서 나옴 · 이름이 비슷해 「뇌 쪽은 다 된다」 오안내 위험</div></div>
-<div class="card" style="flex:.7;text-align:center"><div class="num" style="font-size:44px">%d<small>개</small></div><div class="lab" style="font-size:15px;margin-top:4px">「뇌혈관질환수술비」 한 이름의 변형(갱신형 · 25%%체증형 · 감액기간미적용 등)</div></div></div>''' % (
-    hd, rw, sum(1 for n in PN if re.sub(r'^갱신형\s*|\s*\((감액기간미적용|25%체증형)\)', '', n).replace(' ', '') == '뇌혈관질환수술비')),
-'네 번째 사례는 이름은 비슷한데 범위가 다른 특약입니다. 뇌출혈진단비, 뇌졸중진단비, 뇌혈관질환진단비는 이름이 비슷하지만 약관 분류표의 질병코드 범위가 다릅니다. 표에서 색칠된 칸이 보장 코드입니다. 뇌경색 I63 은 뇌출혈진단비에서는 나오지 않고, 뇌졸중진단비와 뇌혈관질환진단비에서 나옵니다. 이름만 보고 뇌 쪽은 다 된다고 안내하면 오안내가 됩니다. 같은 뇌혈관질환수술비 한 이름에도 갱신형, 체증형, 감액기간 미적용 같은 변형이 여럿입니다.',
-'PART 2 · 사례 4 비슷한 이름', '뇌출혈 · 뇌졸중 · 뇌혈관 — 이름은 비슷, 보장 코드는 다름', '', '보장 코드 : 약관 분류표(별표) → 특약검색기 데이터 그대로(추정 없음) · 질병명 : 공식 코드명 · 변형 수 : 특약 이름 전수 집계', 'PART 2', z=1.12)
+# 사례 4 · 비슷한 이름, 다른 특약(특정순환계질환 통합치료비 vs 주요손상및질환)
+PD = json.load(open(os.path.join(ROOT, 'proposal_smart', 'product_data.json'), encoding='utf-8'))
+N1, N2 = '특정순환계질환 통합치료비', '특정순환계질환(주요손상및질환) 통합치료비'
+K1, K2 = rider(N1)['k'], rider(N2)['k']
+OVL = len(set(K1) & set(K2))
+T1 = next(x for x in PD['RIDERS'] if x['nm'] == N1)['tiers']; T2 = next(x for x in PD['RIDERS'] if x['nm'] == N2)['tiers']
+def amt(ty, key, j=None, tier='2000'):
+    for i, it in enumerate(PD['IT'][ty]):
+        if it['k'] == key and it.get('j') == j: return PD['AMT'][ty][tier][i]
+    return None
+def won(v): return '없음' if v is None else ('%s만원' % format(v, ','))
+CMP = [('혈전용해치료', won(amt('CV', 'thromb')), won(amt('MS', 'thromb'))),
+       ('수술', '%s(종 구분 없이 한 금액)' % won(amt('CV', 'surg')), ' · '.join('%d종 %s' % (j, won(amt('MS', 'surg', j))) for j in range(1, 6))),
+       ('종합병원 중환자실치료', won(amt('CV', 'icu')), won(amt('MS', 'icu'))),
+       ('부분체외순환치료(급여)', won(amt('CV', 'ecmo')), won(amt('MS', 'ecmo')))]
+def ex(codes, k): return ' · '.join('%s %s' % (c, e(CN.get(c, ''))) for c in codes if c in k)
+E1 = ex(['I21', 'I63', 'I61', 'I48'], K1); E2 = ex(['I10', 'I70', 'I83', 'S06'], K2)
+tiers = lambda T: ' · '.join(('1억' if t == 10000 else '%s천만' % (t // 1000)) for t in T)
+row = lambda lab, a, b: '<tr><td style="font-weight:700;width:180px;white-space:nowrap">%s</td><td>%s</td><td>%s</td></tr>' % (lab, a, b)
+cmp_rows = ''.join('<tr><td style="font-weight:700">%s</td><td style="font-weight:700;color:#C8102E">%s</td><td style="font-weight:700;color:#6D5BD6">%s</td></tr>' % x for x in CMP)
+slide('''<div class="row" style="gap:16px;align-items:stretch">
+<div class="card" style="flex:1;border-top:5px solid #C8102E;padding:14px 22px"><div style="font-size:24px;font-weight:700">특정순환계질환 통합치료비</div></div>
+<div style="display:grid;place-items:center;font-size:30px;font-weight:700;color:#8B95A1">≠</div>
+<div class="card" style="flex:1;border-top:5px solid #6D5BD6;padding:14px 22px"><div style="font-size:24px;font-weight:700">특정순환계질환<span style="color:#6D5BD6;background:#EFEDFB;border-radius:6px;padding:0 4px">(주요손상및질환)</span> 통합치료비</div></div></div>
+<table style="margin-top:10px;font-size:15px;line-height:1.45;table-layout:fixed"><tr><th style="width:200px"></th><th style="color:#C8102E">특정순환계질환 통합치료비</th><th style="color:#6D5BD6">(주요손상및질환) 통합치료비</th></tr>
+%s%s%s<tr><td colspan="3" style="background:#F9FAFB;font-size:14px;color:#4E5968;font-weight:600;padding:9px 16px">지급 금액 · 가입금액 2천만원 기준(약관 지급금액표)</td></tr>%s</table>
+<div class="card" style="margin-top:12px;padding:12px 20px;display:flex;gap:14px;align-items:center"><span class="tag" style="flex:none">사례</span>
+<div style="font-size:16px;line-height:1.55">「고혈압인데 특정순환계질환 통합치료비 나오죠?」 → <b class="em">안 나옴</b>(고혈압 I10 은 주요손상및질환 쪽) · 「뇌경색인데 주요손상및질환 쪽은요?」 → <b class="em">안 나옴</b>(뇌경색 I63 은 앞 특약 쪽) · 이름 앞부분이 같아 <b>같은 특약의 다른 형</b>으로 오안내 위험</div></div>''' % (
+    row('보장 질병', '질병코드 <b>%d개</b> · %s 등' % (len(K1), E1), '질병코드 <b>%d개</b> · %s 등' % (len(K2), E2)),
+    row('겹치는 질병', '<b class="em">%d개</b> — 보장 질병이 완전히 다름' % OVL, '<b class="em">%d개</b>' % OVL),
+    row('가입금액', tiers(T1) + ' (%d단계)' % len(T1), tiers(T2) + ' (%d단계)' % len(T2)), cmp_rows),
+'네 번째 사례는 이름이 거의 같은데 전혀 다른 특약입니다. 특정순환계질환 통합치료비와 특정순환계질환 주요손상및질환 통합치료비는 이름 앞부분이 같지만, 보장하는 질병코드가 %d개와 %d개로 겹치는 것이 %d개, 완전히 다릅니다. 앞의 특약은 급성 심근경색, 뇌경색, 뇌내출혈, 심방세동 같은 뇌 심장 질환을, 뒤의 특약은 고혈압, 죽상경화증, 하지 정맥류, 두개내손상 같은 질환을 보장합니다. 지급 구조도 다릅니다. 가입금액 2천만원 기준으로 앞의 특약은 혈전용해치료 400만원이 있고 수술은 종 구분 없이 400만원이지만, 뒤의 특약은 혈전용해치료가 없고 수술은 1종부터 5종까지 10만원에서 700만원으로 나뉩니다. 가입금액도 앞의 특약은 2천만원부터 1억원까지 다섯 단계, 뒤의 특약은 2천만원과 3천만원 두 단계입니다. 이름만 보고 같은 특약의 다른 형으로 안내하면 오안내가 됩니다.' % (len(K1), len(K2), OVL),
+'PART 2 · 사례 4 비슷한 이름', '이름은 거의 같은데 보장 질병 · 지급 구조 · 가입금액이 모두 다름', '', '보장 질병 : 약관 분류표(별표) → 특약검색기 데이터 그대로(추정 없음) · 질병명 : 공식 코드명 · 금액 · 가입금액 : 통합치료비 금액표(약관 지급금액표 · product_data.json)', 'PART 2', z=1.0)
 
 # 사례 5 · 통합치료비 16종
 ITN = [n for n in PN if '통합치료비' in n]
@@ -330,7 +351,7 @@ slide('''<div class="row" style="gap:22px;align-items:stretch">
 
 # 그래서 · 컨닝페이퍼
 PROB = [('약관 1,830쪽', '한 권이 2천 쪽에 가까움'), ('이름 평균 %.1f자' % AVG, '둘 중 하나는 20자 넘음'), ('용어 5개', '이름 하나 읽는 데'),
-        ('비슷한 이름', '보장 코드는 다름'), ('통합치료비 %d종' % len(ITN), '가장 헷갈리는 특약'), ('일상 병명', '공식 병명과 글자가 다름')]
+        ('비슷한 이름', '보장 질병 · 지급 구조가 다름'), ('통합치료비 %d종' % len(ITN), '가장 헷갈리는 특약'), ('일상 병명', '공식 병명과 글자가 다름')]
 pl = ''.join('<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #EEF0F2"><span class="dot" style="width:32px;height:32px;font-size:15px;border-radius:9px">%d</span><b style="font-size:18px;width:150px;flex:none">%s</b><span style="font-size:15px;color:#6B7684">%s</span></div>' % (i + 1, a, b) for i, (a, b) in enumerate(PROB))
 SOL = [('아무렇게나 쳐도 찾음', '병명 · 코드 · 초성 · 일상 병명'), ('한 화면에 근거까지', '약관 원문 · 별표 · 질병코드'), ('어려운 건 숫자로', '보상 10단계 · 통합치료비 1년 금액'), ('용어는 누르면 설명', '쉬운 설명 907개')]
 sl = ''.join('<div class="card" style="padding:16px 20px;margin-top:%dpx;background:#fff"><b style="font-size:19px">%s</b><div style="font-size:15px;color:#6B7684;margin-top:4px">%s</div></div>' % (0 if i == 0 else 12, a, b) for i, (a, b) in enumerate(SOL))
