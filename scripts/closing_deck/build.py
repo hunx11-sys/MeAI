@@ -313,7 +313,7 @@ def cells(K, col, per):
     return '<div style="display:grid;grid-template-columns:repeat(%d,1fr);gap:4px">%s</div>' % (per, ''.join(
         '<div style="height:26px;border-radius:6px;background:%s;color:#fff;font-size:11px;font-weight:600;display:grid;place-items:center;letter-spacing:-.02em">%s</div>' % (col, c) for c in K))
 def steps(T, col):
-    return ''.join('<div style="flex:1;padding:8px 0;border-radius:8px;background:%s;color:#fff;text-align:center;font-size:15px;font-weight:700">%s</div>' % (col, '1억' if t == 10000 else '%s천만' % (t // 1000)) for t in T)
+    return ''.join('<div style="flex:1;padding:8px 0;border-radius:8px;background:%s;color:#fff;text-align:center;font-size:15px;font-weight:700;opacity:%s">%s%s</div>' % (col, 1 if t == max(T) else .35, '1억' if t == 10000 else '%s천만' % (t // 1000), ' · 아래 비교' if t == max(T) else '') for t in T)
 def panel(nm, K, E, T, col, bg, per):
     return ('<div class="card" style="flex:1;padding:18px 20px;background:%s;border-color:transparent">'
             '<div style="font-size:22px;font-weight:700;color:%s">%s</div>'
@@ -321,9 +321,13 @@ def panel(nm, K, E, T, col, bg, per):
             '<div style="margin-top:8px;font-size:13px;color:#4E5968;line-height:1.45">%s 등</div>'
             '<div style="margin-top:12px;font-size:15px;color:#4E5968">가입금액 <b style="color:%s">%d단계</b></div><div style="display:flex;gap:5px;margin-top:6px">%s</div></div>'
             % (bg, col, nm, col, len(K), cells(K, col, per), E, col, len(T), steps(T, col)))
-MX = 1000
-BF = [('혈전용해치료', amt('CV', 'thromb'), amt('MS', 'thromb'), None), ('수술', amt('CV', 'surg'), amt('MS', 'surg', 5), '1~5종 10~700만'),
-      ('중환자실치료', amt('CV', 'icu'), amt('MS', 'icu'), None), ('부분체외순환', amt('CV', 'ecmo'), amt('MS', 'ecmo'), None)]
+TC, TM = str(max(T1)), str(max(T2))          # 특정순환계 = 1억 · 주요손상및질환 = 최대 가입금액(3천만)
+won2 = lambda t: '1억' if t == '10000' else '%s천만' % (int(t) // 1000)
+sm = [amt('MS', 'surg', j, TM) for j in range(1, 6)]
+BF = [('혈전용해치료', amt('CV', 'thromb', None, TC), amt('MS', 'thromb', None, TM), None),
+      ('수술', amt('CV', 'surg', None, TC), sm[-1], '1-5종 수술 %s~%s만' % (format(sm[0], ','), format(sm[-1], ','))),
+      ('중환자실치료', amt('CV', 'icu', None, TC), amt('MS', 'icu', None, TM), None), ('부분체외순환', amt('CV', 'ecmo', None, TC), amt('MS', 'ecmo', None, TM), None)]
+MX = max(max(a or 0, b or 0) for _, a, b, _ in BF)
 def bar(v, col, side, lab):
     if v is None:
         return '<div style="flex:1;display:flex;justify-content:%s;align-items:center"><span style="font-size:15px;font-weight:700;color:#B0B8C1">없음</span></div>' % ('flex-end' if side == 'L' else 'flex-start')
@@ -337,12 +341,12 @@ slide('''<div class="row" style="gap:0;align-items:stretch">
 <div style="width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><div style="width:88px;height:88px;border-radius:50%%;background:#191F28;color:#fff;display:grid;place-items:center;text-align:center;line-height:1.15"><div><div style="font-size:12px">겹치는 질병</div><div style="font-size:30px;font-weight:800">%d</div></div></div><div style="font-size:26px;font-weight:700;color:#8B95A1">≠</div></div>
 %s</div>
 <div class="row" style="gap:18px;margin-top:14px;align-items:stretch">
-<div class="card w" style="flex:1.35;padding:14px 22px"><div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700"><span style="color:%s">◀ 특정순환계질환</span><span style="color:#4E5968">지급 금액 · 가입금액 2천만원(약관 지급금액표)</span><span style="color:%s">주요손상및질환 ▶</span></div>%s</div>
+<div class="card w" style="flex:1.35;padding:14px 22px"><div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700"><span style="color:%s">◀ 특정순환계질환</span><span style="color:#4E5968;font-size:14px">지급 금액(약관 지급금액표) · 가입금액 <b style="color:#C8102E">%s</b> vs <b style="color:#6D5BD6">%s(최대)</b></span><span style="color:%s">주요손상및질환 ▶</span></div>%s<div style="font-size:13px;color:#6B7684;text-align:right;margin-top:2px">주요손상및질환의 수술 = 1-5종 수술 기준 · 1종 ~ 5종 금액이 따로</div></div>
 <div class="card" style="flex:.65;padding:16px 20px;display:flex;flex-direction:column;justify-content:center"><span class="tag" style="align-self:flex-start">사례</span>
 <div style="margin-top:8px;font-size:15px;line-height:1.6">「고혈압(I10)인데 특정순환계질환 통합치료비 나오죠?」 → <b class="em">안 나옴</b><br>「뇌경색(I63)인데 주요손상및질환 쪽은요?」 → <b class="em">안 나옴</b><br>이름 앞부분이 같아 <b>같은 특약의 다른 형</b>으로 오안내 위험</div></div></div>''' % (
     panel('특정순환계질환 통합치료비', K1, E1, T1, RC, '#FDECEE', 13), OVL,
-    panel('특정순환계질환<span style="background:#fff;border-radius:6px;padding:0 4px">(주요손상및질환)</span> 통합치료비', K2, E2, T2, PC, '#EFEDFB', 10), RC, PC, bf),
-'네 번째 사례는 이름이 거의 같은데 전혀 다른 특약입니다. 특정순환계질환 통합치료비와 특정순환계질환 주요손상및질환 통합치료비는 이름 앞부분이 같지만, 보장하는 질병코드가 %d개와 %d개로 겹치는 것이 %d개, 완전히 다릅니다. 앞의 특약은 급성 심근경색, 뇌경색, 뇌내출혈, 심방세동 같은 뇌 심장 질환을, 뒤의 특약은 고혈압, 죽상경화증, 하지 정맥류, 두개내손상 같은 질환을 보장합니다. 지급 구조도 다릅니다. 가입금액 2천만원 기준으로 앞의 특약은 혈전용해치료 400만원이 있고 수술은 종 구분 없이 400만원이지만, 뒤의 특약은 혈전용해치료가 없고 수술은 1종부터 5종까지 10만원에서 700만원으로 나뉩니다. 가입금액도 앞의 특약은 2천만원부터 1억원까지 다섯 단계, 뒤의 특약은 2천만원과 3천만원 두 단계입니다. 이름만 보고 같은 특약의 다른 형으로 안내하면 오안내가 됩니다.' % (len(K1), len(K2), OVL),
+    panel('특정순환계질환<span style="background:#fff;border-radius:6px;padding:0 4px">(주요손상및질환)</span> 통합치료비', K2, E2, T2, PC, '#EFEDFB', 10), RC, won2(TC), won2(TM), PC, bf),
+'네 번째 사례는 이름이 거의 같은데 전혀 다른 특약입니다. 특정순환계질환 통합치료비와 특정순환계질환 주요손상및질환 통합치료비는 이름 앞부분이 같지만, 보장하는 질병코드가 %d개와 %d개로 겹치는 것이 %d개, 완전히 다릅니다. 앞의 특약은 급성 심근경색, 뇌경색, 뇌내출혈, 심방세동 같은 뇌 심장 질환을, 뒤의 특약은 고혈압, 죽상경화증, 하지 정맥류, 두개내손상 같은 질환을 보장합니다. 지급 구조도 다릅니다. 앞의 특약은 가입금액 1억원, 뒤의 특약은 최대 가입금액 3천만원으로 비교하면, 앞의 특약은 혈전용해치료 2,500만원이 있고 수술은 종 구분 없이 2,000만원이지만, 뒤의 특약은 혈전용해치료가 없고 수술은 1-5종 수술 기준이라 1종 20만원부터 5종 1,000만원까지 종마다 금액이 따로 정해져 있습니다. 중환자실치료는 2,000만원과 300만원, 부분체외순환치료는 둘 다 2,000만원입니다. 가입금액도 앞의 특약은 2천만원부터 1억원까지 다섯 단계, 뒤의 특약은 2천만원과 3천만원 두 단계입니다. 이름만 보고 같은 특약의 다른 형으로 안내하면 오안내가 됩니다.' % (len(K1), len(K2), OVL),
 'PART 2 · 사례 4 비슷한 이름', '이름은 거의 같은데 보장 질병 · 지급 구조 · 가입금액이 모두 다름', '', '보장 질병 : 약관 분류표(별표) → 특약검색기 데이터 그대로(추정 없음) · 질병명 : 공식 코드명 · 금액 · 가입금액 : 통합치료비 금액표(약관 지급금액표 · product_data.json)', 'PART 2', z=1.1)
 
 # 사례 5 · 통합치료비 16종
