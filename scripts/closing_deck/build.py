@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""영업지원도구 인터넷판 운영 결산 PPT — 성과 · 애용 이유 · 사내망 이관(IT) 참고
+"""영업지원도구 인터넷판 운영 결산 PPT — 성과 · 컨닝페이퍼가 필요했던 이유 · 애용 이유 · MeAI · 스마트 제안서로 이어짐
 
   python3 scripts/closing_deck/build.py <캡처 폴더> <PretendardVariable.woff2> [출력 폴더=dist]
     → dist/meai_tools_web_closing_2611.pptx · .pdf  (장마다 통이미지 + 발표자 메모 · 1600x900 화면을 2배로 찍음)
@@ -102,13 +102,13 @@ full('''<div class="sl" style="padding:0;background:#fff">
   <div style="position:absolute;left:100px;top:150px;width:820px">
     <span class="tag">2026.6.22 ~ 2026.11.25 · 157일</span>
     <div style="margin-top:28px;font-size:68px;font-weight:700;letter-spacing:-.035em;line-height:1.2">MeAI 영업지원도구<br><span class="em">인터넷판 운영 결산</span></div>
-    <div style="margin-top:26px;font-size:25px;color:#4E5968;line-height:1.5">성과 · 영업 컨닝페이퍼가 필요했던 이유<br>MeAI · 스마트 제안서로 이어진 자산 · 사내망 이관 참고</div>
+    <div style="margin-top:26px;font-size:25px;color:#4E5968;line-height:1.5">성과 · 영업 컨닝페이퍼가 필요했던 이유<br>MeAI · 스마트 제안서로 이어진 자산</div>
     <div style="margin-top:34px;width:560px">%s<div style="display:flex;justify-content:space-between;font-size:14px;color:#8B95A1;margin-top:6px"><span>6.22 하루 204건</span><span>11.20 하루 9,362건</span></div></div>
     <div style="margin-top:30px;font-size:19px;color:#6B7684">2026. 11　세일즈혁신TF</div>
   </div>
   <img src="%s" style="position:absolute;right:56px;bottom:0;width:640px;height:auto">
 </div>''' % (C.spark(DAYS, 560, 90), doll('group_hello.webp')),
-'MeAI 영업지원도구 인터넷판 운영 결산 보고를 시작하겠습니다. 6월 22일부터 11월 25일까지 157일 동안 운영한 영업지원도구의 성과와, 현장에 왜 이런 컨닝페이퍼가 필요했는지, 그리고 이 도구에서 만든 자산이 MeAI 와 회사 정식 전산용 스마트 제안서로 어떻게 이어지고 있는지, 마지막으로 사내망으로 옮길 때 IT에 전달할 내용을 정리했습니다. 표지의 작은 그래프는 하루 사용 건수의 흐름입니다.')
+'MeAI 영업지원도구 인터넷판 운영 결산 보고를 시작하겠습니다. 6월 22일부터 11월 25일까지 157일 동안 운영한 영업지원도구의 성과와, 현장에 왜 이런 컨닝페이퍼가 필요했는지, 그리고 이 도구에서 만든 자산이 MeAI 와 회사 정식 전산용 스마트 제안서로 어떻게 이어지고 있는지 정리했습니다. 표지의 작은 그래프는 하루 사용 건수의 흐름입니다.')
 
 # ── 2. 이 자료는 ───────────────────────────────────────────
 slide('''<div class="row" style="gap:20px">
@@ -116,16 +116,14 @@ slide('''<div class="row" style="gap:20px">
     <div class="p">157일 사용 성과(그래프)<br>컨닝페이퍼가 필요했던 현장 문제 6가지<br>현장이 애용한 이유 · 기대효과(가정값)</div></div>
   <div class="card" style="flex:1"><span class="tag">용도 2</span><div class="h3" style="margin-top:16px">이어지는 자산</div>
     <div class="p">MeAI 에 반영 · 정교화한 구성 요소<br>정식 전산용 스마트 제안서와 같은 원천<br>(특약 마스터 · 질병코드 · 계산 규칙)</div></div>
-  <div class="card" style="flex:1"><span class="tag">용도 3</span><div class="h3" style="margin-top:16px">사내망 이관 IT 참고</div>
-    <div class="p">지금 구조 · 파일 목록<br>데이터 갱신 흐름 · 점검 도구<br>바꿀 바깥 연결 · 사용 기록 이어받기</div></div>
 </div>
 <div class="card w" style="margin-top:22px;display:flex;gap:20px;align-items:center">
   <span class="dot">!</span>
   <div><div class="h3" style="font-size:21px">2026.11.25 인터넷 링크 폐쇄</div>
   <div class="p" style="margin-top:6px">개발은 계속하며 MeAI 홈에 이식해 사내 정식 서비스로 전환 예정</div></div>
 </div>''',
-'이 자료는 세 가지 용도로 만들었습니다. 첫째는 내부 성과 보고입니다. 157일 동안의 사용 성과와, 왜 현장에 영업용 컨닝페이퍼가 필요했는지, 현장이 왜 이 도구를 애용했는지를 담았습니다. 둘째는 이 도구에서 만든 자산이 MeAI 와 회사 정식 전산용 스마트 제안서로 이어지고 있다는 점입니다. 셋째는 사내망 이관 때 IT에 전달할 참고자료입니다. 인터넷 링크는 11월 25일 폐쇄했고, 개발은 계속해서 MeAI 홈에 이식할 예정입니다.',
-'00 · 이 자료는', '성과 보고 · 이어지는 자산 · IT 이관 참고를 한 권으로', '', '', '', z=1.22)
+'이 자료는 두 가지 용도로 만들었습니다. 첫째는 내부 성과 보고입니다. 157일 동안의 사용 성과와, 왜 현장에 영업용 컨닝페이퍼가 필요했는지, 현장이 왜 이 도구를 애용했는지를 담았습니다. 둘째는 이 도구에서 만든 자산이 MeAI 와 회사 정식 전산용 스마트 제안서로 이어지고 있다는 점입니다. 인터넷 링크는 11월 25일 폐쇄했고, 개발은 계속해서 MeAI 홈에 이식할 예정입니다.',
+'00 · 이 자료는', '성과 보고와 이어지는 자산을 한 권으로', '', '', '', z=1.45)
 
 # ── 3. 한 장 요약 ─────────────────────────────────────────
 def tile(n, u, lab, red=False, w='1'):
@@ -453,90 +451,15 @@ slide('<table><tr><th style="width:30%%">영업지원도구에서 만들고 다�
 '영업지원도구에서 만들고 다듬은 것이 스마트 제안서에서 어디에 쓰이는지 하나씩 보겠습니다. 특약 1,149종의 마스터는 특약검색기 데이터를 감수한 것으로, 제안서 모든 칸 계산의 원천입니다. 약관 별표에서 옮긴 질병코드 원장은 암, 뇌혈관, 심장 칸의 지급 판정에 쓰입니다. 통합치료비 시뮬레이터와 같은 금액표가 제안서의 치료비 금액이 되고, 수술비 종 정리는 주요수술 카드의 다섯 줄이 됩니다. 같은 이름 특약 정리는 설계서 담보명으로 특약을 찾는 데, 전수 감사와 자동 점검은 제안서 점검과 인쇄 검증으로 이어졌습니다. 현장에서 매일 쓰이며 검증된 데이터가 정식 전산의 계산 기반이 되는 것이고, 약관이 바뀌면 한 번 고쳐 세 곳이 함께 바뀝니다.',
 'PART 4 · 스마트 제안서에 쓰이는 곳', '도구에서 다듬은 데이터 → 정식 전산 스마트 제안서의 계산 기반', '', '작업 규칙 문서(CLAUDE.md 「세 산출물은 함께 간다」 · 「어디를 고치나」) · proposal_smart/README.md · 2026.11.25 기준', 'PART 4', z=1.18)
 
-# ══ PART 5 · 사내망 이관 참고 ═════════════════════════════
-section('5', '사내망 이관 참고', 'IT 에 전달할 구조 · 갱신 · 바꿀 곳', 'tata_board.webp', '다섯 번째는 사내망으로 옮길 때 IT에 전달할 내용입니다. 지금 구조와 데이터 갱신 흐름, 사내망에서 바꿔야 할 곳을 정리했습니다.')
-
-# ── 18. 지금 구조 ─────────────────────────────────────────
-FILES = [('index.html', '대문(도구 7개 입구)', '0.4MB'), ('tool.html', '특약검색기 + 보상시뮬레이터(안에 내장) · 특약 목록 · 분류표', '7.9MB'),
-         ('tool_body.js', '약관 본문(특약 하나가 한 줄 · 화면을 띄운 뒤 불러옴)', '17MB'), ('통합치료비.html', '통합치료비 시뮬레이터 · 금액표 내장', '0.3MB'),
-         ('products.html · prompts.html', '상품 라인업 · 프롬프트 라이브러리', '0.3MB씩'), ('명패생성기.html', '명패 제작기(엑셀 읽기 내장)', '1.0MB'),
-         ('stats.html', '사용 통계 대시보드', '0.3MB'), ('gloss.js · ui/ · assets/', '용어 907개 · 공통 디자인 · 질병 사전 · 글꼴', '0.6MB')]
-tr = ''.join('<tr><td style="font-weight:600;white-space:nowrap">%s</td><td>%s</td><td class="n">%s</td></tr>' % f for f in FILES)
-slide('''<div class="row" style="gap:28px;align-items:flex-start">
-<div style="flex:1.45"><table><tr><th>파일</th><th>역할</th><th style="text-align:right">크기</th></tr>%s</table></div>
-<div style="flex:1"><div class="card"><div class="h3" style="font-size:21px">서버 없는 정적 파일</div>
-<div class="p" style="font-size:16px">· 웹서버에 파일만 올리면 동작(데이터베이스 · 프로그램 설치 없음)<br>· 데이터는 HTML 안 JSON + 옆 파일 1개<br>· 화면끼리는 보통 링크(&lt;a href&gt;)로 이동<br>· 바깥 라이브러리 없이 직접 작성(글꼴도 동봉)</div></div>
-<div class="card" style="margin-top:16px"><div class="h3" style="font-size:21px">배포판 2종(이미 있음)</div>
-<div class="p" style="font-size:16px">· 낱개 6개 : dist/single/ (영문 파일명 · 본문 압축 내장)<br>· 올인원 1개 : 17.8MB 한 파일 · 인터넷 없이 동작</div></div></div></div>''' % tr,
-'지금 구조입니다. 서버나 데이터베이스 없이 정적 파일만으로 돌아갑니다. 웹서버에 파일을 올리기만 하면 됩니다. 가장 큰 파일은 특약검색기 tool.html과 약관 본문 tool_body.js이고, 본문은 화면을 먼저 띄운 뒤 불러와 첫 화면이 빠릅니다. 사내망용으로는 영문 파일명의 낱개 배포판 6개와 파일 하나짜리 올인원이 이미 있어, 그대로 시험 탑재할 수 있습니다.',
-'PART 5 · 지금 구조', '웹서버에 올리기만 하면 되는 정적 파일 묶음', '', '파일 크기 : 저장소(2026.11.25) · 배포판은 scripts/build_package.py · build_allinone.py 로 만듦', 'PART 5', z=1.12)
-
-# ── 19. 데이터 갱신 흐름 ──────────────────────────────────
-STEP = [('약관 PDF', '판매 약관 새 판 · 신상품'), ('추출 · 감수', '특약 본문 · 별표 · 질병코드 · 금액표'), ('데이터 반영', 'tool.html 데이터 · tool_body.js'),
-        ('자동 점검', '표 · 금액 · 같은 이름 특약 · 사전 · 하네스'), ('배포판 조립', '낱개 6개 · 올인원 · 버전 표기')]
-flow = ''.join('<div style="flex:1;text-align:center"><div class="card" style="padding:24px 16px;min-height:150px"><div style="font-size:15px;font-weight:700;color:#C8102E">%d단계</div><div class="h3" style="margin-top:8px;font-size:21px">%s</div><div class="p" style="font-size:15px">%s</div></div></div>%s'
-               % (i + 1, t, d, '<div style="align-self:center;font-size:28px;color:#B0B8C1">→</div>' if i < 4 else '') for i, (t, d) in enumerate(STEP))
-slide('''<div class="row" style="gap:12px;align-items:stretch">%s</div>
-<div class="card w" style="margin-top:26px"><div class="h3" style="font-size:20px">한 번에 맞추는 명령(저장소 루트)</div>
-<div style="margin-top:12px;font-family:Consolas,monospace;font-size:17px;background:#F2F4F6;border-radius:10px;padding:14px 18px">python3 scripts/sync_all.py　　# 약관 → 데이터 · 점검 · 세일즈북 · 배포판 5종을 한 번에</div>
-<div class="p" style="font-size:16px">세 산출물(영업지원도구 · 스마트 제안서 · 세일즈북)이 같은 특약 마스터를 씀 · 이관 뒤에도 갱신은 이 흐름을 그대로 쓰는 것을 권장</div></div>''' % flow,
-'데이터 갱신 흐름입니다. 약관 PDF가 나오면 특약 본문과 별표, 질병코드, 금액표를 뽑아 감수하고, 데이터 파일에 반영한 뒤 자동 점검을 거쳐 배포판을 조립합니다. 이 전 과정이 명령 하나로 돌아갑니다. 영업지원도구와 스마트 제안서, 세일즈북이 같은 특약 마스터를 쓰기 때문에, 사내망으로 옮긴 뒤에도 갱신은 이 흐름을 그대로 쓰고 결과 파일만 올리는 방식을 권장합니다.',
-'PART 5 · 데이터 갱신', '약관이 바뀌면 같은 흐름으로 다시 만듦', '', '절차 : 작업 규칙 문서(CLAUDE.md) · scripts/sync_all.py · scripts/update_terms_2610.py', 'PART 5', z=1.36)
-
-# ── 20. 바깥 연결 ────────────────────────────────────────
-EXT = [('사용 기록 전송', '모든 화면', '외부 Supabase 저장소(usage_logs)에 익명 사용 기록 전송', '사내 수집 주소로 바꾸거나 끔', True),
-       ('사용 통계 그래프', 'stats.html', 'Chart.js 를 바깥 주소(CDN)에서 불러옴', '파일을 같이 올림'),
-       ('이모지 글꼴', '통합치료비', '토스페이스 글꼴을 바깥 주소(CDN)에서 불러옴', '없으면 기기 이모지로 보임(동작 영향 없음)'),
-       ('공공 사이트 링크', '특약검색기', '식약처 의약품안전나라 · 심평원 바로가기 링크', '사내망에서 막히면 안내 문구'),
-       ('카카오톡 바깥 브라우저', '모든 화면', '카톡 안에서 열면 휴대폰 기본 브라우저로 다시 엶', '사내 앱이면 무관'),
-       ('인터넷판 종료 규칙', '모든 화면', 'github.io 주소일 때만 종료 인사 화면으로 넘김', '사내 주소에선 동작 안 함 · 그대로 둬도 됨')]
-tr = ''.join('<tr><td style="font-weight:600;%s">%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % ('color:#C8102E' if len(x) > 4 else '', x[0], x[1], x[2], x[3]) for x in EXT)
-slide('<table><tr><th style="width:17%%">항목</th><th style="width:13%%">화면</th><th>지금 하는 일</th><th style="width:28%%">사내망에서</th></tr>%s</table>' % tr,
-'사내망에 올릴 때 확인할 바깥 연결입니다. 가장 중요한 것은 첫 줄입니다. 모든 화면이 익명 사용 기록을 외부 Supabase 저장소로 보내고 있어, 사내 수집 주소로 바꾸거나 꺼야 합니다. 사용 통계 그래프 라이브러리는 파일로 같이 올리면 되고, 통합치료비의 이모지 글꼴은 없어도 기기 이모지로 보여 동작에 영향이 없습니다. 인터넷판 종료 규칙은 github.io 주소에서만 동작하므로 사내 주소에서는 그대로 두어도 됩니다.',
-'PART 5 · 바꿀 곳', '사내망에서 확인할 바깥 연결 6가지', '', '저장소 화면 파일 검사(2026.11.25) · 그 밖의 바깥 주소 호출 없음', 'PART 5', z=1.2)
-
-# ── 21. 사용 기록 이어받기 ────────────────────────────────
-EV = [('특약검색기', 'open · tab · search · rider · disease · history · prompt_copy'), ('통합치료비', 'open · disease · path · combo · matrix'),
-      ('상품 라인업', 'open · view · search · filter'), ('프롬프트', 'open · search · copy'), ('대문 · 명패', 'open · click')]
-tr = ''.join('<tr><td style="font-weight:600;width:24%%">%s</td><td style="font-family:Consolas,monospace;font-size:16px">%s</td></tr>' % x for x in EV)
-slide('''<div class="row" style="gap:28px;align-items:flex-start"><div style="flex:1.3"><table><tr><th>화면</th><th>남기는 동작(event)</th></tr>%s</table></div>
-<div style="flex:1"><div class="card"><div class="h3" style="font-size:21px">기록 한 줄의 모양</div>
-<div style="margin-top:12px;font-family:Consolas,monospace;font-size:15px;background:#fff;border:1px solid #E5E8EB;border-radius:10px;padding:14px 16px;line-height:1.7">tool · event · term<br>disease · rider_name · product<br>(+ 기록 시각)</div>
-<div class="p" style="font-size:16px">· 로그인 없음 · 사람을 알 수 없는 익명 기록<br>· 검색어 · 질병 · 특약 이름만 남김<br>· 사용 통계 화면(stats.html)이 이 기록을 집계</div></div></div></div>
-<div class="card w" style="margin-top:18px;font-size:18px">요청 : 사내 수집 저장소에 <b>같은 이름의 칸</b>을 두면 화면 코드 한 줄(주소)만 바꿔 통계를 이어 쓸 수 있음 · 인터넷판 기록(6.22~11.25 · 73,820건)은 이관 전 내려받아 보관</div>''' % tr,
-'사용 기록을 사내로 이어받는 방법입니다. 화면마다 열기, 검색, 특약 조회 같은 동작을 남기고, 한 줄에는 도구 이름, 동작, 검색어, 질병, 특약 이름, 상품만 들어갑니다. 로그인이 없어 사람을 알 수 없는 익명 기록입니다. 사내 수집 저장소에 같은 이름의 칸을 만들어 주시면, 화면 코드에서 주소 한 줄만 바꿔 지금 통계 화면을 그대로 이어 쓸 수 있습니다.',
-'PART 5 · 사용 기록', '같은 칸 이름이면 주소 한 줄로 이어 쓸 수 있음', '', '화면 코드의 logEvent 호출 · 사용 통계 화면(stats.html) 기준(2026.11.25)', 'PART 5', z=1.2)
-
-# ── 22. 보안 · 운영 요청 ──────────────────────────────────
-slide('''<div class="row" style="gap:24px">
- <div class="card" style="flex:1"><div class="h3">보안 · 개인정보</div><div class="p" style="font-size:17px">· 고객 이름 · 연락처 등 개인정보를 받지 않음<br>· 명패 명단 엑셀은 브라우저 안에서만 읽고 어디에도 보내지 않음<br>· 로그인 · 쿠키 없음 · 저장은 기기 안(즐겨찾기 · 최근 본 특약 · 조합)<br>· 입력 칸은 검색 · 필터뿐 · 결제 · 계정 화면 없음</div></div>
- <div class="card" style="flex:1"><div class="h3">이관 뒤 운영 요청</div><div class="p" style="font-size:17px">· <b style="color:#191F28">IT 개발 버퍼링 없이 즉각 갱신할 수 있는 경로 유지</b> · 즉각 반영이 애용 이유<br>· 약관 개정 때 데이터 파일만 바꿔 올리는 절차<br>· 화면 아래 버전 표기(ver연도.월.횟수)로 판 확인<br>· 오류 제보 창구 = 세일즈혁신TF</div></div>
- <div class="card" style="flex:1"><div class="h3">확인 필요(IT 협의)</div><div class="p" style="font-size:17px">· 올릴 위치(MeAI 홈 메뉴 · 사내 웹서버 경로)<br>· 사용 기록 수집 저장소<br>· 글자 깨짐 없는 사내 브라우저 범위(크롬 · 엣지 · 삼성 인터넷)<br>· 최대 파일 17MB 전송 허용</div></div>
-</div>''',
-'보안과 운영 요청입니다. 이 도구는 고객 개인정보를 받지 않고, 명패 명단 엑셀도 브라우저 안에서만 읽습니다. 로그인과 쿠키가 없고 입력 칸은 검색과 필터뿐입니다. 이관 뒤에도 IT 개발 버퍼링 없이 즉각 갱신할 수 있는 경로를 꼭 유지해 주셨으면 합니다. 즉각 반영이 현장이 애용한 이유였기 때문입니다. 올릴 위치, 사용 기록 저장소, 지원 브라우저, 큰 파일 전송은 IT와 협의가 필요합니다.',
-'PART 5 · 보안과 운영', '개인정보 없음 · 즉각 갱신 경로 유지 요청', '', '저장소 화면 기능 기준(2026.11.25)', 'PART 5', z=1.34)
-
-# ── 23. 로드맵 ───────────────────────────────────────────
-RM = [('지금', '인터넷판 종료(11.25)', '종료 인사 화면 · 사내 노트북 · 배포판으로 개발 계속'),
-      ('이관', 'MeAI 홈에 이식', '사내 웹서버 탑재 · 사용 기록 사내 수집 · 메뉴 연결'),
-      ('정식 서비스', '사내 정식 서비스', 'MeAI 질문 바로 넣기 · 전 채널(GA · TA · PA) 표준 도구'),
-      ('이어서', '고도화', '신담보 즉각 반영 유지 · 보장 공백 진단 · 사용 통계로 화면 개선')]
-cols = ''.join('<div class="card" style="flex:1;padding:26px 24px"><span class="tag%s">%s</span><div class="h3" style="margin-top:16px;font-size:22px">%s</div><div class="p" style="font-size:16px">%s</div></div>' % ('' if i < 2 else ' g', a, b, c) for i, (a, b, c) in enumerate(RM))
-slide('<div class="row" style="gap:18px">%s</div><div class="card w" style="margin-top:24px;font-size:18px;line-height:1.6"><b>남은 확인</b> · 인터넷판 사용 기록 73,820건 보관 · 이관 일정 · 사용 기록 저장소 · 올릴 위치</div>' % cols,
-'앞으로의 순서입니다. 인터넷판은 종료했지만 사내 노트북과 배포판으로 개발은 계속합니다. 다음 단계로 MeAI 홈에 이식해 사내 웹서버에 올리고, 사용 기록도 사내에서 모읍니다. 이후 사내 정식 서비스로 전 채널의 표준 도구가 되는 것이 목표입니다. 남은 확인 사항은 인터넷판 사용 기록 보관과 이관 일정, 사용 기록 저장소, 올릴 위치입니다.',
-'PART 5 · 앞으로', '인터넷판 종료 → MeAI 홈 이식 → 사내 정식 서비스', '', '', 'PART 5', z=1.42)
-
 # ── 24. 맺음 ─────────────────────────────────────────────
 full('''<div class="sl" style="padding:0;background:#fff">
   <div style="position:absolute;inset:0;background:radial-gradient(50%% 60%% at 50%% 0%%,rgba(200,16,46,.07),transparent 70%%)"></div>
-  <div style="position:absolute;left:0;right:0;top:120px;text-align:center">
-    <div style="font-size:52px;font-weight:700;letter-spacing:-.03em;line-height:1.3">그동안 영업지원도구를<br><span class="em">사랑해주셔서</span> 감사합니다.</div>
-    <div style="margin-top:26px;font-size:22px;color:#4E5968;line-height:1.7">영업지원도구는 MeAI홈에 이식하여 사내 정식 서비스로 찾아뵐 예정입니다.<br>영업활동에 많은 도움이 되도록 노력하겠습니다.</div>
-    <div style="margin-top:22px;font-size:18px;color:#6B7684">-세일즈혁신TF 이헌수 배상-</div></div>
+  <div style="position:absolute;left:0;right:0;top:200px;text-align:center">
+    <div style="font-size:60px;font-weight:700;letter-spacing:-.03em;line-height:1.3">그동안 영업지원도구를<br><span class="em">사랑해주셔서</span> 감사합니다.</div></div>
   <div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:flex-end;gap:26px">%s</div>
 </div>''' % ''.join('<img src="%s" style="height:%dpx;width:auto">' % (doll(f), h) for f, h in
                     [('merry_ok.webp', 190), ('eco_point.webp', 190), ('rara_present.webp', 190), ('indi_idea.webp', 190), ('tata_ok.webp', 190), ('ziziri_cheer.webp', 150)]),
-'마지막으로 현장에 드린 인사를 그대로 옮깁니다. 그동안 영업지원도구를 사랑해 주셔서 감사합니다. 영업지원도구는 MeAI 홈에 이식해 사내 정식 서비스로 찾아뵐 예정이고, 영업활동에 많은 도움이 되도록 계속 노력하겠습니다. 감사합니다.')
+'그동안 영업지원도구를 사랑해 주셔서 감사합니다.')
 
 # ── 굽기 ────────────────────────────────────────────────
 os.makedirs(OUT, exist_ok=True)
