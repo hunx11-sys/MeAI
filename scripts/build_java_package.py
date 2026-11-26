@@ -4,7 +4,7 @@
   python3 scripts/build_java_package.py        # → dist/smart_proposal_java_package.zip
 
 · 먼저 proposal_java 에서 `mvn -q -B package` 를 돌려 target/smart-proposal.jar · target/lib 를 만든다(이 스크립트가 돌린다 · --no-build 면 있는 것을 쓴다).
-· 묶음 안 : 실행 파일(smart-proposal.jar · lib/) · 자료(data/ — 파이썬 판 proposal_smart 의 json · ga_assets 를 **그대로** 복사. 자바 쪽에 따로 둔 자료는 없다) ·
+· 묶음 안 : 실행 파일(smart-proposal.jar · lib/) · 자료(data/ — 파이썬 판 proposal_smart 의 json · ga_assets 를 **그대로** 복사 + 파이썬 판이 구운 틀 그림 tpl_*.png. 자바 쪽에 따로 둔 자료는 없다) ·
   소스(src/ — pom.xml · 자바 소스 · 옮기기 규칙 PORTING.md · 정답지 뽑는 스크립트) · 안내(README.md) · 시작 파일(start.bat · start.sh) · 예시 입력.
 · 설계서 · 정답지 · 담보 식별표(code_map.json — 정보계 코드가 든 사내 자료)는 넣지 않는다.
 · 개인정보 점검은 파이썬 판 묶음과 같은 규칙(build_ga_v2_package.scan)으로 하고, 하나라도 걸리면 멈춘다.
@@ -22,6 +22,13 @@ SKIP_JSON = {'cust_a.json', 'cust_b.json'}                        # 9쪽 판 시
 def tracked(prefix):
     r = subprocess.run(['git', '-c', 'core.quotepath=off', 'ls-files', '--cached', '--others', '--exclude-standard', prefix], cwd=ROOT, capture_output=True, text=True, check=True)
     return [f for f in sorted(set(r.stdout.split('\n'))) if f and os.path.isfile(os.path.join(ROOT, f))]
+
+BAKED = ('cover1', 'cover2', 'p1')                              # 틀 그림(가안 그림에서 견본 글자를 지운 것) — 파이썬 판이 굽고 저장소에는 넣지 않는다. 자바 판은 구워 둔 것을 쓴다
+def bake():
+    """파이썬 판 ga_overlay.template 으로 틀 그림을 굽고(이미 있으면 그대로) 경로를 돌려준다"""
+    sys.path.insert(0, PS)
+    import ga_overlay as OV
+    return [('data/ga_assets/mock/tpl_%s.png' % k, OV.template(k)) for k in BAKED]
 
 def data_files():
     out = []
@@ -43,6 +50,7 @@ def main():
     items = [('smart-proposal.jar', jar)]
     items += [('lib/' + n, os.path.join(lib, n)) for n in sorted(os.listdir(lib)) if n.endswith('.jar')]
     items += [('data/' + r, os.path.join(PS, r)) for r in data_files()]
+    items += bake()
     for f in tracked('proposal_java'):
         rel = f[len('proposal_java/'):]
         if rel in ('README.md', 'start.bat', 'start.sh'): items.append((rel, os.path.join(ROOT, f)))

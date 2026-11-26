@@ -13,8 +13,7 @@
   <dependencies>
     <!-- PDF 조립(틀 위에 값 얹기 · 쪽 합치기) — Apache License 2.0 -->
     <dependency><groupId>org.apache.pdfbox</groupId><artifactId>pdfbox</artifactId><version>3.0.3</version></dependency>
-    <!-- HTML → PDF(설치된 Chromium · Edge · Chrome 을 조종) — Apache License 2.0 -->
-    <dependency><groupId>com.microsoft.playwright</groupId><artifactId>playwright</artifactId><version>1.49.0</version></dependency>
+    <!-- HTML → PDF 는 깔려 있는 Chromium · Edge · Chrome 을 JDK 내장 WebSocket 으로 직접 조종한다(Cdp.java) — 바깥 부품 없음 -->
   </dependencies>
   <build>
     <finalName>smart-proposal</finalName>

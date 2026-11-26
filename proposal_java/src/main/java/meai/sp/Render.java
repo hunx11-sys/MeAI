@@ -1,12 +1,5 @@
 package meai.sp;
 
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
-import com.microsoft.playwright.options.Media;
-import com.microsoft.playwright.options.WaitUntilState;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,9 +14,9 @@ import java.util.Map;
 /**
  * HTML → 브라우저(Chromium · Edge · Chrome) → PDF 조각. 파이썬 ga_v2.py 의 「글꼴 · 그리기」 부분
  * (_alive · _page · close_browser · _goto · render_snippet · FIT_JS · CLIP_JS · render_pages · render_detail 의 브라우저 부분)을 그대로 옮겼다.
- * 브라우저 하나를 띄워 두고 계속 쓴다 — Playwright 규칙대로 **한 스레드에서만** 부른다.
- * 프로그램을 끝낼 때는 close_browser() 를 부르거나 System.exit 로 끝낸다 — 브라우저를 띄운 채 main 에서 그냥 돌아오면
- * Playwright 의 일꾼 스레드가 남아 프로그램이 끝나지 않는다(System.exit 일 때는 종료 훅이 닫는다).
+ * 브라우저 하나를 띄워 두고 계속 쓴다. 조종은 Cdp(DevTools 프로토콜 직접 · 바깥 부품 없음)가 한다 —
+ * 띄우는 스위치 · 쪽 설정 · PDF 인자를 파이썬 판이 쓰는 Playwright 와 같게 맞춰 같은 PDF 가 나온다.
+ * 프로그램이 끝날 때 종료 훅이 브라우저를 닫고 임시 프로필을 지운다(close_browser() 를 직접 불러도 된다).
  */
 public final class Render {
     private Render() {}
@@ -48,79 +41,75 @@ public final class Render {
     }
 
     static boolean _alive() {
-        try { return ((Browser) _PW.get("b")).isConnected() && !((Page) _PW.get("pg")).isClosed(); }
+        try { Cdp pg = (Cdp) _PW.get("pg"); return pg != null && pg.alive(); }
         catch (RuntimeException ex) { return false; }
     }
 
+    /** 쓸 브라우저 실행 파일 : GA_CHROMIUM → /opt/pw-browsers/chromium(파일이면) → 깔려 있는 Edge · Chrome · Chromium(CHROME_CAND) → PATH */
+    static String find_browser() {
+        String exe = Py.env("GA_CHROMIUM");
+        if (exe != null && !exe.isEmpty()) return exe;
+        File f = new File("/opt/pw-browsers/chromium");
+        if (f.exists() && !f.isDirectory()) return f.getPath();
+        for (String x : CHROME_CAND) { String c = expandvars(x); if (new File(c).isFile()) return c; }
+        String path = System.getenv("PATH");
+        if (path != null) {
+            boolean win = System.getProperty("os.name", "").toLowerCase().contains("win");
+            for (String nm : PATH_NAMES) for (String d : path.split(File.pathSeparator)) {
+                if (d.isEmpty()) continue;
+                File c = new File(d, win ? nm + ".exe" : nm);
+                if (c.isFile() && c.canExecute()) return c.getPath();
+            }
+        }
+        throw new RuntimeException("PDF 를 그릴 브라우저(Edge · Chrome · Chromium)를 찾지 못했습니다 — 환경변수 GA_CHROMIUM 에 실행 파일 경로를 넣어 주세요");
+    }
+    public static final String[] PATH_NAMES = {"chromium", "chromium-browser", "google-chrome", "google-chrome-stable", "chrome", "microsoft-edge", "msedge"};
+
     /** 크로뮴 하나를 띄워 두고 계속 쓴다. 죽어 있으면 닫고 새로 띄운다 */
-    public static Page _page() {
+    public static Cdp _page() {
         if (_PW.containsKey("pg") && !_alive()) close_browser();
         if (!_PW.containsKey("pg")) {
-            Map<String, String> env = new HashMap<>(System.getenv());
-            env.put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "1");            // 브라우저를 내려받으려 하지 않는다(폐쇄망 · 깔린 것을 쓴다)
-            Playwright pw = Playwright.create(new Playwright.CreateOptions().setEnv(env));
-            Browser b; Page pg;
-            try {
-                String exe = System.getenv("GA_CHROMIUM");
-                if (exe == null || exe.isEmpty()) {
-                    File f = new File("/opt/pw-browsers/chromium");
-                    exe = (f.exists() && !f.isDirectory()) ? f.getPath() : null;
-                }
-                try {
-                    b = exe != null ? pw.chromium().launch(new BrowserType.LaunchOptions().setExecutablePath(Paths.get(exe))) : pw.chromium().launch();
-                } catch (RuntimeException ex) {      // Playwright 크로뮴이 없는 PC(폐쇄망) — 깔려 있는 Edge · Chrome 으로(GA_CHROMIUM 을 안 넣었을 때)
-                    List<String> cand = new ArrayList<>();
-                    for (String x : CHROME_CAND) { String c = expandvars(x); if (new File(c).isFile()) cand.add(c); }
-                    if (exe != null || cand.isEmpty()) throw ex;
-                    b = pw.chromium().launch(new BrowserType.LaunchOptions().setExecutablePath(Paths.get(cand.get(0))));
-                }
-                pg = b.newPage(new Browser.NewPageOptions().setViewportSize(794, 1123));
-                pg.setDefaultTimeout(120000);                          // 한 동작 2분 넘으면 오류(멈춘 채 붙잡지 않게)
-            } catch (RuntimeException ex) {
-                try { pw.close(); } catch (RuntimeException ignore) { }
-                throw ex;
-            }
-            _PW.put("pw", pw); _PW.put("b", b); _PW.put("pg", pg);
-            if (!Py.truthy(_PW.get("atexit"))) {
+            if (!Py.truthy(_PW.get("atexit"))) {                      // 띄우다 실패해도 · 프로그램이 그냥 끝나도 브라우저 · 임시 프로필이 남지 않게
                 Runtime.getRuntime().addShutdownHook(new Thread(Render::close_browser));
                 _PW.put("atexit", true);
             }
+            Cdp pg = Cdp.launch(find_browser(), 794, 1123);          // 한 동작 2분 넘으면 오류(Cdp.TIMEOUT_MS)
+            _PW.put("pg", pg);
         }
-        return (Page) _PW.get("pg");
+        return (Cdp) _PW.get("pg");
     }
 
     /** 띄워 둔 크로뮴을 닫는다. 실패해도 프로그램 종료를 막지 않는다 */
     public static void close_browser() {
-        Playwright pw = (Playwright) _PW.remove("pw"); Browser b = (Browser) _PW.remove("b"); _PW.remove("pg");
-        try {
-            if (b != null) b.close();
-            if (pw != null) pw.close();
-        } catch (RuntimeException ignore) { }
+        Cdp pg = (Cdp) _PW.remove("pg");
+        try { if (pg != null) pg.close(); } catch (RuntimeException ignore) { }
     }
 
-    public static Page _goto(String html, String name) {
+    public static Cdp _goto(String html, String name) {
         String hp = Paths.get(TMP, name + ".html").toString();
         Py.write(hp, html);
-        Page pg = _page();
-        pg.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.PRINT));
+        Cdp pg = _page();
+        pg.emulate_media("print");
         String uri;
         try { uri = Paths.get(hp).toRealPath().toUri().toString(); } catch (IOException ex) { throw new RuntimeException(ex); }
-        pg.navigate(uri, new Page.NavigateOptions().setWaitUntil(WaitUntilState.LOAD));
-        pg.evaluate("document.fonts.ready");
-        pg.waitForTimeout(120);
+        pg.navigate(uri);
+        pg.evaluate("document.fonts.ready.then(()=>1)");
+        try { Thread.sleep(120); } catch (InterruptedException ex) { Thread.currentThread().interrupt(); throw new RuntimeException("중단됨", ex); }
         return pg;
     }
 
+    /** Playwright 의 종이 크기 변환(px 글자 → 인치) : 픽셀 / 96 */
+    static double px_in(double px) { return px / 96; }
+
     /** pg.pdf(path=…, prefer_css_page_size=True, print_background=True) — 쪽 크기는 HTML 의 @page 를 따른다 */
-    public static void pdf_css(Page pg, String out_pdf) {
-        pg.pdf(new Page.PdfOptions().setPath(Paths.get(out_pdf)).setPreferCSSPageSize(true).setPrintBackground(true));
+    public static void pdf_css(Cdp pg, String out_pdf) {
+        pg.pdf(out_pdf, null, null, true, true);
     }
 
     /** 정해진 크기(pt)의 조각 한 장 */
     public static String render_snippet(String html, String out_pdf, double w_pt, double h_pt) {
-        Page pg = _goto(html, "snip");
-        pg.pdf(new Page.PdfOptions().setPath(Paths.get(out_pdf)).setWidth(Py.fmt("%spx", w_pt * 4 / 3)).setHeight(Py.fmt("%spx", h_pt * 4 / 3))
-                .setPrintBackground(true).setPreferCSSPageSize(true));
+        Cdp pg = _goto(html, "snip");
+        pg.pdf(out_pdf, px_in(w_pt * 4 / 3), px_in(h_pt * 4 / 3), true, true);
         if (PdfKit.page_count(out_pdf) != 1) throw new AssertionError("조각이 두 쪽으로 넘어감 : " + out_pdf);
         return out_pdf;
     }
@@ -157,10 +146,10 @@ public final class Render {
      * 돌려주는 것 : [fit, over] — fit = [[쪽, 배율, 본문 높이, 쓸 수 있는 높이] …] · over = 넘친 쪽의 fit 줄 + 「글자 넘침 : …」 글자
      */
     public static List<Object> render_pages(String html, String out_pdf, String name) {
-        Page pg = _goto(html, name);
-        List<Object> fit = Py.L(pyval(pg.evaluate(FIT_JS, 18)));
-        List<Object> clip = Py.L(pyval(pg.evaluate(CLIP_JS)));       // 칸 밖으로 넘친 글자(수술 카드 줄 이름 · 칩 · 간병 표 칸)
-        pg.pdf(new Page.PdfOptions().setPath(Paths.get(out_pdf)).setFormat("A4").setPrintBackground(true).setPreferCSSPageSize(true));
+        Cdp pg = _goto(html, name);
+        List<Object> fit = Py.L(pyval(pg.call(FIT_JS, 18L)));
+        List<Object> clip = Py.L(pyval(pg.call(CLIP_JS)));           // 칸 밖으로 넘친 글자(수술 카드 줄 이름 · 칩 · 간병 표 칸)
+        pg.pdf(out_pdf, 8.27, 11.7, true, true);                     // format='A4' — Playwright 의 A4 = 8.27 × 11.7 인치
         List<Object> over = new ArrayList<>();
         for (Object o : fit) { List<Object> f = Py.L(o); if (Py.truthy(f.get(3)) && Py.num(f.get(2)) > Py.num(f.get(3)) + 1) over.add(f); }
         over.addAll(clip);
@@ -170,11 +159,10 @@ public final class Render {
 
     /** 세부내역 — HTML(스스로 쪽을 나누는 스크립트 포함)을 그려 595×708pt 쪽들로. 돌려주는 것 = 스크립트가 남긴 window.REPORT */
     public static Map<String, Object> render_detail_html(String html, String out_pdf) {
-        Page pg = _goto(html, "detail");
-        pg.waitForFunction("window.REPORT");
+        Cdp pg = _goto(html, "detail");
+        pg.wait_for("window.REPORT");
         Map<String, Object> rep = Py.M(pyval(pg.evaluate("window.REPORT")));
-        pg.pdf(new Page.PdfOptions().setPath(Paths.get(out_pdf)).setWidth(Py.fmt("%spx", 595 * 4 / 3.0)).setHeight(Py.fmt("%spx", 708 * 4 / 3.0))
-                .setPrintBackground(true).setPreferCSSPageSize(true));
+        pg.pdf(out_pdf, px_in(595 * 4 / 3.0), px_in(708 * 4 / 3.0), true, true);
         if (Py.truthy(rep.get("over"))) throw new RuntimeException(Py.fmt("세부내역 한 묶음이 한 쪽을 넘음 : %s", rep.get("over")));
         return rep;
     }

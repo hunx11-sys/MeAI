@@ -26,7 +26,10 @@
 | `ga_proposal.py`(as GP) | `GaProposal` | 자료 부분(VAL · 세부내역 계산 · 머리 정보) — 옛 6쪽 지면은 ga_v2 가 쓰는 것만 |
 | `ga_overlay.py`(as OV) | `GaOverlay` | ga_v2 가 쓰는 것만(틀 그림 굽기는 뺌) |
 | `ga_v2.py` | `GaV2` | HTML 만들기 · PDF 조립 |
+| `ga_v2.py` 의 그리기 · 조립 | `Render` · `PdfKit` | HTML → 브라우저 → PDF 조각(`Render`) · 틀 위 합성 · 묶기(`PdfKit` — Apache PDFBox). ga_v2 의 `_page` · `_goto` · `render_*` · `_build` 1)~5) |
+| (Playwright 가 하던 일) | `Cdp` | 깔려 있는 Chromium · Edge · Chrome 을 직접 띄워 DevTools 프로토콜로 조종 — **바깥 부품 없음**(JDK 내장 WebSocket + `Json`). 아래 「브라우저 조종」 |
 | `api.py` | `Api` | HTTP(JDK 내장 서버) |
+| — | `SelfTest` | 인수 시험(`Main --selftest`) — 아래 「인수 시험」 |
 | — | `Main` | 명령줄 |
 | — | `Py` · `Json` | 언어 차이를 맞추는 공통 도구 |
 | (CSS · JS 글자) | `Txt` | `golden/gen_consts.py` 가 파이썬 판에서 읽어 적는 긴 글자 상수 — 손으로 고치지 않는다 |
@@ -89,5 +92,29 @@ python3 golden/cmp_api.py http://127.0.0.1:18081 http://127.0.0.1:18082 <입력.
 GA_MASK=1 로 뽑은 정답지는 `GoldenHtml` 도 GA_MASK=1 로 돌린다. `GoldenHtml` 의 견주기가 실제로 잡는지는 정답지를 일부러 틀리게 한 사본으로 확인한다.
 
 자바 판에 없는 것(일부러) : 설계서 PDF 읽기 · GA_MOCK=0(가안 그림 없이 전부 HTML 로 그리는 예전 방식 — `GaV2.cover_summary_html` 이 오류로 알린다) · 틀 그림 굽기(`ga_overlay.template` 의 PIL 그리기 — 자료 폴더의 `ga_assets/mock/tpl_*.png` 를 그대로 쓴다) · `calibrate` · `shrink_images`.
+
+## 브라우저 조종(`Cdp` — Playwright 를 쓰지 않는다)
+
+파이썬 판은 Playwright 로 크로뮴을 조종한다. 자바 판은 Playwright for Java 를 쓰지 않고(딸린 `driver-bundle` 이 198MB 이고 실행 때 node 실행 파일을 임시 폴더에 풀어 돌린다 — 사내망 반입 · 보안 프로그램에 걸리기 쉽다) `Cdp` 가 같은 일을 직접 한다. 딸린 부품은 PDFBox 계열뿐이다(`target/lib` 약 3.7MB).
+
+- 띄우기 : 실행 파일 + Playwright 1.49 의 기본 스위치(`chromiumSwitches`) + `--headless` · `--hide-scrollbars` · `--mute-audio` · `--blink-settings=…` · `--no-sandbox` + `--user-data-dir=<임시 프로필>` · `--remote-debugging-port=0` · `--no-startup-window` — 목록은 `Cdp.SWITCHES`. 조종 주소는 프로필 폴더의 `DevToolsActivePort` 에서 읽는다.
+- 쪽 : 새 브라우저 컨텍스트 → 쪽 → 초점 흉내 · 뷰포트 794×1123(배율 1) · 기본 글꼴 가족(운영체제별 — Playwright `defaultFontFamilies`) · 매체(인쇄 + 색 구성 light · 움직임 no-preference · 강제 색 none).
+- PDF : `Page.printToPDF` 에 Playwright `crPdf` 와 같은 인자(종이 크기는 인치 = px ÷ 96 · A4 = 8.27 × 11.7 · 여백 0 · 배율 1 · 꼬리표 없음).
+- 브라우저 찾기 : `GA_CHROMIUM` → `/opt/pw-browsers/chromium`(파일이면) → `Render.CHROME_CAND`(윈도우 Edge · Chrome · 리눅스 흔한 경로) → PATH(`chromium` · `google-chrome` · `msedge` …). 없으면 `GA_CHROMIUM` 을 넣으라고 알린다.
+- 끝 : 프로그램이 끝날 때(그냥 끝나든 · 오류든 · 종료 신호든) 종료 훅이 브라우저를 닫고 임시 프로필을 지운다. 한 동작 120초(`Cdp.TIMEOUT_MS`) 넘으면 오류.
+- **이 부분을 고치면 반드시** 4 · 5단계 대조를 전부 다시 돌려 `cmp_pdf.py` 가 「다른 픽셀 0」 인지 본다(스위치 하나 · 기다림 하나가 글자 자리를 바꿀 수 있다). 파이썬 판이 Playwright 판을 올리면 `SWITCHES` · 글꼴 표를 그 판의 것으로 다시 맞춘다.
+
+## 인수 시험(`Main --selftest` — 파이썬 없이)
+
+받는 쪽(IT)이 「받은 묶음이 정답과 같은 결과를 내는지」 확인하는 명령이다.
+
+```
+python3 golden/make_selftest.py <세트 폴더> <입력.json …>      # (TF) 파이썬 판으로 정답을 만든다 : <이름>.json · <이름>.expected.pdf · <이름>.expected.json
+java -jar smart-proposal.jar --selftest <세트 폴더> [이름 …]   # (받는 쪽) 입력마다 PDF 를 만들어 <세트 폴더>/out/ 에 두고 견준다 → 「결과 : 전부 통과 — N건 · N쪽」 · 종료코드 0 / 1
+```
+
+견주는 것 : ① 요약(쪽수 · 간병인 쪽 · 세부내역 쪽수 · 담보 수 · 인식 수 · 상품 · 보험료 · 경고 · 계산 로그 글자 — 처리 시간만 뺌) ② 쪽수 · 쪽 크기 ③ 쪽별 글자(두 PDF 를 같은 방법(PDFBox)으로 읽어 공백을 지운 글자가 같은지 + 글자마다 자리 0.5pt 안). 정답이 「만들지 않음」(입력 사양 위반 · 담보를 하나도 못 찾음)이면 같은 까닭 글자로 멈추는지.
+정답을 담보 식별표 없이 만들었으면(요약의 `code_map:false`) 시험도 식별표 없이 돈다.
+세트를 만들 때 : 실제 설계에서 나온 입력은 **이름 · 가계약번호 · 소속 · 설계사 · 전화를 가짜 값으로 바꾼 뒤** 만든다(정답 PDF 에 그대로 찍힌다). 세트에는 정보계 담보명 · 단위상품코드 · 담보코드가 들어 있어 사내 자료다 — 저장소에 넣지 않는다.
 
 빠른 컴파일 `./build.sh`(javac) · 정식 묶음 `mvn -q -B package`.

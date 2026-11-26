@@ -13,6 +13,7 @@ import java.util.Map;
  *   java -jar smart-proposal.jar --json &lt;입력.json&gt; [결과.pdf] [나이]     담보코드 입력 → 새 양식 PDF
  *   java -jar smart-proposal.jar --check &lt;입력.json&gt;                     PDF 없이 입력 점검 + 담보 인식 결과(JSON)
  *   java -jar smart-proposal.jar serve [호스트] [포트]                     HTTP 서버(기본 127.0.0.1 8080)
+ *   java -jar smart-proposal.jar --selftest &lt;폴더&gt; [이름 …]              인수 시험 — 정답(파이썬 판 결과)과 같은지(SelfTest)
  *   java -jar smart-proposal.jar --version
  *
  * 환경변수(= 시스템 속성 -D 로도) : SP_HOME 자료 폴더 · GA_CODE_MAP 담보 식별표 · GA_CHROMIUM 브라우저 경로 · GA_MASK=1 개인정보 가림 · GA_V2_KEEP=1 중간 파일 남김
@@ -22,7 +23,8 @@ public final class Main {
 
     static final String USAGE = "사용 : java -jar smart-proposal.jar --json <입력.json> [결과.pdf]\n"
             + "       java -jar smart-proposal.jar --check <입력.json>\n"
-            + "       java -jar smart-proposal.jar serve [호스트] [포트]";
+            + "       java -jar smart-proposal.jar serve [호스트] [포트]\n"
+            + "       java -jar smart-proposal.jar --selftest <시험 세트 폴더> [이름 …]";
 
     public static void main(String[] argv) {
         try {
@@ -59,6 +61,10 @@ public final class Main {
             int port = args.size() > 2 ? Integer.parseInt(args.get(2)) : 8080;
             Api.serve(host, port);
             return 0;
+        }
+        if (cmd.equals("--selftest")) {
+            if (args.size() < 2) { System.out.println("사용 : java -jar smart-proposal.jar --selftest <시험 세트 폴더> [이름 …]"); return 1; }
+            return SelfTest.run(args.get(1), new ArrayList<>(args.subList(2, args.size())));
         }
         if (cmd.equals("--check")) {
             if (args.size() < 2) { System.out.println("사용 : java -jar smart-proposal.jar --check <입력.json>"); return 1; }
