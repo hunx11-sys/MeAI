@@ -205,8 +205,33 @@ def main(argv):
         for pi, p in enumerate(d.get('P') or []):
             scs.append(rt({'kcd': d['c'], 'tags': dict(cause='질병', hosp='상급종합', room=None, days=7, grp=[], dx=fam, surg=('33' if any('surg' in e[3] for e in p['e']) else None)), 'itc_events': p['e']}))
             meta.append(['DZ:' + d['c'], 'path%d' % pi])
-    scs = rt(scs)
     uni = GS.universe()
+    # 규칙마다 겨냥한 사례 — 칸 사례가 닿지 않는 규칙(수가코드 · 깁스 · 응급실 · 화상 등)도 지급 경로를 지나가게, 그 규칙으로 분류되는 특약의 약관 목록에서 만든다
+    aim_from = len(scs)
+    FAM = {'암': 'cancer', '유사암': 'sim_cancer', '뇌': 'brain', '심장': 'heart'}
+    by_rule = collections.OrderedDict()
+    for r in uni:
+        rule = S.classify(r['name'])
+        if rule is None or rule['kind'] not in S.HANDLER: continue
+        by_rule.setdefault(rule['id'], []).append(r)
+    for rid_, rs in by_rule.items():
+        rule = next(x for x in S.RULES if x['id'] == rid_); o = rule.get('opt') or {}
+        rs = sorted(rs, key=lambda r: -(len(r.get('codes') or []) + len(r.get('hc') or [])))
+        for r in (rs[:1] + rs[len(rs) // 2:len(rs) // 2 + 1]):
+            code = next((re.sub(r'~.*', '', c).strip() for c in (r.get('codes') or []) if not c.startswith('!')), None)
+            if not code: code = {'major': 'C16', 'sim': 'C73', 'major_or_sim': 'C16', 'major_thy_skin': 'C16', 'by_name_cancer': ('C44.9' if '기타피부암' in r['name'] else 'C73' if '갑상선암' in r['name'] else 'C16')}.get(o.get('kcd'), 'M51')
+            t = S.tokens(S.nname(r['name']))
+            tags = dict(cause=t['cause'] or o.get('cause') or '질병', hosp='상급종합', room=t['room'], days=10, icu=5, visits=3, daycare=2, grp=[],
+                        dx=FAM.get((o.get('fam') or [None])[0], 'dz'), surg='33', surg7=('B016' if o.get('surg7_grp') else 'G212'), hc=list((r.get('hc') or [])[:3]),
+                        acts=list(o.get('acts') or []) + list(o.get('acts_all') or []), drug=3, tx_cnt=3, open=1, anes=1, anes_h=6,
+                        psor_light_days=40, psor_drug_days=200, psor_inj=5, surg_cnt=2)
+            if o.get('stage') == 'recur': tags['recur'] = 1
+            if re.search(r'비급여|전액본인부담', r['name']): tags['nc'] = 1
+            scs.append({'kcd': code, 'tags': tags, 'itc_events': []}); meta.append(['rule:' + rid_, r['no']])
+            t2 = copy.deepcopy(tags); t2.update(hosp='종합', open=0, surg=3, surg7=3, drug=1, anes_h=2, cause=('상해' if tags['cause'] == '질병' and rule['kind'] != 'dx' else tags['cause']))
+            scs.append({'kcd': code, 'tags': t2, 'itc_events': [['수술', 's', '', ['surg'] + list(o.get('acts') or [])[:2]], ['치료', 'c', '', ['icu', 'thromb']]]}); meta.append(['rule2:' + rid_, r['no']])
+    print('겨냥 사례 %d개(규칙 %d개)' % (len(scs) - aim_from, len(by_rule)), flush=True)
+    scs = rt(scs)
     designs = {}
     for p in pdfs:
         try: designs['design:' + os.path.splitext(os.path.basename(p))[0]] = pipeline.read_riders(p)
@@ -240,8 +265,8 @@ def main(argv):
     bundles['synth'] = synth
     all_idx = list(range(len(scs)))
     plan = collections.OrderedDict()
-    plan['universe'] = list(range(path_from))                    # 특약 전수 × (칸 사례 + 조건을 바꾼 것)
-    plan['universe_itc'] = list(range(path_from, len(scs)))      # 통합치료비 · 통합생활지원비 × 시뮬레이터 질병 경로
+    plan['universe'] = list(range(path_from)) + list(range(aim_from, len(scs)))     # 특약 전수 × (칸 사례 + 조건을 바꾼 것 + 규칙마다 겨냥한 사례)
+    plan['universe_itc'] = list(range(path_from, aim_from))      # 통합치료비 · 통합생활지원비 × 시뮬레이터 질병 경로
     for k in designs: plan[k] = all_idx
     plan['synth'] = all_idx
     W(out, 'inputs.json', {'bundles': rt(bundles), 'scs': scs, 'sc_meta': meta, 'plan': plan, 'n_cell': n_cell})
