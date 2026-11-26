@@ -98,6 +98,7 @@ public final class Txt {
             + "td.n.none{color:#9A9AA2;font-weight:500;font-size:8.4pt}\n"
             + "td.ga{text-align:right;font-size:8.6pt;color:#9A9AA2;white-space:nowrap}\n"
             + "td.ea{text-align:right;font-size:8.9pt;font-weight:700;color:#222;white-space:nowrap;padding-right:7pt}\n"
+            + "td.ga.lg{font-size:7pt;letter-spacing:-.2pt}td.ea.lg{font-size:8pt;letter-spacing:-.25pt}\n"
             + "tbody.g tr:last-child td,tbody.g td.k,tbody.g td.m{border-bottom-color:#D2D2D6}\n";
 
     /** ga_v2.DETAIL_COLS */

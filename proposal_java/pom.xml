@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>meai</groupId>
   <artifactId>smart-proposal</artifactId>
-  <version>9.13.0</version>
+  <version>9.14.0</version>
   <packaging>jar</packaging>
   <name>MeAI Smart Proposal (Java)</name>
   <properties>

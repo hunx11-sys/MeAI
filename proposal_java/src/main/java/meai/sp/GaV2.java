@@ -329,6 +329,8 @@ public final class GaV2 {
         if (xs.isEmpty()) return "";
         return Py.fmt("※ 혈전용해 + 혈전제거술 : 종류가 다른 치료 2회라 최초 지급시 · 연간 1회 금액에 「특정순환계질환 통합치료 생활비」 %s만원(연 1회)이 더해져 있습니다.", won(Py.sum(xs)));
     }
+    public static final long DX_MW = 140;      // 뇌 · 심 진단금 칸(금액 + 설명 글자) 너비(pt) — 억 + 나머지 금액만 이 너비 안으로 줄인다(v9.14)
+    public static boolean eok_rest(Object v) { return isnum(v) && won(v).contains("억 "); }
     public static final Map<String, Object> TOTAL_MW = Py.dict("ca2", 117L, "brain", 82L, "heart", 82L);
     public static final String FW_JS = Txt.FW_JS;
     /** 틀 5쪽(암① · 암② · 뇌 · 심 · 안내사항) 위에 얹을 값 글자 — 쪽 크기 그대로, 배경은 투명 */
@@ -351,6 +353,7 @@ public final class GaV2 {
                     Object v = VX(key);
                     String inner = amt_html(s, v) + ((Py.truthy(s.get("desc")) && v != null)
                             ? Py.fmt("<span style=\"font-size:%.2fpt;color:%s;font-weight:500;margin-left:2.4pt\">%s</span>", Py.get(s, "dsize", 7.7), Py.get(s, "dcolor", "#666666"), s.get("desc")) : "");
+                    if (eok_rest(v)) inner = Py.fmt("<span class=\"fw\" data-mw=\"%s\">%s</span>", DX_MW, inner);
                     o.append(_slot_at(s, v, inner));
                 } else if (k.equals("rehab")) {
                     String b = key.equals("rh_ca") ? "p2.rh.in" : "p3.rh.in";
@@ -876,7 +879,8 @@ public final class GaV2 {
                         String ga = man == null ? "" : (won(man) + (won(man).endsWith("억") ? "원" : "만원"));
                         String ea = won(amt) + (won(amt).endsWith("억") ? "원" : "만원");
                         String nmh = _esc(nm_) + (Py.truthy(note) ? Py.fmt("<span class=\"sub\"> : %s</span>", _esc(note)) : "");
-                        trs.append(Py.fmt("<tr>%s<td class=\"n\">%s</td><td class=\"ga\">%s</td><td class=\"ea\">%s</td></tr>", i == 0 ? (k + a) : "", nmh, ga, ea));
+                        String lg_ga = eok_rest(man) ? " lg" : "", lg_ea = eok_rest(amt) ? " lg" : "";
+                        trs.append(Py.fmt("<tr>%s<td class=\"n\">%s</td><td class=\"ga%s\">%s</td><td class=\"ea%s\">%s</td></tr>", i == 0 ? (k + a) : "", nmh, lg_ga, ga, lg_ea, ea));
                     }
                     g = Py.fmt("<tbody class=\"g\">%s</tbody>", trs.toString());
                 }

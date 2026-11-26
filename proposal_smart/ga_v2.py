@@ -363,6 +363,8 @@ def life_note(key):
     L = [(n, x) for n, x in _paid(key) if '생활비' in n]
     if not L: return ''
     return '※ 혈전용해 + 혈전제거술 : 종류가 다른 치료 2회라 최초 지급시 · 연간 1회 금액에 「특정순환계질환 통합치료 생활비」 %s만원(연 1회)이 더해져 있습니다.' % won(sum(x for _, x in L))
+DX_MW = 140           # 뇌 · 심 진단금 칸(금액 + 설명 글자) 너비(pt) = 칸 간격 152.8 − 양옆 여백. 「1억 5,000만」 처럼 억 단위에 나머지가 붙는 금액만 이 너비 안으로 줄인다(v9.14 — 다른 금액의 지면은 그대로)
+def eok_rest(v): return isnum(v) and '억 ' in won(v)      # 「1억 5,000」 꼴(억 + 나머지) — 「1억」 · 「5,000」 은 아니다
 TOTAL_MW = {'ca2': 117, 'brain': 82, 'heart': 82}      # 「총 보장 예시」 상자 안에 들어갈 글자 너비(pt) = 틀 상자 너비 − 양옆 여백
 FW_JS = ("<script>document.fonts.ready.then(()=>document.querySelectorAll('.fw').forEach(e=>{const w=e.getBoundingClientRect().width*.75,m=+e.dataset.mw;"
          "if(w>m)e.style.transform='scale('+(m/w).toFixed(4)+')'}))</script>")
@@ -380,6 +382,7 @@ def overlay_html():
                 o.append(_slot_at(s, v, inner))
             elif k == 'amt_desc':
                 v = VX(s['key']); inner = amt_html(s, v) + (('<span style="font-size:%.2fpt;color:%s;font-weight:500;margin-left:2.4pt">%s</span>' % (s.get('dsize', 7.7), s.get('dcolor', '#666666'), s['desc'])) if s.get('desc') and v is not None else '')
+                if eok_rest(v): inner = '<span class="fw" data-mw="%s">%s</span>' % (DX_MW, inner)      # 억 + 나머지 금액은 길어서 옆 칸 · 칸 밖으로 나간다 — 칸 안으로 줄인다
                 o.append(_slot_at(s, v, inner))
             elif k == 'rehab':
                 b, times = REHAB[s['key']]; o.append(rehab_html(s, VX(b), times))
@@ -735,6 +738,7 @@ td.n{font-size:8.7pt;font-weight:600;line-height:1.24;color:#222}td.n .sub{font-
 td.n.none{color:#9A9AA2;font-weight:500;font-size:8.4pt}
 td.ga{text-align:right;font-size:8.6pt;color:#9A9AA2;white-space:nowrap}
 td.ea{text-align:right;font-size:8.9pt;font-weight:700;color:#222;white-space:nowrap;padding-right:7pt}
+td.ga.lg{font-size:7pt;letter-spacing:-.2pt}td.ea.lg{font-size:8pt;letter-spacing:-.25pt}
 tbody.g tr:last-child td,tbody.g td.k,tbody.g td.m{border-bottom-color:#D2D2D6}
 '''
 DETAIL_COLS = '<colgroup><col style="width:102pt"><col style="width:86pt"><col><col style="width:50pt"><col style="width:66pt"></colgroup>'
@@ -787,7 +791,8 @@ def detail_groups():
                     ga = '' if man is None else (won(man) + ('원' if won(man).endswith('억') else '만원'))
                     ea = won(amt) + ('원' if won(amt).endswith('억') else '만원')
                     nmh = _esc(nm) + (('<span class="sub"> : %s</span>' % _esc(note)) if note else '')
-                    trs.append('<tr>%s<td class="n">%s</td><td class="ga">%s</td><td class="ea">%s</td></tr>' % ((k + a) if i == 0 else '', nmh, ga, ea))
+                    lg_ga, lg_ea = (' lg' if eok_rest(man) else ''), (' lg' if eok_rest(amt) else '')      # 「1억 5,000만원」 은 칸보다 길어 옆 칸과 붙는다 — 그 금액만 글자를 줄인다(v9.14)
+                    trs.append('<tr>%s<td class="n">%s</td><td class="ga%s">%s</td><td class="ea%s">%s</td></tr>' % ((k + a) if i == 0 else '', nmh, lg_ga, ga, lg_ea, ea))
                 g = '<tbody class="g">%s</tbody>' % ''.join(trs)
             sec['groups'].append(g)
         out.append(sec)

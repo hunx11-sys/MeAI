@@ -44,7 +44,7 @@ public final class Api {
     private Api() {}
 
     /** 계산 판(파이썬 api.VERSION 과 같은 값)과 자바 판 표시 */
-    public static final String ENGINE_VERSION = "v9.13";
+    public static final String ENGINE_VERSION = "v9.14";
     public static final String VERSION = ENGINE_VERSION + "-java";
     public static final int JSON_MAX = 2 * 1024 * 1024;                 // 담보코드 입력(JSON) 상한 2MB
     static final Semaphore LOCK = new Semaphore(2, true);                // 생성 요청은 2건까지 받아 두고(1건 처리 + 1건 대기) 나머지는 180초 기다린 뒤 503
