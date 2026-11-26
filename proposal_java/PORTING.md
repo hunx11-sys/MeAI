@@ -24,11 +24,12 @@
 | `ga_care.py` | `GaCare` | 간병인 칸 |
 | `ga_spec.py` | `GaSpec` | 칸 정의 · 칸 값 |
 | `ga_proposal.py`(as GP) | `GaProposal` | 자료 부분(VAL · 세부내역 계산 · 머리 정보) — 옛 6쪽 지면은 ga_v2 가 쓰는 것만 |
-| `ga_overlay.py`(as OV) | `GaOverlay` | ga_v2 가 쓰는 것만 |
+| `ga_overlay.py`(as OV) | `GaOverlay` | ga_v2 가 쓰는 것만(틀 그림 굽기는 뺌) |
 | `ga_v2.py` | `GaV2` | HTML 만들기 · PDF 조립 |
 | `api.py` | `Api` | HTTP(JDK 내장 서버) |
 | — | `Main` | 명령줄 |
 | — | `Py` · `Json` | 언어 차이를 맞추는 공통 도구 |
+| (CSS · JS 글자) | `Txt` | `golden/gen_consts.py` 가 파이썬 판에서 읽어 적는 긴 글자 상수 — 손으로 고치지 않는다 |
 
 ## 옮기는 법
 
@@ -71,5 +72,22 @@ java -Xmx8g -cp target/classes:target/test-classes meai.sp.GoldenCells <G>/cells
 ```
 
 견주기는 `src/test/java/meai/sp/G.java` 하나가 한다(값 · 열쇠 차례 · 정수/소수 꼴까지). 틀린 JSON 의 영문 까닭 글자(파이썬 json 모듈이 내는 글)만 앞 글자로 견준다.
+
+4 · 5단계 돌리는 법(정답지 `<G>` · 입력 JSON 폴더 `<IN>` · 자바 결과 폴더 `<J>` — 모두 세션 작업폴더) :
+
+```
+python3 golden/gen_consts.py                                                    # 긴 CSS · JS 상수(Txt.java)를 파이썬 판에서 다시 적는다 — 파이썬 판의 CSS · JS 를 고쳤을 때
+GA_CODE_MAP=<code_map.json> python3 golden/dump_html.py <G>/html <IN>/*.json     # 파이썬 판이 브라우저에 넘기는 HTML · info · 로그 · 칸 값 + 완성 PDF(1건 6~20초)
+python3 golden/cases_html.py <정보계 rows.json> <IN2>                            # 실제 설계에 없는 갈래(간병인 181일 · plus · 체증형 · 상해 간병인만 · 10년 뒤 2배 · 상품 라인 안 맞음 · 머리 정보 없음 · 큰 금액)를 덮는 덧입력
+GA_CODE_MAP=<code_map.json> java -Xmx4g -cp "target/classes:target/test-classes:$(cat target/cp.txt)" meai.sp.GoldenHtml <G>/html <IN> <J> [이름 …]   # 쪽별 HTML 글자 그대로 + info · 로그 · EXTRA · 칸 값 · 담보 줄 → <J>/<이름>.java.pdf
+python3 golden/cmp_pdf.py <G>/html <J>                                           # 완성 PDF : 쪽수 · 낱말 좌표 · 72dpi 픽셀
+GA_CODE_MAP=<code_map.json> python3 golden/verify_java_pdf.py <IN> <J>           # 인쇄 검증 : 자바 PDF 의 글자를 다시 읽어 파이썬 판 계산 값과 대조(verify_v2 의 점검 함수 그대로)
+python3 golden/dump_master_rows.py <G>/master_rows.json && java … meai.sp.GoldenMasterRows <G>/master_rows.json      # 설계도용 master_rows
+python3 golden/cmp_api.py http://127.0.0.1:18081 http://127.0.0.1:18082 <입력.json …>   # 파이썬 api.py(18081)와 자바 `Main serve`(18082)를 띄워 놓고 같은 요청의 상태코드 · 응답 JSON
+```
+
+GA_MASK=1 로 뽑은 정답지는 `GoldenHtml` 도 GA_MASK=1 로 돌린다. `GoldenHtml` 의 견주기가 실제로 잡는지는 정답지를 일부러 틀리게 한 사본으로 확인한다.
+
+자바 판에 없는 것(일부러) : 설계서 PDF 읽기 · GA_MOCK=0(가안 그림 없이 전부 HTML 로 그리는 예전 방식 — `GaV2.cover_summary_html` 이 오류로 알린다) · 틀 그림 굽기(`ga_overlay.template` 의 PIL 그리기 — 자료 폴더의 `ga_assets/mock/tpl_*.png` 를 그대로 쓴다) · `calibrate` · `shrink_images`.
 
 빠른 컴파일 `./build.sh`(javac) · 정식 묶음 `mvn -q -B package`.

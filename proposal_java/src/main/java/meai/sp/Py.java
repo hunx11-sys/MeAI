@@ -38,6 +38,14 @@ public final class Py {
             Path p = Paths.get(c);
             if (Files.exists(p.resolve("rules.json")) && Files.exists(p.resolve("db.json"))) return p.toAbsolutePath().normalize().toString();
         }
+        try {                                                    // 실행 파일(jar · classes) 옆의 자료 폴더 — 어느 폴더에서 실행해도 찾게
+            Path here = Paths.get(Py.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toAbsolutePath();
+            Path dir = Files.isDirectory(here) ? here : here.getParent();
+            for (String c : new String[]{"data", "../data", "../../data", "../../../proposal_smart", "../../proposal_smart", "../proposal_smart"}) {
+                Path p = dir.resolve(c);
+                if (Files.exists(p.resolve("rules.json")) && Files.exists(p.resolve("db.json"))) return p.toAbsolutePath().normalize().toString();
+            }
+        } catch (Exception ignore) { }
         return Paths.get(".").toAbsolutePath().normalize().toString();
     }
 
@@ -91,6 +99,26 @@ public final class Py {
             return l;
         }
         return o;
+    }
+
+    /** open(p, encoding='utf-8').read() — 글자 방식 읽기(줄 끝 \r\n · \r 을 \n 으로) */
+    public static String readText(String p) {
+        String s = read(p);
+        return s.indexOf('\r') < 0 ? s : s.replace("\r\n", "\n").replace('\r', '\n');
+    }
+
+    /** pathlib.Path(p).as_uri() — file:///… (영문 · 숫자 · _.-~/ 밖의 글자는 %XX) */
+    public static String as_uri(String p) {
+        String s = Paths.get(p).toAbsolutePath().toString();
+        String head = "file://";
+        if (s.length() >= 2 && s.charAt(1) == ':' && Character.isLetter(s.charAt(0))) { head = "file:///" + s.substring(0, 2); s = s.substring(2).replace('\\', '/'); }
+        StringBuilder b = new StringBuilder(head);
+        for (byte x : s.getBytes(StandardCharsets.UTF_8)) {
+            int c = x & 255;
+            if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '.' || c == '-' || c == '~' || c == '/') b.append((char) c);
+            else b.append('%').append("0123456789ABCDEF".charAt(c >> 4)).append("0123456789ABCDEF".charAt(c & 15));
+        }
+        return b.toString();
     }
 
     // ── 꼴 바꾸기 ────────────────────────────────────────

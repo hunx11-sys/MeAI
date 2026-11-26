@@ -144,6 +144,64 @@ public final class GaProposal {
     }
     public static String _ns(Object x) { return Py.sub("\\s+", "", Py.truthy(x) ? (String) x : ""); }
 
+    // ───────── 지면 조각 — 새 양식(GaV2)의 표지 · 보장요약이 쓰는 것(가안 합성 모드) ─────────
+    /** 표지 판 : 1 = 연한 붉은 도형(GA 가안 표지1) · 2 = 방패·하트 일러스트(표지2) */
+    public static final long COVER = cover_env();
+    private static long cover_env() {
+        String e = Py.env("GA_COVER");
+        e = (e == null) ? "1" : e;
+        return e.isEmpty() ? 1 : Py.toInt(e);
+    }
+    public static final String CSS = Txt.GP_CSS, MOCK_CSS = Txt.GP_MOCK_CSS;
+    /** 가안 그림·측정 좌표가 있으면 합성 모드(GA_MOCK=0 이면 전부 HTML 로 그리는 예전 방식 — 자바 판에는 없다) */
+    public static final boolean MOCK_MODE = GaOverlay.available() && !"0".equals(Py.env("GA_MOCK") == null ? "1" : Py.env("GA_MOCK"));
+
+    /** ga_assets 의 Pretendard(디자인 가안 글꼴 · OFL) 와 나눔고딕을 파일로 붙인다 — 없으면 PC 글꼴(맑은 고딕)로 나온다 */
+    public static String _font_css() {
+        StringBuilder css = new StringBuilder();
+        String a = Py.path("ga_assets");
+        String[][] P = {{"Pretendard-Regular.woff2", "400"}, {"Pretendard-Medium.woff2", "500"}, {"Pretendard-SemiBold.woff2", "600"}, {"Pretendard-Bold.woff2", "700"}, {"Pretendard-ExtraBold.woff2", "800"}};
+        for (String[] fw : P) {
+            String f = a + java.io.File.separator + fw[0];
+            if (Py.exists(f)) css.append(Py.fmt("@font-face{font-family:Pretendard;src:url('%s') format('woff2');font-weight:%d}", Py.as_uri(f), Long.parseLong(fw[1])));
+        }
+        if (!Py.exists(a + java.io.File.separator + "NanumGothic-Regular.ttf")) a = Py.path("assets");
+        String[][] N = {{"NanumGothic-Regular.ttf", "400"}, {"NanumGothic-Bold.ttf", "700"}, {"NanumGothic-ExtraBold.ttf", "800"}};
+        for (String[] fw : N) {
+            String f = a + java.io.File.separator + fw[0];
+            if (Py.exists(f)) css.append(Py.fmt("@font-face{font-family:GANG;src:url('%s');font-weight:%d}", Py.as_uri(f), Long.parseLong(fw[1])));
+        }
+        return css.toString();
+    }
+    public static String _ov_text(Map<String, Object> sp, String key, String text) { return _ov_text(sp, key, text, null, null); }
+    public static String _ov_text(Map<String, Object> sp, String key, String text, String unit, Long shrink_over) {
+        Object f = sp.get(key);
+        return (Py.truthy(f) && Py.truthy(text)) ? GaOverlay.text_html(text, Py.M(f), unit, shrink_over) : "";
+    }
+    /** 꼬리 「소속 : ○ | 코드 : ○ | 컨설턴트 : ○」 — 가안의 그 블록 자리에 한 줄로 다시 쓴다 */
+    public static String _ov_footer(Map<String, Object> sp) { return _ov_footer(sp, "p1"); }
+    public static String _ov_footer(Map<String, Object> sp, String page) {
+        List<Object> fb = GaOverlay.footer_box(page, sp);
+        if (!Py.truthy(fb)) return "";
+        Object f0 = Py.truthy(sp.get("ft.org")) ? sp.get("ft.org") : new LinkedHashMap<String, Object>();
+        Map<String, Object> f = Py.dict("box", fb, "align", "right", "font_px", Py.get(f0, "font_px", 19L), "weight", 500L, "color", Py.get(f0, "color", "#111111"));
+        String sep = "<i style=\"display:inline-block;width:1px;height:.9em;background:#C9C9C9;margin:0 10px;vertical-align:-1px\"></i>";
+        Object org = Py.or(HEAD.get("org"), "-"), code = Py.or(HEAD.get("code"), "-"), ag = Py.or(HEAD.get("agent_name"), "-");
+        String inner = Py.fmt("<span style=\"font-weight:500;color:#333\">소속 : </span><b style=\"font-weight:700\">%s</b>%s<span style=\"font-weight:500;color:#333\">코드 : </span><b style=\"font-weight:700\">%s</b>%s<span style=\"font-weight:500;color:#333\">컨설턴트 : </span><b style=\"font-weight:700\">%s</b>",
+                org, sep, code, sep, ag);
+        String txt = Py.fmt("소속 : %s  코드 : %s  컨설턴트 : %s", org, code, ag);
+        return GaOverlay.field_html(GaOverlay.fit(f, txt + "      "), inner);
+    }
+    public static String p0_mock() {
+        String page = COVER == 2 ? "cover2" : "cover1";
+        Map<String, Object> sp = Py.gm(GaOverlay.spec(page), "fields");
+        String prem = Py.orS(PREMIUM, "").replace("원", "");
+        String body = _ov_text(sp, "cv.product", Py.orS(PRODUCT, "-"), null, 44L) + _ov_text(sp, "cv.insured", who_line()) + _ov_text(sp, "cv.contract_no", (String) Py.or(HEAD.get("no"), "-"))
+                + _ov_text(sp, "cv.premium", Py.orS(prem, "-"), !prem.isEmpty() ? "원" : null, null) + _ov_text(sp, "cv.org", (String) Py.or(HEAD.get("org"), "-"))
+                + _ov_text(sp, "cv.consultant", Py.truthy(HEAD.get("agent_name")) ? (HEAD.get("agent_name") + "님") : "-") + _ov_text(sp, "cv.mobile", (String) Py.or(HEAD.get("mobile"), "-")) + _ov_text(sp, "cv.tel", (String) Py.or(HEAD.get("tel"), "-"));
+        return GaOverlay.page_open(page, "cover") + body + "</div>";
+    }
+
     // ───────── 보장금액 세부내역(보장요약 칸의 합산 계산서) ─────────
     /** 지급 줄 이름과 같은 설계 담보의 가입금액(만원) — 못 찾으면 null */
     public static Object _man_of(String name) {
