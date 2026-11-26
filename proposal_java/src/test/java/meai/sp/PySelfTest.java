@@ -20,6 +20,13 @@ public final class PySelfTest {
         for (Object o : Py.gl(g, "round1")) { List<Object> r = Py.L(o); eq("round1 " + r.get(0), r.get(1), Py.round(Py.num(r.get(0)), 1)); }
         for (Object o : Py.gl(g, "round2")) { List<Object> r = Py.L(o); eq("round2 " + r.get(0), r.get(1), Py.round(Py.num(r.get(0)), 2)); }
         for (Object o : Py.gl(g, "fmt")) { List<Object> r = Py.L(o); eq("fmt " + r.get(0) + " " + Py.reprObj(r.get(1)), r.get(2), Py.fmt((String) r.get(0), Py.L(r.get(1)).toArray())); }
+        for (Object o : Py.gl(g, "commaF")) { List<Object> r = Py.L(o); eq("commaF0 " + r.get(0), r.get(1), Py.commaF(r.get(0), 0)); eq("commaF2 " + r.get(0), r.get(2), Py.commaF(r.get(0), 2)); }
+        for (Object o : Py.gl(g, "fmtG")) { List<Object> r = Py.L(o); eq("fmtG " + r.get(0), r.get(1), Py.fmtG(r.get(0))); }
+        for (Object o : Py.gl(g, "minmax")) {
+            List<Object> r = Py.L(o); Object mn = Py.min2(r.get(0), r.get(1)), mx = Py.max2(r.get(0), r.get(1));
+            eq("min " + r, r.get(2), mn); eq("max " + r, r.get(3), mx);
+            eq("min 꼴 " + r, Py.isInt(r.get(2)), Py.isInt(mn)); eq("max 꼴 " + r, Py.isInt(r.get(3)), Py.isInt(mx));
+        }
         for (Object o : Py.gl(g, "comma")) { List<Object> r = Py.L(o); eq("comma", r.get(1), Py.comma(r.get(0))); }
         for (Object o : Py.gl(g, "re")) {
             List<Object> r = Py.L(o); String p = (String) r.get(0), s = (String) r.get(1);

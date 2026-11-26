@@ -14,6 +14,9 @@ for x in nums[:120]:
     for f in ('%.1f','%.2f','%.3f','%g','%s','%.0f','%d'):
         if f=='%d' and abs(x)>1e15: continue
         out['fmt'].append([f,[x],f%x])
+out['commaF']=[[x,format(x,',.0f'),format(x,',.2f')] for x in [0,5,999.5,1000.5,1234567.891,2.5,3.5,-1234.5,50.0,100,1e9]]
+out['fmtG']=[[x,format(x,'g')] for x in [10,25,50.0,12.5,0.5,100,33.333333333,1e-5,123456789]]
+out['minmax']=[[a,b,min(a,b),max(a,b)] for a,b in [(1,1.0),(1.0,1),(2,3),(3.5,2),(0,-1),(0,0.0),(100,100)]]
 out['comma']=[[x,format(x,',')] for x in [0,999,1000,-1234567,12345.5,1000000.0]]
 R=[(r'a[b[c]+',  'xab[cx'),(r'(?P<n>\d+)-(?P=n)','12-12 3-4'),(r'x{2}y{','xxy{'),(r'[]a]+','a]]b'),(r'\d+\Z','ab12'),(r'[^\[\]]+','a[b]c'),(r'\w+','가나 abc_1 ①'),(r'\s+','a　b\xa0c'),(r'.+','ab\r\ncd'),(r'^b','a\nb'),(r'a|b{1,2}c','bbc a'),(r'[a&&b]','a&b'),(r'(a)|(b)','ab'),(r'\((?:\d+년)?갱신\)','암진단비(20년갱신)(갱신)'),(r'[·ㆍ․‧∙•・]','간호·간병'),(r'{a}','{a}')]
 out['re']=[[p,s,[m.group(0) for m in re.finditer(p,s)],re.findall(p,s),re.sub(p,'<\\g<0>>',s)] for p,s in R]

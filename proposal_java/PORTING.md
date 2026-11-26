@@ -16,6 +16,7 @@
 |---|---|---|
 | `engine.py`(as itc) | `Engine` | 통합치료비 금액표 |
 | `scen_engine.py`(as S) | `ScenEngine` | 규칙 판정 · 지급 줄 |
+| `desc_engine.py` | `DescEngine` | `life_items` 만(통합생활지원비 설명문 항목표 — scen_engine.ls_items 가 부른다). 설명문을 PDF 에서 읽는 부분은 옮기지 않는다 |
 | `matcher.py` | `Matcher_` | 담보 알아보기(이름 → 특약 마스터) — `read_proposal` 등 PDF 읽기는 뺀다. 이름이 `java.util.regex.Matcher` 와 겹쳐 밑줄 |
 | `build_all.py` | `BuildAll` | `line_from_head` · `guess_line` 만 |
 | `pipeline.py` | `Pipeline` | `DesignUnreadable` 등 JSON 길에 쓰는 것만 |

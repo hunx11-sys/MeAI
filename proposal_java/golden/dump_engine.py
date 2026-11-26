@@ -258,6 +258,12 @@ def main(argv):
         {'no': 16, 'name': '2대질환 통합생활지원비', 'man': 20, 'matched': True, 'codes': [], 'excl': []},
         {'no': 17, 'name': '질병 통합생활지원비', 'man': 20, 'matched': True, 'codes': [], 'excl': []},
     ]
+    # 담보코드 입력이 넘기는 1-7종 종별 줄(부모 이름이 붙은 꼴 · 부모 이름 없는 꼴 · 설계서의 ┗ 꼴)
+    for ci, cause in enumerate(('질병', '상해')):
+        for j in range(1, 8):
+            synth.append({'no': 100 + ci * 10 + j, 'name': '수술비(1-7종, 연간3회한)[%s%d종](통합간편가입)' % (cause, j), 'man': 10 * j, 'matched': True, 'codes': [], 'excl': ['K64'], 'via': '수술비(1-7종, 연간3회한)[%s]' % cause})
+            synth.append({'no': 200 + ci * 10 + j, 'name': '수술비[%s%d종]' % (cause, j), 'man': 7 * j, 'matched': True, 'codes': [], 'excl': []})
+            synth.append({'no': 300 + ci * 10 + j, 'name': '┗ 갱신형 수술비(1-7종, 연간3회한)[%s%d종]' % (cause, j), 'man': 3.5 * j, 'matched': True, 'codes': [], 'excl': []})
     bundles = collections.OrderedDict()
     bundles['universe'] = uni
     bundles['universe_itc'] = uni_itc
@@ -279,6 +285,7 @@ def main(argv):
             assert rt(a) == rt(b), (bid, i); chk += 1
     print('왕복 확인 %d개 같음' % chk, flush=True)
     for bid, riders in bundles.items():
+        if only and only.startswith('bundle:') and bid not in only[7:].split(','): continue     # DUMP_ONLY=bundle:synth — 그 묶음만 다시(입력 파일은 늘 다시 쓴다)
         t1 = time.time()
         res = run_bundle(out, bid, riders, scs, plan[bid])
         nl = sum(len(c['lines']) for c in res['calls'])
