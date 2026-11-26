@@ -61,4 +61,15 @@
 | 4 | `golden/dump_html.py` | `GoldenHtml` — 쪽별 HTML 글자 그대로 |
 | 5 | 파이썬 판 PDF | 완성 PDF 쪽별 글자 · 인쇄 검증 |
 
+2 · 3단계 돌리는 법(정답지는 세션 작업폴더 `<G>` 에) :
+
+```
+python3 golden/dump_match.py <G>/match <정보계 rows.json> <입력 JSON 폴더> [code_map.json]      # 입력 묶음은 golden/cases.py 가 만든다(실제 설계 입력 + 틀린 입력 · 가장자리 값 + 담보 하나짜리 설계)
+python3 golden/dump_cells.py <G>/cells <G>/match <정보계 rows.json> <code_map.json>              # spec · designs · rows(정보계 전 줄 — scripts/codemap/audit_rows.py 와 같은 방식 · 약 3분)
+java -Xmx4g -cp target/classes:target/test-classes meai.sp.GoldenMatch <G>/match
+java -Xmx8g -cp target/classes:target/test-classes meai.sp.GoldenCells <G>/cells <G>/match [spec] [designs] [rows]
+```
+
+견주기는 `src/test/java/meai/sp/G.java` 하나가 한다(값 · 열쇠 차례 · 정수/소수 꼴까지). 틀린 JSON 의 영문 까닭 글자(파이썬 json 모듈이 내는 글)만 앞 글자로 견준다.
+
 빠른 컴파일 `./build.sh`(javac) · 정식 묶음 `mvn -q -B package`.

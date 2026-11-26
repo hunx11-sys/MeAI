@@ -71,6 +71,28 @@ public final class Py {
     /** json.load(open(BASE/name)) */
     public static Object loadJson(String name) { return Json.parse(read(path(name))); }
 
+    /** os.environ.get(name) — 시스템 속성(-Dname=… · 시험에서 System.setProperty)이 있으면 그것, 없으면 환경변수. 비어 있으면 null */
+    public static String env(String name) {
+        String v = System.getProperty(name);
+        if (v == null) v = System.getenv(name);
+        return (v == null || v.isEmpty()) ? null : v;
+    }
+
+    /** copy.deepcopy — dict · list 만 새로 만들고 나머지(글자 · 수)는 그대로 */
+    public static Object deepcopy(Object o) {
+        if (o instanceof Map) {
+            LinkedHashMap<String, Object> m = new LinkedHashMap<>();
+            for (Map.Entry<?, ?> e : ((Map<?, ?>) o).entrySet()) m.put((String) e.getKey(), deepcopy(e.getValue()));
+            return m;
+        }
+        if (o instanceof List) {
+            ArrayList<Object> l = new ArrayList<>();
+            for (Object x : (List<?>) o) l.add(deepcopy(x));
+            return l;
+        }
+        return o;
+    }
+
     // ── 꼴 바꾸기 ────────────────────────────────────────
     @SuppressWarnings("unchecked")
     public static Map<String, Object> M(Object o) { return (Map<String, Object>) o; }
@@ -441,6 +463,14 @@ public final class Py {
     }
     public static String lstrip(String s) { int a = 0; while (a < s.length() && isSpace(s.charAt(a))) a++; return s.substring(a); }
     public static String rstrip(String s) { int b = s.length(); while (b > 0 && isSpace(s.charAt(b - 1))) b--; return s.substring(0, b); }
+    /** s.rstrip(chars) */
+    public static String rstrip(String s, String chars) { int b = s.length(); while (b > 0 && chars.indexOf(s.charAt(b - 1)) >= 0) b--; return s.substring(0, b); }
+    /** s.lstrip(chars) */
+    public static String lstrip(String s, String chars) { int a = 0; while (a < s.length() && chars.indexOf(s.charAt(a)) >= 0) a++; return s.substring(a); }
+    /** s[:n] — 글자(코드 포인트) 수로 자른다 */
+    public static String head(String s, int n) { return s.codePointCount(0, s.length()) <= n ? s : s.substring(0, s.offsetByCodePoints(0, n)); }
+    /** s[-n:] */
+    public static String tail(String s, int n) { int c = s.codePointCount(0, s.length()); return c <= n ? s : s.substring(s.offsetByCodePoints(0, c - n)); }
     /** s.strip(chars) */
     public static String strip(String s, String chars) {
         int a = 0, b = s.length();
